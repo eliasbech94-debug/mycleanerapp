@@ -187,20 +187,20 @@ const Hero = () => (
 const Bento = () => (
   <section className="section-padding bg-background">
     <div className="container-wide">
-      <div className="flex items-end justify-between mb-10 md:mb-14 gap-6 flex-wrap">
+      <div className="flex items-end justify-between mb-8 md:mb-14 gap-4 flex-wrap">
         <div>
-          <div className="text-xs font-mono uppercase tracking-widest text-primary mb-3">/ 01 — services</div>
-          <h2 className="font-heading text-4xl md:text-6xl font-bold tracking-tight leading-[0.95] max-w-2xl">
+          <div className="text-[11px] md:text-xs font-mono uppercase tracking-widest text-primary mb-2 md:mb-3">/ 01 — services</div>
+          <h2 className="font-heading text-3xl md:text-6xl font-bold tracking-tight leading-[0.95] max-w-2xl">
             Alt dit hjem behøver. <span className="text-muted-foreground/50">På én platform.</span>
           </h2>
         </div>
         <Link to="/services" className="inline-flex items-center gap-1 text-sm font-medium hover:text-primary transition-colors">
-          Se alle kategorier <ArrowRight className="h-4 w-4" />
+          Se alle <ArrowRight className="h-4 w-4" />
         </Link>
       </div>
 
       {/* Asymmetric bento */}
-      <div className="grid grid-cols-12 auto-rows-[180px] md:auto-rows-[220px] gap-3 md:gap-4">
+      <div className="grid grid-cols-12 auto-rows-[160px] sm:auto-rows-[180px] md:auto-rows-[220px] gap-2.5 md:gap-4">
         {serviceCategories.map((cat, i) => {
           const layouts = [
             "col-span-12 md:col-span-7 row-span-2",
@@ -222,21 +222,21 @@ const Bento = () => (
               viewport={{ once: true, margin: "-50px" }}
               custom={i}
               variants={fadeUp}
-              className={`${layouts[i]} relative overflow-hidden rounded-3xl ${tones[i]} group cursor-pointer`}
+              className={`${layouts[i]} relative overflow-hidden rounded-2xl md:rounded-3xl ${tones[i]} group cursor-pointer`}
             >
-              <Link to={`/task/create`} className="absolute inset-0 p-6 md:p-8 flex flex-col justify-between">
+              <Link to={`/task/create`} className="absolute inset-0 p-4 md:p-8 flex flex-col justify-between">
                 <div className="flex items-start justify-between">
-                  <span className="text-5xl md:text-6xl">{cat.icon}</span>
-                  <div className="h-9 w-9 rounded-full border border-current/20 flex items-center justify-center group-hover:rotate-45 transition-transform duration-500">
-                    <ArrowUpRight className="h-4 w-4" />
+                  <span className="text-3xl md:text-6xl">{cat.icon}</span>
+                  <div className="h-7 w-7 md:h-9 md:w-9 rounded-full border border-current/20 flex items-center justify-center group-hover:rotate-45 transition-transform duration-500">
+                    <ArrowUpRight className="h-3.5 w-3.5 md:h-4 md:w-4" />
                   </div>
                 </div>
                 <div>
-                  <h3 className="font-heading text-2xl md:text-3xl font-bold tracking-tight mb-1">
+                  <h3 className="font-heading text-lg md:text-3xl font-bold tracking-tight mb-1 leading-tight">
                     {cat.name}
                   </h3>
-                  <p className="text-sm opacity-70 mb-3 max-w-md">{cat.description}</p>
-                  <div className="flex flex-wrap gap-1.5">
+                  <p className="hidden md:block text-sm opacity-70 mb-3 max-w-md">{cat.description}</p>
+                  <div className="hidden sm:flex flex-wrap gap-1.5">
                     {cat.subcategories.slice(0, 3).map((sub) => (
                       <span key={sub} className="text-[11px] font-medium border border-current/20 rounded-full px-2 py-0.5 opacity-80">
                         {sub}
