@@ -116,49 +116,52 @@ const Hero = () => (
         transition={{ delay: 0.5, duration: 0.7 }}
         className="relative mt-12 md:mt-20 mx-auto max-w-3xl"
       >
-        <div className="floaty rounded-2xl md:rounded-3xl border border-white/10 bg-white/[0.04] backdrop-blur-2xl p-5 md:p-8 shadow-[0_30px_120px_-20px_rgba(0,0,0,0.6)]">
-          <div className="flex items-center justify-between mb-5 md:mb-6">
-            <div className="flex items-center gap-2 text-[10px] md:text-xs font-mono uppercase tracking-widest text-white/50">
-              <Activity className="h-3 w-3 md:h-3.5 md:w-3.5 text-[hsl(168_80%_55%)]" />
-              live ai estimator
-            </div>
-            <div className="text-[10px] font-mono text-white/40">v2.6 · eu</div>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-5 md:gap-6">
-            <div>
-              <div className="text-xs text-white/50 mb-2">Opgave</div>
-              <div className="font-heading text-xl md:text-3xl font-semibold leading-tight">
-                Hovedrengøring,<br />85 m² · København
+        <Tilt max={8} scale={1.015} className="floaty rounded-2xl md:rounded-3xl">
+          <div className="rounded-2xl md:rounded-3xl border border-white/10 bg-white/[0.04] backdrop-blur-2xl p-5 md:p-8 shadow-[0_30px_120px_-20px_rgba(0,0,0,0.6)]">
+            <div className="flex items-center justify-between mb-5 md:mb-6">
+              <div className="flex items-center gap-2 text-[10px] md:text-xs font-mono uppercase tracking-widest text-white/50">
+                <Activity className="h-3 w-3 md:h-3.5 md:w-3.5 text-[hsl(168_80%_55%)]" />
+                live ai estimator
               </div>
-              <div className="mt-3 md:mt-4 flex flex-wrap gap-1.5 md:gap-2">
-                {["3 timer", "2 fagfolk", "I morgen 09:00"].map((t) => (
-                  <span
-                    key={t}
-                    className="inline-flex items-center gap-1.5 rounded-full bg-white/5 border border-white/10 px-2 py-0.5 md:px-2.5 md:py-1 text-[11px] md:text-xs text-white/70"
-                  >
-                    <Clock className="h-3 w-3" /> {t}
-                  </span>
-                ))}
-              </div>
+              <div className="text-[10px] font-mono text-white/40">v2.6 · eu</div>
             </div>
 
-            <div className="rounded-xl md:rounded-2xl bg-gradient-to-br from-[hsl(168_70%_25%)]/40 to-[hsl(200_70%_25%)]/40 border border-white/10 p-4 md:p-5">
-              <div className="text-xs text-white/60 mb-1">AI prisforslag</div>
-              <div className="flex items-baseline gap-2">
-                <span className="font-heading text-3xl md:text-5xl font-bold tabular-nums">1 240</span>
-                <span className="text-white/50 text-sm">DKK</span>
+            <div className="grid md:grid-cols-2 gap-5 md:gap-6">
+              <div>
+                <div className="text-xs text-white/50 mb-2">Opgave</div>
+                <div className="font-heading text-xl md:text-3xl font-semibold leading-tight">
+                  Hovedrengøring,<br />85 m² · København
+                </div>
+                <div className="mt-3 md:mt-4 flex flex-wrap gap-1.5 md:gap-2">
+                  {["3 timer", "2 fagfolk", "I morgen 09:00"].map((t) => (
+                    <span
+                      key={t}
+                      className="inline-flex items-center gap-1.5 rounded-full bg-white/5 border border-white/10 px-2 py-0.5 md:px-2.5 md:py-1 text-[11px] md:text-xs text-white/70"
+                    >
+                      <Clock className="h-3 w-3" /> {t}
+                    </span>
+                  ))}
+                </div>
               </div>
-              <div className="mt-3 h-1.5 rounded-full bg-white/10 overflow-hidden">
-                <div className="h-full w-3/5 bg-gradient-to-r from-[hsl(168_80%_55%)] to-[hsl(200_85%_60%)]" />
-              </div>
-              <div className="mt-2 flex justify-between text-[10px] md:text-[11px] font-mono text-white/45">
-                <span>min 980</span>
-                <span>marked</span>
-                <span>max 1 480</span>
+
+              <div className="rounded-xl md:rounded-2xl bg-gradient-to-br from-[hsl(168_70%_25%)]/40 to-[hsl(200_70%_25%)]/40 border border-white/10 p-4 md:p-5">
+                <div className="text-xs text-white/60 mb-1">AI prisforslag</div>
+                <div className="flex items-baseline gap-2">
+                  <span className="font-heading text-3xl md:text-5xl font-bold tabular-nums">1 240</span>
+                  <span className="text-white/50 text-sm">DKK</span>
+                </div>
+                <div className="mt-3 h-1.5 rounded-full bg-white/10 overflow-hidden">
+                  <div className="h-full w-3/5 bg-gradient-to-r from-[hsl(168_80%_55%)] to-[hsl(200_85%_60%)]" />
+                </div>
+                <div className="mt-2 flex justify-between text-[10px] md:text-[11px] font-mono text-white/45">
+                  <span>min 980</span>
+                  <span>marked</span>
+                  <span>max 1 480</span>
+                </div>
               </div>
             </div>
           </div>
+        </Tilt>
         </div>
 
         {/* Pinned badges */}
