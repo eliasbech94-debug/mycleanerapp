@@ -225,29 +225,31 @@ const Bento = () => (
               viewport={{ once: true, margin: "-50px" }}
               custom={i}
               variants={fadeUp}
-              className={`${layouts[i]} relative overflow-hidden rounded-2xl md:rounded-3xl ${tones[i]} group cursor-pointer`}
+              className={`${layouts[i]}`}
             >
-              <Link to={`/task/create`} className="absolute inset-0 p-4 md:p-8 flex flex-col justify-between">
-                <div className="flex items-start justify-between">
-                  <span className="text-3xl md:text-6xl">{cat.icon}</span>
-                  <div className="h-7 w-7 md:h-9 md:w-9 rounded-full border border-current/20 flex items-center justify-center group-hover:rotate-45 transition-transform duration-500">
-                    <ArrowUpRight className="h-3.5 w-3.5 md:h-4 md:w-4" />
+              <Tilt max={12} scale={1.03} className={`relative h-full w-full overflow-hidden rounded-2xl md:rounded-3xl ${tones[i]} group cursor-pointer`}>
+                <Link to={`/task/create`} className="absolute inset-0 p-4 md:p-8 flex flex-col justify-between" data-cursor="hover">
+                  <div className="flex items-start justify-between">
+                    <span className="text-3xl md:text-6xl">{cat.icon}</span>
+                    <div className="h-7 w-7 md:h-9 md:w-9 rounded-full border border-current/20 flex items-center justify-center group-hover:rotate-45 transition-transform duration-500">
+                      <ArrowUpRight className="h-3.5 w-3.5 md:h-4 md:w-4" />
+                    </div>
                   </div>
-                </div>
-                <div>
-                  <h3 className="font-heading text-lg md:text-3xl font-bold tracking-tight mb-1 leading-tight">
-                    {cat.name}
-                  </h3>
-                  <p className="hidden md:block text-sm opacity-70 mb-3 max-w-md">{cat.description}</p>
-                  <div className="hidden sm:flex flex-wrap gap-1.5">
-                    {cat.subcategories.slice(0, 3).map((sub) => (
-                      <span key={sub} className="text-[11px] font-medium border border-current/20 rounded-full px-2 py-0.5 opacity-80">
-                        {sub}
-                      </span>
-                    ))}
+                  <div>
+                    <h3 className="font-heading text-lg md:text-3xl font-bold tracking-tight mb-1 leading-tight">
+                      {cat.name}
+                    </h3>
+                    <p className="hidden md:block text-sm opacity-70 mb-3 max-w-md">{cat.description}</p>
+                    <div className="hidden sm:flex flex-wrap gap-1.5">
+                      {cat.subcategories.slice(0, 3).map((sub) => (
+                        <span key={sub} className="text-[11px] font-medium border border-current/20 rounded-full px-2 py-0.5 opacity-80">
+                          {sub}
+                        </span>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              </Link>
+                </Link>
+              </Tilt>
             </motion.div>
           );
         })}
