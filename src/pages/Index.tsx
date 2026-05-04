@@ -264,12 +264,12 @@ const Flow = () => {
     <section className="section-padding bg-[hsl(220_25%_6%)] text-white relative overflow-hidden">
       <div className="mesh-blob top-1/4 -right-40 h-[400px] w-[400px] bg-[hsl(168_85%_45%)] opacity-30" />
       <div className="container-wide relative">
-        <div className="text-xs font-mono uppercase tracking-widest text-[hsl(168_80%_55%)] mb-3">/ 02 — flow</div>
-        <h2 className="font-heading text-4xl md:text-6xl font-bold tracking-tight leading-[0.95] max-w-3xl mb-16">
+        <div className="text-[11px] md:text-xs font-mono uppercase tracking-widest text-[hsl(168_80%_55%)] mb-2 md:mb-3">/ 02 — flow</div>
+        <h2 className="font-heading text-3xl md:text-6xl font-bold tracking-tight leading-[0.95] max-w-3xl mb-10 md:mb-16">
           Fra idé til udført opgave. <span className="text-white/40">Tre skridt.</span>
         </h2>
 
-        <div className="grid md:grid-cols-3 gap-px bg-white/10 rounded-3xl overflow-hidden border border-white/10">
+        <div className="grid md:grid-cols-3 gap-px bg-white/10 rounded-2xl md:rounded-3xl overflow-hidden border border-white/10">
           {steps.map((s, i) => (
             <motion.div
               key={s.n}
@@ -278,13 +278,13 @@ const Flow = () => {
               viewport={{ once: true }}
               custom={i}
               variants={fadeUp}
-              className="bg-[hsl(220_25%_6%)] p-8 md:p-10 hover:bg-[hsl(220_25%_8%)] transition-colors"
+              className="bg-[hsl(220_25%_6%)] p-6 md:p-10 hover:bg-[hsl(220_25%_8%)] transition-colors"
             >
-              <div className="flex items-center justify-between mb-12">
+              <div className="flex items-center justify-between mb-8 md:mb-12">
                 <span className="font-mono text-sm text-white/50">{s.n}</span>
                 <Plus className="h-4 w-4 text-white/30" />
               </div>
-              <h3 className="font-heading text-2xl font-semibold mb-3">{s.title}</h3>
+              <h3 className="font-heading text-xl md:text-2xl font-semibold mb-2 md:mb-3">{s.title}</h3>
               <p className="text-white/60 text-sm leading-relaxed">{s.desc}</p>
             </motion.div>
           ))}
@@ -303,9 +303,9 @@ const Stats = () => {
     { v: "100%", l: "Overenskomstløn", sub: "Min. sats per land" },
   ];
   return (
-    <section className="py-20 md:py-28 bg-background">
+    <section className="py-16 md:py-28 bg-background">
       <div className="container-wide">
-        <div className="grid md:grid-cols-4 gap-px bg-border rounded-3xl overflow-hidden border border-border">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-border rounded-2xl md:rounded-3xl overflow-hidden border border-border">
           {items.map((it, i) => (
             <motion.div
               key={it.l}
@@ -314,13 +314,13 @@ const Stats = () => {
               viewport={{ once: true }}
               custom={i}
               variants={fadeUp}
-              className="bg-card p-8 group hover:bg-secondary/50 transition-colors"
+              className="bg-card p-5 md:p-8 group hover:bg-secondary/50 transition-colors"
             >
-              <div className="font-heading text-5xl md:text-6xl font-bold tracking-tight tabular-nums text-primary mb-2 group-hover:scale-105 origin-left transition-transform">
+              <div className="font-heading text-3xl md:text-6xl font-bold tracking-tight tabular-nums text-primary mb-1.5 md:mb-2 group-hover:scale-105 origin-left transition-transform">
                 {it.v}
               </div>
-              <div className="font-medium text-foreground mb-1">{it.l}</div>
-              <div className="text-xs text-muted-foreground">{it.sub}</div>
+              <div className="font-medium text-sm md:text-base text-foreground mb-1">{it.l}</div>
+              <div className="text-[11px] md:text-xs text-muted-foreground">{it.sub}</div>
             </motion.div>
           ))}
         </div>
@@ -335,11 +335,11 @@ const ProviderTease = () => (
     <div className="container-wide">
       <div className="grid md:grid-cols-2 gap-6 md:gap-10 items-center">
         <div>
-          <div className="text-xs font-mono uppercase tracking-widest text-primary mb-3">/ 03 — for providere</div>
-          <h2 className="font-heading text-4xl md:text-5xl font-bold tracking-tight leading-[0.95] mb-6">
+          <div className="text-[11px] md:text-xs font-mono uppercase tracking-widest text-primary mb-2 md:mb-3">/ 03 — for providere</div>
+          <h2 className="font-heading text-3xl md:text-5xl font-bold tracking-tight leading-[0.95] mb-4 md:mb-6">
             Byg din forretning. <span className="text-muted-foreground/60">Vi finder kunderne.</span>
           </h2>
-          <p className="text-muted-foreground text-base md:text-lg leading-relaxed mb-8 max-w-md">
+          <p className="text-muted-foreground text-sm md:text-lg leading-relaxed mb-6 md:mb-8 max-w-md">
             Privat eller virksomhed. Boost din profil, vælg dine områder, og lad AI'en sende dig de rigtige opgaver — til den rigtige pris.
           </p>
           <div className="space-y-3 mb-8">
@@ -363,50 +363,50 @@ const ProviderTease = () => (
         </div>
 
         <div className="relative">
-          <div className="rounded-3xl bg-[hsl(220_25%_6%)] text-white p-6 md:p-8 shadow-2xl">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-full bg-gradient-to-br from-[hsl(168_80%_55%)] to-[hsl(200_85%_60%)] flex items-center justify-center font-bold text-[hsl(220_25%_6%)]">
+          <div className="rounded-2xl md:rounded-3xl bg-[hsl(220_25%_6%)] text-white p-5 md:p-8 shadow-2xl">
+            <div className="flex items-center justify-between mb-5 md:mb-6">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="h-9 w-9 md:h-10 md:w-10 shrink-0 rounded-full bg-gradient-to-br from-[hsl(168_80%_55%)] to-[hsl(200_85%_60%)] flex items-center justify-center font-bold text-[hsl(220_25%_6%)]">
                   M
                 </div>
-                <div>
+                <div className="min-w-0">
                   <div className="font-semibold text-sm">Maria K.</div>
                   <div className="text-xs text-white/50 flex items-center gap-1">
                     <MapPin className="h-3 w-3" /> Aarhus C
                   </div>
                 </div>
               </div>
-              <div className="flex items-center gap-1 text-sm">
+              <div className="flex items-center gap-1 text-sm shrink-0">
                 <Star className="h-4 w-4 text-[hsl(38_92%_60%)] fill-current" /> 4.96
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-3 mb-6">
+            <div className="grid grid-cols-3 gap-2 md:gap-3 mb-5 md:mb-6">
               {[
                 { l: "Opgaver", v: "247" },
                 { l: "Indkomst", v: "82k" },
                 { l: "Genbook", v: "78%" },
               ].map((s) => (
-                <div key={s.l} className="rounded-xl bg-white/5 border border-white/10 p-3">
-                  <div className="font-heading font-bold text-xl tabular-nums">{s.v}</div>
-                  <div className="text-[10px] uppercase tracking-wider text-white/50 mt-1">{s.l}</div>
+                <div key={s.l} className="rounded-lg md:rounded-xl bg-white/5 border border-white/10 p-2.5 md:p-3">
+                  <div className="font-heading font-bold text-lg md:text-xl tabular-nums">{s.v}</div>
+                  <div className="text-[9px] md:text-[10px] uppercase tracking-wider text-white/50 mt-1">{s.l}</div>
                 </div>
               ))}
             </div>
 
-            <div className="rounded-xl border border-[hsl(168_80%_55%)]/40 bg-[hsl(168_80%_55%)]/10 p-4 flex items-center gap-3">
-              <Zap className="h-5 w-5 text-[hsl(168_80%_55%)]" />
-              <div className="flex-1">
-                <div className="text-xs text-white/60">Næste opgave</div>
-                <div className="text-sm font-medium">Vinduespudsning · 320 DKK · 1.2 km væk</div>
+            <div className="rounded-xl border border-[hsl(168_80%_55%)]/40 bg-[hsl(168_80%_55%)]/10 p-3 md:p-4 flex items-center gap-3">
+              <Zap className="h-5 w-5 text-[hsl(168_80%_55%)] shrink-0" />
+              <div className="flex-1 min-w-0">
+                <div className="text-[11px] md:text-xs text-white/60">Næste opgave</div>
+                <div className="text-xs md:text-sm font-medium truncate">Vinduespudsning · 320 DKK · 1.2 km</div>
               </div>
-              <Button size="sm" className="bg-white text-[hsl(220_25%_6%)] hover:bg-white/90 rounded-full h-8">
+              <Button size="sm" className="bg-white text-[hsl(220_25%_6%)] hover:bg-white/90 rounded-full h-8 shrink-0">
                 Se
               </Button>
             </div>
           </div>
 
-          <div className="absolute -bottom-4 -right-4 rotate-3 bg-[hsl(32_95%_55%)] text-[hsl(220_25%_6%)] rounded-2xl px-3 py-2 text-xs font-bold shadow-xl">
+          <div className="absolute -bottom-3 -right-2 md:-bottom-4 md:-right-4 rotate-3 bg-[hsl(32_95%_55%)] text-[hsl(220_25%_6%)] rounded-xl md:rounded-2xl px-2.5 py-1.5 md:px-3 md:py-2 text-[10px] md:text-xs font-bold shadow-xl">
             +EARN 18% W/W
           </div>
         </div>
@@ -417,28 +417,28 @@ const ProviderTease = () => (
 
 /* ───────────────────────── FINAL CTA ───────────────────────── */
 const FinalCTA = () => (
-  <section className="py-24 md:py-32 bg-background">
+  <section className="py-16 md:py-32 bg-background">
     <div className="container-wide">
-      <div className="relative overflow-hidden rounded-[2rem] md:rounded-[3rem] bg-[hsl(220_25%_6%)] text-white p-10 md:p-20 text-center">
+      <div className="relative overflow-hidden rounded-[1.5rem] md:rounded-[3rem] bg-[hsl(220_25%_6%)] text-white p-8 md:p-20 text-center">
         <div className="mesh-blob -top-20 left-1/4 h-[300px] w-[300px] bg-[hsl(168_85%_45%)] opacity-50" />
         <div className="mesh-blob bottom-0 right-1/4 h-[300px] w-[300px] bg-[hsl(200_90%_50%)] opacity-50" />
         <div className="absolute inset-0 bg-grid opacity-50" />
 
         <div className="relative">
-          <h2 className="font-heading text-5xl md:text-7xl font-bold tracking-[-0.04em] leading-[0.95] mb-6">
+          <h2 className="font-heading text-4xl md:text-7xl font-bold tracking-[-0.04em] leading-[0.95] mb-4 md:mb-6">
             Klar når <span className="text-outline">du</span> er.
           </h2>
-          <p className="text-white/60 max-w-md mx-auto mb-10">
+          <p className="text-white/60 text-sm md:text-base max-w-md mx-auto mb-8 md:mb-10">
             Opret en gratis profil på under 2 minutter. Søg hjælp eller tilbyd dine services.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Link to="/customer/register">
-              <Button size="lg" className="rounded-full h-13 px-8 bg-white text-[hsl(220_25%_6%)] hover:bg-white/90">
+            <Link to="/customer/register" className="w-full sm:w-auto">
+              <Button size="lg" className="w-full sm:w-auto rounded-full h-12 md:h-13 px-8 bg-white text-[hsl(220_25%_6%)] hover:bg-white/90">
                 Jeg søger hjælp
               </Button>
             </Link>
-            <Link to="/provider/register">
-              <Button size="lg" variant="outline" className="rounded-full h-13 px-8 bg-transparent border-white/30 text-white hover:bg-white/10 hover:text-white">
+            <Link to="/provider/register" className="w-full sm:w-auto">
+              <Button size="lg" variant="outline" className="w-full sm:w-auto rounded-full h-12 md:h-13 px-8 bg-transparent border-white/30 text-white hover:bg-white/10 hover:text-white">
                 Jeg tilbyder hjælp
               </Button>
             </Link>
