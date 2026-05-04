@@ -36,20 +36,20 @@ const Hero = () => (
     <div className="absolute inset-0 bg-grid" />
     <div className="absolute inset-0 bg-noise opacity-[0.18] mix-blend-overlay" />
 
-    <div className="container-wide relative pt-24 pb-32 md:pt-32 md:pb-44">
+    <div className="container-wide relative pt-16 pb-20 md:pt-32 md:pb-44">
       {/* status pill */}
       <motion.div
         initial="hidden"
         animate="visible"
         variants={fadeUp}
-        className="flex justify-center mb-10"
+        className="flex justify-center mb-6 md:mb-10"
       >
-        <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 backdrop-blur px-4 py-1.5 text-xs font-medium text-white/80">
-          <span className="relative flex h-2 w-2">
+        <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 backdrop-blur px-3 py-1 md:px-4 md:py-1.5 text-[11px] md:text-xs font-medium text-white/80 max-w-full">
+          <span className="relative flex h-2 w-2 shrink-0">
             <span className="pulse-dot absolute inline-flex h-full w-full" />
             <span className="relative inline-flex h-2 w-2 rounded-full bg-[hsl(152_80%_55%)]" />
           </span>
-          1 248 opgaver matched i dag · 12 lande live
+          <span className="truncate">1 248 opgaver i dag · 12 lande live</span>
         </div>
       </motion.div>
 
@@ -59,11 +59,11 @@ const Hero = () => (
         animate="visible"
         custom={1}
         variants={fadeUp}
-        className="font-heading text-center font-bold tracking-[-0.04em] leading-[0.92] text-[clamp(3rem,11vw,9rem)]"
+        className="font-heading text-center font-bold tracking-[-0.04em] leading-[0.92] text-[clamp(2.5rem,13vw,9rem)]"
       >
         Home<span className="text-outline">service</span>
         <br />
-        <span className="inline-flex items-center gap-3 md:gap-6">
+        <span className="inline-flex items-center gap-2 md:gap-6">
           re
           <span className="inline-block bg-gradient-to-br from-[hsl(168_80%_55%)] via-[hsl(180_85%_55%)] to-[hsl(200_90%_60%)] bg-clip-text text-transparent">
             ·imagined
@@ -76,9 +76,9 @@ const Hero = () => (
         animate="visible"
         custom={2}
         variants={fadeUp}
-        className="mx-auto mt-8 max-w-xl text-center text-base md:text-lg text-white/65 leading-relaxed"
+        className="mx-auto mt-6 md:mt-8 max-w-xl text-center text-sm md:text-lg text-white/65 leading-relaxed px-2"
       >
-        AI-matchet. Fair betalt. Verificeret. HomeHero forbinder dig med Europas dygtigste fagfolk — uden budkrig og uden mellemmænd.
+        AI-matchet. Fair betalt. Verificeret. HomeHero forbinder dig med Europas dygtigste fagfolk — uden budkrig.
       </motion.p>
 
       {/* CTAs */}
@@ -87,12 +87,12 @@ const Hero = () => (
         animate="visible"
         custom={3}
         variants={fadeUp}
-        className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3"
+        className="mt-8 md:mt-10 flex flex-col sm:flex-row items-center justify-center gap-3"
       >
         <Link to="/task/create" className="w-full sm:w-auto">
           <Button
             size="lg"
-            className="w-full sm:w-auto h-13 px-7 text-base bg-white text-[hsl(220_25%_6%)] hover:bg-white/90 rounded-full gap-2 shadow-[0_0_40px_-10px_rgba(255,255,255,0.5)]"
+            className="w-full sm:w-auto h-12 md:h-13 px-7 text-base bg-white text-[hsl(220_25%_6%)] hover:bg-white/90 rounded-full gap-2 shadow-[0_0_40px_-10px_rgba(255,255,255,0.5)]"
           >
             Opret opgave gratis <ArrowUpRight className="h-4 w-4" />
           </Button>
@@ -101,7 +101,7 @@ const Hero = () => (
           <Button
             size="lg"
             variant="outline"
-            className="w-full sm:w-auto h-13 px-7 text-base bg-white/5 border-white/20 text-white hover:bg-white/10 hover:text-white rounded-full backdrop-blur"
+            className="w-full sm:w-auto h-12 md:h-13 px-7 text-base bg-white/5 border-white/20 text-white hover:bg-white/10 hover:text-white rounded-full backdrop-blur"
           >
             Bliv provider
           </Button>
@@ -113,28 +113,28 @@ const Hero = () => (
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5, duration: 0.7 }}
-        className="relative mt-20 mx-auto max-w-3xl"
+        className="relative mt-12 md:mt-20 mx-auto max-w-3xl"
       >
-        <div className="floaty rounded-3xl border border-white/10 bg-white/[0.04] backdrop-blur-2xl p-6 md:p-8 shadow-[0_30px_120px_-20px_rgba(0,0,0,0.6)]">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-white/50">
-              <Activity className="h-3.5 w-3.5 text-[hsl(168_80%_55%)]" />
+        <div className="floaty rounded-2xl md:rounded-3xl border border-white/10 bg-white/[0.04] backdrop-blur-2xl p-5 md:p-8 shadow-[0_30px_120px_-20px_rgba(0,0,0,0.6)]">
+          <div className="flex items-center justify-between mb-5 md:mb-6">
+            <div className="flex items-center gap-2 text-[10px] md:text-xs font-mono uppercase tracking-widest text-white/50">
+              <Activity className="h-3 w-3 md:h-3.5 md:w-3.5 text-[hsl(168_80%_55%)]" />
               live ai estimator
             </div>
             <div className="text-[10px] font-mono text-white/40">v2.6 · eu</div>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid md:grid-cols-2 gap-5 md:gap-6">
             <div>
               <div className="text-xs text-white/50 mb-2">Opgave</div>
-              <div className="font-heading text-2xl md:text-3xl font-semibold leading-tight">
+              <div className="font-heading text-xl md:text-3xl font-semibold leading-tight">
                 Hovedrengøring,<br />85 m² · København
               </div>
-              <div className="mt-4 flex flex-wrap gap-2">
-                {["3 timer", "2 fagfolk", "I morgen kl. 09"].map((t) => (
+              <div className="mt-3 md:mt-4 flex flex-wrap gap-1.5 md:gap-2">
+                {["3 timer", "2 fagfolk", "I morgen 09:00"].map((t) => (
                   <span
                     key={t}
-                    className="inline-flex items-center gap-1.5 rounded-full bg-white/5 border border-white/10 px-2.5 py-1 text-xs text-white/70"
+                    className="inline-flex items-center gap-1.5 rounded-full bg-white/5 border border-white/10 px-2 py-0.5 md:px-2.5 md:py-1 text-[11px] md:text-xs text-white/70"
                   >
                     <Clock className="h-3 w-3" /> {t}
                   </span>
@@ -142,16 +142,16 @@ const Hero = () => (
               </div>
             </div>
 
-            <div className="rounded-2xl bg-gradient-to-br from-[hsl(168_70%_25%)]/40 to-[hsl(200_70%_25%)]/40 border border-white/10 p-5">
+            <div className="rounded-xl md:rounded-2xl bg-gradient-to-br from-[hsl(168_70%_25%)]/40 to-[hsl(200_70%_25%)]/40 border border-white/10 p-4 md:p-5">
               <div className="text-xs text-white/60 mb-1">AI prisforslag</div>
               <div className="flex items-baseline gap-2">
-                <span className="font-heading text-4xl md:text-5xl font-bold tabular-nums">1 240</span>
+                <span className="font-heading text-3xl md:text-5xl font-bold tabular-nums">1 240</span>
                 <span className="text-white/50 text-sm">DKK</span>
               </div>
               <div className="mt-3 h-1.5 rounded-full bg-white/10 overflow-hidden">
                 <div className="h-full w-3/5 bg-gradient-to-r from-[hsl(168_80%_55%)] to-[hsl(200_85%_60%)]" />
               </div>
-              <div className="mt-2 flex justify-between text-[11px] font-mono text-white/45">
+              <div className="mt-2 flex justify-between text-[10px] md:text-[11px] font-mono text-white/45">
                 <span>min 980</span>
                 <span>marked</span>
                 <span>max 1 480</span>
@@ -171,8 +171,8 @@ const Hero = () => (
     </div>
 
     {/* Marquee */}
-    <div className="relative border-y border-white/10 bg-black/30 backdrop-blur py-5 overflow-hidden">
-      <div className="ticker-track flex gap-12 whitespace-nowrap font-heading font-semibold text-2xl md:text-4xl text-white/30 uppercase tracking-tight">
+    <div className="relative border-y border-white/10 bg-black/30 backdrop-blur py-3 md:py-5 overflow-hidden">
+      <div className="ticker-track flex gap-8 md:gap-12 whitespace-nowrap font-heading font-semibold text-lg md:text-4xl text-white/30 uppercase tracking-tight">
         {Array.from({ length: 2 }).flatMap((_, k) =>
           ["Rengøring", "★", "Håndværk", "★", "Have & udendørs", "★", "Flytning", "★", "VVS", "★", "Maler", "★", "Vinduer", "★"].map((w, i) => (
             <span key={`${k}-${i}`} className={i % 2 === 1 ? "text-[hsl(168_80%_55%)]" : ""}>{w}</span>
