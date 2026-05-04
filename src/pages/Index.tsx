@@ -162,7 +162,6 @@ const Hero = () => (
             </div>
           </div>
         </Tilt>
-        </div>
 
         {/* Pinned badges */}
         <div className="hidden md:flex absolute -left-6 top-1/2 -translate-y-1/2 -rotate-6 items-center gap-2 rounded-2xl bg-[hsl(32_95%_55%)] text-[hsl(220_25%_6%)] px-3 py-2 text-xs font-bold shadow-xl">
