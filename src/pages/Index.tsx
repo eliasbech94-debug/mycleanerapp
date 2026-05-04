@@ -15,6 +15,7 @@ import {
   Plus,
 } from "lucide-react";
 import { serviceCategories } from "@/lib/countries";
+import Tilt from "@/components/Tilt";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
