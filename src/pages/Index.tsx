@@ -368,48 +368,50 @@ const ProviderTease = () => (
         </div>
 
         <div className="relative">
-          <div className="rounded-2xl md:rounded-3xl bg-[hsl(220_25%_6%)] text-white p-5 md:p-8 shadow-2xl">
-            <div className="flex items-center justify-between mb-5 md:mb-6">
-              <div className="flex items-center gap-3 min-w-0">
-                <div className="h-9 w-9 md:h-10 md:w-10 shrink-0 rounded-full bg-gradient-to-br from-[hsl(168_80%_55%)] to-[hsl(200_85%_60%)] flex items-center justify-center font-bold text-[hsl(220_25%_6%)]">
-                  M
-                </div>
-                <div className="min-w-0">
-                  <div className="font-semibold text-sm">Maria K.</div>
-                  <div className="text-xs text-white/50 flex items-center gap-1">
-                    <MapPin className="h-3 w-3" /> Aarhus C
+          <Tilt max={10} scale={1.02} className="rounded-2xl md:rounded-3xl">
+            <div className="rounded-2xl md:rounded-3xl bg-[hsl(220_25%_6%)] text-white p-5 md:p-8 shadow-2xl">
+              <div className="flex items-center justify-between mb-5 md:mb-6">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="h-9 w-9 md:h-10 md:w-10 shrink-0 rounded-full bg-gradient-to-br from-[hsl(168_80%_55%)] to-[hsl(200_85%_60%)] flex items-center justify-center font-bold text-[hsl(220_25%_6%)]">
+                    M
+                  </div>
+                  <div className="min-w-0">
+                    <div className="font-semibold text-sm">Maria K.</div>
+                    <div className="text-xs text-white/50 flex items-center gap-1">
+                      <MapPin className="h-3 w-3" /> Aarhus C
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div className="flex items-center gap-1 text-sm shrink-0">
-                <Star className="h-4 w-4 text-[hsl(38_92%_60%)] fill-current" /> 4.96
-              </div>
-            </div>
-
-            <div className="grid grid-cols-3 gap-2 md:gap-3 mb-5 md:mb-6">
-              {[
-                { l: "Opgaver", v: "247" },
-                { l: "Indkomst", v: "82k" },
-                { l: "Genbook", v: "78%" },
-              ].map((s) => (
-                <div key={s.l} className="rounded-lg md:rounded-xl bg-white/5 border border-white/10 p-2.5 md:p-3">
-                  <div className="font-heading font-bold text-lg md:text-xl tabular-nums">{s.v}</div>
-                  <div className="text-[9px] md:text-[10px] uppercase tracking-wider text-white/50 mt-1">{s.l}</div>
+                <div className="flex items-center gap-1 text-sm shrink-0">
+                  <Star className="h-4 w-4 text-[hsl(38_92%_60%)] fill-current" /> 4.96
                 </div>
-              ))}
-            </div>
-
-            <div className="rounded-xl border border-[hsl(168_80%_55%)]/40 bg-[hsl(168_80%_55%)]/10 p-3 md:p-4 flex items-center gap-3">
-              <Zap className="h-5 w-5 text-[hsl(168_80%_55%)] shrink-0" />
-              <div className="flex-1 min-w-0">
-                <div className="text-[11px] md:text-xs text-white/60">Næste opgave</div>
-                <div className="text-xs md:text-sm font-medium truncate">Vinduespudsning · 320 DKK · 1.2 km</div>
               </div>
-              <Button size="sm" className="bg-white text-[hsl(220_25%_6%)] hover:bg-white/90 rounded-full h-8 shrink-0">
-                Se
-              </Button>
+
+              <div className="grid grid-cols-3 gap-2 md:gap-3 mb-5 md:mb-6">
+                {[
+                  { l: "Opgaver", v: "247" },
+                  { l: "Indkomst", v: "82k" },
+                  { l: "Genbook", v: "78%" },
+                ].map((s) => (
+                  <div key={s.l} className="rounded-lg md:rounded-xl bg-white/5 border border-white/10 p-2.5 md:p-3">
+                    <div className="font-heading font-bold text-lg md:text-xl tabular-nums">{s.v}</div>
+                    <div className="text-[9px] md:text-[10px] uppercase tracking-wider text-white/50 mt-1">{s.l}</div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="rounded-xl border border-[hsl(168_80%_55%)]/40 bg-[hsl(168_80%_55%)]/10 p-3 md:p-4 flex items-center gap-3">
+                <Zap className="h-5 w-5 text-[hsl(168_80%_55%)] shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <div className="text-[11px] md:text-xs text-white/60">Næste opgave</div>
+                  <div className="text-xs md:text-sm font-medium truncate">Vinduespudsning · 320 DKK · 1.2 km</div>
+                </div>
+                <Button size="sm" className="bg-white text-[hsl(220_25%_6%)] hover:bg-white/90 rounded-full h-8 shrink-0">
+                  Se
+                </Button>
+              </div>
             </div>
-          </div>
+          </Tilt>
 
           <div className="absolute -bottom-3 -right-2 md:-bottom-4 md:-right-4 rotate-3 bg-[hsl(32_95%_55%)] text-[hsl(220_25%_6%)] rounded-xl md:rounded-2xl px-2.5 py-1.5 md:px-3 md:py-2 text-[10px] md:text-xs font-bold shadow-xl">
             +EARN 18% W/W
