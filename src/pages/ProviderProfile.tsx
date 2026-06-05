@@ -33,6 +33,13 @@ const provider = {
   categories: ["handyman", "moving"],
   subcategories: ["Møbelsamling", "Malerarbejde", "Gulvlægning", "Boligflytning"],
   hourlyRate: 425,
+  // Service pricing in local currency (DKK). unit: 'hour' | 'job' | 'm2'
+  services: [
+    { subcategory: "Møbelsamling", price: 425, unit: "hour" as const, minPrice: 600, description: "IKEA, designermøbler, køkken — fast pris efter besigtigelse." },
+    { subcategory: "Malerarbejde", price: 395, unit: "hour" as const, minPrice: 1800, description: "Vægge, lofter, træværk. Inkl. afdækning og oprydning." },
+    { subcategory: "Gulvlægning", price: 285, unit: "m2" as const, minPrice: 2500, description: "Laminat, vinyl & klikgulve. Materialer afregnes separat." },
+    { subcategory: "Boligflytning", price: 550, unit: "hour" as const, minPrice: 1500, description: "2 mand + vogn. Forsikret transport i hele landet." },
+  ],
   avatar: "",
   gallery: [
     "from-primary/30 to-accent/30",
