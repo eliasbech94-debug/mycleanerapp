@@ -9,6 +9,7 @@ import CustomCursor from "@/components/CustomCursor";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import ProviderRegister from "./pages/ProviderRegister";
+import ProviderProfile from "./pages/ProviderProfile";
 import CustomerRegister from "./pages/CustomerRegister";
 import CreateTask from "./pages/CreateTask";
 import MatchingOffers from "./pages/MatchingOffers";
@@ -30,6 +31,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<Login />} />
           <Route path="/provider/register" element={<ProviderRegister />} />
+          <Route path="/provider/:id" element={<ProviderProfile />} />
           <Route path="/customer/register" element={<CustomerRegister />} />
           <Route path="/task/create" element={<CreateTask />} />
           <Route path="/task/offers" element={<MatchingOffers />} />
