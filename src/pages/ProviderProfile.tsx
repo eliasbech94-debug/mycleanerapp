@@ -33,6 +33,13 @@ const provider = {
   categories: ["handyman", "moving"],
   subcategories: ["Møbelsamling", "Malerarbejde", "Gulvlægning", "Boligflytning"],
   hourlyRate: 425,
+  // Service pricing in local currency (DKK). unit: 'hour' | 'job' | 'm2'
+  services: [
+    { subcategory: "Møbelsamling", price: 425, unit: "hour" as const, minPrice: 600, description: "IKEA, designermøbler, køkken — fast pris efter besigtigelse." },
+    { subcategory: "Malerarbejde", price: 395, unit: "hour" as const, minPrice: 1800, description: "Vægge, lofter, træværk. Inkl. afdækning og oprydning." },
+    { subcategory: "Gulvlægning", price: 285, unit: "m2" as const, minPrice: 2500, description: "Laminat, vinyl & klikgulve. Materialer afregnes separat." },
+    { subcategory: "Boligflytning", price: 550, unit: "hour" as const, minPrice: 1500, description: "2 mand + vogn. Forsikret transport i hele landet." },
+  ],
   avatar: "",
   gallery: [
     "from-primary/30 to-accent/30",
@@ -198,28 +205,78 @@ const ProviderProfile = () => {
               </div>
             </TabsContent>
 
-            <TabsContent value="services" className="mt-6">
+            <TabsContent value="services" className="mt-6 space-y-6">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <h2 className="font-heading text-lg font-semibold">Ydelser & priser</h2>
+                  <p className="text-xs text-muted-foreground">
+                    Priser i {country.currency} · inkl. moms ({Math.round(country.vatRate * 100)}%) · {country.laborAgreement}
+                  </p>
+                </div>
+                <Badge variant="outline" className="text-xs">
+                  <Shield className="h-3 w-3 mr-1" /> Min. {formatPrice(country.minHourlyRate, country)}/t
+                </Badge>
+              </div>
+
               <div className="grid sm:grid-cols-2 gap-4">
                 {provider.categories.map((catId) => {
                   const cat = serviceCategories.find((c) => c.id === catId);
                   if (!cat) return null;
+                  const catServices = provider.services.filter((s) =>
+                    cat.subcategories.includes(s.subcategory),
+                  );
                   return (
-                    <Tilt key={catId} className="glass-card p-5 rounded-2xl" max={6}>
-                      <div className="text-3xl mb-2">{cat.icon}</div>
-                      <h3 className="font-heading font-semibold mb-1">{cat.name}</h3>
-                      <p className="text-xs text-muted-foreground mb-3">{cat.description}</p>
-                      <div className="flex flex-wrap gap-1.5">
-                        {cat.subcategories
-                          .filter((s) => provider.subcategories.includes(s))
-                          .map((s) => (
-                            <Badge key={s} variant="secondary" className="text-xs">{s}</Badge>
-                          ))}
+                    <Tilt key={catId} className="glass-card p-5 rounded-2xl flex flex-col" max={5}>
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="text-3xl">{cat.icon}</div>
+                        <div>
+                          <h3 className="font-heading font-semibold leading-tight">{cat.name}</h3>
+                          <p className="text-xs text-muted-foreground">{catServices.length} ydelser</p>
+                        </div>
                       </div>
+
+                      <ul className="space-y-3 flex-1">
+                        {catServices.map((s) => {
+                          const unitLabel = s.unit === "hour" ? "/t" : s.unit === "m2" ? "/m²" : "";
+                          return (
+                            <li
+                              key={s.subcategory}
+                              className="p-3 rounded-xl bg-secondary/40 border border-border/50 hover:border-primary/40 transition-colors"
+                              data-cursor="hover"
+                            >
+                              <div className="flex items-start justify-between gap-3 mb-1">
+                                <div className="font-medium text-sm">{s.subcategory}</div>
+                                <div className="text-right flex-shrink-0">
+                                  <div className="font-heading font-semibold text-sm whitespace-nowrap">
+                                    {formatPrice(s.price, country)}
+                                    <span className="text-xs text-muted-foreground font-normal">{unitLabel}</span>
+                                  </div>
+                                  <div className="text-[10px] text-muted-foreground">
+                                    fra {formatPrice(s.minPrice, country)}
+                                  </div>
+                                </div>
+                              </div>
+                              <p className="text-xs text-muted-foreground leading-snug">{s.description}</p>
+                            </li>
+                          );
+                        })}
+                      </ul>
+
+                      <Button asChild variant="outline" size="sm" className="mt-4 w-full">
+                        <Link to="/task/create">
+                          <Zap className="h-3.5 w-3.5 mr-1.5" /> Få AI-prisestimat
+                        </Link>
+                      </Button>
                     </Tilt>
                   );
                 })}
               </div>
+
+              <p className="text-xs text-muted-foreground text-center px-4">
+                Endelige priser tilpasses opgavens omfang. Ingen budkrig — alle priser ligger på markedsniveau i {country.name}.
+              </p>
             </TabsContent>
+
 
             <TabsContent value="portfolio" className="mt-6">
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
