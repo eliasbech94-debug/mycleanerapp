@@ -76,6 +76,40 @@ const ProviderRegister = () => {
       .filter((v): v is NonNullable<typeof v> => v !== null);
   }, [derivedServices, country]);
   const hasPriceViolations = priceViolations.length > 0;
+  const violationSubs = useMemo(
+    () => new Set(priceViolations.map((v) => v.service.subcategory)),
+    [priceViolations],
+  );
+
+  // Real-time toast feedback when validation state changes (country / category / sub edits)
+  const prevViolationCount = useRef<number | null>(null);
+  const prevCountry = useRef<string>(form.country);
+  useEffect(() => {
+    const prev = prevViolationCount.current;
+    const count = priceViolations.length;
+    const countryChanged = prevCountry.current !== form.country;
+    if (prev === null) {
+      prevViolationCount.current = count;
+      prevCountry.current = form.country;
+      return;
+    }
+    if (countryChanged) {
+      toast(`${country.flag} ${country.name} valgt`, {
+        description: `Min. timepris ${formatPrice(country.minHourlyRate, country)} · ${country.laborAgreement}`,
+      });
+    }
+    if (count > prev) {
+      toast.error("Ydelse under min. timepris", {
+        description: `${count} ydelse(r) overholder ikke ${country.laborAgreement}.`,
+      });
+    } else if (count === 0 && prev > 0) {
+      toast.success("Alle priser overholder overenskomsten", {
+        description: `${derivedServices.length} ydelse(r) godkendt for ${country.name}.`,
+      });
+    }
+    prevViolationCount.current = count;
+    prevCountry.current = form.country;
+  }, [priceViolations.length, form.country, country, derivedServices.length]);
 
   const handleSubmit = () => {
     if (hasPriceViolations) {
