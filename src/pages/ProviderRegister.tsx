@@ -1,16 +1,20 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowRight, ArrowLeft, Building2, User, Upload, Shield, CheckCircle2 } from "lucide-react";
-import { countries, serviceCategories } from "@/lib/countries";
+import { Badge } from "@/components/ui/badge";
+import { ArrowRight, ArrowLeft, Building2, User, Upload, Shield, CheckCircle2, Sparkles } from "lucide-react";
+import { countries, serviceCategories, formatPrice } from "@/lib/countries";
+import { deriveServices, deriveHourlyRate, saveProvider } from "@/lib/providers";
 
 const steps = ["Type", "Personlig info", "Services & område", "Dokumenter", "Gennemse"];
 
 const ProviderRegister = () => {
+  const navigate = useNavigate();
   const [step, setStep] = useState(0);
   const [form, setForm] = useState({
     type: "private" as "private" | "business",
@@ -19,6 +23,7 @@ const ProviderRegister = () => {
     country: "DK",
     city: "", postalCode: "",
     categories: [] as string[],
+    subcategories: [] as string[],
     radius: "25",
     bio: "",
     acceptTerms: false,
@@ -26,12 +31,72 @@ const ProviderRegister = () => {
 
   const update = (key: string, value: any) => setForm((p) => ({ ...p, [key]: value }));
   const toggleCategory = (id: string) => {
+    setForm((p) => {
+      const has = p.categories.includes(id);
+      const cat = serviceCategories.find((c) => c.id === id);
+      const subs = cat?.subcategories ?? [];
+      return {
+        ...p,
+        categories: has ? p.categories.filter((c) => c !== id) : [...p.categories, id],
+        // auto-select all subcategories when category is added; remove on toggle off
+        subcategories: has
+          ? p.subcategories.filter((s) => !subs.includes(s))
+          : [...new Set([...p.subcategories, ...subs])],
+      };
+    });
+  };
+  const toggleSubcategory = (sub: string) => {
     setForm((p) => ({
       ...p,
-      categories: p.categories.includes(id) ? p.categories.filter((c) => c !== id) : [...p.categories, id],
+      subcategories: p.subcategories.includes(sub)
+        ? p.subcategories.filter((s) => s !== sub)
+        : [...p.subcategories, sub],
     }));
   };
   const country = countries.find((c) => c.code === form.country) || countries[0];
+  const derivedServices = useMemo(
+    () => deriveServices(form.categories, form.subcategories, country),
+    [form.categories, form.subcategories, country],
+  );
+  const derivedHourly = useMemo(() => deriveHourlyRate(country), [country]);
+
+  const handleSubmit = () => {
+    const id = `p_${Date.now()}`;
+    const name = form.type === "business" && form.companyName
+      ? form.companyName
+      : `${form.firstName} ${form.lastName}`.trim() || "Ny provider";
+    saveProvider({
+      id,
+      name,
+      handle: `@${(form.firstName || "ny").toLowerCase()}`,
+      tagline: form.bio || `${form.type === "business" ? "Virksomhed" : "Privat udbyder"} i ${form.city || country.name}`,
+      bio: form.bio || "",
+      type: form.type,
+      verified: false,
+      topRated: false,
+      rating: 0,
+      reviews: 0,
+      jobsCompleted: 0,
+      responseTime: "—",
+      repeatClients: 0,
+      city: form.city || country.name,
+      countryCode: form.country,
+      radiusKm: parseInt(form.radius, 10) || 25,
+      memberSince: String(new Date().getFullYear()),
+      languages: ["Dansk"],
+      categories: form.categories,
+      subcategories: form.subcategories,
+      avatar: "",
+      gallery: [
+        "from-primary/30 to-accent/30",
+        "from-accent/30 to-info/30",
+        "from-info/30 to-primary/30",
+      ],
+      certifications: form.type === "business" ? ["CVR registreret"] : ["ID-verificeret"],
+    });
+    navigate(`/provider/${id}`);
+  };
+
 
   return (
     <div className="min-h-screen bg-background">
