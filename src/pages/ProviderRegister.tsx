@@ -343,7 +343,7 @@ const ProviderRegister = () => {
                   Næste <ArrowRight className="h-4 w-4 ml-2" />
                 </Button>
               ) : (
-                <Button disabled={!form.acceptTerms}>Send ansøgning</Button>
+                <Button disabled={!form.acceptTerms} onClick={handleSubmit}>Send ansøgning</Button>
               )}
             </div>
           </div>
