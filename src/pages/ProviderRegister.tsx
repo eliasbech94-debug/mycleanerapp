@@ -508,6 +508,28 @@ const ProviderRegister = () => {
               </div>
             )}
 
+            {/* Live validation status (visible on every step) */}
+            {derivedServices.length > 0 && (
+              <div
+                className={`mt-6 flex items-center gap-2 rounded-lg border px-3 py-2 text-xs transition-colors ${
+                  hasPriceViolations
+                    ? "bg-destructive/10 border-destructive/30 text-destructive"
+                    : "bg-success/10 border-success/20 text-success"
+                }`}
+                aria-live="polite"
+              >
+                {hasPriceViolations ? <AlertTriangle className="h-3.5 w-3.5" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
+                <span className="font-medium">
+                  {hasPriceViolations
+                    ? `${priceViolations.length} af ${derivedServices.length} ydelse(r) under min. timepris`
+                    : `${derivedServices.length} ydelse(r) overholder ${country.laborAgreement}`}
+                </span>
+                <span className="ml-auto text-muted-foreground">
+                  {country.flag} min. {formatPrice(country.minHourlyRate, country)}/t
+                </span>
+              </div>
+            )}
+
             {/* Navigation */}
             <div className="flex justify-between mt-8 pt-6 border-t border-border">
               <Button variant="ghost" onClick={() => setStep((s) => s - 1)} disabled={step === 0}>
