@@ -187,11 +187,11 @@ const AdminDashboard = () => {
     setPayments(prev => prev.map(p => p.id === id ? { ...p, sync: { ...p.sync, ...patch } } : p));
 
   // Simulated Stripe API call — swap with edge function call once Lovable Cloud + Stripe is enabled.
-  const callStripe = (action: StripeAction, p: Payment): Promise<{ ok: true; stripeId: string } | { ok: false; error: string }> =>
-    new Promise((resolve) => {
+  type StripeResult = { ok: true; stripeId: string } | { ok: false; error: string };
+  const callStripe = (action: StripeAction, _p: Payment): Promise<StripeResult> =>
+    new Promise<StripeResult>((resolve) => {
       const latency = 700 + Math.random() * 1200;
       setTimeout(() => {
-        // ~22% failure rate so admins can experience the failed → retry flow
         const ok = Math.random() > 0.22;
         if (ok) {
           const prefix = action === "refund" ? "re" : "tr";
@@ -207,6 +207,7 @@ const AdminDashboard = () => {
         }
       }, latency);
     });
+
 
   const runStripeAction = async (p: Payment, action: StripeAction, targetStatus: PaymentStatus, retry = false) => {
     const prevStatus = retry ? (p.sync.prevStatus ?? p.status) : p.status;
