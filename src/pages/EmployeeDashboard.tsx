@@ -68,32 +68,44 @@ const EmployeeDashboard = () => {
           </button>
         </aside>
 
-        <main className="flex-1 p-6 md:p-8">
-          <div className="flex items-center justify-between mb-8">
+        <main className="flex-1 min-w-0 p-4 sm:p-6 md:p-8">
+          <div className="lg:hidden flex items-center justify-between mb-5">
+            <Link to="/" className="flex items-center gap-2">
+              <div className="gradient-hero rounded-lg w-8 h-8 flex items-center justify-center">
+                <span className="text-primary-foreground font-heading font-bold text-sm">H</span>
+              </div>
+              <span className="font-heading font-bold text-sm">Support</span>
+            </Link>
+            <Button size="sm" variant="ghost" className="text-muted-foreground">
+              <LogOut className="h-4 w-4" />
+            </Button>
+          </div>
+
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6 md:mb-8">
             <div>
-              <h1 className="font-heading text-2xl font-bold">Medarbejder Dashboard</h1>
-              <p className="text-sm text-muted-foreground">Hej Sarah — du har 3 åbne sager</p>
+              <h1 className="font-heading text-xl sm:text-2xl font-bold">Medarbejder Dashboard</h1>
+              <p className="text-xs sm:text-sm text-muted-foreground">Hej Sarah — du har 3 åbne sager</p>
             </div>
-            <div className="relative">
+            <div className="relative w-full md:w-64">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Søg sager, kunder..." className="pl-9 w-64" />
+              <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Søg sager, kunder..." className="pl-9 w-full" />
             </div>
           </div>
 
           {/* Quick stats */}
-          <div className="grid sm:grid-cols-4 gap-4 mb-8">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6 md:mb-8">
             {[
               { label: "Åbne sager", value: "3", icon: AlertTriangle, color: "text-warning" },
               { label: "Løst i dag", value: "7", icon: CheckCircle2, color: "text-success" },
               { label: "Gns. responstid", value: "14 min", icon: Clock, color: "text-primary" },
               { label: "Kundetilfredshed", value: "4.8/5", icon: Users, color: "text-accent" },
             ].map((s) => (
-              <div key={s.label} className="glass-card p-4">
+              <div key={s.label} className="glass-card p-3 sm:p-4">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs text-muted-foreground">{s.label}</span>
-                  <s.icon className={`h-4 w-4 ${s.color}`} />
+                  <span className="text-xs text-muted-foreground line-clamp-1">{s.label}</span>
+                  <s.icon className={`h-4 w-4 shrink-0 ${s.color}`} />
                 </div>
-                <div className="font-heading text-xl font-bold">{s.value}</div>
+                <div className="font-heading text-lg sm:text-xl font-bold">{s.value}</div>
               </div>
             ))}
           </div>
@@ -106,10 +118,10 @@ const EmployeeDashboard = () => {
 
             <TabsContent value="tickets" className="space-y-3 mt-4">
               {myTickets.map((t) => (
-                <div key={t.id} className="glass-card p-5 hover:shadow-md transition-all">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
+                <div key={t.id} className="glass-card p-4 sm:p-5 hover:shadow-md transition-all">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 mb-1 flex-wrap">
                         <span className="text-xs text-muted-foreground font-mono">{t.id}</span>
                         {priorityBadge(t.priority)}
                         <span className="text-sm">{t.country}</span>
@@ -117,10 +129,10 @@ const EmployeeDashboard = () => {
                       <h3 className="font-medium">{t.issue}</h3>
                       <p className="text-sm text-muted-foreground mt-1">Kunde: {t.customer} • {t.created}</p>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 sm:flex-shrink-0">
                       <Button size="sm" variant="ghost"><Phone className="h-4 w-4" /></Button>
                       <Button size="sm" variant="ghost"><Mail className="h-4 w-4" /></Button>
-                      <Button size="sm">Håndter <ArrowRight className="h-3 w-3 ml-1" /></Button>
+                      <Button size="sm" className="ml-auto">Håndter <ArrowRight className="h-3 w-3 ml-1" /></Button>
                     </div>
                   </div>
                 </div>
@@ -129,19 +141,19 @@ const EmployeeDashboard = () => {
 
             <TabsContent value="providers" className="space-y-3 mt-4">
               {providerIssues.map((p) => (
-                <div key={p.id} className="glass-card p-5">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
+                <div key={p.id} className="glass-card p-4 sm:p-5">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 mb-1 flex-wrap">
                         <span className="text-xs text-muted-foreground font-mono">{p.id}</span>
                         <span className="text-sm">{p.country}</span>
                       </div>
                       <h3 className="font-medium">{p.provider} — {p.issue}</h3>
                       <p className="text-sm text-muted-foreground mt-1">{p.action}</p>
                     </div>
-                    <div className="flex gap-2">
-                      <Button size="sm" variant="outline">Kontakt</Button>
-                      <Button size="sm">Løs</Button>
+                    <div className="flex gap-2 sm:flex-shrink-0">
+                      <Button size="sm" variant="outline" className="flex-1 sm:flex-none">Kontakt</Button>
+                      <Button size="sm" className="flex-1 sm:flex-none">Løs</Button>
                     </div>
                   </div>
                 </div>

@@ -315,29 +315,40 @@ const AdminDashboard = () => {
         </aside>
 
         {/* Main */}
-        <main className="flex-1 p-6 md:p-8">
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h1 className="font-heading text-2xl font-bold">Admin Dashboard</h1>
-              <p className="text-sm text-muted-foreground">Fuld administration af brugere, betalinger og platform</p>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Søg kunder, providere..." className="pl-9 w-64" />
+        <main className="flex-1 min-w-0 p-4 sm:p-6 md:p-8">
+          {/* Mobile top bar with brand */}
+          <div className="lg:hidden flex items-center justify-between mb-5">
+            <Link to="/" className="flex items-center gap-2">
+              <div className="gradient-hero rounded-lg w-8 h-8 flex items-center justify-center">
+                <span className="text-primary-foreground font-heading font-bold text-sm">H</span>
               </div>
+              <span className="font-heading font-bold text-sm">Admin</span>
+            </Link>
+            <Button size="sm" variant="ghost" className="text-muted-foreground">
+              <LogOut className="h-4 w-4" />
+            </Button>
+          </div>
+
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6 md:mb-8">
+            <div>
+              <h1 className="font-heading text-xl sm:text-2xl font-bold">Admin Dashboard</h1>
+              <p className="text-xs sm:text-sm text-muted-foreground">Fuld administration af brugere, betalinger og platform</p>
+            </div>
+            <div className="relative w-full md:w-64">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Søg kunder, providere..." className="pl-9 w-full" />
             </div>
           </div>
 
           {/* Stats */}
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 md:mb-8">
             {stats.map((s) => (
-              <div key={s.label} className="glass-card p-5">
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-sm text-muted-foreground">{s.label}</span>
-                  <s.icon className={`h-5 w-5 ${s.color}`} />
+              <div key={s.label} className="glass-card p-4 sm:p-5">
+                <div className="flex items-center justify-between mb-2 sm:mb-3">
+                  <span className="text-xs sm:text-sm text-muted-foreground line-clamp-1">{s.label}</span>
+                  <s.icon className={`h-4 w-4 sm:h-5 sm:w-5 shrink-0 ${s.color}`} />
                 </div>
-                <div className="font-heading text-2xl font-bold">{s.value}</div>
+                <div className="font-heading text-lg sm:text-2xl font-bold">{s.value}</div>
                 {s.change && <span className="text-xs text-success font-medium flex items-center gap-1 mt-1"><TrendingUp className="h-3 w-3" /> {s.change}</span>}
               </div>
             ))}
