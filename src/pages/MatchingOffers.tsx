@@ -1,7 +1,9 @@
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Star, MapPin, Shield, Clock, Sparkles, Zap, MessageCircle, ArrowRight } from "lucide-react";
+import { Star, MapPin, Shield, Clock, Sparkles, Zap, MessageCircle, ArrowRight, Heart } from "lucide-react";
+import { toast } from "sonner";
 
 const mockOffers = [
   {
@@ -24,14 +26,59 @@ const mockOffers = [
   },
 ];
 
+const FAV_KEY = "homehero:favorites";
+
+const loadFavorites = (): string[] => {
+  try {
+    const raw = localStorage.getItem(FAV_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+};
+
 const MatchingOffers = () => {
+  const [favorites, setFavorites] = useState<string[]>([]);
+  const [showOnlyFavs, setShowOnlyFavs] = useState(false);
+
+  useEffect(() => {
+    setFavorites(loadFavorites());
+  }, []);
+
+  const toggleFavorite = (id: string, name: string) => {
+    setFavorites((prev) => {
+      const isFav = prev.includes(id);
+      const next = isFav ? prev.filter((x) => x !== id) : [...prev, id];
+      try {
+        localStorage.setItem(FAV_KEY, JSON.stringify(next));
+      } catch {}
+      toast(isFav ? `${name} fjernet fra favoritter` : `${name} gemt som favorit`);
+      return next;
+    });
+  };
+
+  const visibleOffers = showOnlyFavs
+    ? mockOffers.filter((o) => favorites.includes(o.id))
+    : mockOffers;
+
   return (
     <div className="min-h-screen bg-background">
       <div className="container-narrow py-12">
         <div className="max-w-3xl mx-auto">
-          <div className="mb-8">
-            <h1 className="font-heading text-3xl font-bold mb-2">Dine tilbud</h1>
-            <p className="text-muted-foreground">3 fagfolk matcher din opgave — sorteret efter AI-match</p>
+          <div className="mb-8 flex items-start justify-between gap-4">
+            <div>
+              <h1 className="font-heading text-3xl font-bold mb-2">Dine tilbud</h1>
+              <p className="text-muted-foreground">3 fagfolk matcher din opgave — sorteret efter AI-match</p>
+            </div>
+            <Button
+              variant={showOnlyFavs ? "default" : "outline"}
+              size="sm"
+              onClick={() => setShowOnlyFavs((v) => !v)}
+              className="flex-shrink-0"
+            >
+              <Heart className={`h-4 w-4 ${showOnlyFavs ? "fill-current" : ""}`} />
+              Favoritter ({favorites.length})
+            </Button>
           </div>
 
           <div className="mb-6 p-4 rounded-2xl bg-primary/5 border border-primary/10 flex items-start gap-3">
@@ -42,9 +89,31 @@ const MatchingOffers = () => {
             </div>
           </div>
 
+          {visibleOffers.length === 0 && (
+            <div className="text-center py-12 text-muted-foreground">
+              <Heart className="h-10 w-10 mx-auto mb-3 opacity-40" />
+              <p>Du har ingen favoritter endnu. Tryk på hjertet for at gemme en provider.</p>
+            </div>
+          )}
+
           <div className="space-y-4">
-            {mockOffers.map((offer) => (
-              <div key={offer.id} className={`glass-card p-6 transition-all hover:shadow-lg ${offer.boosted ? "ring-2 ring-accent/50" : ""}`}>
+            {visibleOffers.map((offer) => {
+              const isFav = favorites.includes(offer.id);
+              return (
+              <div key={offer.id} className={`glass-card p-6 transition-all hover:shadow-lg relative ${offer.boosted ? "ring-2 ring-accent/50" : ""}`}>
+                <button
+                  type="button"
+                  onClick={() => toggleFavorite(offer.id, offer.name)}
+                  aria-label={isFav ? "Fjern fra favoritter" : "Gem som favorit"}
+                  aria-pressed={isFav}
+                  className={`absolute top-4 right-4 h-9 w-9 rounded-full flex items-center justify-center transition-all border ${
+                    isFav
+                      ? "bg-destructive/10 border-destructive/30 text-destructive"
+                      : "bg-background border-border text-muted-foreground hover:text-destructive hover:border-destructive/30"
+                  }`}
+                >
+                  <Heart className={`h-4 w-4 ${isFav ? "fill-current" : ""}`} />
+                </button>
                 {offer.boosted && (
                   <div className="flex items-center gap-1.5 text-accent text-xs font-medium mb-3">
                     <Zap className="h-3.5 w-3.5" /> Boosted profil
@@ -57,7 +126,7 @@ const MatchingOffers = () => {
                     </div>
                   </Link>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
+                    <div className="flex items-center gap-2 flex-wrap pr-10">
                       <Link to={`/provider/${offer.id}`} className="hover:text-primary transition-colors">
                         <h3 className="font-heading font-semibold text-lg">{offer.name}</h3>
                       </Link>
@@ -76,7 +145,7 @@ const MatchingOffers = () => {
                       ))}
                     </div>
                   </div>
-                  <div className="text-right flex-shrink-0">
+                  <div className="text-right flex-shrink-0 mt-8">
                     <div className="inline-flex items-center gap-1 bg-primary/10 text-primary text-xs font-bold px-2.5 py-1 rounded-full mb-2">
                       <Sparkles className="h-3 w-3" /> {offer.aiMatch}% match
                     </div>
@@ -94,7 +163,8 @@ const MatchingOffers = () => {
                   </div>
                 </div>
               </div>
-            ))}
+            );
+            })}
           </div>
         </div>
       </div>
