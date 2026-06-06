@@ -226,21 +226,23 @@ const AdminDashboard = () => {
     const res = await callStripe(action, p);
     const now = new Date().toLocaleString("da-DK", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
 
-    if (res.ok) {
+    if ("stripeId" in res) {
       patchPayment(p.id, {
         status: targetStatus,
         sync: { state: "succeeded", action, attempts, stripeId: res.stripeId, updatedAt: now, message: `${labels[action]} bekræftet af Stripe` },
       });
       toast({ title: `${labels[action]} bekræftet`, description: `Stripe: ${res.stripeId}` });
     } else {
-      patchSync(p.id, { state: "failed", action, prevStatus, targetStatus, attempts, message: res.error, updatedAt: now });
+      const err = res.error;
+      patchSync(p.id, { state: "failed", action, prevStatus, targetStatus, attempts, message: err, updatedAt: now });
       toast({
         title: `${labels[action]} fejlede`,
-        description: `${res.error}. Klik på Genprøv for at forsøge igen.`,
+        description: `${err}. Klik på Genprøv for at forsøge igen.`,
         variant: "destructive",
       });
     }
   };
+
 
   const refundPayment = (p: Payment) => runStripeAction(p, "refund", "refunded");
   const togglePausePayout = (p: Payment) => {
