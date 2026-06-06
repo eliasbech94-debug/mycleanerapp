@@ -1,6 +1,7 @@
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Star, MapPin, Shield, Clock, Sparkles, Zap, MessageCircle } from "lucide-react";
+import { Star, MapPin, Shield, Clock, Sparkles, Zap, MessageCircle, ArrowRight } from "lucide-react";
 
 const mockOffers = [
   {
