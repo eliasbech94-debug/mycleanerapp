@@ -19,7 +19,7 @@ import {
   Users, Briefcase, DollarSign, TrendingUp, AlertCircle, CheckCircle2, Clock,
   Search, Shield, Globe, BarChart3, Settings, LogOut, Eye, Ban, Star,
   MessageSquare, FileText, Pencil, Trash2, Pause, Play, Undo2, ArrowDownToLine,
-  AlertTriangle, Send, ShieldCheck, Wallet,
+  AlertTriangle, Send, ShieldCheck, Wallet, Loader2, XCircle, RefreshCw,
 } from "lucide-react";
 
 // ============================================================================
@@ -51,6 +51,19 @@ const initialUsers: ManagedUser[] = [
 ];
 
 type PaymentStatus = "completed" | "pending" | "refunded" | "paused" | "withdrawn";
+type SyncState = "idle" | "pending" | "succeeded" | "failed";
+type StripeAction = "pause" | "resume" | "refund";
+
+interface PaymentSync {
+  state: SyncState;
+  action?: StripeAction;
+  targetStatus?: PaymentStatus; // status to apply if sync succeeds
+  prevStatus?: PaymentStatus;   // status to revert to on failure
+  message?: string;
+  stripeId?: string;            // e.g. re_xxx / tr_xxx
+  attempts: number;
+  updatedAt?: string;
+}
 
 interface Payment {
   id: string;
@@ -63,14 +76,18 @@ interface Payment {
   currency: string;
   status: PaymentStatus;
   date: string;
+  stripePaymentIntent: string;
+  sync: PaymentSync;
 }
 
+const initialSync = (): PaymentSync => ({ state: "idle", attempts: 0 });
+
 const initialPayments: Payment[] = [
-  { id: "p_1001", taskId: "T-2401", customer: "Anne M.", provider: "Maria Jensen", gross: 420, fee: 105, payout: 315, currency: "DKK", status: "completed", date: "06/06" },
-  { id: "p_1002", taskId: "T-2402", customer: "Hans K.", provider: "Schmidt GmbH", gross: 180, fee: 45, payout: 135, currency: "EUR", status: "pending", date: "05/06" },
-  { id: "p_1003", taskId: "T-2403", customer: "Pierre L.", provider: "CleanPro", gross: 95, fee: 23.75, payout: 71.25, currency: "EUR", status: "completed", date: "05/06" },
-  { id: "p_1004", taskId: "T-2404", customer: "Sofia N.", provider: "Erik Bergström", gross: 450, fee: 112.5, payout: 337.5, currency: "SEK", status: "paused", date: "04/06" },
-  { id: "p_1005", taskId: "T-2399", customer: "Lars T.", provider: "Maria Jensen", gross: 600, fee: 150, payout: 450, currency: "DKK", status: "refunded", date: "03/06" },
+  { id: "p_1001", taskId: "T-2401", customer: "Anne M.", provider: "Maria Jensen", gross: 420, fee: 105, payout: 315, currency: "DKK", status: "completed", date: "06/06", stripePaymentIntent: "pi_3Nx1aQ", sync: { state: "succeeded", attempts: 1, stripeId: "tr_3Nx1aQ", updatedAt: "06/06 09:12" } },
+  { id: "p_1002", taskId: "T-2402", customer: "Hans K.", provider: "Schmidt GmbH", gross: 180, fee: 45, payout: 135, currency: "EUR", status: "pending", date: "05/06", stripePaymentIntent: "pi_3Nx1bR", sync: initialSync() },
+  { id: "p_1003", taskId: "T-2403", customer: "Pierre L.", provider: "CleanPro", gross: 95, fee: 23.75, payout: 71.25, currency: "EUR", status: "completed", date: "05/06", stripePaymentIntent: "pi_3Nx1cS", sync: { state: "succeeded", attempts: 1, stripeId: "tr_3Nx1cS", updatedAt: "05/06 14:02" } },
+  { id: "p_1004", taskId: "T-2404", customer: "Sofia N.", provider: "Erik Bergström", gross: 450, fee: 112.5, payout: 337.5, currency: "SEK", status: "paused", date: "04/06", stripePaymentIntent: "pi_3Nx1dT", sync: { state: "succeeded", action: "pause", attempts: 1, updatedAt: "04/06 10:48" } },
+  { id: "p_1005", taskId: "T-2399", customer: "Lars T.", provider: "Maria Jensen", gross: 600, fee: 150, payout: 450, currency: "DKK", status: "refunded", date: "03/06", stripePaymentIntent: "pi_3Nx19P", sync: { state: "succeeded", action: "refund", attempts: 2, stripeId: "re_3Nx19P", updatedAt: "03/06 16:30" } },
 ];
 
 const pendingProviders = [
@@ -162,23 +179,80 @@ const AdminDashboard = () => {
     setDeleteUser(null);
   };
 
-  // ---- Payment actions ----
-  const updatePaymentStatus = (id: string, status: PaymentStatus) => {
-    setPayments(prev => prev.map(p => p.id === id ? { ...p, status } : p));
-  };
+  // ---- Payment actions (validated via Stripe sync) ----
+  const patchPayment = (id: string, patch: Partial<Payment>) =>
+    setPayments(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p));
 
-  const refundPayment = (p: Payment) => {
-    updatePaymentStatus(p.id, "refunded");
-    toast({ title: "Refundering igangsat", description: `${fmt(p.gross, p.currency)} refunderes til ${p.customer}.` });
-  };
+  const patchSync = (id: string, patch: Partial<PaymentSync>) =>
+    setPayments(prev => prev.map(p => p.id === id ? { ...p, sync: { ...p.sync, ...patch } } : p));
 
-  const togglePausePayout = (p: Payment) => {
-    const next: PaymentStatus = p.status === "paused" ? "pending" : "paused";
-    updatePaymentStatus(p.id, next);
-    toast({
-      title: next === "paused" ? "Udbetaling pauset" : "Udbetaling genoptaget",
-      description: `Udbetaling til ${p.provider} (${fmt(p.payout, p.currency)}) er ${next === "paused" ? "sat på pause" : "frigivet"}.`,
+  // Simulated Stripe API call — swap with edge function call once Lovable Cloud + Stripe is enabled.
+  type StripeResult = { ok: true; stripeId: string } | { ok: false; error: string };
+  const callStripe = (action: StripeAction, _p: Payment): Promise<StripeResult> =>
+    new Promise<StripeResult>((resolve) => {
+      const latency = 700 + Math.random() * 1200;
+      setTimeout(() => {
+        const ok = Math.random() > 0.22;
+        if (ok) {
+          const prefix = action === "refund" ? "re" : "tr";
+          resolve({ ok: true, stripeId: `${prefix}_${Math.random().toString(36).slice(2, 12)}` });
+        } else {
+          const errors = [
+            "stripe: network_error — kunne ikke nå Stripe",
+            "stripe: charge_already_refunded",
+            "stripe: insufficient_funds på connect-konto",
+            "stripe: rate_limited — prøv igen",
+          ];
+          resolve({ ok: false, error: errors[Math.floor(Math.random() * errors.length)] });
+        }
+      }, latency);
     });
+
+
+  const runStripeAction = async (p: Payment, action: StripeAction, targetStatus: PaymentStatus, retry = false) => {
+    const prevStatus = retry ? (p.sync.prevStatus ?? p.status) : p.status;
+    const attempts = (retry ? p.sync.attempts : 0) + 1;
+    const labels: Record<StripeAction, string> = {
+      pause: "Pause udbetaling",
+      resume: "Genoptag udbetaling",
+      refund: "Refundering",
+    };
+
+    patchPayment(p.id, {
+      sync: { state: "pending", action, targetStatus, prevStatus, attempts, message: "Synkroniserer med Stripe…" },
+    });
+    toast({ title: `${labels[action]} sendt til Stripe`, description: `${p.id} · forsøg ${attempts}` });
+
+    const res = await callStripe(action, p);
+    const now = new Date().toLocaleString("da-DK", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+
+    if ("stripeId" in res) {
+      patchPayment(p.id, {
+        status: targetStatus,
+        sync: { state: "succeeded", action, attempts, stripeId: res.stripeId, updatedAt: now, message: `${labels[action]} bekræftet af Stripe` },
+      });
+      toast({ title: `${labels[action]} bekræftet`, description: `Stripe: ${res.stripeId}` });
+    } else {
+      const err = res.error;
+      patchSync(p.id, { state: "failed", action, prevStatus, targetStatus, attempts, message: err, updatedAt: now });
+      toast({
+        title: `${labels[action]} fejlede`,
+        description: `${err}. Klik på Genprøv for at forsøge igen.`,
+        variant: "destructive",
+      });
+    }
+  };
+
+
+  const refundPayment = (p: Payment) => runStripeAction(p, "refund", "refunded");
+  const togglePausePayout = (p: Payment) => {
+    const action: StripeAction = p.status === "paused" ? "resume" : "pause";
+    const target: PaymentStatus = action === "pause" ? "paused" : "pending";
+    runStripeAction(p, action, target);
+  };
+  const retrySync = (p: Payment) => {
+    if (!p.sync.action || !p.sync.targetStatus) return;
+    runStripeAction(p, p.sync.action, p.sync.targetStatus, true);
   };
 
   const savePayment = (updated: Payment) => {
@@ -360,11 +434,15 @@ const AdminDashboard = () => {
                         <th className="text-left text-xs font-medium text-muted-foreground p-4">Gebyr (25%)</th>
                         <th className="text-left text-xs font-medium text-muted-foreground p-4">Udbetaling</th>
                         <th className="text-left text-xs font-medium text-muted-foreground p-4">Status</th>
+                        <th className="text-left text-xs font-medium text-muted-foreground p-4">Stripe sync</th>
                         <th className="text-right text-xs font-medium text-muted-foreground p-4">Handlinger</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {payments.map((p) => (
+                      {payments.map((p) => {
+                        const syncing = p.sync.state === "pending";
+                        const failed = p.sync.state === "failed";
+                        return (
                         <tr key={p.id} className="border-b border-border last:border-0 hover:bg-secondary/30 transition-colors">
                           <td className="p-4">
                             <div className="font-medium text-sm">{p.id}</div>
@@ -378,9 +456,10 @@ const AdminDashboard = () => {
                           <td className="p-4 text-sm">{fmt(p.fee, p.currency)}</td>
                           <td className="p-4 text-sm font-medium text-success">{fmt(p.payout, p.currency)}</td>
                           <td className="p-4">{statusBadge(p.status)}</td>
+                          <td className="p-4"><StripeSyncCell sync={p.sync} onRetry={() => retrySync(p)} /></td>
                           <td className="p-4 text-right">
                             <div className="flex items-center justify-end gap-1 flex-wrap">
-                              <Button size="sm" variant="ghost" title="Rediger beløb/gebyr" onClick={() => setEditPayment(p)}>
+                              <Button size="sm" variant="ghost" title="Rediger beløb/gebyr" onClick={() => setEditPayment(p)} disabled={syncing}>
                                 <Pencil className="h-4 w-4" />
                               </Button>
                               <Button
@@ -388,24 +467,35 @@ const AdminDashboard = () => {
                                 variant="ghost"
                                 title={p.status === "paused" ? "Genoptag udbetaling" : "Pause udbetaling"}
                                 onClick={() => togglePausePayout(p)}
-                                disabled={p.status === "refunded"}
+                                disabled={p.status === "refunded" || syncing}
                               >
-                                {p.status === "paused" ? <Play className="h-4 w-4 text-success" /> : <Pause className="h-4 w-4 text-warning" />}
+                                {syncing && p.sync.action !== "refund"
+                                  ? <Loader2 className="h-4 w-4 animate-spin" />
+                                  : p.status === "paused"
+                                    ? <Play className="h-4 w-4 text-success" />
+                                    : <Pause className="h-4 w-4 text-warning" />}
                               </Button>
                               <Button
                                 size="sm"
                                 variant="ghost"
                                 title="Refundér"
                                 onClick={() => refundPayment(p)}
-                                disabled={p.status === "refunded"}
+                                disabled={p.status === "refunded" || syncing}
                                 className="text-destructive"
                               >
-                                <Undo2 className="h-4 w-4" />
+                                {syncing && p.sync.action === "refund"
+                                  ? <Loader2 className="h-4 w-4 animate-spin" />
+                                  : <Undo2 className="h-4 w-4" />}
                               </Button>
+                              {failed && (
+                                <Button size="sm" variant="outline" title="Genprøv Stripe-synkronisering" onClick={() => retrySync(p)} className="text-warning border-warning">
+                                  <RefreshCw className="h-4 w-4" />
+                                </Button>
+                              )}
                             </div>
                           </td>
                         </tr>
-                      ))}
+                      );})}
                     </tbody>
                   </table>
                 </div>
@@ -623,8 +713,62 @@ const AdminDashboard = () => {
 };
 
 // ============================================================================
+// Sub-components
+// ============================================================================
+
+const StripeSyncCell = ({ sync, onRetry }: { sync: PaymentSync; onRetry: () => void }) => {
+  if (sync.state === "idle") {
+    return <span className="text-xs text-muted-foreground">—</span>;
+  }
+  if (sync.state === "pending") {
+    return (
+      <div className="flex items-center gap-2 text-xs">
+        <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
+        <div>
+          <div className="font-medium text-primary">Pending</div>
+          <div className="text-muted-foreground">Stripe · forsøg {sync.attempts}</div>
+        </div>
+      </div>
+    );
+  }
+  if (sync.state === "succeeded") {
+    return (
+      <div className="flex items-center gap-2 text-xs">
+        <CheckCircle2 className="h-3.5 w-3.5 text-success" />
+        <div>
+          <div className="font-medium text-success">Succeeded</div>
+          <div className="text-muted-foreground truncate max-w-[140px]" title={sync.stripeId}>
+            {sync.stripeId ?? "ok"} {sync.updatedAt && `· ${sync.updatedAt}`}
+          </div>
+        </div>
+      </div>
+    );
+  }
+  // failed
+  return (
+    <div className="flex items-start gap-2 text-xs">
+      <XCircle className="h-3.5 w-3.5 text-destructive mt-0.5" />
+      <div className="min-w-0">
+        <div className="font-medium text-destructive">Failed</div>
+        <div className="text-muted-foreground truncate max-w-[160px]" title={sync.message}>
+          {sync.message ?? "ukendt fejl"} · forsøg {sync.attempts}
+        </div>
+        <button
+          type="button"
+          onClick={onRetry}
+          className="mt-1 inline-flex items-center gap-1 text-[11px] font-medium text-warning hover:underline"
+        >
+          <RefreshCw className="h-3 w-3" /> Genprøv synkronisering
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// ============================================================================
 // Sub-dialogs
 // ============================================================================
+
 
 const MessageDialog = ({ user, onClose, onSend }: {
   user: ManagedUser | null;
