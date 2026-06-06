@@ -359,6 +359,28 @@ const ProviderRegister = () => {
                       Min. timepris: <strong className="text-foreground">{formatPrice(country.minHourlyRate, country)}</strong> · {country.laborAgreement}
                     </div>
 
+                    {hasPriceViolations && (
+                      <div className="mb-3 p-3 rounded-lg bg-destructive/10 border border-destructive/30 text-xs">
+                        <div className="flex items-center gap-1.5 font-medium text-destructive mb-1.5">
+                          <AlertTriangle className="h-4 w-4" /> Pris under overenskomstgrænsen
+                        </div>
+                        <p className="text-muted-foreground mb-2">
+                          {priceViolations.length} ydelse(r) ligger under den lovpligtige min. timepris ({formatPrice(country.minHourlyRate, country)}) i {country.name}. Du kan ikke indsende profilen før det er rettet.
+                        </p>
+                        <ul className="space-y-1">
+                          {priceViolations.map((v) => (
+                            <li key={v.service.subcategory} className="flex items-center justify-between gap-2 bg-background/60 rounded px-2 py-1">
+                              <span className="truncate">{v.service.subcategory}</span>
+                              <span className="text-destructive whitespace-nowrap font-medium">
+                                {formatPrice(v.effectiveHourly, country)}/t
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+
                     {derivedServices.length === 0 ? (
                       <p className="text-sm text-muted-foreground">Vælg mindst én ydelse i trin 3 for at se priser.</p>
                     ) : (
