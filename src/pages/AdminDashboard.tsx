@@ -713,8 +713,62 @@ const AdminDashboard = () => {
 };
 
 // ============================================================================
+// Sub-components
+// ============================================================================
+
+const StripeSyncCell = ({ sync, onRetry }: { sync: PaymentSync; onRetry: () => void }) => {
+  if (sync.state === "idle") {
+    return <span className="text-xs text-muted-foreground">—</span>;
+  }
+  if (sync.state === "pending") {
+    return (
+      <div className="flex items-center gap-2 text-xs">
+        <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
+        <div>
+          <div className="font-medium text-primary">Pending</div>
+          <div className="text-muted-foreground">Stripe · forsøg {sync.attempts}</div>
+        </div>
+      </div>
+    );
+  }
+  if (sync.state === "succeeded") {
+    return (
+      <div className="flex items-center gap-2 text-xs">
+        <CheckCircle2 className="h-3.5 w-3.5 text-success" />
+        <div>
+          <div className="font-medium text-success">Succeeded</div>
+          <div className="text-muted-foreground truncate max-w-[140px]" title={sync.stripeId}>
+            {sync.stripeId ?? "ok"} {sync.updatedAt && `· ${sync.updatedAt}`}
+          </div>
+        </div>
+      </div>
+    );
+  }
+  // failed
+  return (
+    <div className="flex items-start gap-2 text-xs">
+      <XCircle className="h-3.5 w-3.5 text-destructive mt-0.5" />
+      <div className="min-w-0">
+        <div className="font-medium text-destructive">Failed</div>
+        <div className="text-muted-foreground truncate max-w-[160px]" title={sync.message}>
+          {sync.message ?? "ukendt fejl"} · forsøg {sync.attempts}
+        </div>
+        <button
+          type="button"
+          onClick={onRetry}
+          className="mt-1 inline-flex items-center gap-1 text-[11px] font-medium text-warning hover:underline"
+        >
+          <RefreshCw className="h-3 w-3" /> Genprøv synkronisering
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// ============================================================================
 // Sub-dialogs
 // ============================================================================
+
 
 const MessageDialog = ({ user, onClose, onSend }: {
   user: ManagedUser | null;
