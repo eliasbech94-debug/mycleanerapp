@@ -9,6 +9,8 @@ export interface ProviderService {
   unit: ServiceUnit;
   minPrice: number;    // minimum job price in country currency
   description: string;
+  rateMultiplier: number; // multiplier applied to country's min hourly rate
+  minJobHours: number;    // hours used to derive minPrice
 }
 
 export interface ProviderProfileData {
