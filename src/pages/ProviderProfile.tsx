@@ -8,7 +8,22 @@ import {
   Star, MapPin, Shield, CheckCircle2, Clock, MessageSquare, Heart, Share2,
   Calendar, Award, Sparkles, TrendingUp, Briefcase, Zap, BadgeCheck,
   Timer, FileCheck, ThumbsUp, Wallet, Wrench, UserCheck, XCircle,
+  ShieldCheck, Umbrella, HardHat, GraduationCap, Leaf, FileBadge, ScrollText,
 } from "lucide-react";
+
+const CERT_ICONS: { match: RegExp; Icon: typeof Shield; tone: string }[] = [
+  { match: /id[- ]?verifi/i,         Icon: BadgeCheck,     tone: "from-primary/20 to-primary/5 text-primary" },
+  { match: /straffeattest/i,         Icon: ShieldCheck,    tone: "from-success/20 to-success/5 text-success" },
+  { match: /forsikr/i,               Icon: Umbrella,       tone: "from-info/20 to-info/5 text-info" },
+  { match: /iso/i,                   Icon: Award,          tone: "from-accent/20 to-accent/5 text-accent" },
+  { match: /arbejdsmilj/i,           Icon: HardHat,        tone: "from-warning/20 to-warning/5 text-warning" },
+  { match: /svendebrev|uddann/i,     Icon: GraduationCap,  tone: "from-primary/20 to-primary/5 text-primary" },
+  { match: /milj|grøn|øko/i,         Icon: Leaf,           tone: "from-success/20 to-success/5 text-success" },
+  { match: /certifik|licens/i,       Icon: FileBadge,      tone: "from-info/20 to-info/5 text-info" },
+  { match: /kontrakt|aftale/i,       Icon: ScrollText,     tone: "from-muted-foreground/20 to-muted/5 text-foreground" },
+];
+const certVisual = (label: string) =>
+  CERT_ICONS.find((c) => c.match.test(label)) ?? { Icon: CheckCircle2, tone: "from-primary/20 to-primary/5 text-primary" };
 import Tilt from "@/components/Tilt";
 import { serviceCategories, formatPrice } from "@/lib/countries";
 import { getProvider, getCountry, deriveServices, deriveHourlyRate } from "@/lib/providers";
@@ -153,13 +168,27 @@ const ProviderProfile = () => {
                 <h3 className="font-heading text-lg font-semibold mb-4 flex items-center gap-2">
                   <Shield className="h-5 w-5 text-primary" /> Verificering & certificeringer
                 </h3>
-                <div className="grid sm:grid-cols-2 gap-2.5">
-                  {provider.certifications.map((c) => (
-                    <div key={c} className="flex items-center gap-2 text-sm">
-                      <CheckCircle2 className="h-4 w-4 text-success flex-shrink-0" />
-                      <span>{c}</span>
-                    </div>
-                  ))}
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {provider.certifications.map((c, i) => {
+                    const { Icon, tone } = certVisual(c);
+                    return (
+                      <div
+                        key={c}
+                        className={`group relative overflow-hidden rounded-2xl border border-border/60 bg-gradient-to-br ${tone} p-3 flex flex-col items-center text-center gap-2 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg`}
+                      >
+                        <div
+                          className="floaty rounded-xl bg-background/70 backdrop-blur-sm p-2.5 ring-1 ring-border/60 shadow-sm"
+                          style={{ animationDelay: `${(i % 4) * 0.6}s`, animationDuration: `${6 + (i % 3)}s` }}
+                        >
+                          <Icon className="h-5 w-5" strokeWidth={2.2} />
+                        </div>
+                        <span className="text-[11px] sm:text-xs font-medium leading-tight text-foreground/90 line-clamp-2">
+                          {c}
+                        </span>
+                        <CheckCircle2 className="absolute top-1.5 right-1.5 h-3.5 w-3.5 text-success/80 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
 
