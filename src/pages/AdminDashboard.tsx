@@ -179,23 +179,77 @@ const AdminDashboard = () => {
     setDeleteUser(null);
   };
 
-  // ---- Payment actions ----
-  const updatePaymentStatus = (id: string, status: PaymentStatus) => {
-    setPayments(prev => prev.map(p => p.id === id ? { ...p, status } : p));
-  };
+  // ---- Payment actions (validated via Stripe sync) ----
+  const patchPayment = (id: string, patch: Partial<Payment>) =>
+    setPayments(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p));
 
-  const refundPayment = (p: Payment) => {
-    updatePaymentStatus(p.id, "refunded");
-    toast({ title: "Refundering igangsat", description: `${fmt(p.gross, p.currency)} refunderes til ${p.customer}.` });
-  };
+  const patchSync = (id: string, patch: Partial<PaymentSync>) =>
+    setPayments(prev => prev.map(p => p.id === id ? { ...p, sync: { ...p.sync, ...patch } } : p));
 
-  const togglePausePayout = (p: Payment) => {
-    const next: PaymentStatus = p.status === "paused" ? "pending" : "paused";
-    updatePaymentStatus(p.id, next);
-    toast({
-      title: next === "paused" ? "Udbetaling pauset" : "Udbetaling genoptaget",
-      description: `Udbetaling til ${p.provider} (${fmt(p.payout, p.currency)}) er ${next === "paused" ? "sat på pause" : "frigivet"}.`,
+  // Simulated Stripe API call — swap with edge function call once Lovable Cloud + Stripe is enabled.
+  const callStripe = (action: StripeAction, p: Payment): Promise<{ ok: true; stripeId: string } | { ok: false; error: string }> =>
+    new Promise((resolve) => {
+      const latency = 700 + Math.random() * 1200;
+      setTimeout(() => {
+        // ~22% failure rate so admins can experience the failed → retry flow
+        const ok = Math.random() > 0.22;
+        if (ok) {
+          const prefix = action === "refund" ? "re" : "tr";
+          resolve({ ok: true, stripeId: `${prefix}_${Math.random().toString(36).slice(2, 12)}` });
+        } else {
+          const errors = [
+            "stripe: network_error — kunne ikke nå Stripe",
+            "stripe: charge_already_refunded",
+            "stripe: insufficient_funds på connect-konto",
+            "stripe: rate_limited — prøv igen",
+          ];
+          resolve({ ok: false, error: errors[Math.floor(Math.random() * errors.length)] });
+        }
+      }, latency);
     });
+
+  const runStripeAction = async (p: Payment, action: StripeAction, targetStatus: PaymentStatus, retry = false) => {
+    const prevStatus = retry ? (p.sync.prevStatus ?? p.status) : p.status;
+    const attempts = (retry ? p.sync.attempts : 0) + 1;
+    const labels: Record<StripeAction, string> = {
+      pause: "Pause udbetaling",
+      resume: "Genoptag udbetaling",
+      refund: "Refundering",
+    };
+
+    patchPayment(p.id, {
+      sync: { state: "pending", action, targetStatus, prevStatus, attempts, message: "Synkroniserer med Stripe…" },
+    });
+    toast({ title: `${labels[action]} sendt til Stripe`, description: `${p.id} · forsøg ${attempts}` });
+
+    const res = await callStripe(action, p);
+    const now = new Date().toLocaleString("da-DK", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+
+    if (res.ok) {
+      patchPayment(p.id, {
+        status: targetStatus,
+        sync: { state: "succeeded", action, attempts, stripeId: res.stripeId, updatedAt: now, message: `${labels[action]} bekræftet af Stripe` },
+      });
+      toast({ title: `${labels[action]} bekræftet`, description: `Stripe: ${res.stripeId}` });
+    } else {
+      patchSync(p.id, { state: "failed", action, prevStatus, targetStatus, attempts, message: res.error, updatedAt: now });
+      toast({
+        title: `${labels[action]} fejlede`,
+        description: `${res.error}. Klik på Genprøv for at forsøge igen.`,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const refundPayment = (p: Payment) => runStripeAction(p, "refund", "refunded");
+  const togglePausePayout = (p: Payment) => {
+    const action: StripeAction = p.status === "paused" ? "resume" : "pause";
+    const target: PaymentStatus = action === "pause" ? "paused" : "pending";
+    runStripeAction(p, action, target);
+  };
+  const retrySync = (p: Payment) => {
+    if (!p.sync.action || !p.sync.targetStatus) return;
+    runStripeAction(p, p.sync.action, p.sync.targetStatus, true);
   };
 
   const savePayment = (updated: Payment) => {
