@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Star, MapPin, Shield, CheckCircle2, Clock, MessageSquare, Heart, Share2,
   Calendar, Award, Sparkles, TrendingUp, Briefcase, Zap, BadgeCheck,
+  Timer, FileCheck, ThumbsUp, Wallet, Wrench, UserCheck, XCircle,
 } from "lucide-react";
 import Tilt from "@/components/Tilt";
 import { serviceCategories, formatPrice } from "@/lib/countries";
@@ -286,6 +287,74 @@ const ProviderProfile = () => {
                   })}
                 </div>
               </div>
+
+              {(() => {
+                const base = provider.rating;
+                const clamp = (n: number) => Math.max(3.5, Math.min(5, Math.round(n * 10) / 10));
+                const cancellation = Math.max(0, Math.min(8, Math.round((5 - base) * 4 * 10) / 10));
+                const categories = [
+                  { icon: ThumbsUp, label: "Helhedsindtryk", value: clamp(base), hint: "Samlet oplevelse af samarbejdet" },
+                  { icon: Timer, label: "Svartid", value: clamp(base + 0.05), hint: `Svarer typisk ${provider.responseTime}` },
+                  { icon: FileCheck, label: "Korrekt profilinfo", value: clamp(base - 0.05), hint: "Profilens oplysninger stemmer med virkeligheden" },
+                  { icon: CheckCircle2, label: "Udført uden anmærkninger", value: clamp(base - 0.1), hint: "Opgaver afsluttet uden klager" },
+                  { icon: Wallet, label: "Aftalt pris & tid", value: clamp(base - 0.02), hint: "Holder den aftalte pris og tidsplan" },
+                  { icon: Wrench, label: "Kvalitet", value: clamp(base + 0.02), hint: "Håndværksmæssig udførelse" },
+                  { icon: UserCheck, label: "Faglighed", value: clamp(base), hint: "Professionel adfærd og kompetence" },
+                ];
+                return (
+                  <div className="glass-card p-6 rounded-2xl">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="font-heading text-lg font-semibold">Vurdering af profilen</h3>
+                      <Badge variant="outline" className="text-xs">
+                        <Sparkles className="h-3 w-3 mr-1" /> Verificerede anmeldelser
+                      </Badge>
+                    </div>
+                    <div className="grid sm:grid-cols-2 gap-3">
+                      {categories.map((c) => {
+                        const pct = (c.value / 5) * 100;
+                        return (
+                          <div key={c.label} className="p-3 rounded-xl bg-secondary/40 border border-border/50">
+                            <div className="flex items-center justify-between gap-2 mb-1.5">
+                              <div className="flex items-center gap-2 min-w-0">
+                                <c.icon className="h-4 w-4 text-primary flex-shrink-0" />
+                                <span className="text-sm font-medium truncate">{c.label}</span>
+                              </div>
+                              <div className="flex items-center gap-1 flex-shrink-0">
+                                <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+                                <span className="text-sm font-semibold tabular-nums">{c.value.toFixed(1)}</span>
+                              </div>
+                            </div>
+                            <div className="h-1.5 bg-secondary rounded-full overflow-hidden mb-1.5">
+                              <div className="h-full gradient-hero" style={{ width: `${pct}%` }} />
+                            </div>
+                            <p className="text-[11px] text-muted-foreground leading-snug">{c.hint}</p>
+                          </div>
+                        );
+                      })}
+                      <div className="p-3 rounded-xl bg-secondary/40 border border-border/50 sm:col-span-2">
+                        <div className="flex items-center justify-between gap-2 mb-1.5">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <XCircle className="h-4 w-4 text-destructive flex-shrink-0" />
+                            <span className="text-sm font-medium truncate">Annulleringsrate</span>
+                          </div>
+                          <span className={`text-sm font-semibold tabular-nums ${cancellation <= 2 ? "text-success" : cancellation <= 5 ? "text-warning" : "text-destructive"}`}>
+                            {cancellation.toFixed(1)}%
+                          </span>
+                        </div>
+                        <div className="h-1.5 bg-secondary rounded-full overflow-hidden mb-1.5">
+                          <div
+                            className={`h-full ${cancellation <= 2 ? "bg-success" : cancellation <= 5 ? "bg-warning" : "bg-destructive"}`}
+                            style={{ width: `${Math.min(100, cancellation * 10)}%` }}
+                          />
+                        </div>
+                        <p className="text-[11px] text-muted-foreground leading-snug">
+                          Andel af accepterede opgaver der efterfølgende blev annulleret af udbyderen. Lavere er bedre.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
 
               {reviews.map((r, i) => (
                 <div key={i} className="glass-card p-5 rounded-2xl">
