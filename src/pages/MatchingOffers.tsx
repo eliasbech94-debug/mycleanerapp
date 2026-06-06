@@ -5,19 +5,19 @@ import { Star, MapPin, Shield, Clock, Sparkles, Zap, MessageCircle, ArrowRight }
 
 const mockOffers = [
   {
-    id: 1, name: "Maria Jensen", avatar: "MJ", rating: 4.9, reviews: 127, verified: true,
+    id: "p_002", name: "Maria Jensen", avatar: "MJ", rating: 4.9, reviews: 127, verified: true,
     price: 420, estimatedHours: 3, distance: "2.3 km",
     specialties: ["Hjemmerengøring", "Dybrengøring"], bio: "15 års erfaring med professionel rengøring. Grundig og pålidelig.",
     aiMatch: 98, responseTime: "< 1 time", boosted: true,
   },
   {
-    id: 2, name: "Anders Sørensen", avatar: "AS", rating: 4.7, reviews: 84, verified: true,
+    id: "p_003", name: "Anders Sørensen", avatar: "AS", rating: 4.7, reviews: 84, verified: true,
     price: 380, estimatedHours: 3, distance: "4.1 km",
     specialties: ["Hjemmerengøring", "Vinduespudsning"], bio: "Erfaren rengøringsassistent med fokus på kvalitet og kundetilfredshed.",
     aiMatch: 92, responseTime: "< 2 timer", boosted: false,
   },
   {
-    id: 3, name: "CleanPro ApS", avatar: "CP", rating: 4.8, reviews: 312, verified: true,
+    id: "p_004", name: "CleanPro ApS", avatar: "CP", rating: 4.8, reviews: 312, verified: true,
     price: 450, estimatedHours: 3, distance: "5.8 km",
     specialties: ["Erhvervsrengøring", "Hjemmerengøring", "Flytterengøring"], bio: "Professionel rengøringsvirksomhed med certificerede medarbejdere.",
     aiMatch: 89, responseTime: "< 30 min", boosted: false, isBusiness: true,
