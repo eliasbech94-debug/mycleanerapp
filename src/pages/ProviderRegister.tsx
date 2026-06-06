@@ -7,7 +7,8 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, ArrowLeft, Building2, User, Upload, Shield, CheckCircle2, Sparkles } from "lucide-react";
+import { ArrowRight, ArrowLeft, Building2, User, Upload, Shield, CheckCircle2, Sparkles, AlertTriangle } from "lucide-react";
+import { toast } from "sonner";
 import { countries, serviceCategories, formatPrice } from "@/lib/countries";
 import { deriveServices, deriveHourlyRate, saveProvider } from "@/lib/providers";
 
@@ -60,7 +61,29 @@ const ProviderRegister = () => {
   );
   const derivedHourly = useMemo(() => deriveHourlyRate(country), [country]);
 
+  // Validate: every service's effective hourly rate must meet the country's labor agreement floor
+  const priceViolations = useMemo(() => {
+    const floor = country.minHourlyRate;
+    return derivedServices
+      .map((s) => {
+        const effectiveHourly = Math.round(s.minPrice / Math.max(1, s.minJobHours));
+        const underlyingHourly = Math.round(country.minHourlyRate * s.rateMultiplier);
+        const violatesUnderlying = underlyingHourly < floor;
+        const violatesMinJob = effectiveHourly < floor;
+        if (!violatesUnderlying && !violatesMinJob) return null;
+        return { service: s, effectiveHourly, underlyingHourly };
+      })
+      .filter((v): v is NonNullable<typeof v> => v !== null);
+  }, [derivedServices, country]);
+  const hasPriceViolations = priceViolations.length > 0;
+
   const handleSubmit = () => {
+    if (hasPriceViolations) {
+      toast.error("Priser under overenskomstgrænsen", {
+        description: `${priceViolations.length} ydelse(r) ligger under ${country.laborAgreement}. Juster før indsendelse.`,
+      });
+      return;
+    }
     const id = `p_${Date.now()}`;
     const name = form.type === "business" && form.companyName
       ? form.companyName
@@ -336,6 +359,28 @@ const ProviderRegister = () => {
                       Min. timepris: <strong className="text-foreground">{formatPrice(country.minHourlyRate, country)}</strong> · {country.laborAgreement}
                     </div>
 
+                    {hasPriceViolations && (
+                      <div className="mb-3 p-3 rounded-lg bg-destructive/10 border border-destructive/30 text-xs">
+                        <div className="flex items-center gap-1.5 font-medium text-destructive mb-1.5">
+                          <AlertTriangle className="h-4 w-4" /> Pris under overenskomstgrænsen
+                        </div>
+                        <p className="text-muted-foreground mb-2">
+                          {priceViolations.length} ydelse(r) ligger under den lovpligtige min. timepris ({formatPrice(country.minHourlyRate, country)}) i {country.name}. Du kan ikke indsende profilen før det er rettet.
+                        </p>
+                        <ul className="space-y-1">
+                          {priceViolations.map((v) => (
+                            <li key={v.service.subcategory} className="flex items-center justify-between gap-2 bg-background/60 rounded px-2 py-1">
+                              <span className="truncate">{v.service.subcategory}</span>
+                              <span className="text-destructive whitespace-nowrap font-medium">
+                                {formatPrice(v.effectiveHourly, country)}/t
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+
                     {derivedServices.length === 0 ? (
                       <p className="text-sm text-muted-foreground">Vælg mindst én ydelse i trin 3 for at se priser.</p>
                     ) : (
@@ -423,7 +468,9 @@ const ProviderRegister = () => {
                   Næste <ArrowRight className="h-4 w-4 ml-2" />
                 </Button>
               ) : (
-                <Button disabled={!form.acceptTerms} onClick={handleSubmit}>Send ansøgning</Button>
+                <Button disabled={!form.acceptTerms || hasPriceViolations} onClick={handleSubmit}>
+                  {hasPriceViolations ? "Pris under grænse" : "Send ansøgning"}
+                </Button>
               )}
             </div>
           </div>
