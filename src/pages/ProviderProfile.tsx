@@ -164,28 +164,41 @@ const ProviderProfile = () => {
                 </div>
               </div>
 
-              <div className="glass-card p-6 rounded-2xl">
-                <h3 className="font-heading text-lg font-semibold mb-4 flex items-center gap-2">
-                  <Shield className="h-5 w-5 text-primary" /> Verificering & certificeringer
+              <div className="glass-card p-6 rounded-2xl relative overflow-hidden">
+                <div aria-hidden className="pointer-events-none absolute -top-16 -right-16 h-48 w-48 rounded-full bg-primary/20 blur-3xl" />
+                <div aria-hidden className="pointer-events-none absolute -bottom-20 -left-10 h-48 w-48 rounded-full bg-accent/20 blur-3xl" />
+                <h3 className="font-heading text-lg font-semibold mb-4 flex items-center gap-2 relative">
+                  <span className="relative inline-flex items-center justify-center h-8 w-8 rounded-xl gradient-hero text-primary-foreground shadow-lg">
+                    <Shield className="h-4 w-4" />
+                    <Sparkles className="cert-sparkle absolute -top-1.5 -right-1.5 h-3 w-3 text-accent" />
+                  </span>
+                  Verificering & certificeringer
                 </h3>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 relative">
                   {provider.certifications.map((c, i) => {
                     const { Icon, tone } = certVisual(c);
                     return (
                       <div
                         key={c}
-                        className={`group relative overflow-hidden rounded-2xl border border-border/60 bg-gradient-to-br ${tone} p-3 flex flex-col items-center text-center gap-2 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg`}
+                        className={`cert-tile group relative overflow-hidden rounded-2xl border border-border/60 bg-gradient-to-br ${tone} p-3 flex flex-col items-center text-center gap-2 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-primary/10`}
+                        style={{ animationDelay: `${i * 0.08}s` }}
                       >
                         <div
-                          className="floaty rounded-xl bg-background/70 backdrop-blur-sm p-2.5 ring-1 ring-border/60 shadow-sm"
+                          className="floaty relative rounded-xl bg-background/80 backdrop-blur-sm p-2.5 ring-1 ring-border/60 shadow-sm group-hover:ring-primary/40 group-hover:shadow-primary/20 transition-all"
                           style={{ animationDelay: `${(i % 4) * 0.6}s`, animationDuration: `${6 + (i % 3)}s` }}
                         >
-                          <Icon className="h-5 w-5" strokeWidth={2.2} />
+                          <Icon className="h-5 w-5 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6" strokeWidth={2.2} />
+                          <Sparkles
+                            className="cert-sparkle absolute -top-1 -right-1 h-3 w-3 text-accent opacity-0 group-hover:opacity-100"
+                            style={{ animationDelay: `${i * 0.15}s` }}
+                          />
                         </div>
-                        <span className="text-[11px] sm:text-xs font-medium leading-tight text-foreground/90 line-clamp-2">
+                        <span className="text-[11px] sm:text-xs font-medium leading-tight text-foreground/90 line-clamp-2 relative z-10">
                           {c}
                         </span>
-                        <CheckCircle2 className="absolute top-1.5 right-1.5 h-3.5 w-3.5 text-success/80 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <span className="badge-pulse absolute top-1.5 right-1.5 inline-flex h-4 w-4 items-center justify-center rounded-full bg-success text-success-foreground">
+                          <CheckCircle2 className="h-3 w-3" strokeWidth={3} />
+                        </span>
                       </div>
                     );
                   })}
