@@ -434,11 +434,15 @@ const AdminDashboard = () => {
                         <th className="text-left text-xs font-medium text-muted-foreground p-4">Gebyr (25%)</th>
                         <th className="text-left text-xs font-medium text-muted-foreground p-4">Udbetaling</th>
                         <th className="text-left text-xs font-medium text-muted-foreground p-4">Status</th>
+                        <th className="text-left text-xs font-medium text-muted-foreground p-4">Stripe sync</th>
                         <th className="text-right text-xs font-medium text-muted-foreground p-4">Handlinger</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {payments.map((p) => (
+                      {payments.map((p) => {
+                        const syncing = p.sync.state === "pending";
+                        const failed = p.sync.state === "failed";
+                        return (
                         <tr key={p.id} className="border-b border-border last:border-0 hover:bg-secondary/30 transition-colors">
                           <td className="p-4">
                             <div className="font-medium text-sm">{p.id}</div>
@@ -452,9 +456,10 @@ const AdminDashboard = () => {
                           <td className="p-4 text-sm">{fmt(p.fee, p.currency)}</td>
                           <td className="p-4 text-sm font-medium text-success">{fmt(p.payout, p.currency)}</td>
                           <td className="p-4">{statusBadge(p.status)}</td>
+                          <td className="p-4"><StripeSyncCell sync={p.sync} onRetry={() => retrySync(p)} /></td>
                           <td className="p-4 text-right">
                             <div className="flex items-center justify-end gap-1 flex-wrap">
-                              <Button size="sm" variant="ghost" title="Rediger beløb/gebyr" onClick={() => setEditPayment(p)}>
+                              <Button size="sm" variant="ghost" title="Rediger beløb/gebyr" onClick={() => setEditPayment(p)} disabled={syncing}>
                                 <Pencil className="h-4 w-4" />
                               </Button>
                               <Button
@@ -462,24 +467,35 @@ const AdminDashboard = () => {
                                 variant="ghost"
                                 title={p.status === "paused" ? "Genoptag udbetaling" : "Pause udbetaling"}
                                 onClick={() => togglePausePayout(p)}
-                                disabled={p.status === "refunded"}
+                                disabled={p.status === "refunded" || syncing}
                               >
-                                {p.status === "paused" ? <Play className="h-4 w-4 text-success" /> : <Pause className="h-4 w-4 text-warning" />}
+                                {syncing && p.sync.action !== "refund"
+                                  ? <Loader2 className="h-4 w-4 animate-spin" />
+                                  : p.status === "paused"
+                                    ? <Play className="h-4 w-4 text-success" />
+                                    : <Pause className="h-4 w-4 text-warning" />}
                               </Button>
                               <Button
                                 size="sm"
                                 variant="ghost"
                                 title="Refundér"
                                 onClick={() => refundPayment(p)}
-                                disabled={p.status === "refunded"}
+                                disabled={p.status === "refunded" || syncing}
                                 className="text-destructive"
                               >
-                                <Undo2 className="h-4 w-4" />
+                                {syncing && p.sync.action === "refund"
+                                  ? <Loader2 className="h-4 w-4 animate-spin" />
+                                  : <Undo2 className="h-4 w-4" />}
                               </Button>
+                              {failed && (
+                                <Button size="sm" variant="outline" title="Genprøv Stripe-synkronisering" onClick={() => retrySync(p)} className="text-warning border-warning">
+                                  <RefreshCw className="h-4 w-4" />
+                                </Button>
+                              )}
                             </div>
                           </td>
                         </tr>
-                      ))}
+                      );})}
                     </tbody>
                   </table>
                 </div>
