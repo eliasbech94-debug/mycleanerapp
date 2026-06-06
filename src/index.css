@@ -184,4 +184,60 @@
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-10px); }
   }
+
+  /* === Cert tile wow effects === */
+  .cert-tile { position: relative; isolation: isolate; }
+  .cert-tile::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    padding: 1px;
+    background: conic-gradient(from var(--angle, 0deg),
+      hsl(var(--primary) / 0.0) 0deg,
+      hsl(var(--primary) / 0.9) 90deg,
+      hsl(var(--accent) / 0.9) 180deg,
+      hsl(var(--primary) / 0.0) 270deg);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+            mask-composite: exclude;
+    opacity: 0;
+    transition: opacity .4s ease;
+    animation: cert-spin 4s linear infinite;
+    pointer-events: none;
+    z-index: 1;
+  }
+  .cert-tile:hover::before { opacity: 1; }
+  .cert-tile::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(115deg, transparent 30%, hsl(0 0% 100% / 0.55) 50%, transparent 70%);
+    transform: translateX(-120%);
+    transition: transform .9s ease;
+    pointer-events: none;
+    mix-blend-mode: overlay;
+    z-index: 2;
+  }
+  .cert-tile:hover::after { transform: translateX(120%); }
+  @property --angle {
+    syntax: "<angle>";
+    initial-value: 0deg;
+    inherits: false;
+  }
+  @keyframes cert-spin {
+    to { --angle: 360deg; }
+  }
+  @keyframes sparkle-pop {
+    0% { transform: scale(0) rotate(0deg); opacity: 0; }
+    40% { transform: scale(1) rotate(90deg); opacity: 1; }
+    100% { transform: scale(0.6) rotate(180deg); opacity: 0; }
+  }
+  .cert-sparkle { animation: sparkle-pop 1.4s ease-in-out infinite; }
+  @keyframes badge-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 hsl(var(--success) / 0.55); }
+    50% { box-shadow: 0 0 0 6px hsl(var(--success) / 0); }
+  }
+  .badge-pulse { animation: badge-pulse 2.2s ease-out infinite; }
 }
