@@ -181,33 +181,45 @@ const ProviderProfile = () => {
                   Verificering & certificeringer
                 </h3>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 relative">
-                  {provider.certifications.map((c, i) => {
-                    const { Icon, tone } = certVisual(c);
-                    return (
-                      <div
-                        key={c}
-                        className={`cert-tile group relative overflow-hidden rounded-2xl border border-border/60 bg-gradient-to-br ${tone} p-3 flex flex-col items-center text-center gap-2 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-primary/10`}
-                        style={{ animationDelay: `${i * 0.08}s` }}
-                      >
+                  {certLoading
+                    ? Array.from({ length: 6 }).map((_, i) => (
                         <div
-                          className="floaty relative rounded-xl bg-background/80 backdrop-blur-sm p-2.5 ring-1 ring-border/60 shadow-sm group-hover:ring-primary/40 group-hover:shadow-primary/20 transition-all"
-                          style={{ animationDelay: `${(i % 4) * 0.6}s`, animationDuration: `${6 + (i % 3)}s` }}
+                          key={i}
+                          className="cert-skeleton-ring cert-skeleton rounded-2xl border border-border/40 p-3 flex flex-col items-center text-center gap-2"
+                          style={{ animationDelay: `${i * 0.12}s` }}
                         >
-                          <Icon className="h-5 w-5 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6" strokeWidth={2.2} />
-                          <Sparkles
-                            className="cert-sparkle absolute -top-1 -right-1 h-3 w-3 text-accent opacity-0 group-hover:opacity-100"
-                            style={{ animationDelay: `${i * 0.15}s` }}
-                          />
+                          <div className="rounded-xl bg-muted/60 p-2.5 shadow-sm h-10 w-10" />
+                          <div className="h-3 w-20 bg-muted/50 rounded" />
+                          <div className="h-2.5 w-14 bg-muted/40 rounded" />
                         </div>
-                        <span className="text-[11px] sm:text-xs font-medium leading-tight text-foreground/90 line-clamp-2 relative z-10">
-                          {c}
-                        </span>
-                        <span className="badge-pulse absolute top-1.5 right-1.5 inline-flex h-4 w-4 items-center justify-center rounded-full bg-success text-success-foreground">
-                          <CheckCircle2 className="h-3 w-3" strokeWidth={3} />
-                        </span>
-                      </div>
-                    );
-                  })}
+                      ))
+                    : provider.certifications.map((c, i) => {
+                        const { Icon, tone } = certVisual(c);
+                        return (
+                          <div
+                            key={c}
+                            className={`cert-tile group relative overflow-hidden rounded-2xl border border-border/60 bg-gradient-to-br ${tone} p-3 flex flex-col items-center text-center gap-2 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-primary/10 animate-fade-in`}
+                            style={{ animationDelay: `${i * 0.08}s` }}
+                          >
+                            <div
+                              className="floaty relative rounded-xl bg-background/80 backdrop-blur-sm p-2.5 ring-1 ring-border/60 shadow-sm group-hover:ring-primary/40 group-hover:shadow-primary/20 transition-all"
+                              style={{ animationDelay: `${(i % 4) * 0.6}s`, animationDuration: `${6 + (i % 3)}s` }}
+                            >
+                              <Icon className="h-5 w-5 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6" strokeWidth={2.2} />
+                              <Sparkles
+                                className="cert-sparkle absolute -top-1 -right-1 h-3 w-3 text-accent opacity-0 group-hover:opacity-100"
+                                style={{ animationDelay: `${i * 0.15}s` }}
+                              />
+                            </div>
+                            <span className="text-[11px] sm:text-xs font-medium leading-tight text-foreground/90 line-clamp-2 relative z-10">
+                              {c}
+                            </span>
+                            <span className="badge-pulse absolute top-1.5 right-1.5 inline-flex h-4 w-4 items-center justify-center rounded-full bg-success text-success-foreground">
+                              <CheckCircle2 className="h-3 w-3" strokeWidth={3} />
+                            </span>
+                          </div>
+                        );
+                      })}
                 </div>
               </div>
 
