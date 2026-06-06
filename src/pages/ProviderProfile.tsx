@@ -94,7 +94,7 @@ const ProviderProfile = () => {
                 { icon: Briefcase, label: "Opgaver", value: provider.jobsCompleted },
                 { icon: TrendingUp, label: "Genbestilling", value: `${provider.repeatClients}%` },
                 { icon: Award, label: "Medlem siden", value: provider.memberSince },
-                { icon: Zap, label: "Timepris fra", value: formatPrice(provider.hourlyRate, country) },
+                { icon: Zap, label: "Timepris fra", value: formatPrice(hourlyRate, country) },
               ].map((s) => (
                 <div key={s.label} className="text-center sm:text-left">
                   <s.icon className="h-4 w-4 text-primary mb-1 mx-auto sm:mx-0" />
