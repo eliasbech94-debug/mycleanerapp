@@ -118,10 +118,10 @@ const EmployeeDashboard = () => {
 
             <TabsContent value="tickets" className="space-y-3 mt-4">
               {myTickets.map((t) => (
-                <div key={t.id} className="glass-card p-5 hover:shadow-md transition-all">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
+                <div key={t.id} className="glass-card p-4 sm:p-5 hover:shadow-md transition-all">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 mb-1 flex-wrap">
                         <span className="text-xs text-muted-foreground font-mono">{t.id}</span>
                         {priorityBadge(t.priority)}
                         <span className="text-sm">{t.country}</span>
@@ -129,10 +129,10 @@ const EmployeeDashboard = () => {
                       <h3 className="font-medium">{t.issue}</h3>
                       <p className="text-sm text-muted-foreground mt-1">Kunde: {t.customer} • {t.created}</p>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 sm:flex-shrink-0">
                       <Button size="sm" variant="ghost"><Phone className="h-4 w-4" /></Button>
                       <Button size="sm" variant="ghost"><Mail className="h-4 w-4" /></Button>
-                      <Button size="sm">Håndter <ArrowRight className="h-3 w-3 ml-1" /></Button>
+                      <Button size="sm" className="ml-auto">Håndter <ArrowRight className="h-3 w-3 ml-1" /></Button>
                     </div>
                   </div>
                 </div>
@@ -141,19 +141,19 @@ const EmployeeDashboard = () => {
 
             <TabsContent value="providers" className="space-y-3 mt-4">
               {providerIssues.map((p) => (
-                <div key={p.id} className="glass-card p-5">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
+                <div key={p.id} className="glass-card p-4 sm:p-5">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 mb-1 flex-wrap">
                         <span className="text-xs text-muted-foreground font-mono">{p.id}</span>
                         <span className="text-sm">{p.country}</span>
                       </div>
                       <h3 className="font-medium">{p.provider} — {p.issue}</h3>
                       <p className="text-sm text-muted-foreground mt-1">{p.action}</p>
                     </div>
-                    <div className="flex gap-2">
-                      <Button size="sm" variant="outline">Kontakt</Button>
-                      <Button size="sm">Løs</Button>
+                    <div className="flex gap-2 sm:flex-shrink-0">
+                      <Button size="sm" variant="outline" className="flex-1 sm:flex-none">Kontakt</Button>
+                      <Button size="sm" className="flex-1 sm:flex-none">Løs</Button>
                     </div>
                   </div>
                 </div>
