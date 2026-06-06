@@ -7,7 +7,8 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, ArrowLeft, Building2, User, Upload, Shield, CheckCircle2, Sparkles } from "lucide-react";
+import { ArrowRight, ArrowLeft, Building2, User, Upload, Shield, CheckCircle2, Sparkles, AlertTriangle } from "lucide-react";
+import { toast } from "sonner";
 import { countries, serviceCategories, formatPrice } from "@/lib/countries";
 import { deriveServices, deriveHourlyRate, saveProvider } from "@/lib/providers";
 
