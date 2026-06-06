@@ -46,6 +46,11 @@ const ProviderProfile = () => {
   );
   const hourlyRate = provider.hourlyRate ?? deriveHourlyRate(country);
 
+  useEffect(() => {
+    const t = setTimeout(() => setCertLoading(false), 900);
+    return () => clearTimeout(t);
+  }, []);
+
   return (
     <div className="min-h-screen bg-background">
       {/* Cover / hero */}
