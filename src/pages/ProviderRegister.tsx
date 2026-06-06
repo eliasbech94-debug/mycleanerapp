@@ -1,16 +1,20 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowRight, ArrowLeft, Building2, User, Upload, Shield, CheckCircle2 } from "lucide-react";
-import { countries, serviceCategories } from "@/lib/countries";
+import { Badge } from "@/components/ui/badge";
+import { ArrowRight, ArrowLeft, Building2, User, Upload, Shield, CheckCircle2, Sparkles } from "lucide-react";
+import { countries, serviceCategories, formatPrice } from "@/lib/countries";
+import { deriveServices, deriveHourlyRate, saveProvider } from "@/lib/providers";
 
 const steps = ["Type", "Personlig info", "Services & område", "Dokumenter", "Gennemse"];
 
 const ProviderRegister = () => {
+  const navigate = useNavigate();
   const [step, setStep] = useState(0);
   const [form, setForm] = useState({
     type: "private" as "private" | "business",
@@ -19,6 +23,7 @@ const ProviderRegister = () => {
     country: "DK",
     city: "", postalCode: "",
     categories: [] as string[],
+    subcategories: [] as string[],
     radius: "25",
     bio: "",
     acceptTerms: false,
@@ -26,12 +31,72 @@ const ProviderRegister = () => {
 
   const update = (key: string, value: any) => setForm((p) => ({ ...p, [key]: value }));
   const toggleCategory = (id: string) => {
+    setForm((p) => {
+      const has = p.categories.includes(id);
+      const cat = serviceCategories.find((c) => c.id === id);
+      const subs = cat?.subcategories ?? [];
+      return {
+        ...p,
+        categories: has ? p.categories.filter((c) => c !== id) : [...p.categories, id],
+        // auto-select all subcategories when category is added; remove on toggle off
+        subcategories: has
+          ? p.subcategories.filter((s) => !subs.includes(s))
+          : [...new Set([...p.subcategories, ...subs])],
+      };
+    });
+  };
+  const toggleSubcategory = (sub: string) => {
     setForm((p) => ({
       ...p,
-      categories: p.categories.includes(id) ? p.categories.filter((c) => c !== id) : [...p.categories, id],
+      subcategories: p.subcategories.includes(sub)
+        ? p.subcategories.filter((s) => s !== sub)
+        : [...p.subcategories, sub],
     }));
   };
   const country = countries.find((c) => c.code === form.country) || countries[0];
+  const derivedServices = useMemo(
+    () => deriveServices(form.categories, form.subcategories, country),
+    [form.categories, form.subcategories, country],
+  );
+  const derivedHourly = useMemo(() => deriveHourlyRate(country), [country]);
+
+  const handleSubmit = () => {
+    const id = `p_${Date.now()}`;
+    const name = form.type === "business" && form.companyName
+      ? form.companyName
+      : `${form.firstName} ${form.lastName}`.trim() || "Ny provider";
+    saveProvider({
+      id,
+      name,
+      handle: `@${(form.firstName || "ny").toLowerCase()}`,
+      tagline: form.bio || `${form.type === "business" ? "Virksomhed" : "Privat udbyder"} i ${form.city || country.name}`,
+      bio: form.bio || "",
+      type: form.type,
+      verified: false,
+      topRated: false,
+      rating: 0,
+      reviews: 0,
+      jobsCompleted: 0,
+      responseTime: "—",
+      repeatClients: 0,
+      city: form.city || country.name,
+      countryCode: form.country,
+      radiusKm: parseInt(form.radius, 10) || 25,
+      memberSince: String(new Date().getFullYear()),
+      languages: ["Dansk"],
+      categories: form.categories,
+      subcategories: form.subcategories,
+      avatar: "",
+      gallery: [
+        "from-primary/30 to-accent/30",
+        "from-accent/30 to-info/30",
+        "from-info/30 to-primary/30",
+      ],
+      certifications: form.type === "business" ? ["CVR registreret"] : ["ID-verificeret"],
+    });
+    navigate(`/provider/${id}`);
+  };
+
 
   return (
     <div className="min-h-screen bg-background">
@@ -124,6 +189,39 @@ const ProviderRegister = () => {
                     ))}
                   </div>
                 </div>
+
+                {form.categories.length > 0 && (
+                  <div>
+                    <Label className="mb-3 block">Vælg specifikke ydelser</Label>
+                    <div className="space-y-3">
+                      {form.categories.map((catId) => {
+                        const cat = serviceCategories.find((c) => c.id === catId);
+                        if (!cat) return null;
+                        return (
+                          <div key={catId} className="p-3 rounded-xl bg-secondary/40 border border-border/50">
+                            <div className="text-xs font-medium text-muted-foreground mb-2">{cat.icon} {cat.name}</div>
+                            <div className="flex flex-wrap gap-1.5">
+                              {cat.subcategories.map((sub) => {
+                                const active = form.subcategories.includes(sub);
+                                return (
+                                  <button
+                                    type="button"
+                                    key={sub}
+                                    onClick={() => toggleSubcategory(sub)}
+                                    className={`text-xs px-2.5 py-1 rounded-full border transition-colors ${active ? "bg-primary text-primary-foreground border-primary" : "bg-background border-border hover:border-primary/40"}`}
+                                  >
+                                    {sub}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div><Label>By</Label><Input value={form.city} onChange={(e) => update("city", e.target.value)} placeholder="København" /></div>
                   <div><Label>Postnummer</Label><Input value={form.postalCode} onChange={(e) => update("postalCode", e.target.value)} placeholder="2100" /></div>
@@ -140,15 +238,37 @@ const ProviderRegister = () => {
                     </SelectContent>
                   </Select>
                 </div>
+
                 <div className="p-4 rounded-xl bg-info/10 border border-info/20 text-sm">
-                  <p className="font-medium text-info">💡 AI prisforslag</p>
-                  <p className="text-muted-foreground mt-1">
-                    Minimum timepris i {country.name}: <strong>{country.currencySymbol}{country.minHourlyRate}</strong> ({country.laborAgreement}).
-                    Vores AI foreslår markedspriser, så du tjener fair.
+                  <p className="font-medium text-info flex items-center gap-1.5">
+                    <Sparkles className="h-4 w-4" /> AI prisforslag · {country.flag} {country.name}
                   </p>
+                  <p className="text-muted-foreground mt-1">
+                    Min. timepris: <strong>{formatPrice(country.minHourlyRate, country)}</strong> ({country.laborAgreement}).
+                    Foreslået timepris: <strong>{formatPrice(derivedHourly, country)}</strong>.
+                  </p>
+                  {derivedServices.length > 0 && (
+                    <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                      {derivedServices.slice(0, 6).map((s) => {
+                        const unit = s.unit === "hour" ? "/t" : s.unit === "m2" ? "/m²" : "";
+                        return (
+                          <div key={s.subcategory} className="flex items-center justify-between gap-2 text-xs bg-background/60 rounded-lg px-2.5 py-1.5">
+                            <span className="truncate">{s.subcategory}</span>
+                            <span className="font-semibold whitespace-nowrap">{formatPrice(s.price, country)}<span className="text-muted-foreground font-normal">{unit}</span></span>
+                          </div>
+                        );
+                      })}
+                      {derivedServices.length > 6 && (
+                        <div className="text-xs text-muted-foreground sm:col-span-2">
+                          +{derivedServices.length - 6} flere ydelser auto-prissat
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             )}
+
 
             {step === 3 && (
               <div className="space-y-6">
@@ -223,7 +343,7 @@ const ProviderRegister = () => {
                   Næste <ArrowRight className="h-4 w-4 ml-2" />
                 </Button>
               ) : (
-                <Button disabled={!form.acceptTerms}>Send ansøgning</Button>
+                <Button disabled={!form.acceptTerms} onClick={handleSubmit}>Send ansøgning</Button>
               )}
             </div>
           </div>

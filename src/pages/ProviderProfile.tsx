@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -9,48 +9,8 @@ import {
   Calendar, Award, Sparkles, TrendingUp, Briefcase, Zap, BadgeCheck,
 } from "lucide-react";
 import Tilt from "@/components/Tilt";
-import { countries, serviceCategories, formatPrice } from "@/lib/countries";
-
-const provider = {
-  id: "p_001",
-  name: "Mikkel Sørensen",
-  handle: "@mikkel.fix",
-  tagline: "Tømrer & altmuligmand · 12 års erfaring",
-  bio: "Specialiseret i renovering, møbelmontering og småreparationer. Punktlig, ren arbejdsgang og altid fast pris før jeg starter. Arbejder primært i Storkøbenhavn.",
-  type: "business" as "private" | "business",
-  verified: true,
-  topRated: true,
-  rating: 4.92,
-  reviews: 184,
-  jobsCompleted: 312,
-  responseTime: "< 1 t",
-  repeatClients: 68,
-  city: "København",
-  countryCode: "DK",
-  radiusKm: 25,
-  memberSince: "2022",
-  languages: ["Dansk", "English", "Deutsch"],
-  categories: ["handyman", "moving"],
-  subcategories: ["Møbelsamling", "Malerarbejde", "Gulvlægning", "Boligflytning"],
-  hourlyRate: 425,
-  // Service pricing in local currency (DKK). unit: 'hour' | 'job' | 'm2'
-  services: [
-    { subcategory: "Møbelsamling", price: 425, unit: "hour" as const, minPrice: 600, description: "IKEA, designermøbler, køkken — fast pris efter besigtigelse." },
-    { subcategory: "Malerarbejde", price: 395, unit: "hour" as const, minPrice: 1800, description: "Vægge, lofter, træværk. Inkl. afdækning og oprydning." },
-    { subcategory: "Gulvlægning", price: 285, unit: "m2" as const, minPrice: 2500, description: "Laminat, vinyl & klikgulve. Materialer afregnes separat." },
-    { subcategory: "Boligflytning", price: 550, unit: "hour" as const, minPrice: 1500, description: "2 mand + vogn. Forsikret transport i hele landet." },
-  ],
-  avatar: "",
-  gallery: [
-    "from-primary/30 to-accent/30",
-    "from-accent/30 to-info/30",
-    "from-info/30 to-primary/30",
-    "from-success/30 to-primary/30",
-    "from-primary/20 to-accent/40",
-    "from-accent/40 to-success/30",
-  ],
-  certifications: ["Tømrer svendebrev", "Forsikret hos Tryg", "ID-verificeret", "Straffeattest godkendt"],
-};
+import { serviceCategories, formatPrice } from "@/lib/countries";
+import { getProvider, getCountry, deriveServices, deriveHourlyRate } from "@/lib/providers";
 
 const reviews = [
   { name: "Sofie L.", rating: 5, time: "2 dage siden", text: "Mikkel var super professionel og hurtig. Samlede vores nye køkken på 4 timer. Helt fast pris og rent efter sig. Anbefales!", job: "Møbelsamling" },
@@ -59,9 +19,15 @@ const reviews = [
 ];
 
 const ProviderProfile = () => {
-  useParams();
+  const { id } = useParams();
   const [saved, setSaved] = useState(false);
-  const country = countries.find((c) => c.code === provider.countryCode) || countries[0];
+  const provider = getProvider(id || "p_001") || getProvider("p_001")!;
+  const country = getCountry(provider.countryCode);
+  const services = useMemo(
+    () => deriveServices(provider.categories, provider.subcategories, country),
+    [provider.categories, provider.subcategories, country],
+  );
+  const hourlyRate = provider.hourlyRate ?? deriveHourlyRate(country);
 
   return (
     <div className="min-h-screen bg-background">
@@ -128,7 +94,7 @@ const ProviderProfile = () => {
                 { icon: Briefcase, label: "Opgaver", value: provider.jobsCompleted },
                 { icon: TrendingUp, label: "Genbestilling", value: `${provider.repeatClients}%` },
                 { icon: Award, label: "Medlem siden", value: provider.memberSince },
-                { icon: Zap, label: "Timepris fra", value: formatPrice(provider.hourlyRate, country) },
+                { icon: Zap, label: "Timepris fra", value: formatPrice(hourlyRate, country) },
               ].map((s) => (
                 <div key={s.label} className="text-center sm:text-left">
                   <s.icon className="h-4 w-4 text-primary mb-1 mx-auto sm:mx-0" />
@@ -222,9 +188,7 @@ const ProviderProfile = () => {
                 {provider.categories.map((catId) => {
                   const cat = serviceCategories.find((c) => c.id === catId);
                   if (!cat) return null;
-                  const catServices = provider.services.filter((s) =>
-                    cat.subcategories.includes(s.subcategory),
-                  );
+                  const catServices = services.filter((s) => s.categoryId === catId);
                   return (
                     <Tilt key={catId} className="glass-card p-5 rounded-2xl flex flex-col" max={5}>
                       <div className="flex items-center gap-3 mb-4">
