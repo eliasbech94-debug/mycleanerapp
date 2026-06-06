@@ -28,6 +28,7 @@ const ProviderRegister = () => {
     radius: "25",
     bio: "",
     acceptTerms: false,
+    priceOverrides: {} as Record<string, { price: number; minPrice: number }>,
   });
 
   const update = (key: string, value: any) => setForm((p) => ({ ...p, [key]: value }));
