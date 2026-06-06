@@ -352,21 +352,34 @@ const ProviderRegister = () => {
                               </div>
                               <div className="divide-y divide-border/50">
                                 {items.map((s) => {
-                                  const unit = s.unit === "hour" ? "/t" : s.unit === "m2" ? "/m²" : " / opgave";
+                                  const unitLabel = s.unit === "hour" ? "/t" : s.unit === "m2" ? "/m²" : " / opgave";
+                                  const unitName = s.unit === "hour" ? "pr. time" : s.unit === "m2" ? "pr. m²" : "pr. opgave";
                                   return (
-                                    <div key={s.subcategory} className="px-3 py-2 flex items-center justify-between gap-3 text-sm">
-                                      <div className="min-w-0 flex-1">
-                                        <div className="font-medium truncate">{s.subcategory}</div>
-                                        <div className="text-xs text-muted-foreground truncate">{s.description}</div>
+                                    <div key={s.subcategory} className="px-3 py-2.5 text-sm">
+                                      <div className="flex items-center justify-between gap-3">
+                                        <div className="min-w-0 flex-1">
+                                          <div className="font-medium truncate">{s.subcategory}</div>
+                                          <div className="text-xs text-muted-foreground truncate">{s.description}</div>
+                                        </div>
+                                        <div className="text-right shrink-0">
+                                          <div className="font-semibold whitespace-nowrap">
+                                            {formatPrice(s.price, country)}
+                                            <span className="text-muted-foreground font-normal text-xs">{unitLabel}</span>
+                                          </div>
+                                          <div className="text-[10px] text-muted-foreground whitespace-nowrap">
+                                            min. {formatPrice(s.minPrice, country)}
+                                          </div>
+                                        </div>
                                       </div>
-                                      <div className="text-right shrink-0">
-                                        <div className="font-semibold whitespace-nowrap">
-                                          {formatPrice(s.price, country)}
-                                          <span className="text-muted-foreground font-normal text-xs">{unit}</span>
-                                        </div>
-                                        <div className="text-[10px] text-muted-foreground whitespace-nowrap">
-                                          min. {formatPrice(s.minPrice, country)}
-                                        </div>
+                                      <div className="mt-2 rounded-md bg-secondary/50 border border-border/40 px-2 py-1.5 text-[11px] text-muted-foreground leading-relaxed">
+                                        <span className="font-medium text-foreground">Beregning:</span>{" "}
+                                        {country.flag} {country.name} · {cat.name} · {unitName}
+                                        <br />
+                                        {formatPrice(country.minHourlyRate, country)} (min. timepris)
+                                        {" × "}{s.rateMultiplier}× (kategori-sats)
+                                        {" × "}{s.minJobHours} {s.minJobHours === 1 ? "time" : "timer"} (min. opgave)
+                                        {" = "}
+                                        <strong className="text-foreground">{formatPrice(s.minPrice, country)}</strong>
                                       </div>
                                     </div>
                                   );
