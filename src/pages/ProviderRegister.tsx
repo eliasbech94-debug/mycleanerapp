@@ -316,6 +316,73 @@ const ProviderRegister = () => {
                     </div>
                     <div className="text-sm text-muted-foreground mt-2">{form.city} {form.postalCode} • {form.radius} km radius</div>
                   </div>
+
+                  {/* Step-by-step price overview */}
+                  <div className="p-4 rounded-xl bg-secondary">
+                    <div className="flex items-center justify-between mb-3 gap-3">
+                      <div className="min-w-0">
+                        <div className="text-xs text-muted-foreground uppercase tracking-wide">Pris-oversigt</div>
+                        <div className="font-medium flex items-center gap-1.5">
+                          <Sparkles className="h-4 w-4 text-primary" /> Auto-beregnet for {country.flag} {country.name}
+                        </div>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <div className="text-xs text-muted-foreground">Foreslået timepris</div>
+                        <div className="font-heading font-bold text-primary">{formatPrice(derivedHourly, country)}</div>
+                      </div>
+                    </div>
+
+                    <div className="text-xs text-muted-foreground mb-3">
+                      Min. timepris: <strong className="text-foreground">{formatPrice(country.minHourlyRate, country)}</strong> · {country.laborAgreement}
+                    </div>
+
+                    {derivedServices.length === 0 ? (
+                      <p className="text-sm text-muted-foreground">Vælg mindst én ydelse i trin 3 for at se priser.</p>
+                    ) : (
+                      <div className="space-y-3">
+                        {form.categories.map((catId) => {
+                          const cat = serviceCategories.find((c) => c.id === catId);
+                          const items = derivedServices.filter((s) => s.categoryId === catId);
+                          if (!cat || items.length === 0) return null;
+                          return (
+                            <div key={catId} className="rounded-lg bg-background/60 border border-border/50 overflow-hidden">
+                              <div className="px-3 py-2 text-xs font-medium flex items-center justify-between bg-secondary/60">
+                                <span>{cat.icon} {cat.name}</span>
+                                <span className="text-muted-foreground">{items.length} ydelser</span>
+                              </div>
+                              <div className="divide-y divide-border/50">
+                                {items.map((s) => {
+                                  const unit = s.unit === "hour" ? "/t" : s.unit === "m2" ? "/m²" : " / opgave";
+                                  return (
+                                    <div key={s.subcategory} className="px-3 py-2 flex items-center justify-between gap-3 text-sm">
+                                      <div className="min-w-0 flex-1">
+                                        <div className="font-medium truncate">{s.subcategory}</div>
+                                        <div className="text-xs text-muted-foreground truncate">{s.description}</div>
+                                      </div>
+                                      <div className="text-right shrink-0">
+                                        <div className="font-semibold whitespace-nowrap">
+                                          {formatPrice(s.price, country)}
+                                          <span className="text-muted-foreground font-normal text-xs">{unit}</span>
+                                        </div>
+                                        <div className="text-[10px] text-muted-foreground whitespace-nowrap">
+                                          min. {formatPrice(s.minPrice, country)}
+                                        </div>
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          );
+                        })}
+
+                        <div className="flex items-center justify-between pt-2 text-xs text-muted-foreground border-t border-border/50">
+                          <span>Total ydelser</span>
+                          <span className="font-medium text-foreground">{derivedServices.length}</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
                 <label className="flex items-start gap-3 cursor-pointer">
                   <Checkbox checked={form.acceptTerms} onCheckedChange={(v) => update("acceptTerms", !!v)} className="mt-0.5" />
