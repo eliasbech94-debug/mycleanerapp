@@ -61,6 +61,22 @@ const ProviderRegister = () => {
   );
   const derivedHourly = useMemo(() => deriveHourlyRate(country), [country]);
 
+  // Validate: every service's effective hourly rate must meet the country's labor agreement floor
+  const priceViolations = useMemo(() => {
+    const floor = country.minHourlyRate;
+    return derivedServices
+      .map((s) => {
+        const effectiveHourly = Math.round(s.minPrice / Math.max(1, s.minJobHours));
+        const underlyingHourly = Math.round(country.minHourlyRate * s.rateMultiplier);
+        const violatesUnderlying = underlyingHourly < floor;
+        const violatesMinJob = effectiveHourly < floor;
+        if (!violatesUnderlying && !violatesMinJob) return null;
+        return { service: s, effectiveHourly, underlyingHourly };
+      })
+      .filter((v): v is NonNullable<typeof v> => v !== null);
+  }, [derivedServices, country]);
+  const hasPriceViolations = priceViolations.length > 0;
+
   const handleSubmit = () => {
     const id = `p_${Date.now()}`;
     const name = form.type === "business" && form.companyName
