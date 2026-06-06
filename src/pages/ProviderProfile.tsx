@@ -188,9 +188,7 @@ const ProviderProfile = () => {
                 {provider.categories.map((catId) => {
                   const cat = serviceCategories.find((c) => c.id === catId);
                   if (!cat) return null;
-                  const catServices = provider.services.filter((s) =>
-                    cat.subcategories.includes(s.subcategory),
-                  );
+                  const catServices = services.filter((s) => s.categoryId === catId);
                   return (
                     <Tilt key={catId} className="glass-card p-5 rounded-2xl flex flex-col" max={5}>
                       <div className="flex items-center gap-3 mb-4">
