@@ -1,22 +1,23 @@
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Star, MapPin, Shield, Clock, Sparkles, Zap, MessageCircle } from "lucide-react";
+import { Star, MapPin, Shield, Clock, Sparkles, Zap, MessageCircle, ArrowRight } from "lucide-react";
 
 const mockOffers = [
   {
-    id: 1, name: "Maria Jensen", avatar: "MJ", rating: 4.9, reviews: 127, verified: true,
+    id: "p_002", name: "Maria Jensen", avatar: "MJ", rating: 4.9, reviews: 127, verified: true,
     price: 420, estimatedHours: 3, distance: "2.3 km",
     specialties: ["Hjemmerengøring", "Dybrengøring"], bio: "15 års erfaring med professionel rengøring. Grundig og pålidelig.",
     aiMatch: 98, responseTime: "< 1 time", boosted: true,
   },
   {
-    id: 2, name: "Anders Sørensen", avatar: "AS", rating: 4.7, reviews: 84, verified: true,
+    id: "p_003", name: "Anders Sørensen", avatar: "AS", rating: 4.7, reviews: 84, verified: true,
     price: 380, estimatedHours: 3, distance: "4.1 km",
     specialties: ["Hjemmerengøring", "Vinduespudsning"], bio: "Erfaren rengøringsassistent med fokus på kvalitet og kundetilfredshed.",
     aiMatch: 92, responseTime: "< 2 timer", boosted: false,
   },
   {
-    id: 3, name: "CleanPro ApS", avatar: "CP", rating: 4.8, reviews: 312, verified: true,
+    id: "p_004", name: "CleanPro ApS", avatar: "CP", rating: 4.8, reviews: 312, verified: true,
     price: 450, estimatedHours: 3, distance: "5.8 km",
     specialties: ["Erhvervsrengøring", "Hjemmerengøring", "Flytterengøring"], bio: "Professionel rengøringsvirksomhed med certificerede medarbejdere.",
     aiMatch: 89, responseTime: "< 30 min", boosted: false, isBusiness: true,
@@ -50,12 +51,16 @@ const MatchingOffers = () => {
                   </div>
                 )}
                 <div className="flex items-start gap-4">
-                  <div className="w-14 h-14 rounded-2xl gradient-hero flex items-center justify-center text-primary-foreground font-heading font-bold text-lg flex-shrink-0">
-                    {offer.avatar}
-                  </div>
+                  <Link to={`/provider/${offer.id}`} className="shrink-0">
+                    <div className="w-14 h-14 rounded-2xl gradient-hero flex items-center justify-center text-primary-foreground font-heading font-bold text-lg flex-shrink-0 hover:opacity-90 transition-opacity">
+                      {offer.avatar}
+                    </div>
+                  </Link>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <h3 className="font-heading font-semibold text-lg">{offer.name}</h3>
+                      <Link to={`/provider/${offer.id}`} className="hover:text-primary transition-colors">
+                        <h3 className="font-heading font-semibold text-lg">{offer.name}</h3>
+                      </Link>
                       {offer.verified && <Shield className="h-4 w-4 text-primary" />}
                       {offer.isBusiness && <Badge variant="secondary" className="text-xs">Virksomhed</Badge>}
                     </div>
@@ -77,9 +82,14 @@ const MatchingOffers = () => {
                     </div>
                     <div className="font-heading text-2xl font-bold">{offer.price} kr</div>
                     <div className="text-xs text-muted-foreground">~{offer.estimatedHours} timer</div>
-                    <div className="flex gap-2 mt-3">
-                      <Button size="sm" variant="outline"><MessageCircle className="h-4 w-4" /></Button>
-                      <Button size="sm">Vælg</Button>
+                    <div className="flex flex-col gap-2 mt-3">
+                      <div className="flex gap-2">
+                        <Button size="sm" variant="outline"><MessageCircle className="h-4 w-4" /></Button>
+                        <Button size="sm">Vælg</Button>
+                      </div>
+                      <Link to={`/provider/${offer.id}`} className="inline-flex items-center justify-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors">
+                        Se profil <ArrowRight className="h-3 w-3" />
+                      </Link>
                     </div>
                   </div>
                 </div>
