@@ -8,7 +8,22 @@ import {
   Star, MapPin, Shield, CheckCircle2, Clock, MessageSquare, Heart, Share2,
   Calendar, Award, Sparkles, TrendingUp, Briefcase, Zap, BadgeCheck,
   Timer, FileCheck, ThumbsUp, Wallet, Wrench, UserCheck, XCircle,
+  ShieldCheck, Umbrella, HardHat, GraduationCap, Leaf, FileBadge, ScrollText,
 } from "lucide-react";
+
+const CERT_ICONS: { match: RegExp; Icon: typeof Shield; tone: string }[] = [
+  { match: /id[- ]?verifi/i,         Icon: BadgeCheck,     tone: "from-primary/20 to-primary/5 text-primary" },
+  { match: /straffeattest/i,         Icon: ShieldCheck,    tone: "from-success/20 to-success/5 text-success" },
+  { match: /forsikr/i,               Icon: Umbrella,       tone: "from-info/20 to-info/5 text-info" },
+  { match: /iso/i,                   Icon: Award,          tone: "from-accent/20 to-accent/5 text-accent" },
+  { match: /arbejdsmilj/i,           Icon: HardHat,        tone: "from-warning/20 to-warning/5 text-warning" },
+  { match: /svendebrev|uddann/i,     Icon: GraduationCap,  tone: "from-primary/20 to-primary/5 text-primary" },
+  { match: /milj|grøn|øko/i,         Icon: Leaf,           tone: "from-success/20 to-success/5 text-success" },
+  { match: /certifik|licens/i,       Icon: FileBadge,      tone: "from-info/20 to-info/5 text-info" },
+  { match: /kontrakt|aftale/i,       Icon: ScrollText,     tone: "from-muted-foreground/20 to-muted/5 text-foreground" },
+];
+const certVisual = (label: string) =>
+  CERT_ICONS.find((c) => c.match.test(label)) ?? { Icon: CheckCircle2, tone: "from-primary/20 to-primary/5 text-primary" };
 import Tilt from "@/components/Tilt";
 import { serviceCategories, formatPrice } from "@/lib/countries";
 import { getProvider, getCountry, deriveServices, deriveHourlyRate } from "@/lib/providers";
