@@ -51,6 +51,19 @@ const initialUsers: ManagedUser[] = [
 ];
 
 type PaymentStatus = "completed" | "pending" | "refunded" | "paused" | "withdrawn";
+type SyncState = "idle" | "pending" | "succeeded" | "failed";
+type StripeAction = "pause" | "resume" | "refund";
+
+interface PaymentSync {
+  state: SyncState;
+  action?: StripeAction;
+  targetStatus?: PaymentStatus; // status to apply if sync succeeds
+  prevStatus?: PaymentStatus;   // status to revert to on failure
+  message?: string;
+  stripeId?: string;            // e.g. re_xxx / tr_xxx
+  attempts: number;
+  updatedAt?: string;
+}
 
 interface Payment {
   id: string;
@@ -63,14 +76,18 @@ interface Payment {
   currency: string;
   status: PaymentStatus;
   date: string;
+  stripePaymentIntent: string;
+  sync: PaymentSync;
 }
 
+const initialSync = (): PaymentSync => ({ state: "idle", attempts: 0 });
+
 const initialPayments: Payment[] = [
-  { id: "p_1001", taskId: "T-2401", customer: "Anne M.", provider: "Maria Jensen", gross: 420, fee: 105, payout: 315, currency: "DKK", status: "completed", date: "06/06" },
-  { id: "p_1002", taskId: "T-2402", customer: "Hans K.", provider: "Schmidt GmbH", gross: 180, fee: 45, payout: 135, currency: "EUR", status: "pending", date: "05/06" },
-  { id: "p_1003", taskId: "T-2403", customer: "Pierre L.", provider: "CleanPro", gross: 95, fee: 23.75, payout: 71.25, currency: "EUR", status: "completed", date: "05/06" },
-  { id: "p_1004", taskId: "T-2404", customer: "Sofia N.", provider: "Erik Bergström", gross: 450, fee: 112.5, payout: 337.5, currency: "SEK", status: "paused", date: "04/06" },
-  { id: "p_1005", taskId: "T-2399", customer: "Lars T.", provider: "Maria Jensen", gross: 600, fee: 150, payout: 450, currency: "DKK", status: "refunded", date: "03/06" },
+  { id: "p_1001", taskId: "T-2401", customer: "Anne M.", provider: "Maria Jensen", gross: 420, fee: 105, payout: 315, currency: "DKK", status: "completed", date: "06/06", stripePaymentIntent: "pi_3Nx1aQ", sync: { state: "succeeded", attempts: 1, stripeId: "tr_3Nx1aQ", updatedAt: "06/06 09:12" } },
+  { id: "p_1002", taskId: "T-2402", customer: "Hans K.", provider: "Schmidt GmbH", gross: 180, fee: 45, payout: 135, currency: "EUR", status: "pending", date: "05/06", stripePaymentIntent: "pi_3Nx1bR", sync: initialSync() },
+  { id: "p_1003", taskId: "T-2403", customer: "Pierre L.", provider: "CleanPro", gross: 95, fee: 23.75, payout: 71.25, currency: "EUR", status: "completed", date: "05/06", stripePaymentIntent: "pi_3Nx1cS", sync: { state: "succeeded", attempts: 1, stripeId: "tr_3Nx1cS", updatedAt: "05/06 14:02" } },
+  { id: "p_1004", taskId: "T-2404", customer: "Sofia N.", provider: "Erik Bergström", gross: 450, fee: 112.5, payout: 337.5, currency: "SEK", status: "paused", date: "04/06", stripePaymentIntent: "pi_3Nx1dT", sync: { state: "succeeded", action: "pause", attempts: 1, updatedAt: "04/06 10:48" } },
+  { id: "p_1005", taskId: "T-2399", customer: "Lars T.", provider: "Maria Jensen", gross: 600, fee: 150, payout: 450, currency: "DKK", status: "refunded", date: "03/06", stripePaymentIntent: "pi_3Nx19P", sync: { state: "succeeded", action: "refund", attempts: 2, stripeId: "re_3Nx19P", updatedAt: "03/06 16:30" } },
 ];
 
 const pendingProviders = [
