@@ -301,6 +301,10 @@ const ProviderProfile = () => {
                   { icon: Wrench, label: "Kvalitet", value: clamp(base + 0.02), hint: "Håndværksmæssig udførelse" },
                   { icon: UserCheck, label: "Faglighed", value: clamp(base), hint: "Professionel adfærd og kompetence" },
                 ];
+                const avgScore = categories.reduce((s, c) => s + c.value, 0) / categories.length;
+                const cancellationPenalty = cancellation * 0.06;
+                const totalScore = Math.max(3.0, Math.min(5, Math.round((avgScore - cancellationPenalty) * 10) / 10));
+                const totalPct = (totalScore / 5) * 100;
                 return (
                   <div className="glass-card p-6 rounded-2xl">
                     <div className="flex items-center justify-between mb-4">
@@ -309,6 +313,34 @@ const ProviderProfile = () => {
                         <Sparkles className="h-3 w-3 mr-1" /> Verificerede anmeldelser
                       </Badge>
                     </div>
+
+                    {/* Samlet score */}
+                    <div className="p-4 rounded-2xl bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/20 mb-5">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                        <div className="text-center sm:text-left">
+                          <div className="font-heading text-5xl font-bold text-primary">{totalScore.toFixed(1)}</div>
+                          <div className="flex items-center gap-0.5 justify-center sm:justify-start mt-1">
+                            {Array.from({ length: 5 }).map((_, i) => (
+                              <Star key={i} className={`h-4 w-4 ${i < Math.round(totalScore) ? "fill-amber-400 text-amber-400" : "text-muted-foreground/30"}`} />
+                            ))}
+                          </div>
+                          <div className="text-xs text-muted-foreground mt-1">Samlet score ud af 5</div>
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between text-xs mb-1.5">
+                            <span className="text-muted-foreground">Baseret på {provider.reviews} anmeldelser</span>
+                            <span className="font-semibold tabular-nums">{totalPct.toFixed(0)}%</span>
+                          </div>
+                          <div className="h-2.5 bg-secondary rounded-full overflow-hidden">
+                            <div className="h-full gradient-hero" style={{ width: `${totalPct}%` }} />
+                          </div>
+                          <p className="text-[11px] text-muted-foreground leading-snug mt-2">
+                            Vægtet gennemsnit af alle kriterier. Annulleringsrate på {cancellation.toFixed(1)}% trækker {cancellationPenalty.toFixed(2)} fra samlet score.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
                     <div className="grid sm:grid-cols-2 gap-3">
                       {categories.map((c) => {
                         const pct = (c.value / 5) * 100;
