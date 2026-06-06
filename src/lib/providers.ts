@@ -109,6 +109,8 @@ export const deriveServices = (
         unit: rule.unit,
         minPrice,
         description: rule.description,
+        rateMultiplier: rule.rateMultiplier,
+        minJobHours: rule.minJobHours,
       });
     }
   }
