@@ -189,6 +189,39 @@ const ProviderRegister = () => {
                     ))}
                   </div>
                 </div>
+
+                {form.categories.length > 0 && (
+                  <div>
+                    <Label className="mb-3 block">Vælg specifikke ydelser</Label>
+                    <div className="space-y-3">
+                      {form.categories.map((catId) => {
+                        const cat = serviceCategories.find((c) => c.id === catId);
+                        if (!cat) return null;
+                        return (
+                          <div key={catId} className="p-3 rounded-xl bg-secondary/40 border border-border/50">
+                            <div className="text-xs font-medium text-muted-foreground mb-2">{cat.icon} {cat.name}</div>
+                            <div className="flex flex-wrap gap-1.5">
+                              {cat.subcategories.map((sub) => {
+                                const active = form.subcategories.includes(sub);
+                                return (
+                                  <button
+                                    type="button"
+                                    key={sub}
+                                    onClick={() => toggleSubcategory(sub)}
+                                    className={`text-xs px-2.5 py-1 rounded-full border transition-colors ${active ? "bg-primary text-primary-foreground border-primary" : "bg-background border-border hover:border-primary/40"}`}
+                                  >
+                                    {sub}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div><Label>By</Label><Input value={form.city} onChange={(e) => update("city", e.target.value)} placeholder="København" /></div>
                   <div><Label>Postnummer</Label><Input value={form.postalCode} onChange={(e) => update("postalCode", e.target.value)} placeholder="2100" /></div>
@@ -205,15 +238,37 @@ const ProviderRegister = () => {
                     </SelectContent>
                   </Select>
                 </div>
+
                 <div className="p-4 rounded-xl bg-info/10 border border-info/20 text-sm">
-                  <p className="font-medium text-info">💡 AI prisforslag</p>
-                  <p className="text-muted-foreground mt-1">
-                    Minimum timepris i {country.name}: <strong>{country.currencySymbol}{country.minHourlyRate}</strong> ({country.laborAgreement}).
-                    Vores AI foreslår markedspriser, så du tjener fair.
+                  <p className="font-medium text-info flex items-center gap-1.5">
+                    <Sparkles className="h-4 w-4" /> AI prisforslag · {country.flag} {country.name}
                   </p>
+                  <p className="text-muted-foreground mt-1">
+                    Min. timepris: <strong>{formatPrice(country.minHourlyRate, country)}</strong> ({country.laborAgreement}).
+                    Foreslået timepris: <strong>{formatPrice(derivedHourly, country)}</strong>.
+                  </p>
+                  {derivedServices.length > 0 && (
+                    <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                      {derivedServices.slice(0, 6).map((s) => {
+                        const unit = s.unit === "hour" ? "/t" : s.unit === "m2" ? "/m²" : "";
+                        return (
+                          <div key={s.subcategory} className="flex items-center justify-between gap-2 text-xs bg-background/60 rounded-lg px-2.5 py-1.5">
+                            <span className="truncate">{s.subcategory}</span>
+                            <span className="font-semibold whitespace-nowrap">{formatPrice(s.price, country)}<span className="text-muted-foreground font-normal">{unit}</span></span>
+                          </div>
+                        );
+                      })}
+                      {derivedServices.length > 6 && (
+                        <div className="text-xs text-muted-foreground sm:col-span-2">
+                          +{derivedServices.length - 6} flere ydelser auto-prissat
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             )}
+
 
             {step === 3 && (
               <div className="space-y-6">
