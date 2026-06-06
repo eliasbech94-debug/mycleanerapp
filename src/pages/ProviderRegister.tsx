@@ -28,6 +28,7 @@ const ProviderRegister = () => {
     radius: "25",
     bio: "",
     acceptTerms: false,
+    priceOverrides: {} as Record<string, { price: number; minPrice: number }>,
   });
 
   const update = (key: string, value: any) => setForm((p) => ({ ...p, [key]: value }));
@@ -55,11 +56,52 @@ const ProviderRegister = () => {
     }));
   };
   const country = countries.find((c) => c.code === form.country) || countries[0];
-  const derivedServices = useMemo(
+  const baseServices = useMemo(
     () => deriveServices(form.categories, form.subcategories, country),
     [form.categories, form.subcategories, country],
   );
+  // Apply user overrides on top of the auto-derived services
+  const derivedServices = useMemo(
+    () => baseServices.map((s) => {
+      const o = form.priceOverrides[s.subcategory];
+      return o ? { ...s, price: o.price, minPrice: o.minPrice } : s;
+    }),
+    [baseServices, form.priceOverrides],
+  );
   const derivedHourly = useMemo(() => deriveHourlyRate(country), [country]);
+
+  // Round up to a "nice" value at or above n (so we never land below the floor)
+  const roundUpNice = (n: number) => {
+    if (n < 30) return Math.ceil(n);
+    if (n < 200) return Math.ceil(n / 5) * 5;
+    return Math.ceil(n / 25) * 25;
+  };
+
+  const autoFixPrices = () => {
+    if (priceViolations.length === 0) return;
+    const floor = country.minHourlyRate;
+    setForm((p) => {
+      const next = { ...p.priceOverrides };
+      for (const v of priceViolations) {
+        const s = v.service;
+        const safeHourly = roundUpNice(floor);
+        const minPrice = roundUpNice(safeHourly * s.minJobHours);
+        // Re-derive per-unit price using the same shape as deriveServices (m2 ~ 0.7x hourly)
+        const unitPrice = s.unit === "m2" ? roundUpNice(safeHourly * 0.7) : safeHourly;
+        next[s.subcategory] = { price: unitPrice, minPrice };
+      }
+      return { ...p, priceOverrides: next };
+    });
+    toast.success("Priser justeret til overenskomstgrænsen", {
+      description: `${priceViolations.length} ydelse(r) opdateret for ${country.name}.`,
+    });
+  };
+
+  const resetPriceOverrides = () => {
+    if (Object.keys(form.priceOverrides).length === 0) return;
+    setForm((p) => ({ ...p, priceOverrides: {} }));
+    toast("Priser nulstillet til AI-forslag");
+  };
 
   // Validate: every service's effective hourly rate must meet the country's labor agreement floor
   const priceViolations = useMemo(() => {
@@ -427,6 +469,15 @@ const ProviderRegister = () => {
                             </li>
                           ))}
                         </ul>
+                        <Button
+                          type="button"
+                          size="sm"
+                          onClick={autoFixPrices}
+                          className="mt-3 w-full h-8 text-xs"
+                        >
+                          <Sparkles className="h-3.5 w-3.5 mr-1.5" />
+                          Juster automatisk til overenskomstgrænsen
+                        </Button>
                       </div>
                     )}
 
@@ -527,6 +578,29 @@ const ProviderRegister = () => {
                 <span className="ml-auto text-muted-foreground">
                   {country.flag} min. {formatPrice(country.minHourlyRate, country)}/t
                 </span>
+                {hasPriceViolations && (
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="secondary"
+                    onClick={autoFixPrices}
+                    className="h-7 px-2 text-[11px]"
+                  >
+                    <Sparkles className="h-3 w-3 mr-1" />
+                    Auto-juster
+                  </Button>
+                )}
+                {!hasPriceViolations && Object.keys(form.priceOverrides).length > 0 && (
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="ghost"
+                    onClick={resetPriceOverrides}
+                    className="h-7 px-2 text-[11px]"
+                  >
+                    Nulstil
+                  </Button>
+                )}
               </div>
             )}
 
