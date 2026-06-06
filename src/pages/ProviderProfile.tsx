@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Star, MapPin, Shield, CheckCircle2, Clock, MessageSquare, Heart, Share2,
   Calendar, Award, Sparkles, TrendingUp, Briefcase, Zap, BadgeCheck,
+  Timer, FileCheck, ThumbsUp, Wallet, Wrench, UserCheck, XCircle,
 } from "lucide-react";
 import Tilt from "@/components/Tilt";
 import { serviceCategories, formatPrice } from "@/lib/countries";
