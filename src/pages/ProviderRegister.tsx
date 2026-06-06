@@ -260,13 +260,22 @@ const ProviderRegister = () => {
                             <div className="flex flex-wrap gap-1.5">
                               {cat.subcategories.map((sub) => {
                                 const active = form.subcategories.includes(sub);
+                                const violates = active && violationSubs.has(sub);
                                 return (
                                   <button
                                     type="button"
                                     key={sub}
                                     onClick={() => toggleSubcategory(sub)}
-                                    className={`text-xs px-2.5 py-1 rounded-full border transition-colors ${active ? "bg-primary text-primary-foreground border-primary" : "bg-background border-border hover:border-primary/40"}`}
+                                    title={violates ? `Under min. timepris i ${country.name}` : undefined}
+                                    className={`text-xs px-2.5 py-1 rounded-full border transition-colors inline-flex items-center gap-1 ${
+                                      violates
+                                        ? "bg-destructive/15 text-destructive border-destructive/40"
+                                        : active
+                                          ? "bg-primary text-primary-foreground border-primary"
+                                          : "bg-background border-border hover:border-primary/40"
+                                    }`}
                                   >
+                                    {violates && <AlertTriangle className="h-3 w-3" />}
                                     {sub}
                                   </button>
                                 );
