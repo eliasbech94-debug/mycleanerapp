@@ -578,6 +578,29 @@ const ProviderRegister = () => {
                 <span className="ml-auto text-muted-foreground">
                   {country.flag} min. {formatPrice(country.minHourlyRate, country)}/t
                 </span>
+                {hasPriceViolations && (
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="secondary"
+                    onClick={autoFixPrices}
+                    className="h-7 px-2 text-[11px]"
+                  >
+                    <Sparkles className="h-3 w-3 mr-1" />
+                    Auto-juster
+                  </Button>
+                )}
+                {!hasPriceViolations && Object.keys(form.priceOverrides).length > 0 && (
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="ghost"
+                    onClick={resetPriceOverrides}
+                    className="h-7 px-2 text-[11px]"
+                  >
+                    Nulstil
+                  </Button>
+                )}
               </div>
             )}
 
