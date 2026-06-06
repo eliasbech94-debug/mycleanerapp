@@ -78,6 +78,12 @@ const ProviderRegister = () => {
   const hasPriceViolations = priceViolations.length > 0;
 
   const handleSubmit = () => {
+    if (hasPriceViolations) {
+      toast.error("Priser under overenskomstgrænsen", {
+        description: `${priceViolations.length} ydelse(r) ligger under ${country.laborAgreement}. Juster før indsendelse.`,
+      });
+      return;
+    }
     const id = `p_${Date.now()}`;
     const name = form.type === "business" && form.companyName
       ? form.companyName
