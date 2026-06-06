@@ -37,6 +37,7 @@ const reviews = [
 const ProviderProfile = () => {
   const { id } = useParams();
   const [saved, setSaved] = useState(false);
+  const [certLoading, setCertLoading] = useState(true);
   const provider = getProvider(id || "p_001") || getProvider("p_001")!;
   const country = getCountry(provider.countryCode);
   const services = useMemo(
