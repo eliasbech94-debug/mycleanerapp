@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -76,6 +76,40 @@ const ProviderRegister = () => {
       .filter((v): v is NonNullable<typeof v> => v !== null);
   }, [derivedServices, country]);
   const hasPriceViolations = priceViolations.length > 0;
+  const violationSubs = useMemo(
+    () => new Set(priceViolations.map((v) => v.service.subcategory)),
+    [priceViolations],
+  );
+
+  // Real-time toast feedback when validation state changes (country / category / sub edits)
+  const prevViolationCount = useRef<number | null>(null);
+  const prevCountry = useRef<string>(form.country);
+  useEffect(() => {
+    const prev = prevViolationCount.current;
+    const count = priceViolations.length;
+    const countryChanged = prevCountry.current !== form.country;
+    if (prev === null) {
+      prevViolationCount.current = count;
+      prevCountry.current = form.country;
+      return;
+    }
+    if (countryChanged) {
+      toast(`${country.flag} ${country.name} valgt`, {
+        description: `Min. timepris ${formatPrice(country.minHourlyRate, country)} · ${country.laborAgreement}`,
+      });
+    }
+    if (count > prev) {
+      toast.error("Ydelse under min. timepris", {
+        description: `${count} ydelse(r) overholder ikke ${country.laborAgreement}.`,
+      });
+    } else if (count === 0 && prev > 0) {
+      toast.success("Alle priser overholder overenskomsten", {
+        description: `${derivedServices.length} ydelse(r) godkendt for ${country.name}.`,
+      });
+    }
+    prevViolationCount.current = count;
+    prevCountry.current = form.country;
+  }, [priceViolations.length, form.country, country, derivedServices.length]);
 
   const handleSubmit = () => {
     if (hasPriceViolations) {
@@ -226,13 +260,22 @@ const ProviderRegister = () => {
                             <div className="flex flex-wrap gap-1.5">
                               {cat.subcategories.map((sub) => {
                                 const active = form.subcategories.includes(sub);
+                                const violates = active && violationSubs.has(sub);
                                 return (
                                   <button
                                     type="button"
                                     key={sub}
                                     onClick={() => toggleSubcategory(sub)}
-                                    className={`text-xs px-2.5 py-1 rounded-full border transition-colors ${active ? "bg-primary text-primary-foreground border-primary" : "bg-background border-border hover:border-primary/40"}`}
+                                    title={violates ? `Under min. timepris i ${country.name}` : undefined}
+                                    className={`text-xs px-2.5 py-1 rounded-full border transition-colors inline-flex items-center gap-1 ${
+                                      violates
+                                        ? "bg-destructive/15 text-destructive border-destructive/40"
+                                        : active
+                                          ? "bg-primary text-primary-foreground border-primary"
+                                          : "bg-background border-border hover:border-primary/40"
+                                    }`}
                                   >
+                                    {violates && <AlertTriangle className="h-3 w-3" />}
                                     {sub}
                                   </button>
                                 );
@@ -262,9 +305,12 @@ const ProviderRegister = () => {
                   </Select>
                 </div>
 
-                <div className="p-4 rounded-xl bg-info/10 border border-info/20 text-sm">
-                  <p className="font-medium text-info flex items-center gap-1.5">
-                    <Sparkles className="h-4 w-4" /> AI prisforslag · {country.flag} {country.name}
+                <div className={`p-4 rounded-xl border text-sm transition-colors ${hasPriceViolations ? "bg-destructive/10 border-destructive/30" : "bg-info/10 border-info/20"}`}>
+                  <p className={`font-medium flex items-center gap-1.5 ${hasPriceViolations ? "text-destructive" : "text-info"}`}>
+                    {hasPriceViolations ? <AlertTriangle className="h-4 w-4" /> : <Sparkles className="h-4 w-4" />}
+                    {hasPriceViolations
+                      ? `${priceViolations.length} ydelse(r) under min. timepris`
+                      : `AI prisforslag · ${country.flag} ${country.name}`}
                   </p>
                   <p className="text-muted-foreground mt-1">
                     Min. timepris: <strong>{formatPrice(country.minHourlyRate, country)}</strong> ({country.laborAgreement}).
@@ -274,10 +320,14 @@ const ProviderRegister = () => {
                     <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-1.5">
                       {derivedServices.slice(0, 6).map((s) => {
                         const unit = s.unit === "hour" ? "/t" : s.unit === "m2" ? "/m²" : "";
+                        const bad = violationSubs.has(s.subcategory);
                         return (
-                          <div key={s.subcategory} className="flex items-center justify-between gap-2 text-xs bg-background/60 rounded-lg px-2.5 py-1.5">
-                            <span className="truncate">{s.subcategory}</span>
-                            <span className="font-semibold whitespace-nowrap">{formatPrice(s.price, country)}<span className="text-muted-foreground font-normal">{unit}</span></span>
+                          <div key={s.subcategory} className={`flex items-center justify-between gap-2 text-xs rounded-lg px-2.5 py-1.5 ${bad ? "bg-destructive/10 ring-1 ring-destructive/30" : "bg-background/60"}`}>
+                            <span className="truncate flex items-center gap-1">
+                              {bad && <AlertTriangle className="h-3 w-3 text-destructive shrink-0" />}
+                              {s.subcategory}
+                            </span>
+                            <span className={`font-semibold whitespace-nowrap ${bad ? "text-destructive" : ""}`}>{formatPrice(s.price, country)}<span className="text-muted-foreground font-normal">{unit}</span></span>
                           </div>
                         );
                       })}
@@ -455,6 +505,28 @@ const ProviderRegister = () => {
                     <p className="text-muted-foreground">Din ansøgning gennemgås af vores team inden for 24-48 timer. Du modtager en email når du er godkendt.</p>
                   </div>
                 </div>
+              </div>
+            )}
+
+            {/* Live validation status (visible on every step) */}
+            {derivedServices.length > 0 && (
+              <div
+                className={`mt-6 flex items-center gap-2 rounded-lg border px-3 py-2 text-xs transition-colors ${
+                  hasPriceViolations
+                    ? "bg-destructive/10 border-destructive/30 text-destructive"
+                    : "bg-success/10 border-success/20 text-success"
+                }`}
+                aria-live="polite"
+              >
+                {hasPriceViolations ? <AlertTriangle className="h-3.5 w-3.5" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
+                <span className="font-medium">
+                  {hasPriceViolations
+                    ? `${priceViolations.length} af ${derivedServices.length} ydelse(r) under min. timepris`
+                    : `${derivedServices.length} ydelse(r) overholder ${country.laborAgreement}`}
+                </span>
+                <span className="ml-auto text-muted-foreground">
+                  {country.flag} min. {formatPrice(country.minHourlyRate, country)}/t
+                </span>
               </div>
             )}
 
