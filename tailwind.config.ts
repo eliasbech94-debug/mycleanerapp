@@ -14,6 +14,8 @@ export default {
       fontFamily: {
         heading: ['Space Grotesk', 'sans-serif'],
         body: ['DM Sans', 'sans-serif'],
+        display: ['"DM Serif Display"', 'Georgia', 'serif'],
+        editorial: ['"Fira Sans"', 'system-ui', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",
