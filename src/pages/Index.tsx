@@ -2,469 +2,373 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import {
-  ArrowRight,
   ArrowUpRight,
   Shield,
   Sparkles,
-  Zap,
   Star,
-  CheckCircle2,
   Activity,
-  MapPin,
   Clock,
-  Plus,
+  CheckCircle2,
+  MapPin,
+  Quote,
+  Hammer,
+  Leaf,
+  Truck,
+  Wrench,
+  Calendar,
+  Users,
 } from "lucide-react";
-import { serviceCategories } from "@/lib/countries";
-import Tilt from "@/components/Tilt";
 
 const fadeUp = {
-  hidden: { opacity: 0, y: 24 },
+  hidden: { opacity: 0, y: 18 },
   visible: (i: number = 0) => ({
     opacity: 1,
     y: 0,
-    transition: { delay: i * 0.06, duration: 0.55, ease: [0.21, 0.47, 0.32, 0.98] },
+    transition: { delay: i * 0.05, duration: 0.55, ease: [0.21, 0.47, 0.32, 0.98] as const },
   }),
 };
 
-/* ───────────────────────── HERO ───────────────────────── */
+/* ─────────────── HERO (editorial split) ─────────────── */
 const Hero = () => (
-  <section className="relative isolate overflow-hidden bg-[hsl(220_25%_6%)] text-white">
-    {/* mesh blobs */}
-    <div className="mesh-blob -top-32 -left-20 h-[420px] w-[420px] bg-[hsl(168_85%_45%)]" />
-    <div className="mesh-blob top-40 -right-32 h-[480px] w-[480px] bg-[hsl(200_90%_50%)]" />
-    <div className="mesh-blob bottom-0 left-1/3 h-[360px] w-[360px] bg-[hsl(32_95%_55%)] opacity-40" />
-    {/* grid + noise */}
-    <div className="absolute inset-0 bg-grid" />
-    <div className="absolute inset-0 bg-noise opacity-[0.18] mix-blend-overlay" />
+  <section className="relative bg-background text-foreground border-b border-border">
+    <div className="container-wide pt-10 md:pt-16 pb-10 md:pb-20">
+      {/* Editorial masthead */}
+      <div className="flex items-center justify-between text-[10px] md:text-xs font-editorial uppercase tracking-[0.2em] text-muted-foreground mb-8 md:mb-14">
+        <span>HomeHero — Vol. XII</span>
+        <span className="hidden sm:inline">København · Stockholm · Berlin · Amsterdam</span>
+        <span>Juni 2026</span>
+      </div>
 
-    <div className="container-wide relative pt-16 pb-20 md:pt-32 md:pb-44">
-      {/* status pill */}
-      <motion.div
-        initial="hidden"
-        animate="visible"
-        variants={fadeUp}
-        className="flex justify-center mb-6 md:mb-10"
-      >
-        <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 backdrop-blur px-3 py-1 md:px-4 md:py-1.5 text-[11px] md:text-xs font-medium text-white/80 max-w-full">
-          <span className="relative flex h-2 w-2 shrink-0">
-            <span className="pulse-dot absolute inline-flex h-full w-full" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-[hsl(152_80%_55%)]" />
-          </span>
-          <span className="truncate">1 248 opgaver i dag · 12 lande live</span>
-        </div>
-      </motion.div>
-
-      {/* Display headline */}
-      <motion.h1
-        initial="hidden"
-        animate="visible"
-        custom={1}
-        variants={fadeUp}
-        className="font-heading text-center font-bold tracking-[-0.04em] leading-[0.92] text-[clamp(2.5rem,13vw,9rem)]"
-      >
-        Home<span className="text-outline">service</span>
-        <br />
-        <span className="inline-flex items-center gap-2 md:gap-6">
-          re
-          <span className="inline-block bg-gradient-to-br from-[hsl(168_80%_55%)] via-[hsl(180_85%_55%)] to-[hsl(200_90%_60%)] bg-clip-text text-transparent">
-            ·imagined
-          </span>
-        </span>
-      </motion.h1>
-
-      <motion.p
-        initial="hidden"
-        animate="visible"
-        custom={2}
-        variants={fadeUp}
-        className="mx-auto mt-6 md:mt-8 max-w-xl text-center text-sm md:text-lg text-white/65 leading-relaxed px-2"
-      >
-        AI-matchet. Fair betalt. Verificeret. HomeHero forbinder dig med Europas dygtigste fagfolk — uden budkrig.
-      </motion.p>
-
-      {/* CTAs */}
-      <motion.div
-        initial="hidden"
-        animate="visible"
-        custom={3}
-        variants={fadeUp}
-        className="mt-8 md:mt-10 flex flex-col sm:flex-row items-center justify-center gap-3"
-      >
-        <Link to="/task/create" className="w-full sm:w-auto">
-          <Button
-            size="lg"
-            className="w-full sm:w-auto h-12 md:h-13 px-7 text-base bg-white text-[hsl(220_25%_6%)] hover:bg-white/90 rounded-full gap-2 shadow-[0_0_40px_-10px_rgba(255,255,255,0.5)]"
-          >
-            Opret opgave gratis <ArrowUpRight className="h-4 w-4" />
-          </Button>
-        </Link>
-        <Link to="/provider/register" className="w-full sm:w-auto">
-          <Button
-            size="lg"
-            variant="outline"
-            className="w-full sm:w-auto h-12 md:h-13 px-7 text-base bg-white/5 border-white/20 text-white hover:bg-white/10 hover:text-white rounded-full backdrop-blur"
-          >
-            Bliv provider
-          </Button>
-        </Link>
-      </motion.div>
-
-      {/* Floating estimator card */}
-      <motion.div
-        initial={{ opacity: 0, y: 40 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5, duration: 0.7 }}
-        className="relative mt-12 md:mt-20 mx-auto max-w-3xl"
-      >
-        <Tilt max={8} scale={1.015} className="floaty rounded-2xl md:rounded-3xl">
-          <div className="rounded-2xl md:rounded-3xl border border-white/10 bg-white/[0.04] backdrop-blur-2xl p-5 md:p-8 shadow-[0_30px_120px_-20px_rgba(0,0,0,0.6)]">
-            <div className="flex items-center justify-between mb-5 md:mb-6">
-              <div className="flex items-center gap-2 text-[10px] md:text-xs font-mono uppercase tracking-widest text-white/50">
-                <Activity className="h-3 w-3 md:h-3.5 md:w-3.5 text-[hsl(168_80%_55%)]" />
-                live ai estimator
-              </div>
-              <div className="text-[10px] font-mono text-white/40">v2.6 · eu</div>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-5 md:gap-6">
-              <div>
-                <div className="text-xs text-white/50 mb-2">Opgave</div>
-                <div className="font-heading text-xl md:text-3xl font-semibold leading-tight">
-                  Hovedrengøring,<br />85 m² · København
-                </div>
-                <div className="mt-3 md:mt-4 flex flex-wrap gap-1.5 md:gap-2">
-                  {["3 timer", "2 fagfolk", "I morgen 09:00"].map((t) => (
-                    <span
-                      key={t}
-                      className="inline-flex items-center gap-1.5 rounded-full bg-white/5 border border-white/10 px-2 py-0.5 md:px-2.5 md:py-1 text-[11px] md:text-xs text-white/70"
-                    >
-                      <Clock className="h-3 w-3" /> {t}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              <div className="rounded-xl md:rounded-2xl bg-gradient-to-br from-[hsl(168_70%_25%)]/40 to-[hsl(200_70%_25%)]/40 border border-white/10 p-4 md:p-5">
-                <div className="text-xs text-white/60 mb-1">AI prisforslag</div>
-                <div className="flex items-baseline gap-2">
-                  <span className="font-heading text-3xl md:text-5xl font-bold tabular-nums">1 240</span>
-                  <span className="text-white/50 text-sm">DKK</span>
-                </div>
-                <div className="mt-3 h-1.5 rounded-full bg-white/10 overflow-hidden">
-                  <div className="h-full w-3/5 bg-gradient-to-r from-[hsl(168_80%_55%)] to-[hsl(200_85%_60%)]" />
-                </div>
-                <div className="mt-2 flex justify-between text-[10px] md:text-[11px] font-mono text-white/45">
-                  <span>min 980</span>
-                  <span>marked</span>
-                  <span>max 1 480</span>
-                </div>
-              </div>
-            </div>
+      <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-end">
+        {/* Left: editorial headline */}
+        <motion.div initial="hidden" animate="visible" variants={fadeUp} className="lg:col-span-8">
+          <div className="text-[11px] font-editorial uppercase tracking-[0.25em] text-primary mb-4 md:mb-6">
+            №01 — Hjemmeservice, fortalt på ny
           </div>
-        </Tilt>
+          <h1 className="font-display font-normal italic-none text-[clamp(2.75rem,9vw,7.5rem)] leading-[0.92] tracking-[-0.02em] text-foreground">
+            Et hjem,<br />
+            passet af{" "}
+            <span className="italic text-primary">de rigtige</span>{" "}
+            <span className="text-muted-foreground/60">hænder.</span>
+          </h1>
+        </motion.div>
 
-        {/* Pinned badges */}
-        <div className="hidden md:flex absolute -left-6 top-1/2 -translate-y-1/2 -rotate-6 items-center gap-2 rounded-2xl bg-[hsl(32_95%_55%)] text-[hsl(220_25%_6%)] px-3 py-2 text-xs font-bold shadow-xl">
-          <Sparkles className="h-3.5 w-3.5" /> NO BIDDING WAR
-        </div>
-        <div className="hidden md:flex absolute -right-4 -top-4 rotate-6 items-center gap-2 rounded-2xl bg-white text-[hsl(220_25%_6%)] px-3 py-2 text-xs font-bold shadow-xl">
-          <Shield className="h-3.5 w-3.5" /> KYC VERIFIED
-        </div>
-      </motion.div>
-    </div>
-
-    {/* Marquee */}
-    <div className="relative border-y border-white/10 bg-black/30 backdrop-blur py-3 md:py-5 overflow-hidden">
-      <div className="ticker-track flex gap-8 md:gap-12 whitespace-nowrap font-heading font-semibold text-lg md:text-4xl text-white/30 uppercase tracking-tight">
-        {Array.from({ length: 2 }).flatMap((_, k) =>
-          ["Rengøring", "★", "Håndværk", "★", "Have & udendørs", "★", "Flytning", "★", "VVS", "★", "Maler", "★", "Vinduer", "★"].map((w, i) => (
-            <span key={`${k}-${i}`} className={i % 2 === 1 ? "text-[hsl(168_80%_55%)]" : ""}>{w}</span>
-          ))
-        )}
+        {/* Right: editorial intro + CTAs */}
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          custom={1}
+          variants={fadeUp}
+          className="lg:col-span-4 lg:border-l lg:border-border lg:pl-8"
+        >
+          <p className="font-editorial text-base md:text-lg leading-relaxed text-foreground/80 mb-6">
+            HomeHero forbinder Europas hjem med dygtige, verificerede fagfolk. AI-matchet pris,
+            ingen budkrig, fair betaling efter overenskomst.
+          </p>
+          <div className="flex flex-col sm:flex-row lg:flex-col gap-3">
+            <Link to="/task/create" className="flex-1">
+              <Button size="lg" className="w-full h-12 rounded-full gap-2 bg-primary text-primary-foreground hover:bg-primary/90">
+                Opret opgave <ArrowUpRight className="h-4 w-4" />
+              </Button>
+            </Link>
+            <Link to="/provider/register" className="flex-1">
+              <Button size="lg" variant="outline" className="w-full h-12 rounded-full gap-2 border-foreground/20 hover:bg-foreground hover:text-background">
+                Bliv provider <ArrowUpRight className="h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
+          <div className="mt-5 flex items-center gap-3 text-xs text-muted-foreground">
+            <div className="flex -space-x-1.5">
+              {["MJ", "AS", "CP"].map((a) => (
+                <div key={a} className="h-6 w-6 rounded-full bg-primary/15 text-primary text-[9px] font-semibold flex items-center justify-center border border-background">
+                  {a}
+                </div>
+              ))}
+            </div>
+            <span>4 200+ aktive fagfolk · 12 lande</span>
+          </div>
+        </motion.div>
       </div>
     </div>
   </section>
 );
 
-/* ───────────────────────── BENTO ───────────────────────── */
-const Bento = () => (
-  <section className="section-padding bg-background">
-    <div className="container-wide">
-      <div className="flex items-end justify-between mb-8 md:mb-14 gap-4 flex-wrap">
-        <div>
-          <div className="text-[11px] md:text-xs font-mono uppercase tracking-widest text-primary mb-2 md:mb-3">/ 01 — services</div>
-          <h2 className="font-heading text-3xl md:text-6xl font-bold tracking-tight leading-[0.95] max-w-2xl">
-            Alt dit hjem behøver. <span className="text-muted-foreground/50">På én platform.</span>
-          </h2>
-        </div>
-        <Link to="/services" className="inline-flex items-center gap-1 text-sm font-medium hover:text-primary transition-colors">
-          Se alle <ArrowRight className="h-4 w-4" />
-        </Link>
-      </div>
+/* ─────────────── BENTO ─────────────── */
+const services = [
+  { id: "cleaning", name: "Rengøring", icon: Sparkles, count: "1 240 fagfolk" },
+  { id: "handyman", name: "Håndværk", icon: Hammer, count: "860 fagfolk" },
+  { id: "garden", name: "Have", icon: Leaf, count: "420 fagfolk" },
+  { id: "moving", name: "Flytning", icon: Truck, count: "310 fagfolk" },
+  { id: "plumbing", name: "VVS & el", icon: Wrench, count: "280 fagfolk" },
+];
 
-      {/* Asymmetric bento */}
-      <div className="grid grid-cols-12 auto-rows-[160px] sm:auto-rows-[180px] md:auto-rows-[220px] gap-2.5 md:gap-4">
-        {serviceCategories.map((cat, i) => {
-          const layouts = [
-            "col-span-12 md:col-span-7 row-span-2",
-            "col-span-12 md:col-span-5 row-span-1",
-            "col-span-6 md:col-span-5 row-span-1",
-            "col-span-6 md:col-span-7 row-span-1",
-          ];
-          const tones = [
-            "bg-[hsl(220_25%_8%)] text-white",
-            "bg-[hsl(168_45%_92%)] text-[hsl(220_25%_10%)]",
-            "bg-[hsl(32_95%_92%)] text-[hsl(220_25%_10%)]",
-            "bg-[hsl(220_15%_94%)] text-[hsl(220_25%_10%)]",
-          ];
-          return (
-            <motion.div
-              key={cat.id}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: "-50px" }}
-              custom={i}
-              variants={fadeUp}
-              className={`${layouts[i]}`}
-            >
-              <Tilt max={12} scale={1.03} className={`relative h-full w-full overflow-hidden rounded-2xl md:rounded-3xl ${tones[i]} group cursor-pointer`}>
-                <Link to={`/task/create`} className="absolute inset-0 p-4 md:p-8 flex flex-col justify-between" data-cursor="hover">
-                  <div className="flex items-start justify-between">
-                    <span className="text-3xl md:text-6xl">{cat.icon}</span>
-                    <div className="h-7 w-7 md:h-9 md:w-9 rounded-full border border-current/20 flex items-center justify-center group-hover:rotate-45 transition-transform duration-500">
-                      <ArrowUpRight className="h-3.5 w-3.5 md:h-4 md:w-4" />
-                    </div>
+const Bento = () => (
+  <section className="bg-secondary/40 border-b border-border">
+    <div className="container-wide section-padding">
+      <div className="grid grid-cols-12 gap-3 md:gap-4 auto-rows-[minmax(140px,auto)]">
+        {/* 1 · Big editorial card — featured story */}
+        <motion.div
+          initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }} custom={0} variants={fadeUp}
+          className="col-span-12 md:col-span-7 row-span-2 relative overflow-hidden rounded-3xl bg-[hsl(168_60%_12%)] text-[hsl(45_55%_92%)] p-6 md:p-10 flex flex-col justify-between min-h-[320px] md:min-h-[440px]"
+        >
+          <div className="absolute inset-0 opacity-30 bg-grid pointer-events-none" />
+          <div className="relative">
+            <div className="text-[10px] md:text-xs font-editorial uppercase tracking-[0.25em] text-[hsl(45_55%_92%)]/60 mb-4">
+              Reportage · AI-prissætning
+            </div>
+            <h2 className="font-display text-3xl md:text-5xl lg:text-6xl leading-[0.95] tracking-[-0.01em]">
+              <span className="italic">"Endelig en fair pris,</span> uden at jagte fem tilbud."
+            </h2>
+          </div>
+          <div className="relative flex items-end justify-between gap-4">
+            <div className="font-editorial text-sm text-[hsl(45_55%_92%)]/70 max-w-xs">
+              Vores AI beregner et fair-market interval ud fra opgavens omfang og lokal overenskomst.
+              Du betaler aldrig for budkrige.
+            </div>
+            <Link to="/how-it-works" className="shrink-0 h-12 w-12 rounded-full bg-[hsl(45_55%_92%)] text-[hsl(168_60%_12%)] flex items-center justify-center hover:scale-105 transition-transform">
+              <ArrowUpRight className="h-5 w-5" />
+            </Link>
+          </div>
+        </motion.div>
+
+        {/* 2 · Live ticker */}
+        <motion.div
+          initial="hidden" whileInView="visible" viewport={{ once: true }} custom={1} variants={fadeUp}
+          className="col-span-12 md:col-span-5 rounded-3xl bg-background border border-border p-5 md:p-6 flex flex-col justify-between"
+        >
+          <div className="flex items-center gap-2 text-[10px] font-editorial uppercase tracking-[0.25em] text-muted-foreground">
+            <Activity className="h-3.5 w-3.5 text-primary" /> Live i dag
+          </div>
+          <div>
+            <div className="font-display text-5xl md:text-6xl leading-none text-foreground tabular-nums">
+              1 248
+            </div>
+            <div className="font-editorial text-sm text-muted-foreground mt-1">opgaver matchet siden midnat</div>
+          </div>
+          <div className="flex items-center gap-3 text-xs text-muted-foreground">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full rounded-full bg-success animate-ping opacity-75" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-success" />
+            </span>
+            Opdateres hvert minut
+          </div>
+        </motion.div>
+
+        {/* 3 · Quote */}
+        <motion.div
+          initial="hidden" whileInView="visible" viewport={{ once: true }} custom={2} variants={fadeUp}
+          className="col-span-12 md:col-span-5 rounded-3xl bg-[hsl(45_55%_92%)] text-[hsl(168_60%_12%)] p-6 md:p-8 flex flex-col justify-between min-h-[200px]"
+        >
+          <Quote className="h-7 w-7 opacity-40" />
+          <p className="font-display text-xl md:text-2xl leading-snug italic">
+            "Jeg fik fat i en lokal håndværker på under to timer — og prisen var præcis det jeg havde forventet."
+          </p>
+          <div className="flex items-center gap-3 text-sm font-editorial">
+            <div className="h-8 w-8 rounded-full bg-[hsl(168_60%_12%)]/10 flex items-center justify-center font-semibold">EL</div>
+            <div>
+              <div className="font-semibold">Emma L.</div>
+              <div className="text-[hsl(168_60%_12%)]/60 text-xs">Frederiksberg</div>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* 4 · Stat */}
+        <motion.div
+          initial="hidden" whileInView="visible" viewport={{ once: true }} custom={3} variants={fadeUp}
+          className="col-span-6 md:col-span-3 rounded-3xl bg-primary text-primary-foreground p-5 md:p-6 flex flex-col justify-between"
+        >
+          <Star className="h-5 w-5 fill-current" />
+          <div>
+            <div className="font-display text-4xl md:text-5xl leading-none">4.92</div>
+            <div className="font-editorial text-xs opacity-80 mt-1">gennemsnitlig rating</div>
+          </div>
+        </motion.div>
+
+        {/* 5 · Stat */}
+        <motion.div
+          initial="hidden" whileInView="visible" viewport={{ once: true }} custom={4} variants={fadeUp}
+          className="col-span-6 md:col-span-4 rounded-3xl bg-background border border-border p-5 md:p-6 flex flex-col justify-between"
+        >
+          <Shield className="h-5 w-5 text-primary" />
+          <div>
+            <div className="font-display text-4xl md:text-5xl leading-none text-foreground">100%</div>
+            <div className="font-editorial text-xs text-muted-foreground mt-1">KYC-verificerede fagfolk</div>
+          </div>
+        </motion.div>
+
+        {/* 6 · Service strip */}
+        <motion.div
+          initial="hidden" whileInView="visible" viewport={{ once: true }} custom={5} variants={fadeUp}
+          className="col-span-12 rounded-3xl bg-background border border-border p-5 md:p-6"
+        >
+          <div className="flex items-center justify-between mb-4 md:mb-5">
+            <div className="text-[10px] md:text-xs font-editorial uppercase tracking-[0.25em] text-muted-foreground">
+              Kategorier
+            </div>
+            <Link to="/services" className="text-xs font-editorial text-primary hover:underline">Se alle →</Link>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
+            {services.map((s) => {
+              const Icon = s.icon;
+              return (
+                <Link
+                  key={s.id}
+                  to="/task/create"
+                  className="group flex items-center gap-3 p-3 md:p-4 rounded-2xl bg-secondary hover:bg-primary hover:text-primary-foreground transition-colors"
+                >
+                  <div className="h-10 w-10 rounded-xl bg-background group-hover:bg-primary-foreground/15 flex items-center justify-center">
+                    <Icon className="h-5 w-5 text-primary group-hover:text-primary-foreground" />
                   </div>
-                  <div>
-                    <h3 className="font-heading text-lg md:text-3xl font-bold tracking-tight mb-1 leading-tight">
-                      {cat.name}
-                    </h3>
-                    <p className="hidden md:block text-sm opacity-70 mb-3 max-w-md">{cat.description}</p>
-                    <div className="hidden sm:flex flex-wrap gap-1.5">
-                      {cat.subcategories.slice(0, 3).map((sub) => (
-                        <span key={sub} className="text-[11px] font-medium border border-current/20 rounded-full px-2 py-0.5 opacity-80">
-                          {sub}
-                        </span>
-                      ))}
-                    </div>
+                  <div className="min-w-0">
+                    <div className="font-editorial font-semibold text-sm truncate">{s.name}</div>
+                    <div className="text-[11px] opacity-60 truncate">{s.count}</div>
                   </div>
                 </Link>
-              </Tilt>
-            </motion.div>
-          );
-        })}
+              );
+            })}
+          </div>
+        </motion.div>
       </div>
     </div>
   </section>
 );
 
-/* ───────────────────────── FLOW ───────────────────────── */
-const Flow = () => {
-  const steps = [
-    { n: "01", title: "Beskriv din opgave", desc: "30 sekunder. Foto, adresse, ønsket tid. AI'en oversætter til en præcis brief." },
-    { n: "02", title: "AI matcher fagfolk", desc: "Vi udvælger 3-5 verificerede providere baseret på lokation, anmeldelser og kapacitet." },
-    { n: "03", title: "Book med fast pris", desc: "Sammenlign tilbud — alle inden for fair-market range. Betal sikkert via platformen." },
-  ];
-  return (
-    <section className="section-padding bg-[hsl(220_25%_6%)] text-white relative overflow-hidden">
-      <div className="mesh-blob top-1/4 -right-40 h-[400px] w-[400px] bg-[hsl(168_85%_45%)] opacity-30" />
-      <div className="container-wide relative">
-        <div className="text-[11px] md:text-xs font-mono uppercase tracking-widest text-[hsl(168_80%_55%)] mb-2 md:mb-3">/ 02 — flow</div>
-        <h2 className="font-heading text-3xl md:text-6xl font-bold tracking-tight leading-[0.95] max-w-3xl mb-10 md:mb-16">
-          Fra idé til udført opgave. <span className="text-white/40">Tre skridt.</span>
+/* ─────────────── DUAL CTA (kunder / providere) ─────────────── */
+const DualCTA = () => (
+  <section className="bg-background border-b border-border">
+    <div className="container-wide section-padding">
+      <div className="text-center mb-10 md:mb-14">
+        <div className="text-[11px] font-editorial uppercase tracking-[0.25em] text-primary mb-3">№02 — To veje, ét fællesskab</div>
+        <h2 className="font-display text-4xl md:text-6xl leading-[0.95] tracking-[-0.01em] max-w-3xl mx-auto">
+          Uanset om du <span className="italic">bestiller</span> eller <span className="italic">arbejder</span>.
         </h2>
-
-        <div className="grid md:grid-cols-3 gap-px bg-white/10 rounded-2xl md:rounded-3xl overflow-hidden border border-white/10">
-          {steps.map((s, i) => (
-            <motion.div
-              key={s.n}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              custom={i}
-              variants={fadeUp}
-              className="bg-[hsl(220_25%_6%)] p-6 md:p-10 hover:bg-[hsl(220_25%_8%)] transition-colors"
-            >
-              <div className="flex items-center justify-between mb-8 md:mb-12">
-                <span className="font-mono text-sm text-white/50">{s.n}</span>
-                <Plus className="h-4 w-4 text-white/30" />
-              </div>
-              <h3 className="font-heading text-xl md:text-2xl font-semibold mb-2 md:mb-3">{s.title}</h3>
-              <p className="text-white/60 text-sm leading-relaxed">{s.desc}</p>
-            </motion.div>
-          ))}
-        </div>
       </div>
-    </section>
-  );
-};
 
-/* ───────────────────────── STATS ───────────────────────── */
-const Stats = () => {
-  const items = [
-    { v: "12+", l: "Lande live", sub: "Hele Norden, DACH, Benelux" },
-    { v: "0", l: "Budkrige", sub: "Fair-market AI prissætning" },
-    { v: "25%", l: "Platformgebyr", sub: "Delt mellem kunde og provider" },
-    { v: "100%", l: "Overenskomstløn", sub: "Min. sats per land" },
-  ];
-  return (
-    <section className="py-16 md:py-28 bg-background">
-      <div className="container-wide">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-border rounded-2xl md:rounded-3xl overflow-hidden border border-border">
-          {items.map((it, i) => (
-            <motion.div
-              key={it.l}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              custom={i}
-              variants={fadeUp}
-              className="bg-card p-5 md:p-8 group hover:bg-secondary/50 transition-colors"
-            >
-              <div className="font-heading text-3xl md:text-6xl font-bold tracking-tight tabular-nums text-primary mb-1.5 md:mb-2 group-hover:scale-105 origin-left transition-transform">
-                {it.v}
-              </div>
-              <div className="font-medium text-sm md:text-base text-foreground mb-1">{it.l}</div>
-              <div className="text-[11px] md:text-xs text-muted-foreground">{it.sub}</div>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-};
-
-/* ───────────────────────── TRUST / PROVIDER ───────────────────────── */
-const ProviderTease = () => (
-  <section className="section-padding bg-secondary/40">
-    <div className="container-wide">
-      <div className="grid md:grid-cols-2 gap-6 md:gap-10 items-center">
-        <div>
-          <div className="text-[11px] md:text-xs font-mono uppercase tracking-widest text-primary mb-2 md:mb-3">/ 03 — for providere</div>
-          <h2 className="font-heading text-3xl md:text-5xl font-bold tracking-tight leading-[0.95] mb-4 md:mb-6">
-            Byg din forretning. <span className="text-muted-foreground/60">Vi finder kunderne.</span>
-          </h2>
-          <p className="text-muted-foreground text-sm md:text-lg leading-relaxed mb-6 md:mb-8 max-w-md">
-            Privat eller virksomhed. Boost din profil, vælg dine områder, og lad AI'en sende dig de rigtige opgaver — til den rigtige pris.
-          </p>
-          <div className="space-y-3 mb-8">
+      <div className="grid md:grid-cols-2 gap-4 md:gap-6">
+        {/* Customer */}
+        <div className="group relative overflow-hidden rounded-3xl bg-secondary p-6 md:p-10 flex flex-col">
+          <div className="text-[10px] font-editorial uppercase tracking-[0.25em] text-muted-foreground mb-6">For kunder</div>
+          <h3 className="font-display text-3xl md:text-4xl leading-tight mb-4">
+            Beskriv opgaven. <span className="italic text-primary">Vi gør resten.</span>
+          </h3>
+          <ul className="space-y-3 mb-8 flex-1">
             {[
-              "Gratis profil for private udbydere",
-              "Virksomhedsplan med kvartalsvis abonnement",
-              "Boost-funktion for ekstra synlighed",
-              "Garanteret minimumssats per land",
-            ].map((t) => (
-              <div key={t} className="flex items-center gap-3">
-                <CheckCircle2 className="h-5 w-5 text-primary shrink-0" />
-                <span className="text-sm">{t}</span>
-              </div>
+              { i: Calendar, t: "Book på minutter — fast pris fra start" },
+              { i: Shield, t: "Verificerede, forsikrede fagfolk" },
+              { i: Star, t: "Læs ægte anmeldelser fra naboer" },
+            ].map(({ i: Ic, t }) => (
+              <li key={t} className="flex items-start gap-3 font-editorial text-sm">
+                <Ic className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                <span>{t}</span>
+              </li>
             ))}
-          </div>
-          <Link to="/provider/register">
-            <Button size="lg" className="rounded-full h-12 px-7 gap-2">
-              Opret provider-profil <ArrowUpRight className="h-4 w-4" />
+          </ul>
+          <Link to="/customer/register">
+            <Button size="lg" className="w-full sm:w-auto rounded-full h-12 px-6 gap-2">
+              Opret opgave <ArrowUpRight className="h-4 w-4" />
             </Button>
           </Link>
         </div>
 
-        <div className="relative">
-          <Tilt max={10} scale={1.02} className="rounded-2xl md:rounded-3xl">
-            <div className="rounded-2xl md:rounded-3xl bg-[hsl(220_25%_6%)] text-white p-5 md:p-8 shadow-2xl">
-              <div className="flex items-center justify-between mb-5 md:mb-6">
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="h-9 w-9 md:h-10 md:w-10 shrink-0 rounded-full bg-gradient-to-br from-[hsl(168_80%_55%)] to-[hsl(200_85%_60%)] flex items-center justify-center font-bold text-[hsl(220_25%_6%)]">
-                    M
-                  </div>
-                  <div className="min-w-0">
-                    <div className="font-semibold text-sm">Maria K.</div>
-                    <div className="text-xs text-white/50 flex items-center gap-1">
-                      <MapPin className="h-3 w-3" /> Aarhus C
-                    </div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-1 text-sm shrink-0">
-                  <Star className="h-4 w-4 text-[hsl(38_92%_60%)] fill-current" /> 4.96
-                </div>
-              </div>
-
-              <div className="grid grid-cols-3 gap-2 md:gap-3 mb-5 md:mb-6">
-                {[
-                  { l: "Opgaver", v: "247" },
-                  { l: "Indkomst", v: "82k" },
-                  { l: "Genbook", v: "78%" },
-                ].map((s) => (
-                  <div key={s.l} className="rounded-lg md:rounded-xl bg-white/5 border border-white/10 p-2.5 md:p-3">
-                    <div className="font-heading font-bold text-lg md:text-xl tabular-nums">{s.v}</div>
-                    <div className="text-[9px] md:text-[10px] uppercase tracking-wider text-white/50 mt-1">{s.l}</div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="rounded-xl border border-[hsl(168_80%_55%)]/40 bg-[hsl(168_80%_55%)]/10 p-3 md:p-4 flex items-center gap-3">
-                <Zap className="h-5 w-5 text-[hsl(168_80%_55%)] shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <div className="text-[11px] md:text-xs text-white/60">Næste opgave</div>
-                  <div className="text-xs md:text-sm font-medium truncate">Vinduespudsning · 320 DKK · 1.2 km</div>
-                </div>
-                <Button size="sm" className="bg-white text-[hsl(220_25%_6%)] hover:bg-white/90 rounded-full h-8 shrink-0">
-                  Se
-                </Button>
-              </div>
-            </div>
-          </Tilt>
-
-          <div className="absolute -bottom-3 -right-2 md:-bottom-4 md:-right-4 rotate-3 bg-[hsl(32_95%_55%)] text-[hsl(220_25%_6%)] rounded-xl md:rounded-2xl px-2.5 py-1.5 md:px-3 md:py-2 text-[10px] md:text-xs font-bold shadow-xl">
-            +EARN 18% W/W
-          </div>
+        {/* Provider */}
+        <div className="group relative overflow-hidden rounded-3xl bg-[hsl(168_60%_12%)] text-[hsl(45_55%_92%)] p-6 md:p-10 flex flex-col">
+          <div className="text-[10px] font-editorial uppercase tracking-[0.25em] opacity-60 mb-6">For providere</div>
+          <h3 className="font-display text-3xl md:text-4xl leading-tight mb-4">
+            Byg din forretning. <span className="italic opacity-80">Vi sender kunderne.</span>
+          </h3>
+          <ul className="space-y-3 mb-8 flex-1">
+            {[
+              { i: Users, t: "Gratis profil for private udbydere" },
+              { i: CheckCircle2, t: "Garanteret minimumssats per land" },
+              { i: MapPin, t: "Vælg dine områder og kapacitet" },
+            ].map(({ i: Ic, t }) => (
+              <li key={t} className="flex items-start gap-3 font-editorial text-sm">
+                <Ic className="h-4 w-4 mt-0.5 shrink-0 opacity-90" />
+                <span className="opacity-90">{t}</span>
+              </li>
+            ))}
+          </ul>
+          <Link to="/provider/register">
+            <Button size="lg" variant="outline" className="w-full sm:w-auto rounded-full h-12 px-6 gap-2 bg-transparent border-[hsl(45_55%_92%)]/30 text-[hsl(45_55%_92%)] hover:bg-[hsl(45_55%_92%)] hover:text-[hsl(168_60%_12%)]">
+              Bliv provider <ArrowUpRight className="h-4 w-4" />
+            </Button>
+          </Link>
         </div>
       </div>
     </div>
   </section>
 );
 
-/* ───────────────────────── FINAL CTA ───────────────────────── */
-const FinalCTA = () => (
-  <section className="py-16 md:py-32 bg-background">
-    <div className="container-wide">
-      <div className="relative overflow-hidden rounded-[1.5rem] md:rounded-[3rem] bg-[hsl(220_25%_6%)] text-white p-8 md:p-20 text-center">
-        <div className="mesh-blob -top-20 left-1/4 h-[300px] w-[300px] bg-[hsl(168_85%_45%)] opacity-50" />
-        <div className="mesh-blob bottom-0 right-1/4 h-[300px] w-[300px] bg-[hsl(200_90%_50%)] opacity-50" />
-        <div className="absolute inset-0 bg-grid opacity-50" />
+/* ─────────────── FLOW ─────────────── */
+const Flow = () => {
+  const steps = [
+    { n: "01", t: "Beskriv", d: "Foto, adresse, ønsket tid. Vores AI bygger en præcis brief på 30 sekunder." },
+    { n: "02", t: "Match", d: "Tre til fem verificerede providere udvælges ud fra lokation, rating og kapacitet." },
+    { n: "03", t: "Book", d: "Fast pris, sikker betaling, klar kommunikation — hele vejen til udført opgave." },
+  ];
+  return (
+    <section className="bg-secondary/40 border-b border-border">
+      <div className="container-wide section-padding">
+        <div className="text-[11px] font-editorial uppercase tracking-[0.25em] text-primary mb-3">№03 — Sådan virker det</div>
+        <h2 className="font-display text-4xl md:text-6xl leading-[0.95] tracking-[-0.01em] max-w-3xl mb-10 md:mb-14">
+          Fra idé til <span className="italic">udført</span> opgave.
+        </h2>
 
-        <div className="relative">
-          <h2 className="font-heading text-4xl md:text-7xl font-bold tracking-[-0.04em] leading-[0.95] mb-4 md:mb-6">
-            Klar når <span className="text-outline">du</span> er.
-          </h2>
-          <p className="text-white/60 text-sm md:text-base max-w-md mx-auto mb-8 md:mb-10">
-            Opret en gratis profil på under 2 minutter. Søg hjælp eller tilbyd dine services.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Link to="/customer/register" className="w-full sm:w-auto">
-              <Button size="lg" className="w-full sm:w-auto rounded-full h-12 md:h-13 px-8 bg-white text-[hsl(220_25%_6%)] hover:bg-white/90">
-                Jeg søger hjælp
-              </Button>
-            </Link>
-            <Link to="/provider/register" className="w-full sm:w-auto">
-              <Button size="lg" variant="outline" className="w-full sm:w-auto rounded-full h-12 md:h-13 px-8 bg-transparent border-white/30 text-white hover:bg-white/10 hover:text-white">
-                Jeg tilbyder hjælp
-              </Button>
-            </Link>
-          </div>
+        <div className="grid md:grid-cols-3 gap-4 md:gap-6">
+          {steps.map((s, i) => (
+            <motion.div
+              key={s.n}
+              initial="hidden" whileInView="visible" viewport={{ once: true }} custom={i} variants={fadeUp}
+              className="rounded-3xl bg-background border border-border p-6 md:p-8 flex flex-col gap-5 md:gap-8 min-h-[220px]"
+            >
+              <div className="flex items-center justify-between">
+                <span className="font-display text-5xl md:text-6xl text-primary">{s.n}</span>
+                <Clock className="h-4 w-4 text-muted-foreground" />
+              </div>
+              <div>
+                <h3 className="font-display text-2xl md:text-3xl mb-2">{s.t}</h3>
+                <p className="font-editorial text-sm leading-relaxed text-muted-foreground">{s.d}</p>
+              </div>
+            </motion.div>
+          ))}
         </div>
+      </div>
+    </section>
+  );
+};
+
+/* ─────────────── FOOTER CTA ─────────────── */
+const FinalCTA = () => (
+  <section className="bg-background">
+    <div className="container-wide py-16 md:py-28 text-center">
+      <div className="text-[11px] font-editorial uppercase tracking-[0.25em] text-primary mb-4">№04 — Klar når du er</div>
+      <h2 className="font-display text-5xl md:text-8xl leading-[0.9] tracking-[-0.02em] max-w-4xl mx-auto mb-8 md:mb-10">
+        Hjælpen er <span className="italic text-primary">to klik væk.</span>
+      </h2>
+      <div className="flex flex-col sm:flex-row items-center justify-center gap-3 max-w-md mx-auto">
+        <Link to="/task/create" className="w-full sm:w-auto">
+          <Button size="lg" className="w-full sm:w-auto h-12 px-8 rounded-full gap-2">
+            Opret opgave <ArrowUpRight className="h-4 w-4" />
+          </Button>
+        </Link>
+        <Link to="/provider/register" className="w-full sm:w-auto">
+          <Button size="lg" variant="outline" className="w-full sm:w-auto h-12 px-8 rounded-full gap-2">
+            Bliv provider
+          </Button>
+        </Link>
       </div>
     </div>
   </section>
 );
 
 const Index = () => (
-  <div>
+  <main className="bg-background">
     <Hero />
     <Bento />
+    <DualCTA />
     <Flow />
-    <Stats />
-    <ProviderTease />
     <FinalCTA />
-  </div>
+  </main>
 );
 
 export default Index;
