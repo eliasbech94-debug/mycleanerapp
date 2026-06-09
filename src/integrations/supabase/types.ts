@@ -18,6 +18,7 @@ export type Database = {
         Row: {
           address: string
           address_place_id: string | null
+          authorization_expires_at: string | null
           booking_date: string
           created_at: string
           currency: string
@@ -29,9 +30,13 @@ export type Database = {
           lat: number | null
           lng: number | null
           notes: string | null
+          payment_intent_id: string | null
+          payment_status: Database["public"]["Enums"]["payment_status"]
+          platform_fee_amount: number
           provider_gets: number
           provider_id: string
           provider_name: string
+          provider_stripe_account_id: string | null
           service: string
           slot: string
           status: Database["public"]["Enums"]["booking_status"]
@@ -40,6 +45,7 @@ export type Database = {
         Insert: {
           address: string
           address_place_id?: string | null
+          authorization_expires_at?: string | null
           booking_date: string
           created_at?: string
           currency?: string
@@ -51,9 +57,13 @@ export type Database = {
           lat?: number | null
           lng?: number | null
           notes?: string | null
+          payment_intent_id?: string | null
+          payment_status?: Database["public"]["Enums"]["payment_status"]
+          platform_fee_amount?: number
           provider_gets: number
           provider_id: string
           provider_name: string
+          provider_stripe_account_id?: string | null
           service: string
           slot: string
           status?: Database["public"]["Enums"]["booking_status"]
@@ -62,6 +72,7 @@ export type Database = {
         Update: {
           address?: string
           address_place_id?: string | null
+          authorization_expires_at?: string | null
           booking_date?: string
           created_at?: string
           currency?: string
@@ -73,9 +84,13 @@ export type Database = {
           lat?: number | null
           lng?: number | null
           notes?: string | null
+          payment_intent_id?: string | null
+          payment_status?: Database["public"]["Enums"]["payment_status"]
+          platform_fee_amount?: number
           provider_gets?: number
           provider_id?: string
           provider_name?: string
+          provider_stripe_account_id?: string | null
           service?: string
           slot?: string
           status?: Database["public"]["Enums"]["booking_status"]
@@ -95,6 +110,10 @@ export type Database = {
           lng: number | null
           phone: string | null
           provider_id: string | null
+          stripe_account_id: string | null
+          stripe_charges_enabled: boolean
+          stripe_onboarded: boolean
+          stripe_payouts_enabled: boolean
           updated_at: string
         }
         Insert: {
@@ -108,6 +127,10 @@ export type Database = {
           lng?: number | null
           phone?: string | null
           provider_id?: string | null
+          stripe_account_id?: string | null
+          stripe_charges_enabled?: boolean
+          stripe_onboarded?: boolean
+          stripe_payouts_enabled?: boolean
           updated_at?: string
         }
         Update: {
@@ -121,6 +144,10 @@ export type Database = {
           lng?: number | null
           phone?: string | null
           provider_id?: string | null
+          stripe_account_id?: string | null
+          stripe_charges_enabled?: boolean
+          stripe_onboarded?: boolean
+          stripe_payouts_enabled?: boolean
           updated_at?: string
         }
         Relationships: []
@@ -139,6 +166,13 @@ export type Database = {
         | "declined"
         | "cancelled"
         | "completed"
+      payment_status:
+        | "none"
+        | "authorized"
+        | "captured"
+        | "canceled"
+        | "failed"
+        | "expired"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -272,6 +306,14 @@ export const Constants = {
         "declined",
         "cancelled",
         "completed",
+      ],
+      payment_status: [
+        "none",
+        "authorized",
+        "captured",
+        "canceled",
+        "failed",
+        "expired",
       ],
     },
   },
