@@ -129,8 +129,8 @@ const ProviderProfile = () => {
             {/* CTAs */}
             <div className="flex flex-col sm:flex-row gap-3 mt-6">
               <Button asChild className="flex-1" size="lg">
-                <Link to="/task/create">
-                  <Calendar className="h-4 w-4 mr-2" /> Anmod om tilbud
+                <Link to={`/book/${provider.id}`}>
+                  <Calendar className="h-4 w-4 mr-2" /> Book i kalenderen
                 </Link>
               </Button>
               <Button variant="outline" size="lg" className="flex-1">

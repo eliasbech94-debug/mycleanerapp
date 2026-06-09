@@ -315,7 +315,7 @@ function ProviderPreviewCard() {
         </div>
 
         <Link
-          to="/provider/sofia-m"
+          to={`/book/p_002?slot=${encodeURIComponent(selected)}`}
           className="mt-5 flex items-center justify-between rounded-2xl px-5 py-3.5 text-sm font-bold uppercase tracking-wider transition hover:-translate-y-0.5"
           style={{ background: C.ink, color: C.cream }}
         >
@@ -430,10 +430,10 @@ function Process() {
 // ---------- Cleaners directory ----------
 function Cleaners() {
   const cleaners = [
-    { name: "Sofia M.", area: "København K", rating: 4.95, jobs: 142, rate: 280, color: "#ff6b35", tag: "Top pick", next: "I dag · 10:00" },
-    { name: "Anders L.", area: "Aarhus C", rating: 4.92, jobs: 98, rate: 260, color: "#168a7a", tag: "Pålidelig", next: "I morgen · 08:00" },
-    { name: "Maja H.", area: "Frederiksberg", rating: 4.98, jobs: 211, rate: 320, color: "#0a3d3a", tag: "Eco-pro", next: "Fre · 13:00" },
-    { name: "Pawel K.", area: "Odense", rating: 4.89, jobs: 67, rate: 240, color: "#c9a84c", tag: "Hurtig", next: "I dag · 15:30" },
+    { id: "p_002", name: "Sofia M.", area: "København K", rating: 4.95, jobs: 142, rate: 280, color: "#ff6b35", tag: "Top pick", next: "I dag · 10:00" },
+    { id: "p_003", name: "Anders L.", area: "Aarhus C", rating: 4.92, jobs: 98, rate: 260, color: "#168a7a", tag: "Pålidelig", next: "I morgen · 08:00" },
+    { id: "p_004", name: "Maja H.", area: "Frederiksberg", rating: 4.98, jobs: 211, rate: 320, color: "#0a3d3a", tag: "Eco-pro", next: "Fre · 13:00" },
+    { id: "p_001", name: "Pawel K.", area: "Odense", rating: 4.89, jobs: 67, rate: 240, color: "#c9a84c", tag: "Hurtig", next: "I dag · 15:30" },
   ];
   return (
     <section className="relative px-4 py-20 sm:px-6 lg:px-10" style={{ background: C.ink }}>
@@ -464,43 +464,47 @@ function Cleaners() {
               viewport={{ once: true, margin: "-60px" }}
               variants={fadeUp}
               custom={i}
-              className="group relative overflow-hidden rounded-3xl border"
-              style={{ borderColor: `${C.cream}20`, background: `${C.cream}08` }}
             >
-              <div
-                className="relative flex aspect-[4/5] items-end p-5"
-                style={{ background: `linear-gradient(160deg, ${c.color} 0%, ${C.ink} 130%)` }}
+              <Link
+                to={`/book/${c.id}`}
+                className="group relative block overflow-hidden rounded-3xl border transition hover:-translate-y-1"
+                style={{ borderColor: `${C.cream}20`, background: `${C.cream}08` }}
               >
-                <span className="font-display" style={{ color: C.cream, fontSize: "clamp(3.5rem, 8vw, 5.5rem)", lineHeight: 0.9 }}>
-                  {c.name.split(" ")[0][0]}
-                  {c.name.split(" ")[1][0]}
-                </span>
-                <span className="absolute right-3 top-3 rounded-full px-2 py-1 text-[10px] font-black uppercase tracking-wider shadow" style={{ background: C.cream, color: C.ink }}>
-                  ★ {c.rating}
-                </span>
-                <span className="absolute left-3 top-3 rounded-full border px-2 py-1 text-[9px] font-black uppercase tracking-[0.18em]" style={{ borderColor: C.cream, color: C.cream, background: "rgba(0,0,0,0.25)" }}>
-                  {c.tag}
-                </span>
-              </div>
-              <div className="p-4" style={{ color: C.cream }}>
-                <div className="flex items-baseline justify-between">
-                  <div className="font-display text-xl">{c.name}</div>
-                  <div className="font-display text-base" style={{ color: C.orange }}>{c.rate} kr/t</div>
-                </div>
-                <div className="mt-1 flex items-center justify-between text-xs opacity-70">
-                  <span>{c.area}</span>
-                  <span>{c.jobs} jobs</span>
-                </div>
                 <div
-                  className="mt-3 flex items-center justify-between rounded-xl border px-3 py-2 text-[11px]"
-                  style={{ borderColor: `${C.mint}40`, background: `${C.mint}10` }}
+                  className="relative flex aspect-[4/5] items-end p-5"
+                  style={{ background: `linear-gradient(160deg, ${c.color} 0%, ${C.ink} 130%)` }}
                 >
-                  <span className="inline-flex items-center gap-1.5 font-bold" style={{ color: C.mint }}>
-                    <Calendar className="h-3 w-3" /> Næste ledige
+                  <span className="font-display" style={{ color: C.cream, fontSize: "clamp(3.5rem, 8vw, 5.5rem)", lineHeight: 0.9 }}>
+                    {c.name.split(" ")[0][0]}
+                    {c.name.split(" ")[1][0]}
                   </span>
-                  <span className="font-bold" style={{ color: C.cream }}>{c.next}</span>
+                  <span className="absolute right-3 top-3 rounded-full px-2 py-1 text-[10px] font-black uppercase tracking-wider shadow" style={{ background: C.cream, color: C.ink }}>
+                    ★ {c.rating}
+                  </span>
+                  <span className="absolute left-3 top-3 rounded-full border px-2 py-1 text-[9px] font-black uppercase tracking-[0.18em]" style={{ borderColor: C.cream, color: C.cream, background: "rgba(0,0,0,0.25)" }}>
+                    {c.tag}
+                  </span>
                 </div>
-              </div>
+                <div className="p-4" style={{ color: C.cream }}>
+                  <div className="flex items-baseline justify-between">
+                    <div className="font-display text-xl">{c.name}</div>
+                    <div className="font-display text-base" style={{ color: C.orange }}>{c.rate} kr/t</div>
+                  </div>
+                  <div className="mt-1 flex items-center justify-between text-xs opacity-70">
+                    <span>{c.area}</span>
+                    <span>{c.jobs} jobs</span>
+                  </div>
+                  <div
+                    className="mt-3 flex items-center justify-between rounded-xl border px-3 py-2 text-[11px] transition group-hover:border-mint"
+                    style={{ borderColor: `${C.mint}40`, background: `${C.mint}10` }}
+                  >
+                    <span className="inline-flex items-center gap-1.5 font-bold" style={{ color: C.mint }}>
+                      <Calendar className="h-3 w-3" /> Book nu
+                    </span>
+                    <span className="font-bold" style={{ color: C.cream }}>{c.next}</span>
+                  </div>
+                </div>
+              </Link>
             </motion.div>
           ))}
         </div>

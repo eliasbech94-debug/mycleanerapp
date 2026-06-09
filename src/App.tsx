@@ -15,6 +15,7 @@ import CreateTask from "./pages/CreateTask";
 import MatchingOffers from "./pages/MatchingOffers";
 import AdminDashboard from "./pages/AdminDashboard";
 import EmployeeDashboard from "./pages/EmployeeDashboard";
+import BookingFlow from "./pages/BookingFlow";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -37,6 +38,7 @@ const App = () => (
           <Route path="/task/offers" element={<MatchingOffers />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/employee" element={<EmployeeDashboard />} />
+          <Route path="/book/:id" element={<BookingFlow />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
         <Footer />
