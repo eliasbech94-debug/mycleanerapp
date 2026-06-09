@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { getProvider, getCountry, deriveServices, deriveHourlyRate, formatPrice } from "@/lib/providers";
 import { toast } from "@/hooks/use-toast";
+import AddressAutocomplete from "@/components/AddressAutocomplete";
 
 const C = {
   ink: "#0a3d3a",
@@ -413,20 +414,22 @@ function Step3({ address, setAddress, notes, setNotes, provider, date, slot, ser
       </p>
 
       <div className="mt-6 space-y-4">
-        <label className="block rounded-2xl border-2 bg-white p-4" style={{ borderColor: `${C.ink}22` }}>
+        <div className="block rounded-2xl border-2 bg-white p-4" style={{ borderColor: `${C.ink}22` }}>
           <div className="text-[10px] font-black uppercase tracking-[0.22em] opacity-70">Adresse</div>
-          <div className="mt-2 flex items-center gap-2">
-            <MapPin className="h-4 w-4 opacity-60" />
-            <input
+          <div className="mt-2">
+            <AddressAutocomplete
               autoFocus
-              type="text"
               value={address}
-              onChange={(e) => setAddress(e.target.value)}
+              onChange={setAddress}
+              onSelect={(p) => setAddress(p.address)}
               placeholder="Vej, nr., etage, by"
-              className="w-full bg-transparent text-base focus:outline-none"
+              countries={["dk"]}
             />
           </div>
-        </label>
+          <div className="mt-2 text-[10px] opacity-60">
+            Vælg fra listen så vi sikrer, at adressen er korrekt.
+          </div>
+        </div>
 
         <label className="block rounded-2xl border-2 bg-white p-4" style={{ borderColor: `${C.ink}22` }}>
           <div className="text-[10px] font-black uppercase tracking-[0.22em] opacity-70">Besked til cleaneren (valgfri)</div>
