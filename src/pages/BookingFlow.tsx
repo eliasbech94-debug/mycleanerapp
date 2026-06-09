@@ -654,6 +654,31 @@ function Step3({ address, setAddress, addressValid, setAddressValid, setAddressP
           />
         </label>
 
+        <div className="rounded-2xl border-2 bg-white p-4" style={{ borderColor: `${C.ink}22` }}>
+          <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.22em] opacity-70">
+            <CreditCard className="h-3.5 w-3.5" /> Betalingskort
+          </div>
+          <div className="mt-3 rounded-xl border p-3" style={{ borderColor: `${C.ink}22` }}>
+            <CardElement
+              options={{
+                style: {
+                  base: {
+                    fontSize: "16px",
+                    color: C.ink,
+                    fontFamily: "inherit",
+                    "::placeholder": { color: "#94a3a0" },
+                  },
+                  invalid: { color: "#c2412c" },
+                },
+              }}
+            />
+          </div>
+          <div className="mt-2 text-[10px] opacity-60">
+            Vi reserverer beløbet nu. Det hæves først, når cleaneren bekræfter (max 24 timer).
+          </div>
+        </div>
+
+
         <div className="rounded-2xl border-2 p-4" style={{ borderColor: C.mint, background: `${C.mint}30` }}>
           <div className="flex items-start gap-3">
             <Shield className="mt-0.5 h-5 w-5" style={{ color: C.ink }} />
