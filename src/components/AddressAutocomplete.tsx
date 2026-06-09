@@ -13,10 +13,13 @@ type Props = {
   value: string;
   onChange: (v: string) => void;
   onSelect?: (place: { address: string; placeId: string; lat?: number; lng?: number }) => void;
+  onValidityChange?: (valid: boolean) => void;
   placeholder?: string;
   autoFocus?: boolean;
   /** ISO country codes to bias the autocomplete (e.g. ["dk"]). */
   countries?: string[];
+  /** Visuel valideringsstatus. */
+  isValid?: boolean;
 };
 
 export default function AddressAutocomplete({
