@@ -102,6 +102,8 @@ export default function AddressAutocomplete({
     onChange(full);
     setOpen(false);
     setSuggestions([]);
+    setNoMatch(false);
+    onValidityChange?.(true);
     try {
       const { Place } = (await google.maps.importLibrary(
         "places",
@@ -123,6 +125,12 @@ export default function AddressAutocomplete({
       onSelect?.({ address: full, placeId: s.placeId });
     }
   }
+
+  const borderColor = noMatch || (value.length > 3 && !isValid)
+    ? "#c2412c"   // rød
+    : isValid
+    ? "#168a7a"   // teal
+    : "#0a3d3a";  // ink
 
   return (
     <div ref={wrapRef} className="relative">
