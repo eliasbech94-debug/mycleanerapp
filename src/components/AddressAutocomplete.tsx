@@ -23,15 +23,17 @@ type Props = {
 };
 
 export default function AddressAutocomplete({
-  value, onChange, onSelect, placeholder, autoFocus, countries = ["dk"],
+  value, onChange, onSelect, onValidityChange, placeholder, autoFocus, countries = ["dk"], isValid,
 }: Props) {
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [ready, setReady] = useState(false);
+  const [noMatch, setNoMatch] = useState(false);
   const sessionRef = useRef<google.maps.places.AutocompleteSessionToken | null>(null);
   const debounceRef = useRef<number | null>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
+  const prevInputRef = useRef<string>("");
 
   useEffect(() => {
     loadGoogleMaps()
