@@ -180,6 +180,9 @@ export default function BookingFlow() {
                 <Step3
                   address={address} setAddress={setAddress}
                   addressValid={addressValid} setAddressValid={setAddressValid}
+                  usingProfileAddress={usingProfileAddress}
+                  setUsingProfileAddress={setUsingProfileAddress}
+                  profile={profile}
                   notes={notes} setNotes={setNotes}
                   provider={provider} date={date} slot={slot}
                   service={service?.subcategory || ""} hours={hours}
