@@ -59,8 +59,10 @@ export default function AddressAutocomplete({
   function fetchSuggestions(input: string) {
     if (!ready || input.trim().length < 3) {
       setSuggestions([]);
+      setNoMatch(false);
       return;
     }
+    setNoMatch(false);
     if (debounceRef.current) window.clearTimeout(debounceRef.current);
     debounceRef.current = window.setTimeout(async () => {
       try {
@@ -84,9 +86,11 @@ export default function AddressAutocomplete({
             secondary: p.secondaryText?.text ?? "",
           }));
         setSuggestions(items);
-        setOpen(true);
+        setOpen(items.length > 0);
+        setNoMatch(items.length === 0);
       } catch (e) {
         console.warn("[AddressAutocomplete] suggest failed:", e);
+        setNoMatch(true);
       } finally {
         setLoading(false);
       }
