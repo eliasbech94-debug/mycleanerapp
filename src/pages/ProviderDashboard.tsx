@@ -115,8 +115,11 @@ export default function ProviderDashboard() {
       </header>
 
       <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
-        <h1 className="font-display text-3xl sm:text-4xl">Dine bookinger</h1>
-        <p className="mt-2 text-sm opacity-70">Accepter eller afvis nye anmodninger.</p>
+        <ConnectCard />
+
+        <h1 className="mt-10 font-display text-3xl sm:text-4xl">Dine bookinger</h1>
+        <p className="mt-2 text-sm opacity-70">Accepter eller afvis nye anmodninger. Beløbet hæves først, når du accepterer.</p>
+
 
         <div className="mt-6 inline-flex rounded-full border-2 p-1" style={{ borderColor: `${C.ink}22`, background: "white" }}>
           {(["pending", "all"] as const).map((t) => (
