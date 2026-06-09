@@ -220,6 +220,9 @@ export default function BookingFlow() {
                 <Step3
                   address={address} setAddress={setAddress}
                   addressValid={addressValid} setAddressValid={setAddressValid}
+                  setAddressPlaceId={setAddressPlaceId}
+                  setAddressLat={setAddressLat}
+                  setAddressLng={setAddressLng}
                   usingProfileAddress={usingProfileAddress}
                   setUsingProfileAddress={setUsingProfileAddress}
                   profile={profile}
@@ -470,17 +473,23 @@ function Step2({ weekStart, setWeekStart, weekDays, today, date, setDate, slot, 
 }
 
 /* ---------------- Step 3 ---------------- */
-function Step3({ address, setAddress, addressValid, setAddressValid, usingProfileAddress, setUsingProfileAddress, profile, notes, setNotes, provider, date, slot, service, hours, customerPays }: any) {
+function Step3({ address, setAddress, addressValid, setAddressValid, setAddressPlaceId, setAddressLat, setAddressLng, usingProfileAddress, setUsingProfileAddress, profile, notes, setNotes, provider, date, slot, service, hours, customerPays }: any) {
   const hasProfileAddress = !!profile?.address;
 
   function useProfileAddress() {
     setAddress(profile.address);
+    setAddressPlaceId(profile.address_place_id ?? null);
+    setAddressLat(profile.lat ?? null);
+    setAddressLng(profile.lng ?? null);
     setAddressValid(!!profile.address_place_id);
     setUsingProfileAddress(true);
   }
 
   function chooseOther() {
     setAddress("");
+    setAddressPlaceId(null);
+    setAddressLat(null);
+    setAddressLng(null);
     setAddressValid(false);
     setUsingProfileAddress(false);
   }
@@ -542,8 +551,14 @@ function Step3({ address, setAddress, addressValid, setAddressValid, usingProfil
               <AddressAutocomplete
                 autoFocus
                 value={address}
-                onChange={(v: string) => { setAddress(v); setAddressValid(false); }}
-                onSelect={(p: any) => { setAddress(p.address); setAddressValid(true); }}
+                onChange={(v: string) => { setAddress(v); setAddressValid(false); setAddressPlaceId(null); }}
+                onSelect={(p: any) => {
+                  setAddress(p.address);
+                  setAddressPlaceId(p.placeId ?? null);
+                  setAddressLat(p.lat ?? null);
+                  setAddressLng(p.lng ?? null);
+                  setAddressValid(true);
+                }}
                 onValidityChange={setAddressValid}
                 isValid={addressValid}
                 placeholder="Vej, nr., etage, by"
