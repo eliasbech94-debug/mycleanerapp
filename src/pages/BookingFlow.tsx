@@ -68,6 +68,7 @@ export default function BookingFlow() {
   const [date, setDate] = useState<Date | null>(null);
   const [slot, setSlot] = useState<string>(params.get("slot") || "");
   const [address, setAddress] = useState<string>("");
+  const [addressValid, setAddressValid] = useState<boolean>(false);
   const [notes, setNotes] = useState<string>("");
 
   const service = services.find((s) => s.subcategory === serviceKey) || services[0];
@@ -82,7 +83,7 @@ export default function BookingFlow() {
   const canNext =
     (step === 1 && !!service) ||
     (step === 2 && !!date && !!slot) ||
-    (step === 3 && address.trim().length > 3);
+    (step === 3 && addressValid);
 
   function next() {
     if (step === 3) {
