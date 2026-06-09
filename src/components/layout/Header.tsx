@@ -62,11 +62,18 @@ const Header = () => {
             </DropdownMenuContent>
           </DropdownMenu>
           {user ? (
-            <Link to="/profil">
-              <Button variant="ghost" size="sm" className="gap-2">
-                <UserIcon className="h-4 w-4" /> Min profil
-              </Button>
-            </Link>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="gap-2">
+                  <UserIcon className="h-4 w-4" /> Min konto
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem asChild><Link to="/profil">Min profil</Link></DropdownMenuItem>
+                <DropdownMenuItem asChild><Link to="/mine-bookinger">Mine bookinger</Link></DropdownMenuItem>
+                <DropdownMenuItem asChild><Link to="/provider-dashboard">Provider dashboard</Link></DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           ) : (
             <>
               <Link to="/login">

@@ -9,6 +9,7 @@ import { getProvider, getCountry, deriveServices, deriveHourlyRate, formatPrice 
 import { toast } from "@/hooks/use-toast";
 import AddressAutocomplete from "@/components/AddressAutocomplete";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 
 const C = {
   ink: "#0a3d3a",
@@ -68,16 +69,23 @@ export default function BookingFlow() {
   const [weekStart, setWeekStart] = useState<Date>(() => startOfWeek(new Date()));
   const [date, setDate] = useState<Date | null>(null);
   const [slot, setSlot] = useState<string>(params.get("slot") || "");
-  const { profile } = useAuth();
+  const { profile, user } = useAuth();
   const [address, setAddress] = useState<string>("");
+  const [addressPlaceId, setAddressPlaceId] = useState<string | null>(null);
+  const [addressLat, setAddressLat] = useState<number | null>(null);
+  const [addressLng, setAddressLng] = useState<number | null>(null);
   const [addressValid, setAddressValid] = useState<boolean>(false);
   const [usingProfileAddress, setUsingProfileAddress] = useState<boolean>(false);
   const [notes, setNotes] = useState<string>("");
+  const [submitting, setSubmitting] = useState(false);
 
   // Auto-fill address from profile when it loads
   useEffect(() => {
     if (profile?.address && !address) {
       setAddress(profile.address);
+      setAddressPlaceId(profile.address_place_id);
+      setAddressLat(profile.lat);
+      setAddressLng(profile.lng);
       setAddressValid(!!profile.address_place_id);
       setUsingProfileAddress(true);
     }
@@ -97,7 +105,7 @@ export default function BookingFlow() {
     (step === 2 && !!date && !!slot) ||
     (step === 3 && addressValid);
 
-  function next() {
+  async function next() {
     if (step === 3) {
       if (!addressValid) {
         toast({
@@ -107,10 +115,42 @@ export default function BookingFlow() {
         });
         return;
       }
-      // confirm
+      if (!user) {
+        toast({
+          title: "Log ind for at booke",
+          description: "Du skal være logget ind, så cleaneren kan kontakte dig.",
+          variant: "destructive",
+        });
+        navigate(`/login?redirect=/book/${provider.id}`);
+        return;
+      }
+      setSubmitting(true);
+      const { error } = await supabase.from("bookings").insert({
+        customer_user_id: user.id,
+        provider_id: provider.id,
+        provider_name: provider.name,
+        service: service?.subcategory || "Rengøring",
+        hours,
+        booking_date: fmtISO(date!),
+        slot,
+        address,
+        address_place_id: addressPlaceId,
+        lat: addressLat,
+        lng: addressLng,
+        notes: notes || null,
+        customer_pays: customerPays,
+        provider_gets: providerGets,
+        currency: country?.currency || "DKK",
+        status: "pending",
+      });
+      setSubmitting(false);
+      if (error) {
+        toast({ title: "Kunne ikke gemme booking", description: error.message, variant: "destructive" });
+        return;
+      }
       toast({
-        title: "Booking bekræftet ✓",
-        description: `${provider.name.split(" ")[0]} er booket ${fmtLong(date!)} kl. ${slot}.`,
+        title: "Booking sendt ✓",
+        description: `${provider.name.split(" ")[0]} har modtaget anmodningen og bekræfter inden for ${provider.responseTime}.`,
       });
       setStep(4);
       return;
@@ -180,6 +220,9 @@ export default function BookingFlow() {
                 <Step3
                   address={address} setAddress={setAddress}
                   addressValid={addressValid} setAddressValid={setAddressValid}
+                  setAddressPlaceId={setAddressPlaceId}
+                  setAddressLat={setAddressLat}
+                  setAddressLng={setAddressLng}
                   usingProfileAddress={usingProfileAddress}
                   setUsingProfileAddress={setUsingProfileAddress}
                   profile={profile}
@@ -205,12 +248,12 @@ export default function BookingFlow() {
                 <ChevronLeft className="h-4 w-4" /> {step === 1 ? "Tilbage" : "Forrige"}
               </button>
               <button
-                disabled={!canNext}
+                disabled={!canNext || submitting}
                 onClick={next}
                 className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-xs font-bold uppercase tracking-[0.18em] shadow-[6px_6px_0_rgba(0,0,0,0.18)] transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-40"
                 style={{ background: step === 3 ? C.orange : C.ink, color: step === 3 ? C.ink : C.cream }}
               >
-                {step === 3 ? <>Bekræft booking <Check className="h-4 w-4" /></> : <>Næste <ArrowRight className="h-4 w-4" /></>}
+                {step === 3 ? (submitting ? <>Sender…</> : <>Bekræft booking <Check className="h-4 w-4" /></>) : <>Næste <ArrowRight className="h-4 w-4" /></>}
               </button>
             </div>
           )}
@@ -430,17 +473,23 @@ function Step2({ weekStart, setWeekStart, weekDays, today, date, setDate, slot, 
 }
 
 /* ---------------- Step 3 ---------------- */
-function Step3({ address, setAddress, addressValid, setAddressValid, usingProfileAddress, setUsingProfileAddress, profile, notes, setNotes, provider, date, slot, service, hours, customerPays }: any) {
+function Step3({ address, setAddress, addressValid, setAddressValid, setAddressPlaceId, setAddressLat, setAddressLng, usingProfileAddress, setUsingProfileAddress, profile, notes, setNotes, provider, date, slot, service, hours, customerPays }: any) {
   const hasProfileAddress = !!profile?.address;
 
   function useProfileAddress() {
     setAddress(profile.address);
+    setAddressPlaceId(profile.address_place_id ?? null);
+    setAddressLat(profile.lat ?? null);
+    setAddressLng(profile.lng ?? null);
     setAddressValid(!!profile.address_place_id);
     setUsingProfileAddress(true);
   }
 
   function chooseOther() {
     setAddress("");
+    setAddressPlaceId(null);
+    setAddressLat(null);
+    setAddressLng(null);
     setAddressValid(false);
     setUsingProfileAddress(false);
   }
@@ -502,8 +551,14 @@ function Step3({ address, setAddress, addressValid, setAddressValid, usingProfil
               <AddressAutocomplete
                 autoFocus
                 value={address}
-                onChange={(v: string) => { setAddress(v); setAddressValid(false); }}
-                onSelect={(p: any) => { setAddress(p.address); setAddressValid(true); }}
+                onChange={(v: string) => { setAddress(v); setAddressValid(false); setAddressPlaceId(null); }}
+                onSelect={(p: any) => {
+                  setAddress(p.address);
+                  setAddressPlaceId(p.placeId ?? null);
+                  setAddressLat(p.lat ?? null);
+                  setAddressLng(p.lng ?? null);
+                  setAddressValid(true);
+                }}
                 onValidityChange={setAddressValid}
                 isValid={addressValid}
                 placeholder="Vej, nr., etage, by"

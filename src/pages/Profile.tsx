@@ -13,6 +13,7 @@ export default function Profile() {
   const navigate = useNavigate();
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
+  const [providerId, setProviderId] = useState("");
   const [address, setAddress] = useState("");
   const [placeId, setPlaceId] = useState<string | null>(null);
   const [lat, setLat] = useState<number | null>(null);
@@ -28,6 +29,7 @@ export default function Profile() {
     if (profile) {
       setFullName(profile.full_name || "");
       setPhone(profile.phone || "");
+      setProviderId(profile.provider_id || "");
       setAddress(profile.address || "");
       setPlaceId(profile.address_place_id);
       setLat(profile.lat);
@@ -49,6 +51,7 @@ export default function Profile() {
         id: user.id,
         full_name: fullName,
         phone,
+        provider_id: providerId.trim() || null,
         address: address || null,
         address_place_id: placeId,
         lat,
@@ -114,6 +117,18 @@ export default function Profile() {
               placeholder="+45 12 34 56 78"
               type="tel"
             />
+          </Field>
+
+          <Field label="Provider-ID (kun hvis du selv er cleaner)">
+            <input
+              value={providerId}
+              onChange={(e) => setProviderId(e.target.value)}
+              className="w-full bg-transparent text-base focus:outline-none"
+              placeholder="Fx p_002"
+            />
+            <div className="mt-1 text-[10px] opacity-60">
+              Indtast dit provider-ID for at få adgang til <Link to="/provider-dashboard" className="font-bold underline">provider-dashboardet</Link> og acceptere bookinger.
+            </div>
           </Field>
 
           <div className="rounded-2xl border-2 bg-white p-4" style={{ borderColor: `${C.ink}22` }}>

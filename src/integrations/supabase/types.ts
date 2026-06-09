@@ -14,6 +14,75 @@ export type Database = {
   }
   public: {
     Tables: {
+      bookings: {
+        Row: {
+          address: string
+          address_place_id: string | null
+          booking_date: string
+          created_at: string
+          currency: string
+          customer_pays: number
+          customer_user_id: string
+          decided_at: string | null
+          hours: number
+          id: string
+          lat: number | null
+          lng: number | null
+          notes: string | null
+          provider_gets: number
+          provider_id: string
+          provider_name: string
+          service: string
+          slot: string
+          status: Database["public"]["Enums"]["booking_status"]
+          updated_at: string
+        }
+        Insert: {
+          address: string
+          address_place_id?: string | null
+          booking_date: string
+          created_at?: string
+          currency?: string
+          customer_pays: number
+          customer_user_id: string
+          decided_at?: string | null
+          hours: number
+          id?: string
+          lat?: number | null
+          lng?: number | null
+          notes?: string | null
+          provider_gets: number
+          provider_id: string
+          provider_name: string
+          service: string
+          slot: string
+          status?: Database["public"]["Enums"]["booking_status"]
+          updated_at?: string
+        }
+        Update: {
+          address?: string
+          address_place_id?: string | null
+          booking_date?: string
+          created_at?: string
+          currency?: string
+          customer_pays?: number
+          customer_user_id?: string
+          decided_at?: string | null
+          hours?: number
+          id?: string
+          lat?: number | null
+          lng?: number | null
+          notes?: string | null
+          provider_gets?: number
+          provider_id?: string
+          provider_name?: string
+          service?: string
+          slot?: string
+          status?: Database["public"]["Enums"]["booking_status"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           address: string | null
@@ -25,6 +94,7 @@ export type Database = {
           lat: number | null
           lng: number | null
           phone: string | null
+          provider_id: string | null
           updated_at: string
         }
         Insert: {
@@ -37,6 +107,7 @@ export type Database = {
           lat?: number | null
           lng?: number | null
           phone?: string | null
+          provider_id?: string | null
           updated_at?: string
         }
         Update: {
@@ -49,6 +120,7 @@ export type Database = {
           lat?: number | null
           lng?: number | null
           phone?: string | null
+          provider_id?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -58,10 +130,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      user_owns_provider: { Args: { _provider_id: string }; Returns: boolean }
     }
     Enums: {
-      [_ in never]: never
+      booking_status:
+        | "pending"
+        | "accepted"
+        | "declined"
+        | "cancelled"
+        | "completed"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -188,6 +265,14 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      booking_status: [
+        "pending",
+        "accepted",
+        "declined",
+        "cancelled",
+        "completed",
+      ],
+    },
   },
 } as const

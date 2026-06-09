@@ -18,6 +18,8 @@ import MatchingOffers from "./pages/MatchingOffers";
 import AdminDashboard from "./pages/AdminDashboard";
 import EmployeeDashboard from "./pages/EmployeeDashboard";
 import BookingFlow from "./pages/BookingFlow";
+import MyBookings from "./pages/MyBookings";
+import ProviderDashboard from "./pages/ProviderDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -43,6 +45,8 @@ const App = () => (
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/employee" element={<EmployeeDashboard />} />
             <Route path="/book/:id" element={<BookingFlow />} />
+            <Route path="/mine-bookinger" element={<MyBookings />} />
+            <Route path="/provider-dashboard" element={<ProviderDashboard />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
           <Footer />
