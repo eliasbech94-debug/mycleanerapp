@@ -15,6 +15,7 @@ const Header = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState(countries[0]);
   const location = useLocation();
+  const { user } = useAuth();
 
   const isAdmin = location.pathname.startsWith("/admin");
   const isEmployee = location.pathname.startsWith("/employee");
