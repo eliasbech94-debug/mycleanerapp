@@ -1,13 +1,14 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft, ArrowRight, Calendar as CalendarIcon, Check, CheckCircle2,
-  ChevronLeft, ChevronRight, Clock, MapPin, Shield, Sparkles, Star, User,
+  ChevronLeft, ChevronRight, Clock, Home, MapPin, Pencil, Shield, Sparkles, Star, User,
 } from "lucide-react";
 import { getProvider, getCountry, deriveServices, deriveHourlyRate, formatPrice } from "@/lib/providers";
 import { toast } from "@/hooks/use-toast";
 import AddressAutocomplete from "@/components/AddressAutocomplete";
+import { useAuth } from "@/hooks/useAuth";
 
 const C = {
   ink: "#0a3d3a",
