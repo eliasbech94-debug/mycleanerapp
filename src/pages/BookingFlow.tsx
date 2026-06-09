@@ -87,6 +87,14 @@ export default function BookingFlow() {
 
   function next() {
     if (step === 3) {
+      if (!addressValid) {
+        toast({
+          title: "Adresse mangler",
+          description: "Vælg en gyldig adresse fra listen, så cleaneren ved, hvor hun skal møde op.",
+          variant: "destructive",
+        });
+        return;
+      }
       // confirm
       toast({
         title: "Booking bekræftet ✓",
