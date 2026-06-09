@@ -1,1 +1,10 @@
 project_id = "qfjgifubavuomwvroahy"
+
+[functions.stripe-webhook]
+verify_jwt = false
+
+[functions.stripe-public-key]
+verify_jwt = false
+
+[functions.booking-expire-pending]
+verify_jwt = false
