@@ -134,14 +134,18 @@ export default function AddressAutocomplete({
 
   return (
     <div ref={wrapRef} className="relative">
-      <div className="flex items-center gap-2">
-        <MapPin className="h-4 w-4 opacity-60" />
+      <div
+        className="flex items-center gap-2 rounded-xl border-2 px-3 py-2.5 transition-colors"
+        style={{ borderColor }}
+      >
+        <MapPin className="h-4 w-4 opacity-60" style={{ color: borderColor }} />
         <input
           autoFocus={autoFocus}
           type="text"
           value={value}
           onChange={(e) => {
             onChange(e.target.value);
+            onValidityChange?.(false);
             fetchSuggestions(e.target.value);
           }}
           onFocus={() => suggestions.length > 0 && setOpen(true)}
@@ -150,7 +154,22 @@ export default function AddressAutocomplete({
           autoComplete="off"
         />
         {loading && <Loader2 className="h-4 w-4 animate-spin opacity-60" />}
+        {!loading && isValid && (
+          <CheckCircle2 className="h-4 w-4" style={{ color: "#168a7a" }} />
+        )}
       </div>
+
+      {noMatch && value.trim().length >= 3 && (
+        <div className="mt-2 flex items-start gap-2 text-sm" style={{ color: "#c2412c" }}>
+          <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0" />
+          <div>
+            <span className="font-bold">Vi kunne ikke genkende denne adresse.</span>
+            <div className="opacity-80">
+              Vælg en adresse fra listen, så vi sikrer at den kan findes af din cleaner.
+            </div>
+          </div>
+        </div>
+      )}
 
       {open && suggestions.length > 0 && (
         <ul
