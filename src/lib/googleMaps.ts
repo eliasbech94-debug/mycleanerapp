@@ -1,3 +1,4 @@
+/// <reference types="google.maps" />
 // Loads the Google Maps JS API (Places library) once, asynchronously.
 let loaderPromise: Promise<typeof google> | null = null;
 
