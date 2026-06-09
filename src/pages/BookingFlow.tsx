@@ -1,13 +1,14 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft, ArrowRight, Calendar as CalendarIcon, Check, CheckCircle2,
-  ChevronLeft, ChevronRight, Clock, MapPin, Shield, Sparkles, Star, User,
+  ChevronLeft, ChevronRight, Clock, Home, MapPin, Pencil, Shield, Sparkles, Star, User,
 } from "lucide-react";
 import { getProvider, getCountry, deriveServices, deriveHourlyRate, formatPrice } from "@/lib/providers";
 import { toast } from "@/hooks/use-toast";
 import AddressAutocomplete from "@/components/AddressAutocomplete";
+import { useAuth } from "@/hooks/useAuth";
 
 const C = {
   ink: "#0a3d3a",
@@ -67,9 +68,20 @@ export default function BookingFlow() {
   const [weekStart, setWeekStart] = useState<Date>(() => startOfWeek(new Date()));
   const [date, setDate] = useState<Date | null>(null);
   const [slot, setSlot] = useState<string>(params.get("slot") || "");
+  const { profile } = useAuth();
   const [address, setAddress] = useState<string>("");
   const [addressValid, setAddressValid] = useState<boolean>(false);
+  const [usingProfileAddress, setUsingProfileAddress] = useState<boolean>(false);
   const [notes, setNotes] = useState<string>("");
+
+  // Auto-fill address from profile when it loads
+  useEffect(() => {
+    if (profile?.address && !address) {
+      setAddress(profile.address);
+      setAddressValid(!!profile.address_place_id);
+      setUsingProfileAddress(true);
+    }
+  }, [profile]);
 
   const service = services.find((s) => s.subcategory === serviceKey) || services[0];
   const effectiveRate = service?.unit === "hour" ? service.price : hourlyRate;
@@ -168,6 +180,9 @@ export default function BookingFlow() {
                 <Step3
                   address={address} setAddress={setAddress}
                   addressValid={addressValid} setAddressValid={setAddressValid}
+                  usingProfileAddress={usingProfileAddress}
+                  setUsingProfileAddress={setUsingProfileAddress}
+                  profile={profile}
                   notes={notes} setNotes={setNotes}
                   provider={provider} date={date} slot={slot}
                   service={service?.subcategory || ""} hours={hours}
@@ -415,7 +430,21 @@ function Step2({ weekStart, setWeekStart, weekDays, today, date, setDate, slot, 
 }
 
 /* ---------------- Step 3 ---------------- */
-function Step3({ address, setAddress, addressValid, setAddressValid, notes, setNotes, provider, date, slot, service, hours, customerPays }: any) {
+function Step3({ address, setAddress, addressValid, setAddressValid, usingProfileAddress, setUsingProfileAddress, profile, notes, setNotes, provider, date, slot, service, hours, customerPays }: any) {
+  const hasProfileAddress = !!profile?.address;
+
+  function useProfileAddress() {
+    setAddress(profile.address);
+    setAddressValid(!!profile.address_place_id);
+    setUsingProfileAddress(true);
+  }
+
+  function chooseOther() {
+    setAddress("");
+    setAddressValid(false);
+    setUsingProfileAddress(false);
+  }
+
   return (
     <div>
       <h1 className="font-display text-3xl sm:text-4xl">Sidste detaljer</h1>
@@ -424,30 +453,80 @@ function Step3({ address, setAddress, addressValid, setAddressValid, notes, setN
       </p>
 
       <div className="mt-6 space-y-4">
-        <div className="block rounded-2xl border-2 bg-white p-4" style={{ borderColor: `${C.ink}22` }}>
-          <div className="text-[10px] font-black uppercase tracking-[0.22em] opacity-70">Adresse</div>
-          <div className="mt-2">
-            <AddressAutocomplete
-              autoFocus
-              value={address}
-              onChange={(v: string) => { setAddress(v); setAddressValid(false); }}
-              onSelect={(p: any) => { setAddress(p.address); setAddressValid(true); }}
-              onValidityChange={setAddressValid}
-              isValid={addressValid}
-              placeholder="Vej, nr., etage, by"
-              countries={["dk"]}
-            />
+        {/* Saved profile address card */}
+        {hasProfileAddress && usingProfileAddress ? (
+          <div className="rounded-2xl border-2 p-4" style={{ borderColor: C.teal, background: `${C.mint}30` }}>
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-start gap-3">
+                <div className="grid h-10 w-10 flex-shrink-0 place-items-center rounded-xl" style={{ background: C.teal, color: C.cream }}>
+                  <Home className="h-5 w-5" />
+                </div>
+                <div>
+                  <div className="text-[10px] font-black uppercase tracking-[0.22em]" style={{ color: C.teal }}>
+                    Din registrerede adresse
+                  </div>
+                  <div className="mt-0.5 font-display text-lg leading-tight">{profile.address}</div>
+                  {profile.address_place_id && (
+                    <div className="mt-1 inline-flex items-center gap-1 text-[10px] font-bold" style={{ color: C.teal }}>
+                      <CheckCircle2 className="h-3 w-3" /> Valideret
+                    </div>
+                  )}
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={chooseOther}
+                className="inline-flex flex-shrink-0 items-center gap-1.5 rounded-full border-2 bg-white px-3 py-2 text-[10px] font-bold uppercase tracking-[0.18em] hover:-translate-y-0.5 transition"
+                style={{ borderColor: C.ink }}
+              >
+                <Pencil className="h-3 w-3" /> Vælg anden
+              </button>
+            </div>
           </div>
-          {addressValid ? (
-            <div className="mt-2 flex items-center gap-1.5 text-[10px] font-bold" style={{ color: C.teal }}>
-              <CheckCircle2 className="h-3.5 w-3.5" /> Adresse valideret — cleaneren kan finde stedet
+        ) : (
+          <div className="block rounded-2xl border-2 bg-white p-4" style={{ borderColor: `${C.ink}22` }}>
+            <div className="flex items-center justify-between">
+              <div className="text-[10px] font-black uppercase tracking-[0.22em] opacity-70">Adresse</div>
+              {hasProfileAddress && (
+                <button
+                  type="button"
+                  onClick={useProfileAddress}
+                  className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.18em] hover:underline"
+                  style={{ color: C.teal }}
+                >
+                  <Home className="h-3 w-3" /> Brug min registrerede
+                </button>
+              )}
             </div>
-          ) : (
-            <div className="mt-2 text-[10px] opacity-60">
-              Begynd at skrive og vælg din adresse fra listen. Vi tjekker, at den er reel.
+            <div className="mt-2">
+              <AddressAutocomplete
+                autoFocus
+                value={address}
+                onChange={(v: string) => { setAddress(v); setAddressValid(false); }}
+                onSelect={(p: any) => { setAddress(p.address); setAddressValid(true); }}
+                onValidityChange={setAddressValid}
+                isValid={addressValid}
+                placeholder="Vej, nr., etage, by"
+                countries={["dk"]}
+              />
             </div>
-          )}
-        </div>
+            {addressValid ? (
+              <div className="mt-2 flex items-center gap-1.5 text-[10px] font-bold" style={{ color: C.teal }}>
+                <CheckCircle2 className="h-3.5 w-3.5" /> Adresse valideret — cleaneren kan finde stedet
+              </div>
+            ) : (
+              <div className="mt-2 text-[10px] opacity-60">
+                Begynd at skrive og vælg din adresse fra listen. Vi tjekker, at den er reel.
+              </div>
+            )}
+            {!profile && (
+              <div className="mt-3 rounded-xl border border-dashed p-2.5 text-[11px]" style={{ borderColor: `${C.ink}33` }}>
+                <Link to="/login?redirect=/profil" className="font-bold underline" style={{ color: C.orange }}>Log ind</Link>
+                <span className="opacity-70"> og gem din adresse, så vi udfylder den automatisk næste gang.</span>
+              </div>
+            )}
+          </div>
+        )}
 
         <label className="block rounded-2xl border-2 bg-white p-4" style={{ borderColor: `${C.ink}22` }}>
           <div className="text-[10px] font-black uppercase tracking-[0.22em] opacity-70">Besked til cleaneren (valgfri)</div>

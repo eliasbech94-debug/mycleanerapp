@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Globe, ChevronDown } from "lucide-react";
+import { Menu, X, Globe, ChevronDown, User as UserIcon } from "lucide-react";
 import { countries } from "@/lib/countries";
+import { useAuth } from "@/hooks/useAuth";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,6 +15,7 @@ const Header = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState(countries[0]);
   const location = useLocation();
+  const { user } = useAuth();
 
   const isAdmin = location.pathname.startsWith("/admin");
   const isEmployee = location.pathname.startsWith("/employee");
@@ -59,12 +61,22 @@ const Header = () => {
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
-          <Link to="/login">
-            <Button variant="ghost" size="sm">Log ind</Button>
-          </Link>
-          <Link to="/customer/register">
-            <Button size="sm">Kom i gang</Button>
-          </Link>
+          {user ? (
+            <Link to="/profil">
+              <Button variant="ghost" size="sm" className="gap-2">
+                <UserIcon className="h-4 w-4" /> Min profil
+              </Button>
+            </Link>
+          ) : (
+            <>
+              <Link to="/login">
+                <Button variant="ghost" size="sm">Log ind</Button>
+              </Link>
+              <Link to="/customer/register">
+                <Button size="sm">Kom i gang</Button>
+              </Link>
+            </>
+          )}
         </div>
 
         <button className="md:hidden" onClick={() => setMobileOpen(!mobileOpen)}>
