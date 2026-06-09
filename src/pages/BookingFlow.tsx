@@ -100,6 +100,10 @@ function BookingFlowInner() {
   const [usingProfileAddress, setUsingProfileAddress] = useState<boolean>(false);
   const [notes, setNotes] = useState<string>("");
   const [submitting, setSubmitting] = useState(false);
+  const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const [bookingId, setBookingId] = useState<string | null>(null);
+  const stripe = useStripe();
+  const elements = useElements();
 
   // Auto-fill address from profile when it loads
   useEffect(() => {
