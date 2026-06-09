@@ -3,13 +3,26 @@ import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom"
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft, ArrowRight, Calendar as CalendarIcon, Check, CheckCircle2,
-  ChevronLeft, ChevronRight, Clock, Home, MapPin, Pencil, Shield, Sparkles, Star, User,
+  ChevronLeft, ChevronRight, Clock, CreditCard, Home, MapPin, Pencil, Shield, Sparkles, Star, User,
 } from "lucide-react";
 import { getProvider, getCountry, deriveServices, deriveHourlyRate, formatPrice } from "@/lib/providers";
 import { toast } from "@/hooks/use-toast";
 import AddressAutocomplete from "@/components/AddressAutocomplete";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { Elements, CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
+import { loadStripe, type Stripe as StripeJS } from "@stripe/stripe-js";
+
+let _stripePromise: Promise<StripeJS | null> | null = null;
+function getStripePromise() {
+  if (_stripePromise) return _stripePromise;
+  _stripePromise = (async () => {
+    const { data } = await supabase.functions.invoke("stripe-public-key");
+    if (!data?.publishable_key) return null;
+    return loadStripe(data.publishable_key);
+  })();
+  return _stripePromise;
+}
 
 const C = {
   ink: "#0a3d3a",
