@@ -3,13 +3,26 @@ import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom"
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft, ArrowRight, Calendar as CalendarIcon, Check, CheckCircle2,
-  ChevronLeft, ChevronRight, Clock, Home, MapPin, Pencil, Shield, Sparkles, Star, User,
+  ChevronLeft, ChevronRight, Clock, CreditCard, Home, MapPin, Pencil, Shield, Sparkles, Star, User,
 } from "lucide-react";
 import { getProvider, getCountry, deriveServices, deriveHourlyRate, formatPrice } from "@/lib/providers";
 import { toast } from "@/hooks/use-toast";
 import AddressAutocomplete from "@/components/AddressAutocomplete";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { Elements, CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
+import { loadStripe, type Stripe as StripeJS } from "@stripe/stripe-js";
+
+let _stripePromise: Promise<StripeJS | null> | null = null;
+function getStripePromise() {
+  if (_stripePromise) return _stripePromise;
+  _stripePromise = (async () => {
+    const { data } = await supabase.functions.invoke("stripe-public-key");
+    if (!data?.publishable_key) return null;
+    return loadStripe(data.publishable_key);
+  })();
+  return _stripePromise;
+}
 
 const C = {
   ink: "#0a3d3a",
@@ -50,6 +63,15 @@ function fmtLong(d: Date) {
 }
 
 export default function BookingFlow() {
+  const [stripePromise] = useState(() => getStripePromise());
+  return (
+    <Elements stripe={stripePromise as any}>
+      <BookingFlowInner />
+    </Elements>
+  );
+}
+
+function BookingFlowInner() {
   const { id } = useParams();
   const [params] = useSearchParams();
   const navigate = useNavigate();
@@ -78,6 +100,10 @@ export default function BookingFlow() {
   const [usingProfileAddress, setUsingProfileAddress] = useState<boolean>(false);
   const [notes, setNotes] = useState<string>("");
   const [submitting, setSubmitting] = useState(false);
+  const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const [bookingId, setBookingId] = useState<string | null>(null);
+  const stripe = useStripe();
+  const elements = useElements();
 
   // Auto-fill address from profile when it loads
   useEffect(() => {
@@ -124,35 +150,69 @@ export default function BookingFlow() {
         navigate(`/login?redirect=/book/${provider.id}`);
         return;
       }
-      setSubmitting(true);
-      const { error } = await supabase.from("bookings").insert({
-        customer_user_id: user.id,
-        provider_id: provider.id,
-        provider_name: provider.name,
-        service: service?.subcategory || "Rengøring",
-        hours,
-        booking_date: fmtISO(date!),
-        slot,
-        address,
-        address_place_id: addressPlaceId,
-        lat: addressLat,
-        lng: addressLng,
-        notes: notes || null,
-        customer_pays: customerPays,
-        provider_gets: providerGets,
-        currency: country?.currency || "DKK",
-        status: "pending",
-      });
-      setSubmitting(false);
-      if (error) {
-        toast({ title: "Kunne ikke gemme booking", description: error.message, variant: "destructive" });
+      if (!stripe || !elements) {
+        toast({ title: "Betaling ikke klar endnu", description: "Vent et øjeblik og prøv igen.", variant: "destructive" });
         return;
       }
-      toast({
-        title: "Booking sendt ✓",
-        description: `${provider.name.split(" ")[0]} har modtaget anmodningen og bekræfter inden for ${provider.responseTime}.`,
-      });
-      setStep(4);
+      const card = elements.getElement(CardElement);
+      if (!card) {
+        toast({ title: "Indtast kortoplysninger", variant: "destructive" });
+        return;
+      }
+
+      setSubmitting(true);
+      try {
+        // 1) Create booking + PaymentIntent (or reuse if user clicked again)
+        let secret = clientSecret;
+        let bid = bookingId;
+        if (!secret) {
+          const { data, error } = await supabase.functions.invoke("payment-create-intent", {
+            body: {
+              provider_id: provider.id,
+              provider_name: provider.name,
+              service: service?.subcategory || "Rengøring",
+              hours,
+              booking_date: fmtISO(date!),
+              slot,
+              address,
+              address_place_id: addressPlaceId,
+              lat: addressLat,
+              lng: addressLng,
+              notes: notes || null,
+              customer_pays: customerPays,
+              provider_gets: providerGets,
+              currency: country?.currency || "DKK",
+            },
+          });
+          if (error || !data?.client_secret) throw new Error(error?.message || data?.error || "Kunne ikke oprette betaling");
+          secret = data.client_secret;
+          bid = data.booking_id;
+          setClientSecret(secret);
+          setBookingId(bid);
+        }
+
+        // 2) Confirm card (authorization only — manual capture)
+        const { error: confirmErr, paymentIntent } = await stripe.confirmCardPayment(secret!, {
+          payment_method: { card, billing_details: { email: user.email ?? undefined, name: profile?.full_name ?? undefined } },
+        });
+        if (confirmErr) throw new Error(confirmErr.message || "Betalingen blev afvist");
+        if (paymentIntent && !["requires_capture", "succeeded"].includes(paymentIntent.status)) {
+          throw new Error(`Uventet status: ${paymentIntent.status}`);
+        }
+
+        // 3) Mark authorized in DB
+        await supabase.functions.invoke("payment-mark-authorized", { body: { booking_id: bid } });
+
+        toast({
+          title: "Booking sendt ✓",
+          description: `${provider.name.split(" ")[0]} har 24 timer til at bekræfte. Først da hæves beløbet.`,
+        });
+        setStep(4);
+      } catch (e: any) {
+        toast({ title: "Betaling fejlede", description: e.message, variant: "destructive" });
+      } finally {
+        setSubmitting(false);
+      }
       return;
     }
     if (step < 3 && canNext) setStep((step + 1) as 1 | 2 | 3 | 4);
@@ -593,6 +653,31 @@ function Step3({ address, setAddress, addressValid, setAddressValid, setAddressP
             className="mt-2 w-full resize-none bg-transparent text-sm focus:outline-none"
           />
         </label>
+
+        <div className="rounded-2xl border-2 bg-white p-4" style={{ borderColor: `${C.ink}22` }}>
+          <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.22em] opacity-70">
+            <CreditCard className="h-3.5 w-3.5" /> Betalingskort
+          </div>
+          <div className="mt-3 rounded-xl border p-3" style={{ borderColor: `${C.ink}22` }}>
+            <CardElement
+              options={{
+                style: {
+                  base: {
+                    fontSize: "16px",
+                    color: C.ink,
+                    fontFamily: "inherit",
+                    "::placeholder": { color: "#94a3a0" },
+                  },
+                  invalid: { color: "#c2412c" },
+                },
+              }}
+            />
+          </div>
+          <div className="mt-2 text-[10px] opacity-60">
+            Vi reserverer beløbet nu. Det hæves først, når cleaneren bekræfter (max 24 timer).
+          </div>
+        </div>
+
 
         <div className="rounded-2xl border-2 p-4" style={{ borderColor: C.mint, background: `${C.mint}30` }}>
           <div className="flex items-start gap-3">

@@ -62,15 +62,17 @@ export default function ProviderDashboard() {
     return () => { cancelled = true; supabase.removeChannel(ch); };
   }, [user, profile?.provider_id]);
 
-  async function decide(id: string, status: "accepted" | "declined") {
+  async function decide(id: string, decision: "accepted" | "declined") {
     setActing(id);
-    const { error } = await supabase
-      .from("bookings")
-      .update({ status, decided_at: new Date().toISOString() })
-      .eq("id", id);
+    const { data, error } = await supabase.functions.invoke("booking-decide", {
+      body: { booking_id: id, decision },
+    });
     setActing(null);
-    if (error) toast.error(error.message);
-    else toast.success(status === "accepted" ? "Booking accepteret" : "Booking afvist");
+    if (error || data?.error) {
+      toast.error(error?.message || data?.error || "Noget gik galt");
+    } else {
+      toast.success(decision === "accepted" ? "Booking accepteret — beløb hævet" : "Booking afvist — beløb frigivet");
+    }
   }
 
   if (loading || !user) {
@@ -113,8 +115,11 @@ export default function ProviderDashboard() {
       </header>
 
       <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
-        <h1 className="font-display text-3xl sm:text-4xl">Dine bookinger</h1>
-        <p className="mt-2 text-sm opacity-70">Accepter eller afvis nye anmodninger.</p>
+        <ConnectCard />
+
+        <h1 className="mt-10 font-display text-3xl sm:text-4xl">Dine bookinger</h1>
+        <p className="mt-2 text-sm opacity-70">Accepter eller afvis nye anmodninger. Beløbet hæves først, når du accepterer.</p>
+
 
         <div className="mt-6 inline-flex rounded-full border-2 p-1" style={{ borderColor: `${C.ink}22`, background: "white" }}>
           {(["pending", "all"] as const).map((t) => (
@@ -194,3 +199,73 @@ export default function ProviderDashboard() {
     </main>
   );
 }
+
+function ConnectCard() {
+  const [status, setStatus] = useState<null | {
+    connected: boolean;
+    charges_enabled?: boolean;
+    payouts_enabled?: boolean;
+    details_submitted?: boolean;
+  }>(null);
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    supabase.functions.invoke("stripe-connect-status").then(({ data }) => {
+      if (data && !data.error) setStatus(data);
+      else setStatus({ connected: false });
+    });
+  }, []);
+
+  async function startOnboarding() {
+    setBusy(true);
+    const { data, error } = await supabase.functions.invoke("stripe-connect-onboard", {
+      body: { return_url: window.location.href },
+    });
+    setBusy(false);
+    if (error || !data?.url) {
+      toast.error(error?.message || data?.error || "Kunne ikke starte onboarding");
+      return;
+    }
+    window.location.href = data.url;
+  }
+
+  if (!status) return null;
+  const ok = status.connected && status.charges_enabled && status.payouts_enabled;
+
+  return (
+    <div
+      className="rounded-2xl border-2 p-5"
+      style={{
+        borderColor: ok ? C.teal : C.orange,
+        background: ok ? `${C.mint}40` : "#fff7f0",
+      }}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <div className="text-[10px] font-black uppercase tracking-[0.22em]" style={{ color: ok ? C.teal : C.orange }}>
+            Udbetalingskonto · Stripe Connect
+          </div>
+          <div className="mt-1 font-display text-lg leading-tight">
+            {ok ? "Klar til at modtage betalinger" : status.connected ? "Onboarding ikke færdig" : "Opret din udbetalingskonto"}
+          </div>
+          <div className="mt-1 text-xs opacity-70">
+            {ok
+              ? "Du får automatisk udbetalt din andel, når en booking accepteres og hæves."
+              : "For at kunne acceptere bookinger og modtage penge skal du gennemføre Stripes onboarding."}
+          </div>
+        </div>
+        {!ok && (
+          <button
+            onClick={startOnboarding}
+            disabled={busy}
+            className="inline-flex flex-shrink-0 items-center gap-2 rounded-full px-4 py-2 text-[11px] font-bold uppercase tracking-[0.18em] disabled:opacity-50"
+            style={{ background: C.orange, color: C.ink }}
+          >
+            {busy ? "Åbner…" : status.connected ? "Fortsæt onboarding" : "Start onboarding"}
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+

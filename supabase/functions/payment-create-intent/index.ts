@@ -1,0 +1,143 @@
+// Creates a booking row + Stripe PaymentIntent (manual capture, 24h authorization).
+// Returns client_secret so frontend can confirm the card.
+import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
+import { createClient } from "npm:@supabase/supabase-js@2";
+
+const STRIPE = "https://api.stripe.com/v1";
+
+function form(obj: Record<string, any>, prefix = ""): string {
+  const out: string[] = [];
+  for (const [k, v] of Object.entries(obj)) {
+    if (v === undefined || v === null) continue;
+    const key = prefix ? `${prefix}[${k}]` : k;
+    if (typeof v === "object" && !Array.isArray(v)) {
+      out.push(form(v, key));
+    } else {
+      out.push(`${encodeURIComponent(key)}=${encodeURIComponent(String(v))}`);
+    }
+  }
+  return out.join("&");
+}
+
+async function stripe(path: string, body: Record<string, any>, key: string) {
+  const res = await fetch(`${STRIPE}${path}`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${key}`,
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: form(body),
+  });
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.error?.message || "Stripe error");
+  return json;
+}
+
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+  try {
+    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
+    if (!stripeKey) throw new Error("STRIPE_SECRET_KEY not configured");
+
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const supaUser = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_ANON_KEY")!,
+      { global: { headers: { Authorization: authHeader } } },
+    );
+    const token = authHeader.replace("Bearer ", "");
+    const { data: claims, error: claimErr } = await supaUser.auth.getClaims(token);
+    if (claimErr || !claims?.claims) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const userId = claims.claims.sub as string;
+
+    const body = await req.json();
+    const {
+      provider_id, provider_name, service, hours,
+      booking_date, slot, address, address_place_id, lat, lng, notes,
+      customer_pays, provider_gets, currency,
+    } = body;
+
+    if (!provider_id || !customer_pays || !provider_gets || !currency || !booking_date || !slot) {
+      throw new Error("Missing booking fields");
+    }
+    if (customer_pays < 50) throw new Error("Amount too small");
+
+    const admin = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+    );
+
+    // Look up provider's Connect account (if any)
+    const { data: provProfile } = await admin
+      .from("profiles")
+      .select("stripe_account_id, stripe_charges_enabled")
+      .eq("provider_id", provider_id)
+      .maybeSingle();
+
+    const providerAcct = provProfile?.stripe_charges_enabled ? provProfile.stripe_account_id : null;
+    const platformFee = customer_pays - provider_gets;
+
+    // Insert booking (pending, payment none)
+    const { data: booking, error: insErr } = await admin
+      .from("bookings")
+      .insert({
+        customer_user_id: userId, provider_id, provider_name, service, hours,
+        booking_date, slot, address, address_place_id, lat, lng, notes,
+        customer_pays, provider_gets, currency,
+        status: "pending", payment_status: "none",
+        platform_fee_amount: platformFee,
+        provider_stripe_account_id: providerAcct,
+      })
+      .select("id")
+      .single();
+    if (insErr || !booking) throw new Error(insErr?.message || "insert failed");
+
+    // Create PI: manual capture (24h auth window). Application fee + transfer if Connect ready.
+    const piBody: Record<string, any> = {
+      amount: customer_pays,
+      currency: currency.toLowerCase(),
+      capture_method: "manual",
+      "automatic_payment_methods[enabled]": "true",
+      "metadata[booking_id]": booking.id,
+      "metadata[customer_user_id]": userId,
+      "metadata[provider_id]": provider_id,
+    };
+    if (providerAcct) {
+      piBody["application_fee_amount"] = platformFee;
+      piBody["transfer_data[destination]"] = providerAcct;
+    }
+
+    let pi;
+    try {
+      pi = await stripe("/payment_intents", piBody, stripeKey);
+    } catch (e) {
+      await admin.from("bookings").delete().eq("id", booking.id);
+      throw e;
+    }
+
+    const expires = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+    await admin.from("bookings").update({
+      payment_intent_id: pi.id,
+      authorization_expires_at: expires,
+    }).eq("id", booking.id);
+
+    return new Response(JSON.stringify({
+      booking_id: booking.id,
+      client_secret: pi.client_secret,
+      payment_intent_id: pi.id,
+    }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+  } catch (e) {
+    return new Response(JSON.stringify({ error: (e as Error).message }), {
+      status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+});
