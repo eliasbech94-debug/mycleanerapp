@@ -150,35 +150,69 @@ function BookingFlowInner() {
         navigate(`/login?redirect=/book/${provider.id}`);
         return;
       }
-      setSubmitting(true);
-      const { error } = await supabase.from("bookings").insert({
-        customer_user_id: user.id,
-        provider_id: provider.id,
-        provider_name: provider.name,
-        service: service?.subcategory || "Rengøring",
-        hours,
-        booking_date: fmtISO(date!),
-        slot,
-        address,
-        address_place_id: addressPlaceId,
-        lat: addressLat,
-        lng: addressLng,
-        notes: notes || null,
-        customer_pays: customerPays,
-        provider_gets: providerGets,
-        currency: country?.currency || "DKK",
-        status: "pending",
-      });
-      setSubmitting(false);
-      if (error) {
-        toast({ title: "Kunne ikke gemme booking", description: error.message, variant: "destructive" });
+      if (!stripe || !elements) {
+        toast({ title: "Betaling ikke klar endnu", description: "Vent et øjeblik og prøv igen.", variant: "destructive" });
         return;
       }
-      toast({
-        title: "Booking sendt ✓",
-        description: `${provider.name.split(" ")[0]} har modtaget anmodningen og bekræfter inden for ${provider.responseTime}.`,
-      });
-      setStep(4);
+      const card = elements.getElement(CardElement);
+      if (!card) {
+        toast({ title: "Indtast kortoplysninger", variant: "destructive" });
+        return;
+      }
+
+      setSubmitting(true);
+      try {
+        // 1) Create booking + PaymentIntent (or reuse if user clicked again)
+        let secret = clientSecret;
+        let bid = bookingId;
+        if (!secret) {
+          const { data, error } = await supabase.functions.invoke("payment-create-intent", {
+            body: {
+              provider_id: provider.id,
+              provider_name: provider.name,
+              service: service?.subcategory || "Rengøring",
+              hours,
+              booking_date: fmtISO(date!),
+              slot,
+              address,
+              address_place_id: addressPlaceId,
+              lat: addressLat,
+              lng: addressLng,
+              notes: notes || null,
+              customer_pays: customerPays,
+              provider_gets: providerGets,
+              currency: country?.currency || "DKK",
+            },
+          });
+          if (error || !data?.client_secret) throw new Error(error?.message || data?.error || "Kunne ikke oprette betaling");
+          secret = data.client_secret;
+          bid = data.booking_id;
+          setClientSecret(secret);
+          setBookingId(bid);
+        }
+
+        // 2) Confirm card (authorization only — manual capture)
+        const { error: confirmErr, paymentIntent } = await stripe.confirmCardPayment(secret!, {
+          payment_method: { card, billing_details: { email: user.email ?? undefined, name: profile?.full_name ?? undefined } },
+        });
+        if (confirmErr) throw new Error(confirmErr.message || "Betalingen blev afvist");
+        if (paymentIntent && !["requires_capture", "succeeded"].includes(paymentIntent.status)) {
+          throw new Error(`Uventet status: ${paymentIntent.status}`);
+        }
+
+        // 3) Mark authorized in DB
+        await supabase.functions.invoke("payment-mark-authorized", { body: { booking_id: bid } });
+
+        toast({
+          title: "Booking sendt ✓",
+          description: `${provider.name.split(" ")[0]} har 24 timer til at bekræfte. Først da hæves beløbet.`,
+        });
+        setStep(4);
+      } catch (e: any) {
+        toast({ title: "Betaling fejlede", description: e.message, variant: "destructive" });
+      } finally {
+        setSubmitting(false);
+      }
       return;
     }
     if (step < 3 && canNext) setStep((step + 1) as 1 | 2 | 3 | 4);
