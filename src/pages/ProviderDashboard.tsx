@@ -62,15 +62,17 @@ export default function ProviderDashboard() {
     return () => { cancelled = true; supabase.removeChannel(ch); };
   }, [user, profile?.provider_id]);
 
-  async function decide(id: string, status: "accepted" | "declined") {
+  async function decide(id: string, decision: "accepted" | "declined") {
     setActing(id);
-    const { error } = await supabase
-      .from("bookings")
-      .update({ status, decided_at: new Date().toISOString() })
-      .eq("id", id);
+    const { data, error } = await supabase.functions.invoke("booking-decide", {
+      body: { booking_id: id, decision },
+    });
     setActing(null);
-    if (error) toast.error(error.message);
-    else toast.success(status === "accepted" ? "Booking accepteret" : "Booking afvist");
+    if (error || data?.error) {
+      toast.error(error?.message || data?.error || "Noget gik galt");
+    } else {
+      toast.success(decision === "accepted" ? "Booking accepteret — beløb hævet" : "Booking afvist — beløb frigivet");
+    }
   }
 
   if (loading || !user) {
