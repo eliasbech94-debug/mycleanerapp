@@ -61,12 +61,22 @@ const Header = () => {
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
-          <Link to="/login">
-            <Button variant="ghost" size="sm">Log ind</Button>
-          </Link>
-          <Link to="/customer/register">
-            <Button size="sm">Kom i gang</Button>
-          </Link>
+          {user ? (
+            <Link to="/profil">
+              <Button variant="ghost" size="sm" className="gap-2">
+                <UserIcon className="h-4 w-4" /> Min profil
+              </Button>
+            </Link>
+          ) : (
+            <>
+              <Link to="/login">
+                <Button variant="ghost" size="sm">Log ind</Button>
+              </Link>
+              <Link to="/customer/register">
+                <Button size="sm">Kom i gang</Button>
+              </Link>
+            </>
+          )}
         </div>
 
         <button className="md:hidden" onClick={() => setMobileOpen(!mobileOpen)}>
