@@ -11,6 +11,7 @@ export type Profile = {
   lat: number | null;
   lng: number | null;
   country_code: string | null;
+  provider_id?: string | null;
 };
 
 type AuthCtx = {
