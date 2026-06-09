@@ -68,9 +68,20 @@ export default function BookingFlow() {
   const [weekStart, setWeekStart] = useState<Date>(() => startOfWeek(new Date()));
   const [date, setDate] = useState<Date | null>(null);
   const [slot, setSlot] = useState<string>(params.get("slot") || "");
+  const { profile } = useAuth();
   const [address, setAddress] = useState<string>("");
   const [addressValid, setAddressValid] = useState<boolean>(false);
+  const [usingProfileAddress, setUsingProfileAddress] = useState<boolean>(false);
   const [notes, setNotes] = useState<string>("");
+
+  // Auto-fill address from profile when it loads
+  useEffect(() => {
+    if (profile?.address && !address) {
+      setAddress(profile.address);
+      setAddressValid(!!profile.address_place_id);
+      setUsingProfileAddress(true);
+    }
+  }, [profile]);
 
   const service = services.find((s) => s.subcategory === serviceKey) || services[0];
   const effectiveRate = service?.unit === "hour" ? service.price : hourlyRate;
