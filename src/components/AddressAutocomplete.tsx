@@ -1,6 +1,6 @@
 /// <reference types="google.maps" />
 import { useEffect, useRef, useState } from "react";
-import { MapPin, Loader2 } from "lucide-react";
+import { MapPin, Loader2, CheckCircle2, AlertTriangle } from "lucide-react";
 import { loadGoogleMaps } from "@/lib/googleMaps";
 
 type Suggestion = {
@@ -13,22 +13,27 @@ type Props = {
   value: string;
   onChange: (v: string) => void;
   onSelect?: (place: { address: string; placeId: string; lat?: number; lng?: number }) => void;
+  onValidityChange?: (valid: boolean) => void;
   placeholder?: string;
   autoFocus?: boolean;
   /** ISO country codes to bias the autocomplete (e.g. ["dk"]). */
   countries?: string[];
+  /** Visuel valideringsstatus. */
+  isValid?: boolean;
 };
 
 export default function AddressAutocomplete({
-  value, onChange, onSelect, placeholder, autoFocus, countries = ["dk"],
+  value, onChange, onSelect, onValidityChange, placeholder, autoFocus, countries = ["dk"], isValid,
 }: Props) {
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [ready, setReady] = useState(false);
+  const [noMatch, setNoMatch] = useState(false);
   const sessionRef = useRef<google.maps.places.AutocompleteSessionToken | null>(null);
   const debounceRef = useRef<number | null>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
+  const prevInputRef = useRef<string>("");
 
   useEffect(() => {
     loadGoogleMaps()
@@ -54,8 +59,10 @@ export default function AddressAutocomplete({
   function fetchSuggestions(input: string) {
     if (!ready || input.trim().length < 3) {
       setSuggestions([]);
+      setNoMatch(false);
       return;
     }
+    setNoMatch(false);
     if (debounceRef.current) window.clearTimeout(debounceRef.current);
     debounceRef.current = window.setTimeout(async () => {
       try {
@@ -79,9 +86,11 @@ export default function AddressAutocomplete({
             secondary: p.secondaryText?.text ?? "",
           }));
         setSuggestions(items);
-        setOpen(true);
+        setOpen(items.length > 0);
+        setNoMatch(items.length === 0);
       } catch (e) {
         console.warn("[AddressAutocomplete] suggest failed:", e);
+        setNoMatch(true);
       } finally {
         setLoading(false);
       }
@@ -93,6 +102,8 @@ export default function AddressAutocomplete({
     onChange(full);
     setOpen(false);
     setSuggestions([]);
+    setNoMatch(false);
+    onValidityChange?.(true);
     try {
       const { Place } = (await google.maps.importLibrary(
         "places",
@@ -115,16 +126,26 @@ export default function AddressAutocomplete({
     }
   }
 
+  const borderColor = noMatch || (value.length > 3 && !isValid)
+    ? "#c2412c"   // rød
+    : isValid
+    ? "#168a7a"   // teal
+    : "#0a3d3a";  // ink
+
   return (
     <div ref={wrapRef} className="relative">
-      <div className="flex items-center gap-2">
-        <MapPin className="h-4 w-4 opacity-60" />
+      <div
+        className="flex items-center gap-2 rounded-xl border-2 px-3 py-2.5 transition-colors"
+        style={{ borderColor }}
+      >
+        <MapPin className="h-4 w-4 opacity-60" style={{ color: borderColor }} />
         <input
           autoFocus={autoFocus}
           type="text"
           value={value}
           onChange={(e) => {
             onChange(e.target.value);
+            onValidityChange?.(false);
             fetchSuggestions(e.target.value);
           }}
           onFocus={() => suggestions.length > 0 && setOpen(true)}
@@ -133,7 +154,22 @@ export default function AddressAutocomplete({
           autoComplete="off"
         />
         {loading && <Loader2 className="h-4 w-4 animate-spin opacity-60" />}
+        {!loading && isValid && (
+          <CheckCircle2 className="h-4 w-4" style={{ color: "#168a7a" }} />
+        )}
       </div>
+
+      {noMatch && value.trim().length >= 3 && (
+        <div className="mt-2 flex items-start gap-2 text-sm" style={{ color: "#c2412c" }}>
+          <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0" />
+          <div>
+            <span className="font-bold">Vi kunne ikke genkende denne adresse.</span>
+            <div className="opacity-80">
+              Vælg en adresse fra listen, så vi sikrer at den kan findes af din cleaner.
+            </div>
+          </div>
+        </div>
+      )}
 
       {open && suggestions.length > 0 && (
         <ul
