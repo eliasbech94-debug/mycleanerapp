@@ -63,6 +63,15 @@ function fmtLong(d: Date) {
 }
 
 export default function BookingFlow() {
+  const [stripePromise] = useState(() => getStripePromise());
+  return (
+    <Elements stripe={stripePromise as any}>
+      <BookingFlowInner />
+    </Elements>
+  );
+}
+
+function BookingFlowInner() {
   const { id } = useParams();
   const [params] = useSearchParams();
   const navigate = useNavigate();
