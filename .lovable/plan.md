@@ -1,26 +1,32 @@
-For at hente brugerens "registrerede adresse" skal vi have et sted at gemme den. Resten af appen kører i dag på mock-data, så vi har to realistiske veje. Begge giver dig samme UX i booking-flowet — forskellen er, om data lever rigtigt eller bare simuleres.
 
-## Vej A — Rigtig backend (anbefales hvis du snart vil have login alligevel)
+# Verificér Stripe webhook & betalingsflow
 
-1. Aktivér Lovable Cloud (database + auth).
-2. Opret `profiles`-tabel med `id (FK auth.users)`, `full_name`, `phone`, `address`, `address_place_id`, `lat`, `lng`, `country_code`, RLS så hver bruger kun kan læse/skrive sin egen.
-3. Trigger der auto-opretter en tom profil ved signup.
-4. Tilføj minimal auth: `/login`, `/signup` (email + password + Google), og en lille `/profil`-side hvor man kan gemme sin adresse via samme `AddressAutocomplete`-komponent (med samme validering vi lige byggede).
-5. I `BookingFlow` step 3:
-   - Hent den loggede ind brugers profil. Hvis adresse findes → vis et "Brug min registrerede adresse"-kort øverst (fed adresse + grønt checkmark) og brug den som default valid adresse.
-   - Knap **"Brug anden adresse"** skjuler kortet og viser den eksisterende `AddressAutocomplete`.
-   - Knap **"Brug min registrerede adresse igen"** for at vende tilbage.
-   - Hvis brugeren ikke er logget ind eller mangler adresse → vis autocomplete som i dag (uændret flow).
+Nu hvor `STRIPE_WEBHOOK_SECRET` er opdateret, verificerer vi at hele kæden virker.
 
-## Vej B — Mock med localStorage (ingen backend, hurtigt)
+## Trin
 
-1. Tilføj en lille `useUserProfile` hook der læser/gemmer `{ fullName, address, lat, lng, placeId }` i `localStorage` under nøglen `mycleaner.profile`.
-2. Tilføj en `/profil`-side hvor man kan skrive/redigere sin adresse (genbruger `AddressAutocomplete` med validering).
-3. Samme UI som i Vej A i `BookingFlow` step 3 — kort med registreret adresse + "Brug anden adresse"-toggle.
-4. Ingen rigtig login/auth — perfekt til demo, men data forsvinder hvis browser cache ryddes.
+1. **Tjek deployment af `stripe-webhook`**
+   - Bekræft at edge function er deployed med den nye secret aktiv.
+   - Kig i edge function logs for eventuelle startup-fejl.
 
-## Anbefaling
+2. **Send test-event fra Stripe Dashboard**
+   - Du går til Stripe → Developers → Webhooks → vælg endpointet → "Send test webhook".
+   - Vælg `payment_intent.succeeded` først.
+   - Jeg henter logs fra `stripe-webhook` bagefter og bekræfter at signaturen valideres (ingen "Invalid signature"-fejl) og at handleren kører igennem.
 
-Du svarede "Ja, fuld profil med adresse", så **Vej A** er det rigtige match — men det betyder vi også skal bygge login/signup nu, ikke kun adresse-feltet. Hvis du helst vil have UX'en op at køre først og bygge auth bagefter, kan jeg lave **Vej B** nu og migrere til Cloud senere (samme komponenter, bare anden datakilde).
+3. **End-to-end booking-test (valgfrit men anbefalet)**
+   - Opret en testbooking i preview som kunde.
+   - `payment-create-intent` opretter en PaymentIntent med `capture_method=manual`.
+   - Bekræft kort `4242 4242 4242 4242` → webhook `amount_capturable_updated` → `bookings.payment_status = "authorized"`.
+   - Provider accepterer i ProviderDashboard → `booking-decide` capturer → webhook `succeeded` → `payment_status = "captured"`.
+   - Alternativt: provider afviser → PaymentIntent cancelled → webhook `canceled` → status opdateres.
 
-Hvilken vej skal jeg gå?
+4. **Verificér 24t auto-cancel cron**
+   - Bekræft at `booking-expire-pending` er sat op som scheduled function (eller manuelt trigger via curl for test).
+   - Tjek at en booking ældre end 24t med status `pending` får cancelled både i DB og i Stripe.
+
+## Hvad jeg har brug for fra dig
+
+- Bekræft når du har sendt test-eventen i Stripe Dashboard (eller sig til hvis jeg skal trigge `booking-expire-pending` manuelt først).
+
+Når du godkender planen, kører jeg log-tjek og curl-tests.
