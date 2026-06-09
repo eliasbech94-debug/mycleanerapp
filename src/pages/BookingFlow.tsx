@@ -415,7 +415,7 @@ function Step2({ weekStart, setWeekStart, weekDays, today, date, setDate, slot, 
 }
 
 /* ---------------- Step 3 ---------------- */
-function Step3({ address, setAddress, notes, setNotes, provider, date, slot, service, hours, customerPays }: any) {
+function Step3({ address, setAddress, addressValid, setAddressValid, notes, setNotes, provider, date, slot, service, hours, customerPays }: any) {
   return (
     <div>
       <h1 className="font-display text-3xl sm:text-4xl">Sidste detaljer</h1>
@@ -430,15 +430,23 @@ function Step3({ address, setAddress, notes, setNotes, provider, date, slot, ser
             <AddressAutocomplete
               autoFocus
               value={address}
-              onChange={setAddress}
-              onSelect={(p) => setAddress(p.address)}
+              onChange={(v: string) => { setAddress(v); setAddressValid(false); }}
+              onSelect={(p: any) => { setAddress(p.address); setAddressValid(true); }}
+              onValidityChange={setAddressValid}
+              isValid={addressValid}
               placeholder="Vej, nr., etage, by"
               countries={["dk"]}
             />
           </div>
-          <div className="mt-2 text-[10px] opacity-60">
-            Vælg fra listen så vi sikrer, at adressen er korrekt.
-          </div>
+          {addressValid ? (
+            <div className="mt-2 flex items-center gap-1.5 text-[10px] font-bold" style={{ color: C.teal }}>
+              <CheckCircle2 className="h-3.5 w-3.5" /> Adresse valideret — cleaneren kan finde stedet
+            </div>
+          ) : (
+            <div className="mt-2 text-[10px] opacity-60">
+              Begynd at skrive og vælg din adresse fra listen. Vi tjekker, at den er reel.
+            </div>
+          )}
         </div>
 
         <label className="block rounded-2xl border-2 bg-white p-4" style={{ borderColor: `${C.ink}22` }}>
