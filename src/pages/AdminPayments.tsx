@@ -59,7 +59,8 @@ export default function AdminPayments() {
   const [events, setEvents] = useState<WebhookEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [expectedFee, setExpectedFee] = useState<number>(DEFAULT_FEE_PCT);
-  const [filter, setFilter] = useState<"all" | "ok" | "fee_off" | "market_low" | "no_transfer">("all");
+  const [maxMultiplier, setMaxMultiplier] = useState<number>(DEFAULT_MAX_MULTIPLIER);
+  const [filter, setFilter] = useState<"all" | "ok" | "fee_off" | "market_low" | "market_high" | "no_transfer">("all");
   const [expanded, setExpanded] = useState<string | null>(null);
 
   const load = async () => {
@@ -102,7 +103,13 @@ export default function AdminPayments() {
       // provider effective hourly take
       const hourlyToProvider = b.hours && b.hours > 0 ? (pg / 100) / Number(b.hours) : null;
       const minRate = country?.minHourlyRate ?? null;
-      const marketOk = !country || !hourlyToProvider ? true : hourlyToProvider >= minRate!;
+      const maxRate = minRate != null ? minRate * maxMultiplier : null;
+      // Deviation = (actual provider hourly - min) / min  (positive = above min, negative = under)
+      const marketDeviationPct =
+        hourlyToProvider != null && minRate ? ((hourlyToProvider - minRate) / minRate) * 100 : null;
+      const marketLow = !!(country && hourlyToProvider != null && minRate != null && hourlyToProvider < minRate);
+      const marketHigh = !!(country && hourlyToProvider != null && maxRate != null && hourlyToProvider > maxRate);
+      const marketOk = !marketLow && !marketHigh;
 
       // Auto split: find transfer event for this booking / payment_intent
       const transferEv = events.find(
@@ -116,19 +123,21 @@ export default function AdminPayments() {
       const transferMatchesProvider = transferAmount != null && Math.abs(transferAmount - pg) <= 1;
       const transferOk = !b.provider_stripe_account_id ? true : transferEv != null && transferMatchesProvider;
 
-      let bucket: "ok" | "fee_off" | "market_low" | "no_transfer" = "ok";
+      let bucket: "ok" | "fee_off" | "market_low" | "market_high" | "no_transfer" = "ok";
       if (!feeOk || !splitOk) bucket = "fee_off";
-      else if (!marketOk) bucket = "market_low";
+      else if (marketLow) bucket = "market_low";
+      else if (marketHigh) bucket = "market_high";
       else if (!transferOk) bucket = "no_transfer";
 
       return {
         b, country, cp, pg, fee, splitOk, effectiveFeePct, feeOk, feeDelta,
-        hourlyToCustomer, hourlyToProvider, minRate, marketOk,
+        hourlyToCustomer, hourlyToProvider, minRate, maxRate, marketDeviationPct,
+        marketOk, marketLow, marketHigh,
         transferEv, transferAmount, transferOk, transferMatchesProvider,
         bucket,
       };
     });
-  }, [bookings, events, expectedFee]);
+  }, [bookings, events, expectedFee, maxMultiplier]);
 
   const filtered = rows.filter((r) => filter === "all" || r.bucket === filter);
 
