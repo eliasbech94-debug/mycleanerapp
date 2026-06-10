@@ -1,4 +1,4 @@
-// Stripe webhook: keeps booking.payment_status in sync.
+// Stripe webhook: keeps booking.payment_status in sync, incl. refunds.
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import Stripe from "npm:stripe@17";
@@ -22,6 +22,64 @@ Deno.serve(async (req) => {
     Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
   );
 
+  // ---------- Refund events ----------
+  // charge.refunded fires when a refund is created on a charge.
+  // refund.updated fires on status changes (e.g. failed → succeeded).
+  if (
+    event.type === "charge.refunded" ||
+    event.type === "charge.refund.updated" ||
+    event.type === "refund.created" ||
+    event.type === "refund.updated"
+  ) {
+    let piId: string | null = null;
+    let refund: Stripe.Refund | null = null;
+    let charge: Stripe.Charge | null = null;
+
+    if (event.type.startsWith("charge.")) {
+      charge = event.data.object as Stripe.Charge;
+      piId = typeof charge.payment_intent === "string" ? charge.payment_intent : charge.payment_intent?.id ?? null;
+      refund = charge.refunds?.data?.[0] ?? null;
+    } else {
+      refund = event.data.object as Stripe.Refund;
+      piId = typeof refund.payment_intent === "string" ? refund.payment_intent : refund.payment_intent?.id ?? null;
+    }
+    if (!piId) return new Response("ok", { status: 200 });
+
+    // Find the booking via payment_intent_id
+    const { data: booking } = await admin
+      .from("bookings")
+      .select("id, customer_pays")
+      .eq("payment_intent_id", piId)
+      .maybeSingle();
+    if (!booking) return new Response("ok", { status: 200 });
+
+    // Pull full charge for accurate totals if we don't have it yet
+    if (!charge) {
+      try {
+        const pi = await stripe.paymentIntents.retrieve(piId, { expand: ["latest_charge"] });
+        charge = pi.latest_charge as Stripe.Charge;
+      } catch (_) { /* ignore */ }
+    }
+
+    const refunded = (charge?.amount_refunded ?? refund?.amount ?? 0);
+    const isFullRefund = charge ? charge.amount_refunded >= charge.amount_captured : true;
+
+    const updates: Record<string, any> = {
+      refund_id: refund?.id ?? null,
+      refund_reason: refund?.reason ?? refund?.failure_reason ?? null,
+      refund_amount: refunded,
+      refunded_at: new Date().toISOString(),
+    };
+    if (refund?.status === "succeeded" || refund?.status == null) {
+      updates.payment_status = "refunded";
+      if (isFullRefund) updates.status = "cancelled";
+    }
+
+    await admin.from("bookings").update(updates).eq("id", booking.id);
+    return new Response("ok", { status: 200 });
+  }
+
+  // ---------- PaymentIntent events ----------
   const pi = event.data.object as Stripe.PaymentIntent;
   const bookingId = (pi.metadata as any)?.booking_id;
   if (!bookingId) return new Response("ok", { status: 200 });

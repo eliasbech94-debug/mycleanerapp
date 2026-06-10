@@ -214,11 +214,15 @@ type Booking = {
   customer_pays: number;
   currency: string;
   status: "pending" | "accepted" | "declined" | "cancelled" | "completed";
-  payment_status: "none" | "authorized" | "captured" | "cancelled" | "failed";
+  payment_status: "none" | "authorized" | "captured" | "canceled" | "failed" | "refunded";
   created_at: string;
   decided_at: string | null;
   payment_method_brand: string | null;
   payment_method_last4: string | null;
+  refund_id: string | null;
+  refund_reason: string | null;
+  refund_amount: number | null;
+  refunded_at: string | null;
 };
 
 const STATUS_LABEL: Record<Booking["status"], { label: string; bg: string; fg: string }> = {
@@ -304,10 +308,27 @@ function BookingsTab() {
             </div>
             <div className="mt-3 border-t border-dashed pt-3 text-xs flex items-baseline justify-between" style={{ borderColor: `${C.ink}22` }}>
               <span className="opacity-60">
-                {b.payment_status === "captured" ? "Betalt" : b.payment_status === "authorized" ? "Reserveret" : "Du betaler"}
+                {b.payment_status === "refunded" ? "Refunderet" : b.payment_status === "captured" ? "Betalt" : b.payment_status === "authorized" ? "Reserveret" : "Du betaler"}
               </span>
               <span className="font-display text-base">{b.customer_pays.toLocaleString("da-DK")} {b.currency}</span>
             </div>
+            {b.payment_status === "refunded" && (
+              <div className="mt-3 rounded-xl p-3 text-[11px] space-y-1" style={{ background: "#f4eefb", color: "#4a2a8a" }}>
+                <div className="font-black uppercase tracking-[0.16em] text-[10px]">Refundering</div>
+                {b.refund_amount != null && (
+                  <div className="flex justify-between"><span className="opacity-70">Beløb</span><span className="font-bold">{b.refund_amount.toLocaleString("da-DK")} {b.currency}</span></div>
+                )}
+                {b.refund_reason && (
+                  <div className="flex justify-between"><span className="opacity-70">Årsag</span><span className="font-bold">{REFUND_REASON_LABEL[b.refund_reason] || b.refund_reason}</span></div>
+                )}
+                {b.refunded_at && (
+                  <div className="flex justify-between"><span className="opacity-70">Dato</span><span>{new Date(b.refunded_at).toLocaleDateString("da-DK", { day: "2-digit", month: "2-digit", year: "numeric" })}</span></div>
+                )}
+                {b.refund_id && (
+                  <div className="flex justify-between"><span className="opacity-70">Refund ID</span><span className="font-mono">{b.refund_id}</span></div>
+                )}
+              </div>
+            )}
             {hasReceipt && (
               <button
                 onClick={() => setParams({ tab: "invoices" })}
@@ -328,8 +349,16 @@ const PAYMENT_LABEL: Record<Booking["payment_status"], { label: string; bg: stri
   none: null,
   authorized: { label: "Reserveret", bg: "#fff8e1", fg: "#8a5a00" },
   captured: { label: "Betalt", bg: "#e6f5ec", fg: "#0a5c2e" },
-  cancelled: { label: "Refunderet", bg: "#e6e2d2", fg: C.ink },
+  canceled: { label: "Annulleret", bg: "#e6e2d2", fg: C.ink },
+  refunded: { label: "Refunderet", bg: "#ede4f5", fg: "#4a2a8a" },
   failed: { label: "Fejlet", bg: "#f5c2b8", fg: "#8a2e1c" },
+};
+
+const REFUND_REASON_LABEL: Record<string, string> = {
+  duplicate: "Dobbeltbetaling",
+  fraudulent: "Mistanke om svindel",
+  requested_by_customer: "Anmodet af kunde",
+  expired_uncaptured_charge: "Reservation udløb",
 };
 
 /* ---------- CARDS TAB ---------- */

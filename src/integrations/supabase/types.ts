@@ -39,6 +39,10 @@ export type Database = {
           provider_id: string
           provider_name: string
           provider_stripe_account_id: string | null
+          refund_amount: number | null
+          refund_id: string | null
+          refund_reason: string | null
+          refunded_at: string | null
           service: string
           slot: string
           status: Database["public"]["Enums"]["booking_status"]
@@ -68,6 +72,10 @@ export type Database = {
           provider_id: string
           provider_name: string
           provider_stripe_account_id?: string | null
+          refund_amount?: number | null
+          refund_id?: string | null
+          refund_reason?: string | null
+          refunded_at?: string | null
           service: string
           slot: string
           status?: Database["public"]["Enums"]["booking_status"]
@@ -97,6 +105,10 @@ export type Database = {
           provider_id?: string
           provider_name?: string
           provider_stripe_account_id?: string | null
+          refund_amount?: number | null
+          refund_id?: string | null
+          refund_reason?: string | null
+          refunded_at?: string | null
           service?: string
           slot?: string
           status?: Database["public"]["Enums"]["booking_status"]
@@ -182,6 +194,7 @@ export type Database = {
         | "canceled"
         | "failed"
         | "expired"
+        | "refunded"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -323,6 +336,7 @@ export const Constants = {
         "canceled",
         "failed",
         "expired",
+        "refunded",
       ],
     },
   },
