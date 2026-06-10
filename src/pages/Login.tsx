@@ -41,18 +41,18 @@ export default function Login() {
           email,
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}${redirect}`,
+            emailRedirectTo: `${window.location.origin}${explicitRedirect ?? "/profil"}`,
             data: { full_name: fullName },
           },
         });
         if (error) throw error;
         toast.success("Konto oprettet — du er logget ind");
-        navigate(redirect);
+        navigate(await resolveDestination());
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         toast.success("Velkommen tilbage");
-        navigate(redirect);
+        navigate(await resolveDestination());
       }
     } catch (err: any) {
       toast.error(err?.message || "Noget gik galt");
@@ -64,7 +64,7 @@ export default function Login() {
   async function handleGoogle() {
     setLoading(true);
     const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: `${window.location.origin}${redirect}`,
+      redirect_uri: `${window.location.origin}${explicitRedirect ?? "/profil"}`,
     });
     if (result.error) {
       toast.error("Google login fejlede");
@@ -72,7 +72,7 @@ export default function Login() {
       return;
     }
     if (result.redirected) return;
-    navigate(redirect);
+    navigate(await resolveDestination());
   }
 
   return (
