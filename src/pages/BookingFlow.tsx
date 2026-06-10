@@ -9,7 +9,7 @@ import { getProvider, getCountry, deriveServices, deriveHourlyRate, formatPrice 
 import { toast } from "@/hooks/use-toast";
 import AddressAutocomplete from "@/components/AddressAutocomplete";
 import AddressBook from "@/components/AddressBook";
-import { listAddresses, buildAutoNotes, type CustomerAddress } from "@/lib/customerAddresses";
+import { listAddresses, buildAutoNotes, PLACE_TYPE_LABEL, ACCESS_METHOD_LABEL, type CustomerAddress } from "@/lib/customerAddresses";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Elements, CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
@@ -574,6 +574,141 @@ function Step2({ weekStart, setWeekStart, weekDays, today, date, setDate, slot, 
   );
 }
 
+/* ---------------- Address Verify Card ---------------- */
+function AddressVerifyCard({
+  address, addressValid, savedAddresses, selectedAddressId, usingNewAddress, usingProfileAddress, profile,
+}: any) {
+  if (!addressValid || !address) return null;
+
+  const saved = (savedAddresses || []).find((a: CustomerAddress) => a.id === selectedAddressId);
+  const isSaved = !!saved && !usingNewAddress;
+  const isProfile = usingProfileAddress && !isSaved;
+  const isOneTime = usingNewAddress || (!isSaved && !isProfile);
+
+  const badge = isSaved
+    ? saved.is_primary
+      ? { text: "Primær adresse", bg: C.orange }
+      : { text: "Gemt adresse", bg: C.teal }
+    : isProfile
+      ? { text: "Fra profil", bg: C.ink }
+      : { text: "Engangsadresse", bg: `${C.ink}55` };
+
+  return (
+    <div
+      className="rounded-2xl border-2 bg-white p-4"
+      style={{ borderColor: C.orange, background: `${C.orange}08` }}
+    >
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.22em]" style={{ color: C.ink }}>
+          <MapPin className="h-3.5 w-3.5" /> Adressebekræftelse
+        </div>
+        <span
+          className="rounded-full px-2.5 py-0.5 text-[9px] font-black uppercase tracking-[0.18em]"
+          style={{ background: badge.bg, color: isOneTime ? C.ink : C.cream }}
+        >
+          {badge.text}
+        </span>
+      </div>
+
+      <div className="mt-3 rounded-xl border-2 bg-white p-3" style={{ borderColor: `${C.ink}18` }}>
+        <div className="font-display text-lg leading-tight">{isSaved ? saved.label : isProfile ? "Fra din profil" : "Manuel indtastning"}</div>
+        <div className="mt-0.5 text-sm opacity-80">{address}</div>
+
+        {isSaved && (
+          <div className="mt-3 space-y-2">
+            <div className="flex flex-wrap gap-1.5">
+              <span className="rounded-full border px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.16em]" style={{ borderColor: `${C.ink}22` }}>
+                {PLACE_TYPE_LABEL[saved.place_type]}
+              </span>
+              {saved.size_sqm && (
+                <span className="rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.16em]" style={{ background: C.mint, color: C.ink }}>
+                  {saved.size_sqm} m²
+                </span>
+              )}
+              {saved.rooms && (
+                <span className="rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.16em]" style={{ background: C.mint, color: C.ink }}>
+                  {saved.rooms} vær.
+                </span>
+              )}
+              {saved.floor && (
+                <span className="rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.16em]" style={{ background: C.mint, color: C.ink }}>
+                  {saved.floor}
+                </span>
+              )}
+            </div>
+
+            <div className="grid gap-2 sm:grid-cols-2">
+              {saved.access_method !== "home" && (
+                <div className="rounded-lg border p-2 text-[11px]" style={{ borderColor: `${C.ink}18` }}>
+                  <div className="font-bold">Adgang</div>
+                  <div className="opacity-80">{ACCESS_METHOD_LABEL[saved.access_method]}</div>
+                  {saved.access_code && (
+                    <div className="mt-0.5 font-mono text-[11px]" style={{ color: C.orange }}>Kode: {saved.access_code}</div>
+                  )}
+                </div>
+              )}
+              {saved.access_instructions && (
+                <div className="rounded-lg border p-2 text-[11px]" style={{ borderColor: `${C.ink}18` }}>
+                  <div className="font-bold">Instruktioner</div>
+                  <div className="opacity-80">{saved.access_instructions}</div>
+                </div>
+              )}
+              {saved.has_pets && (
+                <div className="rounded-lg border p-2 text-[11px]" style={{ borderColor: `${C.ink}18` }}>
+                  <div className="font-bold">Kæledyr</div>
+                  <div className="opacity-80">{saved.pet_details || "Ja"}</div>
+                </div>
+              )}
+              {saved.has_children && (
+                <div className="rounded-lg border p-2 text-[11px]" style={{ borderColor: `${C.ink}18` }}>
+                  <div className="font-bold">Børn</div>
+                  <div className="opacity-80">Børn i hjemmet</div>
+                </div>
+              )}
+              {saved.parking_info && (
+                <div className="rounded-lg border p-2 text-[11px]" style={{ borderColor: `${C.ink}18` }}>
+                  <div className="font-bold">Parkering</div>
+                  <div className="opacity-80">{saved.parking_info}</div>
+                </div>
+              )}
+              {saved.cleaning_supplies_available && (
+                <div className="rounded-lg border p-2 text-[11px]" style={{ borderColor: `${C.ink}18` }}>
+                  <div className="font-bold">Rengøringsmidler</div>
+                  <div className="opacity-80">Står klar</div>
+                </div>
+              )}
+              {saved.wifi_name && (
+                <div className="rounded-lg border p-2 text-[11px]" style={{ borderColor: `${C.ink}18` }}>
+                  <div className="font-bold">WiFi</div>
+                  <div className="opacity-80">{saved.wifi_name}</div>
+                </div>
+              )}
+            </div>
+
+            {saved.notes && (
+              <div className="rounded-lg border p-2 text-[11px]" style={{ borderColor: `${C.ink}18` }}>
+                <div className="font-bold">Andre bemærkninger</div>
+                <div className="opacity-80 whitespace-pre-line">{saved.notes}</div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {isProfile && profile?.address && (
+          <div className="mt-2 text-[11px] opacity-60">
+            Vi bruger adressen fra din profil. Gem den i din adressebog for at tilføje adgangsinfo og kæledyr.
+          </div>
+        )}
+        {isOneTime && (
+          <div className="mt-2 text-[11px] opacity-60">
+            Du bruger en manuel adresse. Overvej at gemme den i din adressebog med adgangsinfo og kæledyr, så cleaneren får alt at vide automatisk.
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 /* ---------------- Step 3 ---------------- */
 function Step3({ address, setAddress, addressValid, setAddressValid, setAddressPlaceId, setAddressLat, setAddressLng, usingProfileAddress, setUsingProfileAddress, profile, notes, setNotes, provider, date, slot, service, hours, customerPays, savedAddresses, selectedAddressId, pickSavedAddress, usingNewAddress, setUsingNewAddress }: any) {
   const hasProfileAddress = !!profile?.address;
@@ -675,6 +810,16 @@ function Step3({ address, setAddress, addressValid, setAddressValid, setAddressP
           </div>
         )}
 
+        {/* Address verification card */}
+        <AddressVerifyCard
+          address={address}
+          addressValid={addressValid}
+          savedAddresses={savedAddresses}
+          selectedAddressId={selectedAddressId}
+          usingNewAddress={usingNewAddress}
+          usingProfileAddress={usingProfileAddress}
+          profile={profile}
+        />
 
         <label className="block rounded-2xl border-2 bg-white p-4" style={{ borderColor: `${C.ink}22` }}>
           <div className="text-[10px] font-black uppercase tracking-[0.22em] opacity-70">Besked til cleaneren (valgfri)</div>
