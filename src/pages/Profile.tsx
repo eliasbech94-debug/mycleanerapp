@@ -70,6 +70,7 @@ export default function Profile() {
 
         <div className="mt-6">
           {tab === "info" && <InfoTab />}
+          {tab === "addresses" && <AddressesTab />}
           {tab === "bookings" && <BookingsTab />}
           {tab === "cards" && <CardsTab />}
           {tab === "invoices" && <InvoicesTab />}
