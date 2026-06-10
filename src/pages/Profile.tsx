@@ -13,6 +13,7 @@ import AddressBook from "@/components/AddressBook";
 import SupportDialog from "@/components/SupportDialog";
 import { InboxPanel, NotificationBell } from "@/components/Inbox";
 import OnboardingChecklist, { ChecklistItem } from "@/components/OnboardingChecklist";
+import { validateContact, validateAddress, validateProperty, statusFrom } from "@/lib/onboarding-validation";
 import { toast } from "sonner";
 
 const C = { ink: "#0a3d3a", orange: "#ff6b35", cream: "#f5f0e0", teal: "#168a7a", mint: "#c8e6c0" };
@@ -270,21 +271,24 @@ function ProfileHeader() {
 function OverviewTab({ goTo }: { goTo: (k: TabKey) => void }) {
   const { user, profile } = useAuth();
   const bookings = useBookings();
-  const [primaryAddress, setPrimaryAddress] = useState<{ address: string; label: string } | null>(null);
+  const [primaryAddress, setPrimaryAddress] = useState<any | null>(null);
   const [addressCount, setAddressCount] = useState<number>(0);
   const [cardCount, setCardCount] = useState<number | null>(null);
+  const [addressLoading, setAddressLoading] = useState<boolean>(true);
 
   useEffect(() => {
     if (!user) return;
+    setAddressLoading(true);
     supabase
       .from("customer_addresses" as any)
-      .select("address,label,is_primary")
+      .select("address,label,is_primary,address_place_id,lat,lng,size_sqm,rooms,place_type,access_method")
       .eq("user_id", user.id)
       .then(({ data }) => {
         const rows = (data || []) as any[];
         setAddressCount(rows.length);
-        const p = rows.find((r) => r.is_primary) || rows[0];
-        if (p) setPrimaryAddress({ address: p.address, label: p.label });
+        const p = rows.find((r) => r.is_primary) || rows[0] || null;
+        setPrimaryAddress(p);
+        setAddressLoading(false);
       });
     supabase.functions
       .invoke("customer-payment-methods", { body: { action: "list" } })
