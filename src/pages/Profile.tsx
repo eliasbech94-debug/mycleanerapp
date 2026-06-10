@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
-  ArrowLeft, Calendar, CheckCircle2, Clock, CreditCard, FileText, Loader2,
-  LogOut, MapPin, Plus, Receipt, Sparkles, Trash2, User as UserIcon,
+  ArrowLeft, ArrowDownCircle, ArrowUpCircle, Calendar, CheckCircle2, Clock, CreditCard, FileText, History, Loader2,
+  LogOut, MapPin, Plus, Receipt, Sparkles, Trash2, User as UserIcon, XCircle,
 } from "lucide-react";
 import { loadStripe, Stripe } from "@stripe/stripe-js";
 import { Elements, useStripe, useElements, CardElement } from "@stripe/react-stripe-js";
