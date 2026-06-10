@@ -333,6 +333,8 @@ function BookingFlowInner() {
                   pickSavedAddress={pickSavedAddress}
                   usingNewAddress={usingNewAddress}
                   setUsingNewAddress={setUsingNewAddress}
+                  setSavedAddresses={setSavedAddresses}
+                  setNotesAutoFilled={setNotesAutoFilled}
                 />
               )}
               {step === 4 && (
