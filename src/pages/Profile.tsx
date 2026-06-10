@@ -118,6 +118,248 @@ function ProfileHeader() {
   );
 }
 
+/* ---------- OVERVIEW (DASHBOARD) TAB ---------- */
+function OverviewTab({ goTo }: { goTo: (k: TabKey) => void }) {
+  const { user, profile } = useAuth();
+  const bookings = useBookings();
+  const [primaryAddress, setPrimaryAddress] = useState<{ address: string; label: string } | null>(null);
+  const [addressCount, setAddressCount] = useState<number>(0);
+  const [cardCount, setCardCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("customer_addresses" as any)
+      .select("address,label,is_primary")
+      .eq("user_id", user.id)
+      .then(({ data }) => {
+        const rows = (data || []) as any[];
+        setAddressCount(rows.length);
+        const p = rows.find((r) => r.is_primary) || rows[0];
+        if (p) setPrimaryAddress({ address: p.address, label: p.label });
+      });
+    supabase.functions
+      .invoke("customer-payment-methods", { body: { action: "list" } })
+      .then(({ data }) => setCardCount(data?.cards?.length ?? 0))
+      .catch(() => setCardCount(0));
+  }, [user]);
+
+  const now = Date.now();
+  const upcoming = useMemo(
+    () =>
+      (bookings || [])
+        .filter((b) => ["pending", "accepted"].includes(b.status) && new Date(b.booking_date).getTime() >= now - 86400000)
+        .sort((a, b) => new Date(a.booking_date).getTime() - new Date(b.booking_date).getTime()),
+    [bookings, now],
+  );
+  const nextBooking = upcoming[0];
+
+  const stats = useMemo(() => {
+    const list = bookings || [];
+    let paid = 0, currency = "DKK";
+    let completed = 0;
+    for (const b of list) {
+      if (b.payment_status === "captured" || b.payment_status === "partially_refunded") {
+        paid += b.customer_pays - (b.refund_amount ?? 0);
+        currency = b.currency;
+      }
+      if (b.status === "completed") completed += 1;
+    }
+    return { paid, currency, completed, total: list.length };
+  }, [bookings]);
+
+  const recent = useMemo(() => (bookings || []).slice(0, 3), [bookings]);
+
+  const firstName = (profile?.full_name || user?.email || "").split(" ")[0]?.split("@")[0] || "der";
+  const hour = new Date().getHours();
+  const greet = hour < 10 ? "Godmorgen" : hour < 17 ? "Goddag" : "Godaften";
+
+  return (
+    <div className="space-y-6">
+      {/* Hero */}
+      <div
+        className="relative overflow-hidden rounded-3xl border-2 p-6 sm:p-8"
+        style={{
+          background: `linear-gradient(135deg, ${C.ink} 0%, ${C.teal} 100%)`,
+          color: C.cream,
+          borderColor: C.ink,
+        }}
+      >
+        <div className="absolute -right-12 -top-12 h-48 w-48 rounded-full opacity-20" style={{ background: C.orange }} />
+        <div className="absolute -bottom-16 -left-10 h-44 w-44 rounded-full opacity-10" style={{ background: C.mint }} />
+        <div className="relative">
+          <div className="text-[10px] font-black uppercase tracking-[0.28em] opacity-70">{greet}</div>
+          <h2 className="mt-1 font-display text-3xl sm:text-4xl">Velkommen, {firstName}</h2>
+          <p className="mt-2 max-w-md text-sm opacity-80">
+            Her er et hurtigt overblik over dine kommende rengøringer, adresser og betalinger.
+          </p>
+          <div className="mt-5 flex flex-wrap gap-2">
+            <Link
+              to="/"
+              className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-xs font-bold uppercase tracking-[0.18em] shadow-[4px_4px_0_rgba(0,0,0,0.25)] transition hover:-translate-y-0.5"
+              style={{ background: C.orange, color: C.ink }}
+            >
+              <Plus className="h-4 w-4" /> Book ny cleaner
+            </Link>
+            <button
+              onClick={() => goTo("bookings")}
+              className="inline-flex items-center gap-2 rounded-full border-2 px-5 py-2.5 text-xs font-bold uppercase tracking-[0.18em] transition hover:bg-white/10"
+              style={{ borderColor: C.cream, color: C.cream }}
+            >
+              <Calendar className="h-4 w-4" /> Mine bookinger
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Stat cards */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <DashStat icon={Calendar} label="Kommende" value={String(upcoming.length)} tint={C.mint} />
+        <DashStat icon={CheckCircle2} label="Gennemført" value={String(stats.completed)} tint="#e6f5ec" />
+        <DashStat icon={Receipt} label="Betalt i alt" value={`${stats.paid.toLocaleString("da-DK")} ${stats.currency}`} tint="#fff1e1" />
+        <DashStat icon={Home} label="Adresser" value={String(addressCount)} tint="#ede7d6" />
+      </div>
+
+      {/* Two columns */}
+      <div className="grid gap-4 md:grid-cols-2">
+        {/* Next booking */}
+        <div className="rounded-2xl border-2 bg-white p-5" style={{ borderColor: `${C.ink}22` }}>
+          <div className="flex items-center justify-between">
+            <div className="text-[10px] font-black uppercase tracking-[0.22em] opacity-70">Næste booking</div>
+            <button onClick={() => goTo("bookings")} className="inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-[0.16em] opacity-70 hover:opacity-100">
+              Se alle <ArrowRight className="h-3 w-3" />
+            </button>
+          </div>
+          {bookings === null ? (
+            <div className="mt-4 text-sm opacity-60">Henter…</div>
+          ) : nextBooking ? (
+            <div className="mt-3">
+              <div className="font-display text-xl leading-tight">{nextBooking.provider_name}</div>
+              <div className="mt-1 text-xs opacity-70 inline-flex items-center gap-1.5">
+                <Sparkles className="h-3 w-3" /> {nextBooking.service} · {nextBooking.hours} t
+              </div>
+              <div className="mt-3 grid gap-1.5 text-xs">
+                <div className="inline-flex items-center gap-2 opacity-80">
+                  <Calendar className="h-3.5 w-3.5" />
+                  {new Date(nextBooking.booking_date).toLocaleDateString("da-DK", { weekday: "long", day: "numeric", month: "long" })}
+                </div>
+                <div className="inline-flex items-center gap-2 opacity-80"><Clock className="h-3.5 w-3.5" /> kl. {nextBooking.slot}</div>
+                <div className="inline-flex items-start gap-2 opacity-80"><MapPin className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" /> {nextBooking.address}</div>
+              </div>
+              <div className="mt-3 flex items-center justify-between border-t border-dashed pt-3 text-xs" style={{ borderColor: `${C.ink}22` }}>
+                <span
+                  className="inline-flex items-center rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em]"
+                  style={{ background: STATUS_LABEL[nextBooking.status].bg, color: STATUS_LABEL[nextBooking.status].fg }}
+                >
+                  {STATUS_LABEL[nextBooking.status].label}
+                </span>
+                <span className="font-display text-base">{nextBooking.customer_pays.toLocaleString("da-DK")} {nextBooking.currency}</span>
+              </div>
+            </div>
+          ) : (
+            <div className="mt-3 text-sm opacity-70">
+              Ingen kommende bookinger.{" "}
+              <Link to="/" className="font-bold underline" style={{ color: C.teal }}>Find en cleaner</Link>.
+            </div>
+          )}
+        </div>
+
+        {/* Primary address + cards */}
+        <div className="space-y-4">
+          <div className="rounded-2xl border-2 bg-white p-5" style={{ borderColor: `${C.ink}22` }}>
+            <div className="flex items-center justify-between">
+              <div className="text-[10px] font-black uppercase tracking-[0.22em] opacity-70">Primær adresse</div>
+              <button onClick={() => goTo("addresses")} className="inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-[0.16em] opacity-70 hover:opacity-100">
+                Administrer <ArrowRight className="h-3 w-3" />
+              </button>
+            </div>
+            {primaryAddress ? (
+              <div className="mt-3">
+                <div className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.18em]" style={{ color: C.teal }}>
+                  <Star className="h-3 w-3" /> {primaryAddress.label}
+                </div>
+                <div className="mt-1.5 font-display text-lg leading-snug">{primaryAddress.address}</div>
+              </div>
+            ) : (
+              <div className="mt-3 text-sm opacity-70">
+                Du har ingen adresser endnu.{" "}
+                <button onClick={() => goTo("addresses")} className="font-bold underline" style={{ color: C.teal }}>Tilføj én</button>.
+              </div>
+            )}
+          </div>
+
+          <div className="rounded-2xl border-2 bg-white p-5" style={{ borderColor: `${C.ink}22` }}>
+            <div className="flex items-center justify-between">
+              <div className="text-[10px] font-black uppercase tracking-[0.22em] opacity-70">Betaling</div>
+              <button onClick={() => goTo("cards")} className="inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-[0.16em] opacity-70 hover:opacity-100">
+                Kort <ArrowRight className="h-3 w-3" />
+              </button>
+            </div>
+            <div className="mt-3 flex items-center gap-3">
+              <div className="grid h-10 w-10 place-items-center rounded-xl" style={{ background: C.cream }}>
+                <CreditCard className="h-5 w-5" style={{ color: C.ink }} />
+              </div>
+              <div className="text-sm">
+                {cardCount === null ? "Henter…" : cardCount === 0 ? (
+                  <span className="opacity-70">Ingen gemte kort endnu.</span>
+                ) : (
+                  <span><b>{cardCount}</b> {cardCount === 1 ? "kort gemt" : "kort gemt"} til hurtig booking.</span>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Recent activity */}
+      <div className="rounded-2xl border-2 bg-white p-5" style={{ borderColor: `${C.ink}22` }}>
+        <div className="flex items-center justify-between">
+          <div className="text-[10px] font-black uppercase tracking-[0.22em] opacity-70">Seneste aktivitet</div>
+          <button onClick={() => goTo("history")} className="inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-[0.16em] opacity-70 hover:opacity-100">
+            Hele historikken <ArrowRight className="h-3 w-3" />
+          </button>
+        </div>
+        {bookings === null ? (
+          <div className="mt-3 text-sm opacity-60">Henter…</div>
+        ) : recent.length === 0 ? (
+          <div className="mt-3 text-sm opacity-70">Ingen aktivitet endnu.</div>
+        ) : (
+          <ul className="mt-3 divide-y" style={{ borderColor: `${C.ink}22` }}>
+            {recent.map((b) => {
+              const s = STATUS_LABEL[b.status];
+              return (
+                <li key={b.id} className="flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0">
+                  <div className="min-w-0">
+                    <div className="truncate text-sm font-bold">{b.provider_name}</div>
+                    <div className="text-[11px] opacity-60">
+                      {new Date(b.booking_date).toLocaleDateString("da-DK", { day: "2-digit", month: "short" })} · {b.service}
+                    </div>
+                  </div>
+                  <span className="flex-shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-black uppercase tracking-[0.16em]" style={{ background: s.bg, color: s.fg }}>
+                    {s.label}
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function DashStat({ icon: Icon, label, value, tint }: { icon: typeof UserIcon; label: string; value: string; tint: string }) {
+  return (
+    <div className="rounded-2xl border-2 bg-white p-4" style={{ borderColor: `${C.ink}22` }}>
+      <div className="grid h-9 w-9 place-items-center rounded-xl" style={{ background: tint }}>
+        <Icon className="h-4 w-4" style={{ color: C.ink }} />
+      </div>
+      <div className="mt-3 font-display text-2xl leading-none">{value}</div>
+      <div className="mt-1 text-[10px] font-black uppercase tracking-[0.18em] opacity-60">{label}</div>
+    </div>
+  );
+}
+
 /* ---------- INFO TAB ---------- */
 function InfoTab() {
   const { user, profile, refreshProfile } = useAuth();
