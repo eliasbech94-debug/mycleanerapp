@@ -43,6 +43,7 @@ export type Database = {
           refund_id: string | null
           refund_reason: string | null
           refunded_at: string | null
+          refunds: Json
           service: string
           slot: string
           status: Database["public"]["Enums"]["booking_status"]
@@ -76,6 +77,7 @@ export type Database = {
           refund_id?: string | null
           refund_reason?: string | null
           refunded_at?: string | null
+          refunds?: Json
           service: string
           slot: string
           status?: Database["public"]["Enums"]["booking_status"]
@@ -109,6 +111,7 @@ export type Database = {
           refund_id?: string | null
           refund_reason?: string | null
           refunded_at?: string | null
+          refunds?: Json
           service?: string
           slot?: string
           status?: Database["public"]["Enums"]["booking_status"]
