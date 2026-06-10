@@ -31,6 +31,8 @@ export type Database = {
           lng: number | null
           notes: string | null
           payment_intent_id: string | null
+          payment_method_brand: string | null
+          payment_method_last4: string | null
           payment_status: Database["public"]["Enums"]["payment_status"]
           platform_fee_amount: number
           provider_gets: number
@@ -58,6 +60,8 @@ export type Database = {
           lng?: number | null
           notes?: string | null
           payment_intent_id?: string | null
+          payment_method_brand?: string | null
+          payment_method_last4?: string | null
           payment_status?: Database["public"]["Enums"]["payment_status"]
           platform_fee_amount?: number
           provider_gets: number
@@ -85,6 +89,8 @@ export type Database = {
           lng?: number | null
           notes?: string | null
           payment_intent_id?: string | null
+          payment_method_brand?: string | null
+          payment_method_last4?: string | null
           payment_status?: Database["public"]["Enums"]["payment_status"]
           platform_fee_amount?: number
           provider_gets?: number

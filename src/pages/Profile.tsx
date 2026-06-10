@@ -217,6 +217,8 @@ type Booking = {
   payment_status: "none" | "authorized" | "captured" | "cancelled" | "failed";
   created_at: string;
   decided_at: string | null;
+  payment_method_brand: string | null;
+  payment_method_last4: string | null;
 };
 
 const STATUS_LABEL: Record<Booking["status"], { label: string; bg: string; fg: string }> = {
@@ -251,6 +253,7 @@ function useBookings() {
 
 function BookingsTab() {
   const bookings = useBookings();
+  const [, setParams] = useSearchParams();
   if (bookings === null) return <div className="opacity-60 text-sm">Henter…</div>;
   if (bookings.length === 0) {
     return (
@@ -267,7 +270,9 @@ function BookingsTab() {
     <div className="space-y-3">
       {bookings.map((b) => {
         const s = STATUS_LABEL[b.status];
+        const p = PAYMENT_LABEL[b.payment_status];
         const d = new Date(b.booking_date).toLocaleDateString("da-DK", { weekday: "long", day: "numeric", month: "long" });
+        const hasReceipt = b.payment_status === "captured" || b.status === "completed";
         return (
           <div key={b.id} className="rounded-2xl border-2 bg-white p-5" style={{ borderColor: `${C.ink}22` }}>
             <div className="flex items-start justify-between gap-3">
@@ -275,25 +280,57 @@ function BookingsTab() {
                 <div className="font-display text-lg leading-tight">{b.provider_name}</div>
                 <div className="mt-1 text-xs opacity-70 inline-flex items-center gap-1.5"><Sparkles className="h-3 w-3" /> {b.service} · {b.hours} t</div>
               </div>
-              <span className="inline-flex flex-shrink-0 items-center rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em]" style={{ background: s.bg, color: s.fg }}>
-                {s.label}
-              </span>
+              <div className="flex flex-col items-end gap-1.5">
+                <span className="inline-flex items-center rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em]" style={{ background: s.bg, color: s.fg }}>
+                  {s.label}
+                </span>
+                {p && (
+                  <span className="inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.16em]" style={{ borderColor: p.fg, color: p.fg, background: p.bg }}>
+                    {p.label}
+                  </span>
+                )}
+              </div>
             </div>
             <div className="mt-3 grid gap-1.5 text-xs">
               <div className="inline-flex items-center gap-2 opacity-80"><Calendar className="h-3.5 w-3.5" /> {d}</div>
               <div className="inline-flex items-center gap-2 opacity-80"><Clock className="h-3.5 w-3.5" /> kl. {b.slot}</div>
               <div className="inline-flex items-start gap-2 opacity-80"><MapPin className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" /> {b.address}</div>
+              {b.payment_method_last4 && (
+                <div className="inline-flex items-center gap-2 opacity-80">
+                  <CreditCard className="h-3.5 w-3.5" />
+                  {(b.payment_method_brand || "Kort").toUpperCase()} •••• {b.payment_method_last4}
+                </div>
+              )}
             </div>
             <div className="mt-3 border-t border-dashed pt-3 text-xs flex items-baseline justify-between" style={{ borderColor: `${C.ink}22` }}>
-              <span className="opacity-60">Du betaler</span>
+              <span className="opacity-60">
+                {b.payment_status === "captured" ? "Betalt" : b.payment_status === "authorized" ? "Reserveret" : "Du betaler"}
+              </span>
               <span className="font-display text-base">{b.customer_pays.toLocaleString("da-DK")} {b.currency}</span>
             </div>
+            {hasReceipt && (
+              <button
+                onClick={() => setParams({ tab: "invoices" })}
+                className="mt-3 inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.18em] hover:underline"
+                style={{ color: C.teal }}
+              >
+                <Receipt className="h-3.5 w-3.5" /> Se kvittering
+              </button>
+            )}
           </div>
         );
       })}
     </div>
   );
 }
+
+const PAYMENT_LABEL: Record<Booking["payment_status"], { label: string; bg: string; fg: string } | null> = {
+  none: null,
+  authorized: { label: "Reserveret", bg: "#fff8e1", fg: "#8a5a00" },
+  captured: { label: "Betalt", bg: "#e6f5ec", fg: "#0a5c2e" },
+  cancelled: { label: "Refunderet", bg: "#e6e2d2", fg: C.ink },
+  failed: { label: "Fejlet", bg: "#f5c2b8", fg: "#8a2e1c" },
+};
 
 /* ---------- CARDS TAB ---------- */
 type Card = { id: string; brand: string; last4: string; exp_month: number; exp_year: number };
