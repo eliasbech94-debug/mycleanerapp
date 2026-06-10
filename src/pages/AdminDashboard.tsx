@@ -330,6 +330,11 @@ const AdminDashboard = () => {
             </Button>
           </div>
 
+          <div className="mb-5">
+            <WebhookAlertBanner compact />
+          </div>
+
+
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6 md:mb-8">
             <div>
               <h1 className="font-heading text-xl sm:text-2xl font-bold">Admin Dashboard</h1>
