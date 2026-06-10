@@ -21,6 +21,7 @@ import {
   MessageSquare, FileText, Pencil, Trash2, Pause, Play, Undo2, ArrowDownToLine,
   AlertTriangle, Send, ShieldCheck, Wallet, Loader2, XCircle, RefreshCw,
 } from "lucide-react";
+import WebhookAlertBanner from "@/components/WebhookAlertBanner";
 
 // ============================================================================
 // Mock data (would come from Lovable Cloud in production)
