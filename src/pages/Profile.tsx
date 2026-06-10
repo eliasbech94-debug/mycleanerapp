@@ -14,9 +14,10 @@ import { toast } from "sonner";
 
 const C = { ink: "#0a3d3a", orange: "#ff6b35", cream: "#f5f0e0", teal: "#168a7a", mint: "#c8e6c0" };
 
-type TabKey = "info" | "addresses" | "bookings" | "cards" | "invoices" | "history";
+type TabKey = "overview" | "info" | "addresses" | "bookings" | "cards" | "invoices" | "history";
 
 const TABS: { key: TabKey; label: string; icon: typeof UserIcon }[] = [
+  { key: "overview", label: "Oversigt", icon: LayoutDashboard },
   { key: "info", label: "Info", icon: UserIcon },
   { key: "addresses", label: "Adresser", icon: Home },
   { key: "bookings", label: "Bookinger", icon: Calendar },
@@ -29,7 +30,7 @@ export default function Profile() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
-  const tab = (params.get("tab") as TabKey) || "info";
+  const tab = (params.get("tab") as TabKey) || "overview";
 
   useEffect(() => {
     if (!loading && !user) navigate("/login?redirect=/profil");
@@ -46,7 +47,7 @@ export default function Profile() {
   return (
     <main className="min-h-screen font-editorial" style={{ background: C.cream, color: C.ink }}>
       <ProfileHeader />
-      <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6">
+      <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
         <div className="flex flex-wrap gap-2 border-b-2 pb-3" style={{ borderColor: `${C.ink}22` }}>
           {TABS.map((t) => {
             const active = tab === t.key;
@@ -69,6 +70,7 @@ export default function Profile() {
         </div>
 
         <div className="mt-6">
+          {tab === "overview" && <OverviewTab goTo={(k) => setParams({ tab: k })} />}
           {tab === "info" && <InfoTab />}
           {tab === "addresses" && <AddressesTab />}
           {tab === "bookings" && <BookingsTab />}
@@ -80,6 +82,7 @@ export default function Profile() {
     </main>
   );
 }
+
 
 function ProfileHeader() {
   const { user, profile, signOut } = useAuth();
