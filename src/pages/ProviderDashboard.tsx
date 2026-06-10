@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, Calendar, Check, Clock, Loader2, MapPin, MessageSquare, Sparkles, X } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import OnboardingChecklist, { ChecklistItem } from "@/components/OnboardingChecklist";
 import { toast } from "sonner";
 
 const C = { ink: "#0a3d3a", orange: "#ff6b35", cream: "#f5f0e0", teal: "#168a7a", mint: "#c8e6c0" };
@@ -115,7 +116,12 @@ export default function ProviderDashboard() {
       </header>
 
       <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
-        <ConnectCard />
+        <ProviderOnboardingChecklist
+          profile={profile}
+          user={user}
+          bookings={bookings}
+        />
+
 
         <h1 className="mt-10 font-display text-3xl sm:text-4xl">Dine bookinger</h1>
         <p className="mt-2 text-sm opacity-70">Accepter eller afvis nye anmodninger. Beløbet hæves først, når du accepterer.</p>
@@ -268,4 +274,105 @@ function ConnectCard() {
     </div>
   );
 }
+
+type StripeStatus = {
+  connected: boolean;
+  charges_enabled?: boolean;
+  payouts_enabled?: boolean;
+  details_submitted?: boolean;
+};
+
+function ProviderOnboardingChecklist({
+  profile,
+  user,
+  bookings,
+}: {
+  profile: any;
+  user: any;
+  bookings: Booking[] | null;
+}) {
+  const [status, setStatus] = useState<StripeStatus | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    supabase.functions.invoke("stripe-connect-status").then(({ data }) => {
+      if (data && !data.error) setStatus(data as StripeStatus);
+      else setStatus({ connected: false });
+    });
+  }, []);
+
+  async function startOnboarding() {
+    setBusy(true);
+    const { data, error } = await supabase.functions.invoke("stripe-connect-onboard", {
+      body: { return_url: window.location.href },
+    });
+    setBusy(false);
+    if (error || !data?.url) {
+      toast.error(error?.message || data?.error || "Kunne ikke starte onboarding");
+      return;
+    }
+    window.location.href = data.url;
+  }
+
+  const items: ChecklistItem[] = useMemo(() => {
+    const profileDone = !!(profile?.full_name && profile?.phone && profile?.provider_id);
+    const emailVerified = !!user?.email_confirmed_at || !!user?.confirmed_at;
+    const acceptedAny = (bookings || []).some((b) => b.status === "accepted" || b.status === "completed");
+
+    let stripeStatus: ChecklistItem["status"] = "incomplete";
+    let stripeDesc = "Opret en Stripe Connect-konto for at modtage betalinger.";
+    if (status === null) { stripeStatus = "pending"; stripeDesc = "Henter status…"; }
+    else if (status.connected && status.charges_enabled && status.payouts_enabled) {
+      stripeStatus = "complete"; stripeDesc = "Klar til at modtage betalinger.";
+    } else if (status.connected) {
+      stripeStatus = "pending"; stripeDesc = "Stripe mangler at færdiggøre verificering.";
+    }
+
+    return [
+      {
+        key: "profile",
+        title: "Provider-profil oprettet",
+        description: profileDone ? "Navn, telefon og provider-ID er udfyldt." : "Udfyld navn, telefon og provider-ID på din profil.",
+        status: profileDone ? "complete" : "incomplete",
+        actionLabel: "Til profil",
+        onAction: () => { window.location.href = "/profil"; },
+      },
+      {
+        key: "email",
+        title: "Bekræft email",
+        description: emailVerified ? "Din email er bekræftet." : "Vi har sendt et bekræftelses-link til din indbakke.",
+        status: emailVerified ? "complete" : "pending",
+      },
+      {
+        key: "approval",
+        title: "Manuel godkendelse",
+        description: "Vores team gennemgår din ansøgning inden for 24–48 timer.",
+        status: "pending",
+      },
+      {
+        key: "stripe",
+        title: "Udbetalingskonto (Stripe Connect)",
+        description: stripeDesc,
+        status: stripeStatus,
+        actionLabel: status?.connected ? "Fortsæt" : "Start",
+        onAction: startOnboarding,
+      },
+      {
+        key: "first-booking",
+        title: "Første accepterede booking",
+        description: acceptedAny ? "Du har accepteret din første booking." : "Du modtager besked, så snart en kunde anmoder om dig.",
+        status: acceptedAny ? "complete" : "pending",
+      },
+    ];
+  }, [profile, user, bookings, status, busy]);
+
+  return (
+    <OnboardingChecklist
+      title="Færdiggør din opsætning"
+      subtitle="Få alle trin på plads, så du kan modtage og acceptere bookinger."
+      items={items}
+    />
+  );
+}
+
 
