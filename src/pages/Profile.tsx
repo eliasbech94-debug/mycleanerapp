@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import AddressAutocomplete from "@/components/AddressAutocomplete";
 import AddressBook from "@/components/AddressBook";
 import SupportDialog from "@/components/SupportDialog";
+import { InboxPanel, NotificationBell } from "@/components/Inbox";
 import { toast } from "sonner";
 
 const C = { ink: "#0a3d3a", orange: "#ff6b35", cream: "#f5f0e0", teal: "#168a7a", mint: "#c8e6c0" };
