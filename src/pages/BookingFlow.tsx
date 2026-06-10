@@ -8,6 +8,8 @@ import {
 import { getProvider, getCountry, deriveServices, deriveHourlyRate, formatPrice } from "@/lib/providers";
 import { toast } from "@/hooks/use-toast";
 import AddressAutocomplete from "@/components/AddressAutocomplete";
+import AddressBook from "@/components/AddressBook";
+import { listAddresses, buildAutoNotes, type CustomerAddress } from "@/lib/customerAddresses";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Elements, CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
