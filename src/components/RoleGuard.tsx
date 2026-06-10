@@ -12,7 +12,7 @@ type Props = {
 export function RoleGuard({ allow, children }: Props) {
   const location = useLocation();
   const { user, loading: authLoading } = useAuth();
-  const { roles, loading } = useUserRoles();
+  const { roles, isSuperAdmin, loading } = useUserRoles();
 
   if (authLoading || loading) {
     return (
@@ -26,7 +26,8 @@ export function RoleGuard({ allow, children }: Props) {
     return <Navigate to="/login" replace state={{ from: location.pathname }} />;
   }
 
-  const ok = roles.some((r) => allow.includes(r));
+  // Super-admin has automatic access to everything
+  const ok = isSuperAdmin || roles.some((r) => allow.includes(r));
   if (!ok) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center p-8">
