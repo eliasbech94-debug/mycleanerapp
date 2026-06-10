@@ -6,6 +6,13 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { CheckCircle2, XCircle, AlertCircle, RefreshCw, ExternalLink } from "lucide-react";
 
+type KeyInfo = {
+  configured: boolean;
+  valid?: boolean;
+  mode?: "test" | "live" | "unknown";
+  error?: string;
+};
+
 type Status = {
   configured: boolean;
   valid?: boolean;
@@ -21,7 +28,29 @@ type Status = {
     details_submitted?: boolean;
     default_currency?: string;
   };
+  secret?: KeyInfo;
+  publishable?: KeyInfo;
+  modes_match?: boolean | null;
 };
+
+function KeyBadge({ info }: { info?: KeyInfo }) {
+  if (!info || !info.configured) {
+    return <Badge variant="secondary"><AlertCircle className="h-3 w-3 mr-1" />Ikke sat</Badge>;
+  }
+  if (info.valid) {
+    return <Badge className="bg-green-600 text-white"><CheckCircle2 className="h-3 w-3 mr-1" />Gyldig</Badge>;
+  }
+  return <Badge variant="destructive"><XCircle className="h-3 w-3 mr-1" />Ugyldig</Badge>;
+}
+
+function ModeBadge({ mode }: { mode?: "test" | "live" | "unknown" }) {
+  if (!mode || mode === "unknown") return <Badge variant="secondary">UKENDT</Badge>;
+  return (
+    <Badge variant={mode === "live" ? "default" : "secondary"} className={mode === "live" ? "bg-orange-500" : ""}>
+      {mode === "test" ? "TEST MODE" : "LIVE MODE"}
+    </Badge>
+  );
+}
 
 export default function AdminStripe() {
   const [status, setStatus] = useState<Status | null>(null);
@@ -37,56 +66,84 @@ export default function AdminStripe() {
 
   useEffect(() => { load(); }, []);
 
+  const secret = status?.secret;
+  const publishable = status?.publishable;
+  const modesMatch = status?.modes_match;
+
   return (
     <div className="min-h-screen bg-background">
       <div className="container-wide py-10 max-w-3xl">
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="font-heading text-4xl text-foreground">Stripe konfiguration</h1>
-            <p className="text-muted-foreground mt-1">Status for din Stripe Connect integration</p>
+            <p className="text-muted-foreground mt-1">Automatisk test af publishable og secret key</p>
           </div>
           <Button variant="outline" size="sm" onClick={load} disabled={loading}>
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} /> Opdater
           </Button>
         </div>
 
+        {/* Overall mode banner */}
         <Card className="mb-6">
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle className="text-xl">Secret key</CardTitle>
-              {status?.configured ? (
-                status.valid ? (
-                  <Badge className="bg-green-600 text-white"><CheckCircle2 className="h-3 w-3 mr-1" />Aktiv</Badge>
-                ) : (
-                  <Badge variant="destructive"><XCircle className="h-3 w-3 mr-1" />Ugyldig</Badge>
-                )
-              ) : (
-                <Badge variant="secondary"><AlertCircle className="h-3 w-3 mr-1" />Ikke sat</Badge>
-              )}
+              <CardTitle className="text-xl">Nøglestatus</CardTitle>
+              <div className="flex items-center gap-2">
+                {modesMatch === false ? (
+                  <Badge variant="destructive"><XCircle className="h-3 w-3 mr-1" />Modes matcher ikke</Badge>
+                ) : modesMatch === true ? (
+                  <Badge className="bg-green-600 text-white"><CheckCircle2 className="h-3 w-3 mr-1" />Bekræftet</Badge>
+                ) : null}
+                <ModeBadge mode={secret?.mode ?? status?.mode} />
+              </div>
             </div>
             <CardDescription>
-              Nøglen gemmes krypteret i Lovable Cloud og er kun tilgængelig fra backend (edge functions). Den vises aldrig i frontend eller database.
+              Begge nøgler valideres direkte mod Stripes API. Modes (test/live) skal være ens for at betalinger fungerer.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {status?.mode && (
+            {/* Secret key row */}
+            <div className="flex items-start justify-between border-b border-border pb-4">
+              <div>
+                <div className="font-semibold">Secret key</div>
+                <div className="text-xs text-muted-foreground font-mono">STRIPE_SECRET_KEY · sk_…</div>
+                {secret?.error && (
+                  <div className="text-xs text-destructive mt-1">{secret.error}</div>
+                )}
+              </div>
               <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">Mode:</span>
-                <Badge variant={status.mode === "live" ? "default" : "secondary"} className={status.mode === "live" ? "bg-orange-500" : ""}>
-                  {status.mode === "test" ? "TEST MODE" : status.mode === "live" ? "LIVE MODE" : "UKENDT"}
-                </Badge>
+                <ModeBadge mode={secret?.mode} />
+                <KeyBadge info={secret} />
+              </div>
+            </div>
+
+            {/* Publishable key row */}
+            <div className="flex items-start justify-between">
+              <div>
+                <div className="font-semibold">Publishable key</div>
+                <div className="text-xs text-muted-foreground font-mono">STRIPE_PUBLISHABLE_KEY · pk_…</div>
+                {publishable?.error && (
+                  <div className="text-xs text-destructive mt-1">{publishable.error}</div>
+                )}
+              </div>
+              <div className="flex items-center gap-2">
+                <ModeBadge mode={publishable?.mode} />
+                <KeyBadge info={publishable} />
+              </div>
+            </div>
+
+            {modesMatch === false && (
+              <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">
+                Secret key er i <strong>{secret?.mode}</strong> mode, men publishable key er i <strong>{publishable?.mode}</strong> mode. Opdater den ene så de matcher.
               </div>
             )}
-            {status?.error && (
-              <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">{status.error}</div>
-            )}
+
             <div className="bg-muted p-4 rounded-md text-sm space-y-2">
               <p className="font-semibold">Skift mellem test og live:</p>
               <ol className="list-decimal list-inside space-y-1 text-muted-foreground">
                 <li>Gå til Lovable backend → Secrets</li>
-                <li>Find <code className="bg-background px-1 rounded">STRIPE_SECRET_KEY</code></li>
-                <li>Erstat værdien med din <code className="bg-background px-1 rounded">sk_live_...</code> nøgle</li>
-                <li>Klik "Opdater" her for at bekræfte</li>
+                <li>Opdater både <code className="bg-background px-1 rounded">STRIPE_SECRET_KEY</code> og <code className="bg-background px-1 rounded">STRIPE_PUBLISHABLE_KEY</code> til samme mode</li>
+                <li>Klik "Opdater" her for at re-teste</li>
               </ol>
             </div>
           </CardContent>
@@ -108,7 +165,7 @@ export default function AdminStripe() {
               <Row label="Kan udbetale" value={status.account.payouts_enabled ? "Ja" : "Nej"} />
               <Row label="Onboarding fuldført" value={status.account.details_submitted ? "Ja" : "Nej"} />
               <a
-                href={status.mode === "live" ? "https://dashboard.stripe.com" : "https://dashboard.stripe.com/test"}
+                href={secret?.mode === "live" ? "https://dashboard.stripe.com" : "https://dashboard.stripe.com/test"}
                 target="_blank" rel="noreferrer"
                 className="inline-flex items-center gap-1 text-primary hover:underline pt-2"
               >
