@@ -217,6 +217,8 @@ type Booking = {
   payment_status: "none" | "authorized" | "captured" | "cancelled" | "failed";
   created_at: string;
   decided_at: string | null;
+  payment_method_brand: string | null;
+  payment_method_last4: string | null;
 };
 
 const STATUS_LABEL: Record<Booking["status"], { label: string; bg: string; fg: string }> = {
