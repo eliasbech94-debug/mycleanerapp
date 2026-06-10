@@ -8,6 +8,8 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { countries } from "@/lib/countries";
 import { RefreshCw, AlertTriangle, CheckCircle2, ChevronDown, ChevronRight } from "lucide-react";
+import MarketThresholdsEditor, { type Threshold } from "@/components/MarketThresholdsEditor";
+import { useUserRoles } from "@/hooks/useUserRoles";
 
 type Booking = {
   id: string;
@@ -38,7 +40,6 @@ type WebhookEvent = {
 
 const DEFAULT_FEE_PCT = 28; // memory: 28% total platform fee
 const FEE_TOLERANCE_PCT = 1; // ±1 pp acceptable
-const DEFAULT_MAX_MULTIPLIER = 3; // max acceptable hourly rate = min * multiplier (AI/market upper bound)
 
 function countryByCurrency(currency: string | null) {
   if (!currency) return null;
@@ -57,11 +58,28 @@ function fmtMoney(amount: number | null, currency: string | null) {
 export default function AdminPayments() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [events, setEvents] = useState<WebhookEvent[]>([]);
+  const [thresholds, setThresholds] = useState<Threshold[]>([]);
   const [loading, setLoading] = useState(true);
   const [expectedFee, setExpectedFee] = useState<number>(DEFAULT_FEE_PCT);
-  const [maxMultiplier, setMaxMultiplier] = useState<number>(DEFAULT_MAX_MULTIPLIER);
   const [filter, setFilter] = useState<"all" | "ok" | "fee_off" | "market_low" | "market_high" | "no_transfer">("all");
   const [expanded, setExpanded] = useState<string | null>(null);
+  const { isAdmin } = useUserRoles();
+
+  // For a booking we look up thresholds by currency. Multiple countries share EUR — collapse to broadest (lowest min, highest max).
+  const currencyThresholds = useMemo(() => {
+    const map = new Map<string, { min: number; max: number; codes: string[] }>();
+    thresholds.forEach((t) => {
+      const cur = t.currency.toUpperCase();
+      const ex = map.get(cur);
+      if (!ex) map.set(cur, { min: Number(t.min_hourly_rate), max: Number(t.max_hourly_rate), codes: [t.country_code] });
+      else {
+        ex.min = Math.min(ex.min, Number(t.min_hourly_rate));
+        ex.max = Math.max(ex.max, Number(t.max_hourly_rate));
+        ex.codes.push(t.country_code);
+      }
+    });
+    return map;
+  }, [thresholds]);
 
   const load = async () => {
     setLoading(true);
