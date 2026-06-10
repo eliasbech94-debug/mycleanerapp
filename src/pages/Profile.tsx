@@ -71,6 +71,7 @@ export default function Profile() {
           {tab === "bookings" && <BookingsTab />}
           {tab === "cards" && <CardsTab />}
           {tab === "invoices" && <InvoicesTab />}
+          {tab === "history" && <HistoryTab />}
         </div>
       </div>
     </main>
