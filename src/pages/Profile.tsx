@@ -12,6 +12,7 @@ import AddressAutocomplete from "@/components/AddressAutocomplete";
 import AddressBook from "@/components/AddressBook";
 import SupportDialog from "@/components/SupportDialog";
 import { InboxPanel, NotificationBell } from "@/components/Inbox";
+import OnboardingChecklist, { ChecklistItem } from "@/components/OnboardingChecklist";
 import { toast } from "sonner";
 
 const C = { ink: "#0a3d3a", orange: "#ff6b35", cream: "#f5f0e0", teal: "#168a7a", mint: "#c8e6c0" };
@@ -320,6 +321,50 @@ function OverviewTab({ goTo }: { goTo: (k: TabKey) => void }) {
   const firstName = (profile?.full_name || user?.email || "").split(" ")[0]?.split("@")[0] || "der";
   const hour = new Date().getHours();
   const greet = hour < 10 ? "Godmorgen" : hour < 17 ? "Goddag" : "Godaften";
+
+  const checklist: ChecklistItem[] = useMemo(() => {
+    const profileDone = !!(profile?.full_name && profile?.phone);
+    const emailVerified = !!(user as any)?.email_confirmed_at || !!(user as any)?.confirmed_at;
+    const items: ChecklistItem[] = [
+      {
+        key: "profile",
+        title: "Personlige oplysninger",
+        description: profileDone ? "Navn og telefonnummer er udfyldt." : "Tilføj dit fulde navn og telefonnummer.",
+        status: profileDone ? "complete" : "incomplete",
+        actionLabel: "Udfyld",
+        onAction: () => goTo("info"),
+      },
+      {
+        key: "email",
+        title: "Bekræft email",
+        description: emailVerified ? "Din email er bekræftet." : "Vi har sendt et bekræftelses-link til din indbakke.",
+        status: emailVerified ? "complete" : "pending",
+      },
+      {
+        key: "address",
+        title: "Primær adresse",
+        description: primaryAddress ? `${primaryAddress.label} · ${primaryAddress.address}` : "Tilføj din bolig for hurtigere booking.",
+        status: primaryAddress ? "complete" : "incomplete",
+        actionLabel: "Tilføj",
+        onAction: () => goTo("addresses"),
+      },
+      {
+        key: "card",
+        title: "Betalingskort",
+        description: cardCount === null ? "Henter…" : cardCount > 0 ? `${cardCount} kort gemt til hurtig booking.` : "Gem et kort for at booke med et enkelt klik.",
+        status: cardCount === null ? "pending" : cardCount > 0 ? "complete" : "incomplete",
+        actionLabel: "Tilføj kort",
+        onAction: () => goTo("cards"),
+      },
+      {
+        key: "first-booking",
+        title: "Første booking",
+        description: (bookings && bookings.length > 0) ? "Du har sendt din første anmodning." : "Find en cleaner og book på under 2 minutter.",
+        status: (bookings && bookings.length > 0) ? "complete" : "pending",
+      },
+    ];
+    return items;
+  }, [profile, user, primaryAddress, cardCount, bookings, goTo]);
 
   return (
     <div className="space-y-6">
