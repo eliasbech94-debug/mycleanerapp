@@ -211,73 +211,7 @@ export default function Profile() {
   );
 }
 
-function SupportDialog({ mode, onClose }: { mode: "support" | "complaint"; onClose: () => void }) {
-  const { user } = useAuth();
-  const isComplaint = mode === "complaint";
-  const email = isComplaint ? "klage@homehero.dk" : "support@homehero.dk";
-  const subject = isComplaint ? "Klage fra kunde" : "Henvendelse til support";
-  const body = `Hej HomeHero-team,%0D%0A%0D%0A${isComplaint ? "Jeg ønsker at indsende en klage vedrørende:" : "Jeg har brug for hjælp med:"}%0D%0A%0D%0A%0D%0A--%0D%0A${user?.email ?? ""}`;
-  const mailto = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${body}`;
-  return (
-    <div className="fixed inset-0 z-[60] grid place-items-center p-4" style={{ background: `${C.ink}88` }} onClick={onClose}>
-      <div
-        className="w-full max-w-md rounded-2xl p-6 shadow-2xl"
-        style={{ background: C.cream, color: C.ink }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="mb-1 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="grid h-9 w-9 place-items-center rounded-lg" style={{ background: isComplaint ? `${C.orange}22` : `${C.teal}22`, color: isComplaint ? C.orange : C.teal }}>
-              {isComplaint ? <ShieldAlert className="h-4 w-4" /> : <LifeBuoy className="h-4 w-4" />}
-            </span>
-            <h3 className="font-display text-xl">{isComplaint ? "Indsend klage" : "Hjælp & support"}</h3>
-          </div>
-          <button onClick={onClose} className="grid h-8 w-8 place-items-center rounded-lg" style={{ background: `${C.ink}11` }}>
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-        <p className="mt-2 text-sm opacity-70">
-          {isComplaint
-            ? "Vi tager alle klager alvorligt og besvarer dem hurtigst muligt. Vælg, hvordan du vil kontakte os."
-            : "Vi er her for at hjælpe. Vælg den kontaktform, der passer dig bedst."}
-        </p>
-        <div className="mt-5 space-y-2">
-          <a
-            href={mailto}
-            className="flex items-center gap-3 rounded-xl border-2 px-4 py-3 text-sm font-bold transition hover:shadow"
-            style={{ borderColor: `${C.ink}22`, color: C.ink, background: "#fff" }}
-          >
-            <span className="grid h-9 w-9 place-items-center rounded-lg" style={{ background: C.ink, color: C.cream }}>
-              <Mail className="h-4 w-4" />
-            </span>
-            <span className="flex-1">
-              <span className="block uppercase tracking-[0.14em] text-[10px] opacity-60">Email</span>
-              <span className="block">{email}</span>
-            </span>
-            <ArrowRight className="h-4 w-4 opacity-60" />
-          </a>
-          <button
-            onClick={() => { toast.info("Chat åbner om et øjeblik …"); }}
-            className="flex w-full items-center gap-3 rounded-xl border-2 px-4 py-3 text-left text-sm font-bold transition hover:shadow"
-            style={{ borderColor: `${C.ink}22`, color: C.ink, background: "#fff" }}
-          >
-            <span className="grid h-9 w-9 place-items-center rounded-lg" style={{ background: C.teal, color: C.cream }}>
-              <MessageCircle className="h-4 w-4" />
-            </span>
-            <span className="flex-1">
-              <span className="block uppercase tracking-[0.14em] text-[10px] opacity-60">Live chat</span>
-              <span className="block">Skriv med en medarbejder</span>
-            </span>
-            <ArrowRight className="h-4 w-4 opacity-60" />
-          </button>
-        </div>
-        <p className="mt-4 text-[11px] opacity-50">
-          Vi besvarer henvendelser inden for 24 timer på hverdage. Telefonisk support tilbydes ikke.
-        </p>
-      </div>
-    </div>
-  );
-}
+// SupportDialog is imported from components — see src/components/SupportDialog.tsx
 
 
 function ProfileHeader() {
