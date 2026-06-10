@@ -327,14 +327,38 @@ function OverviewTab({ goTo }: { goTo: (k: TabKey) => void }) {
   const greet = hour < 10 ? "Godmorgen" : hour < 17 ? "Goddag" : "Godaften";
 
   const checklist: ChecklistItem[] = useMemo(() => {
-    const profileDone = !!(profile?.full_name && profile?.phone);
     const emailVerified = !!(user as any)?.email_confirmed_at || !!(user as any)?.confirmed_at;
-    const items: ChecklistItem[] = [
+
+    const contactV = validateContact({
+      full_name: profile?.full_name ?? "",
+      phone: profile?.phone ?? "",
+      country_code: profile?.country_code ?? "",
+    });
+    const addressV = primaryAddress
+      ? validateAddress({
+          address: primaryAddress.address ?? "",
+          address_place_id: primaryAddress.address_place_id ?? "",
+          lat: primaryAddress.lat ?? NaN,
+          lng: primaryAddress.lng ?? NaN,
+        })
+      : { ok: false, error: "Ingen primær adresse" } as const;
+    const propertyV = primaryAddress
+      ? validateProperty({
+          place_type: primaryAddress.place_type,
+          size_sqm: primaryAddress.size_sqm ?? 0,
+          rooms: primaryAddress.rooms ?? null,
+          access_method: primaryAddress.access_method,
+        })
+      : { ok: false, error: "Mangler boligoplysninger" } as const;
+
+    return [
       {
         key: "profile",
-        title: "Personlige oplysninger",
-        description: profileDone ? "Navn og telefonnummer er udfyldt." : "Tilføj dit fulde navn og telefonnummer.",
-        status: profileDone ? "complete" : "incomplete",
+        title: "Kontaktoplysninger",
+        description: contactV.ok
+          ? "Navn, telefon og land er valideret."
+          : contactV.error || "Udfyld navn, telefon og land.",
+        status: statusFrom(contactV),
         actionLabel: "Udfyld",
         onAction: () => goTo("info"),
       },
@@ -347,9 +371,21 @@ function OverviewTab({ goTo }: { goTo: (k: TabKey) => void }) {
       {
         key: "address",
         title: "Primær adresse",
-        description: primaryAddress ? `${primaryAddress.label} · ${primaryAddress.address}` : "Tilføj din bolig for hurtigere booking.",
-        status: primaryAddress ? "complete" : "incomplete",
+        description: addressV.ok
+          ? `${primaryAddress.label} · ${primaryAddress.address}`
+          : addressLoading ? "Henter…" : (addressV.error || "Vælg adresse fra forslagene."),
+        status: statusFrom(addressV, { loading: addressLoading }),
         actionLabel: "Tilføj",
+        onAction: () => goTo("addresses"),
+      },
+      {
+        key: "property",
+        title: "Bolig-oplysninger",
+        description: propertyV.ok
+          ? `${primaryAddress.size_sqm} m² · ${primaryAddress.place_type} · adgang: ${primaryAddress.access_method}`
+          : addressLoading ? "Henter…" : (propertyV.error || "Angiv størrelse, type og adgang."),
+        status: statusFrom(propertyV, { loading: addressLoading }),
+        actionLabel: "Udfyld",
         onAction: () => goTo("addresses"),
       },
       {
@@ -367,8 +403,7 @@ function OverviewTab({ goTo }: { goTo: (k: TabKey) => void }) {
         status: (bookings && bookings.length > 0) ? "complete" : "pending",
       },
     ];
-    return items;
-  }, [profile, user, primaryAddress, cardCount, bookings, goTo]);
+  }, [profile, user, primaryAddress, addressLoading, cardCount, bookings, goTo]);
 
   return (
     <div className="space-y-6">
