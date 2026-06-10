@@ -196,9 +196,9 @@ export default function AdminPayments() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
           <Card><CardContent className="pt-4">
-            <p className="text-xs uppercase text-muted-foreground">Bookinger m. betaling</p>
+            <p className="text-xs uppercase text-muted-foreground">Bookinger</p>
             <p className="text-2xl font-serif">{stats.total}</p>
           </CardContent></Card>
           <Card><CardContent className="pt-4">
@@ -206,15 +206,19 @@ export default function AdminPayments() {
             <p className="text-2xl font-serif text-emerald-600">{stats.okCount}</p>
           </CardContent></Card>
           <Card><CardContent className="pt-4">
-            <p className="text-xs uppercase text-muted-foreground">Gebyr afvigelse</p>
+            <p className="text-xs uppercase text-muted-foreground">Gebyr afv.</p>
             <p className="text-2xl font-serif text-orange-600">{stats.feeOff}</p>
           </CardContent></Card>
           <Card><CardContent className="pt-4">
-            <p className="text-xs uppercase text-muted-foreground">Under markedspris</p>
+            <p className="text-xs uppercase text-muted-foreground">Under min</p>
             <p className="text-2xl font-serif text-amber-600">{stats.marketLow}</p>
           </CardContent></Card>
           <Card><CardContent className="pt-4">
-            <p className="text-xs uppercase text-muted-foreground">Manglende transfer</p>
+            <p className="text-xs uppercase text-muted-foreground">Over max</p>
+            <p className="text-2xl font-serif text-fuchsia-600">{stats.marketHigh}</p>
+          </CardContent></Card>
+          <Card><CardContent className="pt-4">
+            <p className="text-xs uppercase text-muted-foreground">Ingen transfer</p>
             <p className="text-2xl font-serif text-red-600">{stats.noTransfer}</p>
           </CardContent></Card>
         </div>
@@ -228,7 +232,7 @@ export default function AdminPayments() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex items-end gap-3">
+            <div className="flex flex-wrap items-end gap-4">
               <div className="space-y-1">
                 <Label htmlFor="fee">Forventet gebyr (%)</Label>
                 <Input
@@ -238,8 +242,17 @@ export default function AdminPayments() {
                   className="w-32"
                 />
               </div>
+              <div className="space-y-1">
+                <Label htmlFor="max">Max-faktor (× min timeløn)</Label>
+                <Input
+                  id="max" type="number" step="0.1" min={1} max={20}
+                  value={maxMultiplier}
+                  onChange={(e) => setMaxMultiplier(Number(e.target.value) || 1)}
+                  className="w-32"
+                />
+              </div>
               <div className="text-sm text-muted-foreground">
-                Faktisk gennemsnit:{" "}
+                Faktisk gns. gebyr:{" "}
                 <span className="font-semibold text-foreground">{stats.avgFeePct.toFixed(2)}%</span>
               </div>
             </div>
@@ -268,25 +281,51 @@ export default function AdminPayments() {
                     <th className="py-2 pr-3">Bookinger</th>
                     <th className="py-2 pr-3">Kunde i alt</th>
                     <th className="py-2 pr-3">Provider i alt</th>
-                    <th className="py-2 pr-3">Gebyr i alt</th>
-                    <th className="py-2 pr-3">Effektivt gebyr</th>
-                    <th className="py-2 pr-3">Min timeløn</th>
+                    <th className="py-2 pr-3">Gebyr</th>
+                    <th className="py-2 pr-3">Markedsspænd (min–max)</th>
+                    <th className="py-2 pr-3">Faktisk timeløn (gns)</th>
+                    <th className="py-2 pr-3">Afvigelse vs. marked</th>
+                    <th className="py-2 pr-3">Flagged</th>
                   </tr>
                 </thead>
                 <tbody>
                   {byCurrency.map(([cur, v]) => {
                     const c = countries.find((c) => c.currency === cur);
-                    const eff = v.sumCustomer > 0 ? (v.sumFee / v.sumCustomer) * 100 : 0;
+                    const minR = c?.minHourlyRate ?? null;
+                    const maxR = minR != null ? minR * maxMultiplier : null;
+                    const actualHourly = v.sumHours > 0 ? (v.sumProvider / 100) / v.sumHours : null;
+                    const deviationPct =
+                      actualHourly != null && minR ? ((actualHourly - minR) / minR) * 100 : null;
+                    const flagged = v.lowCount + v.highCount;
+                    const aboveMax = actualHourly != null && maxR != null && actualHourly > maxR;
+                    const belowMin = actualHourly != null && minR != null && actualHourly < minR;
+                    const devClass = belowMin
+                      ? "text-amber-600"
+                      : aboveMax
+                      ? "text-fuchsia-600"
+                      : "text-emerald-600";
                     return (
                       <tr key={cur} className="border-b last:border-0">
                         <td className="py-2 pr-3 font-mono">{cur}</td>
-                        <td className="py-2 pr-3">{c ? `${c.flag} ${c.name}` : (cur === "EUR" ? "EU (flere lande)" : "—")}</td>
+                        <td className="py-2 pr-3">{c ? `${c.flag} ${c.name}` : (cur === "EUR" ? "EU (flere)" : "—")}</td>
                         <td className="py-2 pr-3">{v.count}</td>
                         <td className="py-2 pr-3">{(v.sumCustomer / 100).toLocaleString()} {cur}</td>
                         <td className="py-2 pr-3">{(v.sumProvider / 100).toLocaleString()} {cur}</td>
                         <td className="py-2 pr-3">{(v.sumFee / 100).toLocaleString()} {cur}</td>
-                        <td className="py-2 pr-3">{eff.toFixed(2)}%</td>
-                        <td className="py-2 pr-3">{c ? `${c.minHourlyRate} ${c.currencySymbol}/t` : "—"}</td>
+                        <td className="py-2 pr-3">{c ? `${minR}–${maxR?.toFixed(0)} ${c.currencySymbol}/t` : "—"}</td>
+                        <td className="py-2 pr-3">{actualHourly != null ? `${actualHourly.toFixed(1)} ${c?.currencySymbol ?? cur}/t` : "—"}</td>
+                        <td className={`py-2 pr-3 font-semibold ${devClass}`}>
+                          {deviationPct != null ? `${deviationPct > 0 ? "+" : ""}${deviationPct.toFixed(1)}%` : "—"}
+                        </td>
+                        <td className="py-2 pr-3">
+                          {flagged > 0 ? (
+                            <Badge className="bg-orange-500 text-white">
+                              {flagged} ({v.lowCount}↓ / {v.highCount}↑)
+                            </Badge>
+                          ) : (
+                            <span className="text-muted-foreground">—</span>
+                          )}
+                        </td>
                       </tr>
                     );
                   })}
