@@ -38,6 +38,7 @@ type WebhookEvent = {
 
 const DEFAULT_FEE_PCT = 28; // memory: 28% total platform fee
 const FEE_TOLERANCE_PCT = 1; // ±1 pp acceptable
+const DEFAULT_MAX_MULTIPLIER = 3; // max acceptable hourly rate = min * multiplier (AI/market upper bound)
 
 function countryByCurrency(currency: string | null) {
   if (!currency) return null;
