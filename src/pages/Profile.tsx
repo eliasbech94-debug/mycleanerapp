@@ -221,6 +221,7 @@ export default function Profile() {
 function ProfileHeader() {
   const { user, profile, signOut } = useAuth();
   const navigate = useNavigate();
+  const [, setParams] = useSearchParams();
   return (
     <>
       <header className="border-b-2" style={{ background: C.ink, color: C.cream, borderColor: C.ink }}>
@@ -229,12 +230,15 @@ function ProfileHeader() {
             <ArrowLeft className="h-4 w-4" /> Tilbage
           </Link>
           <div className="text-[10px] font-black uppercase tracking-[0.28em] opacity-70">Min profil</div>
-          <button
-            onClick={() => { signOut(); navigate("/"); }}
-            className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.18em] opacity-80 hover:opacity-100"
-          >
-            <LogOut className="h-3.5 w-3.5" /> Log ud
-          </button>
+          <div className="flex items-center gap-1">
+            <NotificationBell onOpen={() => setParams({ tab: "inbox" })} />
+            <button
+              onClick={() => { signOut(); navigate("/"); }}
+              className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.18em] opacity-80 hover:opacity-100"
+            >
+              <LogOut className="h-3.5 w-3.5" /> Log ud
+            </button>
+          </div>
         </div>
       </header>
       <div className="mx-auto max-w-3xl px-4 pt-8 sm:px-6">
