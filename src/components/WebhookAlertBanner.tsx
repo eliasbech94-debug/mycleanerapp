@@ -20,7 +20,7 @@ export default function WebhookAlertBanner({ compact = false }: { compact?: bool
     const { data } = await supabase
       .from("stripe_webhook_events")
       .select("created_at,status,event_type,payload")
-      .or("status.in.(rejected,error,failed),event_type.eq.webhook.rejected")
+      .in("status", ["rejected", "error", "failed"])
       .gte("created_at", since30)
       .order("created_at", { ascending: false })
       .limit(500);
