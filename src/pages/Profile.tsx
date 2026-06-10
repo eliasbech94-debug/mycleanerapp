@@ -404,6 +404,13 @@ function OverviewTab({ goTo }: { goTo: (k: TabKey) => void }) {
         </div>
       </div>
 
+      {/* Onboarding checklist */}
+      <OnboardingChecklist
+        title="Gør din profil komplet"
+        subtitle="Færdiggør disse trin for at få det bedste match og hurtigste booking."
+        items={checklist}
+      />
+
       {/* Stat cards */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <DashStat icon={Calendar} label="Kommende" value={String(upcoming.length)} tint={C.mint} />
