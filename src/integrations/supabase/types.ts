@@ -269,6 +269,36 @@ export type Database = {
           },
         ]
       }
+      market_rate_thresholds: {
+        Row: {
+          country_code: string
+          currency: string
+          max_hourly_rate: number
+          min_hourly_rate: number
+          notes: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          country_code: string
+          currency: string
+          max_hourly_rate: number
+          min_hourly_rate: number
+          notes?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          country_code?: string
+          currency?: string
+          max_hourly_rate?: number
+          min_hourly_rate?: number
+          notes?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           address: string | null
