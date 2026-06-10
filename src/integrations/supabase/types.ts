@@ -112,6 +112,7 @@ export type Database = {
           provider_id: string | null
           stripe_account_id: string | null
           stripe_charges_enabled: boolean
+          stripe_customer_id: string | null
           stripe_onboarded: boolean
           stripe_payouts_enabled: boolean
           updated_at: string
@@ -129,6 +130,7 @@ export type Database = {
           provider_id?: string | null
           stripe_account_id?: string | null
           stripe_charges_enabled?: boolean
+          stripe_customer_id?: string | null
           stripe_onboarded?: boolean
           stripe_payouts_enabled?: boolean
           updated_at?: string
@@ -146,6 +148,7 @@ export type Database = {
           provider_id?: string | null
           stripe_account_id?: string | null
           stripe_charges_enabled?: boolean
+          stripe_customer_id?: string | null
           stripe_onboarded?: boolean
           stripe_payouts_enabled?: boolean
           updated_at?: string
