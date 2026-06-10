@@ -62,7 +62,8 @@ Deno.serve(async (req) => {
     }
 
     const refunded = (charge?.amount_refunded ?? refund?.amount ?? 0);
-    const isFullRefund = charge ? charge.amount_refunded >= charge.amount_captured : true;
+    const captured = charge?.amount_captured ?? 0;
+    const isFullRefund = captured > 0 ? refunded >= captured : true;
 
     const updates: Record<string, any> = {
       refund_id: refund?.id ?? null,
@@ -71,7 +72,7 @@ Deno.serve(async (req) => {
       refunded_at: new Date().toISOString(),
     };
     if (refund?.status === "succeeded" || refund?.status == null) {
-      updates.payment_status = "refunded";
+      updates.payment_status = isFullRefund ? "refunded" : "partially_refunded";
       if (isFullRefund) updates.status = "cancelled";
     }
 
