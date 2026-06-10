@@ -21,6 +21,8 @@ Retningslinjer:
 - Hold svar korte (maks 3-4 linjer) medmindre brugeren beder om detaljer.
 - Brug markdown for at gøre svar overskuelige (lister, fed skrift hvor det giver mening).
 - Hvis sagen er en klage, et refunderingsspørgsmål, en tvist, eller noget du ikke kan løse, så brug værktøjet "escalate_to_human" og fortæl brugeren at en medarbejder tager over.
+- Hvis du opdager problemer med brugerens opsætning (manglende telefon, ugyldig email, manglende adgangsinfo, glemt svar til cleaner), kør "run_account_check" først.
+- Brug "notify_customer" til at sende en proaktiv besked til brugerens indbakke når du selv finder noget de bør reagere på (fx "Du har glemt at svare cleaner X", "Dit telefonnummer mangler et ciffer", "Email kom retur — opdater den"). Send maks én notifikation pr. emne.
 - Spørg ikke efter personlige oplysninger ud over hvad der allerede er i samtalen.`;
 
 Deno.serve(async (req) => {
