@@ -1,38 +1,51 @@
-## Mål
-Opret to test-brugere du kan logge ind med for at teste hele booking + payment flowet end-to-end.
+# Adressebog med adgangsinformation
 
-## Test-brugere
+Tilføj mulighed for at gemme flere adresser pr. bruger med én primær adresse, samt rige metadata (sted-type, dyr, adgangsinstruktioner mm.) som auto-udfyldes i booking-flowet.
 
-**Kunde**
-- Email: `test.kunde@mycleaner.test`
-- Password: `Test1234!`
-- Rolle: almindelig kunde, kan booke
+## 1. Database (ny tabel `customer_addresses`)
 
-**Provider**
-- Email: `test.provider@mycleaner.test`
-- Password: `Test1234!`
-- `provider_id`: `test-provider-1` (kobles til en eksisterende provider i `src/lib/providers.ts` så booking-siden virker)
-- Stripe Connect: markeres som onboardet med en test `acct_xxx` placeholder — så betalingsflowet ikke crasher i UI, men reelle Stripe-kald vil først virke når du onboarder providerens Connect konto rigtigt via `/provider-dashboard`.
+Felter:
+- `id`, `user_id` (auth.users), `created_at`, `updated_at`
+- `label` (fx "Hjem", "Sommerhus", "Kontor")
+- `address`, `address_place_id`, `lat`, `lng`
+- `is_primary` (bool, max én pr. bruger via partial unique index)
+- `place_type` enum: `private` | `business` | `vacation` | `other`
+- `size_sqm` (int, nullable)
+- `rooms` (int, nullable)
+- `floor` (text, fx "3. sal th")
+- `has_pets` (bool), `pet_details` (text — "2 katte, allergivenlig")
+- `has_children` (bool)
+- `parking_info` (text — "Gratis ved døren / betalingszone")
+- `access_method` enum: `home` | `key_box` | `key_under_mat` | `doorman` | `code` | `other`
+- `access_code` (text), `access_instructions` (text)
+- `wifi_name`, `wifi_password` (text, nullable)
+- `cleaning_supplies_available` (bool)
+- `notes` (text — generelle bemærkninger)
 
-## Hvad migrationen/insert gør
+RLS: brugere kan kun se/ændre egne adresser. Trigger sikrer at sætning af `is_primary=true` fjerner flag fra andre rækker for samme bruger.
 
-1. **Insert i `auth.users`** for begge brugere via `crypt()` + bcrypt med `email_confirmed_at = now()` (så ingen email-verifikation kræves).
-2. **Insert i `auth.identities`** så email/password login virker.
-3. `handle_new_user`-triggeren opretter automatisk rækker i `public.profiles`.
-4. **Update `public.profiles`** for provideren: sæt `provider_id`, `country_code='DK'`, `stripe_account_id='acct_test_placeholder'`, `stripe_onboarded=true`, `stripe_charges_enabled=true`, `stripe_payouts_enabled=true`, og en test-adresse + lat/lng (København).
-5. **Update `public.profiles`** for kunden: sæt navn, telefon, adresse, lat/lng.
+## 2. Profile-side (`src/pages/Profile.tsx`)
 
-## Tekniske detaljer
+Ny tab "Adresser" med:
+- Liste over gemte adresser (kort med label, badge for "Primær", chips for type/dyr/børn)
+- "Tilføj adresse" knap → dialog med fuld form (AddressAutocomplete + alle metadata-felter)
+- Rediger / slet pr. adresse
+- "Gør til primær" knap
+- Den nuværende `address`-info-tab fortsætter med basis kontaktoplysninger, men adressedelen flyttes hertil
 
-- Bruger `pgcrypto` (allerede aktiveret i Supabase) til at hashe passwords med `crypt(password, gen_salt('bf'))`.
-- Hvis brugerne allerede findes (re-run), bruges `ON CONFLICT (email) DO NOTHING` så det er idempotent.
-- `provider_id` matcher en provider i `src/lib/providers.ts` (jeg tjekker filen og vælger en eksisterende ID — alternativt tilføjer jeg `test-provider-1` til listen hvis det giver bedre testdata).
-- Ingen ændringer til UI eller business logic — kun seed data.
+## 3. Booking-flow (`src/pages/BookingFlow.tsx`)
 
-## Sådan tester du efter
+I Step 3:
+- Hvis brugeren har flere adresser → vis adressevælger (radio cards) med primær valgt by default
+- Når en gemt adresse vælges, auto-udfyldes alle felter (inkl. notes prefyldes med adgangsinstruktioner + dyr + parkering hvis tomt)
+- Stadig mulighed for at indtaste ny engangs-adresse
+- Booking gemmer fortsat `address`, `address_place_id`, `lat`, `lng` på `bookings` (ingen ændring af bookings-skema)
 
-1. Gå til `/login`, log ind som kunden, opret en booking med test-kort `4242 4242 4242 4242` på providerens kalender.
-2. Log ud, log ind som provideren, gå til `/provider-dashboard`, accept/decline bookingen.
-3. Tjek `payment_status` skifter i DB (`pending → authorized → captured` eller `cancelled`).
+## 4. Teknisk
 
-Bekræft planen, så kører jeg migration + seed.
+- Tilføj zod-schema for adresse-form
+- Genbruger `AddressAutocomplete`
+- Bruger `useAuth` hook, ingen ændring der
+- Types regenereres automatisk efter migration
+
+Efter approval af migration laver jeg UI'et i Profile + booking-integration.
