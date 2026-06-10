@@ -214,7 +214,7 @@ type Booking = {
   customer_pays: number;
   currency: string;
   status: "pending" | "accepted" | "declined" | "cancelled" | "completed";
-  payment_status: "none" | "authorized" | "captured" | "canceled" | "failed" | "refunded";
+  payment_status: "none" | "authorized" | "captured" | "canceled" | "failed" | "refunded" | "partially_refunded";
   created_at: string;
   decided_at: string | null;
   payment_method_brand: string | null;
