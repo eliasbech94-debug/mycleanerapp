@@ -2,6 +2,7 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 import { convertToModelMessages, streamText, tool, stepCountIs, type UIMessage } from "npm:ai";
 import { z } from "npm:zod";
 import { createLovableAiGatewayProvider } from "../_shared/ai-gateway.ts";
+import { runHealthCheck, upsertNotifications } from "../_shared/notifications.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -20,6 +21,8 @@ Retningslinjer:
 - Hold svar korte (maks 3-4 linjer) medmindre brugeren beder om detaljer.
 - Brug markdown for at gøre svar overskuelige (lister, fed skrift hvor det giver mening).
 - Hvis sagen er en klage, et refunderingsspørgsmål, en tvist, eller noget du ikke kan løse, så brug værktøjet "escalate_to_human" og fortæl brugeren at en medarbejder tager over.
+- Hvis du opdager problemer med brugerens opsætning (manglende telefon, ugyldig email, manglende adgangsinfo, glemt svar til cleaner), kør "run_account_check" først.
+- Brug "notify_customer" til at sende en proaktiv besked til brugerens indbakke når du selv finder noget de bør reagere på (fx "Du har glemt at svare cleaner X", "Dit telefonnummer mangler et ciffer", "Email kom retur — opdater den"). Send maks én notifikation pr. emne.
 - Spørg ikke efter personlige oplysninger ud over hvad der allerede er i samtalen.`;
 
 Deno.serve(async (req) => {
@@ -117,6 +120,49 @@ Deno.serve(async (req) => {
               ok: true,
               message: `Sagen er sendt videre til vores supportteam. Begrundelse: ${reason}. Du hører fra os inden for 24 timer på hverdage.`,
             };
+          },
+        }),
+        run_account_check: tool({
+          description:
+            "Scan brugerens konto for opsætningsproblemer (manglende telefon, ugyldig email, manglende adgangsinfo, kommende bookinger, glemte svar). Opretter notifikationer i indbakken automatisk. Brug uden parametre.",
+          inputSchema: z.object({}),
+          execute: async () => {
+            const drafts = await runHealthCheck(supabase, user.id, user.email ?? null);
+            const created = await upsertNotifications(supabase, user.id, drafts);
+            return {
+              ok: true,
+              found: drafts.length,
+              created,
+              issues: drafts.map((d) => ({ title: d.title, severity: d.severity })),
+            };
+          },
+        }),
+        notify_customer: tool({
+          description:
+            "Send en proaktiv notifikation til brugerens indbakke. Brug når du opdager noget brugeren skal handle på (fx manglende telefon-ciffer, email-bounces, ubesvaret cleaner-besked, eller anden hjælp). Sender også besked om at AI vurderer brugeren har brug for hjælp.",
+          inputSchema: z.object({
+            title: z.string().describe("Kort overskrift på dansk (maks 60 tegn)."),
+            body: z.string().describe("Forklarende tekst på dansk (1-2 sætninger)."),
+            kind: z.enum(["setup", "reminder", "cleaner_message", "tip", "alert"]).describe("Type."),
+            severity: z.enum(["info", "warning", "error", "success"]).default("info"),
+            action_label: z.string().optional().describe("Knaptekst, fx 'Ret telefon'."),
+            action_url: z.string().optional().describe("Intern app-sti, fx '/profil?tab=info'."),
+            dedupe_key: z.string().describe("Unik nøgle der forhindrer dubletter, fx 'ai:phone-typo'."),
+          }),
+          execute: async (input) => {
+            const created = await upsertNotifications(supabase, user.id, [
+              {
+                kind: input.kind,
+                severity: input.severity,
+                title: input.title,
+                body: input.body,
+                action_label: input.action_label,
+                action_url: input.action_url,
+                dedupe_key: input.dedupe_key,
+                related_thread_id: threadId,
+              },
+            ]);
+            return { ok: true, created };
           },
         }),
       },

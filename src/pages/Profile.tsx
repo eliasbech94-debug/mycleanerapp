@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
-  ArrowLeft, ArrowDownCircle, ArrowRight, ArrowUpCircle, Calendar, CheckCircle2, Clock, CreditCard, FileText, History, Home, LayoutDashboard, LifeBuoy, Loader2,
+  ArrowLeft, ArrowDownCircle, ArrowRight, ArrowUpCircle, Calendar, CheckCircle2, Clock, CreditCard, FileText, History, Home, Inbox, LayoutDashboard, LifeBuoy, Loader2,
   LogOut, Mail, MapPin, Menu, MessageCircle, Plus, Receipt, ShieldAlert, Sparkles, Star, Trash2, User as UserIcon, X, XCircle,
 } from "lucide-react";
 import { loadStripe, Stripe } from "@stripe/stripe-js";
@@ -11,14 +11,16 @@ import { supabase } from "@/integrations/supabase/client";
 import AddressAutocomplete from "@/components/AddressAutocomplete";
 import AddressBook from "@/components/AddressBook";
 import SupportDialog from "@/components/SupportDialog";
+import { InboxPanel, NotificationBell } from "@/components/Inbox";
 import { toast } from "sonner";
 
 const C = { ink: "#0a3d3a", orange: "#ff6b35", cream: "#f5f0e0", teal: "#168a7a", mint: "#c8e6c0" };
 
-type TabKey = "overview" | "info" | "addresses" | "bookings" | "cards" | "invoices" | "history";
+type TabKey = "overview" | "inbox" | "info" | "addresses" | "bookings" | "cards" | "invoices" | "history";
 
 const TABS: { key: TabKey; label: string; icon: typeof UserIcon }[] = [
   { key: "overview", label: "Oversigt", icon: LayoutDashboard },
+  { key: "inbox", label: "Indbakke", icon: Inbox },
   { key: "info", label: "Info", icon: UserIcon },
   { key: "addresses", label: "Adresser", icon: Home },
   { key: "bookings", label: "Bookinger", icon: Calendar },
@@ -38,6 +40,15 @@ export default function Profile() {
   useEffect(() => {
     if (!loading && !user) navigate("/login?redirect=/profil");
   }, [loading, user, navigate]);
+
+  // Run account health check max 1x per session
+  useEffect(() => {
+    if (!user) return;
+    const key = `acct-check:${user.id}`;
+    if (sessionStorage.getItem(key)) return;
+    sessionStorage.setItem(key, "1");
+    supabase.functions.invoke("account-check").catch(() => {});
+  }, [user]);
 
   if (loading || !user) {
     return (
@@ -199,6 +210,7 @@ export default function Profile() {
 
         <div className="mt-6 flex-1 lg:mt-0">
           {tab === "overview" && <OverviewTab goTo={(k) => setParams({ tab: k })} />}
+          {tab === "inbox" && <InboxPanel />}
           {tab === "info" && <InfoTab />}
           {tab === "addresses" && <AddressesTab />}
           {tab === "bookings" && <BookingsTab />}
@@ -218,6 +230,7 @@ export default function Profile() {
 function ProfileHeader() {
   const { user, profile, signOut } = useAuth();
   const navigate = useNavigate();
+  const [, setParams] = useSearchParams();
   return (
     <>
       <header className="border-b-2" style={{ background: C.ink, color: C.cream, borderColor: C.ink }}>
@@ -226,12 +239,15 @@ function ProfileHeader() {
             <ArrowLeft className="h-4 w-4" /> Tilbage
           </Link>
           <div className="text-[10px] font-black uppercase tracking-[0.28em] opacity-70">Min profil</div>
-          <button
-            onClick={() => { signOut(); navigate("/"); }}
-            className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.18em] opacity-80 hover:opacity-100"
-          >
-            <LogOut className="h-3.5 w-3.5" /> Log ud
-          </button>
+          <div className="flex items-center gap-1">
+            <NotificationBell onOpen={() => setParams({ tab: "inbox" })} />
+            <button
+              onClick={() => { signOut(); navigate("/"); }}
+              className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.18em] opacity-80 hover:opacity-100"
+            >
+              <LogOut className="h-3.5 w-3.5" /> Log ud
+            </button>
+          </div>
         </div>
       </header>
       <div className="mx-auto max-w-3xl px-4 pt-8 sm:px-6">

@@ -203,6 +203,72 @@ export type Database = {
         }
         Relationships: []
       }
+      customer_notifications: {
+        Row: {
+          action_label: string | null
+          action_url: string | null
+          body: string
+          created_at: string
+          dedupe_key: string | null
+          dismissed_at: string | null
+          id: string
+          kind: string
+          read_at: string | null
+          related_booking_id: string | null
+          related_thread_id: string | null
+          severity: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          action_label?: string | null
+          action_url?: string | null
+          body?: string
+          created_at?: string
+          dedupe_key?: string | null
+          dismissed_at?: string | null
+          id?: string
+          kind: string
+          read_at?: string | null
+          related_booking_id?: string | null
+          related_thread_id?: string | null
+          severity?: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          action_label?: string | null
+          action_url?: string | null
+          body?: string
+          created_at?: string
+          dedupe_key?: string | null
+          dismissed_at?: string | null
+          id?: string
+          kind?: string
+          read_at?: string | null
+          related_booking_id?: string | null
+          related_thread_id?: string | null
+          severity?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_notifications_related_booking_id_fkey"
+            columns: ["related_booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customer_notifications_related_thread_id_fkey"
+            columns: ["related_thread_id"]
+            isOneToOne: false
+            referencedRelation: "support_threads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           address: string | null
