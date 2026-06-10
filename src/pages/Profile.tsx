@@ -15,10 +15,11 @@ import { toast } from "sonner";
 
 const C = { ink: "#0a3d3a", orange: "#ff6b35", cream: "#f5f0e0", teal: "#168a7a", mint: "#c8e6c0" };
 
-type TabKey = "overview" | "info" | "addresses" | "bookings" | "cards" | "invoices" | "history";
+type TabKey = "overview" | "inbox" | "info" | "addresses" | "bookings" | "cards" | "invoices" | "history";
 
 const TABS: { key: TabKey; label: string; icon: typeof UserIcon }[] = [
   { key: "overview", label: "Oversigt", icon: LayoutDashboard },
+  { key: "inbox", label: "Indbakke", icon: Inbox },
   { key: "info", label: "Info", icon: UserIcon },
   { key: "addresses", label: "Adresser", icon: Home },
   { key: "bookings", label: "Bookinger", icon: Calendar },
