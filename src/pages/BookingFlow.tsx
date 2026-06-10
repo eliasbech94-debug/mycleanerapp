@@ -912,7 +912,7 @@ function EditAccessDialog({
 
 
 /* ---------------- Step 3 ---------------- */
-function Step3({ address, setAddress, addressValid, setAddressValid, setAddressPlaceId, setAddressLat, setAddressLng, usingProfileAddress, setUsingProfileAddress, profile, notes, setNotes, provider, date, slot, service, hours, customerPays, savedAddresses, selectedAddressId, pickSavedAddress, usingNewAddress, setUsingNewAddress }: any) {
+function Step3({ address, setAddress, addressValid, setAddressValid, setAddressPlaceId, setAddressLat, setAddressLng, usingProfileAddress, setUsingProfileAddress, profile, notes, setNotes, provider, date, slot, service, hours, customerPays, savedAddresses, selectedAddressId, pickSavedAddress, usingNewAddress, setUsingNewAddress, setSavedAddresses, setNotesAutoFilled }: any) {
   const hasProfileAddress = !!profile?.address;
   const hasSaved = (savedAddresses?.length ?? 0) > 0;
 
