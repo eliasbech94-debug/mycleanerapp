@@ -347,18 +347,53 @@ function BookingsTab() {
                     )}
                   </div>
                   {(isPartial || isFull) && (
-                    <div className="mt-3 rounded-xl p-3 text-[11px] space-y-1" style={{ background: isPartial ? "#fdf2e2" : "#f4eefb", color: isPartial ? "#8a4a00" : "#4a2a8a" }}>
-                      <div className="font-black uppercase tracking-[0.16em] text-[10px]">
-                        {isPartial ? "Delvis refundering" : "Fuld refundering"}
+                    <div className="mt-3 rounded-xl p-3 text-[11px] space-y-2" style={{ background: isPartial ? "#fdf2e2" : "#f4eefb", color: isPartial ? "#8a4a00" : "#4a2a8a" }}>
+                      <div className="flex items-center justify-between">
+                        <div className="font-black uppercase tracking-[0.16em] text-[10px]">
+                          {isPartial ? "Delvis refundering" : "Fuld refundering"}
+                        </div>
+                        <div className="text-[10px] font-bold opacity-80">
+                          {(b.refunds?.length ?? 0)} {(b.refunds?.length ?? 0) === 1 ? "refund" : "refunds"}
+                        </div>
                       </div>
-                      {b.refund_reason && (
-                        <div className="flex justify-between"><span className="opacity-70">Årsag</span><span className="font-bold">{REFUND_REASON_LABEL[b.refund_reason] || b.refund_reason}</span></div>
-                      )}
-                      {b.refunded_at && (
-                        <div className="flex justify-between"><span className="opacity-70">Dato</span><span>{new Date(b.refunded_at).toLocaleDateString("da-DK", { day: "2-digit", month: "2-digit", year: "numeric" })}</span></div>
-                      )}
-                      {b.refund_id && (
-                        <div className="flex justify-between"><span className="opacity-70">Refund ID</span><span className="font-mono">{b.refund_id}</span></div>
+                      {(b.refunds && b.refunds.length > 0) ? (
+                        <div className="divide-y" style={{ borderColor: "currentColor" }}>
+                          {b.refunds.map((r, i) => {
+                            const failed = r.status && r.status !== "succeeded";
+                            const date = r.created_at ? new Date(r.created_at).toLocaleDateString("da-DK", { day: "2-digit", month: "2-digit", year: "2-digit" }) : "";
+                            return (
+                              <div key={r.id} className="py-1.5 first:pt-0 last:pb-0 space-y-0.5" style={{ borderColor: "currentColor", opacity: failed ? 0.6 : 1 }}>
+                                <div className="flex items-baseline justify-between gap-2">
+                                  <span className="font-bold">#{i + 1} · {date}</span>
+                                  <span className="font-bold">
+                                    {failed ? "—" : "−"} {r.amount.toLocaleString("da-DK")} {(r.currency || b.currency).toUpperCase()}
+                                  </span>
+                                </div>
+                                <div className="flex items-baseline justify-between gap-2 text-[10px] opacity-80">
+                                  <span>{REFUND_REASON_LABEL[r.reason ?? ""] || r.reason || (failed ? `Fejlet${r.failure_reason ? `: ${r.failure_reason}` : ""}` : "Refund")}</span>
+                                  <span className="font-mono">{r.id}</span>
+                                </div>
+                              </div>
+                            );
+                          })}
+                          <div className="pt-1.5 flex justify-between font-bold border-t" style={{ borderColor: "currentColor" }}>
+                            <span>Refunderet i alt</span>
+                            <span>{(b.refund_amount ?? 0).toLocaleString("da-DK")} {b.currency}</span>
+                          </div>
+                          <div className="flex justify-between font-bold">
+                            <span>Resterende</span>
+                            <span>{Math.max(0, b.customer_pays - (b.refund_amount ?? 0)).toLocaleString("da-DK")} {b.currency}</span>
+                          </div>
+                        </div>
+                      ) : (
+                        <>
+                          {b.refund_reason && (
+                            <div className="flex justify-between"><span className="opacity-70">Årsag</span><span className="font-bold">{REFUND_REASON_LABEL[b.refund_reason] || b.refund_reason}</span></div>
+                          )}
+                          {b.refund_id && (
+                            <div className="flex justify-between"><span className="opacity-70">Refund ID</span><span className="font-mono">{b.refund_id}</span></div>
+                          )}
+                        </>
                       )}
                     </div>
                   )}
