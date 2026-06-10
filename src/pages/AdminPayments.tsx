@@ -327,7 +327,7 @@ export default function AdminPayments() {
                         <td className="py-2 pr-3">{(v.sumCustomer / 100).toLocaleString()} {cur}</td>
                         <td className="py-2 pr-3">{(v.sumProvider / 100).toLocaleString()} {cur}</td>
                         <td className="py-2 pr-3">{(v.sumFee / 100).toLocaleString()} {cur}</td>
-                        <td className="py-2 pr-3">{c ? `${minR}–${maxR?.toFixed(0)} ${c.currencySymbol}/t` : "—"}</td>
+                        <td className="py-2 pr-3">{minR != null && maxR != null ? `${minR}–${maxR.toFixed(0)} ${c?.currencySymbol ?? cur}/t` : "—"}</td>
                         <td className="py-2 pr-3">{actualHourly != null ? `${actualHourly.toFixed(1)} ${c?.currencySymbol ?? cur}/t` : "—"}</td>
                         <td className={`py-2 pr-3 font-semibold ${devClass}`}>
                           {deviationPct != null ? `${deviationPct > 0 ? "+" : ""}${deviationPct.toFixed(1)}%` : "—"}
