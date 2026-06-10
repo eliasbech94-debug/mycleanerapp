@@ -8,6 +8,8 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { countries } from "@/lib/countries";
 import { RefreshCw, AlertTriangle, CheckCircle2, ChevronDown, ChevronRight } from "lucide-react";
+import MarketThresholdsEditor, { type Threshold } from "@/components/MarketThresholdsEditor";
+import { useUserRoles } from "@/hooks/useUserRoles";
 
 type Booking = {
   id: string;
@@ -38,7 +40,6 @@ type WebhookEvent = {
 
 const DEFAULT_FEE_PCT = 28; // memory: 28% total platform fee
 const FEE_TOLERANCE_PCT = 1; // ±1 pp acceptable
-const DEFAULT_MAX_MULTIPLIER = 3; // max acceptable hourly rate = min * multiplier (AI/market upper bound)
 
 function countryByCurrency(currency: string | null) {
   if (!currency) return null;
@@ -57,11 +58,28 @@ function fmtMoney(amount: number | null, currency: string | null) {
 export default function AdminPayments() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [events, setEvents] = useState<WebhookEvent[]>([]);
+  const [thresholds, setThresholds] = useState<Threshold[]>([]);
   const [loading, setLoading] = useState(true);
   const [expectedFee, setExpectedFee] = useState<number>(DEFAULT_FEE_PCT);
-  const [maxMultiplier, setMaxMultiplier] = useState<number>(DEFAULT_MAX_MULTIPLIER);
   const [filter, setFilter] = useState<"all" | "ok" | "fee_off" | "market_low" | "market_high" | "no_transfer">("all");
   const [expanded, setExpanded] = useState<string | null>(null);
+  const { isAdmin } = useUserRoles();
+
+  // For a booking we look up thresholds by currency. Multiple countries share EUR — collapse to broadest (lowest min, highest max).
+  const currencyThresholds = useMemo(() => {
+    const map = new Map<string, { min: number; max: number; codes: string[] }>();
+    thresholds.forEach((t) => {
+      const cur = t.currency.toUpperCase();
+      const ex = map.get(cur);
+      if (!ex) map.set(cur, { min: Number(t.min_hourly_rate), max: Number(t.max_hourly_rate), codes: [t.country_code] });
+      else {
+        ex.min = Math.min(ex.min, Number(t.min_hourly_rate));
+        ex.max = Math.max(ex.max, Number(t.max_hourly_rate));
+        ex.codes.push(t.country_code);
+      }
+    });
+    return map;
+  }, [thresholds]);
 
   const load = async () => {
     setLoading(true);
@@ -102,13 +120,15 @@ export default function AdminPayments() {
       const hourlyToCustomer = b.hours && b.hours > 0 ? (cp / 100) / Number(b.hours) : null;
       // provider effective hourly take
       const hourlyToProvider = b.hours && b.hours > 0 ? (pg / 100) / Number(b.hours) : null;
-      const minRate = country?.minHourlyRate ?? null;
-      const maxRate = minRate != null ? minRate * maxMultiplier : null;
+      const curKey = (b.currency ?? "").toUpperCase();
+      const t = currencyThresholds.get(curKey);
+      const minRate = t?.min ?? null;
+      const maxRate = t?.max ?? null;
       // Deviation = (actual provider hourly - min) / min  (positive = above min, negative = under)
       const marketDeviationPct =
         hourlyToProvider != null && minRate ? ((hourlyToProvider - minRate) / minRate) * 100 : null;
-      const marketLow = !!(country && hourlyToProvider != null && minRate != null && hourlyToProvider < minRate);
-      const marketHigh = !!(country && hourlyToProvider != null && maxRate != null && hourlyToProvider > maxRate);
+      const marketLow = !!(hourlyToProvider != null && minRate != null && hourlyToProvider < minRate);
+      const marketHigh = !!(hourlyToProvider != null && maxRate != null && hourlyToProvider > maxRate);
       const marketOk = !marketLow && !marketHigh;
 
       // Auto split: find transfer event for this booking / payment_intent
@@ -137,7 +157,7 @@ export default function AdminPayments() {
         bucket,
       };
     });
-  }, [bookings, events, expectedFee, maxMultiplier]);
+  }, [bookings, events, expectedFee, currencyThresholds]);
 
   const filtered = rows.filter((r) => filter === "all" || r.bucket === filter);
 
@@ -242,14 +262,8 @@ export default function AdminPayments() {
                   className="w-32"
                 />
               </div>
-              <div className="space-y-1">
-                <Label htmlFor="max">Max-faktor (× min timeløn)</Label>
-                <Input
-                  id="max" type="number" step="0.1" min={1} max={20}
-                  value={maxMultiplier}
-                  onChange={(e) => setMaxMultiplier(Number(e.target.value) || 1)}
-                  className="w-32"
-                />
+              <div className="text-xs text-muted-foreground max-w-md">
+                Min/max timelønstærskler redigeres pr. land i tabellen nederst på siden.
               </div>
               <div className="text-sm text-muted-foreground">
                 Faktisk gns. gebyr:{" "}
@@ -291,8 +305,9 @@ export default function AdminPayments() {
                 <tbody>
                   {byCurrency.map(([cur, v]) => {
                     const c = countries.find((c) => c.currency === cur);
-                    const minR = c?.minHourlyRate ?? null;
-                    const maxR = minR != null ? minR * maxMultiplier : null;
+                    const t = currencyThresholds.get(cur);
+                    const minR = t?.min ?? null;
+                    const maxR = t?.max ?? null;
                     const actualHourly = v.sumHours > 0 ? (v.sumProvider / 100) / v.sumHours : null;
                     const deviationPct =
                       actualHourly != null && minR ? ((actualHourly - minR) / minR) * 100 : null;
@@ -312,7 +327,7 @@ export default function AdminPayments() {
                         <td className="py-2 pr-3">{(v.sumCustomer / 100).toLocaleString()} {cur}</td>
                         <td className="py-2 pr-3">{(v.sumProvider / 100).toLocaleString()} {cur}</td>
                         <td className="py-2 pr-3">{(v.sumFee / 100).toLocaleString()} {cur}</td>
-                        <td className="py-2 pr-3">{c ? `${minR}–${maxR?.toFixed(0)} ${c.currencySymbol}/t` : "—"}</td>
+                        <td className="py-2 pr-3">{minR != null && maxR != null ? `${minR}–${maxR.toFixed(0)} ${c?.currencySymbol ?? cur}/t` : "—"}</td>
                         <td className="py-2 pr-3">{actualHourly != null ? `${actualHourly.toFixed(1)} ${c?.currencySymbol ?? cur}/t` : "—"}</td>
                         <td className={`py-2 pr-3 font-semibold ${devClass}`}>
                           {deviationPct != null ? `${deviationPct > 0 ? "+" : ""}${deviationPct.toFixed(1)}%` : "—"}
@@ -469,6 +484,9 @@ export default function AdminPayments() {
             )}
           </CardContent>
         </Card>
+
+        {/* Editable thresholds */}
+        <MarketThresholdsEditor canEdit={isAdmin} onLoaded={setThresholds} />
       </div>
     </div>
   );
