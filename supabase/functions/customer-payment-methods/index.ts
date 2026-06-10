@@ -78,6 +78,18 @@ Deno.serve(async (req) => {
       .maybeSingle();
 
     let customerId = profile?.stripe_customer_id as string | null;
+
+    // Verify existing customer still exists in the current Stripe account
+    // (handles test/live key swaps or account changes).
+    if (customerId) {
+      try {
+        const existing = await stripe(`/customers/${customerId}`, "GET", stripeKey);
+        if (existing?.deleted) customerId = null;
+      } catch (_) {
+        customerId = null;
+      }
+    }
+
     if (!customerId) {
       const customer = await stripe("/customers", "POST", stripeKey, {
         email,
