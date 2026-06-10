@@ -13,13 +13,14 @@ import { toast } from "sonner";
 
 const C = { ink: "#0a3d3a", orange: "#ff6b35", cream: "#f5f0e0", teal: "#168a7a", mint: "#c8e6c0" };
 
-type TabKey = "info" | "bookings" | "cards" | "invoices";
+type TabKey = "info" | "bookings" | "cards" | "invoices" | "history";
 
 const TABS: { key: TabKey; label: string; icon: typeof UserIcon }[] = [
   { key: "info", label: "Info", icon: UserIcon },
   { key: "bookings", label: "Bookinger", icon: Calendar },
   { key: "cards", label: "Betalingskort", icon: CreditCard },
   { key: "invoices", label: "Fakturaer", icon: FileText },
+  { key: "history", label: "Betalingshistorik", icon: History },
 ];
 
 export default function Profile() {
