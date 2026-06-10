@@ -146,21 +146,31 @@ export default function AdminPayments() {
     const okCount = rows.filter((r) => r.bucket === "ok").length;
     const feeOff = rows.filter((r) => r.bucket === "fee_off").length;
     const marketLow = rows.filter((r) => r.bucket === "market_low").length;
+    const marketHigh = rows.filter((r) => r.bucket === "market_high").length;
     const noTransfer = rows.filter((r) => r.bucket === "no_transfer").length;
     const sumCustomer = rows.reduce((a, r) => a + r.cp, 0);
     const sumProvider = rows.reduce((a, r) => a + r.pg, 0);
     const sumFee = rows.reduce((a, r) => a + r.fee, 0);
     const avgFeePct = sumCustomer > 0 ? (sumFee / sumCustomer) * 100 : 0;
-    return { total, okCount, feeOff, marketLow, noTransfer, sumCustomer, sumProvider, sumFee, avgFeePct };
+    return { total, okCount, feeOff, marketLow, marketHigh, noTransfer, sumCustomer, sumProvider, sumFee, avgFeePct };
   }, [rows]);
 
   // Group by currency for per-country aggregation
   const byCurrency = useMemo(() => {
-    const map = new Map<string, { count: number; sumCustomer: number; sumProvider: number; sumFee: number; }>();
+    const map = new Map<string, {
+      count: number; sumCustomer: number; sumProvider: number; sumFee: number;
+      sumHours: number; lowCount: number; highCount: number;
+    }>();
     rows.forEach((r) => {
       const k = (r.b.currency ?? "?").toUpperCase();
-      const cur = map.get(k) ?? { count: 0, sumCustomer: 0, sumProvider: 0, sumFee: 0 };
-      cur.count++; cur.sumCustomer += r.cp; cur.sumProvider += r.pg; cur.sumFee += r.fee;
+      const cur = map.get(k) ?? { count: 0, sumCustomer: 0, sumProvider: 0, sumFee: 0, sumHours: 0, lowCount: 0, highCount: 0 };
+      cur.count++;
+      cur.sumCustomer += r.cp;
+      cur.sumProvider += r.pg;
+      cur.sumFee += r.fee;
+      cur.sumHours += Number(r.b.hours ?? 0);
+      if (r.marketLow) cur.lowCount++;
+      if (r.marketHigh) cur.highCount++;
       map.set(k, cur);
     });
     return Array.from(map.entries()).sort((a, b) => b[1].sumCustomer - a[1].sumCustomer);
