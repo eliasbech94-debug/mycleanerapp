@@ -532,7 +532,7 @@ export type Database = {
         | "code"
         | "other"
       address_place_type: "private" | "business" | "vacation" | "other"
-      app_role: "admin" | "employee" | "provider" | "customer"
+      app_role: "admin" | "employee" | "provider" | "customer" | "super_admin"
       booking_status:
         | "pending"
         | "accepted"
@@ -684,7 +684,7 @@ export const Constants = {
         "other",
       ],
       address_place_type: ["private", "business", "vacation", "other"],
-      app_role: ["admin", "employee", "provider", "customer"],
+      app_role: ["admin", "employee", "provider", "customer", "super_admin"],
       booking_status: [
         "pending",
         "accepted",
