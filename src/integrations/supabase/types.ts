@@ -326,6 +326,63 @@ export type Database = {
         }
         Relationships: []
       }
+      stripe_webhook_events: {
+        Row: {
+          amount: number | null
+          booking_id: string | null
+          charge_id: string | null
+          created_at: string
+          currency: string | null
+          event_type: string
+          id: string
+          livemode: boolean
+          payload: Json
+          payment_intent_id: string | null
+          payout_id: string | null
+          processed_at: string
+          refund_id: string | null
+          status: string | null
+          stripe_event_id: string
+          transfer_id: string | null
+        }
+        Insert: {
+          amount?: number | null
+          booking_id?: string | null
+          charge_id?: string | null
+          created_at?: string
+          currency?: string | null
+          event_type: string
+          id?: string
+          livemode?: boolean
+          payload: Json
+          payment_intent_id?: string | null
+          payout_id?: string | null
+          processed_at?: string
+          refund_id?: string | null
+          status?: string | null
+          stripe_event_id: string
+          transfer_id?: string | null
+        }
+        Update: {
+          amount?: number | null
+          booking_id?: string | null
+          charge_id?: string | null
+          created_at?: string
+          currency?: string | null
+          event_type?: string
+          id?: string
+          livemode?: boolean
+          payload?: Json
+          payment_intent_id?: string | null
+          payout_id?: string | null
+          processed_at?: string
+          refund_id?: string | null
+          status?: string | null
+          stripe_event_id?: string
+          transfer_id?: string | null
+        }
+        Relationships: []
+      }
       support_messages: {
         Row: {
           content: string
