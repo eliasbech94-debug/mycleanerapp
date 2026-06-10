@@ -332,8 +332,16 @@ const PAYMENT_LABEL: Record<Booking["payment_status"], { label: string; bg: stri
   none: null,
   authorized: { label: "Reserveret", bg: "#fff8e1", fg: "#8a5a00" },
   captured: { label: "Betalt", bg: "#e6f5ec", fg: "#0a5c2e" },
-  cancelled: { label: "Refunderet", bg: "#e6e2d2", fg: C.ink },
+  canceled: { label: "Annulleret", bg: "#e6e2d2", fg: C.ink },
+  refunded: { label: "Refunderet", bg: "#ede4f5", fg: "#4a2a8a" },
   failed: { label: "Fejlet", bg: "#f5c2b8", fg: "#8a2e1c" },
+};
+
+const REFUND_REASON_LABEL: Record<string, string> = {
+  duplicate: "Dobbeltbetaling",
+  fraudulent: "Mistanke om svindel",
+  requested_by_customer: "Anmodet af kunde",
+  expired_uncaptured_charge: "Reservation udløb",
 };
 
 /* ---------- CARDS TAB ---------- */
