@@ -253,7 +253,7 @@ function useBookings() {
     let cancelled = false;
     async function load() {
       const { data } = await supabase.from("bookings").select("*").order("created_at", { ascending: false });
-      if (!cancelled) setBookings((data as Booking[]) || []);
+      if (!cancelled) setBookings(((data as unknown) as Booking[]) || []);
     }
     load();
     const ch = supabase
