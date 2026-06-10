@@ -351,6 +351,7 @@ const PAYMENT_LABEL: Record<Booking["payment_status"], { label: string; bg: stri
   captured: { label: "Betalt", bg: "#e6f5ec", fg: "#0a5c2e" },
   canceled: { label: "Annulleret", bg: "#e6e2d2", fg: C.ink },
   refunded: { label: "Refunderet", bg: "#ede4f5", fg: "#4a2a8a" },
+  partially_refunded: { label: "Delvist refunderet", bg: "#fde9d1", fg: "#8a4a00" },
   failed: { label: "Fejlet", bg: "#f5c2b8", fg: "#8a2e1c" },
 };
 
