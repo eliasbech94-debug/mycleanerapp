@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
-  ArrowLeft, Calendar, CheckCircle2, Clock, CreditCard, FileText, Loader2,
-  LogOut, MapPin, Plus, Receipt, Sparkles, Trash2, User as UserIcon,
+  ArrowLeft, ArrowDownCircle, ArrowUpCircle, Calendar, CheckCircle2, Clock, CreditCard, FileText, History, Loader2,
+  LogOut, MapPin, Plus, Receipt, Sparkles, Trash2, User as UserIcon, XCircle,
 } from "lucide-react";
 import { loadStripe, Stripe } from "@stripe/stripe-js";
 import { Elements, useStripe, useElements, CardElement } from "@stripe/react-stripe-js";
@@ -13,13 +13,14 @@ import { toast } from "sonner";
 
 const C = { ink: "#0a3d3a", orange: "#ff6b35", cream: "#f5f0e0", teal: "#168a7a", mint: "#c8e6c0" };
 
-type TabKey = "info" | "bookings" | "cards" | "invoices";
+type TabKey = "info" | "bookings" | "cards" | "invoices" | "history";
 
 const TABS: { key: TabKey; label: string; icon: typeof UserIcon }[] = [
   { key: "info", label: "Info", icon: UserIcon },
   { key: "bookings", label: "Bookinger", icon: Calendar },
   { key: "cards", label: "Betalingskort", icon: CreditCard },
   { key: "invoices", label: "Fakturaer", icon: FileText },
+  { key: "history", label: "Betalingshistorik", icon: History },
 ];
 
 export default function Profile() {
@@ -70,6 +71,7 @@ export default function Profile() {
           {tab === "bookings" && <BookingsTab />}
           {tab === "cards" && <CardsTab />}
           {tab === "invoices" && <InvoicesTab />}
+          {tab === "history" && <HistoryTab />}
         </div>
       </div>
     </main>
@@ -641,6 +643,227 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
     <div className="rounded-2xl border-2 bg-white p-4" style={{ borderColor: `${C.ink}22` }}>
       <div className="text-[10px] font-black uppercase tracking-[0.22em] opacity-70">{label}</div>
       <div className="mt-2">{children}</div>
+    </div>
+  );
+}
+
+/* ---------- PAYMENT HISTORY TAB ---------- */
+type HistoryEvent = {
+  id: string;
+  bookingId: string;
+  at: string;
+  kind: "authorized" | "captured" | "canceled" | "failed" | "refund_succeeded" | "refund_failed" | "refund_pending";
+  amount: number;
+  currency: string;
+  title: string;
+  subtitle: string;
+  meta?: string;
+};
+
+const REFUND_REASON_LABEL_HIST: Record<string, string> = {
+  requested_by_customer: "Kundens ønske",
+  duplicate: "Dobbeltbetaling",
+  fraudulent: "Mistanke om svindel",
+  expired_uncaptured_charge: "Reservation udløb",
+};
+
+function buildHistory(bookings: Booking[]): HistoryEvent[] {
+  const events: HistoryEvent[] = [];
+  for (const b of bookings) {
+    const cardLabel = b.payment_method_brand && b.payment_method_last4
+      ? `${b.payment_method_brand.toUpperCase()} •••• ${b.payment_method_last4}`
+      : "Betalingskort";
+
+    // Authorization
+    if (b.payment_status !== "none" && b.payment_status !== "failed") {
+      events.push({
+        id: `${b.id}-auth`,
+        bookingId: b.id,
+        at: b.created_at,
+        kind: "authorized",
+        amount: b.customer_pays,
+        currency: b.currency,
+        title: "Reserveret",
+        subtitle: `${b.provider_name} · ${b.service}`,
+        meta: cardLabel,
+      });
+    }
+    // Capture
+    if (b.payment_status === "captured" || b.payment_status === "refunded" || b.payment_status === "partially_refunded") {
+      events.push({
+        id: `${b.id}-cap`,
+        bookingId: b.id,
+        at: b.decided_at || b.created_at,
+        kind: "captured",
+        amount: b.customer_pays,
+        currency: b.currency,
+        title: "Trukket fra kort",
+        subtitle: `${b.provider_name} · ${b.service}`,
+        meta: cardLabel,
+      });
+    }
+    // Canceled auth
+    if (b.payment_status === "canceled") {
+      events.push({
+        id: `${b.id}-cancel`,
+        bookingId: b.id,
+        at: b.decided_at || b.created_at,
+        kind: "canceled",
+        amount: b.customer_pays,
+        currency: b.currency,
+        title: "Reservation frigivet",
+        subtitle: `${b.provider_name} · ${b.service}`,
+      });
+    }
+    // Failed
+    if (b.payment_status === "failed") {
+      events.push({
+        id: `${b.id}-fail`,
+        bookingId: b.id,
+        at: b.decided_at || b.created_at,
+        kind: "failed",
+        amount: b.customer_pays,
+        currency: b.currency,
+        title: "Betaling mislykkedes",
+        subtitle: `${b.provider_name} · ${b.service}`,
+        meta: cardLabel,
+      });
+    }
+    // Refunds
+    const refunds = b.refunds || [];
+    for (const r of refunds) {
+      const reason = r.reason ? (REFUND_REASON_LABEL_HIST[r.reason] || r.reason) : "Refundering";
+      const kind: HistoryEvent["kind"] =
+        r.status === "succeeded" ? "refund_succeeded"
+        : r.status === "failed" ? "refund_failed"
+        : "refund_pending";
+      events.push({
+        id: `${b.id}-r-${r.id}`,
+        bookingId: b.id,
+        at: r.created_at || b.refunded_at || b.created_at,
+        kind,
+        amount: r.amount,
+        currency: r.currency || b.currency,
+        title: r.status === "succeeded" ? "Refunderet til kort" : r.status === "failed" ? "Refundering mislykkedes" : "Refundering afventer",
+        subtitle: `${b.provider_name} · ${reason}`,
+        meta: `${cardLabel} · ${r.id}`,
+      });
+    }
+  }
+  events.sort((a, z) => new Date(z.at).getTime() - new Date(a.at).getTime());
+  return events;
+}
+
+function HistoryTab() {
+  const bookings = useBookings();
+  const events = useMemo(() => (bookings ? buildHistory(bookings) : []), [bookings]);
+
+  const totals = useMemo(() => {
+    let paid = 0, refunded = 0, reserved = 0;
+    for (const e of events) {
+      if (e.kind === "captured") paid += e.amount;
+      else if (e.kind === "refund_succeeded") refunded += e.amount;
+      else if (e.kind === "authorized") reserved += e.amount;
+    }
+    return { paid, refunded, reserved, net: paid - refunded };
+  }, [events]);
+
+  if (bookings === null) return <div className="opacity-60 text-sm">Henter…</div>;
+  if (events.length === 0) {
+    return (
+      <div className="rounded-2xl border-2 border-dashed bg-white p-8 text-center" style={{ borderColor: `${C.ink}33` }}>
+        <History className="mx-auto h-8 w-8 opacity-40" />
+        <div className="mt-3 font-display text-xl">Ingen betalinger endnu</div>
+        <p className="mt-2 text-sm opacity-70">Når du gennemfører bookinger, vises hele din betalingshistorik her.</p>
+      </div>
+    );
+  }
+
+  const currency = events[0]?.currency || "DKK";
+
+  // Group by month
+  const groups = new Map<string, HistoryEvent[]>();
+  for (const e of events) {
+    const d = new Date(e.at);
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key)!.push(e);
+  }
+
+  return (
+    <div className="space-y-5">
+      {/* Totals */}
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <Stat label="Betalt i alt" value={`${totals.paid.toLocaleString("da-DK")} ${currency}`} tone={C.ink} fg={C.cream} />
+        <Stat label="Refunderet" value={`${totals.refunded.toLocaleString("da-DK")} ${currency}`} tone="#fde9d1" fg="#8a4a00" />
+        <Stat label="Reserveret nu" value={`${totals.reserved.toLocaleString("da-DK")} ${currency}`} tone={C.mint} fg={C.ink} />
+        <Stat label="Netto" value={`${totals.net.toLocaleString("da-DK")} ${currency}`} tone={C.teal} fg={C.cream} />
+      </div>
+
+      {/* Timeline */}
+      <div className="space-y-5">
+        {[...groups.entries()].map(([key, list]) => {
+          const sample = new Date(list[0].at);
+          const monthLabel = sample.toLocaleDateString("da-DK", { month: "long", year: "numeric" });
+          return (
+            <div key={key}>
+              <div className="mb-2 text-[10px] font-black uppercase tracking-[0.24em] opacity-60">{monthLabel}</div>
+              <div className="overflow-hidden rounded-2xl border-2 bg-white" style={{ borderColor: `${C.ink}22` }}>
+                {list.map((e, i) => (
+                  <HistoryRow key={e.id} ev={e} divider={i > 0} />
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function Stat({ label, value, tone, fg }: { label: string; value: string; tone: string; fg: string }) {
+  return (
+    <div className="rounded-2xl border-2 p-3" style={{ background: tone, color: fg, borderColor: `${C.ink}22` }}>
+      <div className="text-[9px] font-black uppercase tracking-[0.22em] opacity-80">{label}</div>
+      <div className="mt-1 font-display text-base leading-tight">{value}</div>
+    </div>
+  );
+}
+
+function HistoryRow({ ev, divider }: { ev: HistoryEvent; divider: boolean }) {
+  const cfg = (() => {
+    switch (ev.kind) {
+      case "authorized": return { Icon: Clock, bg: C.mint, fg: C.ink, sign: "" };
+      case "captured": return { Icon: ArrowUpCircle, bg: C.ink, fg: C.cream, sign: "−" };
+      case "canceled": return { Icon: XCircle, bg: "#e6e2d2", fg: C.ink, sign: "" };
+      case "failed": return { Icon: XCircle, bg: "#f5c2b8", fg: "#8a2e1c", sign: "" };
+      case "refund_succeeded": return { Icon: ArrowDownCircle, bg: "#fde9d1", fg: "#8a4a00", sign: "+" };
+      case "refund_failed": return { Icon: XCircle, bg: "#f5c2b8", fg: "#8a2e1c", sign: "" };
+      case "refund_pending": return { Icon: Clock, bg: "#ffe9b8", fg: "#8a5a00", sign: "" };
+    }
+  })();
+  const d = new Date(ev.at);
+  const date = d.toLocaleDateString("da-DK", { day: "2-digit", month: "short" });
+  const time = d.toLocaleTimeString("da-DK", { hour: "2-digit", minute: "2-digit" });
+  const Icon = cfg.Icon;
+  return (
+    <div className="flex items-start gap-3 p-3.5" style={divider ? { borderTop: `1px solid ${C.ink}14` } : undefined}>
+      <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full" style={{ background: cfg.bg, color: cfg.fg }}>
+        <Icon className="h-4 w-4" />
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0">
+            <div className="truncate text-sm font-bold">{ev.title}</div>
+            <div className="truncate text-[11px] opacity-70">{ev.subtitle}</div>
+          </div>
+          <div className="text-right">
+            <div className="font-display text-sm leading-tight">{cfg.sign}{ev.amount.toLocaleString("da-DK")} {ev.currency}</div>
+            <div className="text-[10px] opacity-60">{date} · {time}</div>
+          </div>
+        </div>
+        {ev.meta && <div className="mt-1 truncate text-[10px] opacity-55">{ev.meta}</div>}
+      </div>
     </div>
   );
 }
