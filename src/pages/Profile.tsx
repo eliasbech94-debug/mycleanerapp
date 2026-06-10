@@ -205,6 +205,22 @@ function InfoTab() {
   );
 }
 
+/* ---------- ADDRESSES TAB ---------- */
+function AddressesTab() {
+  return (
+    <div>
+      <div className="mb-4">
+        <h2 className="font-display text-2xl">Mine adresser</h2>
+        <p className="text-sm opacity-70">
+          Tilføj flere adresser med adgangsinformation, dyr, parkering m.m. Den primære adresse vælges automatisk ved booking.
+        </p>
+      </div>
+      <AddressBook />
+    </div>
+  );
+}
+
+
 /* ---------- BOOKINGS TAB ---------- */
 type Booking = {
   id: string;
