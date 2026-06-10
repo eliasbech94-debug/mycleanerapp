@@ -23,6 +23,7 @@ import BookingFlow from "./pages/BookingFlow";
 import MyBookings from "./pages/MyBookings";
 import ProviderDashboard from "./pages/ProviderDashboard";
 import NotFound from "./pages/NotFound";
+import { RoleGuard } from "@/components/RoleGuard";
 
 const queryClient = new QueryClient();
 
@@ -44,15 +45,44 @@ const App = () => (
             <Route path="/customer/register" element={<CustomerRegister />} />
             <Route path="/task/create" element={<CreateTask />} />
             <Route path="/task/offers" element={<MatchingOffers />} />
-            <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/admin/stripe" element={<AdminStripe />} />
-            <Route path="/admin/webhooks" element={<AdminWebhooks />} />
-            <Route path="/employee" element={<EmployeeDashboard />} />
+            <Route
+              path="/admin"
+              element={
+                <RoleGuard allow={["admin"]}>
+                  <AdminDashboard />
+                </RoleGuard>
+              }
+            />
+            <Route
+              path="/admin/stripe"
+              element={
+                <RoleGuard allow={["admin"]}>
+                  <AdminStripe />
+                </RoleGuard>
+              }
+            />
+            <Route
+              path="/admin/webhooks"
+              element={
+                <RoleGuard allow={["admin", "employee"]}>
+                  <AdminWebhooks />
+                </RoleGuard>
+              }
+            />
+            <Route
+              path="/employee"
+              element={
+                <RoleGuard allow={["admin", "employee"]}>
+                  <EmployeeDashboard />
+                </RoleGuard>
+              }
+            />
             <Route path="/book/:id" element={<BookingFlow />} />
             <Route path="/mine-bookinger" element={<MyBookings />} />
             <Route path="/provider-dashboard" element={<ProviderDashboard />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
+
           <Footer />
         </AuthProvider>
       </BrowserRouter>
