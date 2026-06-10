@@ -15,7 +15,22 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const [params] = useSearchParams();
-  const redirect = params.get("redirect") || "/profil";
+  const explicitRedirect = params.get("redirect");
+
+  async function resolveDestination(): Promise<string> {
+    if (explicitRedirect) return explicitRedirect;
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return "/profil";
+    const { data: roles } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", user.id);
+    const r = (roles ?? []).map((x: any) => x.role);
+    if (r.includes("super_admin") || r.includes("admin")) return "/admin";
+    if (r.includes("employee")) return "/employee";
+    if (r.includes("provider")) return "/provider-dashboard";
+    return "/profil";
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -26,18 +41,18 @@ export default function Login() {
           email,
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}${redirect}`,
+            emailRedirectTo: `${window.location.origin}${explicitRedirect ?? "/profil"}`,
             data: { full_name: fullName },
           },
         });
         if (error) throw error;
         toast.success("Konto oprettet — du er logget ind");
-        navigate(redirect);
+        navigate(await resolveDestination());
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         toast.success("Velkommen tilbage");
-        navigate(redirect);
+        navigate(await resolveDestination());
       }
     } catch (err: any) {
       toast.error(err?.message || "Noget gik galt");
@@ -49,7 +64,7 @@ export default function Login() {
   async function handleGoogle() {
     setLoading(true);
     const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: `${window.location.origin}${redirect}`,
+      redirect_uri: `${window.location.origin}${explicitRedirect ?? "/profil"}`,
     });
     if (result.error) {
       toast.error("Google login fejlede");
@@ -57,7 +72,7 @@ export default function Login() {
       return;
     }
     if (result.redirected) return;
-    navigate(redirect);
+    navigate(await resolveDestination());
   }
 
   return (
