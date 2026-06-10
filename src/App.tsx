@@ -80,6 +80,14 @@ const App = () => (
               }
             />
             <Route
+              path="/admin/access-logs"
+              element={
+                <RoleGuard allow={["admin"]}>
+                  <AdminAccessLogs />
+                </RoleGuard>
+              }
+            />
+            <Route
               path="/employee"
               element={
                 <RoleGuard allow={["admin", "employee"]}>
