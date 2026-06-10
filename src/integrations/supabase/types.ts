@@ -119,6 +119,90 @@ export type Database = {
         }
         Relationships: []
       }
+      customer_addresses: {
+        Row: {
+          access_code: string | null
+          access_instructions: string | null
+          access_method: Database["public"]["Enums"]["address_access_method"]
+          address: string
+          address_place_id: string | null
+          cleaning_supplies_available: boolean
+          created_at: string
+          floor: string | null
+          has_children: boolean
+          has_pets: boolean
+          id: string
+          is_primary: boolean
+          label: string
+          lat: number | null
+          lng: number | null
+          notes: string | null
+          parking_info: string | null
+          pet_details: string | null
+          place_type: Database["public"]["Enums"]["address_place_type"]
+          rooms: number | null
+          size_sqm: number | null
+          updated_at: string
+          user_id: string
+          wifi_name: string | null
+          wifi_password: string | null
+        }
+        Insert: {
+          access_code?: string | null
+          access_instructions?: string | null
+          access_method?: Database["public"]["Enums"]["address_access_method"]
+          address: string
+          address_place_id?: string | null
+          cleaning_supplies_available?: boolean
+          created_at?: string
+          floor?: string | null
+          has_children?: boolean
+          has_pets?: boolean
+          id?: string
+          is_primary?: boolean
+          label?: string
+          lat?: number | null
+          lng?: number | null
+          notes?: string | null
+          parking_info?: string | null
+          pet_details?: string | null
+          place_type?: Database["public"]["Enums"]["address_place_type"]
+          rooms?: number | null
+          size_sqm?: number | null
+          updated_at?: string
+          user_id: string
+          wifi_name?: string | null
+          wifi_password?: string | null
+        }
+        Update: {
+          access_code?: string | null
+          access_instructions?: string | null
+          access_method?: Database["public"]["Enums"]["address_access_method"]
+          address?: string
+          address_place_id?: string | null
+          cleaning_supplies_available?: boolean
+          created_at?: string
+          floor?: string | null
+          has_children?: boolean
+          has_pets?: boolean
+          id?: string
+          is_primary?: boolean
+          label?: string
+          lat?: number | null
+          lng?: number | null
+          notes?: string | null
+          parking_info?: string | null
+          pet_details?: string | null
+          place_type?: Database["public"]["Enums"]["address_place_type"]
+          rooms?: number | null
+          size_sqm?: number | null
+          updated_at?: string
+          user_id?: string
+          wifi_name?: string | null
+          wifi_password?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           address: string | null
@@ -184,6 +268,14 @@ export type Database = {
       user_owns_provider: { Args: { _provider_id: string }; Returns: boolean }
     }
     Enums: {
+      address_access_method:
+        | "home"
+        | "key_box"
+        | "key_under_mat"
+        | "doorman"
+        | "code"
+        | "other"
+      address_place_type: "private" | "business" | "vacation" | "other"
       booking_status:
         | "pending"
         | "accepted"
@@ -326,6 +418,15 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      address_access_method: [
+        "home",
+        "key_box",
+        "key_under_mat",
+        "doorman",
+        "code",
+        "other",
+      ],
+      address_place_type: ["private", "business", "vacation", "other"],
       booking_status: [
         "pending",
         "accepted",
