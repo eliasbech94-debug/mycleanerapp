@@ -575,25 +575,18 @@ function Step2({ weekStart, setWeekStart, weekDays, today, date, setDate, slot, 
 }
 
 /* ---------------- Step 3 ---------------- */
-function Step3({ address, setAddress, addressValid, setAddressValid, setAddressPlaceId, setAddressLat, setAddressLng, usingProfileAddress, setUsingProfileAddress, profile, notes, setNotes, provider, date, slot, service, hours, customerPays }: any) {
+function Step3({ address, setAddress, addressValid, setAddressValid, setAddressPlaceId, setAddressLat, setAddressLng, usingProfileAddress, setUsingProfileAddress, profile, notes, setNotes, provider, date, slot, service, hours, customerPays, savedAddresses, selectedAddressId, pickSavedAddress, usingNewAddress, setUsingNewAddress }: any) {
   const hasProfileAddress = !!profile?.address;
+  const hasSaved = (savedAddresses?.length ?? 0) > 0;
 
-  function useProfileAddress() {
-    setAddress(profile.address);
-    setAddressPlaceId(profile.address_place_id ?? null);
-    setAddressLat(profile.lat ?? null);
-    setAddressLng(profile.lng ?? null);
-    setAddressValid(!!profile.address_place_id);
-    setUsingProfileAddress(true);
-  }
-
-  function chooseOther() {
+  function chooseNew() {
     setAddress("");
     setAddressPlaceId(null);
     setAddressLat(null);
     setAddressLng(null);
     setAddressValid(false);
     setUsingProfileAddress(false);
+    setUsingNewAddress(true);
   }
 
   return (
@@ -604,48 +597,39 @@ function Step3({ address, setAddress, addressValid, setAddressValid, setAddressP
       </p>
 
       <div className="mt-6 space-y-4">
-        {/* Saved profile address card */}
-        {hasProfileAddress && usingProfileAddress ? (
-          <div className="rounded-2xl border-2 p-4" style={{ borderColor: C.teal, background: `${C.mint}30` }}>
-            <div className="flex items-start justify-between gap-3">
-              <div className="flex items-start gap-3">
-                <div className="grid h-10 w-10 flex-shrink-0 place-items-center rounded-xl" style={{ background: C.teal, color: C.cream }}>
-                  <Home className="h-5 w-5" />
-                </div>
-                <div>
-                  <div className="text-[10px] font-black uppercase tracking-[0.22em]" style={{ color: C.teal }}>
-                    Din registrerede adresse
-                  </div>
-                  <div className="mt-0.5 font-display text-lg leading-tight">{profile.address}</div>
-                  {profile.address_place_id && (
-                    <div className="mt-1 inline-flex items-center gap-1 text-[10px] font-bold" style={{ color: C.teal }}>
-                      <CheckCircle2 className="h-3 w-3" /> Valideret
-                    </div>
-                  )}
-                </div>
-              </div>
+        {/* Saved address picker (address book) */}
+        {hasSaved && !usingNewAddress ? (
+          <div className="rounded-2xl border-2 bg-white p-4" style={{ borderColor: `${C.ink}22` }}>
+            <div className="mb-3 flex items-center justify-between">
+              <div className="text-[10px] font-black uppercase tracking-[0.22em] opacity-70">Vælg adresse</div>
               <button
                 type="button"
-                onClick={chooseOther}
-                className="inline-flex flex-shrink-0 items-center gap-1.5 rounded-full border-2 bg-white px-3 py-2 text-[10px] font-bold uppercase tracking-[0.18em] hover:-translate-y-0.5 transition"
-                style={{ borderColor: C.ink }}
+                onClick={chooseNew}
+                className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.18em] hover:underline"
+                style={{ color: C.teal }}
               >
-                <Pencil className="h-3 w-3" /> Vælg anden
+                <Pencil className="h-3 w-3" /> Brug en anden adresse
               </button>
             </div>
+            <AddressBook
+              selectable
+              compact
+              selectedId={selectedAddressId}
+              onSelect={(a) => pickSavedAddress(a)}
+            />
           </div>
         ) : (
           <div className="block rounded-2xl border-2 bg-white p-4" style={{ borderColor: `${C.ink}22` }}>
             <div className="flex items-center justify-between">
               <div className="text-[10px] font-black uppercase tracking-[0.22em] opacity-70">Adresse</div>
-              {hasProfileAddress && (
+              {hasSaved && (
                 <button
                   type="button"
-                  onClick={useProfileAddress}
+                  onClick={() => setUsingNewAddress(false)}
                   className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.18em] hover:underline"
                   style={{ color: C.teal }}
                 >
-                  <Home className="h-3 w-3" /> Brug min registrerede
+                  <Home className="h-3 w-3" /> Brug en gemt
                 </button>
               )}
             </div>
@@ -679,11 +663,18 @@ function Step3({ address, setAddress, addressValid, setAddressValid, setAddressP
             {!profile && (
               <div className="mt-3 rounded-xl border border-dashed p-2.5 text-[11px]" style={{ borderColor: `${C.ink}33` }}>
                 <Link to="/login?redirect=/profil" className="font-bold underline" style={{ color: C.orange }}>Log ind</Link>
-                <span className="opacity-70"> og gem din adresse, så vi udfylder den automatisk næste gang.</span>
+                <span className="opacity-70"> og gem dine adresser med adgangsinfo, så cleaneren får alt at vide automatisk.</span>
+              </div>
+            )}
+            {profile && !hasSaved && (
+              <div className="mt-3 rounded-xl border border-dashed p-2.5 text-[11px]" style={{ borderColor: `${C.ink}33` }}>
+                <Link to="/profil?tab=addresses" className="font-bold underline" style={{ color: C.orange }}>Gem denne adresse</Link>
+                <span className="opacity-70"> i din adressebog med dyr, parkering og adgangsinfo — så er det auto-udfyldt næste gang.</span>
               </div>
             )}
           </div>
         )}
+
 
         <label className="block rounded-2xl border-2 bg-white p-4" style={{ borderColor: `${C.ink}22` }}>
           <div className="text-[10px] font-black uppercase tracking-[0.22em] opacity-70">Besked til cleaneren (valgfri)</div>
