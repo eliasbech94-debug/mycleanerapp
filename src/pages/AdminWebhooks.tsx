@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { RefreshCw, ChevronDown, ChevronRight, Copy, Check } from "lucide-react";
+import WebhookAlertBanner from "@/components/WebhookAlertBanner";
 
 type WebhookEvent = {
   id: string;
@@ -125,7 +126,10 @@ export default function AdminWebhooks() {
             <Button onClick={load} disabled={loading}>
               <RefreshCw className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`} />Genindlæs
             </Button>
-          </div>
+        </div>
+
+        <WebhookAlertBanner />
+
         </div>
 
         <Card>

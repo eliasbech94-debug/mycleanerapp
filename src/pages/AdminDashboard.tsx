@@ -21,6 +21,7 @@ import {
   MessageSquare, FileText, Pencil, Trash2, Pause, Play, Undo2, ArrowDownToLine,
   AlertTriangle, Send, ShieldCheck, Wallet, Loader2, XCircle, RefreshCw,
 } from "lucide-react";
+import WebhookAlertBanner from "@/components/WebhookAlertBanner";
 
 // ============================================================================
 // Mock data (would come from Lovable Cloud in production)
@@ -328,6 +329,11 @@ const AdminDashboard = () => {
               <LogOut className="h-4 w-4" />
             </Button>
           </div>
+
+          <div className="mb-5">
+            <WebhookAlertBanner compact />
+          </div>
+
 
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6 md:mb-8">
             <div>
