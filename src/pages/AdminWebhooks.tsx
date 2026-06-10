@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { RefreshCw, ChevronDown, ChevronRight, Copy, Check } from "lucide-react";
+import WebhookAlertBanner from "@/components/WebhookAlertBanner";
 
 type WebhookEvent = {
   id: string;
