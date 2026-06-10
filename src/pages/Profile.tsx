@@ -175,6 +175,22 @@ export default function Profile() {
                     );
                   })}
                 </nav>
+                <div className="mt-6 space-y-1 border-t pt-4" style={{ borderColor: `${C.ink}1f` }}>
+                  <button
+                    onClick={() => { setMobileMenuOpen(false); setSupportOpen("support"); }}
+                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-[11px] font-bold uppercase tracking-[0.16em] opacity-70"
+                    style={{ color: C.ink }}
+                  >
+                    <LifeBuoy className="h-3.5 w-3.5" /> Hjælp & support
+                  </button>
+                  <button
+                    onClick={() => { setMobileMenuOpen(false); setSupportOpen("complaint"); }}
+                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-[11px] font-bold uppercase tracking-[0.16em] opacity-70"
+                    style={{ color: C.ink }}
+                  >
+                    <ShieldAlert className="h-3.5 w-3.5" /> Indsend klage
+                  </button>
+                </div>
               </div>
             </div>
           )}
