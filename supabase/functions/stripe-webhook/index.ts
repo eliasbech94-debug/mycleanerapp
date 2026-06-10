@@ -30,11 +30,29 @@ Deno.serve(async (req) => {
   const secret = Deno.env.get("STRIPE_WEBHOOK_SECRET");
   const payload = await req.text();
   let event: Stripe.Event;
+
   try {
     if (!sig || !secret) throw new Error("Missing signature config");
     event = await stripe.webhooks.constructEventAsync(payload, sig, secret);
   } catch (e) {
-    return new Response(`Webhook Error: ${(e as Error).message}`, { status: 400 });
+    const errMsg = (e as Error).message;
+    console.error("Webhook signature verification failed:", errMsg);
+
+    // Log rejected attempt so admin can see attacks / misconfig
+    try {
+      await admin.from("stripe_webhook_events").insert({
+        stripe_event_id: `rejected-${Date.now()}`,
+        event_type: "webhook.rejected",
+        livemode: null,
+        payload: { error: errMsg, signature_present: !!sig, secret_present: !!secret },
+        status: "rejected",
+      });
+    } catch (_) { /* ignore logging failure */ }
+
+    return new Response(JSON.stringify({ error: "Webhook Error", message: errMsg }), {
+      status: 400,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 
   // ---------- Refund events ----------
