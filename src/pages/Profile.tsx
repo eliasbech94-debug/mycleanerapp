@@ -306,29 +306,54 @@ function BookingsTab() {
                 </div>
               )}
             </div>
-            <div className="mt-3 border-t border-dashed pt-3 text-xs flex items-baseline justify-between" style={{ borderColor: `${C.ink}22` }}>
-              <span className="opacity-60">
-                {b.payment_status === "refunded" ? "Refunderet" : b.payment_status === "captured" ? "Betalt" : b.payment_status === "authorized" ? "Reserveret" : "Du betaler"}
-              </span>
-              <span className="font-display text-base">{b.customer_pays.toLocaleString("da-DK")} {b.currency}</span>
-            </div>
-            {b.payment_status === "refunded" && (
-              <div className="mt-3 rounded-xl p-3 text-[11px] space-y-1" style={{ background: "#f4eefb", color: "#4a2a8a" }}>
-                <div className="font-black uppercase tracking-[0.16em] text-[10px]">Refundering</div>
-                {b.refund_amount != null && (
-                  <div className="flex justify-between"><span className="opacity-70">Beløb</span><span className="font-bold">{b.refund_amount.toLocaleString("da-DK")} {b.currency}</span></div>
-                )}
-                {b.refund_reason && (
-                  <div className="flex justify-between"><span className="opacity-70">Årsag</span><span className="font-bold">{REFUND_REASON_LABEL[b.refund_reason] || b.refund_reason}</span></div>
-                )}
-                {b.refunded_at && (
-                  <div className="flex justify-between"><span className="opacity-70">Dato</span><span>{new Date(b.refunded_at).toLocaleDateString("da-DK", { day: "2-digit", month: "2-digit", year: "numeric" })}</span></div>
-                )}
-                {b.refund_id && (
-                  <div className="flex justify-between"><span className="opacity-70">Refund ID</span><span className="font-mono">{b.refund_id}</span></div>
-                )}
-              </div>
-            )}
+            {(() => {
+              const isPartial = b.payment_status === "partially_refunded";
+              const isFull = b.payment_status === "refunded";
+              const remaining = b.customer_pays - (b.refund_amount ?? 0);
+              return (
+                <>
+                  <div className="mt-3 border-t border-dashed pt-3 text-xs space-y-1" style={{ borderColor: `${C.ink}22` }}>
+                    <div className="flex items-baseline justify-between">
+                      <span className="opacity-60">Total</span>
+                      <span className="font-display text-base">{b.customer_pays.toLocaleString("da-DK")} {b.currency}</span>
+                    </div>
+                    {(isPartial || isFull) && b.refund_amount != null && (
+                      <>
+                        <div className="flex items-baseline justify-between" style={{ color: "#4a2a8a" }}>
+                          <span>Refunderet</span>
+                          <span>− {b.refund_amount.toLocaleString("da-DK")} {b.currency}</span>
+                        </div>
+                        <div className="flex items-baseline justify-between font-bold pt-1 border-t border-dashed" style={{ borderColor: `${C.ink}22` }}>
+                          <span>{isFull ? "Du har betalt" : "Du betaler stadig"}</span>
+                          <span>{Math.max(0, remaining).toLocaleString("da-DK")} {b.currency}</span>
+                        </div>
+                      </>
+                    )}
+                    {!isPartial && !isFull && (
+                      <div className="text-[11px] opacity-60 text-right">
+                        {b.payment_status === "captured" ? "Betalt" : b.payment_status === "authorized" ? "Reserveret" : "Afventer betaling"}
+                      </div>
+                    )}
+                  </div>
+                  {(isPartial || isFull) && (
+                    <div className="mt-3 rounded-xl p-3 text-[11px] space-y-1" style={{ background: isPartial ? "#fdf2e2" : "#f4eefb", color: isPartial ? "#8a4a00" : "#4a2a8a" }}>
+                      <div className="font-black uppercase tracking-[0.16em] text-[10px]">
+                        {isPartial ? "Delvis refundering" : "Fuld refundering"}
+                      </div>
+                      {b.refund_reason && (
+                        <div className="flex justify-between"><span className="opacity-70">Årsag</span><span className="font-bold">{REFUND_REASON_LABEL[b.refund_reason] || b.refund_reason}</span></div>
+                      )}
+                      {b.refunded_at && (
+                        <div className="flex justify-between"><span className="opacity-70">Dato</span><span>{new Date(b.refunded_at).toLocaleDateString("da-DK", { day: "2-digit", month: "2-digit", year: "numeric" })}</span></div>
+                      )}
+                      {b.refund_id && (
+                        <div className="flex justify-between"><span className="opacity-70">Refund ID</span><span className="font-mono">{b.refund_id}</span></div>
+                      )}
+                    </div>
+                  )}
+                </>
+              );
+            })()}
             {hasReceipt && (
               <button
                 onClick={() => setParams({ tab: "invoices" })}
