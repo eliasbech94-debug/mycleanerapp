@@ -32,6 +32,7 @@ export default function Profile() {
   const [params, setParams] = useSearchParams();
   const tab = (params.get("tab") as TabKey) || "overview";
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [supportOpen, setSupportOpen] = useState<false | "support" | "complaint">(false);
 
   useEffect(() => {
     if (!loading && !user) navigate("/login?redirect=/profil");
