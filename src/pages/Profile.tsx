@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
   ArrowLeft, ArrowDownCircle, ArrowRight, ArrowUpCircle, Calendar, CheckCircle2, Clock, CreditCard, FileText, History, Home, LayoutDashboard, Loader2,
-  LogOut, MapPin, Plus, Receipt, Sparkles, Star, Trash2, User as UserIcon, XCircle,
+  LogOut, MapPin, Menu, Plus, Receipt, Sparkles, Star, Trash2, User as UserIcon, X, XCircle,
 } from "lucide-react";
 import { loadStripe, Stripe } from "@stripe/stripe-js";
 import { Elements, useStripe, useElements, CardElement } from "@stripe/react-stripe-js";
@@ -31,6 +31,7 @@ export default function Profile() {
   const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
   const tab = (params.get("tab") as TabKey) || "overview";
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) navigate("/login?redirect=/profil");
@@ -47,29 +48,122 @@ export default function Profile() {
   return (
     <main className="min-h-screen font-editorial" style={{ background: C.cream, color: C.ink }}>
       <ProfileHeader />
-      <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
-        <div className="flex flex-wrap gap-2 border-b-2 pb-3" style={{ borderColor: `${C.ink}22` }}>
-          {TABS.map((t) => {
-            const active = tab === t.key;
-            const Icon = t.icon;
-            return (
-              <button
-                key={t.key}
-                onClick={() => setParams({ tab: t.key })}
-                className="inline-flex items-center gap-1.5 rounded-full border-2 px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.16em] transition"
-                style={{
-                  background: active ? C.ink : "transparent",
-                  color: active ? C.cream : C.ink,
-                  borderColor: active ? C.ink : `${C.ink}33`,
-                }}
+      <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:flex lg:gap-8 lg:py-10">
+        {/* Desktop sidebar */}
+        <aside className="hidden lg:block lg:w-64 lg:flex-shrink-0">
+          <nav className="sticky top-6 space-y-1">
+            {TABS.map((t) => {
+              const active = tab === t.key;
+              const Icon = t.icon;
+              return (
+                <button
+                  key={t.key}
+                  onClick={() => setParams({ tab: t.key })}
+                  className="group flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm font-bold uppercase tracking-[0.12em] transition"
+                  style={{
+                    background: active ? C.ink : "transparent",
+                    color: active ? C.cream : C.ink,
+                  }}
+                >
+                  <span
+                    className="grid h-8 w-8 place-items-center rounded-lg transition"
+                    style={{
+                      background: active ? C.teal : `${C.ink}11`,
+                      color: active ? C.cream : C.ink,
+                    }}
+                  >
+                    <Icon className="h-4 w-4" />
+                  </span>
+                  <span>{t.label}</span>
+                  {active && (
+                    <span className="ml-auto h-1.5 w-1.5 rounded-full" style={{ background: C.orange }} />
+                  )}
+                </button>
+              );
+            })}
+          </nav>
+        </aside>
+
+        {/* Mobile top bar */}
+        <div className="lg:hidden">
+          <div className="flex items-center justify-between">
+            <button
+              onClick={() => setMobileMenuOpen(true)}
+              className="inline-flex items-center gap-2 rounded-xl border-2 px-4 py-2.5 text-xs font-bold uppercase tracking-[0.16em]"
+              style={{ borderColor: `${C.ink}33`, color: C.ink }}
+            >
+              <Menu className="h-4 w-4" />
+              {TABS.find((t) => t.key === tab)?.label}
+            </button>
+            <div
+              className="text-[10px] font-black uppercase tracking-[0.22em] opacity-50"
+            >
+              {TABS.find((t) => t.key === tab)?.label}
+            </div>
+          </div>
+
+          {/* Mobile menu drawer */}
+          {mobileMenuOpen && (
+            <div className="fixed inset-0 z-50 flex">
+              <div
+                className="flex-1 backdrop-blur-sm"
+                style={{ background: `${C.ink}44` }}
+                onClick={() => setMobileMenuOpen(false)}
+              />
+              <div
+                className="w-72 max-w-[80vw] p-5 shadow-2xl"
+                style={{ background: C.cream }}
               >
-                <Icon className="h-3.5 w-3.5" /> {t.label}
-              </button>
-            );
-          })}
+                <div className="mb-4 flex items-center justify-between">
+                  <span className="text-xs font-black uppercase tracking-[0.22em] opacity-70">Menu</span>
+                  <button
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="grid h-8 w-8 place-items-center rounded-lg"
+                    style={{ background: `${C.ink}11` }}
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+                <nav className="space-y-1">
+                  {TABS.map((t) => {
+                    const active = tab === t.key;
+                    const Icon = t.icon;
+                    return (
+                      <button
+                        key={t.key}
+                        onClick={() => {
+                          setParams({ tab: t.key });
+                          setMobileMenuOpen(false);
+                        }}
+                        className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-bold uppercase tracking-[0.12em] transition"
+                        style={{
+                          background: active ? C.ink : "transparent",
+                          color: active ? C.cream : C.ink,
+                        }}
+                      >
+                        <span
+                          className="grid h-8 w-8 place-items-center rounded-lg transition"
+                          style={{
+                            background: active ? C.teal : `${C.ink}11`,
+                            color: active ? C.cream : C.ink,
+                          }}
+                        >
+                          <Icon className="h-4 w-4" />
+                        </span>
+                        <span>{t.label}</span>
+                        {active && (
+                          <span className="ml-auto h-1.5 w-1.5 rounded-full" style={{ background: C.orange }} />
+                        )}
+                      </button>
+                    );
+                  })}
+                </nav>
+              </div>
+            </div>
+          )}
         </div>
 
-        <div className="mt-6">
+        <div className="mt-6 flex-1 lg:mt-0">
           {tab === "overview" && <OverviewTab goTo={(k) => setParams({ tab: k })} />}
           {tab === "info" && <InfoTab />}
           {tab === "addresses" && <AddressesTab />}
