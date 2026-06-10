@@ -14,6 +14,7 @@ import SupportDialog from "@/components/SupportDialog";
 import { InboxPanel, NotificationBell } from "@/components/Inbox";
 import OnboardingChecklist, { ChecklistItem } from "@/components/OnboardingChecklist";
 import { validateContact, validateAddress, validateProperty, statusFrom } from "@/lib/onboarding-validation";
+import { countries as countryList } from "@/lib/countries";
 import { toast } from "sonner";
 
 const C = { ink: "#0a3d3a", orange: "#ff6b35", cream: "#f5f0e0", teal: "#168a7a", mint: "#c8e6c0" };
@@ -603,6 +604,7 @@ function InfoTab() {
   const { user, profile, refreshProfile } = useAuth();
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
+  const [countryCode, setCountryCode] = useState("DK");
   const [providerId, setProviderId] = useState("");
   const [address, setAddress] = useState("");
   const [placeId, setPlaceId] = useState<string | null>(null);
@@ -611,10 +613,12 @@ function InfoTab() {
   const [addrValid, setAddrValid] = useState(false);
   const [saving, setSaving] = useState(false);
 
+  // Pre-fill from onboarding-stored profile + auth user
   useEffect(() => {
     if (profile) {
       setFullName(profile.full_name || "");
       setPhone(profile.phone || "");
+      setCountryCode(profile.country_code || "DK");
       setProviderId(profile.provider_id || "");
       setAddress(profile.address || "");
       setPlaceId(profile.address_place_id);
@@ -624,8 +628,14 @@ function InfoTab() {
     }
   }, [profile]);
 
+  const contactCheck = validateContact({ full_name: fullName, phone, country_code: countryCode });
+
   async function save() {
     if (!user) return;
+    if (!contactCheck.ok) {
+      toast.error(contactCheck.error || "Tjek kontaktoplysningerne");
+      return;
+    }
     if (address && !addrValid) {
       toast.error("Vælg en gyldig adresse fra listen før du gemmer.");
       return;
@@ -633,8 +643,9 @@ function InfoTab() {
     setSaving(true);
     const { error } = await supabase.from("profiles").upsert({
       id: user.id,
-      full_name: fullName,
-      phone,
+      full_name: fullName.trim(),
+      phone: phone.trim(),
+      country_code: countryCode,
       provider_id: providerId.trim() || null,
       address: address || null,
       address_place_id: placeId,
@@ -649,11 +660,28 @@ function InfoTab() {
 
   return (
     <div className="space-y-4">
+      <div className="rounded-2xl border bg-white/60 p-3 text-[11px] opacity-70" style={{ borderColor: `${C.ink}22` }}>
+        Dine kontaktoplysninger blev oprettet under onboarding og hentes automatisk her — du kan justere dem når som helst.
+      </div>
+      <Field label="Email (din loginadresse)">
+        <input value={user?.email ?? ""} disabled className="w-full bg-transparent text-base focus:outline-none opacity-70" />
+      </Field>
       <Field label="Fulde navn">
         <input value={fullName} onChange={(e) => setFullName(e.target.value)} className="w-full bg-transparent text-base focus:outline-none" placeholder="Fx Mette Hansen" />
       </Field>
       <Field label="Telefon">
         <input value={phone} onChange={(e) => setPhone(e.target.value)} className="w-full bg-transparent text-base focus:outline-none" placeholder="+45 12 34 56 78" type="tel" />
+      </Field>
+      <Field label="Land">
+        <select
+          value={countryCode}
+          onChange={(e) => setCountryCode(e.target.value)}
+          className="w-full bg-transparent text-base focus:outline-none"
+        >
+          {countryList.map((c) => (
+            <option key={c.code} value={c.code}>{c.flag} {c.name}</option>
+          ))}
+        </select>
       </Field>
       <Field label="Provider-ID (kun hvis du selv er cleaner)">
         <input value={providerId} onChange={(e) => setProviderId(e.target.value)} className="w-full bg-transparent text-base focus:outline-none" placeholder="Fx p_002" />
@@ -670,11 +698,16 @@ function InfoTab() {
             onSelect={(p) => { setAddress(p.address); setPlaceId(p.placeId); setLat(p.lat ?? null); setLng(p.lng ?? null); setAddrValid(true); }}
             onValidityChange={setAddrValid}
             isValid={addrValid}
-            countries={["dk"]}
+            countries={[countryCode.toLowerCase()]}
             placeholder="Vej, nr., etage, by"
           />
         </div>
       </div>
+      {!contactCheck.ok && (
+        <div className="rounded-xl border-2 px-3 py-2 text-xs" style={{ borderColor: "#c2412c33", color: "#c2412c", background: "#fff3ef" }}>
+          {contactCheck.error}
+        </div>
+      )}
       <button
         disabled={saving}
         onClick={save}
