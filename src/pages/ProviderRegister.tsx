@@ -11,6 +11,7 @@ import { ArrowRight, ArrowLeft, Building2, User, Upload, Shield, CheckCircle2, S
 import { toast } from "sonner";
 import { countries, serviceCategories, formatPrice } from "@/lib/countries";
 import { deriveServices, deriveHourlyRate, saveProvider } from "@/lib/providers";
+import { supabase } from "@/integrations/supabase/client";
 
 const steps = ["Type", "Personlig info", "Services & område", "Dokumenter", "Gennemse"];
 
@@ -153,17 +154,26 @@ const ProviderRegister = () => {
     prevCountry.current = form.country;
   }, [priceViolations.length, form.country, country, derivedServices.length]);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (hasPriceViolations) {
       toast.error("Priser under overenskomstgrænsen", {
         description: `${priceViolations.length} ydelse(r) ligger under ${country.laborAgreement}. Juster før indsendelse.`,
       });
       return;
     }
+
+    const { data: sess } = await supabase.auth.getSession();
+    if (!sess.session) {
+      toast.info("Log ind for at fuldføre din ansøgning");
+      navigate(`/login?redirect=/provider/register`);
+      return;
+    }
+
     const id = `p_${Date.now()}`;
     const name = form.type === "business" && form.companyName
       ? form.companyName
       : `${form.firstName} ${form.lastName}`.trim() || "Ny provider";
+
     saveProvider({
       id,
       name,
@@ -193,7 +203,21 @@ const ProviderRegister = () => {
       ],
       certifications: form.type === "business" ? ["CVR registreret"] : ["ID-verificeret"],
     });
-    navigate(`/provider/${id}`);
+
+    const { error: pErr } = await supabase.from("profiles").upsert({
+      id: sess.session.user.id,
+      full_name: name,
+      phone: form.phone || null,
+      country_code: form.country,
+      provider_id: id,
+    });
+    if (pErr) {
+      toast.error("Kunne ikke gemme provider-profil", { description: pErr.message });
+      return;
+    }
+
+    toast.success("Ansøgning sendt! Vi gennemgår den inden for 24-48 timer.");
+    navigate(`/provider-dashboard`);
   };
 
 

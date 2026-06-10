@@ -1,25 +1,122 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowRight, ArrowLeft, Home, Sparkles } from "lucide-react";
+import { ArrowRight, ArrowLeft, Home, Sparkles, Loader2, CheckCircle2 } from "lucide-react";
 import { countries } from "@/lib/countries";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const propertyTypes = ["Lejlighed", "Rækkehus", "Villa", "Landejendom", "Erhverv", "Andet"];
-const steps = ["Personlig info", "Bolig", "Præferencer"];
+const steps = ["Konto", "Bolig", "Præferencer"];
 
 const CustomerRegister = () => {
+  const navigate = useNavigate();
   const [step, setStep] = useState(0);
+  const [submitting, setSubmitting] = useState(false);
+  const [authed, setAuthed] = useState<boolean>(false);
   const [form, setForm] = useState({
-    firstName: "", lastName: "", email: "", phone: "",
+    firstName: "", lastName: "", email: "", phone: "", password: "",
     country: "DK", city: "", postalCode: "", address: "",
     propertyType: "", propertySize: "", floors: "1", hasGarden: false, hasPets: false,
     preferredDays: [] as string[],
     preferredTime: "morning",
   });
 
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session) {
+        setAuthed(true);
+        const u = data.session.user;
+        setForm((p) => ({
+          ...p,
+          email: u.email ?? p.email,
+          firstName: p.firstName || (u.user_metadata?.full_name?.split(" ")[0] ?? ""),
+          lastName: p.lastName || (u.user_metadata?.full_name?.split(" ").slice(1).join(" ") ?? ""),
+        }));
+      }
+    });
+  }, []);
+
   const update = (key: string, value: any) => setForm((p) => ({ ...p, [key]: value }));
+
+  const canContinue = () => {
+    if (step === 0) {
+      if (!form.firstName || !form.lastName || !form.email || !form.phone) return false;
+      if (!authed && form.password.length < 6) return false;
+      return true;
+    }
+    if (step === 1) return !!form.propertyType && !!form.address && !!form.city && !!form.postalCode;
+    return true;
+  };
+
+  const handleSubmit = async () => {
+    setSubmitting(true);
+    try {
+      let userId: string | null = null;
+
+      if (!authed) {
+        const { data, error } = await supabase.auth.signUp({
+          email: form.email,
+          password: form.password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/profil`,
+            data: { full_name: `${form.firstName} ${form.lastName}`.trim() },
+          },
+        });
+        if (error) throw error;
+        userId = data.user?.id ?? null;
+        if (!data.session) {
+          toast.success("Konto oprettet — bekræft din email for at logge ind");
+          navigate("/login?redirect=/profil");
+          return;
+        }
+      } else {
+        const { data } = await supabase.auth.getUser();
+        userId = data.user?.id ?? null;
+      }
+
+      if (!userId) throw new Error("Bruger ikke fundet");
+
+      const fullAddress = `${form.address}, ${form.postalCode} ${form.city}`.trim();
+
+      const { error: pErr } = await supabase.from("profiles").upsert({
+        id: userId,
+        full_name: `${form.firstName} ${form.lastName}`.trim(),
+        phone: form.phone,
+        address: fullAddress,
+        country_code: form.country,
+      });
+      if (pErr) throw pErr;
+
+      const { error: aErr } = await supabase.from("customer_addresses").insert({
+        user_id: userId,
+        label: "Hjem",
+        address: fullAddress,
+        is_primary: true,
+        place_type: "private",
+        size_sqm: form.propertySize ? parseInt(form.propertySize, 10) : null,
+        has_pets: form.hasPets,
+        notes: [
+          form.propertyType && `Boligtype: ${form.propertyType}`,
+          form.floors && `Etager: ${form.floors}`,
+          form.hasGarden && "Har have",
+          form.preferredDays.length && `Foretrukne dage: ${form.preferredDays.join(", ")}`,
+          form.preferredTime && `Foretrukket tid: ${form.preferredTime}`,
+        ].filter(Boolean).join(" · ") || null,
+      });
+      if (aErr) throw aErr;
+
+      toast.success("Velkommen! Din profil er oprettet");
+      navigate("/profil");
+    } catch (err: any) {
+      toast.error(err?.message || "Noget gik galt");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -43,11 +140,22 @@ const CustomerRegister = () => {
             {step === 0 && (
               <div className="space-y-5">
                 <h2 className="font-heading text-xl font-semibold">Personlige oplysninger</h2>
+                {authed && (
+                  <div className="flex items-center gap-2 rounded-lg bg-success/10 border border-success/20 text-success px-3 py-2 text-sm">
+                    <CheckCircle2 className="h-4 w-4" /> Du er allerede logget ind
+                  </div>
+                )}
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div><Label>Fornavn</Label><Input value={form.firstName} onChange={(e) => update("firstName", e.target.value)} /></div>
                   <div><Label>Efternavn</Label><Input value={form.lastName} onChange={(e) => update("lastName", e.target.value)} /></div>
                 </div>
-                <div><Label>Email</Label><Input type="email" value={form.email} onChange={(e) => update("email", e.target.value)} /></div>
+                <div><Label>Email</Label><Input type="email" value={form.email} disabled={authed} onChange={(e) => update("email", e.target.value)} /></div>
+                {!authed && (
+                  <div>
+                    <Label>Adgangskode</Label>
+                    <Input type="password" minLength={6} value={form.password} onChange={(e) => update("password", e.target.value)} placeholder="Mindst 6 tegn" />
+                  </div>
+                )}
                 <div><Label>Telefon</Label><Input type="tel" value={form.phone} onChange={(e) => update("phone", e.target.value)} /></div>
                 <div>
                   <Label>Land</Label>
@@ -55,11 +163,6 @@ const CustomerRegister = () => {
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>{countries.map((c) => <SelectItem key={c.code} value={c.code}>{c.flag} {c.name}</SelectItem>)}</SelectContent>
                   </Select>
-                </div>
-                <div><Label>Adresse</Label><Input value={form.address} onChange={(e) => update("address", e.target.value)} placeholder="Vejnavn 123" /></div>
-                <div className="grid sm:grid-cols-2 gap-4">
-                  <div><Label>By</Label><Input value={form.city} onChange={(e) => update("city", e.target.value)} /></div>
-                  <div><Label>Postnummer</Label><Input value={form.postalCode} onChange={(e) => update("postalCode", e.target.value)} /></div>
                 </div>
               </div>
             )}
@@ -70,6 +173,11 @@ const CustomerRegister = () => {
                   <Home className="h-5 w-5 text-primary" /> Din bolig
                 </h2>
                 <p className="text-sm text-muted-foreground">Disse oplysninger hjælper os med at matche dig med de rette fagfolk og give præcise tilbud.</p>
+                <div><Label>Adresse</Label><Input value={form.address} onChange={(e) => update("address", e.target.value)} placeholder="Vejnavn 123" /></div>
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div><Label>By</Label><Input value={form.city} onChange={(e) => update("city", e.target.value)} /></div>
+                  <div><Label>Postnummer</Label><Input value={form.postalCode} onChange={(e) => update("postalCode", e.target.value)} /></div>
+                </div>
                 <div>
                   <Label>Boligtype</Label>
                   <div className="grid grid-cols-3 gap-2 mt-2">
@@ -144,13 +252,17 @@ const CustomerRegister = () => {
             )}
 
             <div className="flex justify-between mt-8 pt-6 border-t border-border">
-              <Button variant="ghost" onClick={() => setStep((s) => s - 1)} disabled={step === 0}>
+              <Button variant="ghost" onClick={() => setStep((s) => s - 1)} disabled={step === 0 || submitting}>
                 <ArrowLeft className="h-4 w-4 mr-2" /> Tilbage
               </Button>
               {step < steps.length - 1 ? (
-                <Button onClick={() => setStep((s) => s + 1)}>Næste <ArrowRight className="h-4 w-4 ml-2" /></Button>
+                <Button onClick={() => setStep((s) => s + 1)} disabled={!canContinue()}>
+                  Næste <ArrowRight className="h-4 w-4 ml-2" />
+                </Button>
               ) : (
-                <Button>Opret profil <ArrowRight className="h-4 w-4 ml-2" /></Button>
+                <Button onClick={handleSubmit} disabled={submitting}>
+                  {submitting ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Opretter…</> : <>Opret profil <ArrowRight className="h-4 w-4 ml-2" /></>}
+                </Button>
               )}
             </div>
           </div>
