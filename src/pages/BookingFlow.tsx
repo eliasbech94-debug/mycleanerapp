@@ -1021,6 +1021,13 @@ function Step3({ address, setAddress, addressValid, setAddressValid, setAddressP
           usingNewAddress={usingNewAddress}
           usingProfileAddress={usingProfileAddress}
           profile={profile}
+          setNotes={setNotes}
+          setNotesAutoFilled={setNotesAutoFilled}
+          onSavedUpdated={(updated: CustomerAddress) =>
+            setSavedAddresses?.((list: CustomerAddress[]) =>
+              list.map((a) => (a.id === updated.id ? updated : a))
+            )
+          }
         />
 
         <label className="block rounded-2xl border-2 bg-white p-4" style={{ borderColor: `${C.ink}22` }}>
