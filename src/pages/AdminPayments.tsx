@@ -262,14 +262,8 @@ export default function AdminPayments() {
                   className="w-32"
                 />
               </div>
-              <div className="space-y-1">
-                <Label htmlFor="max">Max-faktor (× min timeløn)</Label>
-                <Input
-                  id="max" type="number" step="0.1" min={1} max={20}
-                  value={maxMultiplier}
-                  onChange={(e) => setMaxMultiplier(Number(e.target.value) || 1)}
-                  className="w-32"
-                />
+              <div className="text-xs text-muted-foreground max-w-md">
+                Min/max timelønstærskler redigeres pr. land i tabellen nederst på siden.
               </div>
               <div className="text-sm text-muted-foreground">
                 Faktisk gns. gebyr:{" "}
@@ -311,8 +305,9 @@ export default function AdminPayments() {
                 <tbody>
                   {byCurrency.map(([cur, v]) => {
                     const c = countries.find((c) => c.currency === cur);
-                    const minR = c?.minHourlyRate ?? null;
-                    const maxR = minR != null ? minR * maxMultiplier : null;
+                    const t = currencyThresholds.get(cur);
+                    const minR = t?.min ?? null;
+                    const maxR = t?.max ?? null;
                     const actualHourly = v.sumHours > 0 ? (v.sumProvider / 100) / v.sumHours : null;
                     const deviationPct =
                       actualHourly != null && minR ? ((actualHourly - minR) / minR) * 100 : null;
