@@ -343,6 +343,7 @@ const AdminDashboard = () => {
             <div className="flex items-center gap-2 w-full md:w-auto">
               <Button asChild size="sm" variant="outline"><Link to="/admin/payments">Betalingsverifikation</Link></Button>
               <Button asChild size="sm" variant="outline"><Link to="/admin/webhooks">Webhooks</Link></Button>
+              <Button asChild size="sm" variant="outline"><Link to="/admin/access-logs">Adgangs-log</Link></Button>
               <div className="relative flex-1 md:w-64">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Søg..." className="pl-9 w-full" />

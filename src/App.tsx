@@ -19,6 +19,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import AdminStripe from "./pages/AdminStripe";
 import AdminWebhooks from "./pages/AdminWebhooks";
 import AdminPayments from "./pages/AdminPayments";
+import AdminAccessLogs from "./pages/AdminAccessLogs";
 import EmployeeDashboard from "./pages/EmployeeDashboard";
 import BookingFlow from "./pages/BookingFlow";
 import MyBookings from "./pages/MyBookings";
@@ -75,6 +76,14 @@ const App = () => (
               element={
                 <RoleGuard allow={["admin"]}>
                   <AdminPayments />
+                </RoleGuard>
+              }
+            />
+            <Route
+              path="/admin/access-logs"
+              element={
+                <RoleGuard allow={["admin"]}>
+                  <AdminAccessLogs />
                 </RoleGuard>
               }
             />

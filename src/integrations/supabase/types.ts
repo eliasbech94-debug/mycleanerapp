@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      access_attempts: {
+        Row: {
+          allowed_roles: string[]
+          created_at: string
+          email: string | null
+          id: string
+          reason: string | null
+          referrer: string | null
+          result: string
+          route: string
+          user_agent: string | null
+          user_id: string | null
+          user_roles: string[]
+        }
+        Insert: {
+          allowed_roles?: string[]
+          created_at?: string
+          email?: string | null
+          id?: string
+          reason?: string | null
+          referrer?: string | null
+          result: string
+          route: string
+          user_agent?: string | null
+          user_id?: string | null
+          user_roles?: string[]
+        }
+        Update: {
+          allowed_roles?: string[]
+          created_at?: string
+          email?: string | null
+          id?: string
+          reason?: string | null
+          referrer?: string | null
+          result?: string
+          route?: string
+          user_agent?: string | null
+          user_id?: string | null
+          user_roles?: string[]
+        }
+        Relationships: []
+      }
       bookings: {
         Row: {
           address: string
