@@ -53,25 +53,52 @@ Deno.serve(async (req) => {
       .maybeSingle();
     if (!booking) return new Response("ok", { status: 200 });
 
-    // Pull full charge for accurate totals if we don't have it yet
-    if (!charge) {
+    // Always fetch full list of refunds for the charge so we have an authoritative array.
+    let chargeId: string | null = charge?.id ?? null;
+    if (!chargeId) {
       try {
-        const pi = await stripe.paymentIntents.retrieve(piId, { expand: ["latest_charge"] });
-        charge = pi.latest_charge as Stripe.Charge;
+        const piFull = await stripe.paymentIntents.retrieve(piId, { expand: ["latest_charge"] });
+        charge = piFull.latest_charge as Stripe.Charge;
+        chargeId = charge?.id ?? null;
       } catch (_) { /* ignore */ }
     }
 
-    const refunded = (charge?.amount_refunded ?? refund?.amount ?? 0);
-    const captured = charge?.amount_captured ?? 0;
-    const isFullRefund = captured > 0 ? refunded >= captured : true;
+    let allRefunds: Stripe.Refund[] = [];
+    if (chargeId) {
+      try {
+        const list = await stripe.refunds.list({ charge: chargeId, limit: 100 });
+        allRefunds = list.data;
+      } catch (_) { /* fall back to single refund */ }
+    }
+    if (allRefunds.length === 0 && refund) allRefunds = [refund];
 
+    // Sum only succeeded refunds for the "refunded" total.
+    const succeeded = allRefunds.filter((r) => r.status === "succeeded" || r.status == null);
+    const refundedTotal = succeeded.reduce((s, r) => s + (r.amount ?? 0), 0);
+    const captured = charge?.amount_captured ?? 0;
+    const isFullRefund = captured > 0 ? refundedTotal >= captured : succeeded.length > 0;
+
+    const refundsJson = allRefunds
+      .sort((a, b) => (a.created ?? 0) - (b.created ?? 0))
+      .map((r) => ({
+        id: r.id,
+        amount: r.amount,
+        currency: r.currency,
+        reason: r.reason ?? null,
+        status: r.status ?? "succeeded",
+        failure_reason: r.failure_reason ?? null,
+        created_at: r.created ? new Date(r.created * 1000).toISOString() : null,
+      }));
+
+    const last = succeeded[succeeded.length - 1] ?? refund;
     const updates: Record<string, any> = {
-      refund_id: refund?.id ?? null,
-      refund_reason: refund?.reason ?? refund?.failure_reason ?? null,
-      refund_amount: refunded,
+      refunds: refundsJson,
+      refund_id: last?.id ?? null,
+      refund_reason: last?.reason ?? last?.failure_reason ?? null,
+      refund_amount: refundedTotal,
       refunded_at: new Date().toISOString(),
     };
-    if (refund?.status === "succeeded" || refund?.status == null) {
+    if (succeeded.length > 0) {
       updates.payment_status = isFullRefund ? "refunded" : "partially_refunded";
       if (isFullRefund) updates.status = "cancelled";
     }
