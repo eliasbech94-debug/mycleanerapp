@@ -46,6 +46,7 @@ const App = () => (
             <Route path="/task/offers" element={<MatchingOffers />} />
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin/stripe" element={<AdminStripe />} />
+            <Route path="/admin/webhooks" element={<AdminWebhooks />} />
             <Route path="/employee" element={<EmployeeDashboard />} />
             <Route path="/book/:id" element={<BookingFlow />} />
             <Route path="/mine-bookinger" element={<MyBookings />} />
