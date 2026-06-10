@@ -58,6 +58,23 @@ export async function listAddresses(userId: string): Promise<CustomerAddress[]> 
   return (data || []) as unknown as CustomerAddress[];
 }
 
+export type AddressAccessPatch = Partial<Pick<CustomerAddress,
+  "access_method" | "access_code" | "access_instructions" |
+  "has_pets" | "pet_details" | "has_children" |
+  "parking_info" | "cleaning_supplies_available"
+>>;
+
+export async function updateAddressAccess(id: string, patch: AddressAccessPatch): Promise<CustomerAddress> {
+  const { data, error } = await supabase
+    .from("customer_addresses" as any)
+    .update(patch as any)
+    .eq("id", id)
+    .select("*")
+    .single();
+  if (error) throw error;
+  return data as unknown as CustomerAddress;
+}
+
 export function buildAutoNotes(a: CustomerAddress): string {
   const parts: string[] = [];
   if (a.access_method && a.access_method !== "home") {
