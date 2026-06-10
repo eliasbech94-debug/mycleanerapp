@@ -675,6 +675,16 @@ function Step3({ address, setAddress, addressValid, setAddressValid, setAddressP
           </div>
         )}
 
+        {/* Address verification card */}
+        <AddressVerifyCard
+          address={address}
+          addressValid={addressValid}
+          savedAddresses={savedAddresses}
+          selectedAddressId={selectedAddressId}
+          usingNewAddress={usingNewAddress}
+          usingProfileAddress={usingProfileAddress}
+          profile={profile}
+        />
 
         <label className="block rounded-2xl border-2 bg-white p-4" style={{ borderColor: `${C.ink}22` }}>
           <div className="text-[10px] font-black uppercase tracking-[0.22em] opacity-70">Besked til cleaneren (valgfri)</div>
