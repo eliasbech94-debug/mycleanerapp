@@ -126,7 +126,10 @@ export default function AdminWebhooks() {
             <Button onClick={load} disabled={loading}>
               <RefreshCw className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`} />Genindlæs
             </Button>
-          </div>
+        </div>
+
+        <WebhookAlertBanner />
+
         </div>
 
         <Card>
