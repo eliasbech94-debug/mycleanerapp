@@ -4,6 +4,7 @@ import { ArrowLeft, Calendar, Check, Clock, Loader2, MapPin, MessageSquare, Spar
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import OnboardingChecklist, { ChecklistItem } from "@/components/OnboardingChecklist";
+import { validateContact, statusFrom } from "@/lib/onboarding-validation";
 import { toast } from "sonner";
 
 const C = { ink: "#0a3d3a", orange: "#ff6b35", cream: "#f5f0e0", teal: "#168a7a", mint: "#c8e6c0" };
@@ -315,7 +316,12 @@ function ProviderOnboardingChecklist({
   }
 
   const items: ChecklistItem[] = useMemo(() => {
-    const profileDone = !!(profile?.full_name && profile?.phone && profile?.provider_id);
+    const contactV = validateContact({
+      full_name: profile?.full_name ?? "",
+      phone: profile?.phone ?? "",
+      country_code: profile?.country_code ?? "",
+    });
+    const profileLinked = !!profile?.provider_id;
     const emailVerified = !!user?.email_confirmed_at || !!user?.confirmed_at;
     const acceptedAny = (bookings || []).some((b) => b.status === "accepted" || b.status === "completed");
 
@@ -331,9 +337,13 @@ function ProviderOnboardingChecklist({
     return [
       {
         key: "profile",
-        title: "Provider-profil oprettet",
-        description: profileDone ? "Navn, telefon og provider-ID er udfyldt." : "Udfyld navn, telefon og provider-ID på din profil.",
-        status: profileDone ? "complete" : "incomplete",
+        title: "Kontaktoplysninger",
+        description: contactV.ok && profileLinked
+          ? "Navn, telefon og provider-ID er valideret."
+          : !profileLinked
+            ? "Provider-ID mangler på din profil."
+            : (contactV.error || "Udfyld navn, telefon og land."),
+        status: statusFrom({ ok: contactV.ok && profileLinked, error: contactV.error }),
         actionLabel: "Til profil",
         onAction: () => { window.location.href = "/profil"; },
       },
