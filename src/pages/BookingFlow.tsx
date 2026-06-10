@@ -107,8 +107,42 @@ function BookingFlowInner() {
   const stripe = useStripe();
   const elements = useElements();
 
-  // Auto-fill address from profile when it loads
+  // Saved customer addresses (address book)
+  const [savedAddresses, setSavedAddresses] = useState<CustomerAddress[]>([]);
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
+  const [usingNewAddress, setUsingNewAddress] = useState(false);
+  const [notesAutoFilled, setNotesAutoFilled] = useState(false);
+
+  function pickSavedAddress(a: CustomerAddress) {
+    setSelectedAddressId(a.id);
+    setAddress(a.address);
+    setAddressPlaceId(a.address_place_id);
+    setAddressLat(a.lat);
+    setAddressLng(a.lng);
+    setAddressValid(!!a.address_place_id);
+    setUsingNewAddress(false);
+    setUsingProfileAddress(false);
+    const auto = buildAutoNotes(a);
+    setNotes((cur) => (!cur || notesAutoFilled ? auto : cur));
+    setNotesAutoFilled(true);
+  }
+
+  // Load saved addresses; auto-pick primary
   useEffect(() => {
+    if (!user) return;
+    listAddresses(user.id)
+      .then((list) => {
+        setSavedAddresses(list);
+        const primary = list.find((a) => a.is_primary) || list[0];
+        if (primary) pickSavedAddress(primary);
+      })
+      .catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
+
+  // Fallback: auto-fill address from profile when no saved addresses
+  useEffect(() => {
+    if (savedAddresses.length > 0) return;
     if (profile?.address && !address) {
       setAddress(profile.address);
       setAddressPlaceId(profile.address_place_id);
@@ -117,7 +151,8 @@ function BookingFlowInner() {
       setAddressValid(!!profile.address_place_id);
       setUsingProfileAddress(true);
     }
-  }, [profile]);
+  }, [profile, savedAddresses.length]);
+
 
   const service = services.find((s) => s.subcategory === serviceKey) || services[0];
   const effectiveRate = service?.unit === "hour" ? service.price : hourlyRate;
