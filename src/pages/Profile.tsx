@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
-  ArrowLeft, ArrowDownCircle, ArrowRight, ArrowUpCircle, Calendar, CheckCircle2, Clock, CreditCard, FileText, History, Home, LayoutDashboard, Loader2,
-  LogOut, MapPin, Menu, Plus, Receipt, Sparkles, Star, Trash2, User as UserIcon, X, XCircle,
+  ArrowLeft, ArrowDownCircle, ArrowRight, ArrowUpCircle, Calendar, CheckCircle2, Clock, CreditCard, FileText, History, Home, LayoutDashboard, LifeBuoy, Loader2,
+  LogOut, Mail, MapPin, Menu, MessageCircle, Plus, Receipt, ShieldAlert, Sparkles, Star, Trash2, User as UserIcon, X, XCircle,
 } from "lucide-react";
 import { loadStripe, Stripe } from "@stripe/stripe-js";
 import { Elements, useStripe, useElements, CardElement } from "@stripe/react-stripe-js";
@@ -32,6 +32,7 @@ export default function Profile() {
   const [params, setParams] = useSearchParams();
   const tab = (params.get("tab") as TabKey) || "overview";
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [supportOpen, setSupportOpen] = useState<false | "support" | "complaint">(false);
 
   useEffect(() => {
     if (!loading && !user) navigate("/login?redirect=/profil");
@@ -82,6 +83,22 @@ export default function Profile() {
               );
             })}
           </nav>
+          <div className="sticky top-[calc(100vh-9rem)] mt-8 space-y-1 border-t pt-4" style={{ borderColor: `${C.ink}1f` }}>
+            <button
+              onClick={() => setSupportOpen("support")}
+              className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-[11px] font-bold uppercase tracking-[0.16em] opacity-60 hover:opacity-100"
+              style={{ color: C.ink }}
+            >
+              <LifeBuoy className="h-3.5 w-3.5" /> Hjælp & support
+            </button>
+            <button
+              onClick={() => setSupportOpen("complaint")}
+              className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-[11px] font-bold uppercase tracking-[0.16em] opacity-60 hover:opacity-100"
+              style={{ color: C.ink }}
+            >
+              <ShieldAlert className="h-3.5 w-3.5" /> Indsend klage
+            </button>
+          </div>
         </aside>
 
         {/* Mobile top bar */}
@@ -158,6 +175,22 @@ export default function Profile() {
                     );
                   })}
                 </nav>
+                <div className="mt-6 space-y-1 border-t pt-4" style={{ borderColor: `${C.ink}1f` }}>
+                  <button
+                    onClick={() => { setMobileMenuOpen(false); setSupportOpen("support"); }}
+                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-[11px] font-bold uppercase tracking-[0.16em] opacity-70"
+                    style={{ color: C.ink }}
+                  >
+                    <LifeBuoy className="h-3.5 w-3.5" /> Hjælp & support
+                  </button>
+                  <button
+                    onClick={() => { setMobileMenuOpen(false); setSupportOpen("complaint"); }}
+                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-[11px] font-bold uppercase tracking-[0.16em] opacity-70"
+                    style={{ color: C.ink }}
+                  >
+                    <ShieldAlert className="h-3.5 w-3.5" /> Indsend klage
+                  </button>
+                </div>
               </div>
             </div>
           )}
@@ -173,7 +206,76 @@ export default function Profile() {
           {tab === "history" && <HistoryTab />}
         </div>
       </div>
+      {supportOpen && <SupportDialog mode={supportOpen} onClose={() => setSupportOpen(false)} />}
     </main>
+  );
+}
+
+function SupportDialog({ mode, onClose }: { mode: "support" | "complaint"; onClose: () => void }) {
+  const { user } = useAuth();
+  const isComplaint = mode === "complaint";
+  const email = isComplaint ? "klage@homehero.dk" : "support@homehero.dk";
+  const subject = isComplaint ? "Klage fra kunde" : "Henvendelse til support";
+  const body = `Hej HomeHero-team,%0D%0A%0D%0A${isComplaint ? "Jeg ønsker at indsende en klage vedrørende:" : "Jeg har brug for hjælp med:"}%0D%0A%0D%0A%0D%0A--%0D%0A${user?.email ?? ""}`;
+  const mailto = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${body}`;
+  return (
+    <div className="fixed inset-0 z-[60] grid place-items-center p-4" style={{ background: `${C.ink}88` }} onClick={onClose}>
+      <div
+        className="w-full max-w-md rounded-2xl p-6 shadow-2xl"
+        style={{ background: C.cream, color: C.ink }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="mb-1 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="grid h-9 w-9 place-items-center rounded-lg" style={{ background: isComplaint ? `${C.orange}22` : `${C.teal}22`, color: isComplaint ? C.orange : C.teal }}>
+              {isComplaint ? <ShieldAlert className="h-4 w-4" /> : <LifeBuoy className="h-4 w-4" />}
+            </span>
+            <h3 className="font-display text-xl">{isComplaint ? "Indsend klage" : "Hjælp & support"}</h3>
+          </div>
+          <button onClick={onClose} className="grid h-8 w-8 place-items-center rounded-lg" style={{ background: `${C.ink}11` }}>
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+        <p className="mt-2 text-sm opacity-70">
+          {isComplaint
+            ? "Vi tager alle klager alvorligt og besvarer dem hurtigst muligt. Vælg, hvordan du vil kontakte os."
+            : "Vi er her for at hjælpe. Vælg den kontaktform, der passer dig bedst."}
+        </p>
+        <div className="mt-5 space-y-2">
+          <a
+            href={mailto}
+            className="flex items-center gap-3 rounded-xl border-2 px-4 py-3 text-sm font-bold transition hover:shadow"
+            style={{ borderColor: `${C.ink}22`, color: C.ink, background: "#fff" }}
+          >
+            <span className="grid h-9 w-9 place-items-center rounded-lg" style={{ background: C.ink, color: C.cream }}>
+              <Mail className="h-4 w-4" />
+            </span>
+            <span className="flex-1">
+              <span className="block uppercase tracking-[0.14em] text-[10px] opacity-60">Email</span>
+              <span className="block">{email}</span>
+            </span>
+            <ArrowRight className="h-4 w-4 opacity-60" />
+          </a>
+          <button
+            onClick={() => { toast.info("Chat åbner om et øjeblik …"); }}
+            className="flex w-full items-center gap-3 rounded-xl border-2 px-4 py-3 text-left text-sm font-bold transition hover:shadow"
+            style={{ borderColor: `${C.ink}22`, color: C.ink, background: "#fff" }}
+          >
+            <span className="grid h-9 w-9 place-items-center rounded-lg" style={{ background: C.teal, color: C.cream }}>
+              <MessageCircle className="h-4 w-4" />
+            </span>
+            <span className="flex-1">
+              <span className="block uppercase tracking-[0.14em] text-[10px] opacity-60">Live chat</span>
+              <span className="block">Skriv med en medarbejder</span>
+            </span>
+            <ArrowRight className="h-4 w-4 opacity-60" />
+          </button>
+        </div>
+        <p className="mt-4 text-[11px] opacity-50">
+          Vi besvarer henvendelser inden for 24 timer på hverdage. Telefonisk support tilbydes ikke.
+        </p>
+      </div>
+    </div>
   );
 }
 
