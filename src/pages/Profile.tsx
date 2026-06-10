@@ -223,6 +223,17 @@ type Booking = {
   refund_reason: string | null;
   refund_amount: number | null;
   refunded_at: string | null;
+  refunds: RefundEntry[] | null;
+};
+
+type RefundEntry = {
+  id: string;
+  amount: number;
+  currency: string;
+  reason: string | null;
+  status: string;
+  failure_reason: string | null;
+  created_at: string | null;
 };
 
 const STATUS_LABEL: Record<Booking["status"], { label: string; bg: string; fg: string }> = {
