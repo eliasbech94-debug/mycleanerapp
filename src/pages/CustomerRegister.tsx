@@ -68,10 +68,19 @@ const CustomerRegister = () => {
         });
         if (error) throw error;
         userId = data.user?.id ?? null;
+        // If email confirmation is required, signUp returns no session.
+        // Try logging in immediately — works when the project allows it.
         if (!data.session) {
-          toast.success("Konto oprettet — bekræft din email for at logge ind");
-          navigate("/login?redirect=/profil");
-          return;
+          const { data: signin, error: signinErr } = await supabase.auth.signInWithPassword({
+            email: form.email,
+            password: form.password,
+          });
+          if (signinErr || !signin.session) {
+            toast.success("Konto oprettet — bekræft din email for at færdiggøre profilen");
+            navigate("/login?redirect=/profil");
+            return;
+          }
+          userId = signin.user.id;
         }
       } else {
         const { data } = await supabase.auth.getUser();
