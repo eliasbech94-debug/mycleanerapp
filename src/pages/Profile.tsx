@@ -41,6 +41,15 @@ export default function Profile() {
     if (!loading && !user) navigate("/login?redirect=/profil");
   }, [loading, user, navigate]);
 
+  // Run account health check max 1x per session
+  useEffect(() => {
+    if (!user) return;
+    const key = `acct-check:${user.id}`;
+    if (sessionStorage.getItem(key)) return;
+    sessionStorage.setItem(key, "1");
+    supabase.functions.invoke("account-check").catch(() => {});
+  }, [user]);
+
   if (loading || !user) {
     return (
       <main className="grid min-h-screen place-items-center" style={{ background: C.cream }}>
