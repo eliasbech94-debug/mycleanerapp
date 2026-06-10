@@ -122,6 +122,49 @@ Deno.serve(async (req) => {
             };
           },
         }),
+        run_account_check: tool({
+          description:
+            "Scan brugerens konto for opsætningsproblemer (manglende telefon, ugyldig email, manglende adgangsinfo, kommende bookinger, glemte svar). Opretter notifikationer i indbakken automatisk. Brug uden parametre.",
+          inputSchema: z.object({}),
+          execute: async () => {
+            const drafts = await runHealthCheck(supabase, user.id, user.email ?? null);
+            const created = await upsertNotifications(supabase, user.id, drafts);
+            return {
+              ok: true,
+              found: drafts.length,
+              created,
+              issues: drafts.map((d) => ({ title: d.title, severity: d.severity })),
+            };
+          },
+        }),
+        notify_customer: tool({
+          description:
+            "Send en proaktiv notifikation til brugerens indbakke. Brug når du opdager noget brugeren skal handle på (fx manglende telefon-ciffer, email-bounces, ubesvaret cleaner-besked, eller anden hjælp). Sender også besked om at AI vurderer brugeren har brug for hjælp.",
+          inputSchema: z.object({
+            title: z.string().describe("Kort overskrift på dansk (maks 60 tegn)."),
+            body: z.string().describe("Forklarende tekst på dansk (1-2 sætninger)."),
+            kind: z.enum(["setup", "reminder", "cleaner_message", "tip", "alert"]).describe("Type."),
+            severity: z.enum(["info", "warning", "error", "success"]).default("info"),
+            action_label: z.string().optional().describe("Knaptekst, fx 'Ret telefon'."),
+            action_url: z.string().optional().describe("Intern app-sti, fx '/profil?tab=info'."),
+            dedupe_key: z.string().describe("Unik nøgle der forhindrer dubletter, fx 'ai:phone-typo'."),
+          }),
+          execute: async (input) => {
+            const created = await upsertNotifications(supabase, user.id, [
+              {
+                kind: input.kind,
+                severity: input.severity,
+                title: input.title,
+                body: input.body,
+                action_label: input.action_label,
+                action_url: input.action_url,
+                dedupe_key: input.dedupe_key,
+                related_thread_id: threadId,
+              },
+            ]);
+            return { ok: true, created };
+          },
+        }),
       },
     });
 
