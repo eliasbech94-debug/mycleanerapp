@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
-  ArrowLeft, ArrowDownCircle, ArrowUpCircle, Calendar, CheckCircle2, Clock, CreditCard, FileText, History, Loader2,
+  ArrowLeft, ArrowDownCircle, ArrowUpCircle, Calendar, CheckCircle2, Clock, CreditCard, FileText, History, Home, Loader2,
   LogOut, MapPin, Plus, Receipt, Sparkles, Trash2, User as UserIcon, XCircle,
 } from "lucide-react";
 import { loadStripe, Stripe } from "@stripe/stripe-js";
@@ -9,14 +9,16 @@ import { Elements, useStripe, useElements, CardElement } from "@stripe/react-str
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import AddressAutocomplete from "@/components/AddressAutocomplete";
+import AddressBook from "@/components/AddressBook";
 import { toast } from "sonner";
 
 const C = { ink: "#0a3d3a", orange: "#ff6b35", cream: "#f5f0e0", teal: "#168a7a", mint: "#c8e6c0" };
 
-type TabKey = "info" | "bookings" | "cards" | "invoices" | "history";
+type TabKey = "info" | "addresses" | "bookings" | "cards" | "invoices" | "history";
 
 const TABS: { key: TabKey; label: string; icon: typeof UserIcon }[] = [
   { key: "info", label: "Info", icon: UserIcon },
+  { key: "addresses", label: "Adresser", icon: Home },
   { key: "bookings", label: "Bookinger", icon: Calendar },
   { key: "cards", label: "Betalingskort", icon: CreditCard },
   { key: "invoices", label: "Fakturaer", icon: FileText },
