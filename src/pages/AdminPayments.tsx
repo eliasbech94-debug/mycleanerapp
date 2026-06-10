@@ -484,6 +484,9 @@ export default function AdminPayments() {
             )}
           </CardContent>
         </Card>
+
+        {/* Editable thresholds */}
+        <MarketThresholdsEditor canEdit={isAdmin} onLoaded={setThresholds} />
       </div>
     </div>
   );
