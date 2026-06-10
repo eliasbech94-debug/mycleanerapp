@@ -214,11 +214,15 @@ type Booking = {
   customer_pays: number;
   currency: string;
   status: "pending" | "accepted" | "declined" | "cancelled" | "completed";
-  payment_status: "none" | "authorized" | "captured" | "cancelled" | "failed";
+  payment_status: "none" | "authorized" | "captured" | "canceled" | "failed" | "refunded";
   created_at: string;
   decided_at: string | null;
   payment_method_brand: string | null;
   payment_method_last4: string | null;
+  refund_id: string | null;
+  refund_reason: string | null;
+  refund_amount: number | null;
+  refunded_at: string | null;
 };
 
 const STATUS_LABEL: Record<Booking["status"], { label: string; bg: string; fg: string }> = {
