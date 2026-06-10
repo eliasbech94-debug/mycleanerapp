@@ -37,12 +37,27 @@ Deno.serve(async (req) => {
       break;
     case "payment_intent.canceled":
       updates.payment_status = "canceled";
-      if (event.type === "payment_intent.canceled") updates.status = "cancelled";
+      updates.status = "cancelled";
       break;
     case "payment_intent.payment_failed":
       updates.payment_status = "failed";
       break;
   }
+
+  // Capture card brand + last4 for receipts when payment is authorized or succeeded.
+  if (updates.payment_status === "authorized" || updates.payment_status === "captured") {
+    try {
+      const pmId = typeof pi.payment_method === "string" ? pi.payment_method : pi.payment_method?.id;
+      if (pmId) {
+        const pm = await stripe.paymentMethods.retrieve(pmId);
+        if (pm.card) {
+          updates.payment_method_brand = pm.card.brand;
+          updates.payment_method_last4 = pm.card.last4;
+        }
+      }
+    } catch (_) { /* non-fatal */ }
+  }
+
   if (Object.keys(updates).length) {
     await admin.from("bookings").update(updates).eq("id", bookingId);
   }
