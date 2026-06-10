@@ -40,14 +40,15 @@ Deno.serve(async (req) => {
 
     // Log rejected attempt so admin can see attacks / misconfig
     try {
-      await admin.from("stripe_webhook_events").insert({
-        stripe_event_id: `rejected-${Date.now()}`,
+      const { error: logErr } = await admin.from("stripe_webhook_events").insert({
+        stripe_event_id: `rejected-${crypto.randomUUID()}`,
         event_type: "webhook.rejected",
-        livemode: null,
-        payload: { error: errMsg, signature_present: !!sig, secret_present: !!secret },
+        livemode: false,
+        payload: { error: errMsg, signature_present: !!sig, secret_present: !!secret } as any,
         status: "rejected",
       });
-    } catch (_) { /* ignore logging failure */ }
+      if (logErr) console.error("Failed to log rejected webhook:", logErr);
+    } catch (e) { console.error("Failed to log rejected webhook:", e); }
 
     return new Response(JSON.stringify({ error: "Webhook Error", message: errMsg }), {
       status: 400,
