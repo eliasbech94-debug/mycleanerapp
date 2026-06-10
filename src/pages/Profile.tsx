@@ -200,6 +200,7 @@ export default function Profile() {
 
         <div className="mt-6 flex-1 lg:mt-0">
           {tab === "overview" && <OverviewTab goTo={(k) => setParams({ tab: k })} />}
+          {tab === "inbox" && <InboxPanel />}
           {tab === "info" && <InfoTab />}
           {tab === "addresses" && <AddressesTab />}
           {tab === "bookings" && <BookingsTab />}
