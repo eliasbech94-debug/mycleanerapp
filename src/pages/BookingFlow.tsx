@@ -9,7 +9,8 @@ import { getProvider, getCountry, deriveServices, deriveHourlyRate, formatPrice 
 import { toast } from "@/hooks/use-toast";
 import AddressAutocomplete from "@/components/AddressAutocomplete";
 import AddressBook from "@/components/AddressBook";
-import { listAddresses, buildAutoNotes, PLACE_TYPE_LABEL, ACCESS_METHOD_LABEL, type CustomerAddress } from "@/lib/customerAddresses";
+import { listAddresses, buildAutoNotes, updateAddressAccess, PLACE_TYPE_LABEL, ACCESS_METHOD_LABEL, type CustomerAddress, type AccessMethod } from "@/lib/customerAddresses";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Elements, CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
@@ -332,6 +333,8 @@ function BookingFlowInner() {
                   pickSavedAddress={pickSavedAddress}
                   usingNewAddress={usingNewAddress}
                   setUsingNewAddress={setUsingNewAddress}
+                  setSavedAddresses={setSavedAddresses}
+                  setNotesAutoFilled={setNotesAutoFilled}
                 />
               )}
               {step === 4 && (
@@ -577,7 +580,9 @@ function Step2({ weekStart, setWeekStart, weekDays, today, date, setDate, slot, 
 /* ---------------- Address Verify Card ---------------- */
 function AddressVerifyCard({
   address, addressValid, savedAddresses, selectedAddressId, usingNewAddress, usingProfileAddress, profile,
+  onSavedUpdated, setNotes, setNotesAutoFilled,
 }: any) {
+  const [editOpen, setEditOpen] = useState(false);
   if (!addressValid || !address) return null;
 
   const saved = (savedAddresses || []).find((a: CustomerAddress) => a.id === selectedAddressId);
@@ -611,8 +616,22 @@ function AddressVerifyCard({
       </div>
 
       <div className="mt-3 rounded-xl border-2 bg-white p-3" style={{ borderColor: `${C.ink}18` }}>
-        <div className="font-display text-lg leading-tight">{isSaved ? saved.label : isProfile ? "Fra din profil" : "Manuel indtastning"}</div>
-        <div className="mt-0.5 text-sm opacity-80">{address}</div>
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0">
+            <div className="font-display text-lg leading-tight">{isSaved ? saved.label : isProfile ? "Fra din profil" : "Manuel indtastning"}</div>
+            <div className="mt-0.5 text-sm opacity-80">{address}</div>
+          </div>
+          {isSaved && (
+            <button
+              type="button"
+              onClick={() => setEditOpen(true)}
+              className="shrink-0 inline-flex items-center gap-1 rounded-full border-2 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.18em] transition hover:bg-white"
+              style={{ borderColor: C.orange, color: C.orange }}
+            >
+              <Pencil className="h-3 w-3" /> Rediger
+            </button>
+          )}
+        </div>
 
         {isSaved && (
           <div className="mt-3 space-y-2">
@@ -701,16 +720,199 @@ function AddressVerifyCard({
         )}
         {isOneTime && (
           <div className="mt-2 text-[11px] opacity-60">
-            Du bruger en manuel adresse. Overvej at gemme den i din adressebog med adgangsinfo og kæledyr, så cleaneren får alt at vide automatisk.
+            Du bruger en manuel adresse. Skriv adgangsinfo og kæledyr direkte i beskeden til cleaneren nedenfor.
           </div>
         )}
       </div>
+
+      {isSaved && (
+        <EditAccessDialog
+          open={editOpen}
+          onOpenChange={setEditOpen}
+          address={saved}
+          onSaved={(updated) => {
+            onSavedUpdated?.(updated);
+            // Refresh auto-notes so cleaner gets the new info
+            setNotes?.(buildAutoNotes(updated));
+            setNotesAutoFilled?.(true);
+            setEditOpen(false);
+          }}
+        />
+      )}
     </div>
   );
 }
 
+/* ---------------- Edit Access & Pets Dialog ---------------- */
+function EditAccessDialog({
+  open, onOpenChange, address, onSaved,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  address: CustomerAddress;
+  onSaved: (a: CustomerAddress) => void;
+}) {
+  const [accessMethod, setAccessMethod] = useState<AccessMethod>(address.access_method);
+  const [accessCode, setAccessCode] = useState(address.access_code || "");
+  const [accessInstructions, setAccessInstructions] = useState(address.access_instructions || "");
+  const [hasPets, setHasPets] = useState(address.has_pets);
+  const [petDetails, setPetDetails] = useState(address.pet_details || "");
+  const [hasChildren, setHasChildren] = useState(address.has_children);
+  const [parkingInfo, setParkingInfo] = useState(address.parking_info || "");
+  const [supplies, setSupplies] = useState(address.cleaning_supplies_available);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      setAccessMethod(address.access_method);
+      setAccessCode(address.access_code || "");
+      setAccessInstructions(address.access_instructions || "");
+      setHasPets(address.has_pets);
+      setPetDetails(address.pet_details || "");
+      setHasChildren(address.has_children);
+      setParkingInfo(address.parking_info || "");
+      setSupplies(address.cleaning_supplies_available);
+    }
+  }, [open, address]);
+
+  async function handleSave() {
+    setSaving(true);
+    try {
+      const updated = await updateAddressAccess(address.id, {
+        access_method: accessMethod,
+        access_code: accessCode.trim() || null,
+        access_instructions: accessInstructions.trim() || null,
+        has_pets: hasPets,
+        pet_details: hasPets ? (petDetails.trim() || null) : null,
+        has_children: hasChildren,
+        parking_info: parkingInfo.trim() || null,
+        cleaning_supplies_available: supplies,
+      });
+      toast({ title: "Opdateret", description: "Adgang og kæledyr er gemt på adressen." });
+      onSaved(updated);
+    } catch (e: any) {
+      toast({ title: "Kunne ikke gemme", description: e?.message || "Prøv igen", variant: "destructive" });
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  const inputCls = "mt-1 w-full rounded-lg border-2 bg-white px-3 py-2 text-sm focus:outline-none";
+  const labelCls = "text-[10px] font-black uppercase tracking-[0.18em] opacity-70";
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="font-display text-2xl">Rediger adgang & kæledyr</DialogTitle>
+          <div className="text-xs opacity-70">Ændringer gemmes på "{address.label}" i din adressebog.</div>
+        </DialogHeader>
+
+        <div className="space-y-3 py-2">
+          <div>
+            <label className={labelCls}>Sådan kommer cleaneren ind</label>
+            <select
+              value={accessMethod}
+              onChange={(e) => setAccessMethod(e.target.value as AccessMethod)}
+              className={inputCls}
+              style={{ borderColor: `${C.ink}22` }}
+            >
+              {(Object.keys(ACCESS_METHOD_LABEL) as AccessMethod[]).map((k) => (
+                <option key={k} value={k}>{ACCESS_METHOD_LABEL[k]}</option>
+              ))}
+            </select>
+          </div>
+
+          {(accessMethod === "key_box" || accessMethod === "code") && (
+            <div>
+              <label className={labelCls}>Kode</label>
+              <input
+                value={accessCode}
+                onChange={(e) => setAccessCode(e.target.value)}
+                placeholder="Fx 1234"
+                className={inputCls}
+                style={{ borderColor: `${C.ink}22` }}
+              />
+            </div>
+          )}
+
+          <div>
+            <label className={labelCls}>Instruktioner</label>
+            <textarea
+              value={accessInstructions}
+              onChange={(e) => setAccessInstructions(e.target.value)}
+              rows={2}
+              placeholder="Fx nøgleboks ved postkasse, ring på 3. sal…"
+              className={inputCls}
+              style={{ borderColor: `${C.ink}22` }}
+            />
+          </div>
+
+          <div className="rounded-xl border-2 p-3" style={{ borderColor: `${C.ink}22` }}>
+            <label className="flex items-center gap-2 text-sm font-bold">
+              <input type="checkbox" checked={hasPets} onChange={(e) => setHasPets(e.target.checked)} />
+              Kæledyr i hjemmet
+            </label>
+            {hasPets && (
+              <input
+                value={petDetails}
+                onChange={(e) => setPetDetails(e.target.value)}
+                placeholder="Fx 1 hund (venlig), 2 katte"
+                className={inputCls}
+                style={{ borderColor: `${C.ink}22` }}
+              />
+            )}
+          </div>
+
+          <label className="flex items-center gap-2 text-sm font-bold">
+            <input type="checkbox" checked={hasChildren} onChange={(e) => setHasChildren(e.target.checked)} />
+            Børn i hjemmet
+          </label>
+
+          <div>
+            <label className={labelCls}>Parkering</label>
+            <input
+              value={parkingInfo}
+              onChange={(e) => setParkingInfo(e.target.value)}
+              placeholder="Fx gratis på vejen, p-licens påkrævet"
+              className={inputCls}
+              style={{ borderColor: `${C.ink}22` }}
+            />
+          </div>
+
+          <label className="flex items-center gap-2 text-sm font-bold">
+            <input type="checkbox" checked={supplies} onChange={(e) => setSupplies(e.target.checked)} />
+            Rengøringsmidler står klar
+          </label>
+        </div>
+
+        <DialogFooter className="gap-2">
+          <button
+            type="button"
+            onClick={() => onOpenChange(false)}
+            className="rounded-full border-2 px-4 py-2 text-sm font-bold"
+            style={{ borderColor: `${C.ink}33` }}
+          >
+            Annullér
+          </button>
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={saving}
+            className="rounded-full px-5 py-2 text-sm font-black uppercase tracking-[0.16em] disabled:opacity-60"
+            style={{ background: C.orange, color: C.cream }}
+          >
+            {saving ? "Gemmer…" : "Gem ændringer"}
+          </button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+
 /* ---------------- Step 3 ---------------- */
-function Step3({ address, setAddress, addressValid, setAddressValid, setAddressPlaceId, setAddressLat, setAddressLng, usingProfileAddress, setUsingProfileAddress, profile, notes, setNotes, provider, date, slot, service, hours, customerPays, savedAddresses, selectedAddressId, pickSavedAddress, usingNewAddress, setUsingNewAddress }: any) {
+function Step3({ address, setAddress, addressValid, setAddressValid, setAddressPlaceId, setAddressLat, setAddressLng, usingProfileAddress, setUsingProfileAddress, profile, notes, setNotes, provider, date, slot, service, hours, customerPays, savedAddresses, selectedAddressId, pickSavedAddress, usingNewAddress, setUsingNewAddress, setSavedAddresses, setNotesAutoFilled }: any) {
   const hasProfileAddress = !!profile?.address;
   const hasSaved = (savedAddresses?.length ?? 0) > 0;
 
@@ -819,6 +1021,13 @@ function Step3({ address, setAddress, addressValid, setAddressValid, setAddressP
           usingNewAddress={usingNewAddress}
           usingProfileAddress={usingProfileAddress}
           profile={profile}
+          setNotes={setNotes}
+          setNotesAutoFilled={setNotesAutoFilled}
+          onSavedUpdated={(updated: CustomerAddress) =>
+            setSavedAddresses?.((list: CustomerAddress[]) =>
+              list.map((a) => (a.id === updated.id ? updated : a))
+            )
+          }
         />
 
         <label className="block rounded-2xl border-2 bg-white p-4" style={{ borderColor: `${C.ink}22` }}>
