@@ -120,13 +120,15 @@ export default function AdminPayments() {
       const hourlyToCustomer = b.hours && b.hours > 0 ? (cp / 100) / Number(b.hours) : null;
       // provider effective hourly take
       const hourlyToProvider = b.hours && b.hours > 0 ? (pg / 100) / Number(b.hours) : null;
-      const minRate = country?.minHourlyRate ?? null;
-      const maxRate = minRate != null ? minRate * maxMultiplier : null;
+      const curKey = (b.currency ?? "").toUpperCase();
+      const t = currencyThresholds.get(curKey);
+      const minRate = t?.min ?? null;
+      const maxRate = t?.max ?? null;
       // Deviation = (actual provider hourly - min) / min  (positive = above min, negative = under)
       const marketDeviationPct =
         hourlyToProvider != null && minRate ? ((hourlyToProvider - minRate) / minRate) * 100 : null;
-      const marketLow = !!(country && hourlyToProvider != null && minRate != null && hourlyToProvider < minRate);
-      const marketHigh = !!(country && hourlyToProvider != null && maxRate != null && hourlyToProvider > maxRate);
+      const marketLow = !!(hourlyToProvider != null && minRate != null && hourlyToProvider < minRate);
+      const marketHigh = !!(hourlyToProvider != null && maxRate != null && hourlyToProvider > maxRate);
       const marketOk = !marketLow && !marketHigh;
 
       // Auto split: find transfer event for this booking / payment_intent
@@ -155,7 +157,7 @@ export default function AdminPayments() {
         bucket,
       };
     });
-  }, [bookings, events, expectedFee, maxMultiplier]);
+  }, [bookings, events, expectedFee, currencyThresholds]);
 
   const filtered = rows.filter((r) => filter === "all" || r.bucket === filter);
 
