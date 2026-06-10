@@ -2,6 +2,7 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 import { convertToModelMessages, streamText, tool, stepCountIs, type UIMessage } from "npm:ai";
 import { z } from "npm:zod";
 import { createLovableAiGatewayProvider } from "../_shared/ai-gateway.ts";
+import { runHealthCheck, upsertNotifications } from "../account-check/index.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
