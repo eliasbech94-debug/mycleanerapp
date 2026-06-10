@@ -9,7 +9,7 @@ import { getProvider, getCountry, deriveServices, deriveHourlyRate, formatPrice 
 import { toast } from "@/hooks/use-toast";
 import AddressAutocomplete from "@/components/AddressAutocomplete";
 import AddressBook from "@/components/AddressBook";
-import { listAddresses, buildAutoNotes, type CustomerAddress } from "@/lib/customerAddresses";
+import { listAddresses, buildAutoNotes, PLACE_TYPE_LABEL, ACCESS_METHOD_LABEL, type CustomerAddress } from "@/lib/customerAddresses";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Elements, CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
