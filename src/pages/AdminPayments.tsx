@@ -330,7 +330,7 @@ export default function AdminPayments() {
                     );
                   })}
                   {byCurrency.length === 0 && (
-                    <tr><td className="py-6 text-muted-foreground text-center" colSpan={8}>Ingen betalinger endnu</td></tr>
+                    <tr><td className="py-6 text-muted-foreground text-center" colSpan={11}>Ingen betalinger endnu</td></tr>
                   )}
                 </tbody>
               </table>
@@ -347,7 +347,8 @@ export default function AdminPayments() {
                 ["all", "Alle"],
                 ["ok", "OK"],
                 ["fee_off", "Gebyr afviger"],
-                ["market_low", "Under markedspris"],
+                ["market_low", "Under min"],
+                ["market_high", "Over max"],
                 ["no_transfer", "Mangler transfer"],
               ] as const).map(([k, label]) => (
                 <Button
@@ -371,7 +372,8 @@ export default function AdminPayments() {
                   const issues: string[] = [];
                   if (!r.splitOk) issues.push("split ≠ kundepris");
                   if (!r.feeOk) issues.push(`gebyr ${r.effectiveFeePct.toFixed(1)}% (forventet ${expectedFee}%)`);
-                  if (!r.marketOk) issues.push(`provider ${r.hourlyToProvider?.toFixed(0)} < min ${r.minRate}`);
+                  if (r.marketLow) issues.push(`provider ${r.hourlyToProvider?.toFixed(0)} < min ${r.minRate}`);
+                  if (r.marketHigh) issues.push(`provider ${r.hourlyToProvider?.toFixed(0)} > max ${r.maxRate?.toFixed(0)}`);
                   if (!r.transferOk) issues.push("transfer mangler/forkert");
                   const ok = issues.length === 0;
                   return (
@@ -425,12 +427,21 @@ export default function AdminPayments() {
                               </p>
                             </div>
                             <div>
-                              <p className="font-semibold mb-1">Markedspris</p>
+                              <p className="font-semibold mb-1">Markedspris (overenskomst)</p>
                               <p>Kunde pris/time: {r.hourlyToCustomer?.toFixed(2) ?? "—"} {r.b.currency?.toUpperCase()}</p>
                               <p>Provider pris/time: {r.hourlyToProvider?.toFixed(2) ?? "—"} {r.b.currency?.toUpperCase()}</p>
-                              <p>Min ({r.country?.code ?? "?"}): {r.minRate ?? "—"} {r.country?.currencySymbol ?? ""}/t</p>
-                              <p className={r.marketOk ? "text-emerald-600" : "text-amber-600"}>
-                                {r.marketOk ? "✓ Over min" : "✗ Under min — overenskomstbrud"}
+                              <p>Spænd ({r.country?.code ?? "?"}): {r.minRate ?? "—"}–{r.maxRate?.toFixed(0) ?? "—"} {r.country?.currencySymbol ?? ""}/t</p>
+                              {r.marketDeviationPct != null && (
+                                <p>Afvigelse vs. min: <span className="font-semibold">{r.marketDeviationPct > 0 ? "+" : ""}{r.marketDeviationPct.toFixed(1)}%</span></p>
+                              )}
+                              <p className={
+                                r.marketLow ? "text-amber-600"
+                                : r.marketHigh ? "text-fuchsia-600"
+                                : "text-emerald-600"
+                              }>
+                                {r.marketLow ? "✗ Under min — overenskomstbrud"
+                                  : r.marketHigh ? "✗ Over max — pris-outlier"
+                                  : "✓ Inden for markedsspænd"}
                               </p>
                             </div>
                             <div>
