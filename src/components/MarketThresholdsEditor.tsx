@@ -45,7 +45,19 @@ export default function MarketThresholdsEditor({ onLoaded, canEdit }: Props) {
     setLoading(false);
   };
 
-  useEffect(() => { load(); /* eslint-disable-next-line */ }, []);
+  useEffect(() => {
+    load();
+    const channel = supabase
+      .channel("market_rate_thresholds_live")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "market_rate_thresholds" },
+        () => { load(); },
+      )
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const setField = (code: string, field: keyof Threshold, value: any) => {
     const base = dirty[code] ?? rows.find((r) => r.country_code === code);
