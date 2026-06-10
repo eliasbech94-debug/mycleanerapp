@@ -15,7 +15,22 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const [params] = useSearchParams();
-  const redirect = params.get("redirect") || "/profil";
+  const explicitRedirect = params.get("redirect");
+
+  async function resolveDestination(): Promise<string> {
+    if (explicitRedirect) return explicitRedirect;
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return "/profil";
+    const { data: roles } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", user.id);
+    const r = (roles ?? []).map((x: any) => x.role);
+    if (r.includes("super_admin") || r.includes("admin")) return "/admin";
+    if (r.includes("employee")) return "/employee";
+    if (r.includes("provider")) return "/provider-dashboard";
+    return "/profil";
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
