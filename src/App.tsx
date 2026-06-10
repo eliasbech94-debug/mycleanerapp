@@ -17,6 +17,7 @@ import CreateTask from "./pages/CreateTask";
 import MatchingOffers from "./pages/MatchingOffers";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminStripe from "./pages/AdminStripe";
+import AdminWebhooks from "./pages/AdminWebhooks";
 import EmployeeDashboard from "./pages/EmployeeDashboard";
 import BookingFlow from "./pages/BookingFlow";
 import MyBookings from "./pages/MyBookings";
@@ -45,6 +46,7 @@ const App = () => (
             <Route path="/task/offers" element={<MatchingOffers />} />
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin/stripe" element={<AdminStripe />} />
+            <Route path="/admin/webhooks" element={<AdminWebhooks />} />
             <Route path="/employee" element={<EmployeeDashboard />} />
             <Route path="/book/:id" element={<BookingFlow />} />
             <Route path="/mine-bookinger" element={<MyBookings />} />
