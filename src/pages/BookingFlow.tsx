@@ -327,6 +327,11 @@ function BookingFlowInner() {
                   provider={provider} date={date} slot={slot}
                   service={service?.subcategory || ""} hours={hours}
                   customerPays={customerPays}
+                  savedAddresses={savedAddresses}
+                  selectedAddressId={selectedAddressId}
+                  pickSavedAddress={pickSavedAddress}
+                  usingNewAddress={usingNewAddress}
+                  setUsingNewAddress={setUsingNewAddress}
                 />
               )}
               {step === 4 && (
