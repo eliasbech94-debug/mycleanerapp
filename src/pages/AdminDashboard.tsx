@@ -161,11 +161,7 @@ export default function AdminDashboard() {
                 >
                   <Icon className="w-4 h-4 opacity-70" />
                   <span className="text-sm font-medium">{item.label}</span>
-                  {item.badge ? (
-                    <span className="ml-auto bg-[#4f46e5] text-[10px] px-2 py-0.5 rounded-full text-white font-bold">
-                      {item.badge}
-                    </span>
-                  ) : item.active ? (
+                  {item.active ? (
                     <span className="ml-auto w-2 h-2 rounded-full bg-[#4f46e5]" />
                   ) : null}
                 </Link>
