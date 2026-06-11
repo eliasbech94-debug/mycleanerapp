@@ -1,13 +1,11 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   Users,
   CreditCard,
-  MessageSquare,
   Webhook,
   ShieldCheck,
   FileText,
-  Settings,
   LogOut,
   Search,
   Bell,
@@ -15,6 +13,7 @@ import {
   ArrowUpRight,
 } from "lucide-react";
 import WebhookAlertBanner from "@/components/WebhookAlertBanner";
+import { supabase } from "@/integrations/supabase/client";
 
 // ============================================================================
 // Mock data — replace with Lovable Cloud queries
@@ -45,7 +44,7 @@ const kpis = [
     value: "156",
     delta: "Se alle detaljer",
     deltaTone: "link" as const,
-    href: "/admin/bookings",
+    href: "/admin/payments",
   },
 ];
 
@@ -80,13 +79,11 @@ const countries = [
 
 const navItems = [
   { label: "Oversigt", href: "/admin", icon: LayoutDashboard, active: true },
-  { label: "Godkendelser", href: "/admin/approvals", icon: ShieldCheck, badge: 14 },
   { label: "Betalinger", href: "/admin/payments", icon: CreditCard },
   { label: "Webhooks", href: "/admin/webhooks", icon: Webhook },
-  { label: "Stripe", href: "/admin/stripe", icon: CreditCard },
-  { label: "Support", href: "/admin/support", icon: MessageSquare },
+  { label: "Stripe", href: "/admin/stripe", icon: ShieldCheck },
   { label: "Adgangs-log", href: "/admin/access-logs", icon: FileText },
-  { label: "Brugere", href: "/admin/users", icon: Users },
+  { label: "Support (medarbejder)", href: "/employee", icon: Users },
 ];
 
 // ============================================================================
@@ -119,6 +116,11 @@ function HealthBar({ pct, tone }: { pct: number; tone: "ok" | "warn" }) {
 // ============================================================================
 
 export default function AdminDashboard() {
+  const navigate = useNavigate();
+  async function handleSignOut() {
+    await supabase.auth.signOut();
+    navigate("/login", { replace: true });
+  }
   return (
     <div
       className="min-h-screen w-full bg-[#0a0a1a] text-slate-300"
@@ -159,11 +161,7 @@ export default function AdminDashboard() {
                 >
                   <Icon className="w-4 h-4 opacity-70" />
                   <span className="text-sm font-medium">{item.label}</span>
-                  {item.badge ? (
-                    <span className="ml-auto bg-[#4f46e5] text-[10px] px-2 py-0.5 rounded-full text-white font-bold">
-                      {item.badge}
-                    </span>
-                  ) : item.active ? (
+                  {item.active ? (
                     <span className="ml-auto w-2 h-2 rounded-full bg-[#4f46e5]" />
                   ) : null}
                 </Link>
@@ -173,19 +171,20 @@ export default function AdminDashboard() {
 
           <div className="mt-auto pt-6 border-t border-[#1e1e5a] space-y-1">
             <Link
-              to="/admin/settings"
+              to="/"
               className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-400 hover:bg-[#141432] hover:text-white transition-all"
             >
-              <Settings className="w-4 h-4 opacity-70" />
-              <span className="text-sm">Indstillinger</span>
+              <LayoutDashboard className="w-4 h-4 opacity-70" />
+              <span className="text-sm">Til forside</span>
             </Link>
-            <Link
-              to="/auth"
-              className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-400 hover:bg-[#141432] hover:text-white transition-all"
+            <button
+              type="button"
+              onClick={handleSignOut}
+              className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-400 hover:bg-[#141432] hover:text-white transition-all"
             >
               <LogOut className="w-4 h-4 opacity-70" />
               <span className="text-sm">Log ud</span>
-            </Link>
+            </button>
           </div>
         </aside>
 
@@ -379,7 +378,7 @@ export default function AdminDashboard() {
                     Support Kø
                   </h4>
                   <Link
-                    to="/admin/support"
+                    to="/employee"
                     className="text-[10px] text-[#4f46e5] hover:underline"
                   >
                     Se alle →
@@ -417,7 +416,7 @@ export default function AdminDashboard() {
                 EU Operationer (12 lande)
               </h4>
               <Link
-                to="/admin/countries"
+                to="/admin/stripe"
                 className="text-[10px] text-[#4f46e5] font-bold uppercase tracking-wider hover:underline"
               >
                 Administrer →
