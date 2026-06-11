@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Menu, X, Globe, ChevronDown, User as UserIcon } from "lucide-react";
 import { countries } from "@/lib/countries";
 import { useAuth } from "@/hooks/useAuth";
+import { useUserRoles } from "@/hooks/useUserRoles";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,11 +17,12 @@ const Header = () => {
   const [selectedCountry, setSelectedCountry] = useState(countries[0]);
   const location = useLocation();
   const { user } = useAuth();
+  const { isAdmin, isEmployee, isProvider } = useUserRoles();
 
-  const isAdmin = location.pathname.startsWith("/admin");
-  const isEmployee = location.pathname.startsWith("/employee");
+  const onAdminRoute = location.pathname.startsWith("/admin");
+  const onEmployeeRoute = location.pathname.startsWith("/employee");
 
-  if (isAdmin || isEmployee) return null;
+  if (onAdminRoute || onEmployeeRoute) return null;
 
   return (
     <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border">
@@ -69,9 +71,11 @@ const Header = () => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem asChild><Link to="/profil">Min profil</Link></DropdownMenuItem>
-                <DropdownMenuItem asChild><Link to="/mine-bookinger">Mine bookinger</Link></DropdownMenuItem>
-                <DropdownMenuItem asChild><Link to="/provider-dashboard">Provider dashboard</Link></DropdownMenuItem>
+                {isAdmin && <DropdownMenuItem asChild><Link to="/admin">Admin dashboard</Link></DropdownMenuItem>}
+                {isEmployee && !isAdmin && <DropdownMenuItem asChild><Link to="/employee">Medarbejder</Link></DropdownMenuItem>}
+                {!isAdmin && !isEmployee && <DropdownMenuItem asChild><Link to="/profil">Min profil</Link></DropdownMenuItem>}
+                {!isAdmin && !isEmployee && <DropdownMenuItem asChild><Link to="/mine-bookinger">Mine bookinger</Link></DropdownMenuItem>}
+                {isProvider && <DropdownMenuItem asChild><Link to="/provider-dashboard">Provider dashboard</Link></DropdownMenuItem>}
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (

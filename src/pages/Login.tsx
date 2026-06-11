@@ -32,6 +32,8 @@ export default function Login() {
     return "/profil";
   }
 
+  const callbackUrl = `${window.location.origin}/auth/callback${explicitRedirect ? `?next=${encodeURIComponent(explicitRedirect)}` : ""}`;
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
@@ -41,18 +43,18 @@ export default function Login() {
           email,
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}${explicitRedirect ?? "/profil"}`,
+            emailRedirectTo: callbackUrl,
             data: { full_name: fullName },
           },
         });
         if (error) throw error;
         toast.success("Konto oprettet — du er logget ind");
-        navigate(await resolveDestination());
+        navigate(await resolveDestination(), { replace: true });
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         toast.success("Velkommen tilbage");
-        navigate(await resolveDestination());
+        navigate(await resolveDestination(), { replace: true });
       }
     } catch (err: any) {
       toast.error(err?.message || "Noget gik galt");
@@ -64,7 +66,7 @@ export default function Login() {
   async function handleGoogle() {
     setLoading(true);
     const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: `${window.location.origin}${explicitRedirect ?? "/profil"}`,
+      redirect_uri: callbackUrl,
     });
     if (result.error) {
       toast.error("Google login fejlede");
@@ -72,7 +74,7 @@ export default function Login() {
       return;
     }
     if (result.redirected) return;
-    navigate(await resolveDestination());
+    navigate(await resolveDestination(), { replace: true });
   }
 
   return (

@@ -7,6 +7,7 @@ import {
 import { loadStripe, Stripe } from "@stripe/stripe-js";
 import { Elements, useStripe, useElements, CardElement } from "@stripe/react-stripe-js";
 import { useAuth } from "@/hooks/useAuth";
+import { useUserRoles } from "@/hooks/useUserRoles";
 import { supabase } from "@/integrations/supabase/client";
 import AddressAutocomplete from "@/components/AddressAutocomplete";
 import AddressBook from "@/components/AddressBook";
@@ -34,6 +35,7 @@ const TABS: { key: TabKey; label: string; icon: typeof UserIcon }[] = [
 
 export default function Profile() {
   const { user, loading } = useAuth();
+  const { isAdmin, isEmployee, loading: rolesLoading } = useUserRoles();
   const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
   const tab = (params.get("tab") as TabKey) || "overview";
@@ -41,8 +43,15 @@ export default function Profile() {
   const [supportOpen, setSupportOpen] = useState<false | "support" | "complaint">(false);
 
   useEffect(() => {
-    if (!loading && !user) navigate("/login?redirect=/profil");
+    if (!loading && !user) navigate("/login?redirect=/profil", { replace: true });
   }, [loading, user, navigate]);
+
+  // Admin/employee should not land on customer profile — send them to their dashboard
+  useEffect(() => {
+    if (loading || rolesLoading || !user) return;
+    if (isAdmin) navigate("/admin", { replace: true });
+    else if (isEmployee) navigate("/employee", { replace: true });
+  }, [loading, rolesLoading, user, isAdmin, isEmployee, navigate]);
 
   // Run account health check max 1x per session
   useEffect(() => {
