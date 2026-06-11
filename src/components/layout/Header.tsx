@@ -19,10 +19,10 @@ const Header = () => {
   const { user } = useAuth();
   const { isAdmin, isEmployee, isProvider } = useUserRoles();
 
-  const isAdmin = location.pathname.startsWith("/admin");
-  const isEmployee = location.pathname.startsWith("/employee");
+  const onAdminRoute = location.pathname.startsWith("/admin");
+  const onEmployeeRoute = location.pathname.startsWith("/employee");
 
-  if (isAdmin || isEmployee) return null;
+  if (onAdminRoute || onEmployeeRoute) return null;
 
   return (
     <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border">
