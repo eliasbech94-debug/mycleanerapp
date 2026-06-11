@@ -9,6 +9,7 @@ import CustomCursor from "@/components/CustomCursor";
 import { AuthProvider } from "@/hooks/useAuth";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
+import AuthCallback from "./pages/AuthCallback";
 import Profile from "./pages/Profile";
 import ProviderRegister from "./pages/ProviderRegister";
 import ProviderProfile from "./pages/ProviderProfile";
@@ -41,6 +42,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/auth/callback" element={<AuthCallback />} />
             <Route path="/profil" element={<Profile />} />
             <Route path="/provider/register" element={<ProviderRegister />} />
             <Route path="/provider/:id" element={<ProviderProfile />} />
