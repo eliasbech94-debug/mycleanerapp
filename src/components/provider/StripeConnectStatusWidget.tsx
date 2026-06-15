@@ -285,17 +285,24 @@ export function StripeConnectStatusWidget() {
               </p>
             </div>
           </div>
-          <button
-            type="button"
-            onClick={onRefresh}
-            disabled={refreshing}
-            className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition hover:opacity-80 disabled:opacity-50"
-            style={{ borderColor: `${C.ink}33` }}
-            aria-label="Opdater Stripe-status"
-          >
-            <RefreshCw className={`h-3.5 w-3.5 ${refreshing ? "animate-spin" : ""}`} />
-            Opdater
-          </button>
+          <div className="flex flex-col items-end gap-1">
+            <button
+              type="button"
+              onClick={onRefresh}
+              disabled={refreshing}
+              className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition hover:opacity-80 disabled:opacity-50"
+              style={{ borderColor: `${C.ink}33` }}
+              aria-label="Opdater Stripe-status"
+            >
+              <RefreshCw className={`h-3.5 w-3.5 ${refreshing ? "animate-spin" : ""}`} />
+              Opdater
+            </button>
+            {lastSync && (
+              <span className="text-[10px] opacity-50" title={lastSync.toLocaleString()}>
+                Auto · {lastSync.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+              </span>
+            )}
+          </div>
         </header>
 
         {error && (
