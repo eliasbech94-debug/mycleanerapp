@@ -1,51 +1,78 @@
-# Adressebog med adgangsinformation
+# Layout System — Komplet plan
 
-Tilføj mulighed for at gemme flere adresser pr. bruger med én primær adresse, samt rige metadata (sted-type, dyr, adgangsinstruktioner mm.) som auto-udfyldes i booking-flowet.
+Bygger et sammenh�ngende layout-system i tre lag, plus l�ser 3 sikkerhedsfund undervejs.
 
-## 1. Database (ny tabel `customer_addresses`)
+## 1. Design system foundation (`src/index.css` + `tailwind.config.ts`)
 
-Felter:
-- `id`, `user_id` (auth.users), `created_at`, `updated_at`
-- `label` (fx "Hjem", "Sommerhus", "Kontor")
-- `address`, `address_place_id`, `lat`, `lng`
-- `is_primary` (bool, max én pr. bruger via partial unique index)
-- `place_type` enum: `private` | `business` | `vacation` | `other`
-- `size_sqm` (int, nullable)
-- `rooms` (int, nullable)
-- `floor` (text, fx "3. sal th")
-- `has_pets` (bool), `pet_details` (text — "2 katte, allergivenlig")
-- `has_children` (bool)
-- `parking_info` (text — "Gratis ved døren / betalingszone")
-- `access_method` enum: `home` | `key_box` | `key_under_mat` | `doorman` | `code` | `other`
-- `access_code` (text), `access_instructions` (text)
-- `wifi_name`, `wifi_password` (text, nullable)
-- `cleaning_supplies_available` (bool)
-- `notes` (text — generelle bemærkninger)
+Udvider eksisterende tokens med et komplet layout-lag:
 
-RLS: brugere kan kun se/ændre egne adresser. Trigger sikrer at sætning af `is_primary=true` fjerner flag fra andre rækker for samme bruger.
+- **Spacing scale** (semantisk): `--space-section`, `--space-block`, `--space-stack`, `--space-inline`
+- **Containere**: `.container-narrow` (640px), `.container-default` (1100px), `.container-wide` (1400px), `.container-full`
+- **Section padding-varianter**: `.section-sm`, `.section-md`, `.section-lg`, `.section-xl`
+- **Grid-utilities**: `.grid-bento`, `.grid-cards-2/3/4`, `.grid-split`, `.grid-sidebar`
+- **Surface tokens**: `--surface-raised`, `--surface-sunken`, `--surface-overlay` + matching shadow tokens
+- **Radius scale**: konsistent radius-system (`--radius-sm/md/lg/xl/2xl`)
+- Alt bruger HSL og eksisterende brand-farver (deep teal, orange, cream, mint).
 
-## 2. Profile-side (`src/pages/Profile.tsx`)
+## 2. Layout-komponenter (`src/components/layout/`)
 
-Ny tab "Adresser" med:
-- Liste over gemte adresser (kort med label, badge for "Primær", chips for type/dyr/børn)
-- "Tilføj adresse" knap → dialog med fuld form (AddressAutocomplete + alle metadata-felter)
-- Rediger / slet pr. adresse
-- "Gør til primær" knap
-- Den nuværende `address`-info-tab fortsætter med basis kontaktoplysninger, men adressedelen flyttes hertil
+Genbrugelige React-komponenter der wrapper tokens:
 
-## 3. Booking-flow (`src/pages/BookingFlow.tsx`)
+- `<PageContainer width="narrow|default|wide|full">` � erstatter ad-hoc max-w divs
+- `<Section padding="sm|md|lg|xl" background="default|cream|teal|gradient">` � semantisk side-section
+- `<Stack gap="sm|md|lg">` og `<Cluster>` � vertikal/horisontal flow
+- `<BentoGrid>` + `<BentoCard size="sm|md|lg|wide|tall">` � forside-grid
+- `<SplitLayout left right ratio="50/50|60/40|40/60">` � to-kolonner hero/section
+- `<CardGrid cols={2|3|4}>` � uniform kort-grid
 
-I Step 3:
-- Hvis brugeren har flere adresser → vis adressevælger (radio cards) med primær valgt by default
-- Når en gemt adresse vælges, auto-udfyldes alle felter (inkl. notes prefyldes med adgangsinstruktioner + dyr + parkering hvis tomt)
-- Stadig mulighed for at indtaste ny engangs-adresse
-- Booking gemmer fortsat `address`, `address_place_id`, `lat`, `lng` på `bookings` (ingen ændring af bookings-skema)
+## 3. Dashboard sidebar shell (`src/components/dashboard/`)
 
-## 4. Teknisk
+shadcn `Sidebar`-baseret app shell til admin/provider/employee:
 
-- Tilføj zod-schema for adresse-form
-- Genbruger `AddressAutocomplete`
-- Bruger `useAuth` hook, ingen ændring der
-- Types regenereres automatisk efter migration
+- `<DashboardLayout role="admin|provider|employee">` med `SidebarProvider`
+- `AppSidebar` med rolle-baserede navigation items, `collapsible="icon"`, `NavLink` med aktiv state
+- `<DashboardHeader>` med `SidebarTrigger`, breadcrumbs, bruger-menu
+- `<DashboardPage title description actions>` wrapper med konsistent header
+- Routes wrapped via `<Outlet />`
 
-Efter approval af migration laver jeg UI'et i Profile + booking-integration.
+## 4. Forside bento refactor (`src/pages/Index.tsx` + sections)
+
+Eksisterende homepage-sektioner migreres til de nye komponenter:
+- Hero �  `<SplitLayout>` med 60/40 ratio
+- "Sådan virker det" � `<BentoGrid>` med blandede str�relser
+- Service-kategorier � `<CardGrid cols={4}>`
+- Beh�lder alle brand-farver, fonts, og indhold uændret � kun struktur swappes.
+
+## 5. Sikkerhedsfund (mandatory, l�ses i samme migration)
+
+- `access_attempts`: fjern anon INSERT, kun service_role m� skrive
+- `realtime.messages`: tilf�j RLS policies scoped p� `auth.uid()` for booking/notification topics
+- `stripe_webhook_events`: fjern �ben SELECT policy, begr�ns til admin-rolle via `has_role`
+
+## Teknisk
+
+```text
+src/
+  index.css                    � udvidet tokens + utilities
+  tailwind.config.ts           � nye spacing/radius/grid keys
+  components/
+    layout/
+      PageContainer.tsx
+      Section.tsx
+      Stack.tsx
+      BentoGrid.tsx
+      SplitLayout.tsx
+      CardGrid.tsx
+      index.ts                 � barrel export
+    dashboard/
+      DashboardLayout.tsx
+      AppSidebar.tsx
+      DashboardHeader.tsx
+      DashboardPage.tsx
+      nav-config.ts            � rolle-baserede items
+  pages/
+    Index.tsx                  � refactored til nye komponenter
+supabase/migrations/<ts>_layout_security.sql
+```
+
+Ingen funktionalitet �ndres � kun struktur, tokens, og sikkerhedspolitikker.
