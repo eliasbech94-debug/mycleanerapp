@@ -13,6 +13,7 @@ import {
   Banknote,
   ArrowRight,
   X,
+  UserCheck,
 } from "lucide-react";
 import {
   Dialog,
@@ -49,6 +50,43 @@ const HUMAN_REQUIREMENTS: Record<string, string> = {
 };
 
 const humanReq = (k: string) => HUMAN_REQUIREMENTS[k] ?? k.replace(/[._]/g, " ");
+
+function hasReq(reqs: string[], ...keys: string[]) {
+  return reqs.some((r) => keys.some((k) => r.includes(k)));
+}
+
+function buildChecklist(status: StripeStatus | null) {
+  if (!status || !status.connected) {
+    return {
+      steps: [
+        { key: "profile", label: "Profil & verifikation", done: false },
+        { key: "bank", label: "Bankkonto tilføjet", done: false },
+        { key: "terms", label: "Vilkår accepteret", done: false },
+      ],
+      pct: 0,
+    };
+  }
+
+  const pending = [
+    ...(status.requirements?.currently_due ?? []),
+    ...(status.requirements?.past_due ?? []),
+  ];
+
+  const profileDone = !!status.details_submitted && !hasReq(pending, "individual.verification", "business_profile", "individual.first_name", "individual.last_name", "individual.dob");
+  const bankDone = !hasReq(pending, "external_account");
+  const termsDone = !hasReq(pending, "tos_acceptance") && !!status.charges_enabled && !!status.payouts_enabled;
+
+  const steps = [
+    { key: "profile", label: "Profil & verifikation", done: profileDone },
+    { key: "bank", label: "Bankkonto tilføjet", done: bankDone },
+    { key: "terms", label: "Vilkår accepteret", done: termsDone },
+  ];
+
+  const doneCount = steps.filter((s) => s.done).length;
+  const pct = Math.round((doneCount / steps.length) * 100);
+
+  return { steps, pct };
+}
 
 export function StripeConnectStatusWidget() {
   const [status, setStatus] = useState<StripeStatus | null>(null);
@@ -118,6 +156,7 @@ export function StripeConnectStatusWidget() {
 
   const connected = !!status?.connected;
   const ready = connected && status?.charges_enabled && status?.payouts_enabled;
+  const checklist = buildChecklist(status);
   const reqs = status?.requirements;
   const pendingReqs = [...new Set([...(reqs?.past_due ?? []), ...(reqs?.currently_due ?? [])])];
 
@@ -180,6 +219,79 @@ export function StripeConnectStatusWidget() {
               />
             </dl>
 
+            {!ready && (
+              <div className="mt-4 rounded-xl border p-4" style={{ borderColor: `${C.orange}44`, background: `${C.orange}08` }}>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-semibold" style={{ color: C.orange }}>
+                    Onboarding-fremskridt
+                  </span>
+                  <span className="text-sm font-bold" style={{ color: C.orange }}>
+                    {checklist.pct}%
+                  </span>
+                </div>
+                <div className="mt-2 h-2 w-full overflow-hidden rounded-full" style={{ background: `${C.ink}15` }}>
+                  <div
+                    className="h-full rounded-full transition-all"
+                    style={{
+                      width: `${checklist.pct}%`,
+                      background: checklist.pct === 100 ? C.teal : C.orange,
+                    }}
+                  />
+                </div>
+                <ul className="mt-3 space-y-2">
+                  {checklist.steps.map((step) => (
+                    <li
+                      key={step.key}
+                      className="flex items-center gap-2.5 text-sm"
+                      style={{ opacity: step.done ? 0.7 : 1 }}
+                    >
+                      {step.done ? (
+                        <CheckCircle2 className="h-4 w-4 shrink-0" style={{ color: C.teal }} />
+                      ) : (
+                        <AlertTriangle className="h-4 w-4 shrink-0" style={{ color: C.orange }} />
+                      )}
+                      <span className={step.done ? "line-through" : "font-medium"}>
+                        {step.label}
+                      </span>
+                      {step.done ? (
+                        <span className="ml-auto text-xs" style={{ color: C.teal }}>Færdig</span>
+                      ) : (
+                        <span className="ml-auto rounded-full px-2 py-0.5 text-[11px] font-semibold text-white" style={{ background: C.orange }}>
+                          Mangler
+                        </span>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+
+                {pendingReqs.length > 0 && (
+                  <div className="mt-3 rounded-lg border p-2.5" style={{ borderColor: `${C.orange}33`, background: "white" }}>
+                    <p className="text-xs font-semibold uppercase tracking-wide opacity-80">Mangler fra Stripe:</p>
+                    <div className="mt-1 flex flex-wrap gap-1.5">
+                      {pendingReqs.map((r) => (
+                        <span
+                          key={r}
+                          className="inline-block rounded-full px-2 py-0.5 text-[11px] font-medium"
+                          style={{ background: `${C.orange}18`, color: C.orange }}
+                        >
+                          {humanReq(r)}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => openOnboardingModal("finish")}
+                  className="mt-4 inline-flex w-full items-center justify-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90"
+                  style={{ background: C.orange }}
+                >
+                  Færdiggør onboarding <ExternalLink className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            )}
+
             <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
               <Meta icon={<Globe className="h-4 w-4" />} label="Land" value={status?.country?.toUpperCase() ?? "—"} />
               <Meta
@@ -189,27 +301,6 @@ export function StripeConnectStatusWidget() {
               />
             </div>
 
-            {pendingReqs.length > 0 && (
-              <div className="mt-4 rounded-lg border p-3" style={{ borderColor: `${C.orange}55`, background: `${C.orange}0d` }}>
-                <p className="text-sm font-semibold" style={{ color: C.orange }}>
-                  Stripe mangler at få:
-                </p>
-                <ul className="mt-1.5 list-disc pl-5 text-sm">
-                  {pendingReqs.map((r) => (
-                    <li key={r}>{humanReq(r)}</li>
-                  ))}
-                </ul>
-                <button
-                  type="button"
-                  onClick={() => openOnboardingModal("finish")}
-                  className="mt-3 inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium text-white"
-                  style={{ background: C.orange }}
-                >
-                  Færdiggør onboarding <ExternalLink className="h-3.5 w-3.5" />
-                </button>
-              </div>
-            )}
-
             {status?.mode && (
               <p className="mt-3 text-xs opacity-60">
                 Konto: <span className="font-mono">{status.account_id}</span> · Mode: {status.mode}
@@ -218,6 +309,23 @@ export function StripeConnectStatusWidget() {
           </>
         ) : (
           <div className="mt-4">
+            {/* Not connected — show checklist preview */}
+            <div className="mb-4 rounded-xl border p-4" style={{ borderColor: `${C.ink}15`, background: `${C.ink}05` }}>
+              <p className="text-sm font-semibold" style={{ color: C.ink }}>
+                Før du kan modtage betalinger:
+              </p>
+              <ul className="mt-2 space-y-2">
+                {checklist.steps.map((step) => (
+                  <li key={step.key} className="flex items-center gap-2.5 text-sm opacity-60">
+                    <div className="grid h-5 w-5 place-items-center rounded-full border" style={{ borderColor: `${C.ink}33` }}>
+                      <span className="text-[10px] font-bold">?</span>
+                    </div>
+                    {step.label}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
             <button
               type="button"
               onClick={() => openOnboardingModal("connect")}
@@ -249,7 +357,7 @@ export function StripeConnectStatusWidget() {
                 </>
               ) : (
                 <>
-                  <FileText className="h-5 w-5" style={{ color: C.orange }} />
+                  <UserCheck className="h-5 w-5" style={{ color: C.orange }} />
                   Færdiggør onboarding
                 </>
               )}
