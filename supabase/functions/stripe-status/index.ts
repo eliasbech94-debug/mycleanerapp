@@ -1,4 +1,7 @@
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
+import { authenticate, requireRole } from "../_shared/auth.ts";
+
+
 
 type KeyInfo = {
   configured: boolean;
@@ -59,6 +62,14 @@ async function checkPublishable(key: string): Promise<KeyInfo> {
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+
+  // Admin-only diagnostic — never expose Stripe account details to other users.
+  const ctx = await authenticate(req, corsHeaders);
+  if (ctx instanceof Response) return ctx;
+  const forbidden = requireRole(ctx, ["admin"], corsHeaders);
+  if (forbidden) return forbidden;
+
+
 
   const sk = Deno.env.get("STRIPE_SECRET_KEY");
   const pk = Deno.env.get("STRIPE_PUBLISHABLE_KEY");
