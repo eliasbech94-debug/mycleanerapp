@@ -10,7 +10,10 @@ import {
   Briefcase,
   ListChecks,
   Settings,
+  Headphones,
+  LifeBuoy,
 } from "lucide-react";
+
 
 export type DashboardRole = "admin" | "employee" | "provider";
 
@@ -52,14 +55,22 @@ export const navConfig: Record<DashboardRole, NavGroup[]> = {
   ],
   employee: [
     {
-      label: "Arbejde",
+      label: "Support",
       items: [
         { title: "Dashboard", url: "/employee", icon: LayoutDashboard },
-        { title: "Webhooks", url: "/admin/webhooks", icon: Webhook },
+        { title: "Mine sager", url: "/employee#tickets", icon: LifeBuoy },
+        { title: "Provider-opfølgning", url: "/employee#providers", icon: Headphones },
         { title: "Inbox", url: "/employee/inbox", icon: Inbox },
       ],
     },
+    {
+      label: "Konto",
+      items: [
+        { title: "Profil", url: "/profil", icon: UserCircle },
+      ],
+    },
   ],
+
   provider: [
     {
       label: "Min forretning",
