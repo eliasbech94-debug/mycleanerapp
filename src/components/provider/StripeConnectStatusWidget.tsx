@@ -97,22 +97,116 @@ export function StripeConnectStatusWidget() {
   const [onboardingUrl, setOnboardingUrl] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"connect" | "finish">("connect");
+  const [lastSync, setLastSync] = useState<Date | null>(null);
 
-  const load = useCallback(async () => {
-    setError(null);
+  const prevStatusRef = useRef<StripeStatus | null>(null);
+  const firstLoadRef = useRef(true);
+
+  const diffAndNotify = useCallback((prev: StripeStatus | null, next: StripeStatus) => {
+    if (!prev) return;
+
+    // Connection transition
+    if (!prev.connected && next.connected) {
+      toast.success("Stripe-konto forbundet", { description: "Din konto er nu koblet til platformen." });
+    }
+
+    // Ready transition (fully enabled)
+    const prevReady = prev.connected && prev.charges_enabled && prev.payouts_enabled;
+    const nextReady = next.connected && next.charges_enabled && next.payouts_enabled;
+    if (!prevReady && nextReady) {
+      toast.success("Du er klar til udbetalinger!", {
+        description: "Stripe har godkendt din konto fuldt ud.",
+        duration: 8000,
+      });
+    } else if (prevReady && !nextReady) {
+      toast.warning("Stripe-konto er ikke længere fuldt aktiv", {
+        description: "Tjek hvilke oplysninger der mangler.",
+      });
+    }
+
+    // Step-level transitions
+    const prevChk = buildChecklist(prev);
+    const nextChk = buildChecklist(next);
+    for (const ns of nextChk.steps) {
+      const ps = prevChk.steps.find((s) => s.key === ns.key);
+      if (!ps) continue;
+      if (!ps.done && ns.done) {
+        toast.success(`${ns.label} er færdig`, { description: "Trinet blev netop godkendt af Stripe." });
+      } else if (ps.done && !ns.done) {
+        toast.warning(`${ns.label} mangler igen`, { description: "Stripe har bedt om opdaterede oplysninger." });
+      }
+    }
+
+    // Individual capability flips
+    if (!prev.charges_enabled && next.charges_enabled) {
+      toast.success("Du kan nu modtage betalinger");
+    }
+    if (!prev.payouts_enabled && next.payouts_enabled) {
+      toast.success("Udbetalinger er aktiveret");
+    }
+
+    // Disabled reason appeared
+    if (!prev.requirements?.disabled_reason && next.requirements?.disabled_reason) {
+      toast.error("Stripe har begrænset din konto", {
+        description: next.requirements.disabled_reason,
+        duration: 10000,
+      });
+    } else if (prev.requirements?.disabled_reason && !next.requirements?.disabled_reason) {
+      toast.success("Begrænsning på Stripe-konto fjernet");
+    }
+
+    // New requirement items
+    const prevPending = new Set([
+      ...(prev.requirements?.currently_due ?? []),
+      ...(prev.requirements?.past_due ?? []),
+    ]);
+    const newlyPending = [
+      ...(next.requirements?.currently_due ?? []),
+      ...(next.requirements?.past_due ?? []),
+    ].filter((r) => !prevPending.has(r));
+    if (newlyPending.length > 0) {
+      toast.info("Stripe beder om flere oplysninger", {
+        description: newlyPending.map(humanReq).join(", "),
+      });
+    }
+  }, []);
+
+  const load = useCallback(async (opts?: { silent?: boolean }) => {
+    if (!opts?.silent) setError(null);
     try {
       const { data, error } = await supabase.functions.invoke("stripe-connect-status");
       if (error) throw error;
-      setStatus(data as StripeStatus);
+      const next = data as StripeStatus;
+      if (!firstLoadRef.current) {
+        diffAndNotify(prevStatusRef.current, next);
+      }
+      prevStatusRef.current = next;
+      firstLoadRef.current = false;
+      setStatus(next);
+      setLastSync(new Date());
     } catch (e) {
-      setError((e as Error).message);
+      if (!opts?.silent) setError((e as Error).message);
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
-  }, []);
+  }, [diffAndNotify]);
 
   useEffect(() => { void load(); }, [load]);
+
+  // Auto-refresh: poll every 30s, plus refresh on window focus / tab visible
+  useEffect(() => {
+    const interval = window.setInterval(() => { void load({ silent: true }); }, 30_000);
+    const onFocus = () => { void load({ silent: true }); };
+    const onVisible = () => { if (document.visibilityState === "visible") void load({ silent: true }); };
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      window.clearInterval(interval);
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+  }, [load]);
 
   const onRefresh = () => {
     setRefreshing(true);
