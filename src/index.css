@@ -103,15 +103,58 @@
 }
 
 @layer components {
+  /* === Layout system: containers === */
   .container-narrow {
-    @apply mx-auto max-w-6xl px-4 sm:px-6 lg:px-8;
+    @apply mx-auto w-full max-w-2xl px-4 sm:px-6;
+  }
+  .container-default {
+    @apply mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8;
   }
   .container-wide {
-    @apply mx-auto max-w-7xl px-4 sm:px-6 lg:px-8;
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
   }
+  .container-full {
+    @apply mx-auto w-full px-4 sm:px-6 lg:px-8;
+  }
+
+  /* === Layout system: section padding scale === */
+  .section-sm {
+    @apply py-8 md:py-12;
+  }
+  .section-md {
+    @apply py-12 md:py-16;
+  }
+  .section-lg {
+    @apply py-16 md:py-24;
+  }
+  .section-xl {
+    @apply py-24 md:py-32;
+  }
+  /* Backwards compat */
   .section-padding {
     @apply py-16 md:py-24;
   }
+
+  /* === Layout system: grid utilities === */
+  .grid-bento {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 auto-rows-[minmax(180px,auto)] gap-4 md:gap-6;
+  }
+  .grid-cards-2 {
+    @apply grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6;
+  }
+  .grid-cards-3 {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6;
+  }
+  .grid-cards-4 {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6;
+  }
+  .grid-split {
+    @apply grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-center;
+  }
+  .grid-sidebar {
+    @apply grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-6 md:gap-8;
+  }
+
   .gradient-primary {
     background: linear-gradient(135deg, hsl(168, 65%, 38%), hsl(168, 65%, 28%));
   }
