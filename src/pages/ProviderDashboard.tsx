@@ -7,6 +7,8 @@ import OnboardingChecklist, { ChecklistItem } from "@/components/OnboardingCheck
 import { validateContact, statusFrom } from "@/lib/onboarding-validation";
 import { toast } from "sonner";
 import { DashboardLayout } from "@/components/dashboard";
+import { StripeConnectStatusWidget } from "@/components/provider/StripeConnectStatusWidget";
+
 
 const C = { ink: "#0a3d3a", orange: "#ff6b35", cream: "#f5f0e0", teal: "#168a7a", mint: "#c8e6c0" };
 
@@ -114,6 +116,10 @@ export default function ProviderDashboard() {
             user={user}
             bookings={bookings}
           />
+
+          <StripeConnectStatusWidget />
+
+
 
 
           <h1 className="mt-10 font-display text-3xl sm:text-4xl">Dine bookinger</h1>
