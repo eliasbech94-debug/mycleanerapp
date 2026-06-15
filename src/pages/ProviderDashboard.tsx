@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, Calendar, Check, Clock, Loader2, MapPin, MessageSquare, Sparkles, X } from "lucide-react";
+import { Calendar, Check, Clock, Loader2, MapPin, MessageSquare, Sparkles, X } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import OnboardingChecklist, { ChecklistItem } from "@/components/OnboardingChecklist";
 import { validateContact, statusFrom } from "@/lib/onboarding-validation";
 import { toast } from "sonner";
+import { DashboardLayout } from "@/components/dashboard";
 
 const C = { ink: "#0a3d3a", orange: "#ff6b35", cream: "#f5f0e0", teal: "#168a7a", mint: "#c8e6c0" };
 
