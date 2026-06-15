@@ -99,7 +99,15 @@ const App = () => (
             />
             <Route path="/book/:id" element={<BookingFlow />} />
             <Route path="/mine-bookinger" element={<MyBookings />} />
-            <Route path="/provider-dashboard" element={<ProviderDashboard />} />
+            <Route
+              path="/provider-dashboard"
+              element={
+                <RoleGuard allow={["provider", "admin"]}>
+                  <ProviderDashboard />
+                </RoleGuard>
+              }
+            />
+
             <Route path="*" element={<NotFound />} />
           </Routes>
 

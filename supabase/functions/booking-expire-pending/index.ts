@@ -1,14 +1,21 @@
 // Cron-invoked: cancels PaymentIntents for pending bookings whose 24h
 // authorization window has elapsed, and marks the booking expired.
+// Restricted to service-role (cron) or admin users.
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { requireServiceOrAdmin } from "../_shared/auth.ts";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+
+  const gate = await requireServiceOrAdmin(req, corsHeaders);
+  if (gate instanceof Response) return gate;
+
   const stripeKey = Deno.env.get("STRIPE_SECRET_KEY")!;
   const admin = createClient(
     Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
   );
+
 
   const { data: rows } = await admin
     .from("bookings")
