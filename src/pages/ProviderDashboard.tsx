@@ -106,107 +106,100 @@ export default function ProviderDashboard() {
   const filtered = bookings?.filter((b) => (tab === "pending" ? b.status === "pending" : true)) || [];
 
   return (
-    <main className="min-h-screen font-editorial" style={{ background: C.cream, color: C.ink }}>
-      <header className="border-b-2" style={{ background: C.ink, color: C.cream, borderColor: C.ink }}>
-        <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-4 sm:px-6">
-          <Link to="/" className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em]">
-            <ArrowLeft className="h-4 w-4" /> Tilbage
-          </Link>
-          <div className="text-[10px] font-black uppercase tracking-[0.28em] opacity-70">Provider dashboard</div>
-          <div className="text-[10px] opacity-70">{profile.provider_id}</div>
-        </div>
-      </header>
-
-      <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
-        <ProviderOnboardingChecklist
-          profile={profile}
-          user={user}
-          bookings={bookings}
-        />
+    <DashboardLayout role="provider" title="Provider dashboard">
+      <main className="font-editorial" style={{ background: C.cream, color: C.ink }}>
+        <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
+          <ProviderOnboardingChecklist
+            profile={profile}
+            user={user}
+            bookings={bookings}
+          />
 
 
-        <h1 className="mt-10 font-display text-3xl sm:text-4xl">Dine bookinger</h1>
-        <p className="mt-2 text-sm opacity-70">Accepter eller afvis nye anmodninger. Beløbet hæves først, når du accepterer.</p>
+          <h1 className="mt-10 font-display text-3xl sm:text-4xl">Dine bookinger</h1>
+          <p className="mt-2 text-sm opacity-70">Accepter eller afvis nye anmodninger. Beløbet hæves først, når du accepterer.</p>
 
 
-        <div className="mt-6 inline-flex rounded-full border-2 p-1" style={{ borderColor: `${C.ink}22`, background: "white" }}>
-          {(["pending", "all"] as const).map((t) => (
-            <button
-              key={t}
-              onClick={() => setTab(t)}
-              className="rounded-full px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.18em] transition"
-              style={{ background: tab === t ? C.ink : "transparent", color: tab === t ? C.cream : C.ink }}
-            >
-              {t === "pending" ? `Afventer (${bookings?.filter((b) => b.status === "pending").length ?? 0})` : "Alle"}
-            </button>
-          ))}
-        </div>
+          <div className="mt-6 inline-flex rounded-full border-2 p-1" style={{ borderColor: `${C.ink}22`, background: "white" }}>
+            {(["pending", "all"] as const).map((t) => (
+              <button
+                key={t}
+                onClick={() => setTab(t)}
+                className="rounded-full px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.18em] transition"
+                style={{ background: tab === t ? C.ink : "transparent", color: tab === t ? C.cream : C.ink }}
+              >
+                {t === "pending" ? `Afventer (${bookings?.filter((b) => b.status === "pending").length ?? 0})` : "Alle"}
+              </button>
+            ))}
+          </div>
 
-        <div className="mt-6 space-y-3">
-          {bookings === null && <div className="opacity-60 text-sm">Henter…</div>}
-          {bookings && filtered.length === 0 && (
-            <div className="rounded-2xl border-2 border-dashed bg-white p-8 text-center" style={{ borderColor: `${C.ink}33` }}>
-              <div className="font-display text-xl">Ingen {tab === "pending" ? "afventende" : ""} bookinger</div>
-            </div>
-          )}
-          {filtered.map((b) => {
-            const s = STATUS_LABEL[b.status];
-            const d = new Date(b.booking_date).toLocaleDateString("da-DK", { weekday: "long", day: "numeric", month: "long" });
-            return (
-              <div key={b.id} className="rounded-2xl border-2 bg-white p-5" style={{ borderColor: `${C.ink}22` }}>
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <div className="font-display text-lg leading-tight">{b.service} · {b.hours} t</div>
-                    <div className="mt-1 text-xs opacity-70">Modtaget {new Date(b.created_at).toLocaleString("da-DK")}</div>
-                  </div>
-                  <span className="inline-flex flex-shrink-0 items-center rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em]" style={{ background: s.bg, color: s.fg }}>
-                    {s.label}
-                  </span>
-                </div>
-
-                <div className="mt-3 grid gap-1.5 text-xs sm:grid-cols-2">
-                  <div className="inline-flex items-center gap-2 opacity-80"><Calendar className="h-3.5 w-3.5" /> {d}</div>
-                  <div className="inline-flex items-center gap-2 opacity-80"><Clock className="h-3.5 w-3.5" /> kl. {b.slot}</div>
-                  <div className="inline-flex items-start gap-2 opacity-80 sm:col-span-2"><MapPin className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" /> {b.address}</div>
-                  {b.notes && (
-                    <div className="inline-flex items-start gap-2 opacity-80 sm:col-span-2"><MessageSquare className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" /> {b.notes}</div>
-                  )}
-                </div>
-
-                <div className="mt-4 flex items-end justify-between border-t border-dashed pt-3" style={{ borderColor: `${C.ink}22` }}>
-                  <div className="text-xs">
-                    <div className="opacity-60">Du tjener</div>
-                    <div className="font-display text-xl">{b.provider_gets.toLocaleString("da-DK")} {b.currency}</div>
-                  </div>
-                  {b.status === "pending" && (
-                    <div className="flex gap-2">
-                      <button
-                        disabled={acting === b.id}
-                        onClick={() => decide(b.id, "declined")}
-                        className="inline-flex items-center gap-1.5 rounded-full border-2 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.18em] disabled:opacity-40"
-                        style={{ borderColor: "#c2412c", color: "#c2412c" }}
-                      >
-                        <X className="h-3.5 w-3.5" /> Afvis
-                      </button>
-                      <button
-                        disabled={acting === b.id}
-                        onClick={() => decide(b.id, "accepted")}
-                        className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[11px] font-bold uppercase tracking-[0.18em] disabled:opacity-40 shadow-[4px_4px_0_rgba(10,61,58,0.18)]"
-                        style={{ background: C.orange, color: C.ink }}
-                      >
-                        <Check className="h-3.5 w-3.5" /> Accepter
-                      </button>
-                    </div>
-                  )}
-                </div>
+          <div className="mt-6 space-y-3">
+            {bookings === null && <div className="opacity-60 text-sm">Henter…</div>}
+            {bookings && filtered.length === 0 && (
+              <div className="rounded-2xl border-2 border-dashed bg-white p-8 text-center" style={{ borderColor: `${C.ink}33` }}>
+                <div className="font-display text-xl">Ingen {tab === "pending" ? "afventende" : ""} bookinger</div>
               </div>
-            );
-          })}
+            )}
+            {filtered.map((b) => {
+              const s = STATUS_LABEL[b.status];
+              const d = new Date(b.booking_date).toLocaleDateString("da-DK", { weekday: "long", day: "numeric", month: "long" });
+              return (
+                <div key={b.id} className="rounded-2xl border-2 bg-white p-5" style={{ borderColor: `${C.ink}22` }}>
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="font-display text-lg leading-tight">{b.service} · {b.hours} t</div>
+                      <div className="mt-1 text-xs opacity-70">Modtaget {new Date(b.created_at).toLocaleString("da-DK")}</div>
+                    </div>
+                    <span className="inline-flex flex-shrink-0 items-center rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em]" style={{ background: s.bg, color: s.fg }}>
+                      {s.label}
+                    </span>
+                  </div>
+
+                  <div className="mt-3 grid gap-1.5 text-xs sm:grid-cols-2">
+                    <div className="inline-flex items-center gap-2 opacity-80"><Calendar className="h-3.5 w-3.5" /> {d}</div>
+                    <div className="inline-flex items-center gap-2 opacity-80"><Clock className="h-3.5 w-3.5" /> kl. {b.slot}</div>
+                    <div className="inline-flex items-start gap-2 opacity-80 sm:col-span-2"><MapPin className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" /> {b.address}</div>
+                    {b.notes && (
+                      <div className="inline-flex items-start gap-2 opacity-80 sm:col-span-2"><MessageSquare className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" /> {b.notes}</div>
+                    )}
+                  </div>
+
+                  <div className="mt-4 flex items-end justify-between border-t border-dashed pt-3" style={{ borderColor: `${C.ink}22` }}>
+                    <div className="text-xs">
+                      <div className="opacity-60">Du tjener</div>
+                      <div className="font-display text-xl">{b.provider_gets.toLocaleString("da-DK")} {b.currency}</div>
+                    </div>
+                    {b.status === "pending" && (
+                      <div className="flex gap-2">
+                        <button
+                          disabled={acting === b.id}
+                          onClick={() => decide(b.id, "declined")}
+                          className="inline-flex items-center gap-1.5 rounded-full border-2 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.18em] disabled:opacity-40"
+                          style={{ borderColor: "#c2412c", color: "#c2412c" }}
+                        >
+                          <X className="h-3.5 w-3.5" /> Afvis
+                        </button>
+                        <button
+                          disabled={acting === b.id}
+                          onClick={() => decide(b.id, "accepted")}
+                          className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[11px] font-bold uppercase tracking-[0.18em] disabled:opacity-40 shadow-[4px_4px_0_rgba(10,61,58,0.18)]"
+                          style={{ background: C.orange, color: C.ink }}
+                        >
+                          <Check className="h-3.5 w-3.5" /> Accepter
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
-      </div>
-    </main>
+      </main>
+    </DashboardLayout>
   );
 }
+
 
 function ConnectCard() {
   const [status, setStatus] = useState<null | {
