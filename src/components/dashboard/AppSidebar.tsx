@@ -30,7 +30,7 @@ export const AppSidebar = ({ role }: Props) => {
         {groups.map((group) => {
           const hasActive = group.items.some((i) => isActive(i.url));
           return (
-            <SidebarGroup key={group.label} defaultOpen={hasActive}>
+            <SidebarGroup key={group.label} data-active={hasActive || undefined}>
               {!collapsed && <SidebarGroupLabel>{group.label}</SidebarGroupLabel>}
               <SidebarGroupContent>
                 <SidebarMenu>
