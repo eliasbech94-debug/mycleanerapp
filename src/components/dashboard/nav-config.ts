@@ -13,7 +13,7 @@ import {
   Headphones,
   LifeBuoy,
 } from "lucide-react";
-
+import type { AppRole } from "@/hooks/useUserRoles";
 
 export type DashboardRole = "admin" | "employee" | "provider";
 
@@ -21,17 +21,27 @@ export interface NavItem {
   title: string;
   url: string;
   icon: typeof LayoutDashboard;
+  /**
+   * Roles allowed to see this item. The user is granted access if they hold
+   * AT LEAST ONE of these roles (super_admin always passes via hasRole()).
+   * Defaults are applied per-section below so newly added items are
+   * automatically protected by the section's role.
+   */
+  roles: AppRole[];
 }
 
 export interface NavGroup {
   label: string;
-  items: NavItem[];
+  /** Default roles applied to items in this group that don't override `roles`. */
+  defaultRoles: AppRole[];
+  items: Array<Omit<NavItem, "roles"> & { roles?: AppRole[] }>;
 }
 
-export const navConfig: Record<DashboardRole, NavGroup[]> = {
+const rawConfig: Record<DashboardRole, NavGroup[]> = {
   admin: [
     {
       label: "Oversigt",
+      defaultRoles: ["admin"],
       items: [
         { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
         { title: "Brugere", url: "/admin/users", icon: Users },
@@ -39,6 +49,7 @@ export const navConfig: Record<DashboardRole, NavGroup[]> = {
     },
     {
       label: "Betalinger",
+      defaultRoles: ["admin"],
       items: [
         { title: "Payments", url: "/admin/payments", icon: CreditCard },
         { title: "Stripe", url: "/admin/stripe", icon: CreditCard },
@@ -47,6 +58,7 @@ export const navConfig: Record<DashboardRole, NavGroup[]> = {
     },
     {
       label: "Sikkerhed",
+      defaultRoles: ["super_admin"],
       items: [
         { title: "Access logs", url: "/admin/access-logs", icon: Shield },
         { title: "Indstillinger", url: "/admin/settings", icon: Settings },
@@ -56,6 +68,7 @@ export const navConfig: Record<DashboardRole, NavGroup[]> = {
   employee: [
     {
       label: "Support",
+      defaultRoles: ["employee"],
       items: [
         { title: "Dashboard", url: "/employee", icon: LayoutDashboard },
         { title: "Mine sager", url: "/employee#tickets", icon: LifeBuoy },
@@ -65,15 +78,16 @@ export const navConfig: Record<DashboardRole, NavGroup[]> = {
     },
     {
       label: "Konto",
+      defaultRoles: ["employee", "admin", "provider", "customer"],
       items: [
         { title: "Profil", url: "/profil", icon: UserCircle },
       ],
     },
   ],
-
   provider: [
     {
       label: "Min forretning",
+      defaultRoles: ["provider"],
       items: [
         { title: "Dashboard", url: "/provider-dashboard", icon: LayoutDashboard },
         { title: "Kalender", url: "/provider-dashboard/calendar", icon: Calendar },
@@ -83,6 +97,7 @@ export const navConfig: Record<DashboardRole, NavGroup[]> = {
     },
     {
       label: "Konto",
+      defaultRoles: ["provider", "admin", "employee", "customer"],
       items: [
         { title: "Profil", url: "/profil", icon: UserCircle },
         { title: "Indstillinger", url: "/provider-dashboard/settings", icon: Settings },
@@ -90,3 +105,29 @@ export const navConfig: Record<DashboardRole, NavGroup[]> = {
     },
   ],
 };
+
+export interface ResolvedNavGroup {
+  label: string;
+  items: NavItem[];
+}
+
+/** Resolve `roles` on every item (inheriting the group's defaultRoles). */
+export function resolveNavGroups(role: DashboardRole): ResolvedNavGroup[] {
+  return rawConfig[role].map((g) => ({
+    label: g.label,
+    items: g.items.map((i) => ({ ...i, roles: i.roles ?? g.defaultRoles })),
+  }));
+}
+
+/** Filter resolved groups by the user's actual roles. */
+export function filterNavGroupsByRoles(
+  groups: ResolvedNavGroup[],
+  hasRole: (r: AppRole) => boolean,
+): ResolvedNavGroup[] {
+  return groups
+    .map((g) => ({
+      ...g,
+      items: g.items.filter((i) => i.roles.some((r) => hasRole(r))),
+    }))
+    .filter((g) => g.items.length > 0);
+}

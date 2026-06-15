@@ -10,7 +10,12 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { navConfig, DashboardRole } from "./nav-config";
+import {
+  DashboardRole,
+  resolveNavGroups,
+  filterNavGroupsByRoles,
+} from "./nav-config";
+import { useUserRoles } from "@/hooks/useUserRoles";
 
 interface Props {
   role: DashboardRole;
@@ -20,9 +25,14 @@ export const AppSidebar = ({ role }: Props) => {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const { pathname } = useLocation();
-  const groups = navConfig[role];
+  const { hasRole, loading } = useUserRoles();
+
+  const groups = loading
+    ? []
+    : filterNavGroupsByRoles(resolveNavGroups(role), hasRole);
 
   const isActive = (url: string) => pathname === url || pathname.startsWith(url + "/");
+
 
   return (
     <Sidebar collapsible="icon">
