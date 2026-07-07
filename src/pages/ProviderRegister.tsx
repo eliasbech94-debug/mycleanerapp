@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { countries, serviceCategories, formatPrice } from "@/lib/countries";
 import { deriveServices, deriveHourlyRate, saveProvider } from "@/lib/providers";
 import { supabase } from "@/integrations/supabase/client";
+import BackButton from "@/components/BackButton";
 
 const steps = ["Type", "Personlig info", "Services & område", "Dokumenter", "Gennemse"];
 
@@ -630,9 +631,11 @@ const ProviderRegister = () => {
 
             {/* Navigation */}
             <div className="flex justify-between mt-8 pt-6 border-t border-border">
-              <Button variant="ghost" onClick={() => setStep((s) => s - 1)} disabled={step === 0}>
-                <ArrowLeft className="h-4 w-4 mr-2" /> Tilbage
-              </Button>
+              <BackButton
+                variant="ghost"
+                label={step === 0 ? "Tilbage" : "Forrige trin"}
+                onBack={step === 0 ? undefined : () => setStep((s) => s - 1)}
+              />
               {step < steps.length - 1 ? (
                 <Button onClick={() => setStep((s) => s + 1)}>
                   Næste <ArrowRight className="h-4 w-4 ml-2" />

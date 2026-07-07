@@ -9,11 +9,16 @@ interface Props {
   variant?: "ghost" | "outline";
   size?: "sm" | "default" | "icon";
   hideOnPaths?: string[];
+  /** Custom handler — overrider standard navigate(-1). Bruges fx til wizard-trin eller lukning af modal. */
+  onBack?: () => void;
+  /** Skjul knappen (fx når wizard er på første trin uden historik). */
+  hidden?: boolean;
 }
 
 /**
  * Tilbage-knap: går ét trin tilbage i historikken.
  * Skjules på forsiden og på evt. yderligere angivne paths.
+ * Understøtter custom onBack til wizards og modals.
  */
 export const BackButton = ({
   fallback = "/",
@@ -22,14 +27,20 @@ export const BackButton = ({
   variant = "ghost",
   size = "sm",
   hideOnPaths = ["/"],
+  onBack,
+  hidden = false,
 }: Props) => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
 
-  if (hideOnPaths.includes(pathname)) return null;
+  if (hidden) return null;
+  if (!onBack && hideOnPaths.includes(pathname)) return null;
 
   const handleClick = () => {
-    // Gå ét trin tilbage hvis muligt, ellers fallback.
+    if (onBack) {
+      onBack();
+      return;
+    }
     if (window.history.length > 1) {
       navigate(-1);
     } else {
