@@ -28,12 +28,15 @@ const Header = () => {
   return (
     <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border">
       <div className="container-wide flex h-16 items-center justify-between">
-        <Link to="/" className="flex items-center gap-2">
-          <div className="gradient-hero rounded-xl w-9 h-9 flex items-center justify-center">
-            <span className="text-primary-foreground font-heading font-bold text-lg">H</span>
-          </div>
-          <span className="font-heading font-bold text-xl text-foreground">HomeHero</span>
-        </Link>
+        <div className="flex items-center gap-2">
+          <BackButton className="mr-1" />
+          <Link to="/" className="flex items-center gap-2">
+            <div className="gradient-hero rounded-xl w-9 h-9 flex items-center justify-center">
+              <span className="text-primary-foreground font-heading font-bold text-lg">H</span>
+            </div>
+            <span className="font-heading font-bold text-xl text-foreground">HomeHero</span>
+          </Link>
+        </div>
 
         <nav className="hidden md:flex items-center gap-8">
           <Link to="/services" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
