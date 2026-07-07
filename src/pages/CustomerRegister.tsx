@@ -262,9 +262,12 @@ const CustomerRegister = () => {
             )}
 
             <div className="flex justify-between mt-8 pt-6 border-t border-border">
-              <Button variant="ghost" onClick={() => setStep((s) => s - 1)} disabled={step === 0 || submitting}>
-                <ArrowLeft className="h-4 w-4 mr-2" /> Tilbage
-              </Button>
+              <BackButton
+                variant="ghost"
+                label={step === 0 ? "Tilbage" : "Forrige trin"}
+                onBack={step === 0 ? undefined : () => setStep((s) => s - 1)}
+                hidden={submitting}
+              />
               {step < steps.length - 1 ? (
                 <Button onClick={() => setStep((s) => s + 1)} disabled={!canContinue()}>
                   Næste <ArrowRight className="h-4 w-4 ml-2" />
