@@ -26,6 +26,8 @@ import BookingFlow from "./pages/BookingFlow";
 import MyBookings from "./pages/MyBookings";
 import ProviderDashboard from "./pages/ProviderDashboard";
 import NotFound from "./pages/NotFound";
+import FAQ from "./pages/FAQ";
+import Regler from "./pages/Regler";
 import { RoleGuard } from "@/components/RoleGuard";
 
 const queryClient = new QueryClient();
