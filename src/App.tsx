@@ -110,6 +110,9 @@ const App = () => (
               }
             />
 
+            <Route path="/faq" element={<FAQ />} />
+            <Route path="/regler" element={<Regler />} />
+
             <Route path="*" element={<NotFound />} />
           </Routes>
 
