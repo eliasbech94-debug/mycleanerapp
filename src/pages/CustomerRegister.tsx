@@ -8,6 +8,7 @@ import { ArrowRight, ArrowLeft, Home, Sparkles, Loader2, CheckCircle2 } from "lu
 import { countries } from "@/lib/countries";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import BackButton from "@/components/BackButton";
 
 const propertyTypes = ["Lejlighed", "Rækkehus", "Villa", "Landejendom", "Erhverv", "Andet"];
 const steps = ["Konto", "Bolig", "Præferencer"];
