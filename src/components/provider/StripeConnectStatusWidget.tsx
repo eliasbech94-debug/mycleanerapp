@@ -502,8 +502,9 @@ export function StripeConnectStatusWidget() {
               onClick={() => setModalOpen(false)}
               className="inline-flex items-center justify-center gap-1.5 rounded-full border px-4 py-2 text-sm font-medium transition hover:opacity-80"
               style={{ borderColor: `${C.ink}33`, color: C.ink }}
+              aria-label="Tilbage"
             >
-              <X className="h-3.5 w-3.5" /> Luk
+              <ArrowLeft className="h-3.5 w-3.5" /> Tilbage
             </button>
             <button
               type="button"
