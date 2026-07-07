@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { countries, serviceCategories, formatPrice } from "@/lib/countries";
 import { deriveServices, deriveHourlyRate, saveProvider } from "@/lib/providers";
 import { supabase } from "@/integrations/supabase/client";
+import BackButton from "@/components/BackButton";
 
 const steps = ["Type", "Personlig info", "Services & område", "Dokumenter", "Gennemse"];
 
