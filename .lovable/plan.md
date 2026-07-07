@@ -1,78 +1,83 @@
-# Layout System — Komplet plan
 
-Bygger et sammenh�ngende layout-system i tre lag, plus l�ser 3 sikkerhedsfund undervejs.
+Stort stykke arbejde. Jeg foreslår at dele det i 4 leverancer, hver kan bygges og reviewes for sig. Sig til hvis du vil ændre rækkefølge, skære noget væk eller starte med bare én del.
 
-## 1. Design system foundation (`src/index.css` + `tailwind.config.ts`)
+## Leverance 1 — Rolle-tilpasset menu
+- `Header.tsx` viser forskellige links afhængigt af auth + rolle:
+  - Ikke logget ind: Services, Sådan virker det, Bliv provider, Log ind, Kom i gang
+  - Kunde: Mine bookinger, Ny opgave, Min profil, Servicefradrag, FAQ, Log ud
+  - Provider: Provider dashboard, Kalender, Kvitteringer, Regnskab, Min profil, FAQ, Log ud
+  - Admin/Employee: eksisterende dashboards (uændret; Header skjules allerede der)
+- Mobilmenu spejler samme opdeling.
 
-Udvider eksisterende tokens med et komplet layout-lag:
+## Leverance 2 — FAQ / Regler / Support
+- Nye sider + ruter:
+  - `/faq` — FAQ chat (bruger eksisterende `support-chat` edge function) + accordion med ofte stillede spørgsmål
+  - `/regler` — Platformregler, adfærdskodeks, betalingsregler
+- Link i footer + i den nye rolle-menu.
 
-- **Spacing scale** (semantisk): `--space-section`, `--space-block`, `--space-stack`, `--space-inline`
-- **Containere**: `.container-narrow` (640px), `.container-default` (1100px), `.container-wide` (1400px), `.container-full`
-- **Section padding-varianter**: `.section-sm`, `.section-md`, `.section-lg`, `.section-xl`
-- **Grid-utilities**: `.grid-bento`, `.grid-cards-2/3/4`, `.grid-split`, `.grid-sidebar`
-- **Surface tokens**: `--surface-raised`, `--surface-sunken`, `--surface-overlay` + matching shadow tokens
-- **Radius scale**: konsistent radius-system (`--radius-sm/md/lg/xl/2xl`)
-- Alt bruger HSL og eksisterende brand-farver (deep teal, orange, cream, mint).
+## Leverance 3 — Min profil (udvidet)
+Udvid `/profil` med tabs:
+1. **Mine oplysninger** — navn, adresse, telefon (findes delvist)
+2. **Notifikationer** — toggles for email / push / SMS (gemmes i `profiles` — ny kolonne `notification_prefs jsonb`)
+3. **Skatteoplysninger** — CPR/CVR (krypteret felt), skattekommune, forskudsopgørelse-link
+4. **Servicefradrag** (kun kunder) — årligt forbrug på fradragsberettigede ydelser, vejledning til indberetning på skat.dk, "Hent årsopgørelse" (PDF)
+5. **Deaktivér konto** — soft-delete flow med bekræftelse
 
-## 2. Layout-komponenter (`src/components/layout/`)
+Migration: `profiles` får `notification_prefs`, `tax_id_encrypted`, `tax_municipality`, `deactivated_at`.
 
-Genbrugelige React-komponenter der wrapper tokens:
+## Leverance 4 — Provider bogholderi
+Den største del.
 
-- `<PageContainer width="narrow|default|wide|full">` � erstatter ad-hoc max-w divs
-- `<Section padding="sm|md|lg|xl" background="default|cream|teal|gradient">` � semantisk side-section
-- `<Stack gap="sm|md|lg">` og `<Cluster>` � vertikal/horisontal flow
-- `<BentoGrid>` + `<BentoCard size="sm|md|lg|wide|tall">` � forside-grid
-- `<SplitLayout left right ratio="50/50|60/40|40/60">` � to-kolonner hero/section
-- `<CardGrid cols={2|3|4}>` � uniform kort-grid
+**a) Kvitterings-upload med AI-scan**
+- Ny side `/provider-dashboard/receipts`
+- Upload billede/PDF → Storage bucket `receipts` (private, RLS pr. provider)
+- Edge function `receipt-scan` bruger Lovable AI Gateway (google/gemini-2.5-flash med vision) til at udtrække: beløb, moms, dato, leverandør, kategori
+- UI beder brugeren tilknytte til: **specifik booking** (dropdown over egne bookings) eller **generel udgift** (kategori: transport, materialer, udstyr, andet)
+- Gemmes i tabel `provider_expenses` med `quarter` (1-4) + `year` beregnet fra dato
+- Bilagsmappe-visning: filtrér efter år → kvartal, download som ZIP
 
-## 3. Dashboard sidebar shell (`src/components/dashboard/`)
+**b) Regnskab (samme side, øverst)**
+Vis for valgt år:
+```
+Indkomst før skat: 245.000 kr / 2026    [fold ud ▼]
+  ├─ Omsætning:              310.000 kr
+  ├─ Platform + gebyrer:     -43.400 kr  (14% + Stripe)
+  └─ Udgifter:                -21.600 kr  [fold ud ▼]
+        ├─ Transport:          8.200 kr
+        ├─ Materialer:         9.100 kr
+        └─ Andet:              4.300 kr
+```
+Data: omsætning fra `bookings` (status=completed, provider_id, år), gebyrer beregnet, udgifter fra `provider_expenses`.
 
-shadcn `Sidebar`-baseret app shell til admin/provider/employee:
+**c) Fradrags- og indberetningsvejledning**
+- Provider: sektion "Sådan indberetter du din indtjening" — privat udbyder (bagatelgrænse, personlig indkomst, rubrik 20) vs. business (moms, B-skat)
+- Refunderings-vejledning: hvordan du refunderer en kunde (link til Stripe refund flow i provider-dashboard)
+- Følger dansk lovgivning omkring honorar (kilder: skat.dk); vises som statisk indhold med link ud.
 
-- `<DashboardLayout role="admin|provider|employee">` med `SidebarProvider`
-- `AppSidebar` med rolle-baserede navigation items, `collapsible="icon"`, `NavLink` med aktiv state
-- `<DashboardHeader>` med `SidebarTrigger`, breadcrumbs, bruger-menu
-- `<DashboardPage title description actions>` wrapper med konsistent header
-- Routes wrapped via `<Outlet />`
-
-## 4. Forside bento refactor (`src/pages/Index.tsx` + sections)
-
-Eksisterende homepage-sektioner migreres til de nye komponenter:
-- Hero �  `<SplitLayout>` med 60/40 ratio
-- "Sådan virker det" � `<BentoGrid>` med blandede str�relser
-- Service-kategorier � `<CardGrid cols={4}>`
-- Beh�lder alle brand-farver, fonts, og indhold uændret � kun struktur swappes.
-
-## 5. Sikkerhedsfund (mandatory, l�ses i samme migration)
-
-- `access_attempts`: fjern anon INSERT, kun service_role m� skrive
-- `realtime.messages`: tilf�j RLS policies scoped p� `auth.uid()` for booking/notification topics
-- `stripe_webhook_events`: fjern �ben SELECT policy, begr�ns til admin-rolle via `has_role`
-
-## Teknisk
-
-```text
-src/
-  index.css                    � udvidet tokens + utilities
-  tailwind.config.ts           � nye spacing/radius/grid keys
-  components/
-    layout/
-      PageContainer.tsx
-      Section.tsx
-      Stack.tsx
-      BentoGrid.tsx
-      SplitLayout.tsx
-      CardGrid.tsx
-      index.ts                 � barrel export
-    dashboard/
-      DashboardLayout.tsx
-      AppSidebar.tsx
-      DashboardHeader.tsx
-      DashboardPage.tsx
-      nav-config.ts            � rolle-baserede items
-  pages/
-    Index.tsx                  � refactored til nye komponenter
-supabase/migrations/<ts>_layout_security.sql
+**Migrations (leverance 4):**
+```sql
+CREATE TABLE public.provider_expenses (
+  id uuid PK, provider_id text, booking_id uuid null,
+  amount_ore int, vat_ore int, currency text,
+  vendor text, category text, expense_date date,
+  quarter smallint, year int,
+  receipt_url text, ai_extracted jsonb,
+  created_at timestamptz
+);
+-- + GRANT + RLS: provider ser kun egne
+CREATE storage bucket 'receipts' (private)
 ```
 
-Ingen funktionalitet �ndres � kun struktur, tokens, og sikkerhedspolitikker.
+**Nye edge functions:**
+- `receipt-scan` — AI vision
+- `provider-accounting-summary` — aggregerer regnskab pr. år
+
+---
+
+### Anbefalet rækkefølge
+1. Leverance 1 (hurtig, ryd op i navigation)
+2. Leverance 2 (FAQ/regler)
+3. Leverance 3 (profil-udvidelser)
+4. Leverance 4 (bogholderi — kræver flest ressourcer + AI-omkostning pr. scan)
+
+Sig til om jeg skal starte med **alle 4 i rækkefølge**, eller kun én bestemt del først.
