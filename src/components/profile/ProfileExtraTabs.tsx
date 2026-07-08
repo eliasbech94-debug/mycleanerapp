@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Bell, Loader2, MessageSquare, Receipt, ShieldOff } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Bell, Loader2, MessageSquare, PiggyBank, Receipt, ShieldOff, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
