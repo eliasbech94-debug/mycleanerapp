@@ -191,7 +191,7 @@ function Hero() {
                 </select>
               </div>
               <Link
-                to="/task/create"
+                to="/find-cleaner"
                 className="inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-bold uppercase tracking-wider transition hover:-translate-y-0.5"
                 style={{ background: C.ink, color: C.cream }}
               >
