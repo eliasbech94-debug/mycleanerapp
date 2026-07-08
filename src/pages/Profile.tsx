@@ -1006,6 +1006,8 @@ function CardsTab() {
   const [busyId, setBusyId] = useState<string | null>(null);
   const [pendingDelete, setPendingDelete] = useState<Card | null>(null);
   const [newDefaultId, setNewDefaultId] = useState<string>("");
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [defaultingId, setDefaultingId] = useState<string | null>(null);
 
   async function loadCards() {
     const { data, error } = await supabase.functions.invoke("customer-payment-methods", { body: { action: "list" } });
@@ -1016,19 +1018,26 @@ function CardsTab() {
   useEffect(() => { loadCards(); }, []);
 
   async function startAdd(replaceCardId: string | null = null) {
+    setActionError(null);
     setAdding(true);
     setReplaceId(replaceCardId);
+    setClientSecret(null);
+    setStripePromise(null);
     try {
-      const [{ data: pkData }, { data: siData, error: siErr }] = await Promise.all([
+      const [{ data: pkData, error: pkErr }, { data: siData, error: siErr }] = await Promise.all([
         supabase.functions.invoke("stripe-public-key", { body: {} }),
         supabase.functions.invoke("customer-payment-methods", { body: { action: "setup_intent" } }),
       ]);
+      if (pkErr) throw pkErr;
       if (siErr) throw siErr;
-      if (!pkData?.publishable_key) throw new Error("Stripe nøgle mangler");
+      if (!pkData?.publishable_key) throw new Error("Stripe publiceringsnøgle mangler i konfigurationen");
+      if (!siData?.client_secret) throw new Error("Kunne ikke oprette sikker Stripe-session");
       setStripePromise(loadStripe(pkData.publishable_key));
       setClientSecret(siData.client_secret);
     } catch (e: any) {
-      toast.error(e?.message || "Kunne ikke starte tilføj-kort");
+      const msg = e?.message || "Kunne ikke starte tilføj-kort";
+      setActionError(msg);
+      toast.error(msg);
       setAdding(false);
       setReplaceId(null);
     }
@@ -1100,14 +1109,24 @@ function CardsTab() {
   }
 
   async function setDefault(id: string) {
+    setActionError(null);
+    setDefaultingId(id);
     setBusyId(id);
-    const { error } = await supabase.functions.invoke("customer-payment-methods", {
-      body: { action: "set_default", payment_method_id: id },
-    });
-    setBusyId(null);
-    if (error) return toast.error(error.message);
-    toast.success("Standardkort opdateret");
-    loadCards();
+    try {
+      const { error } = await supabase.functions.invoke("customer-payment-methods", {
+        body: { action: "set_default", payment_method_id: id },
+      });
+      if (error) throw error;
+      toast.success("Standardkort opdateret");
+      await loadCards();
+    } catch (e: any) {
+      const msg = e?.message || "Kunne ikke sætte standardkort";
+      setActionError(msg);
+      toast.error(msg);
+    } finally {
+      setBusyId(null);
+      setDefaultingId(null);
+    }
   }
 
   const replaceCard = cards?.find((c) => c.id === replaceId) || null;
@@ -1152,10 +1171,15 @@ function CardsTab() {
                   <button
                     onClick={() => setDefault(c.id)}
                     disabled={busyId === c.id}
-                    className="inline-flex items-center gap-1 rounded-full border-2 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.16em] disabled:opacity-40"
+                    aria-busy={defaultingId === c.id}
+                    className="inline-flex items-center gap-1 rounded-full border-2 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.16em] disabled:opacity-60"
                     style={{ borderColor: `${C.ink}33`, color: C.ink }}
                   >
-                    <Star className="h-3 w-3" /> Sæt som standard
+                    {defaultingId === c.id ? (
+                      <><Loader2 className="h-3 w-3 animate-spin" /> Opdaterer…</>
+                    ) : (
+                      <><Star className="h-3 w-3" /> Sæt som standard</>
+                    )}
                   </button>
                 )}
                 <button
@@ -1172,6 +1196,17 @@ function CardsTab() {
         </div>
       )}
 
+      {actionError && (
+        <div className="flex items-start gap-2 rounded-xl border-2 p-3 text-xs" style={{ borderColor: `${C.orange}66`, background: `${C.orange}14`, color: C.ink }}>
+          <ShieldAlert className="h-4 w-4 mt-0.5 shrink-0" style={{ color: C.orange }} />
+          <div className="flex-1">
+            <div className="font-bold">Der opstod en fejl</div>
+            <div className="opacity-80">{actionError}</div>
+          </div>
+          <button onClick={() => setActionError(null)} className="opacity-60 hover:opacity-100" aria-label="Luk"><X className="h-3.5 w-3.5" /></button>
+        </div>
+      )}
+
       {!adding && (
         <button
           onClick={() => startAdd(null)}
@@ -1180,6 +1215,18 @@ function CardsTab() {
         >
           <Plus className="h-4 w-4" /> Tilføj betalingskort
         </button>
+      )}
+
+      {adding && (!clientSecret || !stripePromise) && (
+        <div className="rounded-2xl border-2 bg-white p-5" style={{ borderColor: `${C.ink}22` }}>
+          <div className="text-[10px] font-black uppercase tracking-[0.22em] opacity-70 mb-3">
+            {replaceCard ? "Erstat kort" : "Nyt kort"}
+          </div>
+          <div className="flex items-center gap-3 text-sm opacity-80">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            Forbereder sikker Stripe-formular…
+          </div>
+        </div>
       )}
 
       {adding && clientSecret && stripePromise && (
