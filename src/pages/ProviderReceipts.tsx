@@ -50,13 +50,17 @@ export default function ProviderReceipts() {
       .order("receipt_date", { ascending: false, nullsFirst: false })
       .order("created_at", { ascending: false });
     setRows((data as Receipt[]) || []);
-    const { data: bks } = await supabase
-      .from("bookings")
-      .select("id, scheduled_date, service_type")
-      .eq("provider_user_id", user.id)
-      .order("scheduled_date", { ascending: false })
-      .limit(50);
-    setBookings((bks as any) || []);
+    const { data: prof } = await supabase.from("profiles").select("provider_id").eq("id", user.id).maybeSingle();
+    const pid = (prof as any)?.provider_id;
+    if (pid) {
+      const { data: bks } = await supabase
+        .from("bookings")
+        .select("id, scheduled_date, service_type")
+        .eq("provider_id", pid)
+        .order("scheduled_date", { ascending: false })
+        .limit(50);
+      setBookings((bks as any) || []);
+    }
     setLoading(false);
   }
 
