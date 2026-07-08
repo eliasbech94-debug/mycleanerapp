@@ -21,7 +21,8 @@ type Props = {
 };
 
 export default function AddressBook({ selectable, selectedId, onSelect, compact }: Props) {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
+  const userCountry = (profile?.country_code || "DK").toLowerCase();
   const [items, setItems] = useState<CustomerAddress[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<CustomerAddress | "new" | null>(null);
@@ -201,7 +202,8 @@ function AddressDialog({
   onClose: () => void;
   onSaved: () => void;
 }) {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
+  const userCountry = (profile?.country_code || "DK").toLowerCase();
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
     label: initial?.label ?? "Hjem",
@@ -303,7 +305,7 @@ function AddressDialog({
               onValidityChange={setAddrValid}
               isValid={addrValid}
               placeholder="Vej, nr., by"
-              countries={["dk"]}
+              countries={[userCountry]}
             />
           </Row>
 
