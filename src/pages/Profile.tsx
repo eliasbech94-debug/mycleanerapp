@@ -1201,6 +1201,70 @@ function CardsTab() {
           </Elements>
         </div>
       )}
+
+      <AlertDialog open={!!pendingDelete} onOpenChange={(o) => { if (!o) setPendingDelete(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {pendingDelete?.is_default ? "Slet standardkort?" : "Fjern betalingskort?"}
+            </AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-3">
+                {pendingDelete && (
+                  <div className="rounded-xl border-2 bg-white p-3 flex items-center gap-3" style={{ borderColor: `${C.ink}22` }}>
+                    <div className="grid h-9 w-12 place-items-center rounded-md text-[10px] font-bold uppercase" style={{ background: C.ink, color: C.cream }}>
+                      {pendingDelete.brand}
+                    </div>
+                    <div className="text-sm">
+                      <div className="font-bold">•••• {pendingDelete.last4}</div>
+                      <div className="text-[11px] opacity-60">
+                        Udløber {String(pendingDelete.exp_month).padStart(2, "0")}/{String(pendingDelete.exp_year).slice(-2)}
+                      </div>
+                    </div>
+                  </div>
+                )}
+                {pendingDelete?.is_default && (cards?.length ?? 0) > 1 && (
+                  <div className="space-y-2">
+                    <div className="text-xs opacity-80">
+                      Dette er dit standardkort. Vælg et nyt standardkort før du sletter:
+                    </div>
+                    <select
+                      value={newDefaultId}
+                      onChange={(e) => setNewDefaultId(e.target.value)}
+                      className="w-full rounded-xl border-2 bg-white px-3 py-2 text-sm"
+                      style={{ borderColor: `${C.ink}33`, color: C.ink }}
+                    >
+                      {(cards || []).filter((x) => x.id !== pendingDelete.id).map((x) => (
+                        <option key={x.id} value={x.id}>
+                          {x.brand?.toUpperCase()} •••• {x.last4}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+                {pendingDelete?.is_default && (cards?.length ?? 0) === 1 && (
+                  <div className="rounded-xl border-2 p-3 text-xs" style={{ borderColor: `${C.orange}66`, background: `${C.orange}14`, color: C.ink }}>
+                    Dette er dit eneste gemte kort. Du skal manuelt indtaste kortoplysninger ved næste booking.
+                  </div>
+                )}
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={busyId !== null}>Annullér</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => { e.preventDefault(); confirmRemove(); }}
+              disabled={
+                busyId !== null ||
+                (pendingDelete?.is_default === true && (cards?.length ?? 0) > 1 && !newDefaultId)
+              }
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {busyId ? "Sletter…" : "Slet kort"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
