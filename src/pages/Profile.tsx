@@ -238,6 +238,8 @@ export default function Profile() {
           {tab === "sms" && <SmsTab />}
           {tab === "tax" && <TaxTab />}
           {tab === "deactivate" && <DeactivateTab />}
+        </div>
+      </div>
       {supportOpen && <SupportDialog mode={supportOpen} onClose={() => setSupportOpen(false)} />}
     </main>
   );
