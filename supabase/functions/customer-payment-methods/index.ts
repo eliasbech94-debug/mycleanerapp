@@ -112,18 +112,33 @@ Deno.serve(async (req) => {
     }
 
     if (action === "list") {
-      const pms = await stripe("/payment_methods", "GET", stripeKey, {
-        customer: customerId,
-        type: "card",
-      });
+      const [pms, customer] = await Promise.all([
+        stripe("/payment_methods", "GET", stripeKey, { customer: customerId, type: "card" }),
+        stripe(`/customers/${customerId}`, "GET", stripeKey),
+      ]);
+      const defaultPm = customer?.invoice_settings?.default_payment_method || null;
       const cards = (pms.data || []).map((pm: any) => ({
         id: pm.id,
         brand: pm.card?.brand,
         last4: pm.card?.last4,
         exp_month: pm.card?.exp_month,
         exp_year: pm.card?.exp_year,
+        is_default: pm.id === defaultPm,
       }));
-      return new Response(JSON.stringify({ cards }), {
+      return new Response(JSON.stringify({ cards, default_payment_method: defaultPm }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    if (action === "set_default") {
+      const pmId = body?.payment_method_id as string;
+      if (!pmId) throw new Error("Missing payment_method_id");
+      const pm = await stripe(`/payment_methods/${pmId}`, "GET", stripeKey);
+      if (pm.customer !== customerId) throw new Error("Forbidden");
+      await stripe(`/customers/${customerId}`, "POST", stripeKey, {
+        "invoice_settings[default_payment_method]": pmId,
+      });
+      return new Response(JSON.stringify({ ok: true }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
