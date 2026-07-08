@@ -1236,12 +1236,7 @@ function CardsTab() {
             })}
           </div>
 
-          {filteredCards.length === 0 ? (
-            <div className="rounded-2xl border-2 border-dashed bg-white p-6 text-center" style={{ borderColor: `${C.ink}33` }}>
-              <p className="text-sm opacity-70">Ingen kort matcher det valgte filter.</p>
-            </div>
-          ) : (
-            filteredCards.map((c) => {
+          {cardList}
               const now = new Date();
             const expDate = new Date(c.exp_year, c.exp_month, 0); // last day of exp month
             const expired = expDate < now;
