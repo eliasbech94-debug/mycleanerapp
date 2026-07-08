@@ -1035,7 +1035,21 @@ function CardsTab() {
     setLastUsed(map);
   }
 
-  useEffect(() => { loadCards(); loadLastUsed(); }, []);
+  async function loadNextBooking() {
+    const today = new Date().toISOString().slice(0, 10);
+    const { data } = await supabase
+      .from("bookings")
+      .select("booking_date, slot, service, provider_name, customer_pays, currency, status, payment_status")
+      .gte("booking_date", today)
+      .in("status", ["pending", "accepted"])
+      .order("booking_date", { ascending: true })
+      .limit(1);
+    const b = (data || [])[0] as any;
+    setNextBooking(b ? { booking_date: b.booking_date, slot: b.slot, service: b.service, provider_name: b.provider_name, customer_pays: b.customer_pays, currency: b.currency } : null);
+  }
+
+  useEffect(() => { loadCards(); loadLastUsed(); loadNextBooking(); }, []);
+
 
   async function startAdd(replaceCardId: string | null = null) {
     setActionError(null);
