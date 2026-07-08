@@ -172,6 +172,7 @@ export default function FindCleaner() {
 
     loadGoogleMaps()
       .then((google) => {
+        googleRef.current = google;
         const map = new google.maps.Map(mapRef.current!, {
           center: DEFAULT_CENTER,
           zoom: DEFAULT_ZOOM,
