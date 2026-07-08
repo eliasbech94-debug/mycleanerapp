@@ -422,6 +422,77 @@ export type Database = {
         }
         Relationships: []
       }
+      provider_receipts: {
+        Row: {
+          amount_cents: number | null
+          booking_id: string | null
+          category: string
+          created_at: string
+          currency: string | null
+          file_path: string
+          id: string
+          mime: string | null
+          notes: string | null
+          quarter: number | null
+          raw_ocr: Json | null
+          receipt_date: string | null
+          scan_status: string
+          updated_at: string
+          user_id: string
+          vat_cents: number | null
+          vendor: string | null
+          year: number | null
+        }
+        Insert: {
+          amount_cents?: number | null
+          booking_id?: string | null
+          category?: string
+          created_at?: string
+          currency?: string | null
+          file_path: string
+          id?: string
+          mime?: string | null
+          notes?: string | null
+          quarter?: number | null
+          raw_ocr?: Json | null
+          receipt_date?: string | null
+          scan_status?: string
+          updated_at?: string
+          user_id: string
+          vat_cents?: number | null
+          vendor?: string | null
+          year?: number | null
+        }
+        Update: {
+          amount_cents?: number | null
+          booking_id?: string | null
+          category?: string
+          created_at?: string
+          currency?: string | null
+          file_path?: string
+          id?: string
+          mime?: string | null
+          notes?: string | null
+          quarter?: number | null
+          raw_ocr?: Json | null
+          receipt_date?: string | null
+          scan_status?: string
+          updated_at?: string
+          user_id?: string
+          vat_cents?: number | null
+          vendor?: string | null
+          year?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_receipts_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sms_verifications: {
         Row: {
           attempts: number
