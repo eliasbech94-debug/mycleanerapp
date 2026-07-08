@@ -269,7 +269,7 @@ export default function FindCleaner() {
       markersRef.current = [];
       mapInstance.current = null;
     };
-  }, [providers.length, updateVisibleProviders]);
+  }, [providers.length, updateVisibleProviders, fetchProviders]);
 
   useEffect(() => {
     if (!mapInstance.current) return;
