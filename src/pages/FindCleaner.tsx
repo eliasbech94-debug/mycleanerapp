@@ -42,65 +42,45 @@ function getInitials(name: string) {
     .toUpperCase();
 }
 
-function createPinElement(provider: MapProvider, isSelected: boolean) {
-  const el = document.createElement("div");
-  el.className = `relative flex items-center justify-center transition-all duration-200 ${isSelected ? "scale-110 z-50" : "hover:scale-105"}`;
-  el.innerHTML = `
-    <div class="relative">
-      <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-3 h-3 bg-foreground rotate-45"></div>
-      <div class="relative flex items-center justify-center w-10 h-10 rounded-full border-2 border-background shadow-lg overflow-hidden bg-primary text-primary-foreground font-heading text-sm font-bold">
-        ${provider.avatar ? `<img src="${provider.avatar}" alt="" class="w-full h-full object-cover" />` : getInitials(provider.name)}
-      </div>
-      ${provider.verified ? `<div class="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-primary rounded-full border-2 border-background flex items-center justify-center"><div class="w-1.5 h-1.5 bg-primary-foreground rounded-full"></div></div>` : ""}
-    </div>
-  `;
-  return el;
+function pinSvg(initials: string, isSelected: boolean) {
+  const size = isSelected ? 52 : 44;
+  const circle = size * 0.38;
+  const cx = size / 2;
+  const cy = size * 0.42;
+  const color = "hsl(168 65% 38%)";
+  const textColor = "white";
+  const fontSize = isSelected ? 16 : 14;
+  return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+      <defs>
+        <filter id="s" x="-50%" y="-50%" width="200%" height="200%">
+          <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="rgba(0,0,0,0.25)"/>
+        </filter>
+      </defs>
+      <path d="M${cx},${size} L${cx - 8},${cy + circle * 0.6} A${circle},${circle} 0 1,1 ${cx + 8},${cy + circle * 0.6} Z" fill="${color}" filter="url(#s)"/>
+      <circle cx="${cx}" cy="${cy}" r="${circle - 2}" fill="${textColor}" fill-opacity="0.15"/>
+      <text x="${cx}" y="${cy + 1}" text-anchor="middle" dominant-baseline="middle" fill="${textColor}" font-family="Space Grotesk, sans-serif" font-size="${fontSize}" font-weight="700">${initials}</text>
+    </svg>`
+  )}`;
 }
 
-class ProviderMarker extends google.maps.OverlayView {
-  private div: HTMLDivElement;
-  private position: google.maps.LatLng;
-  private listener?: google.maps.MapsEventListener;
-
-  constructor(
-    provider: MapProvider,
-    isSelected: boolean,
-    private onClick: () => void,
-  ) {
-    super();
-    this.position = new google.maps.LatLng(provider.lat, provider.lng);
-    this.div = document.createElement("div");
-    this.div.style.position = "absolute";
-    this.div.style.cursor = "pointer";
-    this.div.appendChild(createPinElement(provider, isSelected));
-  }
-
-  onAdd() {
-    const overlayLayer = this.getPanes()?.overlayMouseTarget;
-    if (overlayLayer) overlayLayer.appendChild(this.div);
-    this.listener = this.div.addEventListener("click", (e) => {
-      e.stopPropagation();
-      this.onClick();
-    }) as unknown as google.maps.MapsEventListener;
-  }
-
-  draw() {
-    const projection = this.getProjection();
-    if (!projection) return;
-    const pos = projection.fromLatLngToDivPixel(this.position);
-    if (pos) {
-      this.div.style.left = `${pos.x}px`;
-      this.div.style.top = `${pos.y}px`;
-      this.div.style.transform = "translate(-50%, -100%)";
-    }
-  }
-
-  onRemove() {
-    if (this.listener) {
-      google.maps.event.removeListener(this.listener);
-    }
-    this.div.parentNode?.removeChild(this.div);
-  }
+function createMarker(
+  google: typeof window.google,
+  provider: MapProvider,
+  isSelected: boolean,
+  onClick: () => void,
+): google.maps.Marker {
+  const marker = new google.maps.Marker({
+    position: { lat: provider.lat, lng: provider.lng },
+    icon: {
+      url: pinSvg(getInitials(provider.name), isSelected),
+      scaledSize: new google.maps.Size(isSelected ? 52 : 44, isSelected ? 52 : 44),
+      anchor: new google.maps.Point(isSelected ? 26 : 22, isSelected ? 50 : 42),
+    },
+    animation: isSelected ? google.maps.Animation.BOUNCE : null,
+  });
+  marker.addListener("click", onClick);
+  return marker;
 }
 
 export default function FindCleaner() {
