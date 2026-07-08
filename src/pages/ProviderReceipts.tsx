@@ -55,9 +55,9 @@ export default function ProviderReceipts() {
     if (pid) {
       const { data: bks } = await supabase
         .from("bookings")
-        .select("id, scheduled_date, service_type")
+        .select("id, booking_date, service")
         .eq("provider_id", pid)
-        .order("scheduled_date", { ascending: false })
+        .order("booking_date", { ascending: false })
         .limit(50);
       setBookings((bks as any) || []);
     }
