@@ -985,7 +985,7 @@ function Step3({ address, setAddress, addressValid, setAddressValid, setAddressP
                 onValidityChange={setAddressValid}
                 isValid={addressValid}
                 placeholder="Vej, nr., etage, by"
-                countries={["dk"]}
+                countries={[(profile?.country_code || "DK").toLowerCase()]}
               />
             </div>
             {addressValid ? (
