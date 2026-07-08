@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
-  ArrowLeft, ArrowDownCircle, ArrowRight, ArrowUpCircle, Bell, Calendar, CheckCircle2, Clock, CreditCard, FileText, History, Home, Inbox, LayoutDashboard, LifeBuoy, Loader2,
+  ArrowLeft, ArrowDownCircle, ArrowRight, ArrowUpCircle, Bell, Calendar, CheckCircle2, Clock, CreditCard, FileText, Filter, History, Home, Inbox, LayoutDashboard, LifeBuoy, Loader2,
   LogOut, Mail, MapPin, Menu, MessageCircle, MessageSquare, PiggyBank, Plus, Receipt, ShieldAlert, ShieldOff, Sparkles, Star, Trash2, User as UserIcon, X, XCircle,
 } from "lucide-react";
 import { NotificationsTab, SmsTab, TaxTab, DeactivateTab, ServiceDeductionTab } from "@/components/profile/ProfileExtraTabs";
@@ -997,6 +997,8 @@ const REFUND_REASON_LABEL: Record<string, string> = {
 /* ---------- CARDS TAB ---------- */
 type Card = { id: string; brand: string; last4: string; exp_month: number; exp_year: number; is_default?: boolean };
 
+type CardFilter = "all" | "default" | "active" | "expired";
+
 function CardsTab() {
   const [cards, setCards] = useState<Card[] | null>(null);
   const [adding, setAdding] = useState(false);
@@ -1009,6 +1011,7 @@ function CardsTab() {
   const [actionError, setActionError] = useState<string | null>(null);
   const [defaultingId, setDefaultingId] = useState<string | null>(null);
   const [lastUsed, setLastUsed] = useState<Record<string, string>>({});
+  const [filter, setFilter] = useState<CardFilter>("all");
 
   async function loadCards() {
     const { data, error } = await supabase.functions.invoke("customer-payment-methods", { body: { action: "list" } });
@@ -1146,6 +1149,143 @@ function CardsTab() {
 
   const replaceCard = cards?.find((c) => c.id === replaceId) || null;
 
+  const now = new Date();
+  const filteredCards = useMemo(() => {
+    if (!cards) return [];
+    switch (filter) {
+      case "default":
+        return cards.filter((c) => c.is_default);
+      case "active":
+        return cards.filter((c) => {
+          const expDate = new Date(c.exp_year, c.exp_month, 0);
+          return !c.is_default && expDate >= now;
+        });
+      case "expired":
+        return cards.filter((c) => {
+          const expDate = new Date(c.exp_year, c.exp_month, 0);
+          return expDate < now;
+        });
+      default:
+        return cards;
+    }
+  }, [cards, filter]);
+
+  const counts = useMemo(() => {
+    if (!cards) return { all: 0, default: 0, active: 0, expired: 0 };
+    return {
+      all: cards.length,
+      default: cards.filter((c) => c.is_default).length,
+      active: cards.filter((c) => {
+        const expDate = new Date(c.exp_year, c.exp_month, 0);
+        return !c.is_default && expDate >= now;
+      }).length,
+      expired: cards.filter((c) => {
+        const expDate = new Date(c.exp_year, c.exp_month, 0);
+        return expDate < now;
+      }).length,
+    };
+  }, [cards]);
+
+  const FILTER_OPTIONS: { key: CardFilter; label: string }[] = [
+    { key: "all", label: "Alle" },
+    { key: "default", label: "Standard" },
+    { key: "active", label: "Aktive" },
+    { key: "expired", label: "Udløbet" },
+  ];
+
+  const cardList: React.ReactNode = filteredCards.length === 0 ? (
+    <div className="rounded-2xl border-2 border-dashed bg-white p-6 text-center" style={{ borderColor: `${C.ink}33` }}>
+      <p className="text-sm opacity-70">Ingen kort matcher det valgte filter.</p>
+    </div>
+  ) : (
+    filteredCards.map((c) => {
+      const expDate = new Date(c.exp_year, c.exp_month, 0);
+      const expired = expDate < now;
+      const monthsToExp = (c.exp_year - now.getFullYear()) * 12 + (c.exp_month - (now.getMonth() + 1));
+      const expiresSoon = !expired && monthsToExp <= 2;
+      const luKey = `${(c.brand || "").toLowerCase()}|${c.last4}`;
+      const luRaw = lastUsed[luKey];
+      const lu = luRaw
+        ? new Date(luRaw).toLocaleDateString("da-DK", { day: "2-digit", month: "short", year: "numeric" })
+        : null;
+      const statusLabel = expired ? "Udløbet" : c.is_default ? "Standard – bruges næste gang" : "Aktiv";
+      const statusColor = expired ? "#c0392b" : c.is_default ? C.teal : C.ink;
+
+      return (
+        <div key={c.id} className="rounded-2xl border-2 bg-white p-4" style={{ borderColor: c.is_default ? C.teal : `${C.ink}22`, opacity: expired ? 0.75 : 1 }}>
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="grid h-10 w-14 place-items-center rounded-md text-[10px] font-bold uppercase shrink-0" style={{ background: C.ink, color: C.cream }}>
+                {c.brand}
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-sm font-bold">•••• {c.last4}</span>
+                  <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-black uppercase tracking-[0.16em]" style={{ background: statusColor, color: C.cream }}>
+                    {c.is_default && !expired && <Star className="h-2.5 w-2.5" />}
+                    {statusLabel}
+                  </span>
+                </div>
+                <div className="text-[11px] opacity-60">Udløber {String(c.exp_month).padStart(2, "0")}/{String(c.exp_year).slice(-2)}</div>
+              </div>
+            </div>
+            <button onClick={() => requestRemove(c)} disabled={busyId === c.id} className="rounded-full p-2 hover:bg-black/5 disabled:opacity-40" aria-label="Fjern">
+              <Trash2 className="h-4 w-4 opacity-70" />
+            </button>
+          </div>
+
+          {/* Summary strip */}
+          <div className="mt-3 grid grid-cols-3 gap-2 rounded-xl p-2.5 text-[11px]" style={{ background: C.cream }}>
+            <div>
+              <div className="opacity-60 uppercase tracking-[0.14em] text-[9px] font-black">Status</div>
+              <div className="mt-0.5 font-bold flex items-center gap-1" style={{ color: statusColor }}>
+                {expired ? <ShieldAlert className="h-3 w-3" /> : c.is_default ? <CheckCircle2 className="h-3 w-3" /> : <Clock className="h-3 w-3" />}
+                {expired ? "Udløbet" : c.is_default ? "Standard" : "Aktiv"}
+              </div>
+            </div>
+            <div>
+              <div className="opacity-60 uppercase tracking-[0.14em] text-[9px] font-black">Udløber</div>
+              <div className="mt-0.5 font-bold flex items-center gap-1" style={{ color: expired ? "#c0392b" : expiresSoon ? C.orange : C.ink }}>
+                {String(c.exp_month).padStart(2, "0")}/{String(c.exp_year).slice(-2)}
+                {expiresSoon && <span className="text-[9px] font-bold opacity-80">(snart)</span>}
+              </div>
+            </div>
+            <div>
+              <div className="opacity-60 uppercase tracking-[0.14em] text-[9px] font-black">Seneste brug</div>
+              <div className="mt-0.5 font-bold">{lu || <span className="opacity-50 font-normal">Aldrig brugt</span>}</div>
+            </div>
+          </div>
+
+          <div className="mt-3 flex flex-wrap gap-2">
+            {!c.is_default && !expired && (
+              <button
+                onClick={() => setDefault(c.id)}
+                disabled={busyId === c.id}
+                aria-busy={defaultingId === c.id}
+                className="inline-flex items-center gap-1 rounded-full border-2 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.16em] disabled:opacity-60"
+                style={{ borderColor: `${C.ink}33`, color: C.ink }}
+              >
+                {defaultingId === c.id ? (
+                  <><Loader2 className="h-3 w-3 animate-spin" /> Opdaterer…</>
+                ) : (
+                  <><Star className="h-3 w-3" /> Sæt som standard</>
+                )}
+              </button>
+            )}
+            <button
+              onClick={() => startAdd(c.id)}
+              disabled={adding}
+              className="inline-flex items-center gap-1 rounded-full border-2 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.16em] disabled:opacity-40"
+              style={{ borderColor: `${C.ink}33`, color: C.ink }}
+            >
+              <CreditCard className="h-3 w-3" /> Erstat
+            </button>
+          </div>
+        </div>
+      );
+    })
+  );
+
   return (
     <div className="space-y-4">
       {cards === null ? (
@@ -1157,94 +1297,39 @@ function CardsTab() {
           <p className="mt-2 text-sm opacity-70">Tilføj et kort så booking går hurtigere næste gang.</p>
         </div>
       ) : (
-        <div className="space-y-2">
-          {cards.map((c) => {
-            const now = new Date();
-            const expDate = new Date(c.exp_year, c.exp_month, 0); // last day of exp month
-            const expired = expDate < now;
-            const monthsToExp = (c.exp_year - now.getFullYear()) * 12 + (c.exp_month - (now.getMonth() + 1));
-            const expiresSoon = !expired && monthsToExp <= 2;
-            const luKey = `${(c.brand || "").toLowerCase()}|${c.last4}`;
-            const luRaw = lastUsed[luKey];
-            const lu = luRaw
-              ? new Date(luRaw).toLocaleDateString("da-DK", { day: "2-digit", month: "short", year: "numeric" })
-              : null;
-            const statusLabel = expired ? "Udløbet" : c.is_default ? "Standard – bruges næste gang" : "Aktiv";
-            const statusColor = expired ? "#c0392b" : c.is_default ? C.teal : C.ink;
-
-            return (
-              <div key={c.id} className="rounded-2xl border-2 bg-white p-4" style={{ borderColor: c.is_default ? C.teal : `${C.ink}22`, opacity: expired ? 0.75 : 1 }}>
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="grid h-10 w-14 place-items-center rounded-md text-[10px] font-bold uppercase shrink-0" style={{ background: C.ink, color: C.cream }}>
-                      {c.brand}
-                    </div>
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-sm font-bold">•••• {c.last4}</span>
-                        <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-black uppercase tracking-[0.16em]" style={{ background: statusColor, color: C.cream }}>
-                          {c.is_default && !expired && <Star className="h-2.5 w-2.5" />}
-                          {statusLabel}
-                        </span>
-                      </div>
-                      <div className="text-[11px] opacity-60">Udløber {String(c.exp_month).padStart(2, "0")}/{String(c.exp_year).slice(-2)}</div>
-                    </div>
-                  </div>
-                  <button onClick={() => requestRemove(c)} disabled={busyId === c.id} className="rounded-full p-2 hover:bg-black/5 disabled:opacity-40" aria-label="Fjern">
-                    <Trash2 className="h-4 w-4 opacity-70" />
-                  </button>
-                </div>
-
-                {/* Summary strip */}
-                <div className="mt-3 grid grid-cols-3 gap-2 rounded-xl p-2.5 text-[11px]" style={{ background: C.cream }}>
-                  <div>
-                    <div className="opacity-60 uppercase tracking-[0.14em] text-[9px] font-black">Status</div>
-                    <div className="mt-0.5 font-bold flex items-center gap-1" style={{ color: statusColor }}>
-                      {expired ? <ShieldAlert className="h-3 w-3" /> : c.is_default ? <CheckCircle2 className="h-3 w-3" /> : <Clock className="h-3 w-3" />}
-                      {expired ? "Udløbet" : c.is_default ? "Standard" : "Aktiv"}
-                    </div>
-                  </div>
-                  <div>
-                    <div className="opacity-60 uppercase tracking-[0.14em] text-[9px] font-black">Udløber</div>
-                    <div className="mt-0.5 font-bold flex items-center gap-1" style={{ color: expired ? "#c0392b" : expiresSoon ? C.orange : C.ink }}>
-                      {String(c.exp_month).padStart(2, "0")}/{String(c.exp_year).slice(-2)}
-                      {expiresSoon && <span className="text-[9px] font-bold opacity-80">(snart)</span>}
-                    </div>
-                  </div>
-                  <div>
-                    <div className="opacity-60 uppercase tracking-[0.14em] text-[9px] font-black">Seneste brug</div>
-                    <div className="mt-0.5 font-bold">{lu || <span className="opacity-50 font-normal">Aldrig brugt</span>}</div>
-                  </div>
-                </div>
-
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {!c.is_default && !expired && (
-                    <button
-                      onClick={() => setDefault(c.id)}
-                      disabled={busyId === c.id}
-                      aria-busy={defaultingId === c.id}
-                      className="inline-flex items-center gap-1 rounded-full border-2 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.16em] disabled:opacity-60"
-                      style={{ borderColor: `${C.ink}33`, color: C.ink }}
-                    >
-                      {defaultingId === c.id ? (
-                        <><Loader2 className="h-3 w-3 animate-spin" /> Opdaterer…</>
-                      ) : (
-                        <><Star className="h-3 w-3" /> Sæt som standard</>
-                      )}
-                    </button>
-                  )}
-                  <button
-                    onClick={() => startAdd(c.id)}
-                    disabled={adding}
-                    className="inline-flex items-center gap-1 rounded-full border-2 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.16em] disabled:opacity-40"
-                    style={{ borderColor: `${C.ink}33`, color: C.ink }}
+        <div className="space-y-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex items-center gap-1.5 rounded-xl border-2 px-3 py-2" style={{ borderColor: `${C.ink}22`, background: C.cream }}>
+              <Filter className="h-3.5 w-3.5 opacity-60" />
+              <span className="text-[10px] font-black uppercase tracking-[0.18em] opacity-70">Filtrér</span>
+            </div>
+            {FILTER_OPTIONS.map((opt) => {
+              const active = filter === opt.key;
+              const count = counts[opt.key];
+              return (
+                <button
+                  key={opt.key}
+                  onClick={() => setFilter(opt.key)}
+                  className="inline-flex items-center gap-1.5 rounded-full border-2 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.14em] transition"
+                  style={{
+                    borderColor: active ? C.ink : `${C.ink}33`,
+                    background: active ? C.ink : C.cream,
+                    color: active ? C.cream : C.ink,
+                  }}
+                >
+                  {opt.label}
+                  <span
+                    className="grid h-4 min-w-[1rem] place-items-center rounded-full px-1 text-[9px] font-black"
+                    style={{ background: active ? C.teal : `${C.ink}22`, color: active ? C.cream : C.ink }}
                   >
-                    <CreditCard className="h-3 w-3" /> Erstat
-                  </button>
-                </div>
-              </div>
-            );
-          })}
+                    {count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          {cardList}
         </div>
       )}
 
