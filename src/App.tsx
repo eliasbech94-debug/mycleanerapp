@@ -25,6 +25,7 @@ import EmployeeDashboard from "./pages/EmployeeDashboard";
 import BookingFlow from "./pages/BookingFlow";
 import MyBookings from "./pages/MyBookings";
 import ProviderDashboard from "./pages/ProviderDashboard";
+import ProviderReceipts from "./pages/ProviderReceipts";
 import NotFound from "./pages/NotFound";
 import FAQ from "./pages/FAQ";
 import Regler from "./pages/Regler";
@@ -112,6 +113,10 @@ const App = () => (
 
             <Route path="/faq" element={<FAQ />} />
             <Route path="/regler" element={<Regler />} />
+            <Route
+              path="/provider/bilag"
+              element={<RoleGuard allow={["provider", "admin", "super_admin"]}><ProviderReceipts /></RoleGuard>}
+            />
 
             <Route path="*" element={<NotFound />} />
           </Routes>
