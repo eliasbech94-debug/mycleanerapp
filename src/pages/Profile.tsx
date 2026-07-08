@@ -997,6 +997,8 @@ const REFUND_REASON_LABEL: Record<string, string> = {
 /* ---------- CARDS TAB ---------- */
 type Card = { id: string; brand: string; last4: string; exp_month: number; exp_year: number; is_default?: boolean };
 
+type CardFilter = "all" | "default" | "active" | "expired";
+
 function CardsTab() {
   const [cards, setCards] = useState<Card[] | null>(null);
   const [adding, setAdding] = useState(false);
@@ -1009,6 +1011,7 @@ function CardsTab() {
   const [actionError, setActionError] = useState<string | null>(null);
   const [defaultingId, setDefaultingId] = useState<string | null>(null);
   const [lastUsed, setLastUsed] = useState<Record<string, string>>({});
+  const [filter, setFilter] = useState<CardFilter>("all");
 
   async function loadCards() {
     const { data, error } = await supabase.functions.invoke("customer-payment-methods", { body: { action: "list" } });
