@@ -1143,7 +1143,7 @@ function CardsTab() {
                     <div className="text-[11px] opacity-60">Udløber {String(c.exp_month).padStart(2, "0")}/{String(c.exp_year).slice(-2)}</div>
                   </div>
                 </div>
-                <button onClick={() => removeCard(c.id)} disabled={busyId === c.id} className="rounded-full p-2 hover:bg-black/5 disabled:opacity-40" aria-label="Fjern">
+                <button onClick={() => requestRemove(c)} disabled={busyId === c.id} className="rounded-full p-2 hover:bg-black/5 disabled:opacity-40" aria-label="Fjern">
                   <Trash2 className="h-4 w-4 opacity-70" />
                 </button>
               </div>
