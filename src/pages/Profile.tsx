@@ -1204,9 +1204,45 @@ function CardsTab() {
           <p className="mt-2 text-sm opacity-70">Tilføj et kort så booking går hurtigere næste gang.</p>
         </div>
       ) : (
-        <div className="space-y-2">
-          {cards.map((c) => {
-            const now = new Date();
+        <div className="space-y-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex items-center gap-1.5 rounded-xl border-2 px-3 py-2" style={{ borderColor: `${C.ink}22`, background: C.cream }}>
+              <Filter className="h-3.5 w-3.5 opacity-60" />
+              <span className="text-[10px] font-black uppercase tracking-[0.18em] opacity-70">Filtrér</span>
+            </div>
+            {FILTER_OPTIONS.map((opt) => {
+              const active = filter === opt.key;
+              const count = counts[opt.key];
+              return (
+                <button
+                  key={opt.key}
+                  onClick={() => setFilter(opt.key)}
+                  className="inline-flex items-center gap-1.5 rounded-full border-2 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.14em] transition"
+                  style={{
+                    borderColor: active ? C.ink : `${C.ink}33`,
+                    background: active ? C.ink : C.cream,
+                    color: active ? C.cream : C.ink,
+                  }}
+                >
+                  {opt.label}
+                  <span
+                    className="grid h-4 min-w-[1rem] place-items-center rounded-full px-1 text-[9px] font-black"
+                    style={{ background: active ? C.teal : `${C.ink}22`, color: active ? C.cream : C.ink }}
+                  >
+                    {count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          {filteredCards.length === 0 ? (
+            <div className="rounded-2xl border-2 border-dashed bg-white p-6 text-center" style={{ borderColor: `${C.ink}33` }}>
+              <p className="text-sm opacity-70">Ingen kort matcher det valgte filter.</p>
+            </div>
+          ) : (
+            filteredCards.map((c) => {
+              const now = new Date();
             const expDate = new Date(c.exp_year, c.exp_month, 0); // last day of exp month
             const expired = expDate < now;
             const monthsToExp = (c.exp_year - now.getFullYear()) * 12 + (c.exp_month - (now.getMonth() + 1));
