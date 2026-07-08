@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { MapPin, Loader2, CheckCircle2, AlertTriangle } from "lucide-react";
 import { loadGoogleMaps } from "@/lib/googleMaps";
+import { supabase } from "@/integrations/supabase/client";
 
 type Suggestion = {
   placeId: string;
