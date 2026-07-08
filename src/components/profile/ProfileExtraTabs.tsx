@@ -470,3 +470,153 @@ export function DeactivateTab() {
     </Card>
   );
 }
+
+/* ---------- SERVICEFRADRAG (kunder) ---------- */
+// Vejledende tal for 2026 — brugeren skal altid tjekke skat.dk for aktuelle satser.
+const SERVICE_LIMIT_DKK = 12200; // maks fradragsberettiget servicearbejde pr. person pr. år
+const SERVICE_VALUE_PCT = 0.26;  // skatteværdi ~ ca. 26%
+const DEDUCTIBLE_SERVICES = ["rengøring", "cleaning", "havearbejde", "garden", "vinduespudsning", "window"];
+
+export function ServiceDeductionTab() {
+  const { user } = useAuth();
+  const [rows, setRows] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const year = new Date().getFullYear();
+
+  useEffect(() => {
+    if (!user) return;
+    const from = `${year}-01-01`;
+    const to = `${year}-12-31`;
+    supabase
+      .from("bookings")
+      .select("id, service, booking_date, customer_pays, currency, payment_status, status")
+      .eq("customer_user_id", user.id)
+      .gte("booking_date", from)
+      .lte("booking_date", to)
+      .then(({ data }) => {
+        setRows((data as any[]) || []);
+        setLoading(false);
+      });
+  }, [user, year]);
+
+  const stats = useMemo(() => {
+    let total = 0, deductible = 0, ccy = "DKK";
+    const list: any[] = [];
+    for (const b of rows) {
+      const paid = ["captured", "partially_refunded"].includes(b.payment_status) || b.status === "completed";
+      if (!paid) continue;
+      const svc = (b.service || "").toLowerCase();
+      const isDeductible = DEDUCTIBLE_SERVICES.some((s) => svc.includes(s));
+      const amount = Number(b.customer_pays) || 0;
+      total += amount;
+      ccy = b.currency || ccy;
+      if (isDeductible) { deductible += amount; list.push(b); }
+    }
+    const eligible = Math.min(deductible, SERVICE_LIMIT_DKK);
+    const estValue = Math.round(eligible * SERVICE_VALUE_PCT);
+    return { total, deductible, eligible, estValue, ccy, remaining: Math.max(0, SERVICE_LIMIT_DKK - deductible), list };
+  }, [rows]);
+
+  const fmt = (n: number) =>
+    new Intl.NumberFormat("da-DK", { style: "currency", currency: stats.ccy, maximumFractionDigits: 0 }).format(n);
+
+  if (loading) return <div className="grid place-items-center py-16"><Loader2 className="h-6 w-6 animate-spin" /></div>;
+
+  const pct = Math.min(100, (stats.deductible / SERVICE_LIMIT_DKK) * 100);
+
+  return (
+    <Card title={`Servicefradrag ${year}`} icon={PiggyBank}>
+      <p className="mb-5 text-sm opacity-75">
+        Danske skatteydere kan trække udgifter til bestemte typer servicearbejde i hjemmet fra i skat.
+        Her ser du hvad du har brugt gennem HomeHero i år — og hvad du kan indberette.
+      </p>
+
+      {/* Summary numbers */}
+      <div className="mb-5 grid gap-3 sm:grid-cols-3">
+        <Metric label="Brugt i alt" value={fmt(stats.total)} tone="ink" />
+        <Metric label="Fradragsberettiget" value={fmt(stats.deductible)} tone="teal" />
+        <Metric label="Ca. værdi i skat" value={fmt(stats.estValue)} tone="orange" />
+      </div>
+
+      {/* Progress toward limit */}
+      <div className="mb-6 rounded-2xl border-2 p-4" style={{ borderColor: `${C.ink}1a` }}>
+        <div className="mb-2 flex items-baseline justify-between text-xs">
+          <span className="font-bold uppercase tracking-wider opacity-70">Årets loft</span>
+          <span className="opacity-70">{fmt(stats.deductible)} / {fmt(SERVICE_LIMIT_DKK)}</span>
+        </div>
+        <div className="h-2 w-full overflow-hidden rounded-full" style={{ background: `${C.ink}14` }}>
+          <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: C.teal }} />
+        </div>
+        <div className="mt-2 text-xs opacity-70">
+          {stats.remaining > 0
+            ? `Du har endnu ${fmt(stats.remaining)} tilbage af årets fradragsloft.`
+            : `Du har nået årets loft — beløb ud over ${fmt(SERVICE_LIMIT_DKK)} kan ikke fradrages.`}
+        </div>
+      </div>
+
+      {/* Step-by-step guide */}
+      <div className="rounded-2xl border-2 p-5" style={{ borderColor: `${C.teal}55`, background: `${C.teal}0f` }}>
+        <div className="mb-3 flex items-center gap-2">
+          <Sparkles className="h-4 w-4" style={{ color: C.orange }} />
+          <h3 className="font-display text-lg">Sådan indberetter du fradraget</h3>
+        </div>
+        <ol className="ml-5 list-decimal space-y-2 text-sm">
+          <li>Log ind på <a href="https://skat.dk" target="_blank" rel="noreferrer" className="underline font-bold">skat.dk</a> med MitID.</li>
+          <li>Gå til <em>Årsopgørelsen</em> → <em>Ret årsopgørelsen</em> → rubrik <strong>458 (Servicefradrag)</strong>.</li>
+          <li>Indtast det samlede beløb du har betalt for godkendte serviceydelser (arbejdsløn, ikke materialer).</li>
+          <li>Angiv HomeHero / providerens CVR som modtager. Gem dine kvitteringer i 5 år.</li>
+          <li>Fradraget beregnes automatisk og reducerer din restskat (eller øger overskydende skat).</li>
+        </ol>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <a
+            href="https://skat.dk/borger/fradrag/servicefradrag"
+            target="_blank" rel="noreferrer"
+            className="rounded-xl px-4 py-2 text-xs font-bold uppercase tracking-wider"
+            style={{ background: C.ink, color: C.cream }}
+          >
+            Åbn skat.dk vejledning
+          </a>
+          <a
+            href="/faq"
+            className="rounded-xl border-2 px-4 py-2 text-xs font-bold uppercase tracking-wider"
+            style={{ borderColor: C.ink, color: C.ink }}
+          >
+            Se ofte stillede spørgsmål
+          </a>
+        </div>
+      </div>
+
+      {/* Detail list */}
+      {stats.list.length > 0 && (
+        <div className="mt-6">
+          <h4 className="mb-2 text-xs font-bold uppercase tracking-wider opacity-70">Fradragsberettigede bookinger i {year}</h4>
+          <ul className="divide-y rounded-2xl border-2" style={{ borderColor: `${C.ink}1a` }}>
+            {stats.list.map((b) => (
+              <li key={b.id} className="flex items-center justify-between px-4 py-3 text-sm">
+                <span>
+                  {new Date(b.booking_date).toLocaleDateString("da-DK")} · <span className="opacity-70">{b.service}</span>
+                </span>
+                <span className="font-bold">{fmt(Number(b.customer_pays))}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      <p className="mt-5 text-[11px] opacity-60">
+        Beløb er vejledende. Sats for 2026 antaget til {SERVICE_LIMIT_DKK.toLocaleString("da-DK")} kr. og en skatteværdi på ca. {Math.round(SERVICE_VALUE_PCT * 100)} %.
+        Tjek altid <a href="https://skat.dk" target="_blank" rel="noreferrer" className="underline">skat.dk</a> for de aktuelle regler.
+      </p>
+    </Card>
+  );
+}
+
+function Metric({ label, value, tone }: { label: string; value: string; tone: "ink" | "teal" | "orange" }) {
+  const bg = tone === "ink" ? C.ink : tone === "teal" ? C.teal : C.orange;
+  return (
+    <div className="rounded-2xl p-4 text-white" style={{ background: bg }}>
+      <div className="text-[10px] font-bold uppercase tracking-wider opacity-80">{label}</div>
+      <div className="mt-1 font-display text-2xl">{value}</div>
+    </div>
+  );
+}
