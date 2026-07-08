@@ -134,31 +134,65 @@ export function NotificationsTab() {
 export function SmsTab() {
   const { user } = useAuth();
   const [phone, setPhone] = useState("");
+  const [verifiedPhone, setVerifiedPhone] = useState<string | null>(null);
+  const [verifiedAt, setVerifiedAt] = useState<string | null>(null);
   const [enabled, setEnabled] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
+  const [step, setStep] = useState<"idle" | "sent">("idle");
+  const [code, setCode] = useState("");
+  const [sending, setSending] = useState(false);
+  const [verifying, setVerifying] = useState(false);
+  const [devCode, setDevCode] = useState<string | null>(null);
+
+  const normalized = phone.replace(/[\s\-()]/g, "");
+  const isVerified = !!verifiedPhone && !!verifiedAt && normalized && (normalized === verifiedPhone || `+${normalized}` === verifiedPhone);
+
   useEffect(() => {
     if (!user) return;
-    supabase.from("profiles").select("sms_phone, notification_prefs, phone").eq("id", user.id).maybeSingle()
+    supabase.from("profiles").select("sms_phone, sms_verified_at, notification_prefs, phone").eq("id", user.id).maybeSingle()
       .then(({ data }) => {
         const d: any = data || {};
         setPhone(d.sms_phone || d.phone || "");
+        setVerifiedPhone(d.sms_phone || null);
+        setVerifiedAt(d.sms_verified_at || null);
         setEnabled(!!d.notification_prefs?.sms);
         setLoading(false);
       });
   }, [user]);
 
-  async function save() {
+  async function sendCode() {
+    if (!/^\+?[0-9\s\-()]{7,}$/.test(phone)) { toast.error("Ugyldigt telefonnummer"); return; }
+    setSending(true);
+    const { data, error } = await supabase.functions.invoke("sms-send-code", { body: { phone } });
+    setSending(false);
+    if (error || (data as any)?.error) { toast.error((data as any)?.error || "Kunne ikke sende kode"); return; }
+    setStep("sent");
+    setDevCode((data as any)?.dev_code ?? null);
+    toast.success("Kode sendt");
+  }
+
+  async function verifyCode() {
+    setVerifying(true);
+    const { data, error } = await supabase.functions.invoke("sms-verify-code", { body: { phone, code } });
+    setVerifying(false);
+    if (error || (data as any)?.error) { toast.error((data as any)?.error || "Verifikation fejlede"); return; }
+    setVerifiedPhone((data as any).phone);
+    setVerifiedAt((data as any).verified_at);
+    setStep("idle");
+    setCode("");
+    setDevCode(null);
+    toast.success("Telefonnummer verificeret");
+  }
+
+  async function savePrefs() {
     if (!user) return;
-    if (enabled && !/^\+?[0-9\s\-()]{7,}$/.test(phone)) { toast.error("Ugyldigt telefonnummer"); return; }
+    if (enabled && !isVerified) { toast.error("Verificér telefonnummeret først"); return; }
     setSaving(true);
     const { data: current } = await supabase.from("profiles").select("notification_prefs").eq("id", user.id).maybeSingle();
     const prefs = { ...DEFAULT_PREFS, ...((current as any)?.notification_prefs || {}), sms: enabled };
-    const { error } = await supabase.from("profiles").update({
-      sms_phone: phone || null,
-      notification_prefs: prefs,
-    } as any).eq("id", user.id);
+    const { error } = await supabase.from("profiles").update({ notification_prefs: prefs } as any).eq("id", user.id);
     setSaving(false);
     if (error) toast.error("Kunne ikke gemme"); else toast.success("Gemt");
   }
@@ -171,26 +205,84 @@ export function SmsTab() {
         Modtag SMS ved bookingbekræftelser, ændringer og påmindelser 24 timer før. Almindelige takster kan gælde.
       </p>
       <div className="space-y-3">
-        <Toggle
-          label="Aktivér SMS"
-          hint="Kun kritiske beskeder — aldrig marketing."
-          value={enabled}
-          onChange={setEnabled}
-          disabled={saving}
-        />
         <div>
           <label className="mb-1 block text-xs font-bold uppercase tracking-wider opacity-70">Telefonnummer</label>
-          <input
-            type="tel"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            placeholder="+45 12 34 56 78"
-            className="w-full rounded-xl border-2 bg-white px-4 py-3 text-sm"
-            style={{ borderColor: `${C.ink}22`, color: C.ink }}
-          />
+          <div className="flex gap-2">
+            <input
+              type="tel"
+              value={phone}
+              onChange={(e) => { setPhone(e.target.value); setStep("idle"); }}
+              placeholder="+45 12 34 56 78"
+              className="w-full rounded-xl border-2 bg-white px-4 py-3 text-sm"
+              style={{ borderColor: `${C.ink}22`, color: C.ink }}
+            />
+            {isVerified ? (
+              <span
+                className="grid shrink-0 place-items-center rounded-xl px-4 text-xs font-bold uppercase tracking-wider"
+                style={{ background: `${C.mint}`, color: C.ink }}
+              >
+                Verificeret
+              </span>
+            ) : (
+              <button
+                onClick={sendCode}
+                disabled={sending || !phone}
+                className="shrink-0 rounded-xl px-4 py-3 text-xs font-bold uppercase tracking-wider disabled:opacity-50"
+                style={{ background: C.orange, color: "#fff" }}
+              >
+                {sending ? "Sender…" : step === "sent" ? "Send igen" : "Send kode"}
+              </button>
+            )}
+          </div>
+          {verifiedAt && isVerified && (
+            <p className="mt-1 text-xs opacity-70">Verificeret {new Date(verifiedAt).toLocaleDateString("da-DK")}</p>
+          )}
         </div>
+
+        {step === "sent" && !isVerified && (
+          <div className="rounded-2xl border-2 p-4" style={{ borderColor: `${C.teal}55`, background: `${C.teal}0f` }}>
+            <label className="mb-1 block text-xs font-bold uppercase tracking-wider opacity-70">Indtast 6-cifret kode</label>
+            <div className="flex gap-2">
+              <input
+                inputMode="numeric"
+                maxLength={6}
+                value={code}
+                onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                placeholder="123456"
+                className="w-full rounded-xl border-2 bg-white px-4 py-3 text-lg tracking-widest"
+                style={{ borderColor: `${C.ink}22`, color: C.ink }}
+              />
+              <button
+                onClick={verifyCode}
+                disabled={verifying || code.length !== 6}
+                className="shrink-0 rounded-xl px-4 py-3 text-xs font-bold uppercase tracking-wider disabled:opacity-50"
+                style={{ background: C.ink, color: C.cream }}
+              >
+                {verifying ? "Tjekker…" : "Bekræft"}
+              </button>
+            </div>
+            <p className="mt-2 text-xs opacity-70">Koden udløber om 10 minutter.</p>
+            {devCode && (
+              <p className="mt-2 text-xs" style={{ color: C.orange }}>
+                Udvikling: kode = <strong>{devCode}</strong> (SMS-udbyder endnu ikke tilsluttet)
+              </p>
+            )}
+          </div>
+        )}
+
+        <Toggle
+          label="Aktivér SMS"
+          hint={isVerified ? "Kun kritiske beskeder — aldrig marketing." : "Verificér dit nummer for at kunne aktivere."}
+          value={enabled}
+          onChange={(v) => {
+            if (v && !isVerified) { toast.error("Verificér telefonnummeret først"); return; }
+            setEnabled(v);
+          }}
+          disabled={saving || !isVerified}
+        />
+
         <button
-          onClick={save}
+          onClick={savePrefs}
           disabled={saving}
           className="rounded-xl px-5 py-3 text-sm font-bold uppercase tracking-wider disabled:opacity-50"
           style={{ background: C.ink, color: C.cream }}
