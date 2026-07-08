@@ -1010,9 +1010,10 @@ function CardsTab() {
   const [newDefaultId, setNewDefaultId] = useState<string>("");
   const [actionError, setActionError] = useState<string | null>(null);
   const [defaultingId, setDefaultingId] = useState<string | null>(null);
-  const [lastUsed, setLastUsed] = useState<Record<string, string>>({});
+  const [lastUsed, setLastUsed] = useState<Record<string, { created_at: string; id: string }>>({});
   const [filter, setFilter] = useState<CardFilter>("all");
   const [nextBooking, setNextBooking] = useState<{ booking_date: string; slot: string; service: string; provider_name: string; customer_pays: number; currency: string } | null>(null);
+  const [expandedUsage, setExpandedUsage] = useState<Record<string, boolean>>({});
 
 
   async function loadCards() {
