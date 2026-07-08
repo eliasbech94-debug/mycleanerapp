@@ -305,7 +305,7 @@ function AddressDialog({
               onValidityChange={setAddrValid}
               isValid={addrValid}
               placeholder="Vej, nr., by"
-              countries={["dk"]}
+              countries={[userCountry]}
             />
           </Row>
 
