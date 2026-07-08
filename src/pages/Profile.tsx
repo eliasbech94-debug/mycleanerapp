@@ -1010,9 +1010,10 @@ function CardsTab() {
   const [newDefaultId, setNewDefaultId] = useState<string>("");
   const [actionError, setActionError] = useState<string | null>(null);
   const [defaultingId, setDefaultingId] = useState<string | null>(null);
-  const [lastUsed, setLastUsed] = useState<Record<string, string>>({});
+  const [lastUsed, setLastUsed] = useState<Record<string, { created_at: string; id: string }>>({});
   const [filter, setFilter] = useState<CardFilter>("all");
   const [nextBooking, setNextBooking] = useState<{ booking_date: string; slot: string; service: string; provider_name: string; customer_pays: number; currency: string } | null>(null);
+  const [expandedUsage, setExpandedUsage] = useState<Record<string, boolean>>({});
 
 
   async function loadCards() {
@@ -1024,13 +1025,13 @@ function CardsTab() {
   async function loadLastUsed() {
     const { data } = await supabase
       .from("bookings")
-      .select("payment_method_brand, payment_method_last4, created_at")
+      .select("id, payment_method_brand, payment_method_last4, created_at")
       .not("payment_method_last4", "is", null)
       .order("created_at", { ascending: false });
-    const map: Record<string, string> = {};
+    const map: Record<string, { created_at: string; id: string }> = {};
     for (const b of (data || []) as any[]) {
       const key = `${(b.payment_method_brand || "").toLowerCase()}|${b.payment_method_last4}`;
-      if (!map[key]) map[key] = b.created_at;
+      if (!map[key]) map[key] = { created_at: b.created_at, id: b.id };
     }
     setLastUsed(map);
   }
@@ -1222,7 +1223,7 @@ function CardsTab() {
       const luKey = `${(c.brand || "").toLowerCase()}|${c.last4}`;
       const luRaw = lastUsed[luKey];
       const lu = luRaw
-        ? new Date(luRaw).toLocaleDateString("da-DK", { day: "2-digit", month: "short", year: "numeric" })
+        ? new Date(luRaw.created_at).toLocaleDateString("da-DK", { day: "2-digit", month: "short", year: "numeric" })
         : null;
       const statusLabel = expired ? "Udløbet" : c.is_default ? "Standard – bruges næste gang" : "Aktiv";
       const statusColor = expired ? "#c0392b" : c.is_default ? C.teal : C.ink;
@@ -1269,8 +1270,34 @@ function CardsTab() {
             <div>
               <div className="opacity-60 uppercase tracking-[0.14em] text-[9px] font-black">Seneste brug</div>
               <div className="mt-0.5 font-bold">{lu || <span className="opacity-50 font-normal">Aldrig brugt</span>}</div>
+              {luRaw && (
+                <button
+                  onClick={() => setExpandedUsage((prev) => ({ ...prev, [c.id]: !prev[c.id] }))}
+                  className="mt-1 inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-[0.12em] hover:underline"
+                  style={{ color: C.teal }}
+                  aria-expanded={!!expandedUsage[c.id]}
+                >
+                  {expandedUsage[c.id] ? "Skjul detaljer" : "Vis detaljer"}
+                  <ArrowDownCircle className={`h-3 w-3 transition-transform ${expandedUsage[c.id] ? "rotate-180" : ""}`} />
+                </button>
+              )}
             </div>
           </div>
+
+          {luRaw && expandedUsage[c.id] && (
+            <div className="mt-2 rounded-xl border-2 p-3 text-[11px]" style={{ borderColor: `${C.ink}22`, background: C.cream }}>
+              <div className="flex flex-col gap-1">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="opacity-60 uppercase tracking-[0.14em] text-[9px] font-black">Dato</span>
+                  <span className="font-bold">{new Date(luRaw.created_at).toLocaleDateString("da-DK", { weekday: "long", day: "2-digit", month: "long", year: "numeric" })}</span>
+                </div>
+                <div className="flex items-center justify-between gap-2">
+                  <span className="opacity-60 uppercase tracking-[0.14em] text-[9px] font-black">Reference</span>
+                  <span className="font-mono font-bold">{luRaw.id.slice(0, 8).toUpperCase()}</span>
+                </div>
+              </div>
+            </div>
+          )}
 
           {expiresSoon && (
             <div className="mt-3 flex items-start gap-2 rounded-xl border-2 p-2.5 text-[11px]" style={{ borderColor: `${C.orange}80`, background: `${C.orange}18`, color: C.ink }}>
