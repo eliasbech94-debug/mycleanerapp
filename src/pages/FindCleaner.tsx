@@ -113,7 +113,7 @@ export default function FindCleaner() {
 
       if (dbError) throw dbError;
 
-      const mapped: MapProvider[] = (data || [])
+      const dbProviders: MapProvider[] = (data || [])
         .filter((p: any) => p.provider_id && p.lat && p.lng)
         .map((p: any) => {
           const seed = getProvider(p.provider_id);
@@ -138,7 +138,47 @@ export default function FindCleaner() {
           };
         });
 
-      setProviders(mapped);
+      if (dbProviders.length > 0) {
+        setProviders(dbProviders);
+        return;
+      }
+
+      // Demo fallback: seed providers placed around Copenhagen
+      const demoCoordinates: Record<string, { lat: number; lng: number }> = {
+        p_001: { lat: 55.6761, lng: 12.5683 },
+        p_002: { lat: 55.703, lng: 12.55 },
+        p_003: { lat: 55.66, lng: 12.59 },
+        p_004: { lat: 55.72, lng: 12.57 },
+      };
+
+      const fallback: MapProvider[] = ["p_001", "p_002", "p_003", "p_004"]
+        .map((pid) => {
+          const seed = getProvider(pid);
+          if (!seed) return null;
+          const coords = demoCoordinates[pid];
+          const country = getCountry(seed.countryCode);
+          return {
+            id: seed.id,
+            profileId: "",
+            name: seed.name,
+            providerId: seed.id,
+            lat: coords.lat,
+            lng: coords.lng,
+            address: seed.city,
+            countryCode: seed.countryCode,
+            avatar: seed.avatar,
+            rating: seed.rating,
+            reviews: seed.reviews,
+            verified: seed.verified,
+            topRated: seed.topRated,
+            tagline: seed.tagline,
+            hourlyRate: seed.hourlyRate ?? deriveHourlyRate(country),
+            currency: country.currency,
+          };
+        })
+        .filter((p): p is MapProvider => p !== null);
+
+      setProviders(fallback);
     } catch (err: any) {
       setError(err.message || "Kunne ikke hente providere");
     } finally {
