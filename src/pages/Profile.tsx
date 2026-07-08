@@ -1322,6 +1322,49 @@ function CardsTab() {
         </div>
       ) : (
         <div className="space-y-3">
+          {(() => {
+            const soon = cards.filter((c) => {
+              const expDate = new Date(c.exp_year, c.exp_month, 0);
+              if (expDate < now) return false;
+              const m = (c.exp_year - now.getFullYear()) * 12 + (c.exp_month - (now.getMonth() + 1));
+              return m <= 2;
+            });
+            if (soon.length === 0) return null;
+            const hasDefault = soon.some((c) => c.is_default);
+            return (
+              <div className="flex items-start gap-2 rounded-2xl border-2 p-3 text-xs" style={{ borderColor: C.orange, background: `${C.orange}14`, color: C.ink }}>
+                <ShieldAlert className="h-5 w-5 mt-0.5 shrink-0" style={{ color: C.orange }} />
+                <div className="flex-1 min-w-0">
+                  <div className="font-black uppercase tracking-[0.16em] text-[11px]" style={{ color: C.orange }}>
+                    {soon.length === 1 ? "1 kort udløber snart" : `${soon.length} kort udløber snart`}
+                  </div>
+                  <div className="mt-1 opacity-85">
+                    {hasDefault
+                      ? "Dit standardkort udløber inden for 2 måneder. Tilføj et nyt kort nu, så din næste betaling ikke afvises."
+                      : "Erstat kortene i god tid for at undgå afviste betalinger."}
+                    {" "}Vi anbefaler at gøre det med det samme.
+                  </div>
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {soon.map((c) => (
+                      <span key={c.id} className="inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-bold" style={{ borderColor: `${C.orange}66`, background: C.cream }}>
+                        {c.brand} •••• {c.last4} · {String(c.exp_month).padStart(2, "0")}/{String(c.exp_year).slice(-2)}
+                      </span>
+                    ))}
+                  </div>
+                  <button
+                    onClick={() => startAdd(soon.find((c) => c.is_default)?.id ?? soon[0].id)}
+                    disabled={adding}
+                    className="mt-2 inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.16em] disabled:opacity-40"
+                    style={{ background: C.orange, color: C.cream }}
+                  >
+                    <CreditCard className="h-3 w-3" /> Erstat {hasDefault ? "standardkort" : "kort"} nu
+                  </button>
+                </div>
+              </div>
+            );
+          })()}
+
+
           <div className="flex flex-wrap items-center gap-2">
             <div className="flex items-center gap-1.5 rounded-xl border-2 px-3 py-2" style={{ borderColor: `${C.ink}22`, background: C.cream }}>
               <Filter className="h-3.5 w-3.5 opacity-60" />
