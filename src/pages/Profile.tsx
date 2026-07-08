@@ -1256,6 +1256,30 @@ function CardsTab() {
             </div>
           </div>
 
+          {expiresSoon && (
+            <div className="mt-3 flex items-start gap-2 rounded-xl border-2 p-2.5 text-[11px]" style={{ borderColor: `${C.orange}80`, background: `${C.orange}18`, color: C.ink }}>
+              <ShieldAlert className="h-4 w-4 mt-0.5 shrink-0" style={{ color: C.orange }} />
+              <div className="flex-1 min-w-0">
+                <div className="font-black uppercase tracking-[0.14em] text-[10px]" style={{ color: C.orange }}>
+                  {monthsToExp <= 0 ? "Udløber denne måned" : monthsToExp === 1 ? "Udløber om ca. 1 måned" : "Udløber snart"}
+                </div>
+                <div className="mt-0.5 opacity-80">
+                  Vi anbefaler at du erstatter kortet i god tid{c.is_default ? " – det er dit standardkort og bruges til næste betaling" : ""}, så kommende betalinger ikke afvises.
+                </div>
+                <button
+                  onClick={() => startAdd(c.id)}
+                  disabled={adding}
+                  className="mt-2 inline-flex items-center gap-1 rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] disabled:opacity-40"
+                  style={{ background: C.orange, color: C.cream }}
+                >
+                  <CreditCard className="h-3 w-3" /> Erstat kortet nu
+                </button>
+              </div>
+            </div>
+          )}
+
+
+
           <div className="mt-3 flex flex-wrap gap-2">
             {!c.is_default && !expired && (
               <button
