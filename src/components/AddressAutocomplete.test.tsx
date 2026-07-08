@@ -3,6 +3,21 @@ import { render, screen, fireEvent, waitFor, act } from "@testing-library/react"
 import { useState } from "react";
 import AddressAutocomplete from "./AddressAutocomplete";
 
+async function flushReady() {
+  // Let the component's useEffect run loadGoogleMaps() → importLibrary() → setReady(true)
+  await act(async () => {
+    await new Promise((r) => setTimeout(r, 0));
+    await new Promise((r) => setTimeout(r, 0));
+  });
+}
+
+async function typeAddress(value: string) {
+  await flushReady();
+  const input = screen.getByPlaceholderText(/Indtast adresse/i);
+  fireEvent.change(input, { target: { value } });
+  return input;
+}
+
 // --- Mock the Google Maps loader ---
 vi.mock("@/lib/googleMaps", () => ({
   loadGoogleMaps: vi.fn(() => Promise.resolve()),
