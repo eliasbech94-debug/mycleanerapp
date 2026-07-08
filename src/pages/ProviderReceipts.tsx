@@ -278,7 +278,7 @@ export default function ProviderReceipts() {
                               <option value="">Vælg opgave…</option>
                               {bookings.map((b) => (
                                 <option key={b.id} value={b.id}>
-                                  {b.scheduled_date ? new Date(b.scheduled_date).toLocaleDateString("da-DK") : "?"} · {b.service_type || "opgave"}
+                                  {b.booking_date ? new Date(b.booking_date).toLocaleDateString("da-DK") : "?"} · {b.service || "opgave"}
                                 </option>
                               ))}
                             </select>
