@@ -183,6 +183,7 @@ export default function AddressAutocomplete({
           onChange={(e) => {
             onChange(e.target.value);
             onValidityChange?.(false);
+            setServerError(null);
             fetchSuggestions(e.target.value);
           }}
           onFocus={() => suggestions.length > 0 && setOpen(true)}
