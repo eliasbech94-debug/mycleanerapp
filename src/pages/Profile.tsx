@@ -234,8 +234,10 @@ export default function Profile() {
           {tab === "cards" && <CardsTab />}
           {tab === "invoices" && <InvoicesTab />}
           {tab === "history" && <HistoryTab />}
-        </div>
-      </div>
+          {tab === "notifications" && <NotificationsTab />}
+          {tab === "sms" && <SmsTab />}
+          {tab === "tax" && <TaxTab />}
+          {tab === "deactivate" && <DeactivateTab />}
       {supportOpen && <SupportDialog mode={supportOpen} onClose={() => setSupportOpen(false)} />}
     </main>
   );
