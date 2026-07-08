@@ -21,7 +21,8 @@ type Props = {
 };
 
 export default function AddressBook({ selectable, selectedId, onSelect, compact }: Props) {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
+  const userCountry = (profile?.country_code || "DK").toLowerCase();
   const [items, setItems] = useState<CustomerAddress[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<CustomerAddress | "new" | null>(null);
