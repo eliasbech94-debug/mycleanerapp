@@ -18,6 +18,10 @@ import OnboardingChecklist, { ChecklistItem } from "@/components/OnboardingCheck
 import { validateContact, validateAddress, validateProperty, statusFrom } from "@/lib/onboarding-validation";
 import { countries as countryList } from "@/lib/countries";
 import { toast } from "sonner";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const C = { ink: "#0a3d3a", orange: "#ff6b35", cream: "#f5f0e0", teal: "#168a7a", mint: "#c8e6c0" };
 
@@ -1000,6 +1004,8 @@ function CardsTab() {
   const [stripePromise, setStripePromise] = useState<Promise<Stripe | null> | null>(null);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<Card | null>(null);
+  const [newDefaultId, setNewDefaultId] = useState<string>("");
 
   async function loadCards() {
     const { data, error } = await supabase.functions.invoke("customer-payment-methods", { body: { action: "list" } });
@@ -1054,16 +1060,43 @@ function CardsTab() {
     loadCards();
   }
 
-  async function removeCard(id: string) {
-    if (!confirm("Fjern dette betalingskort?")) return;
-    setBusyId(id);
-    const { error } = await supabase.functions.invoke("customer-payment-methods", {
-      body: { action: "delete", payment_method_id: id },
-    });
-    setBusyId(null);
-    if (error) return toast.error(error.message);
-    toast.success("Kort fjernet");
-    loadCards();
+  function requestRemove(card: Card) {
+    // Reset the "new default" selection every time we open the dialog.
+    const others = (cards || []).filter((x) => x.id !== card.id);
+    setNewDefaultId(card.is_default && others.length > 0 ? others[0].id : "");
+    setPendingDelete(card);
+  }
+
+  async function confirmRemove() {
+    if (!pendingDelete) return;
+    const card = pendingDelete;
+    const others = (cards || []).filter((x) => x.id !== card.id);
+    // Safety: don't allow silently deleting the default when other cards exist
+    // without first picking a replacement default.
+    if (card.is_default && others.length > 0 && !newDefaultId) {
+      toast.error("Vælg et nyt standardkort først");
+      return;
+    }
+    setBusyId(card.id);
+    try {
+      if (card.is_default && newDefaultId) {
+        const { error: defErr } = await supabase.functions.invoke("customer-payment-methods", {
+          body: { action: "set_default", payment_method_id: newDefaultId },
+        });
+        if (defErr) throw defErr;
+      }
+      const { error } = await supabase.functions.invoke("customer-payment-methods", {
+        body: { action: "delete", payment_method_id: card.id },
+      });
+      if (error) throw error;
+      toast.success("Kort fjernet");
+      setPendingDelete(null);
+      loadCards();
+    } catch (e: any) {
+      toast.error(e?.message || "Kunne ikke fjerne kort");
+    } finally {
+      setBusyId(null);
+    }
   }
 
   async function setDefault(id: string) {
@@ -1110,7 +1143,7 @@ function CardsTab() {
                     <div className="text-[11px] opacity-60">Udløber {String(c.exp_month).padStart(2, "0")}/{String(c.exp_year).slice(-2)}</div>
                   </div>
                 </div>
-                <button onClick={() => removeCard(c.id)} disabled={busyId === c.id} className="rounded-full p-2 hover:bg-black/5 disabled:opacity-40" aria-label="Fjern">
+                <button onClick={() => requestRemove(c)} disabled={busyId === c.id} className="rounded-full p-2 hover:bg-black/5 disabled:opacity-40" aria-label="Fjern">
                   <Trash2 className="h-4 w-4 opacity-70" />
                 </button>
               </div>
@@ -1168,6 +1201,70 @@ function CardsTab() {
           </Elements>
         </div>
       )}
+
+      <AlertDialog open={!!pendingDelete} onOpenChange={(o) => { if (!o) setPendingDelete(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {pendingDelete?.is_default ? "Slet standardkort?" : "Fjern betalingskort?"}
+            </AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-3">
+                {pendingDelete && (
+                  <div className="rounded-xl border-2 bg-white p-3 flex items-center gap-3" style={{ borderColor: `${C.ink}22` }}>
+                    <div className="grid h-9 w-12 place-items-center rounded-md text-[10px] font-bold uppercase" style={{ background: C.ink, color: C.cream }}>
+                      {pendingDelete.brand}
+                    </div>
+                    <div className="text-sm">
+                      <div className="font-bold">•••• {pendingDelete.last4}</div>
+                      <div className="text-[11px] opacity-60">
+                        Udløber {String(pendingDelete.exp_month).padStart(2, "0")}/{String(pendingDelete.exp_year).slice(-2)}
+                      </div>
+                    </div>
+                  </div>
+                )}
+                {pendingDelete?.is_default && (cards?.length ?? 0) > 1 && (
+                  <div className="space-y-2">
+                    <div className="text-xs opacity-80">
+                      Dette er dit standardkort. Vælg et nyt standardkort før du sletter:
+                    </div>
+                    <select
+                      value={newDefaultId}
+                      onChange={(e) => setNewDefaultId(e.target.value)}
+                      className="w-full rounded-xl border-2 bg-white px-3 py-2 text-sm"
+                      style={{ borderColor: `${C.ink}33`, color: C.ink }}
+                    >
+                      {(cards || []).filter((x) => x.id !== pendingDelete.id).map((x) => (
+                        <option key={x.id} value={x.id}>
+                          {x.brand?.toUpperCase()} •••• {x.last4}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+                {pendingDelete?.is_default && (cards?.length ?? 0) === 1 && (
+                  <div className="rounded-xl border-2 p-3 text-xs" style={{ borderColor: `${C.orange}66`, background: `${C.orange}14`, color: C.ink }}>
+                    Dette er dit eneste gemte kort. Du skal manuelt indtaste kortoplysninger ved næste booking.
+                  </div>
+                )}
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={busyId !== null}>Annullér</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => { e.preventDefault(); confirmRemove(); }}
+              disabled={
+                busyId !== null ||
+                (pendingDelete?.is_default === true && (cards?.length ?? 0) > 1 && !newDefaultId)
+              }
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {busyId ? "Sletter…" : "Slet kort"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
