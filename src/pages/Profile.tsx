@@ -1172,7 +1172,7 @@ function CardsTab() {
   );
 }
 
-function AddCardForm({ clientSecret, onDone, onCancel }: { clientSecret: string; onDone: () => void; onCancel: () => void }) {
+function AddCardForm({ clientSecret, onDone, onCancel }: { clientSecret: string; onDone: (paymentMethodId: string | null) => void; onCancel: () => void }) {
   const stripe = useStripe();
   const elements = useElements();
   const [busy, setBusy] = useState(false);
@@ -1183,11 +1183,12 @@ function AddCardForm({ clientSecret, onDone, onCancel }: { clientSecret: string;
     const card = elements.getElement(CardElement);
     if (!card) return;
     setBusy(true);
-    const { error } = await stripe.confirmCardSetup(clientSecret, { payment_method: { card } });
+    const { error, setupIntent } = await stripe.confirmCardSetup(clientSecret, { payment_method: { card } });
     setBusy(false);
     if (error) return toast.error(error.message || "Kunne ikke gemme kort");
     toast.success("Kort gemt");
-    onDone();
+    const pmId = typeof setupIntent?.payment_method === "string" ? setupIntent.payment_method : null;
+    onDone(pmId);
   }
 
   return (
