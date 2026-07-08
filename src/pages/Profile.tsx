@@ -1339,6 +1339,52 @@ function CardsTab() {
       ) : (
         <div className="space-y-3">
           {(() => {
+            const def = cards.find((c) => c.is_default);
+            if (!def) return null;
+            const expDate = new Date(def.exp_year, def.exp_month, 0);
+            const defExpired = expDate < now;
+            const bookingDate = nextBooking
+              ? new Date(nextBooking.booking_date).toLocaleDateString("da-DK", { weekday: "short", day: "2-digit", month: "short" })
+              : null;
+            const amount = nextBooking
+              ? new Intl.NumberFormat("da-DK", { style: "currency", currency: nextBooking.currency, maximumFractionDigits: 0 }).format(nextBooking.customer_pays / 100)
+              : null;
+            return (
+              <div className="rounded-2xl border-2 p-3" style={{ borderColor: defExpired ? "#c0392b" : C.teal, background: defExpired ? "#fdecea" : `${C.teal}12`, color: C.ink }}>
+                <div className="flex items-start gap-3">
+                  <div className="grid h-10 w-10 place-items-center rounded-full shrink-0" style={{ background: defExpired ? "#c0392b" : C.teal, color: C.cream }}>
+                    <CreditCard className="h-4 w-4" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-black uppercase tracking-[0.16em] text-[10px]" style={{ color: defExpired ? "#c0392b" : C.teal }}>
+                      Næste planlagte betaling
+                    </div>
+                    <div className="mt-1 text-sm font-bold flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                      <span>{def.brand} •••• {def.last4}</span>
+                      <span className="text-[11px] opacity-60 font-normal">Udløber {String(def.exp_month).padStart(2, "0")}/{String(def.exp_year).slice(-2)}</span>
+                    </div>
+                    {nextBooking ? (
+                      <div className="mt-1 text-[12px] opacity-85">
+                        Trækkes for <b>{nextBooking.service}</b> hos <b>{nextBooking.provider_name}</b> · {bookingDate} {nextBooking.slot} · <b>{amount}</b>
+                      </div>
+                    ) : (
+                      <div className="mt-1 text-[12px] opacity-70">
+                        Ingen kommende bookinger planlagt. Kortet bruges automatisk til din næste booking.
+                      </div>
+                    )}
+                    {defExpired && (
+                      <div className="mt-2 text-[11px] font-bold" style={{ color: "#c0392b" }}>
+                        Standardkortet er udløbet — erstat det inden næste betaling.
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
+
+          {(() => {
+
             const soon = cards.filter((c) => {
               const expDate = new Date(c.exp_year, c.exp_month, 0);
               if (expDate < now) return false;
