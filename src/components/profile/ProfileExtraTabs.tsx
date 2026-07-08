@@ -3,6 +3,7 @@ import { Bell, Loader2, MessageSquare, PiggyBank, Receipt, ShieldOff, Sparkles }
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { DK_MUNICIPALITIES, validateCPR, validateCVR, encodeTaxId, maskTaxId } from "@/lib/tax";
 
 const C = { ink: "#0a3d3a", orange: "#ff6b35", cream: "#f5f0e0", teal: "#168a7a", mint: "#c8e6c0" };
 
@@ -302,39 +303,83 @@ export function TaxTab() {
   const [type, setType] = useState<"private" | "business">("private");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [hasStored, setHasStored] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [storedEncoded, setStoredEncoded] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
+  const hasStored = !!storedEncoded;
+
+  async function load() {
     if (!user) return;
-    supabase.from("profiles").select("tax_id_encrypted, tax_municipality, tax_type").eq("id", user.id).maybeSingle()
-      .then(({ data }) => {
-        const d: any = data || {};
-        setHasStored(!!d.tax_id_encrypted);
-        setMunicipality(d.tax_municipality || "");
-        setType(d.tax_type || "private");
-        setLoading(false);
-      });
-  }, [user]);
+    setLoading(true);
+    const { data } = await supabase
+      .from("profiles")
+      .select("tax_id_encrypted, tax_municipality, tax_type")
+      .eq("id", user.id)
+      .maybeSingle();
+    const d: any = data || {};
+    setStoredEncoded(d.tax_id_encrypted ?? null);
+    setMunicipality(d.tax_municipality || "");
+    setType((d.tax_type as "private" | "business") || "private");
+    setLoading(false);
+  }
+
+  useEffect(() => { load(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [user]);
+
+  // Reset input when type changes so a CPR isn't validated as CVR
+  useEffect(() => { setTaxId(""); setError(null); }, [type]);
 
   async function save() {
     if (!user) return;
+    setError(null);
+
+    // Municipality required + must match known list
+    if (!municipality) { setError("Vælg din skattekommune"); return; }
+    if (!DK_MUNICIPALITIES.includes(municipality)) {
+      setError("Ukendt kommune — vælg fra listen"); return;
+    }
+
+    // Only validate/encode taxId if user typed one (or nothing stored yet)
+    let encoded: string | undefined;
+    if (taxId.trim() || !hasStored) {
+      if (!taxId.trim()) { setError(type === "private" ? "Indtast CPR-nummer" : "Indtast CVR-nummer"); return; }
+      const v = type === "private" ? validateCPR(taxId) : validateCVR(taxId);
+      if (!v.ok || !v.normalized) { setError(v.error || "Ugyldigt nummer"); return; }
+      encoded = encodeTaxId(v.normalized);
+    }
+
     setSaving(true);
-    // Simpelt server-side base64 obfuskering — reel kryptering håndteres backend-side ved brug
-    const encoded = taxId ? btoa(unescape(encodeURIComponent(taxId))) : undefined;
-    const patch: any = {
-      tax_municipality: municipality || null,
-      tax_type: type,
-    };
+    const patch: any = { tax_municipality: municipality, tax_type: type };
     if (encoded) patch.tax_id_encrypted = encoded;
-    const { error } = await supabase.from("profiles").update(patch).eq("id", user.id);
+    const { error: err } = await supabase.from("profiles").update(patch).eq("id", user.id);
     setSaving(false);
-    if (error) { toast.error("Kunne ikke gemme"); return; }
+    if (err) { toast.error("Kunne ikke gemme skatteoplysninger"); return; }
     toast.success("Skatteoplysninger gemt");
     setTaxId("");
-    if (encoded) setHasStored(true);
+    if (encoded) setStoredEncoded(encoded);
+  }
+
+  async function remove() {
+    if (!user) return;
+    if (!window.confirm("Slet dine skatteoplysninger permanent?")) return;
+    setDeleting(true);
+    const { error: err } = await supabase.from("profiles").update({
+      tax_id_encrypted: null,
+      tax_municipality: null,
+      tax_type: null,
+    } as any).eq("id", user.id);
+    setDeleting(false);
+    if (err) { toast.error("Kunne ikke slette"); return; }
+    toast.success("Skatteoplysninger slettet");
+    setStoredEncoded(null);
+    setMunicipality("");
+    setType("private");
+    setTaxId("");
   }
 
   if (loading) return <div className="grid place-items-center py-16"><Loader2 className="h-6 w-6 animate-spin" /></div>;
+
+  const stored = hasStored ? maskTaxId(type, storedEncoded) : "";
 
   return (
     <Card title="Skatteoplysninger" icon={Receipt}>
@@ -348,7 +393,9 @@ export function TaxTab() {
             {(["private", "business"] as const).map((t) => (
               <button
                 key={t}
+                type="button"
                 onClick={() => setType(t)}
+                aria-pressed={type === t}
                 className="flex-1 rounded-xl border-2 px-4 py-3 text-sm font-bold"
                 style={{
                   borderColor: type === t ? C.teal : `${C.ink}22`,
@@ -361,42 +408,74 @@ export function TaxTab() {
             ))}
           </div>
         </div>
+
         <div>
-          <label className="mb-1 block text-xs font-bold uppercase tracking-wider opacity-70">
+          <label htmlFor="tax-id" className="mb-1 block text-xs font-bold uppercase tracking-wider opacity-70">
             {type === "private" ? "CPR-nummer" : "CVR-nummer"}
+            {hasStored && <span className="ml-2 rounded-full px-2 py-0.5 text-[10px]" style={{ background: `${C.mint}88`, color: C.ink }}>Gemt: {stored}</span>}
           </label>
           <input
+            id="tax-id"
             type="text"
+            inputMode="numeric"
+            autoComplete="off"
             value={taxId}
-            onChange={(e) => setTaxId(e.target.value)}
-            placeholder={hasStored ? "•••••••• (allerede gemt — udfyld for at ændre)" : type === "private" ? "010190-1234" : "12345678"}
+            onChange={(e) => { setTaxId(e.target.value); setError(null); }}
+            placeholder={hasStored ? "Udfyld for at ændre" : type === "private" ? "010190-1234" : "12345678"}
+            maxLength={type === "private" ? 11 : 8}
             className="w-full rounded-xl border-2 bg-white px-4 py-3 text-sm"
             style={{ borderColor: `${C.ink}22`, color: C.ink }}
           />
         </div>
+
         <div>
-          <label className="mb-1 block text-xs font-bold uppercase tracking-wider opacity-70">Skattekommune</label>
+          <label htmlFor="tax-muni" className="mb-1 block text-xs font-bold uppercase tracking-wider opacity-70">Skattekommune</label>
           <input
+            id="tax-muni"
+            list="dk-municipalities"
             type="text"
             value={municipality}
-            onChange={(e) => setMunicipality(e.target.value)}
+            onChange={(e) => { setMunicipality(e.target.value); setError(null); }}
             placeholder="fx København"
             className="w-full rounded-xl border-2 bg-white px-4 py-3 text-sm"
             style={{ borderColor: `${C.ink}22`, color: C.ink }}
           />
+          <datalist id="dk-municipalities">
+            {DK_MUNICIPALITIES.map((m) => <option key={m} value={m} />)}
+          </datalist>
         </div>
+
+        {error && (
+          <div role="alert" className="rounded-xl border-2 px-4 py-3 text-sm" style={{ borderColor: `${C.orange}55`, background: `${C.orange}12`, color: C.ink }}>
+            {error}
+          </div>
+        )}
+
         <div className="rounded-xl p-4 text-xs" style={{ background: `${C.mint}55`, color: C.ink }}>
           Tip: Se din årsopgørelse og forskudsregistrering på{" "}
           <a href="https://skat.dk" target="_blank" rel="noreferrer" className="underline">skat.dk</a>.
         </div>
-        <button
-          onClick={save}
-          disabled={saving}
-          className="rounded-xl px-5 py-3 text-sm font-bold uppercase tracking-wider disabled:opacity-50"
-          style={{ background: C.ink, color: C.cream }}
-        >
-          {saving ? "Gemmer…" : "Gem"}
-        </button>
+
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={save}
+            disabled={saving}
+            className="rounded-xl px-5 py-3 text-sm font-bold uppercase tracking-wider disabled:opacity-50"
+            style={{ background: C.ink, color: C.cream }}
+          >
+            {saving ? "Gemmer…" : hasStored ? "Opdatér" : "Gem"}
+          </button>
+          {hasStored && (
+            <button
+              onClick={remove}
+              disabled={deleting}
+              className="rounded-xl border-2 px-5 py-3 text-sm font-bold uppercase tracking-wider disabled:opacity-50"
+              style={{ borderColor: `${C.orange}66`, color: C.orange, background: "#fff" }}
+            >
+              {deleting ? "Sletter…" : "Slet"}
+            </button>
+          )}
+        </div>
       </div>
     </Card>
   );
