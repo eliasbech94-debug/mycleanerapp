@@ -1006,6 +1006,8 @@ function CardsTab() {
   const [busyId, setBusyId] = useState<string | null>(null);
   const [pendingDelete, setPendingDelete] = useState<Card | null>(null);
   const [newDefaultId, setNewDefaultId] = useState<string>("");
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [defaultingId, setDefaultingId] = useState<string | null>(null);
 
   async function loadCards() {
     const { data, error } = await supabase.functions.invoke("customer-payment-methods", { body: { action: "list" } });
@@ -1016,19 +1018,26 @@ function CardsTab() {
   useEffect(() => { loadCards(); }, []);
 
   async function startAdd(replaceCardId: string | null = null) {
+    setActionError(null);
     setAdding(true);
     setReplaceId(replaceCardId);
+    setClientSecret(null);
+    setStripePromise(null);
     try {
-      const [{ data: pkData }, { data: siData, error: siErr }] = await Promise.all([
+      const [{ data: pkData, error: pkErr }, { data: siData, error: siErr }] = await Promise.all([
         supabase.functions.invoke("stripe-public-key", { body: {} }),
         supabase.functions.invoke("customer-payment-methods", { body: { action: "setup_intent" } }),
       ]);
+      if (pkErr) throw pkErr;
       if (siErr) throw siErr;
-      if (!pkData?.publishable_key) throw new Error("Stripe nøgle mangler");
+      if (!pkData?.publishable_key) throw new Error("Stripe publiceringsnøgle mangler i konfigurationen");
+      if (!siData?.client_secret) throw new Error("Kunne ikke oprette sikker Stripe-session");
       setStripePromise(loadStripe(pkData.publishable_key));
       setClientSecret(siData.client_secret);
     } catch (e: any) {
-      toast.error(e?.message || "Kunne ikke starte tilføj-kort");
+      const msg = e?.message || "Kunne ikke starte tilføj-kort";
+      setActionError(msg);
+      toast.error(msg);
       setAdding(false);
       setReplaceId(null);
     }
@@ -1100,14 +1109,24 @@ function CardsTab() {
   }
 
   async function setDefault(id: string) {
+    setActionError(null);
+    setDefaultingId(id);
     setBusyId(id);
-    const { error } = await supabase.functions.invoke("customer-payment-methods", {
-      body: { action: "set_default", payment_method_id: id },
-    });
-    setBusyId(null);
-    if (error) return toast.error(error.message);
-    toast.success("Standardkort opdateret");
-    loadCards();
+    try {
+      const { error } = await supabase.functions.invoke("customer-payment-methods", {
+        body: { action: "set_default", payment_method_id: id },
+      });
+      if (error) throw error;
+      toast.success("Standardkort opdateret");
+      await loadCards();
+    } catch (e: any) {
+      const msg = e?.message || "Kunne ikke sætte standardkort";
+      setActionError(msg);
+      toast.error(msg);
+    } finally {
+      setBusyId(null);
+      setDefaultingId(null);
+    }
   }
 
   const replaceCard = cards?.find((c) => c.id === replaceId) || null;
