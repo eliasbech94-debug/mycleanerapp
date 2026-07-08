@@ -29,7 +29,7 @@ const TABS: { key: TabKey; label: string; icon: typeof UserIcon }[] = [
   { key: "info", label: "Mine oplysninger", icon: UserIcon },
   { key: "addresses", label: "Adresser", icon: Home },
   { key: "bookings", label: "Bookinger", icon: Calendar },
-  { key: "cards", label: "Betalingskort", icon: CreditCard },
+  { key: "cards", label: "Kort & betalinger", icon: CreditCard },
   { key: "invoices", label: "Fakturaer", icon: FileText },
   { key: "history", label: "Betalingshistorik", icon: History },
   { key: "notifications", label: "Notifikationer", icon: Bell },
@@ -549,9 +549,9 @@ function OverviewTab({ goTo }: { goTo: (k: TabKey) => void }) {
 
           <div className="rounded-2xl border-2 bg-white p-5" style={{ borderColor: `${C.ink}22` }}>
             <div className="flex items-center justify-between">
-              <div className="text-[10px] font-black uppercase tracking-[0.22em] opacity-70">Betaling</div>
+              <div className="text-[10px] font-black uppercase tracking-[0.22em] opacity-70">Kort & betalinger</div>
               <button onClick={() => goTo("cards")} className="inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-[0.16em] opacity-70 hover:opacity-100">
-                Kort <ArrowRight className="h-3 w-3" />
+                Administrér <ArrowRight className="h-3 w-3" />
               </button>
             </div>
             <div className="mt-3 flex items-center gap-3">
