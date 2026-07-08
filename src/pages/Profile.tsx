@@ -1149,6 +1149,50 @@ function CardsTab() {
 
   const replaceCard = cards?.find((c) => c.id === replaceId) || null;
 
+  const now = new Date();
+  const filteredCards = useMemo(() => {
+    if (!cards) return [];
+    switch (filter) {
+      case "default":
+        return cards.filter((c) => c.is_default);
+      case "active":
+        return cards.filter((c) => {
+          const expDate = new Date(c.exp_year, c.exp_month, 0);
+          return !c.is_default && expDate >= now;
+        });
+      case "expired":
+        return cards.filter((c) => {
+          const expDate = new Date(c.exp_year, c.exp_month, 0);
+          return expDate < now;
+        });
+      default:
+        return cards;
+    }
+  }, [cards, filter]);
+
+  const counts = useMemo(() => {
+    if (!cards) return { all: 0, default: 0, active: 0, expired: 0 };
+    return {
+      all: cards.length,
+      default: cards.filter((c) => c.is_default).length,
+      active: cards.filter((c) => {
+        const expDate = new Date(c.exp_year, c.exp_month, 0);
+        return !c.is_default && expDate >= now;
+      }).length,
+      expired: cards.filter((c) => {
+        const expDate = new Date(c.exp_year, c.exp_month, 0);
+        return expDate < now;
+      }).length,
+    };
+  }, [cards]);
+
+  const FILTER_OPTIONS: { key: CardFilter; label: string }[] = [
+    { key: "all", label: "Alle" },
+    { key: "default", label: "Standard" },
+    { key: "active", label: "Aktive" },
+    { key: "expired", label: "Udløbet" },
+  ];
+
   return (
     <div className="space-y-4">
       {cards === null ? (
