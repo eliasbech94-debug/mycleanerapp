@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
-  ArrowLeft, ArrowDownCircle, ArrowRight, ArrowUpCircle, Calendar, CheckCircle2, Clock, CreditCard, FileText, History, Home, Inbox, LayoutDashboard, LifeBuoy, Loader2,
-  LogOut, Mail, MapPin, Menu, MessageCircle, Plus, Receipt, ShieldAlert, Sparkles, Star, Trash2, User as UserIcon, X, XCircle,
+  ArrowLeft, ArrowDownCircle, ArrowRight, ArrowUpCircle, Bell, Calendar, CheckCircle2, Clock, CreditCard, FileText, History, Home, Inbox, LayoutDashboard, LifeBuoy, Loader2,
+  LogOut, Mail, MapPin, Menu, MessageCircle, MessageSquare, Plus, Receipt, ShieldAlert, ShieldOff, Sparkles, Star, Trash2, User as UserIcon, X, XCircle,
 } from "lucide-react";
+import { NotificationsTab, SmsTab, TaxTab, DeactivateTab } from "@/components/profile/ProfileExtraTabs";
 import { loadStripe, Stripe } from "@stripe/stripe-js";
 import { Elements, useStripe, useElements, CardElement } from "@stripe/react-stripe-js";
 import { useAuth } from "@/hooks/useAuth";
