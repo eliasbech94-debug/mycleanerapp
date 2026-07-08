@@ -99,44 +99,49 @@ export default function FindCleaner() {
   const [lastSearchBounds, setLastSearchBounds] = useState<google.maps.LatLngBounds | null>(null);
   const [mapMoved, setMapMoved] = useState(false);
 
-  const fetchProviders = useCallback(async () => {
+  const fetchProviders = useCallback(async (bounds?: google.maps.LatLngBounds) => {
     setLoading(true);
     setError(null);
     try {
-      const { data, error: dbError } = await supabase
-        .from("profiles")
-        .select("id, full_name, provider_id, lat, lng, address, country_code")
-        .not("provider_id", "is", null)
-        .not("lat", "is", null)
-        .not("lng", "is", null)
-        .is("deactivated_at", null);
+      let dbProviders: MapProvider[] = [];
 
-      if (dbError) throw dbError;
-
-      const dbProviders: MapProvider[] = (data || [])
-        .filter((p: any) => p.provider_id && p.lat && p.lng)
-        .map((p: any) => {
-          const seed = getProvider(p.provider_id);
-          const country = getCountry(p.country_code || "DK");
-          return {
-            id: p.provider_id,
-            profileId: p.id,
-            name: p.full_name || seed?.name || "Cleaner",
-            providerId: p.provider_id,
-            lat: Number(p.lat),
-            lng: Number(p.lng),
-            address: p.address || seed?.city || null,
-            countryCode: p.country_code || seed?.countryCode || "DK",
-            avatar: seed?.avatar || null,
-            rating: seed?.rating || 4.8,
-            reviews: seed?.reviews || 0,
-            verified: seed?.verified ?? true,
-            topRated: seed?.topRated ?? false,
-            tagline: seed?.tagline || "Professionel rengøring",
-            hourlyRate: seed?.hourlyRate ?? deriveHourlyRate(country),
-            currency: country.currency,
-          };
+      if (bounds) {
+        const ne = bounds.getNorthEast();
+        const sw = bounds.getSouthWest();
+        const { data, error: rpcError } = await supabase.rpc("get_providers_in_bounds", {
+          sw_lat: sw.lat(),
+          sw_lng: sw.lng(),
+          ne_lat: ne.lat(),
+          ne_lng: ne.lng(),
         });
+
+        if (rpcError) throw rpcError;
+
+        dbProviders = (data || [])
+          .filter((p: any) => p.provider_id && p.lat && p.lng)
+          .map((p: any) => {
+            const seed = getProvider(p.provider_id);
+            const country = getCountry(p.country_code || "DK");
+            return {
+              id: p.provider_id,
+              profileId: p.id,
+              name: p.full_name || seed?.name || "Cleaner",
+              providerId: p.provider_id,
+              lat: Number(p.lat),
+              lng: Number(p.lng),
+              address: p.address || seed?.city || null,
+              countryCode: p.country_code || seed?.countryCode || "DK",
+              avatar: seed?.avatar || null,
+              rating: seed?.rating || 4.8,
+              reviews: seed?.reviews || 0,
+              verified: seed?.verified ?? true,
+              topRated: seed?.topRated ?? false,
+              tagline: seed?.tagline || "Professionel rengøring",
+              hourlyRate: seed?.hourlyRate ?? deriveHourlyRate(country),
+              currency: country.currency,
+            };
+          });
+      }
 
       if (dbProviders.length > 0) {
         setProviders(dbProviders);
