@@ -347,17 +347,25 @@ export type Database = {
           address_place_id: string | null
           country_code: string | null
           created_at: string
+          deactivated_at: string | null
+          deactivation_reason: string | null
           full_name: string | null
           id: string
           lat: number | null
           lng: number | null
+          notification_prefs: Json
           phone: string | null
           provider_id: string | null
+          sms_phone: string | null
+          sms_verified_at: string | null
           stripe_account_id: string | null
           stripe_charges_enabled: boolean
           stripe_customer_id: string | null
           stripe_onboarded: boolean
           stripe_payouts_enabled: boolean
+          tax_id_encrypted: string | null
+          tax_municipality: string | null
+          tax_type: string | null
           updated_at: string
         }
         Insert: {
@@ -365,17 +373,25 @@ export type Database = {
           address_place_id?: string | null
           country_code?: string | null
           created_at?: string
+          deactivated_at?: string | null
+          deactivation_reason?: string | null
           full_name?: string | null
           id: string
           lat?: number | null
           lng?: number | null
+          notification_prefs?: Json
           phone?: string | null
           provider_id?: string | null
+          sms_phone?: string | null
+          sms_verified_at?: string | null
           stripe_account_id?: string | null
           stripe_charges_enabled?: boolean
           stripe_customer_id?: string | null
           stripe_onboarded?: boolean
           stripe_payouts_enabled?: boolean
+          tax_id_encrypted?: string | null
+          tax_municipality?: string | null
+          tax_type?: string | null
           updated_at?: string
         }
         Update: {
@@ -383,17 +399,25 @@ export type Database = {
           address_place_id?: string | null
           country_code?: string | null
           created_at?: string
+          deactivated_at?: string | null
+          deactivation_reason?: string | null
           full_name?: string | null
           id?: string
           lat?: number | null
           lng?: number | null
+          notification_prefs?: Json
           phone?: string | null
           provider_id?: string | null
+          sms_phone?: string | null
+          sms_verified_at?: string | null
           stripe_account_id?: string | null
           stripe_charges_enabled?: boolean
           stripe_customer_id?: string | null
           stripe_onboarded?: boolean
           stripe_payouts_enabled?: boolean
+          tax_id_encrypted?: string | null
+          tax_municipality?: string | null
+          tax_type?: string | null
           updated_at?: string
         }
         Relationships: []
