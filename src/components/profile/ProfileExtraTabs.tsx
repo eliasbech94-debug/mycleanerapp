@@ -264,6 +264,16 @@ export function SmsTab() {
           {verifiedAt && isVerified && (
             <p className="mt-1 text-xs opacity-70">Verificeret {new Date(verifiedAt).toLocaleDateString("da-DK")}</p>
           )}
+          {phoneChanged && (
+            <div
+              role="alert"
+              className="mt-2 rounded-xl border-2 px-3 py-2 text-xs"
+              style={{ borderColor: `${C.orange}66`, background: `${C.orange}14`, color: C.ink }}
+            >
+              Du har ændret telefonnummer — det gamle nummer er ikke længere godkendt.
+              Send og indtast en ny kode for at aktivere det nye nummer.
+            </div>
+          )}
         </div>
 
         {step === "sent" && !isVerified && (
