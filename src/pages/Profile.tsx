@@ -1327,7 +1327,7 @@ function CardsTab() {
                 </div>
               </div>
             );
-          })}
+          })})
         </div>
       )}
 
