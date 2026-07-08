@@ -191,6 +191,7 @@ export default function FindCleaner() {
     }
   }, []);
 
+  // Initial load: fetch without bounds so the page works even before map is ready.
   useEffect(() => {
     fetchProviders();
   }, [fetchProviders]);
