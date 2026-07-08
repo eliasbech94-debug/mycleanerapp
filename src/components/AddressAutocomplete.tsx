@@ -105,7 +105,13 @@ export default function AddressAutocomplete({
     setOpen(false);
     setSuggestions([]);
     setNoMatch(false);
+    setServerError(null);
+    // Optimistically mark valid; the server call below is the source of truth
+    // and will flip validity back to false on country mismatch or error.
     onValidityChange?.(true);
+
+    // Kick off the client-side Places details fetch (for immediate lat/lng)
+    // and the server-side validation in parallel.
     try {
       const { Place } = (await google.maps.importLibrary(
         "places",
@@ -118,13 +124,42 @@ export default function AddressAutocomplete({
         lat: place.location?.lat(),
         lng: place.location?.lng(),
       });
-      // Start a fresh session after a selection
       const { AutocompleteSessionToken } = (await google.maps.importLibrary(
         "places",
       )) as google.maps.PlacesLibrary;
       sessionRef.current = new AutocompleteSessionToken();
     } catch (e) {
       onSelect?.({ address: full, placeId: s.placeId });
+    }
+
+    // Server-side validation: registers a place_validations row so the DB
+    // trigger will accept the save, and confirms the country matches the
+    // user's profile country_code. On mismatch the address is locked out.
+    try {
+      const { data, error } = await supabase.functions.invoke("place-validate", {
+        body: { place_id: s.placeId },
+      });
+      if (error) throw error;
+      if (!data?.ok) throw new Error(data?.error || "validation_failed");
+      if (data.country_matches_profile === false) {
+        setServerError(
+          `Denne adresse ligger i ${data.country_code}, men din profil er sat til ${data.profile_country_code || "et andet land"}. Vælg en adresse i dit land, eller opdater dit land i profilen.`,
+        );
+        onValidityChange?.(false);
+        return;
+      }
+      // Server returned the authoritative address — apply it.
+      onSelect?.({
+        address: data.formatted_address,
+        placeId: s.placeId,
+        lat: data.lat ?? undefined,
+        lng: data.lng ?? undefined,
+      });
+    } catch (e: any) {
+      setServerError(
+        "Kunne ikke validere adressen på serveren. Prøv igen om lidt.",
+      );
+      onValidityChange?.(false);
     }
   }
 
