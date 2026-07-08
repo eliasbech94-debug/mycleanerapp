@@ -115,7 +115,7 @@ const App = () => (
             <Route path="/regler" element={<Regler />} />
             <Route
               path="/provider/bilag"
-              element={<RoleGuard requireRoles={["provider", "admin", "super_admin"]}><ProviderReceipts /></RoleGuard>}
+              element={<RoleGuard allow={["provider", "admin", "super_admin"]}><ProviderReceipts /></RoleGuard>}
             />
 
             <Route path="*" element={<NotFound />} />
