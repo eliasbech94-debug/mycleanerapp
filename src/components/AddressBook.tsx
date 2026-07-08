@@ -202,7 +202,8 @@ function AddressDialog({
   onClose: () => void;
   onSaved: () => void;
 }) {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
+  const userCountry = (profile?.country_code || "DK").toLowerCase();
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
     label: initial?.label ?? "Hjem",
