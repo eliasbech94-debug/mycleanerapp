@@ -21,17 +21,21 @@ import { toast } from "sonner";
 
 const C = { ink: "#0a3d3a", orange: "#ff6b35", cream: "#f5f0e0", teal: "#168a7a", mint: "#c8e6c0" };
 
-type TabKey = "overview" | "inbox" | "info" | "addresses" | "bookings" | "cards" | "invoices" | "history";
+type TabKey = "overview" | "inbox" | "info" | "addresses" | "bookings" | "cards" | "invoices" | "history" | "notifications" | "sms" | "tax" | "deactivate";
 
 const TABS: { key: TabKey; label: string; icon: typeof UserIcon }[] = [
   { key: "overview", label: "Oversigt", icon: LayoutDashboard },
   { key: "inbox", label: "Indbakke", icon: Inbox },
-  { key: "info", label: "Info", icon: UserIcon },
+  { key: "info", label: "Mine oplysninger", icon: UserIcon },
   { key: "addresses", label: "Adresser", icon: Home },
   { key: "bookings", label: "Bookinger", icon: Calendar },
   { key: "cards", label: "Betalingskort", icon: CreditCard },
   { key: "invoices", label: "Fakturaer", icon: FileText },
   { key: "history", label: "Betalingshistorik", icon: History },
+  { key: "notifications", label: "Notifikationer", icon: Bell },
+  { key: "sms", label: "SMS", icon: MessageSquare },
+  { key: "tax", label: "Skatteoplysninger", icon: Receipt },
+  { key: "deactivate", label: "Deaktivér konto", icon: ShieldOff },
 ];
 
 export default function Profile() {
