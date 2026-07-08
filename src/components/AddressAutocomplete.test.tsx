@@ -97,8 +97,7 @@ describe("AddressAutocomplete — country restriction", () => {
     render(
       <AddressAutocomplete value="" onChange={() => {}} countries={["dk"]} />,
     );
-    const input = screen.getByPlaceholderText(/Indtast adresse/i);
-    fireEvent.change(input, { target: { value: "Nørrebro" } });
+    await typeAddress("Nørrebro");
     await waitFor(() => expect(fetchSuggestionsSpy).toHaveBeenCalled());
     expect(fetchSuggestionsSpy.mock.calls[0][0].includedRegionCodes).toEqual([
       "dk",
@@ -110,13 +109,11 @@ describe("AddressAutocomplete — country restriction", () => {
     render(
       <AddressAutocomplete value="" onChange={() => {}} countries={["se"]} />,
     );
-    const input = screen.getByPlaceholderText(/Indtast adresse/i);
-    fireEvent.change(input, { target: { value: "Kungs" } });
+    await typeAddress("Kungs");
     await waitFor(() => expect(fetchSuggestionsSpy).toHaveBeenCalled());
     expect(fetchSuggestionsSpy.mock.calls[0][0].includedRegionCodes).toEqual([
       "se",
     ]);
-    // Only Swedish results — no Danish leak
     expect(await screen.findByText("Kungsgatan 1")).toBeInTheDocument();
     expect(screen.queryByText("Nørrebrogade 1")).not.toBeInTheDocument();
   });
@@ -125,9 +122,7 @@ describe("AddressAutocomplete — country restriction", () => {
     const { rerender } = render(
       <AddressAutocomplete value="" onChange={() => {}} countries={["de"]} />,
     );
-    fireEvent.change(screen.getByPlaceholderText(/Indtast adresse/i), {
-      target: { value: "Alex" },
-    });
+    await typeAddress("Alex");
     await waitFor(() => expect(fetchSuggestionsSpy).toHaveBeenCalled());
     expect(fetchSuggestionsSpy.mock.calls.at(-1)![0].includedRegionCodes).toEqual([
       "de",
@@ -139,9 +134,7 @@ describe("AddressAutocomplete — country restriction", () => {
     rerender(
       <AddressAutocomplete value="" onChange={() => {}} countries={["dk"]} />,
     );
-    fireEvent.change(screen.getByPlaceholderText(/Indtast adresse/i), {
-      target: { value: "Nørrebro" },
-    });
+    await typeAddress("Nørrebro");
     await waitFor(() =>
       expect(fetchSuggestionsSpy.mock.calls.at(-1)![0].includedRegionCodes).toEqual([
         "dk",
