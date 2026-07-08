@@ -18,6 +18,10 @@ import OnboardingChecklist, { ChecklistItem } from "@/components/OnboardingCheck
 import { validateContact, validateAddress, validateProperty, statusFrom } from "@/lib/onboarding-validation";
 import { countries as countryList } from "@/lib/countries";
 import { toast } from "sonner";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const C = { ink: "#0a3d3a", orange: "#ff6b35", cream: "#f5f0e0", teal: "#168a7a", mint: "#c8e6c0" };
 
@@ -1000,6 +1004,8 @@ function CardsTab() {
   const [stripePromise, setStripePromise] = useState<Promise<Stripe | null> | null>(null);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<Card | null>(null);
+  const [newDefaultId, setNewDefaultId] = useState<string>("");
 
   async function loadCards() {
     const { data, error } = await supabase.functions.invoke("customer-payment-methods", { body: { action: "list" } });
