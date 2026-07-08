@@ -1328,8 +1328,9 @@ function CardsTab() {
               </div>
             );
           })}
-        </div>
-      )}
+        )}
+      </div>
+    )}
 
       {actionError && (
         <div className="flex items-start gap-2 rounded-xl border-2 p-3 text-xs" style={{ borderColor: `${C.orange}66`, background: `${C.orange}14`, color: C.ink }}>
