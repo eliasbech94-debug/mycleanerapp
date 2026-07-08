@@ -27,7 +27,7 @@ type Receipt = {
   created_at: string;
 };
 
-type BookingLite = { id: string; scheduled_date: string | null; service_type: string | null };
+type BookingLite = { id: string; booking_date: string | null; service: string | null };
 
 function fmtMoney(cents: number | null, ccy: string | null) {
   if (cents == null) return "—";
