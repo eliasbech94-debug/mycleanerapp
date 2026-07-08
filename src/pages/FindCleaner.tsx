@@ -87,7 +87,7 @@ export default function FindCleaner() {
   const navigate = useNavigate();
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<google.maps.Map | null>(null);
-  const markersRef = useRef<ProviderMarker[]>([]);
+  const markersRef = useRef<google.maps.Marker[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [providers, setProviders] = useState<MapProvider[]>([]);
