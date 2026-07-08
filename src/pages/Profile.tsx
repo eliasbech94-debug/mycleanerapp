@@ -1008,6 +1008,7 @@ function CardsTab() {
   const [newDefaultId, setNewDefaultId] = useState<string>("");
   const [actionError, setActionError] = useState<string | null>(null);
   const [defaultingId, setDefaultingId] = useState<string | null>(null);
+  const [lastUsed, setLastUsed] = useState<Record<string, string>>({});
 
   async function loadCards() {
     const { data, error } = await supabase.functions.invoke("customer-payment-methods", { body: { action: "list" } });
@@ -1015,7 +1016,21 @@ function CardsTab() {
     setCards(data?.cards || []);
   }
 
-  useEffect(() => { loadCards(); }, []);
+  async function loadLastUsed() {
+    const { data } = await supabase
+      .from("bookings")
+      .select("payment_method_brand, payment_method_last4, created_at")
+      .not("payment_method_last4", "is", null)
+      .order("created_at", { ascending: false });
+    const map: Record<string, string> = {};
+    for (const b of (data || []) as any[]) {
+      const key = `${(b.payment_method_brand || "").toLowerCase()}|${b.payment_method_last4}`;
+      if (!map[key]) map[key] = b.created_at;
+    }
+    setLastUsed(map);
+  }
+
+  useEffect(() => { loadCards(); loadLastUsed(); }, []);
 
   async function startAdd(replaceCardId: string | null = null) {
     setActionError(null);
