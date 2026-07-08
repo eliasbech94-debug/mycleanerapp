@@ -223,6 +223,23 @@ export default function AddressAutocomplete({
         </div>
       )}
 
+      {!isValid && !noMatch && !serverError && !loading && value.trim().length >= 3 && (
+        <div
+          role="status"
+          aria-live="polite"
+          className="mt-2 flex items-start gap-2 text-sm"
+          style={{ color: "#c2412c" }}
+        >
+          <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0" />
+          <div>
+            <span className="font-bold">Vælg en adresse fra listen.</span>
+            <div className="opacity-80">
+              Adressen er først gyldig, når du vælger et af forslagene — så er vi sikre på, at cleaneren kan finde stedet.
+            </div>
+          </div>
+        </div>
+      )}
+
       {open && suggestions.length > 0 && (
         <ul
           className="absolute left-0 right-0 top-full z-30 mt-2 max-h-72 overflow-auto rounded-2xl border-2 bg-white py-1 shadow-[6px_6px_0_rgba(10,61,58,0.15)]"
