@@ -167,6 +167,7 @@ export type Database = {
           access_instructions: string | null
           access_method: Database["public"]["Enums"]["address_access_method"]
           address: string
+          address_country_code: string | null
           address_place_id: string | null
           cleaning_supplies_available: boolean
           created_at: string
@@ -194,6 +195,7 @@ export type Database = {
           access_instructions?: string | null
           access_method?: Database["public"]["Enums"]["address_access_method"]
           address: string
+          address_country_code?: string | null
           address_place_id?: string | null
           cleaning_supplies_available?: boolean
           created_at?: string
@@ -221,6 +223,7 @@ export type Database = {
           access_instructions?: string | null
           access_method?: Database["public"]["Enums"]["address_access_method"]
           address?: string
+          address_country_code?: string | null
           address_place_id?: string | null
           cleaning_supplies_available?: boolean
           created_at?: string
@@ -341,9 +344,43 @@ export type Database = {
         }
         Relationships: []
       }
+      place_validations: {
+        Row: {
+          country_code: string
+          formatted_address: string
+          id: string
+          lat: number | null
+          lng: number | null
+          place_id: string
+          user_id: string
+          validated_at: string
+        }
+        Insert: {
+          country_code: string
+          formatted_address: string
+          id?: string
+          lat?: number | null
+          lng?: number | null
+          place_id: string
+          user_id: string
+          validated_at?: string
+        }
+        Update: {
+          country_code?: string
+          formatted_address?: string
+          id?: string
+          lat?: number | null
+          lng?: number | null
+          place_id?: string
+          user_id?: string
+          validated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           address: string | null
+          address_country_code: string | null
           address_place_id: string | null
           country_code: string | null
           created_at: string
@@ -370,6 +407,7 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          address_country_code?: string | null
           address_place_id?: string | null
           country_code?: string | null
           created_at?: string
@@ -396,6 +434,7 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          address_country_code?: string | null
           address_place_id?: string | null
           country_code?: string | null
           created_at?: string
