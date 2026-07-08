@@ -1060,16 +1060,43 @@ function CardsTab() {
     loadCards();
   }
 
-  async function removeCard(id: string) {
-    if (!confirm("Fjern dette betalingskort?")) return;
-    setBusyId(id);
-    const { error } = await supabase.functions.invoke("customer-payment-methods", {
-      body: { action: "delete", payment_method_id: id },
-    });
-    setBusyId(null);
-    if (error) return toast.error(error.message);
-    toast.success("Kort fjernet");
-    loadCards();
+  function requestRemove(card: Card) {
+    // Reset the "new default" selection every time we open the dialog.
+    const others = (cards || []).filter((x) => x.id !== card.id);
+    setNewDefaultId(card.is_default && others.length > 0 ? others[0].id : "");
+    setPendingDelete(card);
+  }
+
+  async function confirmRemove() {
+    if (!pendingDelete) return;
+    const card = pendingDelete;
+    const others = (cards || []).filter((x) => x.id !== card.id);
+    // Safety: don't allow silently deleting the default when other cards exist
+    // without first picking a replacement default.
+    if (card.is_default && others.length > 0 && !newDefaultId) {
+      toast.error("Vælg et nyt standardkort først");
+      return;
+    }
+    setBusyId(card.id);
+    try {
+      if (card.is_default && newDefaultId) {
+        const { error: defErr } = await supabase.functions.invoke("customer-payment-methods", {
+          body: { action: "set_default", payment_method_id: newDefaultId },
+        });
+        if (defErr) throw defErr;
+      }
+      const { error } = await supabase.functions.invoke("customer-payment-methods", {
+        body: { action: "delete", payment_method_id: card.id },
+      });
+      if (error) throw error;
+      toast.success("Kort fjernet");
+      setPendingDelete(null);
+      loadCards();
+    } catch (e: any) {
+      toast.error(e?.message || "Kunne ikke fjerne kort");
+    } finally {
+      setBusyId(null);
+    }
   }
 
   async function setDefault(id: string) {
