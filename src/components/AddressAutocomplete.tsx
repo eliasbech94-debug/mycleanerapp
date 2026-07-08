@@ -31,6 +31,7 @@ export default function AddressAutocomplete({
   const [loading, setLoading] = useState(false);
   const [ready, setReady] = useState(false);
   const [noMatch, setNoMatch] = useState(false);
+  const [serverError, setServerError] = useState<string | null>(null);
   const sessionRef = useRef<google.maps.places.AutocompleteSessionToken | null>(null);
   const debounceRef = useRef<number | null>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
