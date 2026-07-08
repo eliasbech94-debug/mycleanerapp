@@ -179,11 +179,8 @@ describe("Booking flow gate — cannot continue without a picked suggestion", ()
     const next = screen.getByTestId("next") as HTMLButtonElement;
     expect(next).toBeDisabled();
 
-    fireEvent.change(screen.getByPlaceholderText(/Indtast adresse/i), {
-      target: { value: "Nørrebrogade 1" },
-    });
+    await typeAddress("Nørrebrogade 1");
     await waitFor(() => expect(fetchSuggestionsSpy).toHaveBeenCalled());
-    // Just typing must not unlock the button — only picking a suggestion does.
     expect(next).toBeDisabled();
   });
 
@@ -191,9 +188,7 @@ describe("Booking flow gate — cannot continue without a picked suggestion", ()
     render(<BookingGateHarness />);
     const next = screen.getByTestId("next") as HTMLButtonElement;
 
-    fireEvent.change(screen.getByPlaceholderText(/Indtast adresse/i), {
-      target: { value: "Nørrebrogade" },
-    });
+    await typeAddress("Nørrebrogade");
     const suggestion = await screen.findByText("Nørrebrogade 1");
     expect(next).toBeDisabled();
 
@@ -208,9 +203,7 @@ describe("Booking flow gate — cannot continue without a picked suggestion", ()
     render(<BookingGateHarness />);
     const next = screen.getByTestId("next") as HTMLButtonElement;
 
-    fireEvent.change(screen.getByPlaceholderText(/Indtast adresse/i), {
-      target: { value: "Nørrebrogade" },
-    });
+    await typeAddress("Nørrebrogade");
     const suggestion = await screen.findByText("Nørrebrogade 1");
     await act(async () => {
       fireEvent.click(suggestion);
