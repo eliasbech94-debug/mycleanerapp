@@ -386,9 +386,9 @@ export default function FindCleaner() {
                       </span>
                       <span className="text-muted-foreground">({provider.reviews})</span>
                       <span className="text-muted-foreground">·</span>
-                      <span className="font-medium text-primary">
-                        {formatPrice(provider.hourlyRate, provider.currency)}/t
-                      </span>
+                    <span className="font-medium text-primary">
+                      {formatPrice(provider.hourlyRate, getCountry(provider.countryCode))}/t
+                    </span>
                     </div>
                     {provider.address && (
                       <p className="mt-1 flex items-center gap-1 text-[10px] text-muted-foreground">
@@ -432,7 +432,7 @@ export default function FindCleaner() {
                   </span>
                   <span className="text-muted-foreground">({selectedProvider.reviews})</span>
                   <span className="font-medium text-primary">
-                    {formatPrice(selectedProvider.hourlyRate, selectedProvider.currency)}/t
+                    {formatPrice(selectedProvider.hourlyRate, getCountry(selectedProvider.countryCode))}/t
                   </span>
                 </div>
               </div>
