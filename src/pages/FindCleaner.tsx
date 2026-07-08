@@ -1,0 +1,462 @@
+import { useEffect, useRef, useState, useCallback, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import { loadGoogleMaps } from "@/lib/googleMaps";
+import { supabase } from "@/integrations/supabase/client";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
+import { Badge } from "@/components/ui/badge";
+import { Star, MapPin, Search, X, ChevronUp, Loader2 } from "lucide-react";
+import { formatPrice } from "@/lib/countries";
+import { getProvider, getCountry, deriveHourlyRate } from "@/lib/providers";
+import type { ProviderProfileData } from "@/lib/providers";
+
+type MapProvider = {
+  id: string;
+  profileId: string;
+  name: string;
+  providerId: string;
+  lat: number;
+  lng: number;
+  address: string | null;
+  countryCode: string;
+  avatar: string | null;
+  rating: number;
+  reviews: number;
+  verified: boolean;
+  topRated: boolean;
+  tagline: string;
+  hourlyRate: number;
+  currency: string;
+};
+
+const DEFAULT_CENTER = { lat: 55.6761, lng: 12.5683 }; // Copenhagen
+const DEFAULT_ZOOM = 11;
+
+function getInitials(name: string) {
+  return name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+}
+
+function createPinElement(provider: MapProvider, isSelected: boolean) {
+  const el = document.createElement("div");
+  el.className = `relative flex items-center justify-center transition-all duration-200 ${isSelected ? "scale-110 z-50" : "hover:scale-105"}`;
+  el.innerHTML = `
+    <div class="relative">
+      <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-3 h-3 bg-foreground rotate-45"></div>
+      <div class="relative flex items-center justify-center w-10 h-10 rounded-full border-2 border-background shadow-lg overflow-hidden bg-primary text-primary-foreground font-heading text-sm font-bold">
+        ${provider.avatar ? `<img src="${provider.avatar}" alt="" class="w-full h-full object-cover" />` : getInitials(provider.name)}
+      </div>
+      ${provider.verified ? `<div class="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-primary rounded-full border-2 border-background flex items-center justify-center"><div class="w-1.5 h-1.5 bg-primary-foreground rounded-full"></div></div>` : ""}
+    </div>
+  `;
+  return el;
+}
+
+class ProviderMarker extends google.maps.OverlayView {
+  private div: HTMLDivElement;
+  private position: google.maps.LatLng;
+  private listener?: google.maps.MapsEventListener;
+
+  constructor(
+    provider: MapProvider,
+    isSelected: boolean,
+    private onClick: () => void,
+  ) {
+    super();
+    this.position = new google.maps.LatLng(provider.lat, provider.lng);
+    this.div = document.createElement("div");
+    this.div.style.position = "absolute";
+    this.div.style.cursor = "pointer";
+    this.div.appendChild(createPinElement(provider, isSelected));
+  }
+
+  onAdd() {
+    const overlayLayer = this.getPanes()?.overlayMouseTarget;
+    if (overlayLayer) overlayLayer.appendChild(this.div);
+    this.listener = this.div.addEventListener("click", (e) => {
+      e.stopPropagation();
+      this.onClick();
+    }) as unknown as google.maps.MapsEventListener;
+  }
+
+  draw() {
+    const projection = this.getProjection();
+    if (!projection) return;
+    const pos = projection.fromLatLngToDivPixel(this.position);
+    if (pos) {
+      this.div.style.left = `${pos.x}px`;
+      this.div.style.top = `${pos.y}px`;
+      this.div.style.transform = "translate(-50%, -100%)";
+    }
+  }
+
+  onRemove() {
+    if (this.listener) {
+      google.maps.event.removeListener(this.listener);
+    }
+    this.div.parentNode?.removeChild(this.div);
+  }
+}
+
+export default function FindCleaner() {
+  const navigate = useNavigate();
+  const mapRef = useRef<HTMLDivElement>(null);
+  const mapInstance = useRef<google.maps.Map | null>(null);
+  const markersRef = useRef<ProviderMarker[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [providers, setProviders] = useState<MapProvider[]>([]);
+  const [visibleProviders, setVisibleProviders] = useState<MapProvider[]>([]);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [searchAreaVisible, setSearchAreaVisible] = useState(false);
+  const [lastSearchBounds, setLastSearchBounds] = useState<google.maps.LatLngBounds | null>(null);
+  const [mapMoved, setMapMoved] = useState(false);
+
+  const fetchProviders = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const { data, error: dbError } = await supabase
+        .from("profiles")
+        .select("id, full_name, provider_id, lat, lng, address, country_code")
+        .not("provider_id", "is", null)
+        .not("lat", "is", null)
+        .not("lng", "is", null)
+        .is("deactivated_at", null);
+
+      if (dbError) throw dbError;
+
+      const mapped: MapProvider[] = (data || [])
+        .filter((p: any) => p.provider_id && p.lat && p.lng)
+        .map((p: any) => {
+          const seed = getProvider(p.provider_id);
+          const country = getCountry(p.country_code || "DK");
+          return {
+            id: p.provider_id,
+            profileId: p.id,
+            name: p.full_name || seed?.name || "Cleaner",
+            providerId: p.provider_id,
+            lat: Number(p.lat),
+            lng: Number(p.lng),
+            address: p.address || seed?.city || null,
+            countryCode: p.country_code || seed?.countryCode || "DK",
+            avatar: seed?.avatar || null,
+            rating: seed?.rating || 4.8,
+            reviews: seed?.reviews || 0,
+            verified: seed?.verified ?? true,
+            topRated: seed?.topRated ?? false,
+            tagline: seed?.tagline || "Professionel rengøring",
+            hourlyRate: seed?.hourlyRate ?? deriveHourlyRate(country),
+            currency: country.currency,
+          };
+        });
+
+      setProviders(mapped);
+    } catch (err: any) {
+      setError(err.message || "Kunne ikke hente providere");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchProviders();
+  }, [fetchProviders]);
+
+  const updateVisibleProviders = useCallback(() => {
+    const map = mapInstance.current;
+    if (!map) return;
+    const bounds = map.getBounds();
+    if (!bounds) return;
+    const visible = providers.filter((p) => bounds.contains(new google.maps.LatLng(p.lat, p.lng)));
+    setVisibleProviders(visible);
+
+    if (lastSearchBounds && !bounds.equals(lastSearchBounds)) {
+      setSearchAreaVisible(true);
+    } else {
+      setSearchAreaVisible(false);
+    }
+  }, [providers, lastSearchBounds]);
+
+  useEffect(() => {
+    if (!mapRef.current || providers.length === 0) return;
+
+    let cleanup = () => {};
+
+    loadGoogleMaps()
+      .then((google) => {
+        const map = new google.maps.Map(mapRef.current!, {
+          center: DEFAULT_CENTER,
+          zoom: DEFAULT_ZOOM,
+          mapTypeControl: false,
+          streetViewControl: false,
+          fullscreenControl: false,
+          zoomControl: true,
+          zoomControlOptions: { position: google.maps.ControlPosition.RIGHT_TOP },
+          styles: [
+            { featureType: "poi", stylers: [{ visibility: "off" }] },
+            { featureType: "transit", stylers: [{ visibility: "off" }] },
+          ],
+        });
+        mapInstance.current = map;
+
+        const idleListener = map.addListener("idle", () => {
+          updateVisibleProviders();
+        });
+
+        const dragStartListener = map.addListener("dragstart", () => {
+          setMapMoved(true);
+        });
+
+        const zoomChangedListener = map.addListener("zoom_changed", () => {
+          setMapMoved(true);
+        });
+
+        const bounds = map.getBounds();
+        if (bounds) setLastSearchBounds(bounds);
+
+        cleanup = () => {
+          google.maps.event.removeListener(idleListener);
+          google.maps.event.removeListener(dragStartListener);
+          google.maps.event.removeListener(zoomChangedListener);
+        };
+      })
+      .catch((err) => {
+        setError(err.message || "Kunne ikke indlæse kortet");
+        setLoading(false);
+      });
+
+    return () => {
+      cleanup();
+      markersRef.current.forEach((m) => m.setMap(null));
+      markersRef.current = [];
+      mapInstance.current = null;
+    };
+  }, [providers.length, updateVisibleProviders]);
+
+  useEffect(() => {
+    if (!mapInstance.current) return;
+    markersRef.current.forEach((m) => m.setMap(null));
+    markersRef.current = [];
+
+    providers.forEach((provider) => {
+      const marker = new ProviderMarker(provider, selectedId === provider.id, () => {
+        setSelectedId(provider.id);
+        setDrawerOpen(true);
+        mapInstance.current?.panTo({ lat: provider.lat, lng: provider.lng });
+      });
+      marker.setMap(mapInstance.current);
+      markersRef.current.push(marker);
+    });
+
+    updateVisibleProviders();
+  }, [providers, selectedId, updateVisibleProviders]);
+
+  const handleSearchThisArea = useCallback(() => {
+    const bounds = mapInstance.current?.getBounds();
+    if (bounds) {
+      setLastSearchBounds(bounds);
+      setSearchAreaVisible(false);
+      setMapMoved(false);
+      updateVisibleProviders();
+    }
+  }, [updateVisibleProviders]);
+
+  const selectedProvider = useMemo(
+    () => providers.find((p) => p.id === selectedId) || visibleProviders[0],
+    [providers, selectedId, visibleProviders],
+  );
+
+  return (
+    <div className="relative h-[calc(100vh-64px)] w-full overflow-hidden bg-muted">
+      {/* Header overlay */}
+      <div className="absolute left-0 right-0 top-0 z-20 flex items-center justify-between gap-3 bg-background/90 px-4 py-3 backdrop-blur-md">
+        <div className="flex items-center gap-2">
+          <div className="grid h-9 w-9 place-items-center rounded-xl bg-primary text-primary-foreground font-heading text-lg font-bold">
+            M
+          </div>
+          <div>
+            <h1 className="text-sm font-semibold leading-tight">Find din cleaner</h1>
+            <p className="text-[10px] text-muted-foreground">{providers.length} providere i dit område</p>
+          </div>
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-9 gap-1.5 text-xs"
+          onClick={() => setDrawerOpen(true)}
+        >
+          <ChevronUp className="h-4 w-4" />
+          Se liste
+        </Button>
+      </div>
+
+      {/* Loading */}
+      {loading && (
+        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-background/80 backdrop-blur-sm">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-sm text-muted-foreground">Henter providere…</p>
+        </div>
+      )}
+
+      {/* Error */}
+      {error && (
+        <div className="absolute left-4 right-4 top-20 z-30 rounded-2xl border border-destructive/20 bg-destructive/10 p-4 text-sm text-destructive backdrop-blur-md">
+          <div className="flex items-start gap-2">
+            <X className="mt-0.5 h-4 w-4 flex-shrink-0" />
+            <div>
+              <p className="font-medium">Der gik noget galt</p>
+              <p className="text-destructive/80">{error}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Map */}
+      <div ref={mapRef} className="h-full w-full" />
+
+      {/* Search this area button */}
+      {searchAreaVisible && (
+        <div className="absolute left-1/2 top-20 z-20 -translate-x-1/2">
+          <Button
+            size="sm"
+            onClick={handleSearchThisArea}
+            className="h-10 gap-2 rounded-full bg-background px-5 text-xs font-semibold text-foreground shadow-lg hover:bg-background/90"
+          >
+            <Search className="h-3.5 w-3.5" />
+            Søg i dette område
+          </Button>
+        </div>
+      )}
+
+      {/* Drawer */}
+      <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
+        <DrawerContent className="max-h-[70vh]">
+          <DrawerHeader className="pb-2">
+            <DrawerTitle className="text-left text-lg">
+              {visibleProviders.length} providere i området
+            </DrawerTitle>
+          </DrawerHeader>
+          <div className="space-y-3 overflow-y-auto px-4 pb-6">
+            {visibleProviders.length === 0 && !loading && (
+              <div className="py-8 text-center text-sm text-muted-foreground">
+                <MapPin className="mx-auto mb-2 h-8 w-8 opacity-40" />
+                <p>Flyt kortet eller zoom ud for at se providere.</p>
+              </div>
+            )}
+            {visibleProviders.map((provider) => (
+              <button
+                key={provider.id}
+                onClick={() => {
+                  setSelectedId(provider.id);
+                  mapInstance.current?.panTo({ lat: provider.lat, lng: provider.lng });
+                  mapInstance.current?.setZoom(14);
+                }}
+                className={`w-full rounded-2xl border bg-card p-4 text-left transition-all hover:shadow-md ${
+                  selectedId === provider.id ? "border-primary ring-1 ring-primary" : "border-border"
+                }`}
+              >
+                <div className="flex items-start gap-3">
+                  <Avatar className="h-12 w-12 border border-border">
+                    <AvatarImage src={provider.avatar || undefined} alt={provider.name} />
+                    <AvatarFallback className="bg-primary text-primary-foreground font-heading text-sm">
+                      {getInitials(provider.name)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5">
+                      <h3 className="truncate font-semibold">{provider.name}</h3>
+                      {provider.verified && (
+                        <Badge variant="secondary" className="h-4 px-1 text-[9px]">
+                          Verificeret
+                        </Badge>
+                      )}
+                    </div>
+                    <p className="truncate text-xs text-muted-foreground">{provider.tagline}</p>
+                    <div className="mt-1.5 flex flex-wrap items-center gap-2 text-xs">
+                      <span className="flex items-center gap-0.5 font-medium">
+                        <Star className="h-3 w-3 fill-accent text-accent" />
+                        {provider.rating}
+                      </span>
+                      <span className="text-muted-foreground">({provider.reviews})</span>
+                      <span className="text-muted-foreground">·</span>
+                      <span className="font-medium text-primary">
+                        {formatPrice(provider.hourlyRate, provider.currency)}/t
+                      </span>
+                    </div>
+                    {provider.address && (
+                      <p className="mt-1 flex items-center gap-1 text-[10px] text-muted-foreground">
+                        <MapPin className="h-3 w-3" />
+                        {provider.address}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </button>
+            ))}
+          </div>
+        </DrawerContent>
+      </Drawer>
+
+      {/* Selected provider card */}
+      {selectedProvider && !drawerOpen && (
+        <div className="absolute bottom-6 left-4 right-4 z-20">
+          <div className="rounded-2xl border border-border bg-background/95 p-4 shadow-xl backdrop-blur-md">
+            <div className="flex items-start gap-3">
+              <Avatar className="h-14 w-14 border border-border">
+                <AvatarImage src={selectedProvider.avatar || undefined} alt={selectedProvider.name} />
+                <AvatarFallback className="bg-primary text-primary-foreground font-heading">
+                  {getInitials(selectedProvider.name)}
+                </AvatarFallback>
+              </Avatar>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-1.5">
+                  <h3 className="truncate font-semibold">{selectedProvider.name}</h3>
+                  {selectedProvider.verified && (
+                    <Badge variant="secondary" className="h-4 px-1 text-[9px]">
+                      Verificeret
+                    </Badge>
+                  )}
+                </div>
+                <p className="truncate text-xs text-muted-foreground">{selectedProvider.tagline}</p>
+                <div className="mt-1 flex items-center gap-2 text-xs">
+                  <span className="flex items-center gap-0.5 font-medium">
+                    <Star className="h-3 w-3 fill-accent text-accent" />
+                    {selectedProvider.rating}
+                  </span>
+                  <span className="text-muted-foreground">({selectedProvider.reviews})</span>
+                  <span className="font-medium text-primary">
+                    {formatPrice(selectedProvider.hourlyRate, selectedProvider.currency)}/t
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div className="mt-3 flex gap-2">
+              <Button
+                size="sm"
+                className="flex-1"
+                onClick={() => navigate(`/provider/${selectedProvider.id}`)}
+              >
+                Se profil
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-1"
+                onClick={() => navigate(`/book/${selectedProvider.id}`)}
+              >
+                Book nu
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
