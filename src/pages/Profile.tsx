@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
-  ArrowLeft, ArrowDownCircle, ArrowRight, ArrowUpCircle, Bell, Calendar, CheckCircle2, Clock, CreditCard, FileText, History, Home, Inbox, LayoutDashboard, LifeBuoy, Loader2,
+  ArrowLeft, ArrowDownCircle, ArrowRight, ArrowUpCircle, Bell, Calendar, CheckCircle2, Clock, CreditCard, FileText, Filter, History, Home, Inbox, LayoutDashboard, LifeBuoy, Loader2,
   LogOut, Mail, MapPin, Menu, MessageCircle, MessageSquare, PiggyBank, Plus, Receipt, ShieldAlert, ShieldOff, Sparkles, Star, Trash2, User as UserIcon, X, XCircle,
 } from "lucide-react";
 import { NotificationsTab, SmsTab, TaxTab, DeactivateTab, ServiceDeductionTab } from "@/components/profile/ProfileExtraTabs";
