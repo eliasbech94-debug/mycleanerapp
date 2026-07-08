@@ -3,6 +3,7 @@ import { Bell, Loader2, MessageSquare, PiggyBank, Receipt, ShieldOff, Sparkles }
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { DK_MUNICIPALITIES, validateCPR, validateCVR, encodeTaxId, maskTaxId } from "@/lib/tax";
 
 const C = { ink: "#0a3d3a", orange: "#ff6b35", cream: "#f5f0e0", teal: "#168a7a", mint: "#c8e6c0" };
 
