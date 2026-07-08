@@ -991,13 +991,15 @@ const REFUND_REASON_LABEL: Record<string, string> = {
 };
 
 /* ---------- CARDS TAB ---------- */
-type Card = { id: string; brand: string; last4: string; exp_month: number; exp_year: number };
+type Card = { id: string; brand: string; last4: string; exp_month: number; exp_year: number; is_default?: boolean };
 
 function CardsTab() {
   const [cards, setCards] = useState<Card[] | null>(null);
   const [adding, setAdding] = useState(false);
+  const [replaceId, setReplaceId] = useState<string | null>(null);
   const [stripePromise, setStripePromise] = useState<Promise<Stripe | null> | null>(null);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const [busyId, setBusyId] = useState<string | null>(null);
 
   async function loadCards() {
     const { data, error } = await supabase.functions.invoke("customer-payment-methods", { body: { action: "list" } });
@@ -1007,8 +1009,9 @@ function CardsTab() {
 
   useEffect(() => { loadCards(); }, []);
 
-  async function startAdd() {
+  async function startAdd(replaceCardId: string | null = null) {
     setAdding(true);
+    setReplaceId(replaceCardId);
     try {
       const [{ data: pkData }, { data: siData, error: siErr }] = await Promise.all([
         supabase.functions.invoke("stripe-public-key", { body: {} }),
@@ -1021,18 +1024,60 @@ function CardsTab() {
     } catch (e: any) {
       toast.error(e?.message || "Kunne ikke starte tilføj-kort");
       setAdding(false);
+      setReplaceId(null);
     }
+  }
+
+  function closeAdd() {
+    setAdding(false);
+    setReplaceId(null);
+    setClientSecret(null);
+    setStripePromise(null);
+  }
+
+  async function afterCardAdded(newPmId: string | null) {
+    // If replacing: make the new card default, then detach the old one.
+    if (replaceId && newPmId) {
+      try {
+        await supabase.functions.invoke("customer-payment-methods", {
+          body: { action: "set_default", payment_method_id: newPmId },
+        });
+        await supabase.functions.invoke("customer-payment-methods", {
+          body: { action: "delete", payment_method_id: replaceId },
+        });
+        toast.success("Kort erstattet");
+      } catch (e: any) {
+        toast.error(e?.message || "Kunne ikke erstatte kort");
+      }
+    }
+    closeAdd();
+    loadCards();
   }
 
   async function removeCard(id: string) {
     if (!confirm("Fjern dette betalingskort?")) return;
+    setBusyId(id);
     const { error } = await supabase.functions.invoke("customer-payment-methods", {
       body: { action: "delete", payment_method_id: id },
     });
+    setBusyId(null);
     if (error) return toast.error(error.message);
     toast.success("Kort fjernet");
     loadCards();
   }
+
+  async function setDefault(id: string) {
+    setBusyId(id);
+    const { error } = await supabase.functions.invoke("customer-payment-methods", {
+      body: { action: "set_default", payment_method_id: id },
+    });
+    setBusyId(null);
+    if (error) return toast.error(error.message);
+    toast.success("Standardkort opdateret");
+    loadCards();
+  }
+
+  const replaceCard = cards?.find((c) => c.id === replaceId) || null;
 
   return (
     <div className="space-y-4">
@@ -1047,19 +1092,48 @@ function CardsTab() {
       ) : (
         <div className="space-y-2">
           {cards.map((c) => (
-            <div key={c.id} className="flex items-center justify-between rounded-2xl border-2 bg-white p-4" style={{ borderColor: `${C.ink}22` }}>
-              <div className="flex items-center gap-3">
-                <div className="grid h-10 w-14 place-items-center rounded-md text-[10px] font-bold uppercase" style={{ background: C.ink, color: C.cream }}>
-                  {c.brand}
+            <div key={c.id} className="rounded-2xl border-2 bg-white p-4" style={{ borderColor: c.is_default ? C.teal : `${C.ink}22` }}>
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="grid h-10 w-14 place-items-center rounded-md text-[10px] font-bold uppercase shrink-0" style={{ background: C.ink, color: C.cream }}>
+                    {c.brand}
+                  </div>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-sm font-bold">•••• {c.last4}</span>
+                      {c.is_default && (
+                        <span className="rounded-full px-2 py-0.5 text-[9px] font-black uppercase tracking-[0.16em]" style={{ background: C.teal, color: C.cream }}>
+                          Standard
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-[11px] opacity-60">Udløber {String(c.exp_month).padStart(2, "0")}/{String(c.exp_year).slice(-2)}</div>
+                  </div>
                 </div>
-                <div>
-                  <div className="text-sm font-bold">•••• {c.last4}</div>
-                  <div className="text-[11px] opacity-60">Udløber {String(c.exp_month).padStart(2, "0")}/{String(c.exp_year).slice(-2)}</div>
-                </div>
+                <button onClick={() => removeCard(c.id)} disabled={busyId === c.id} className="rounded-full p-2 hover:bg-black/5 disabled:opacity-40" aria-label="Fjern">
+                  <Trash2 className="h-4 w-4 opacity-70" />
+                </button>
               </div>
-              <button onClick={() => removeCard(c.id)} className="rounded-full p-2 hover:bg-black/5" aria-label="Fjern">
-                <Trash2 className="h-4 w-4 opacity-70" />
-              </button>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {!c.is_default && (
+                  <button
+                    onClick={() => setDefault(c.id)}
+                    disabled={busyId === c.id}
+                    className="inline-flex items-center gap-1 rounded-full border-2 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.16em] disabled:opacity-40"
+                    style={{ borderColor: `${C.ink}33`, color: C.ink }}
+                  >
+                    <Star className="h-3 w-3" /> Sæt som standard
+                  </button>
+                )}
+                <button
+                  onClick={() => startAdd(c.id)}
+                  disabled={adding}
+                  className="inline-flex items-center gap-1 rounded-full border-2 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.16em] disabled:opacity-40"
+                  style={{ borderColor: `${C.ink}33`, color: C.ink }}
+                >
+                  <CreditCard className="h-3 w-3" /> Erstat
+                </button>
+              </div>
             </div>
           ))}
         </div>
@@ -1067,7 +1141,7 @@ function CardsTab() {
 
       {!adding && (
         <button
-          onClick={startAdd}
+          onClick={() => startAdd(null)}
           className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-xs font-bold uppercase tracking-[0.18em] shadow-[4px_4px_0_rgba(0,0,0,0.18)] transition hover:-translate-y-0.5"
           style={{ background: C.orange, color: C.ink }}
         >
@@ -1077,12 +1151,19 @@ function CardsTab() {
 
       {adding && clientSecret && stripePromise && (
         <div className="rounded-2xl border-2 bg-white p-5" style={{ borderColor: `${C.ink}22` }}>
-          <div className="text-[10px] font-black uppercase tracking-[0.22em] opacity-70 mb-3">Nyt kort</div>
+          <div className="text-[10px] font-black uppercase tracking-[0.22em] opacity-70 mb-1">
+            {replaceCard ? "Erstat kort" : "Nyt kort"}
+          </div>
+          {replaceCard && (
+            <div className="mb-3 text-[11px] opacity-70">
+              Det nye kort bliver sat som standard, og {replaceCard.brand?.toUpperCase()} •••• {replaceCard.last4} fjernes automatisk.
+            </div>
+          )}
           <Elements stripe={stripePromise} options={{ clientSecret, appearance: { theme: "stripe" } }}>
             <AddCardForm
               clientSecret={clientSecret}
-              onDone={() => { setAdding(false); setClientSecret(null); setStripePromise(null); loadCards(); }}
-              onCancel={() => { setAdding(false); setClientSecret(null); setStripePromise(null); }}
+              onDone={(pmId) => afterCardAdded(pmId)}
+              onCancel={closeAdd}
             />
           </Elements>
         </div>
