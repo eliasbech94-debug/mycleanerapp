@@ -51,11 +51,13 @@ function useMenuForRole() {
     return {
       primary: [
         { to: "/provider-dashboard", label: "Dashboard" },
+        { to: "/provider/bilag", label: "Bilag" },
         { to: "/faq", label: "FAQ" },
         { to: "/regler", label: "Regler" },
       ],
       account: [
         { to: "/provider-dashboard", label: "Provider dashboard" },
+        { to: "/provider/bilag", label: "Bilag & udgifter" },
         { to: "/profil", label: "Min profil" },
       ],
     };
