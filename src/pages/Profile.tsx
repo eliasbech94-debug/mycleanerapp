@@ -1025,13 +1025,13 @@ function CardsTab() {
   async function loadLastUsed() {
     const { data } = await supabase
       .from("bookings")
-      .select("payment_method_brand, payment_method_last4, created_at")
+      .select("id, payment_method_brand, payment_method_last4, created_at")
       .not("payment_method_last4", "is", null)
       .order("created_at", { ascending: false });
-    const map: Record<string, string> = {};
+    const map: Record<string, { created_at: string; id: string }> = {};
     for (const b of (data || []) as any[]) {
       const key = `${(b.payment_method_brand || "").toLowerCase()}|${b.payment_method_last4}`;
-      if (!map[key]) map[key] = b.created_at;
+      if (!map[key]) map[key] = { created_at: b.created_at, id: b.id };
     }
     setLastUsed(map);
   }
