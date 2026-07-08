@@ -247,7 +247,10 @@ export default function FindCleaner() {
         });
 
         const bounds = map.getBounds();
-        if (bounds) setLastSearchBounds(bounds);
+        if (bounds) {
+          setLastSearchBounds(bounds);
+          fetchProviders(bounds);
+        }
 
         cleanup = () => {
           google.maps.event.removeListener(idleListener);
