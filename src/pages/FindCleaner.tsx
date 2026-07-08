@@ -300,9 +300,9 @@ export default function FindCleaner() {
       setLastSearchBounds(bounds);
       setSearchAreaVisible(false);
       setMapMoved(false);
-      updateVisibleProviders();
+      fetchProviders(bounds);
     }
-  }, [updateVisibleProviders]);
+  }, [fetchProviders]);
 
   const selectedProvider = useMemo(
     () => providers.find((p) => p.id === selectedId) || visibleProviders[0],
