@@ -228,11 +228,16 @@ export default function FindCleaner() {
     markersRef.current = [];
 
     providers.forEach((provider) => {
-      const marker = new ProviderMarker(provider, selectedId === provider.id, () => {
-        setSelectedId(provider.id);
-        setDrawerOpen(true);
-        mapInstance.current?.panTo({ lat: provider.lat, lng: provider.lng });
-      });
+      const marker = createMarker(
+        googleRef.current!,
+        provider,
+        selectedId === provider.id,
+        () => {
+          setSelectedId(provider.id);
+          setDrawerOpen(true);
+          mapInstance.current?.panTo({ lat: provider.lat, lng: provider.lng });
+        },
+      );
       marker.setMap(mapInstance.current);
       markersRef.current.push(marker);
     });
