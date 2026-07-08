@@ -719,6 +719,19 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_providers_in_bounds: {
+        Args: { ne_lat: number; ne_lng: number; sw_lat: number; sw_lng: number }
+        Returns: {
+          address: string
+          country_code: string
+          full_name: string
+          id: string
+          is_business: boolean
+          lat: number
+          lng: number
+          provider_id: string
+        }[]
+      }
       get_user_roles: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"][]

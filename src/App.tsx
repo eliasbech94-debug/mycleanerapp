@@ -29,6 +29,7 @@ import ProviderReceipts from "./pages/ProviderReceipts";
 import NotFound from "./pages/NotFound";
 import FAQ from "./pages/FAQ";
 import Regler from "./pages/Regler";
+import FindCleaner from "./pages/FindCleaner";
 import { RoleGuard } from "@/components/RoleGuard";
 
 const queryClient = new QueryClient();
@@ -49,6 +50,7 @@ const App = () => (
             <Route path="/profil" element={<Profile />} />
             <Route path="/provider/register" element={<ProviderRegister />} />
             <Route path="/provider/:id" element={<ProviderProfile />} />
+            <Route path="/find-cleaner" element={<FindCleaner />} />
             <Route path="/customer/register" element={<CustomerRegister />} />
             <Route path="/task/create" element={<CreateTask />} />
             <Route path="/task/offers" element={<MatchingOffers />} />
