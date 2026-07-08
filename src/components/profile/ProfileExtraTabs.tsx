@@ -148,7 +148,9 @@ export function SmsTab() {
   const [devCode, setDevCode] = useState<string | null>(null);
 
   const normalized = phone.replace(/[\s\-()]/g, "");
-  const isVerified = !!verifiedPhone && !!verifiedAt && normalized && (normalized === verifiedPhone || `+${normalized}` === verifiedPhone);
+  const isVerified = !!verifiedPhone && !!verifiedAt && !!normalized && (normalized === verifiedPhone || `+${normalized}` === verifiedPhone);
+  // Number changed relative to what's stored as verified — needs re-verification
+  const phoneChanged = !!verifiedPhone && !!normalized && !isVerified;
 
   useEffect(() => {
     if (!user) return;
@@ -163,9 +165,32 @@ export function SmsTab() {
       });
   }, [user]);
 
+  /**
+   * Revoke the currently stored verification on the profile.
+   * Called when the user starts a new verification for a different number
+   * so the OLD number can never keep receiving SMS notifications.
+   */
+  async function revokeStoredVerification() {
+    if (!user) return;
+    const { data: current } = await supabase.from("profiles").select("notification_prefs").eq("id", user.id).maybeSingle();
+    const prefs = { ...DEFAULT_PREFS, ...((current as any)?.notification_prefs || {}), sms: false };
+    await supabase.from("profiles").update({
+      sms_phone: null,
+      sms_verified_at: null,
+      notification_prefs: prefs,
+    } as any).eq("id", user.id);
+    setVerifiedPhone(null);
+    setVerifiedAt(null);
+    setEnabled(false);
+  }
+
   async function sendCode() {
     if (!/^\+?[0-9\s\-()]{7,}$/.test(phone)) { toast.error("Ugyldigt telefonnummer"); return; }
     setSending(true);
+    // If the number differs from what's already verified, revoke the old
+    // verification server-side BEFORE sending a new code. That way the old
+    // number stops being an approved SMS destination immediately.
+    if (phoneChanged) await revokeStoredVerification();
     const { data, error } = await supabase.functions.invoke("sms-send-code", { body: { phone } });
     setSending(false);
     if (error || (data as any)?.error) { toast.error((data as any)?.error || "Kunne ikke sende kode"); return; }
@@ -189,6 +214,7 @@ export function SmsTab() {
 
   async function savePrefs() {
     if (!user) return;
+    if (phoneChanged) { toast.error("Verificér det nye nummer først"); return; }
     if (enabled && !isVerified) { toast.error("Verificér telefonnummeret først"); return; }
     setSaving(true);
     const { data: current } = await supabase.from("profiles").select("notification_prefs").eq("id", user.id).maybeSingle();
@@ -237,6 +263,16 @@ export function SmsTab() {
           </div>
           {verifiedAt && isVerified && (
             <p className="mt-1 text-xs opacity-70">Verificeret {new Date(verifiedAt).toLocaleDateString("da-DK")}</p>
+          )}
+          {phoneChanged && (
+            <div
+              role="alert"
+              className="mt-2 rounded-xl border-2 px-3 py-2 text-xs"
+              style={{ borderColor: `${C.orange}66`, background: `${C.orange}14`, color: C.ink }}
+            >
+              Du har ændret telefonnummer — det gamle nummer er ikke længere godkendt.
+              Send og indtast en ny kode for at aktivere det nye nummer.
+            </div>
           )}
         </div>
 
