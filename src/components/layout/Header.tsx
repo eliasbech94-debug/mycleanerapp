@@ -21,8 +21,8 @@ function useMenuForRole() {
   const { isAdmin, isEmployee, isProvider } = useUserRoles();
 
   const publicLinks: NavLinkItem[] = [
-    { to: "/services", label: "Services" },
-    { to: "/how-it-works", label: "Sådan virker det" },
+    { to: "/find-cleaner", label: "Find cleaner" },
+    { to: "/faq", label: "Sådan virker det" },
     { to: "/provider/register", label: "Bliv provider" },
     { to: "/faq", label: "FAQ" },
   ];
