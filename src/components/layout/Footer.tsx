@@ -19,17 +19,17 @@ const Footer = () => {
           <div>
             <h4 className="font-heading font-semibold mb-4 text-sm">Platform</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li><Link to="/services" className="hover:text-foreground transition-colors">Services</Link></li>
-              <li><Link to="/how-it-works" className="hover:text-foreground transition-colors">Sådan virker det</Link></li>
-              <li><Link to="/pricing" className="hover:text-foreground transition-colors">Priser</Link></li>
+              <li><Link to="/find-cleaner" className="hover:text-foreground transition-colors">Find cleaner</Link></li>
+              <li><Link to="/faq" className="hover:text-foreground transition-colors">Sådan virker det</Link></li>
+              <li><Link to="/regler" className="hover:text-foreground transition-colors">Priser & regler</Link></li>
             </ul>
           </div>
           <div>
             <h4 className="font-heading font-semibold mb-4 text-sm">For providere</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li><Link to="/provider/register" className="hover:text-foreground transition-colors">Bliv provider</Link></li>
-              <li><Link to="/provider/business" className="hover:text-foreground transition-colors">Virksomhedsløsning</Link></li>
-              <li><Link to="/provider/boost" className="hover:text-foreground transition-colors">Boost profil</Link></li>
+              <li><Link to="/provider-dashboard" className="hover:text-foreground transition-colors">Provider dashboard</Link></li>
+              <li><Link to="/provider/bilag" className="hover:text-foreground transition-colors">Bilag & udgifter</Link></li>
             </ul>
           </div>
           <div>
@@ -37,9 +37,9 @@ const Footer = () => {
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li><Link to="/faq" className="hover:text-foreground transition-colors">FAQ</Link></li>
               <li><Link to="/regler" className="hover:text-foreground transition-colors">Regler</Link></li>
-              <li><Link to="/help" className="hover:text-foreground transition-colors">Hjælpecenter</Link></li>
-              <li><Link to="/contact" className="hover:text-foreground transition-colors">Kontakt</Link></li>
-              <li><Link to="/privacy" className="hover:text-foreground transition-colors">Privatlivspolitik</Link></li>
+              <li><Link to="/faq" className="hover:text-foreground transition-colors">Hjælpecenter</Link></li>
+              <li><a href="mailto:support@mycleaner.app" className="hover:text-foreground transition-colors">Kontakt</a></li>
+              <li><Link to="/regler" className="hover:text-foreground transition-colors">Privatlivspolitik</Link></li>
             </ul>
           </div>
         </div>
