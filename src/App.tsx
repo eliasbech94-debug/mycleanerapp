@@ -43,6 +43,7 @@ const App = () => (
       <CustomCursor />
       <BrowserRouter>
         <AuthProvider>
+          <ScrollToTop />
           <Header />
           <Routes>
             <Route path="/" element={<Index />} />
