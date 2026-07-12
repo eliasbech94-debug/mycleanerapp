@@ -31,6 +31,7 @@ import FAQ from "./pages/FAQ";
 import Regler from "./pages/Regler";
 import FindCleaner from "./pages/FindCleaner";
 import { RoleGuard } from "@/components/RoleGuard";
+import ScrollToTop from "@/components/ScrollToTop";
 
 const queryClient = new QueryClient();
 
@@ -42,6 +43,7 @@ const App = () => (
       <CustomCursor />
       <BrowserRouter>
         <AuthProvider>
+          <ScrollToTop />
           <Header />
           <Routes>
             <Route path="/" element={<Index />} />
