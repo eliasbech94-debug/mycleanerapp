@@ -234,9 +234,15 @@ function FinanceView({ scope, title }: { scope: "provider" | "admin"; title: str
             </CardContent>
           </Card>
 
+          <section>
+            <h2 className="text-lg font-serif mb-3">Fakturaer & afregningsoversigter</h2>
+            <InvoicesPanel scope={scope} />
+          </section>
+
           <p className="text-xs text-muted-foreground">
             Rapport til overblik. Totaler grupperes altid per valuta — vi kombinerer aldrig DKK, EUR, GBP m.fl. i én KPI.
-            MyCleaner udsteder ikke juridiske fakturaer endnu — moms- og fakturafunktioner tilføjes senere.
+            MyCleaner opererer som marketplace/agent: platformgebyr-fakturaer udstedes af MyCleaner;
+            udbyderen er selv ansvarlig for kundefakturering og momsafregning.
           </p>
         </>
       )}
