@@ -110,6 +110,8 @@ const App = () => (
             />
             <Route path="/book/:id" element={<BookingFlow />} />
             <Route path="/mine-bookinger" element={<MyBookings />} />
+            <Route path="/booking/:id/plan" element={<BookingPlan />} />
+
             <Route
               path="/provider-dashboard"
               element={
