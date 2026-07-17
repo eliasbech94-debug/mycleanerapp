@@ -241,7 +241,7 @@ export default function Profile() {
           {tab === "history" && <HistoryTab />}
           {tab === "notifications" && <NotificationsTab />}
           {tab === "sms" && <SmsTab />}
-          {tab === "tax" && <TaxTab />}
+          {tab === "tax" && (<><TaxTab /><div className="mt-6"><ProviderTaxProfileTab /></div></>)}
           {tab === "deduction" && <ServiceDeductionTab />}
           {tab === "deactivate" && <DeactivateTab />}
         </div>
