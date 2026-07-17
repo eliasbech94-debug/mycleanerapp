@@ -422,11 +422,13 @@ function Stepper({ step }: { step: number }) {
 
 /* ---------------- Step 1 ---------------- */
 function Step1({
-  services, country, serviceKey, setServiceKey, hours, setHours,
+  services, country, serviceKey, setServiceKey, hours, setHours, providerName,
 }: any) {
+  const firstName = providerName ? String(providerName).split(" ")[0] : "din cleaner";
   return (
     <div>
-      <h1 className="font-display text-3xl sm:text-4xl">Hvad skal vi tage os af?</h1>
+      <h1 className="font-display text-3xl sm:text-4xl">Hvad skal {firstName} tage sig af?</h1>
+
       <p className="mt-2 max-w-xl text-sm opacity-70">
         Vælg en service hos din cleaner. Du kan justere varigheden — det påvirker prisen direkte.
       </p>
