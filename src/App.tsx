@@ -122,6 +122,11 @@ const App = () => (
               }
             />
 
+            <Route path="/provider/finance" element={<ProviderFinance />} />
+            <Route path="/admin/finance" element={<AdminFinance />} />
+
+
+
             <Route path="/faq" element={<FAQ />} />
             <Route path="/regler" element={<Regler />} />
             <Route
