@@ -62,6 +62,44 @@ Deno.serve(async (req) => {
       await admin.from("bookings").update({
         status: "accepted", payment_status: "captured", decided_at: new Date().toISOString(),
       }).eq("id", booking_id);
+
+      // Create booking chat thread + welcome message + notification prompting cleaning plan
+      try {
+        const planUrl = `/booking/${booking_id}/plan`;
+        const { data: thread } = await admin.from("support_threads").insert({
+          user_id: b.customer_id ?? b.user_id,
+          topic: "booking",
+          subject: "Din rengøring er bekræftet",
+          related_booking_id: booking_id,
+        }).select("id").single();
+
+        if (thread?.id) {
+          await admin.from("support_messages").insert({
+            thread_id: thread.id,
+            user_id: b.customer_id ?? b.user_id,
+            role: "system",
+            content:
+              "Din booking er bekræftet 🎉\n\nVil du lave en rengøringsplan? Angiv rum, fokusområder (fx ovn, vinduer, kæledyrshår) og noter — så ved din cleaner præcis hvad hun skal fokusere på.\n\nDu kan gemme planen kun til denne rengøring eller som fast plan på boligen.",
+            parts: [{ type: "action", label: "Lav rengøringsplan", url: planUrl }],
+          });
+        }
+
+        await admin.from("customer_notifications").insert({
+          user_id: b.customer_id ?? b.user_id,
+          kind: "cleaner_message",
+          severity: "success",
+          title: "Din rengøring er bekræftet",
+          body: "Lav en rengøringsplan med fokusområder til din cleaner.",
+          action_label: "Lav rengøringsplan",
+          action_url: planUrl,
+          related_booking_id: booking_id,
+          related_thread_id: thread?.id ?? null,
+          dedupe_key: `booking-plan-${booking_id}`,
+        });
+      } catch (e) {
+        console.error("plan-prompt failed", (e as Error).message);
+      }
+
     } else {
       if (b.payment_intent_id && ["authorized", "none"].includes(b.payment_status)) {
         try { await stripePost(`/payment_intents/${b.payment_intent_id}/cancel`, stripeKey); }
