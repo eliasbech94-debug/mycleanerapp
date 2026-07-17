@@ -39,6 +39,7 @@ export default function MyBookings() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const [bookings, setBookings] = useState<Booking[] | null>(null);
+  const [tabs, setTabs] = useState<Record<string, TabKey>>({});
 
   useEffect(() => {
     if (!loading && !user) navigate("/login?redirect=/mine-bookinger");
