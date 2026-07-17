@@ -45,6 +45,7 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <ScrollToTop />
+          <RouteLoadingBar />
           <Header />
           <Routes>
             <Route path="/" element={<Index />} />
