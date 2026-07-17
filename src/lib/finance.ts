@@ -21,23 +21,36 @@ export function formatDate(iso: string | null | undefined) {
   }
 }
 
+export interface CurrencyTotals {
+  currency: string;
+  gross_revenue: number;
+  refunded_amount: number;
+  platform_commission: number;
+  provider_net: number;
+  bookings_count: number;
+  refunds_count: number;
+}
+
+export interface PayoutCurrencyTotals {
+  currency: string;
+  paid: number;
+  in_transit: number;
+  failed: number;
+}
+
 export interface FinanceSummary {
   scope: "provider" | "admin";
   isAdmin: boolean;
-  currency: string;
-  totals: {
-    gross_revenue: number;
-    platform_commission: number;
-    provider_net: number;
-    bookings_count: number;
-  };
+  totals_by_currency: CurrencyTotals[];
   payouts: {
-    totals: { paid: number; in_transit: number; failed: number };
+    totals_by_currency: PayoutCurrencyTotals[];
     items: Array<{
       id: string;
       booking_id: string | null;
       stripe_transfer_id: string | null;
       stripe_payout_id: string | null;
+      stripe_charge_id: string | null;
+      stripe_payment_intent_id: string | null;
       gross_amount: number;
       platform_fee_amount: number;
       net_amount: number;
@@ -45,14 +58,16 @@ export interface FinanceSummary {
       status: string;
       arrival_date: string | null;
       created_at: string;
+      metadata?: Record<string, unknown> | null;
     }>;
   };
-  monthly: Array<{ month: string; gross: number; fee: number; net: number; count: number }>;
+  monthly: Array<{ month: string; currency: string; gross: number; refunded: number; fee: number; net: number; count: number }>;
   bookings: Array<{
     id: string;
     customer_pays: number;
     provider_gets: number;
     platform_fee_amount: number;
+    refund_amount: number | null;
     currency: string;
     payment_status: string;
     status: string;
