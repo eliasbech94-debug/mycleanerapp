@@ -360,10 +360,10 @@ export default function FindCleaner() {
           clickable: false,
         });
         circlesRef.current.push(circle);
-        // Auto-zoom to fit the selected provider's coverage area.
+        // Smoothly frame the selected provider's coverage area.
         const bounds = circle.getBounds();
         if (bounds) {
-          mapInstance.current!.fitBounds(bounds, 60);
+          smoothFitBounds(mapInstance.current!, bounds);
         }
       }
 
