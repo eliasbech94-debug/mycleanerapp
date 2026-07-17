@@ -7,9 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 import { Badge } from "@/components/ui/badge";
 import { Star, MapPin, Search, X, ChevronUp, Loader2 } from "lucide-react";
-import { formatPrice } from "@/lib/countries";
+import { formatPrice, countries } from "@/lib/countries";
 import { getProvider, getCountry, deriveHourlyRate } from "@/lib/providers";
 import type { ProviderProfileData } from "@/lib/providers";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 type MapProvider = {
   id: string;
