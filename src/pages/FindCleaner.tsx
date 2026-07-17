@@ -99,6 +99,36 @@ function createMarker(
   marker.addListener("click", onClick);
   return marker;
 }
+// Padding used when framing a coverage area on screen. Header + drawer take vertical space.
+const FIT_PADDING = { top: 140, right: 40, bottom: 240, left: 40 } as const;
+
+// Smooth fit: pan to the target center, then step zoom toward the level fitBounds would use.
+function smoothFitBounds(
+  map: google.maps.Map,
+  bounds: google.maps.LatLngBounds,
+  padding: google.maps.Padding = FIT_PADDING,
+) {
+  const currentZoom = map.getZoom() ?? DEFAULT_ZOOM;
+  // Trick: fitBounds sets the target zoom instantly — read it, then restore and animate.
+  map.fitBounds(bounds, padding);
+  const targetZoom = map.getZoom() ?? currentZoom;
+  map.setZoom(currentZoom);
+  map.panTo(bounds.getCenter());
+
+  const diff = targetZoom - currentZoom;
+  if (Math.abs(diff) < 0.01) return;
+  const step = diff > 0 ? 1 : -1;
+  const steps = Math.min(6, Math.abs(Math.round(diff)));
+  let i = 0;
+  const tick = () => {
+    i += 1;
+    if (i > steps) return;
+    map.setZoom(currentZoom + step * i);
+    if (i < steps) window.setTimeout(tick, 90);
+  };
+  window.setTimeout(tick, 120);
+}
+
 
 export default function FindCleaner() {
   const navigate = useNavigate();
