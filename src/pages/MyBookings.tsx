@@ -101,6 +101,9 @@ export default function MyBookings() {
           {bookings?.map((b) => {
             const s = STATUS_LABEL[b.status];
             const d = new Date(b.booking_date).toLocaleDateString("da-DK", { weekday: "long", day: "numeric", month: "long" });
+            const activeTab: TabKey = tabs[b.id] ?? "overview";
+            const setTab = (t: TabKey) => setTabs(prev => ({ ...prev, [b.id]: t }));
+            const canPlan = b.status === "accepted" || b.status === "pending" || b.status === "completed";
             return (
               <div key={b.id} className="rounded-2xl border-2 bg-white p-5" style={{ borderColor: `${C.ink}22` }}>
                 <div className="flex items-start justify-between gap-3">
@@ -112,15 +115,58 @@ export default function MyBookings() {
                     {s.label}
                   </span>
                 </div>
-                <div className="mt-3 grid gap-1.5 text-xs">
-                  <div className="inline-flex items-center gap-2 opacity-80"><Calendar className="h-3.5 w-3.5" /> {d}</div>
-                  <div className="inline-flex items-center gap-2 opacity-80"><Clock className="h-3.5 w-3.5" /> kl. {b.slot}</div>
-                  <div className="inline-flex items-start gap-2 opacity-80"><MapPin className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" /> {b.address}</div>
+
+                {/* Tabs */}
+                <div role="tablist" aria-label="Booking-visning" className="mt-4 inline-flex rounded-full border-2 p-1" style={{ borderColor: `${C.ink}22` }}>
+                  {[
+                    { key: "overview" as const, label: "Oversigt" },
+                    { key: "plan" as const, label: "Rengøringsplan" },
+                  ].map(t => {
+                    const isActive = activeTab === t.key;
+                    return (
+                      <button
+                        key={t.key}
+                        role="tab"
+                        aria-selected={isActive}
+                        onClick={() => setTab(t.key)}
+                        className="rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] transition-colors"
+                        style={isActive
+                          ? { background: C.ink, color: C.cream }
+                          : { background: "transparent", color: C.ink }}
+                      >
+                        {t.label}
+                      </button>
+                    );
+                  })}
                 </div>
-                <div className="mt-3 border-t border-dashed pt-3 text-xs flex items-baseline justify-between" style={{ borderColor: `${C.ink}22` }}>
-                  <span className="opacity-60">Du betaler</span>
-                  <span className="font-display text-base">{b.customer_pays.toLocaleString("da-DK")} {b.currency}</span>
-                </div>
+
+                {activeTab === "overview" && (
+                  <>
+                    <div className="mt-3 grid gap-1.5 text-xs">
+                      <div className="inline-flex items-center gap-2 opacity-80"><Calendar className="h-3.5 w-3.5" /> {d}</div>
+                      <div className="inline-flex items-center gap-2 opacity-80"><Clock className="h-3.5 w-3.5" /> kl. {b.slot}</div>
+                      <div className="inline-flex items-start gap-2 opacity-80"><MapPin className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" /> {b.address}</div>
+                    </div>
+                    <div className="mt-3 border-t border-dashed pt-3 text-xs flex items-baseline justify-between" style={{ borderColor: `${C.ink}22` }}>
+                      <span className="opacity-60">Du betaler</span>
+                      <span className="font-display text-base">{b.customer_pays.toLocaleString("da-DK")} {b.currency}</span>
+                    </div>
+                  </>
+                )}
+
+                {activeTab === "plan" && (
+                  <div className="mt-4">
+                    {canPlan ? (
+                      <CleaningPlanPanel
+                        bookingId={b.id}
+                        userId={user!.id}
+                        addressPlaceId={b.address_place_id}
+                      />
+                    ) : (
+                      <div className="text-xs opacity-70">Rengøringsplan er ikke tilgængelig for denne booking.</div>
+                    )}
+                  </div>
+                )}
               </div>
             );
           })}
