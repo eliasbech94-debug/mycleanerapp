@@ -86,16 +86,26 @@ export default function BookingPlan() {
       }
       setAddress(addr);
 
-      // existing plan (booking or property)
-      const { data: existing } = await supabase.from("cleaning_plans")
-        .select("*").eq("user_id", user.id)
-        .or(`booking_id.eq.${bookingId}${addr ? `,address_id.eq.${addr.id}` : ""}`)
+      // existing plan — prefer this booking's own plan, else fall back to property plan
+      let existing: any = null;
+      const { data: bookingPlan } = await supabase.from("cleaning_plans")
+        .select("*").eq("user_id", user.id).eq("booking_id", bookingId)
         .order("updated_at", { ascending: false }).limit(1).maybeSingle();
+      if (bookingPlan) existing = bookingPlan;
+      else if (addr) {
+        const { data: propPlan } = await supabase.from("cleaning_plans")
+          .select("*").eq("user_id", user.id).eq("address_id", addr.id).eq("scope", "property")
+          .order("updated_at", { ascending: false }).limit(1).maybeSingle();
+        if (propPlan) existing = propPlan;
+      }
       if (existing) {
         setRooms((existing.rooms as any) || DEFAULT_ROOMS);
         setFocus((existing.focus_areas as any) || []);
         setNotes(existing.notes || "");
         setScope(existing.scope as any);
+        setExistingPlanId(existing.id);
+        setExistingScope(existing.scope);
+        setLastSavedAt(existing.updated_at);
       }
       setLoading(false);
     })();
