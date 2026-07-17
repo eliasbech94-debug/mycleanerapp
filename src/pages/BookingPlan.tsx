@@ -195,13 +195,28 @@ export default function BookingPlan() {
     <main className="container-wide py-8 max-w-3xl">
       <BackButton />
       <div className="mt-4 mb-8">
-        <h1 className="font-heading text-3xl sm:text-4xl">Rengøringsplan</h1>
+        <div className="flex items-center gap-2 flex-wrap">
+          <h1 className="font-heading text-3xl sm:text-4xl">Rengøringsplan</h1>
+          {existingPlanId && !locked && <Badge variant="secondary">Redigerer gemt plan</Badge>}
+          {locked && <Badge variant="destructive">Låst</Badge>}
+        </div>
         <p className="mt-2 text-muted-foreground">
           Fortæl {providerFirstName} hvad hun skal fokusere på ved din rengøring den{" "}
           <b>{new Date(booking.booking_date).toLocaleDateString("da-DK")}</b>.
         </p>
+        {lastSavedAt && (
+          <p className="mt-1 text-xs text-muted-foreground">
+            Senest gemt {new Date(lastSavedAt).toLocaleString("da-DK")}
+          </p>
+        )}
+        {locked && (
+          <p className="mt-2 text-sm text-destructive">
+            Rengøringen er allerede startet eller afsluttet — planen kan ikke længere ændres.
+          </p>
+        )}
       </div>
 
+      <fieldset disabled={locked} className={locked ? "opacity-60 pointer-events-none" : ""}>
       <section className="space-y-6">
         {/* Focus tags */}
         <Card className="p-5">
