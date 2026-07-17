@@ -487,7 +487,10 @@ export default function FindCleaner() {
               <h1 className="text-sm font-semibold leading-tight">Find din cleaner</h1>
               <p className="text-[10px] text-muted-foreground">
                 {filteredProviders.length} providere
-                {countryFilter !== "all" && ` i ${getCountry(countryFilter).name}`}
+                {countryFilter.size > 0 &&
+                  ` i ${Array.from(countryFilter)
+                    .map((c) => getCountry(c).name)
+                    .join(", ")}`}
               </p>
             </div>
           </div>
@@ -501,29 +504,48 @@ export default function FindCleaner() {
             Se liste
           </Button>
         </div>
-        <Select
-          value={countryFilter}
-          onValueChange={(v) => {
-            setCountryFilter(v);
-            setSelectedId(null);
-          }}
+        <div
+          className="flex flex-wrap gap-1.5"
+          role="group"
+          aria-label="Filtrér efter serviceområde (vælg flere)"
         >
-          <SelectTrigger className="h-9 w-full text-xs" aria-label="Filtrér efter serviceområde">
-            <SelectValue placeholder="Alle serviceområder" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">🌍 Alle serviceområder ({providers.length})</SelectItem>
-            {availableCountries.map((c) => {
-              const count = providers.filter((p) => p.countryCode === c.code).length;
-              return (
-                <SelectItem key={c.code} value={c.code}>
-                  {c.flag} {c.name} ({count})
-                </SelectItem>
-              );
-            })}
-          </SelectContent>
-        </Select>
+          <button
+            type="button"
+            onClick={() => {
+              setCountryFilter(new Set());
+              setSelectedId(null);
+            }}
+            aria-pressed={countryFilter.size === 0}
+            className={`rounded-full border px-2.5 py-1 text-[11px] font-medium transition ${
+              countryFilter.size === 0
+                ? "border-primary bg-primary text-primary-foreground"
+                : "border-border bg-background hover:bg-muted"
+            }`}
+          >
+            🌍 Alle ({providers.length})
+          </button>
+          {availableCountries.map((c) => {
+            const count = providers.filter((p) => p.countryCode === c.code).length;
+            const active = countryFilter.has(c.code);
+            return (
+              <button
+                key={c.code}
+                type="button"
+                onClick={() => toggleCountry(c.code)}
+                aria-pressed={active}
+                className={`rounded-full border px-2.5 py-1 text-[11px] font-medium transition ${
+                  active
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-border bg-background hover:bg-muted"
+                }`}
+              >
+                {c.flag} {c.name} ({count})
+              </button>
+            );
+          })}
+        </div>
       </div>
+
 
 
       {/* Loading */}
