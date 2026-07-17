@@ -296,6 +296,25 @@ Deno.serve(async (req) => {
     await admin.from("bookings").update(updates).eq("id", bookingId);
   }
 
+  // Additive, non-blocking: issue platform-fee invoice + settlement statement
+  // once a booking is captured. Never throws — failures never affect payment.
+  if (bookingId && updates.payment_status === "captured") {
+    try {
+      const projectUrl = Deno.env.get("SUPABASE_URL")!;
+      const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+      fetch(`${projectUrl}/functions/v1/invoice-issue`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${serviceKey}`,
+        },
+        body: JSON.stringify({ booking_id: bookingId }),
+      }).catch((e) => console.error("invoice-issue trigger failed (non-fatal):", e));
+    } catch (e) {
+      console.error("invoice-issue dispatch failed (non-fatal):", (e as Error).message);
+    }
+  }
+
   await logEvent(event, {
     payment_intent_id: pi.id ?? null,
     booking_id: bookingId,
