@@ -233,7 +233,7 @@ export default function FindCleaner() {
     if (!map) return;
     const bounds = map.getBounds();
     if (!bounds) return;
-    const visible = providers.filter((p) => bounds.contains(new google.maps.LatLng(p.lat, p.lng)));
+    const visible = filteredProviders.filter((p) => bounds.contains(new google.maps.LatLng(p.lat, p.lng)));
     setVisibleProviders(visible);
 
     if (lastSearchBounds && !bounds.equals(lastSearchBounds)) {
@@ -241,7 +241,7 @@ export default function FindCleaner() {
     } else {
       setSearchAreaVisible(false);
     }
-  }, [providers, lastSearchBounds]);
+  }, [filteredProviders, lastSearchBounds]);
 
   useEffect(() => {
     if (!mapRef.current || providers.length === 0) return;
