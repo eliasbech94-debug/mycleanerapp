@@ -7,9 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 import { Badge } from "@/components/ui/badge";
 import { Star, MapPin, Search, X, ChevronUp, Loader2 } from "lucide-react";
-import { formatPrice } from "@/lib/countries";
+import { formatPrice, countries } from "@/lib/countries";
 import { getProvider, getCountry, deriveHourlyRate } from "@/lib/providers";
 import type { ProviderProfileData } from "@/lib/providers";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 type MapProvider = {
   id: string;
@@ -115,6 +116,19 @@ export default function FindCleaner() {
   const [searchAreaVisible, setSearchAreaVisible] = useState(false);
   const [lastSearchBounds, setLastSearchBounds] = useState<google.maps.LatLngBounds | null>(null);
   const [mapMoved, setMapMoved] = useState(false);
+  const [countryFilter, setCountryFilter] = useState<string>("all");
+
+  // Only providers whose service country matches the active filter.
+  const filteredProviders = useMemo(
+    () => (countryFilter === "all" ? providers : providers.filter((p) => p.countryCode === countryFilter)),
+    [providers, countryFilter],
+  );
+
+  // Available countries derived from the loaded providers, for a smart dropdown.
+  const availableCountries = useMemo(() => {
+    const codes = new Set(providers.map((p) => p.countryCode));
+    return countries.filter((c) => codes.has(c.code));
+  }, [providers]);
 
   const fetchProviders = useCallback(async (bounds?: google.maps.LatLngBounds) => {
     setLoading(true);
@@ -219,7 +233,7 @@ export default function FindCleaner() {
     if (!map) return;
     const bounds = map.getBounds();
     if (!bounds) return;
-    const visible = providers.filter((p) => bounds.contains(new google.maps.LatLng(p.lat, p.lng)));
+    const visible = filteredProviders.filter((p) => bounds.contains(new google.maps.LatLng(p.lat, p.lng)));
     setVisibleProviders(visible);
 
     if (lastSearchBounds && !bounds.equals(lastSearchBounds)) {
@@ -227,7 +241,7 @@ export default function FindCleaner() {
     } else {
       setSearchAreaVisible(false);
     }
-  }, [providers, lastSearchBounds]);
+  }, [filteredProviders, lastSearchBounds]);
 
   useEffect(() => {
     if (!mapRef.current || providers.length === 0) return;
@@ -299,7 +313,7 @@ export default function FindCleaner() {
     circlesRef.current.forEach((c) => c.setMap(null));
     circlesRef.current = [];
 
-    providers.forEach((provider) => {
+    filteredProviders.forEach((provider) => {
       const isSelected = selectedId === provider.id;
 
       // Only render the coverage area for the currently selected provider.
@@ -333,7 +347,18 @@ export default function FindCleaner() {
     });
 
     updateVisibleProviders();
-  }, [providers, selectedId, updateVisibleProviders]);
+  }, [filteredProviders, selectedId, updateVisibleProviders]);
+
+  // When filter changes and no provider is selected, fit map to filtered providers.
+  useEffect(() => {
+    const map = mapInstance.current;
+    const google = googleRef.current;
+    if (!map || !google || filteredProviders.length === 0) return;
+    if (selectedId && filteredProviders.some((p) => p.id === selectedId)) return;
+    const bounds = new google.maps.LatLngBounds();
+    filteredProviders.forEach((p) => bounds.extend({ lat: p.lat, lng: p.lng }));
+    map.fitBounds(bounds, 80);
+  }, [countryFilter, filteredProviders, selectedId]);
 
 
   const handleSearchThisArea = useCallback(() => {
@@ -354,26 +379,54 @@ export default function FindCleaner() {
   return (
     <div className="relative h-[calc(100vh-64px)] w-full overflow-hidden bg-muted">
       {/* Header overlay */}
-      <div className="absolute left-0 right-0 top-0 z-20 flex items-center justify-between gap-3 bg-background/90 px-4 py-3 backdrop-blur-md">
-        <div className="flex items-center gap-2">
-          <div className="grid h-9 w-9 place-items-center rounded-xl bg-primary text-primary-foreground font-heading text-lg font-bold">
-            M
+      <div className="absolute left-0 right-0 top-0 z-20 flex flex-col gap-2 bg-background/90 px-4 py-3 backdrop-blur-md">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <div className="grid h-9 w-9 place-items-center rounded-xl bg-primary text-primary-foreground font-heading text-lg font-bold">
+              M
+            </div>
+            <div>
+              <h1 className="text-sm font-semibold leading-tight">Find din cleaner</h1>
+              <p className="text-[10px] text-muted-foreground">
+                {filteredProviders.length} providere
+                {countryFilter !== "all" && ` i ${getCountry(countryFilter).name}`}
+              </p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-sm font-semibold leading-tight">Find din cleaner</h1>
-            <p className="text-[10px] text-muted-foreground">{providers.length} providere i dit område</p>
-          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-9 gap-1.5 text-xs"
+            onClick={() => setDrawerOpen(true)}
+          >
+            <ChevronUp className="h-4 w-4" />
+            Se liste
+          </Button>
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          className="h-9 gap-1.5 text-xs"
-          onClick={() => setDrawerOpen(true)}
+        <Select
+          value={countryFilter}
+          onValueChange={(v) => {
+            setCountryFilter(v);
+            setSelectedId(null);
+          }}
         >
-          <ChevronUp className="h-4 w-4" />
-          Se liste
-        </Button>
+          <SelectTrigger className="h-9 w-full text-xs" aria-label="Filtrér efter serviceområde">
+            <SelectValue placeholder="Alle serviceområder" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">🌍 Alle serviceområder ({providers.length})</SelectItem>
+            {availableCountries.map((c) => {
+              const count = providers.filter((p) => p.countryCode === c.code).length;
+              return (
+                <SelectItem key={c.code} value={c.code}>
+                  {c.flag} {c.name} ({count})
+                </SelectItem>
+              );
+            })}
+          </SelectContent>
+        </Select>
       </div>
+
 
       {/* Loading */}
       {loading && (
