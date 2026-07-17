@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, Calendar, Clock, Loader2, MapPin, Sparkles } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import CleaningPlanPanel from "@/components/booking/CleaningPlanPanel";
 
 const C = { ink: "#0a3d3a", orange: "#ff6b35", cream: "#f5f0e0", teal: "#168a7a", mint: "#c8e6c0" };
 
@@ -15,6 +16,7 @@ type Booking = {
   booking_date: string;
   slot: string;
   address: string;
+  address_place_id: string | null;
   notes: string | null;
   customer_pays: number;
   currency: string;
@@ -22,6 +24,8 @@ type Booking = {
   created_at: string;
   decided_at: string | null;
 };
+
+type TabKey = "overview" | "plan";
 
 const STATUS_LABEL: Record<Booking["status"], { label: string; bg: string; fg: string }> = {
   pending: { label: "Afventer cleaner", bg: "#ffe9b8", fg: "#8a5a00" },
