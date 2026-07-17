@@ -137,6 +137,8 @@ export default function FindCleaner() {
   const googleRef = useRef<typeof window.google | null>(null);
   const markersRef = useRef<google.maps.Marker[]>([]);
   const circlesRef = useRef<google.maps.Circle[]>([]);
+  const infoWindowRef = useRef<google.maps.InfoWindow | null>(null);
+  const hoverCircleRef = useRef<google.maps.Circle | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [providers, setProviders] = useState<MapProvider[]>([]);
