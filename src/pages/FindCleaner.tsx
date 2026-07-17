@@ -313,7 +313,7 @@ export default function FindCleaner() {
     circlesRef.current.forEach((c) => c.setMap(null));
     circlesRef.current = [];
 
-    providers.forEach((provider) => {
+    filteredProviders.forEach((provider) => {
       const isSelected = selectedId === provider.id;
 
       // Only render the coverage area for the currently selected provider.
@@ -347,7 +347,18 @@ export default function FindCleaner() {
     });
 
     updateVisibleProviders();
-  }, [providers, selectedId, updateVisibleProviders]);
+  }, [filteredProviders, selectedId, updateVisibleProviders]);
+
+  // When filter changes and no provider is selected, fit map to filtered providers.
+  useEffect(() => {
+    const map = mapInstance.current;
+    const google = googleRef.current;
+    if (!map || !google || filteredProviders.length === 0) return;
+    if (selectedId && filteredProviders.some((p) => p.id === selectedId)) return;
+    const bounds = new google.maps.LatLngBounds();
+    filteredProviders.forEach((p) => bounds.extend({ lat: p.lat, lng: p.lng }));
+    map.fitBounds(bounds, 80);
+  }, [countryFilter, filteredProviders, selectedId]);
 
 
   const handleSearchThisArea = useCallback(() => {
