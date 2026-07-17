@@ -101,6 +101,18 @@ Deno.serve(async (req) => {
         ? `Din faste rengøringsplan bruges automatisk til bookingen ${timeLabel}.${bodySuffix}`
         : `Kunden har en fast rengøringsplan på boligen. Se planen inden fremmøde ${timeLabel}.${bodySuffix}`;
 
+      // Skip if we already inserted this exact reminder
+      const { data: existing } = await admin
+        .from("customer_notifications")
+        .select("id")
+        .eq("user_id", r.user_id)
+        .eq("dedupe_key", dedupe)
+        .maybeSingle();
+      if (existing) {
+        results.push({ booking: b.id, role: r.role, window: win.key, ok: true, skipped: "duplicate" });
+        continue;
+      }
+
       const { error: insErr } = await admin
         .from("customer_notifications")
         .insert({
