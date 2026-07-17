@@ -285,32 +285,54 @@ export default function FindCleaner() {
       cleanup();
       markersRef.current.forEach((m) => m.setMap(null));
       markersRef.current = [];
+      circlesRef.current.forEach((c) => c.setMap(null));
+      circlesRef.current = [];
       mapInstance.current = null;
     };
   }, [providers.length, updateVisibleProviders, fetchProviders]);
 
   useEffect(() => {
-    if (!mapInstance.current) return;
+    if (!mapInstance.current || !googleRef.current) return;
+    const google = googleRef.current;
     markersRef.current.forEach((m) => m.setMap(null));
     markersRef.current = [];
+    circlesRef.current.forEach((c) => c.setMap(null));
+    circlesRef.current = [];
 
     providers.forEach((provider) => {
-      const marker = createMarker(
-        googleRef.current!,
-        provider,
-        selectedId === provider.id,
-        () => {
-          setSelectedId(provider.id);
-          setDrawerOpen(true);
-          mapInstance.current?.panTo({ lat: provider.lat, lng: provider.lng });
-        },
-      );
+      const isSelected = selectedId === provider.id;
+
+      // Coverage area in MyCleaner brand colors — hides exact address.
+      const circle = new google.maps.Circle({
+        strokeColor: isSelected ? BRAND_ORANGE : BRAND_TEAL,
+        strokeOpacity: isSelected ? 0.9 : 0.55,
+        strokeWeight: isSelected ? 2.5 : 1.5,
+        fillColor: isSelected ? BRAND_ORANGE : BRAND_TEAL,
+        fillOpacity: isSelected ? 0.18 : 0.12,
+        map: mapInstance.current!,
+        center: { lat: provider.lat, lng: provider.lng },
+        radius: COVERAGE_RADIUS_M,
+        clickable: true,
+      });
+      circle.addListener("click", () => {
+        setSelectedId(provider.id);
+        setDrawerOpen(true);
+        mapInstance.current?.panTo({ lat: provider.lat, lng: provider.lng });
+      });
+      circlesRef.current.push(circle);
+
+      const marker = createMarker(google, provider, isSelected, () => {
+        setSelectedId(provider.id);
+        setDrawerOpen(true);
+        mapInstance.current?.panTo({ lat: provider.lat, lng: provider.lng });
+      });
       marker.setMap(mapInstance.current);
       markersRef.current.push(marker);
     });
 
     updateVisibleProviders();
   }, [providers, selectedId, updateVisibleProviders]);
+
 
   const handleSearchThisArea = useCallback(() => {
     const bounds = mapInstance.current?.getBounds();
