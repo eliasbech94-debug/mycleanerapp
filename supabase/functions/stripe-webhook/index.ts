@@ -168,41 +168,77 @@ Deno.serve(async (req) => {
     try {
       if (event.type.startsWith("transfer.")) {
         const meta = obj.metadata ?? {};
-        const bookingId = meta.booking_id ?? null;
-        const providerUserId = meta.provider_user_id ?? null;
-        const providerId = meta.provider_id ?? null;
+        let bookingId: string | null = meta.booking_id ?? null;
+        let providerUserId: string | null = meta.provider_user_id ?? null;
+        let providerId: string | null = meta.provider_id ?? null;
+        const txRef: string | null = meta.transaction_reference ?? obj.transfer_group ?? null;
         const gross = obj.amount ?? 0;
+
+        // Fallback: resolve booking via source_transaction (destination charge) → payment intent.
+        const sourceCharge: string | null = obj.source_transaction ?? null;
+        let paymentIntentId: string | null = null;
+        if (!bookingId && sourceCharge) {
+          try {
+            const ch = await stripe.charges.retrieve(sourceCharge);
+            paymentIntentId = typeof ch.payment_intent === "string"
+              ? ch.payment_intent
+              : ch.payment_intent?.id ?? null;
+            if (paymentIntentId) {
+              const { data: bk } = await admin.from("bookings")
+                .select("id, provider_id").eq("payment_intent_id", paymentIntentId).maybeSingle();
+              if (bk) { bookingId = bk.id; providerId = providerId ?? bk.provider_id; }
+            }
+          } catch (_) { /* non-fatal */ }
+        }
+
         let platformFee = 0;
         let netAmount = gross;
         if (bookingId) {
           const { data: bk } = await admin
             .from("bookings")
-            .select("platform_fee_amount, provider_gets, customer_pays, customer_user_id")
+            .select("platform_fee_amount, provider_gets, payment_intent_id, provider_id")
             .eq("id", bookingId)
             .maybeSingle();
           if (bk) {
             platformFee = bk.platform_fee_amount ?? 0;
             netAmount = bk.provider_gets ?? gross;
+            paymentIntentId = paymentIntentId ?? bk.payment_intent_id ?? null;
+            providerId = providerId ?? bk.provider_id;
           }
         }
+
+        // Fallback: resolve provider_user_id from profiles via provider_id.
+        if (!providerUserId && providerId) {
+          const { data: pr } = await admin.from("profiles")
+            .select("id").eq("provider_id", providerId).maybeSingle();
+          providerUserId = pr?.id ?? null;
+        }
+
         if (providerUserId && transferId) {
           await admin.from("finance_payouts").upsert({
             provider_user_id: providerUserId,
             provider_id: providerId,
             booking_id: bookingId,
             stripe_transfer_id: transferId,
-            stripe_charge_id: obj.source_transaction ?? null,
+            stripe_charge_id: sourceCharge,
+            stripe_payment_intent_id: paymentIntentId,
             gross_amount: gross,
             platform_fee_amount: platformFee,
             net_amount: netAmount,
             currency: (obj.currency ?? "dkk").toUpperCase(),
             status: event.type === "transfer.reversed" ? "reversed" : "in_transit",
             description: obj.description ?? null,
-            metadata: { source: "transfer", event: event.type },
+            metadata: {
+              source: "transfer",
+              event: event.type,
+              transaction_reference: txRef,
+              transfer_group: obj.transfer_group ?? null,
+            },
           }, { onConflict: "stripe_transfer_id" });
+        } else {
+          console.warn("Transfer without linkable provider_user_id", { transferId, bookingId, providerId });
         }
       } else if (payoutId) {
-        // payout.* — update matching finance_payouts rows by payout id if we linked them
         const status = event.type === "payout.paid" ? "paid"
           : event.type === "payout.failed" ? "failed"
           : (obj.status ?? "pending");
