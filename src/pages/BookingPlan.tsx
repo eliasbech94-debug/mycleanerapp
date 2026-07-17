@@ -300,13 +300,14 @@ export default function BookingPlan() {
         </Card>
 
         <div className="flex justify-end gap-3">
-          <Button variant="outline" onClick={() => navigate(-1)}>Annullér</Button>
-          <Button onClick={save} disabled={saving}>
+          <Button variant="outline" onClick={() => navigate("/mine-bookinger")}>Luk</Button>
+          <Button onClick={save} disabled={saving || locked}>
             {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Gem rengøringsplan
+            {existingPlanId ? "Opdater rengøringsplan" : "Gem rengøringsplan"}
           </Button>
         </div>
       </section>
+      </fieldset>
     </main>
   );
 }
