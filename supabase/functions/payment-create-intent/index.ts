@@ -79,11 +79,12 @@ Deno.serve(async (req) => {
     // Look up provider's Connect account (if any)
     const { data: provProfile } = await admin
       .from("profiles")
-      .select("stripe_account_id, stripe_charges_enabled")
+      .select("id, stripe_account_id, stripe_charges_enabled")
       .eq("provider_id", provider_id)
       .maybeSingle();
 
     const providerAcct = provProfile?.stripe_charges_enabled ? provProfile.stripe_account_id : null;
+    const providerUserId = provProfile?.id ?? null;
     const platformFee = customer_pays - provider_gets;
 
     // Insert booking (pending, payment none)
@@ -101,19 +102,33 @@ Deno.serve(async (req) => {
       .single();
     if (insErr || !booking) throw new Error(insErr?.message || "insert failed");
 
+    // Build a stable transaction reference so we can link Stripe → booking end-to-end.
+    const txRef = `MC-${booking.id.slice(0, 8).toUpperCase()}`;
+
     // Create PI: manual capture (24h auth window). Application fee + transfer if Connect ready.
+    // Metadata is duplicated on the transfer (destination charge) via transfer_data[metadata][...]
+    // so finance_payouts always has provider_user_id + booking_id even without a webhook fallback.
     const piBody: Record<string, any> = {
       amount: customer_pays,
       currency: currency.toLowerCase(),
       capture_method: "manual",
       "automatic_payment_methods[enabled]": "true",
+      "transfer_group": txRef,
+      "statement_descriptor_suffix": txRef.slice(0, 22),
       "metadata[booking_id]": booking.id,
       "metadata[customer_user_id]": userId,
       "metadata[provider_id]": provider_id,
+      "metadata[transaction_reference]": txRef,
     };
+    if (providerUserId) piBody["metadata[provider_user_id]"] = providerUserId;
     if (providerAcct) {
       piBody["application_fee_amount"] = platformFee;
       piBody["transfer_data[destination]"] = providerAcct;
+      // Propagate identifiers onto the auto-created transfer for finance_payouts linkage.
+      piBody["transfer_data[metadata][booking_id]"] = booking.id;
+      piBody["transfer_data[metadata][transaction_reference]"] = txRef;
+      if (providerUserId) piBody["transfer_data[metadata][provider_user_id]"] = providerUserId;
+      piBody["transfer_data[metadata][provider_id]"] = provider_id;
     }
 
     let pi;
