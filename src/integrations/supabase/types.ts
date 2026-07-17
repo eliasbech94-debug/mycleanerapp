@@ -592,6 +592,122 @@ export type Database = {
         }
         Relationships: []
       }
+      platform_fee_invoices: {
+        Row: {
+          booking_id: string
+          created_at: string
+          currency: string
+          id: string
+          invoice_number: string
+          issued_at: string
+          metadata: Json
+          pdf_storage_path: string | null
+          platform_tax_snapshot: Json
+          provider_tax_snapshot: Json
+          provider_user_id: string
+          status: string
+          subtotal_amount: number
+          total_amount: number
+          updated_at: string
+          vat_amount: number
+          vat_rate: number
+          vat_treatment: string
+        }
+        Insert: {
+          booking_id: string
+          created_at?: string
+          currency: string
+          id?: string
+          invoice_number: string
+          issued_at?: string
+          metadata?: Json
+          pdf_storage_path?: string | null
+          platform_tax_snapshot?: Json
+          provider_tax_snapshot?: Json
+          provider_user_id: string
+          status?: string
+          subtotal_amount: number
+          total_amount: number
+          updated_at?: string
+          vat_amount?: number
+          vat_rate?: number
+          vat_treatment?: string
+        }
+        Update: {
+          booking_id?: string
+          created_at?: string
+          currency?: string
+          id?: string
+          invoice_number?: string
+          issued_at?: string
+          metadata?: Json
+          pdf_storage_path?: string | null
+          platform_tax_snapshot?: Json
+          provider_tax_snapshot?: Json
+          provider_user_id?: string
+          status?: string
+          subtotal_amount?: number
+          total_amount?: number
+          updated_at?: string
+          vat_amount?: number
+          vat_rate?: number
+          vat_treatment?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "platform_fee_invoices_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: true
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      platform_tax_settings: {
+        Row: {
+          country_code: string
+          created_at: string
+          id: string
+          invoice_series_prefix: string
+          legal_entity_address: string | null
+          legal_entity_name: string
+          next_invoice_number: number
+          notes: string | null
+          reverse_charge_eu: boolean
+          tax_id: string | null
+          updated_at: string
+          vat_rate: number
+        }
+        Insert: {
+          country_code: string
+          created_at?: string
+          id?: string
+          invoice_series_prefix: string
+          legal_entity_address?: string | null
+          legal_entity_name?: string
+          next_invoice_number?: number
+          notes?: string | null
+          reverse_charge_eu?: boolean
+          tax_id?: string | null
+          updated_at?: string
+          vat_rate?: number
+        }
+        Update: {
+          country_code?: string
+          created_at?: string
+          id?: string
+          invoice_series_prefix?: string
+          legal_entity_address?: string | null
+          legal_entity_name?: string
+          next_invoice_number?: number
+          notes?: string | null
+          reverse_charge_eu?: boolean
+          tax_id?: string | null
+          updated_at?: string
+          vat_rate?: number
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           address: string | null
@@ -746,6 +862,128 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      provider_settlement_statements: {
+        Row: {
+          booking_id: string
+          created_at: string
+          currency: string
+          customer_display_name: string | null
+          gross_amount: number
+          id: string
+          issued_at: string
+          linked_payout_id: string | null
+          linked_transfer_id: string | null
+          metadata: Json
+          payout_status: string
+          pdf_storage_path: string | null
+          platform_fee_amount: number
+          provider_net_amount: number
+          provider_tax_snapshot: Json
+          provider_user_id: string
+          refund_amount: number
+          service_address: string | null
+          service_date: string | null
+          statement_number: string
+          updated_at: string
+        }
+        Insert: {
+          booking_id: string
+          created_at?: string
+          currency: string
+          customer_display_name?: string | null
+          gross_amount?: number
+          id?: string
+          issued_at?: string
+          linked_payout_id?: string | null
+          linked_transfer_id?: string | null
+          metadata?: Json
+          payout_status?: string
+          pdf_storage_path?: string | null
+          platform_fee_amount?: number
+          provider_net_amount?: number
+          provider_tax_snapshot?: Json
+          provider_user_id: string
+          refund_amount?: number
+          service_address?: string | null
+          service_date?: string | null
+          statement_number: string
+          updated_at?: string
+        }
+        Update: {
+          booking_id?: string
+          created_at?: string
+          currency?: string
+          customer_display_name?: string | null
+          gross_amount?: number
+          id?: string
+          issued_at?: string
+          linked_payout_id?: string | null
+          linked_transfer_id?: string | null
+          metadata?: Json
+          payout_status?: string
+          pdf_storage_path?: string | null
+          platform_fee_amount?: number
+          provider_net_amount?: number
+          provider_tax_snapshot?: Json
+          provider_user_id?: string
+          refund_amount?: number
+          service_address?: string | null
+          service_date?: string | null
+          statement_number?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_settlement_statements_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: true
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      provider_tax_profiles: {
+        Row: {
+          business_address: string | null
+          business_name: string | null
+          country_code: string
+          created_at: string
+          id: string
+          provider_type: string
+          provider_user_id: string
+          tax_id: string | null
+          updated_at: string
+          vat_number: string | null
+          vat_registered: boolean
+        }
+        Insert: {
+          business_address?: string | null
+          business_name?: string | null
+          country_code: string
+          created_at?: string
+          id?: string
+          provider_type?: string
+          provider_user_id: string
+          tax_id?: string | null
+          updated_at?: string
+          vat_number?: string | null
+          vat_registered?: boolean
+        }
+        Update: {
+          business_address?: string | null
+          business_name?: string | null
+          country_code?: string
+          created_at?: string
+          id?: string
+          provider_type?: string
+          provider_user_id?: string
+          tax_id?: string | null
+          updated_at?: string
+          vat_number?: string | null
+          vat_registered?: boolean
+        }
+        Relationships: []
       }
       sms_verifications: {
         Row: {
@@ -969,6 +1207,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      next_invoice_number: { Args: { _country_code: string }; Returns: string }
       user_owns_provider: { Args: { _provider_id: string }; Returns: boolean }
     }
     Enums: {

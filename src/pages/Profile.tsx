@@ -5,6 +5,7 @@ import {
   LogOut, Mail, MapPin, Menu, MessageCircle, MessageSquare, PiggyBank, Plus, Receipt, ShieldAlert, ShieldOff, Sparkles, Star, Trash2, User as UserIcon, X, XCircle,
 } from "lucide-react";
 import { NotificationsTab, SmsTab, TaxTab, DeactivateTab, ServiceDeductionTab } from "@/components/profile/ProfileExtraTabs";
+import { ProviderTaxProfileTab } from "@/components/profile/ProviderTaxProfileTab";
 import { loadStripe, Stripe } from "@stripe/stripe-js";
 import { Elements, useStripe, useElements, CardElement } from "@stripe/react-stripe-js";
 import { useAuth } from "@/hooks/useAuth";
@@ -241,7 +242,7 @@ export default function Profile() {
           {tab === "history" && <HistoryTab />}
           {tab === "notifications" && <NotificationsTab />}
           {tab === "sms" && <SmsTab />}
-          {tab === "tax" && <TaxTab />}
+          {tab === "tax" && (<><TaxTab /><div className="mt-6"><ProviderTaxProfileTab /></div></>)}
           {tab === "deduction" && <ServiceDeductionTab />}
           {tab === "deactivate" && <DeactivateTab />}
         </div>

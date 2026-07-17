@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import BackButton from "@/components/BackButton";
 import { formatMoney, formatDate, type FinanceSummary, type CurrencyTotals, type PayoutCurrencyTotals } from "@/lib/finance";
 import { RoleGuard } from "@/components/RoleGuard";
+import { InvoicesPanel } from "@/components/finance/InvoicesPanel";
 
 function KPI({ label, value, icon: Icon, hint }: { label: string; value: string; icon: any; hint?: string }) {
   return (
@@ -233,9 +234,15 @@ function FinanceView({ scope, title }: { scope: "provider" | "admin"; title: str
             </CardContent>
           </Card>
 
+          <section>
+            <h2 className="text-lg font-serif mb-3">Fakturaer & afregningsoversigter</h2>
+            <InvoicesPanel scope={scope} />
+          </section>
+
           <p className="text-xs text-muted-foreground">
             Rapport til overblik. Totaler grupperes altid per valuta — vi kombinerer aldrig DKK, EUR, GBP m.fl. i én KPI.
-            MyCleaner udsteder ikke juridiske fakturaer endnu — moms- og fakturafunktioner tilføjes senere.
+            MyCleaner opererer som marketplace/agent: platformgebyr-fakturaer udstedes af MyCleaner;
+            udbyderen er selv ansvarlig for kundefakturering og momsafregning.
           </p>
         </>
       )}
