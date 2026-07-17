@@ -12,7 +12,10 @@ import {
   Settings,
   Headphones,
   LifeBuoy,
+  Wallet,
+  BarChart3,
 } from "lucide-react";
+
 import type { AppRole } from "@/hooks/useUserRoles";
 
 export type DashboardRole = "admin" | "employee" | "provider";
