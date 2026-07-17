@@ -302,24 +302,21 @@ export default function FindCleaner() {
     providers.forEach((provider) => {
       const isSelected = selectedId === provider.id;
 
-      // Coverage area in MyCleaner brand colors — hides exact address.
-      const circle = new google.maps.Circle({
-        strokeColor: isSelected ? BRAND_ORANGE : BRAND_TEAL,
-        strokeOpacity: isSelected ? 0.9 : 0.55,
-        strokeWeight: isSelected ? 2.5 : 1.5,
-        fillColor: isSelected ? BRAND_ORANGE : BRAND_TEAL,
-        fillOpacity: isSelected ? 0.18 : 0.12,
-        map: mapInstance.current!,
-        center: { lat: provider.lat, lng: provider.lng },
-        radius: COVERAGE_RADIUS_M,
-        clickable: true,
-      });
-      circle.addListener("click", () => {
-        setSelectedId(provider.id);
-        setDrawerOpen(true);
-        mapInstance.current?.panTo({ lat: provider.lat, lng: provider.lng });
-      });
-      circlesRef.current.push(circle);
+      // Only render the coverage area for the currently selected provider.
+      if (isSelected) {
+        const circle = new google.maps.Circle({
+          strokeColor: BRAND_ORANGE,
+          strokeOpacity: 0.9,
+          strokeWeight: 2.5,
+          fillColor: BRAND_ORANGE,
+          fillOpacity: 0.18,
+          map: mapInstance.current!,
+          center: { lat: provider.lat, lng: provider.lng },
+          radius: COVERAGE_RADIUS_M,
+          clickable: false,
+        });
+        circlesRef.current.push(circle);
+      }
 
       const marker = createMarker(google, provider, isSelected, () => {
         setSelectedId(provider.id);
