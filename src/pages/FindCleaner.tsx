@@ -63,7 +63,7 @@ function pinSvg(initials: string, isSelected: boolean) {
   const circle = size * 0.38;
   const cx = size / 2;
   const cy = size * 0.42;
-  const color = "hsl(168 65% 38%)";
+  const color = BRAND_TEAL;
   const textColor = "white";
   const fontSize = isSelected ? 16 : 14;
   return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(
