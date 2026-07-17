@@ -58,6 +58,9 @@ export default function BookingPlan() {
   const [scope, setScope] = useState<"booking" | "property">("booking");
   const [newRoomName, setNewRoomName] = useState("");
   const [customTag, setCustomTag] = useState("");
+  const [existingPlanId, setExistingPlanId] = useState<string | null>(null);
+  const [existingScope, setExistingScope] = useState<"booking" | "property" | null>(null);
+  const [lastSavedAt, setLastSavedAt] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
