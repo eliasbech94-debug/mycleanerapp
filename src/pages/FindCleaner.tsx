@@ -116,6 +116,19 @@ export default function FindCleaner() {
   const [searchAreaVisible, setSearchAreaVisible] = useState(false);
   const [lastSearchBounds, setLastSearchBounds] = useState<google.maps.LatLngBounds | null>(null);
   const [mapMoved, setMapMoved] = useState(false);
+  const [countryFilter, setCountryFilter] = useState<string>("all");
+
+  // Only providers whose service country matches the active filter.
+  const filteredProviders = useMemo(
+    () => (countryFilter === "all" ? providers : providers.filter((p) => p.countryCode === countryFilter)),
+    [providers, countryFilter],
+  );
+
+  // Available countries derived from the loaded providers, for a smart dropdown.
+  const availableCountries = useMemo(() => {
+    const codes = new Set(providers.map((p) => p.countryCode));
+    return countries.filter((c) => codes.has(c.code));
+  }, [providers]);
 
   const fetchProviders = useCallback(async (bounds?: google.maps.LatLngBounds) => {
     setLoading(true);
