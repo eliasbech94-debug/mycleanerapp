@@ -32,6 +32,7 @@ import NotFound from "./pages/NotFound";
 import FAQ from "./pages/FAQ";
 import Regler from "./pages/Regler";
 import FindCleaner from "./pages/FindCleaner";
+import { ProviderFinance, AdminFinance } from "./pages/finance/FinancePages";
 import { RoleGuard } from "@/components/RoleGuard";
 import ScrollToTop from "@/components/ScrollToTop";
 import RouteLoadingBar from "@/components/RouteLoadingBar";
@@ -120,6 +121,11 @@ const App = () => (
                 </RoleGuard>
               }
             />
+
+            <Route path="/provider/finance" element={<ProviderFinance />} />
+            <Route path="/admin/finance" element={<AdminFinance />} />
+
+
 
             <Route path="/faq" element={<FAQ />} />
             <Route path="/regler" element={<Regler />} />

@@ -153,15 +153,73 @@ Deno.serve(async (req) => {
   // ---------- Transfer / Payout (split-payout visibility) ----------
   if (event.type.startsWith("transfer.") || event.type.startsWith("payout.")) {
     const obj = event.data.object as any;
+    const transferId = event.type.startsWith("transfer.") ? obj.id : (obj.source_transfer ?? null);
+    const payoutId = event.type.startsWith("payout.") ? obj.id : null;
     await logEvent(event, {
-      transfer_id: event.type.startsWith("transfer.") ? obj.id : (obj.source_transfer ?? null),
-      payout_id: event.type.startsWith("payout.") ? obj.id : null,
+      transfer_id: transferId,
+      payout_id: payoutId,
       amount: obj.amount ?? null,
       currency: obj.currency ?? null,
       status: obj.status ?? null,
     });
+
+    // Additive: mirror into finance_payouts for the marketplace module.
+    // Never throws — payment logic above must never be affected.
+    try {
+      if (event.type.startsWith("transfer.")) {
+        const meta = obj.metadata ?? {};
+        const bookingId = meta.booking_id ?? null;
+        const providerUserId = meta.provider_user_id ?? null;
+        const providerId = meta.provider_id ?? null;
+        const gross = obj.amount ?? 0;
+        let platformFee = 0;
+        let netAmount = gross;
+        if (bookingId) {
+          const { data: bk } = await admin
+            .from("bookings")
+            .select("platform_fee_amount, provider_gets, customer_pays, customer_user_id")
+            .eq("id", bookingId)
+            .maybeSingle();
+          if (bk) {
+            platformFee = bk.platform_fee_amount ?? 0;
+            netAmount = bk.provider_gets ?? gross;
+          }
+        }
+        if (providerUserId && transferId) {
+          await admin.from("finance_payouts").upsert({
+            provider_user_id: providerUserId,
+            provider_id: providerId,
+            booking_id: bookingId,
+            stripe_transfer_id: transferId,
+            stripe_charge_id: obj.source_transaction ?? null,
+            gross_amount: gross,
+            platform_fee_amount: platformFee,
+            net_amount: netAmount,
+            currency: (obj.currency ?? "dkk").toUpperCase(),
+            status: event.type === "transfer.reversed" ? "reversed" : "in_transit",
+            description: obj.description ?? null,
+            metadata: { source: "transfer", event: event.type },
+          }, { onConflict: "stripe_transfer_id" });
+        }
+      } else if (payoutId) {
+        // payout.* — update matching finance_payouts rows by payout id if we linked them
+        const status = event.type === "payout.paid" ? "paid"
+          : event.type === "payout.failed" ? "failed"
+          : (obj.status ?? "pending");
+        await admin.from("finance_payouts").update({
+          status,
+          arrival_date: obj.arrival_date ? new Date(obj.arrival_date * 1000).toISOString() : null,
+          stripe_payout_id: payoutId,
+        }).eq("stripe_payout_id", payoutId);
+      }
+    } catch (e) {
+      console.error("finance_payouts mirror failed (non-fatal):", (e as Error).message);
+    }
+
     return new Response("ok", { status: 200 });
   }
+
+
 
   // ---------- PaymentIntent events ----------
   const pi = event.data.object as Stripe.PaymentIntent;

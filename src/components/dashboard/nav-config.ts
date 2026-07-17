@@ -12,7 +12,10 @@ import {
   Settings,
   Headphones,
   LifeBuoy,
+  Wallet,
+  BarChart3,
 } from "lucide-react";
+
 import type { AppRole } from "@/hooks/useUserRoles";
 
 export type DashboardRole = "admin" | "employee" | "provider";
@@ -57,6 +60,13 @@ const rawConfig: Record<DashboardRole, NavGroup[]> = {
       ],
     },
     {
+      label: "Økonomi",
+      defaultRoles: ["admin"],
+      items: [
+        { title: "Marketplace finans", url: "/admin/finance", icon: BarChart3 },
+      ],
+    },
+    {
       label: "Sikkerhed",
       defaultRoles: ["super_admin"],
       items: [
@@ -93,6 +103,13 @@ const rawConfig: Record<DashboardRole, NavGroup[]> = {
         { title: "Kalender", url: "/provider-dashboard/calendar", icon: Calendar },
         { title: "Bookinger", url: "/provider-dashboard/bookings", icon: ListChecks },
         { title: "Ydelser", url: "/provider-dashboard/services", icon: Briefcase },
+      ],
+    },
+    {
+      label: "Økonomi",
+      defaultRoles: ["provider"],
+      items: [
+        { title: "Indtjening & udbetalinger", url: "/provider/finance", icon: Wallet },
       ],
     },
     {
