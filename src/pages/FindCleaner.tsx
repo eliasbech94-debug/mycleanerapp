@@ -32,6 +32,22 @@ type MapProvider = {
 
 const DEFAULT_CENTER = { lat: 55.6761, lng: 12.5683 }; // Copenhagen
 const DEFAULT_ZOOM = 11;
+const COVERAGE_RADIUS_M = 2200; // ~2.2km coverage area shown instead of exact location
+// Brand colors (MyCleaner)
+const BRAND_TEAL = "#168a7a";
+const BRAND_ORANGE = "#ff6b35";
+
+// Deterministically obfuscate exact address: snap to ~1km grid + tiny per-provider offset
+function obfuscate(lat: number, lng: number, seed: string) {
+  const grid = 0.01; // ~1.1 km latitude
+  const s = seed.split("").reduce((a, c) => a + c.charCodeAt(0), 0);
+  const jitLat = ((s % 7) - 3) * 0.0009;
+  const jitLng = (((s * 13) % 7) - 3) * 0.0009;
+  return {
+    lat: Math.round(lat / grid) * grid + jitLat,
+    lng: Math.round(lng / grid) * grid + jitLng,
+  };
+}
 
 function getInitials(name: string) {
   return name
@@ -47,7 +63,7 @@ function pinSvg(initials: string, isSelected: boolean) {
   const circle = size * 0.38;
   const cx = size / 2;
   const cy = size * 0.42;
-  const color = "hsl(168 65% 38%)";
+  const color = BRAND_TEAL;
   const textColor = "white";
   const fontSize = isSelected ? 16 : 14;
   return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(
@@ -89,6 +105,7 @@ export default function FindCleaner() {
   const mapInstance = useRef<google.maps.Map | null>(null);
   const googleRef = useRef<typeof window.google | null>(null);
   const markersRef = useRef<google.maps.Marker[]>([]);
+  const circlesRef = useRef<google.maps.Circle[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [providers, setProviders] = useState<MapProvider[]>([]);
@@ -122,13 +139,14 @@ export default function FindCleaner() {
           .map((p: any) => {
             const seed = getProvider(p.provider_id);
             const country = getCountry(p.country_code || "DK");
+            const obf = obfuscate(Number(p.lat), Number(p.lng), p.provider_id);
             return {
               id: p.provider_id,
               profileId: p.id,
               name: p.full_name || seed?.name || "Cleaner",
               providerId: p.provider_id,
-              lat: Number(p.lat),
-              lng: Number(p.lng),
+              lat: obf.lat,
+              lng: obf.lng,
               address: p.address || seed?.city || null,
               countryCode: p.country_code || seed?.countryCode || "DK",
               avatar: seed?.avatar || null,
@@ -167,8 +185,8 @@ export default function FindCleaner() {
             profileId: "",
             name: seed.name,
             providerId: seed.id,
-            lat: coords.lat,
-            lng: coords.lng,
+            lat: obfuscate(coords.lat, coords.lng, seed.id).lat,
+            lng: obfuscate(coords.lat, coords.lng, seed.id).lng,
             address: seed.city,
             countryCode: seed.countryCode,
             avatar: seed.avatar,
@@ -267,32 +285,54 @@ export default function FindCleaner() {
       cleanup();
       markersRef.current.forEach((m) => m.setMap(null));
       markersRef.current = [];
+      circlesRef.current.forEach((c) => c.setMap(null));
+      circlesRef.current = [];
       mapInstance.current = null;
     };
   }, [providers.length, updateVisibleProviders, fetchProviders]);
 
   useEffect(() => {
-    if (!mapInstance.current) return;
+    if (!mapInstance.current || !googleRef.current) return;
+    const google = googleRef.current;
     markersRef.current.forEach((m) => m.setMap(null));
     markersRef.current = [];
+    circlesRef.current.forEach((c) => c.setMap(null));
+    circlesRef.current = [];
 
     providers.forEach((provider) => {
-      const marker = createMarker(
-        googleRef.current!,
-        provider,
-        selectedId === provider.id,
-        () => {
-          setSelectedId(provider.id);
-          setDrawerOpen(true);
-          mapInstance.current?.panTo({ lat: provider.lat, lng: provider.lng });
-        },
-      );
+      const isSelected = selectedId === provider.id;
+
+      // Coverage area in MyCleaner brand colors — hides exact address.
+      const circle = new google.maps.Circle({
+        strokeColor: isSelected ? BRAND_ORANGE : BRAND_TEAL,
+        strokeOpacity: isSelected ? 0.9 : 0.55,
+        strokeWeight: isSelected ? 2.5 : 1.5,
+        fillColor: isSelected ? BRAND_ORANGE : BRAND_TEAL,
+        fillOpacity: isSelected ? 0.18 : 0.12,
+        map: mapInstance.current!,
+        center: { lat: provider.lat, lng: provider.lng },
+        radius: COVERAGE_RADIUS_M,
+        clickable: true,
+      });
+      circle.addListener("click", () => {
+        setSelectedId(provider.id);
+        setDrawerOpen(true);
+        mapInstance.current?.panTo({ lat: provider.lat, lng: provider.lng });
+      });
+      circlesRef.current.push(circle);
+
+      const marker = createMarker(google, provider, isSelected, () => {
+        setSelectedId(provider.id);
+        setDrawerOpen(true);
+        mapInstance.current?.panTo({ lat: provider.lat, lng: provider.lng });
+      });
       marker.setMap(mapInstance.current);
       markersRef.current.push(marker);
     });
 
     updateVisibleProviders();
   }, [providers, selectedId, updateVisibleProviders]);
+
 
   const handleSearchThisArea = useCallback(() => {
     const bounds = mapInstance.current?.getBounds();
