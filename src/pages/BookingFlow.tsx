@@ -300,7 +300,9 @@ function BookingFlowInner() {
                   setServiceKey={setServiceKey}
                   hours={hours}
                   setHours={setHours}
+                  providerName={provider.name}
                 />
+
               )}
               {step === 2 && (
                 <Step2
