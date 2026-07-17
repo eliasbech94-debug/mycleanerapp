@@ -379,26 +379,54 @@ export default function FindCleaner() {
   return (
     <div className="relative h-[calc(100vh-64px)] w-full overflow-hidden bg-muted">
       {/* Header overlay */}
-      <div className="absolute left-0 right-0 top-0 z-20 flex items-center justify-between gap-3 bg-background/90 px-4 py-3 backdrop-blur-md">
-        <div className="flex items-center gap-2">
-          <div className="grid h-9 w-9 place-items-center rounded-xl bg-primary text-primary-foreground font-heading text-lg font-bold">
-            M
+      <div className="absolute left-0 right-0 top-0 z-20 flex flex-col gap-2 bg-background/90 px-4 py-3 backdrop-blur-md">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <div className="grid h-9 w-9 place-items-center rounded-xl bg-primary text-primary-foreground font-heading text-lg font-bold">
+              M
+            </div>
+            <div>
+              <h1 className="text-sm font-semibold leading-tight">Find din cleaner</h1>
+              <p className="text-[10px] text-muted-foreground">
+                {filteredProviders.length} providere
+                {countryFilter !== "all" && ` i ${getCountry(countryFilter).name}`}
+              </p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-sm font-semibold leading-tight">Find din cleaner</h1>
-            <p className="text-[10px] text-muted-foreground">{providers.length} providere i dit område</p>
-          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-9 gap-1.5 text-xs"
+            onClick={() => setDrawerOpen(true)}
+          >
+            <ChevronUp className="h-4 w-4" />
+            Se liste
+          </Button>
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          className="h-9 gap-1.5 text-xs"
-          onClick={() => setDrawerOpen(true)}
+        <Select
+          value={countryFilter}
+          onValueChange={(v) => {
+            setCountryFilter(v);
+            setSelectedId(null);
+          }}
         >
-          <ChevronUp className="h-4 w-4" />
-          Se liste
-        </Button>
+          <SelectTrigger className="h-9 w-full text-xs" aria-label="Filtrér efter serviceområde">
+            <SelectValue placeholder="Alle serviceområder" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">🌍 Alle serviceområder ({providers.length})</SelectItem>
+            {availableCountries.map((c) => {
+              const count = providers.filter((p) => p.countryCode === c.code).length;
+              return (
+                <SelectItem key={c.code} value={c.code}>
+                  {c.flag} {c.name} ({count})
+                </SelectItem>
+              );
+            })}
+          </SelectContent>
+        </Select>
       </div>
+
 
       {/* Loading */}
       {loading && (
