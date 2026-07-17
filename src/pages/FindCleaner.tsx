@@ -138,13 +138,14 @@ export default function FindCleaner() {
           .map((p: any) => {
             const seed = getProvider(p.provider_id);
             const country = getCountry(p.country_code || "DK");
+            const obf = obfuscate(Number(p.lat), Number(p.lng), p.provider_id);
             return {
               id: p.provider_id,
               profileId: p.id,
               name: p.full_name || seed?.name || "Cleaner",
               providerId: p.provider_id,
-              lat: Number(p.lat),
-              lng: Number(p.lng),
+              lat: obf.lat,
+              lng: obf.lng,
               address: p.address || seed?.city || null,
               countryCode: p.country_code || seed?.countryCode || "DK",
               avatar: seed?.avatar || null,
