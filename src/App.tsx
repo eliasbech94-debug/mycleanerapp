@@ -24,6 +24,8 @@ import AdminAccessLogs from "./pages/AdminAccessLogs";
 import EmployeeDashboard from "./pages/EmployeeDashboard";
 import BookingFlow from "./pages/BookingFlow";
 import MyBookings from "./pages/MyBookings";
+import BookingPlan from "./pages/BookingPlan";
+
 import ProviderDashboard from "./pages/ProviderDashboard";
 import ProviderReceipts from "./pages/ProviderReceipts";
 import NotFound from "./pages/NotFound";
