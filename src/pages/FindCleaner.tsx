@@ -32,6 +32,22 @@ type MapProvider = {
 
 const DEFAULT_CENTER = { lat: 55.6761, lng: 12.5683 }; // Copenhagen
 const DEFAULT_ZOOM = 11;
+const COVERAGE_RADIUS_M = 2200; // ~2.2km coverage area shown instead of exact location
+// Brand colors (MyCleaner)
+const BRAND_TEAL = "#168a7a";
+const BRAND_ORANGE = "#ff6b35";
+
+// Deterministically obfuscate exact address: snap to ~1km grid + tiny per-provider offset
+function obfuscate(lat: number, lng: number, seed: string) {
+  const grid = 0.01; // ~1.1 km latitude
+  const s = seed.split("").reduce((a, c) => a + c.charCodeAt(0), 0);
+  const jitLat = ((s % 7) - 3) * 0.0009;
+  const jitLng = (((s * 13) % 7) - 3) * 0.0009;
+  return {
+    lat: Math.round(lat / grid) * grid + jitLat,
+    lng: Math.round(lng / grid) * grid + jitLng,
+  };
+}
 
 function getInitials(name: string) {
   return name
