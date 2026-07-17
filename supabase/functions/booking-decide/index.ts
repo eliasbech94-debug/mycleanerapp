@@ -67,7 +67,7 @@ Deno.serve(async (req) => {
       try {
         const planUrl = `/booking/${booking_id}/plan`;
         const { data: thread } = await admin.from("support_threads").insert({
-          user_id: b.customer_id ?? b.user_id,
+          user_id: b.customer_user_id,
           topic: "booking",
           subject: "Din rengøring er bekræftet",
           related_booking_id: booking_id,
@@ -76,7 +76,7 @@ Deno.serve(async (req) => {
         if (thread?.id) {
           await admin.from("support_messages").insert({
             thread_id: thread.id,
-            user_id: b.customer_id ?? b.user_id,
+            user_id: b.customer_user_id,
             role: "system",
             content:
               "Din booking er bekræftet 🎉\n\nVil du lave en rengøringsplan? Angiv rum, fokusområder (fx ovn, vinduer, kæledyrshår) og noter — så ved din cleaner præcis hvad hun skal fokusere på.\n\nDu kan gemme planen kun til denne rengøring eller som fast plan på boligen.",
@@ -85,7 +85,7 @@ Deno.serve(async (req) => {
         }
 
         await admin.from("customer_notifications").insert({
-          user_id: b.customer_id ?? b.user_id,
+          user_id: b.customer_user_id,
           kind: "cleaner_message",
           severity: "success",
           title: "Din rengøring er bekræftet",
