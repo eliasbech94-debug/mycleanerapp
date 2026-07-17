@@ -150,6 +150,7 @@ export default function BookingPlan() {
 
   const save = async () => {
     if (!user || !bookingId) return;
+    if (locked) { toast.error("Rengøringen er startet — planen kan ikke længere ændres."); return; }
     if (scope === "property" && !address) {
       toast.error("Ingen bolig fundet — tilføj en adresse på din profil først.");
       return;
@@ -164,13 +165,23 @@ export default function BookingPlan() {
       focus_areas: focus,
       notes,
     };
-    const { error } = await supabase.from("cleaning_plans").insert(payload);
+
+    // If we already have a plan of the same scope, update it in place. Otherwise insert new.
+    let error: any = null;
+    if (existingPlanId && existingScope === scope) {
+      ({ error } = await supabase.from("cleaning_plans")
+        .update(payload).eq("id", existingPlanId).eq("user_id", user.id));
+    } else {
+      const res = await supabase.from("cleaning_plans").insert(payload).select("id, updated_at").maybeSingle();
+      error = res.error;
+      if (res.data) { setExistingPlanId(res.data.id); setExistingScope(scope); setLastSavedAt(res.data.updated_at); }
+    }
     setSaving(false);
     if (error) { toast.error(error.message); return; }
-    toast.success(scope === "booking"
-      ? "Rengøringsplan gemt til denne booking"
-      : "Fast rengøringsplan gemt på boligen");
-    navigate("/mine-bookinger");
+    setLastSavedAt(new Date().toISOString());
+    toast.success(existingPlanId
+      ? "Rengøringsplan opdateret"
+      : scope === "booking" ? "Rengøringsplan gemt til denne booking" : "Fast rengøringsplan gemt på boligen");
   };
 
   if (loading) {
