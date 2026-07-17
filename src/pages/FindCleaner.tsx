@@ -387,7 +387,7 @@ export default function FindCleaner() {
     if (selectedId && filteredProviders.some((p) => p.id === selectedId)) return;
     const bounds = new google.maps.LatLngBounds();
     filteredProviders.forEach((p) => bounds.extend({ lat: p.lat, lng: p.lng }));
-    map.fitBounds(bounds, 80);
+    smoothFitBounds(map, bounds);
   }, [countryFilter, filteredProviders, selectedId]);
 
 
