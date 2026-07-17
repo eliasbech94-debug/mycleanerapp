@@ -368,6 +368,167 @@ export type Database = {
           },
         ]
       }
+      finance_payouts: {
+        Row: {
+          arrival_date: string | null
+          booking_id: string | null
+          created_at: string
+          currency: string
+          description: string | null
+          gross_amount: number
+          id: string
+          metadata: Json
+          net_amount: number
+          platform_fee_amount: number
+          provider_id: string | null
+          provider_user_id: string
+          status: string
+          stripe_charge_id: string | null
+          stripe_payment_intent_id: string | null
+          stripe_payout_id: string | null
+          stripe_transfer_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          arrival_date?: string | null
+          booking_id?: string | null
+          created_at?: string
+          currency?: string
+          description?: string | null
+          gross_amount?: number
+          id?: string
+          metadata?: Json
+          net_amount?: number
+          platform_fee_amount?: number
+          provider_id?: string | null
+          provider_user_id: string
+          status?: string
+          stripe_charge_id?: string | null
+          stripe_payment_intent_id?: string | null
+          stripe_payout_id?: string | null
+          stripe_transfer_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          arrival_date?: string | null
+          booking_id?: string | null
+          created_at?: string
+          currency?: string
+          description?: string | null
+          gross_amount?: number
+          id?: string
+          metadata?: Json
+          net_amount?: number
+          platform_fee_amount?: number
+          provider_id?: string | null
+          provider_user_id?: string
+          status?: string
+          stripe_charge_id?: string | null
+          stripe_payment_intent_id?: string | null
+          stripe_payout_id?: string | null
+          stripe_transfer_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "finance_payouts_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      finance_settings: {
+        Row: {
+          country_code: string
+          created_at: string
+          currency: string
+          id: string
+          invoice_series_prefix: string | null
+          notes: string | null
+          platform_fee_pct: number
+          updated_at: string
+          vat_rate: number
+        }
+        Insert: {
+          country_code: string
+          created_at?: string
+          currency: string
+          id?: string
+          invoice_series_prefix?: string | null
+          notes?: string | null
+          platform_fee_pct?: number
+          updated_at?: string
+          vat_rate?: number
+        }
+        Update: {
+          country_code?: string
+          created_at?: string
+          currency?: string
+          id?: string
+          invoice_series_prefix?: string | null
+          notes?: string | null
+          platform_fee_pct?: number
+          updated_at?: string
+          vat_rate?: number
+        }
+        Relationships: []
+      }
+      finance_statements: {
+        Row: {
+          bookings_count: number
+          created_at: string
+          currency: string
+          generated_at: string
+          gross_total: number
+          id: string
+          metadata: Json
+          net_total: number
+          payouts_count: number
+          period_end: string
+          period_start: string
+          platform_fee_total: number
+          provider_user_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          bookings_count?: number
+          created_at?: string
+          currency?: string
+          generated_at?: string
+          gross_total?: number
+          id?: string
+          metadata?: Json
+          net_total?: number
+          payouts_count?: number
+          period_end: string
+          period_start: string
+          platform_fee_total?: number
+          provider_user_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          bookings_count?: number
+          created_at?: string
+          currency?: string
+          generated_at?: string
+          gross_total?: number
+          id?: string
+          metadata?: Json
+          net_total?: number
+          payouts_count?: number
+          period_end?: string
+          period_start?: string
+          platform_fee_total?: number
+          provider_user_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       market_rate_thresholds: {
         Row: {
           country_code: string
