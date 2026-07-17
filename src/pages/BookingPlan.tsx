@@ -176,12 +176,21 @@ export default function BookingPlan() {
       error = res.error;
       if (res.data) { setExistingPlanId(res.data.id); setExistingScope(scope); setLastSavedAt(res.data.updated_at); }
     }
-    setSaving(false);
-    if (error) { toast.error(error.message); return; }
+    if (error) { setSaving(false); toast.error(error.message); return; }
     setLastSavedAt(new Date().toISOString());
-    toast.success(existingPlanId
-      ? "Rengøringsplan opdateret"
-      : scope === "booking" ? "Rengøringsplan gemt til denne booking" : "Fast rengøringsplan gemt på boligen");
+
+    // Share the plan with the provider (chat thread + inbox notification)
+    const { error: shareErr } = await supabase.functions.invoke("cleaning-plan-share", {
+      body: { booking_id: bookingId },
+    });
+    setSaving(false);
+    if (shareErr) {
+      toast.warning("Gemt, men kunne ikke sende til cleaneren automatisk", { description: shareErr.message });
+    } else {
+      toast.success(existingPlanId
+        ? "Plan opdateret og sendt til cleaneren"
+        : "Plan gemt og sendt til cleaneren");
+    }
   };
 
   if (loading) {
