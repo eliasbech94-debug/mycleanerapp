@@ -161,6 +161,60 @@ export type Database = {
         }
         Relationships: []
       }
+      cleaning_plans: {
+        Row: {
+          address_id: string | null
+          booking_id: string | null
+          created_at: string
+          focus_areas: string[]
+          id: string
+          notes: string
+          rooms: Json
+          scope: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          address_id?: string | null
+          booking_id?: string | null
+          created_at?: string
+          focus_areas?: string[]
+          id?: string
+          notes?: string
+          rooms?: Json
+          scope: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          address_id?: string | null
+          booking_id?: string | null
+          created_at?: string
+          focus_areas?: string[]
+          id?: string
+          notes?: string
+          rooms?: Json
+          scope?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cleaning_plans_address_id_fkey"
+            columns: ["address_id"]
+            isOneToOne: false
+            referencedRelation: "customer_addresses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cleaning_plans_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       customer_addresses: {
         Row: {
           access_code: string | null
@@ -665,6 +719,7 @@ export type Database = {
           created_at: string
           id: string
           last_message_at: string
+          related_booking_id: string | null
           status: string
           subject: string
           topic: string
@@ -675,6 +730,7 @@ export type Database = {
           created_at?: string
           id?: string
           last_message_at?: string
+          related_booking_id?: string | null
           status?: string
           subject?: string
           topic: string
@@ -685,13 +741,22 @@ export type Database = {
           created_at?: string
           id?: string
           last_message_at?: string
+          related_booking_id?: string | null
           status?: string
           subject?: string
           topic?: string
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "support_threads_related_booking_id_fkey"
+            columns: ["related_booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {

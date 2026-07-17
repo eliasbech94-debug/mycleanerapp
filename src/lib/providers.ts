@@ -126,9 +126,9 @@ const SEED: Record<string, ProviderProfileData> = {
   p_001: {
     id: "p_001",
     name: "Mikkel Sørensen",
-    handle: "@mikkel.fix",
-    tagline: "Tømrer & altmuligmand · 12 års erfaring",
-    bio: "Specialiseret i renovering, møbelmontering og småreparationer. Punktlig, ren arbejdsgang og altid fast pris før jeg starter.",
+    handle: "@mikkel.clean",
+    tagline: "Erfaren rengøringsassistent · 12 års erfaring",
+    bio: "Grundig og pålidelig rengøring med sans for detaljen. Materialer medbringes efter aftale — altid ren arbejdsgang og fast pris før jeg starter.",
     type: "business",
     verified: true,
     topRated: true,
@@ -142,8 +142,8 @@ const SEED: Record<string, ProviderProfileData> = {
     radiusKm: 25,
     memberSince: "2022",
     languages: ["Dansk", "English", "Deutsch"],
-    categories: ["handyman", "moving"],
-    subcategories: ["Møbelsamling", "Malerarbejde", "Gulvlægning", "Boligflytning"],
+    categories: ["cleaning"],
+    subcategories: ["Hjemmerengøring", "Dybrengøring", "Flytterengøring"],
     avatar: "",
     gallery: [
       "from-primary/30 to-accent/30",
@@ -153,8 +153,9 @@ const SEED: Record<string, ProviderProfileData> = {
       "from-primary/20 to-accent/40",
       "from-accent/40 to-success/30",
     ],
-    certifications: ["Tømrer svendebrev", "Forsikret hos Tryg", "ID-verificeret", "Straffeattest godkendt"],
+    certifications: ["Forsikret hos Tryg", "ID-verificeret", "Straffeattest godkendt"],
   },
+
   p_002: {
     id: "p_002",
     name: "Maria Jensen",
