@@ -345,10 +345,20 @@ export default function FindCleaner() {
     circlesRef.current.forEach((c) => c.setMap(null));
     circlesRef.current = [];
 
+    // Shared hover UI: one InfoWindow + one preview circle re-used across markers.
+    if (!infoWindowRef.current) {
+      infoWindowRef.current = new google.maps.InfoWindow({ disableAutoPan: true });
+    }
+    const closeHover = () => {
+      infoWindowRef.current?.close();
+      hoverCircleRef.current?.setMap(null);
+      hoverCircleRef.current = null;
+    };
+
     filteredProviders.forEach((provider) => {
       const isSelected = selectedId === provider.id;
 
-      // Only render the coverage area for the currently selected provider.
+      // Only render the full coverage area for the currently selected provider.
       if (isSelected) {
         const circle = new google.maps.Circle({
           strokeColor: BRAND_ORANGE,
@@ -362,7 +372,6 @@ export default function FindCleaner() {
           clickable: false,
         });
         circlesRef.current.push(circle);
-        // Smoothly frame the selected provider's coverage area.
         const bounds = circle.getBounds();
         if (bounds) {
           smoothFitBounds(mapInstance.current!, bounds);
@@ -370,15 +379,60 @@ export default function FindCleaner() {
       }
 
       const marker = createMarker(google, provider, isSelected, () => {
+        closeHover();
         setSelectedId(provider.id);
         setDrawerOpen(true);
         mapInstance.current?.panTo({ lat: provider.lat, lng: provider.lng });
       });
+      // Native browser tooltip (a11y + fast).
+      marker.setTitle(`${provider.name} — dækker ~${Math.round(COVERAGE_RADIUS_M / 1000)} km omkring ${provider.address || getCountry(provider.countryCode).name}`);
+
+      // Rich hover tooltip with a preview of the coverage area.
+      const country = getCountry(provider.countryCode);
+      const html = `
+        <div style="font-family: 'Fira Sans', system-ui, sans-serif; min-width: 180px; padding: 2px 4px;">
+          <div style="display:flex; align-items:center; gap:6px; font-weight:600; font-size:13px; color:#0a3d3a;">
+            <span>${country.flag}</span>
+            <span>${provider.name.replace(/</g, "&lt;")}</span>
+          </div>
+          <div style="margin-top:2px; font-size:11px; color:#4b5563;">
+            ${provider.address ? provider.address.replace(/</g, "&lt;") + " · " : ""}${country.name}
+          </div>
+          <div style="margin-top:6px; display:flex; align-items:center; gap:6px; font-size:11px; color:#168a7a; font-weight:600;">
+            <span style="display:inline-block; width:10px; height:10px; border-radius:9999px; background:#168a7a; opacity:0.35;"></span>
+            Dækker ~${Math.round(COVERAGE_RADIUS_M / 1000)} km serviceområde
+          </div>
+          <div style="margin-top:4px; font-size:10px; color:#6b7280;">Klik for at åbne profil</div>
+        </div>`;
+
+      marker.addListener("mouseover", () => {
+        if (isSelected) return; // Selected already shows the full circle + card.
+        infoWindowRef.current?.setContent(html);
+        infoWindowRef.current?.open({ map: mapInstance.current!, anchor: marker });
+        hoverCircleRef.current?.setMap(null);
+        hoverCircleRef.current = new google.maps.Circle({
+          strokeColor: BRAND_TEAL,
+          strokeOpacity: 0.7,
+          strokeWeight: 1.5,
+          fillColor: BRAND_TEAL,
+          fillOpacity: 0.1,
+          map: mapInstance.current!,
+          center: { lat: provider.lat, lng: provider.lng },
+          radius: COVERAGE_RADIUS_M,
+          clickable: false,
+        });
+      });
+      marker.addListener("mouseout", closeHover);
+
       marker.setMap(mapInstance.current);
       markersRef.current.push(marker);
     });
 
     updateVisibleProviders();
+
+    return () => {
+      closeHover();
+    };
   }, [filteredProviders, selectedId, updateVisibleProviders]);
 
   // When filter changes and no provider is selected, fit map to filtered providers.
