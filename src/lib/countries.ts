@@ -33,28 +33,8 @@ export const serviceCategories = [
     description: "Hjemmerengøring, erhvervsrengøring, vinduespudsning",
     subcategories: ["Hjemmerengøring", "Erhvervsrengøring", "Vinduespudsning", "Dybrengøring", "Flytterengøring"],
   },
-  {
-    id: "handyman",
-    name: "Håndværk",
-    icon: "🔧",
-    description: "Maler, tømrer, VVS, elektriker",
-    subcategories: ["Malerarbejde", "Tømrerarbejde", "VVS", "Elektriker", "Gulvlægning", "Flisearbejde"],
-  },
-  {
-    id: "garden",
-    name: "Have & udendørs",
-    icon: "🌿",
-    description: "Havearbejde, plæneklipning, snerydning",
-    subcategories: ["Plæneklipning", "Hækklipning", "Haveanlæg", "Snerydning", "Terrasse & fliser"],
-  },
-  {
-    id: "moving",
-    name: "Flytning & transport",
-    icon: "📦",
-    description: "Flyttehjælp, møbelsamling, transport",
-    subcategories: ["Boligflytning", "Kontorflytning", "Møbelsamling", "Bortskaffelse", "Piano/tungt gods"],
-  },
 ];
+
 
 export const formatPrice = (amount: number, country: Country): string => {
   return new Intl.NumberFormat(country.locale, {
