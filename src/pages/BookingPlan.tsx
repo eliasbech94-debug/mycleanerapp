@@ -58,6 +58,9 @@ export default function BookingPlan() {
   const [scope, setScope] = useState<"booking" | "property">("booking");
   const [newRoomName, setNewRoomName] = useState("");
   const [customTag, setCustomTag] = useState("");
+  const [existingPlanId, setExistingPlanId] = useState<string | null>(null);
+  const [existingScope, setExistingScope] = useState<"booking" | "property" | null>(null);
+  const [lastSavedAt, setLastSavedAt] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -83,16 +86,26 @@ export default function BookingPlan() {
       }
       setAddress(addr);
 
-      // existing plan (booking or property)
-      const { data: existing } = await supabase.from("cleaning_plans")
-        .select("*").eq("user_id", user.id)
-        .or(`booking_id.eq.${bookingId}${addr ? `,address_id.eq.${addr.id}` : ""}`)
+      // existing plan — prefer this booking's own plan, else fall back to property plan
+      let existing: any = null;
+      const { data: bookingPlan } = await supabase.from("cleaning_plans")
+        .select("*").eq("user_id", user.id).eq("booking_id", bookingId)
         .order("updated_at", { ascending: false }).limit(1).maybeSingle();
+      if (bookingPlan) existing = bookingPlan;
+      else if (addr) {
+        const { data: propPlan } = await supabase.from("cleaning_plans")
+          .select("*").eq("user_id", user.id).eq("address_id", addr.id).eq("scope", "property")
+          .order("updated_at", { ascending: false }).limit(1).maybeSingle();
+        if (propPlan) existing = propPlan;
+      }
       if (existing) {
         setRooms((existing.rooms as any) || DEFAULT_ROOMS);
         setFocus((existing.focus_areas as any) || []);
         setNotes(existing.notes || "");
         setScope(existing.scope as any);
+        setExistingPlanId(existing.id);
+        setExistingScope(existing.scope);
+        setLastSavedAt(existing.updated_at);
       }
       setLoading(false);
     })();
@@ -101,6 +114,14 @@ export default function BookingPlan() {
 
   const providerFirstName = useMemo(
     () => booking?.provider_name?.split(" ")[0] || "din cleaner", [booking]);
+
+  const locked = useMemo(() => {
+    if (!booking) return false;
+    if (["completed", "cancelled", "refunded", "expired"].includes(booking.status)) return true;
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const bd = new Date(booking.booking_date);
+    return bd < today;
+  }, [booking]);
 
   const toggleTask = (ri: number, ti: number) => {
     setRooms(r => r.map((room, i) => i !== ri ? room : {
@@ -129,6 +150,7 @@ export default function BookingPlan() {
 
   const save = async () => {
     if (!user || !bookingId) return;
+    if (locked) { toast.error("Rengøringen er startet — planen kan ikke længere ændres."); return; }
     if (scope === "property" && !address) {
       toast.error("Ingen bolig fundet — tilføj en adresse på din profil først.");
       return;
@@ -143,13 +165,23 @@ export default function BookingPlan() {
       focus_areas: focus,
       notes,
     };
-    const { error } = await supabase.from("cleaning_plans").insert(payload);
+
+    // If we already have a plan of the same scope, update it in place. Otherwise insert new.
+    let error: any = null;
+    if (existingPlanId && existingScope === scope) {
+      ({ error } = await supabase.from("cleaning_plans")
+        .update(payload).eq("id", existingPlanId).eq("user_id", user.id));
+    } else {
+      const res = await supabase.from("cleaning_plans").insert(payload).select("id, updated_at").maybeSingle();
+      error = res.error;
+      if (res.data) { setExistingPlanId(res.data.id); setExistingScope(scope); setLastSavedAt(res.data.updated_at); }
+    }
     setSaving(false);
     if (error) { toast.error(error.message); return; }
-    toast.success(scope === "booking"
-      ? "Rengøringsplan gemt til denne booking"
-      : "Fast rengøringsplan gemt på boligen");
-    navigate("/mine-bookinger");
+    setLastSavedAt(new Date().toISOString());
+    toast.success(existingPlanId
+      ? "Rengøringsplan opdateret"
+      : scope === "booking" ? "Rengøringsplan gemt til denne booking" : "Fast rengøringsplan gemt på boligen");
   };
 
   if (loading) {
@@ -163,13 +195,28 @@ export default function BookingPlan() {
     <main className="container-wide py-8 max-w-3xl">
       <BackButton />
       <div className="mt-4 mb-8">
-        <h1 className="font-heading text-3xl sm:text-4xl">Rengøringsplan</h1>
+        <div className="flex items-center gap-2 flex-wrap">
+          <h1 className="font-heading text-3xl sm:text-4xl">Rengøringsplan</h1>
+          {existingPlanId && !locked && <Badge variant="secondary">Redigerer gemt plan</Badge>}
+          {locked && <Badge variant="destructive">Låst</Badge>}
+        </div>
         <p className="mt-2 text-muted-foreground">
           Fortæl {providerFirstName} hvad hun skal fokusere på ved din rengøring den{" "}
           <b>{new Date(booking.booking_date).toLocaleDateString("da-DK")}</b>.
         </p>
+        {lastSavedAt && (
+          <p className="mt-1 text-xs text-muted-foreground">
+            Senest gemt {new Date(lastSavedAt).toLocaleString("da-DK")}
+          </p>
+        )}
+        {locked && (
+          <p className="mt-2 text-sm text-destructive">
+            Rengøringen er allerede startet eller afsluttet — planen kan ikke længere ændres.
+          </p>
+        )}
       </div>
 
+      <fieldset disabled={locked} className={locked ? "opacity-60 pointer-events-none" : ""}>
       <section className="space-y-6">
         {/* Focus tags */}
         <Card className="p-5">
@@ -253,13 +300,14 @@ export default function BookingPlan() {
         </Card>
 
         <div className="flex justify-end gap-3">
-          <Button variant="outline" onClick={() => navigate(-1)}>Annullér</Button>
-          <Button onClick={save} disabled={saving}>
+          <Button variant="outline" onClick={() => navigate("/mine-bookinger")}>Luk</Button>
+          <Button onClick={save} disabled={saving || locked}>
             {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Gem rengøringsplan
+            {existingPlanId ? "Opdater rengøringsplan" : "Gem rengøringsplan"}
           </Button>
         </div>
       </section>
+      </fieldset>
     </main>
   );
 }
