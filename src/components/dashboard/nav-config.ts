@@ -60,6 +60,13 @@ const rawConfig: Record<DashboardRole, NavGroup[]> = {
       ],
     },
     {
+      label: "Økonomi",
+      defaultRoles: ["admin"],
+      items: [
+        { title: "Marketplace finans", url: "/admin/finance", icon: BarChart3 },
+      ],
+    },
+    {
       label: "Sikkerhed",
       defaultRoles: ["super_admin"],
       items: [
