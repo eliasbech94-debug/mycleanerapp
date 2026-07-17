@@ -148,19 +148,31 @@ export default function FindCleaner() {
   const [searchAreaVisible, setSearchAreaVisible] = useState(false);
   const [lastSearchBounds, setLastSearchBounds] = useState<google.maps.LatLngBounds | null>(null);
   const [mapMoved, setMapMoved] = useState(false);
-  const [countryFilter, setCountryFilter] = useState<string>("all");
+  // Empty set = show all countries. Otherwise providers must match at least one selected code.
+  const [countryFilter, setCountryFilter] = useState<Set<string>>(() => new Set());
 
-  // Only providers whose service country matches the active filter.
   const filteredProviders = useMemo(
-    () => (countryFilter === "all" ? providers : providers.filter((p) => p.countryCode === countryFilter)),
+    () =>
+      countryFilter.size === 0
+        ? providers
+        : providers.filter((p) => countryFilter.has(p.countryCode)),
     [providers, countryFilter],
   );
 
-  // Available countries derived from the loaded providers, for a smart dropdown.
   const availableCountries = useMemo(() => {
     const codes = new Set(providers.map((p) => p.countryCode));
     return countries.filter((c) => codes.has(c.code));
   }, [providers]);
+
+  const toggleCountry = useCallback((code: string) => {
+    setSelectedId(null);
+    setCountryFilter((prev) => {
+      const next = new Set(prev);
+      if (next.has(code)) next.delete(code);
+      else next.add(code);
+      return next;
+    });
+  }, []);
 
   const fetchProviders = useCallback(async (bounds?: google.maps.LatLngBounds) => {
     setLoading(true);
