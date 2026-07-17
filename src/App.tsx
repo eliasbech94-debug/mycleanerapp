@@ -32,6 +32,7 @@ import Regler from "./pages/Regler";
 import FindCleaner from "./pages/FindCleaner";
 import { RoleGuard } from "@/components/RoleGuard";
 import ScrollToTop from "@/components/ScrollToTop";
+import RouteLoadingBar from "@/components/RouteLoadingBar";
 
 const queryClient = new QueryClient();
 
