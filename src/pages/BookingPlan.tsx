@@ -115,6 +115,14 @@ export default function BookingPlan() {
   const providerFirstName = useMemo(
     () => booking?.provider_name?.split(" ")[0] || "din cleaner", [booking]);
 
+  const locked = useMemo(() => {
+    if (!booking) return false;
+    if (["completed", "cancelled", "refunded", "expired"].includes(booking.status)) return true;
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const bd = new Date(booking.booking_date);
+    return bd < today;
+  }, [booking]);
+
   const toggleTask = (ri: number, ti: number) => {
     setRooms(r => r.map((room, i) => i !== ri ? room : {
       ...room, tasks: room.tasks.map((t, j) => j !== ti ? t : { ...t, checked: !t.checked }),
