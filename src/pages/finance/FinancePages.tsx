@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import BackButton from "@/components/BackButton";
 import { formatMoney, formatDate, type FinanceSummary, type CurrencyTotals, type PayoutCurrencyTotals } from "@/lib/finance";
 import { RoleGuard } from "@/components/RoleGuard";
+import { InvoicesPanel } from "@/components/finance/InvoicesPanel";
 
 function KPI({ label, value, icon: Icon, hint }: { label: string; value: string; icon: any; hint?: string }) {
   return (
