@@ -88,6 +88,7 @@ async function runPolicy(policy: any, forceDry: boolean): Promise<PolicyRun> {
 }
 
 Deno.serve(monitored("gdpr-retention-worker", async (req, _log) => {
+  let _runDone = false;
   const _run = await startJobRun("gdpr-retention-worker", _log.correlationId);
   try {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
@@ -125,6 +126,6 @@ Deno.serve(monitored("gdpr-retention-worker", async (req, _log) => {
     return json({ error: (e as Error).message }, 500);
   }
 
-  } catch (e) { await _run.finish("failed", {}, e); throw e; }
-  finally { try { await _run.finish("completed", {}); } catch {} }
+  } catch (e) { _runDone = true; await _run.finish("failed", {}, e); throw e; }
+  finally { if (!_runDone) { try { await _run.finish("completed", {}); } catch {} } }
 }));

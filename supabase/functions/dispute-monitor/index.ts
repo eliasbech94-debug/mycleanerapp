@@ -17,6 +17,7 @@ const RATIO_WARN = 0.0075;
 const RATIO_CRIT = 0.01;
 
 Deno.serve(monitored("dispute-monitor", async (req, _log) => {
+  let _runDone = false;
   const _run = await startJobRun("dispute-monitor", _log.correlationId);
   try {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
@@ -93,6 +94,6 @@ Deno.serve(monitored("dispute-monitor", async (req, _log) => {
     total_charges: totalCharges,
   }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
-  } catch (e) { await _run.finish("failed", {}, e); throw e; }
-  finally { try { await _run.finish("completed", {}); } catch {} }
+  } catch (e) { _runDone = true; await _run.finish("failed", {}, e); throw e; }
+  finally { if (!_runDone) { try { await _run.finish("completed", {}); } catch {} } }
 }));

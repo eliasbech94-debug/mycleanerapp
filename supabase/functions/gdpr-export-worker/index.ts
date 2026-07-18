@@ -16,6 +16,7 @@ const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const EXPIRY_HOURS = 24 * 7; // 7 days
 
 Deno.serve(monitored("gdpr-export-worker", async (req, _log) => {
+  let _runDone = false;
   const _run = await startJobRun("gdpr-export-worker", _log.correlationId);
   try {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
@@ -81,6 +82,6 @@ Deno.serve(monitored("gdpr-export-worker", async (req, _log) => {
 
   return json({ processed: results.length, results });
 
-  } catch (e) { await _run.finish("failed", {}, e); throw e; }
-  finally { try { await _run.finish("completed", {}); } catch {} }
+  } catch (e) { _runDone = true; await _run.finish("failed", {}, e); throw e; }
+  finally { if (!_runDone) { try { await _run.finish("completed", {}); } catch {} } }
 }));

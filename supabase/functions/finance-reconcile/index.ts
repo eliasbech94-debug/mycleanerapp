@@ -36,6 +36,7 @@ type Alert = {
 };
 
 Deno.serve(monitored("finance-reconcile", async (req, _log) => {
+  let _runDone = false;
   const _run = await startJobRun("finance-reconcile", _log.correlationId);
   try {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
@@ -152,6 +153,6 @@ Deno.serve(monitored("finance-reconcile", async (req, _log) => {
     window: { from: windowStart.toISOString(), to: windowEnd.toISOString() },
   });
 
-  } catch (e) { await _run.finish("failed", {}, e); throw e; }
-  finally { try { await _run.finish("completed", {}); } catch {} }
+  } catch (e) { _runDone = true; await _run.finish("failed", {}, e); throw e; }
+  finally { if (!_runDone) { try { await _run.finish("completed", {}); } catch {} } }
 }));
