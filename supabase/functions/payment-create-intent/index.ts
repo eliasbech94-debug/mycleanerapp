@@ -65,6 +65,7 @@ Deno.serve(monitored("payment-create-intent", async (req, _log) => {
       provider_id, provider_name, service, hours,
       booking_date, slot, address, address_place_id, lat, lng, notes,
       customer_pays, provider_gets, currency,
+      country_code: bodyCountry,
     } = body;
 
     if (!provider_id || !customer_pays || !provider_gets || !currency || !booking_date || !slot) {
@@ -77,18 +78,62 @@ Deno.serve(monitored("payment-create-intent", async (req, _log) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
 
-    // Look up provider's Connect account (if any)
+    // Look up provider's Connect account (if any) + their marketplace country.
     const { data: provProfile } = await admin
       .from("profiles")
-      .select("id, stripe_account_id, stripe_charges_enabled")
+      .select("id, stripe_account_id, stripe_charges_enabled, country_code")
       .eq("provider_id", provider_id)
       .maybeSingle();
+
+    // === Server-side country config resolution ============================
+    // The country of a booking is the *provider's* marketplace country, not
+    // whatever the client currently browses. This makes the snapshot
+    // authoritative and prevents client tampering.
+    const country = (provProfile?.country_code ?? bodyCountry ?? "DK").toUpperCase();
+    const { data: cfgRows, error: cfgErr } = await admin
+      .rpc("get_published_country_config", { _iso: country });
+    if (cfgErr) throw new Error(`country_config_read_failed: ${cfgErr.message}`);
+    const cfg = Array.isArray(cfgRows) ? cfgRows[0] : cfgRows;
+    if (!cfg) throw new Error(`country_not_launched:${country}`);
+    if (!cfg.active) throw new Error(`country_inactive:${country}`);
+    if (!["launch_ready", "active"].includes(cfg.launch_status)) {
+      throw new Error(`country_not_launch_ready:${country}:${cfg.launch_status}`);
+    }
+    if (String(cfg.currency).toUpperCase() !== String(currency).toUpperCase()) {
+      throw new Error(`currency_country_mismatch:${currency}!=${cfg.currency}`);
+    }
+
+    // Validate permitted payment methods (best-effort; empty allowlist = all).
+    const cfgJson = (cfg.config ?? {}) as Record<string, unknown>;
+    const allowedMethods = ((cfgJson as any)?.payment_methods_public ?? []) as string[];
+    // Client may pass payment_method_type; when set, must be permitted.
+    const pmType = (body.payment_method_type ?? "").toString();
+    if (pmType && allowedMethods.length && !allowedMethods.includes(pmType)) {
+      throw new Error(`payment_method_not_permitted:${pmType}`);
+    }
+    // =====================================================================
 
     const providerAcct = provProfile?.stripe_charges_enabled ? provProfile.stripe_account_id : null;
     const providerUserId = provProfile?.id ?? null;
     const platformFee = customer_pays - provider_gets;
 
-    // Insert booking (pending, payment none)
+    // Immutable snapshots — never re-read once written.
+    const taxSnapshot = {
+      vat_rate_bps: cfg.vat_rate_bps,
+      currency: cfg.currency,
+      country_code: cfg.iso,
+      config_version: cfg.config_version,
+    };
+    const commissionSnapshot = {
+      commission_bps: cfg.commission_bps,
+      config_version: cfg.config_version,
+    };
+    const bookingRulesSnapshot = {
+      rules: (cfgJson as any)?.booking_public ?? {},
+      config_version: cfg.config_version,
+    };
+
+    // Insert booking (pending, payment none) with FROZEN configuration snapshots.
     const { data: booking, error: insErr } = await admin
       .from("bookings")
       .insert({
@@ -98,6 +143,12 @@ Deno.serve(monitored("payment-create-intent", async (req, _log) => {
         status: "pending", payment_status: "none",
         platform_fee_amount: platformFee,
         provider_stripe_account_id: providerAcct,
+        country_code: cfg.iso,
+        timezone: cfg.timezone,
+        country_config_version: cfg.config_version,
+        tax_config_snapshot: taxSnapshot,
+        commission_config_snapshot: commissionSnapshot,
+        booking_rules_snapshot: bookingRulesSnapshot,
       })
       .select("id")
       .single();
