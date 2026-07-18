@@ -40,7 +40,8 @@ export interface ProviderProfileData {
   certifications: string[];
 }
 
-const STORAGE_KEY = "homehero.providers.v1";
+const STORAGE_KEY = "mycleaner.providers.v1";
+const LEGACY_STORAGE_KEY = "homehero.providers.v1";
 
 /* ---------- Auto pricing engine ----------
  * Prices are derived from the country's minimum hourly rate, the labor
