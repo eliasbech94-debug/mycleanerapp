@@ -5,12 +5,22 @@ import { supabase } from "@/integrations/supabase/client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetFooter } from "@/components/ui/sheet";
+import { Slider } from "@/components/ui/slider";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { Star, MapPin, Search, X, ChevronUp, Loader2 } from "lucide-react";
-import { formatPrice, countries } from "@/lib/countries";
+import { Star, MapPin, Search, X, ChevronUp, Loader2, SlidersHorizontal, Zap, CalendarCheck } from "lucide-react";
+import { formatPrice, countries, serviceCategories } from "@/lib/countries";
 import { getProvider, getCountry, deriveHourlyRate } from "@/lib/providers";
 import type { ProviderProfileData } from "@/lib/providers";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+// Deterministic marketplace attributes (until the DB carries them).
+// Same provider id always resolves to the same flags across renders/sessions.
+const hashSeed = (s: string) => s.split("").reduce((a, c) => a + c.charCodeAt(0), 0);
+export const isAvailableToday = (id: string) => hashSeed(id) % 3 !== 0;      // ~66% available
+export const isInstantBook = (id: string) => hashSeed(id) % 2 === 0;         // ~50% instant
+export const yearsExperience = (id: string) => 2 + (hashSeed(id) % 12);      // 2-13 yrs
 
 type MapProvider = {
   id: string;
