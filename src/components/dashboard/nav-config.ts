@@ -14,6 +14,7 @@ import {
   LifeBuoy,
   Wallet,
   BarChart3,
+  AlertTriangle,
 } from "lucide-react";
 
 import type { AppRole } from "@/hooks/useUserRoles";
