@@ -109,12 +109,18 @@ function AppRoutes() {
 function CountryScopedRoutes() {
   const { country } = useParams<{ country?: string }>();
   if (!isValidCountryParam(country)) {
-    // Preserve path + query so we don't drop deep links on redirect.
+    // Avoid redirect loop: if we're already on /not-found (which matches
+    // /:country/* with country="not-found"), just render NotFound directly.
+    if (typeof window !== "undefined" && window.location.pathname === "/not-found") {
+      return <NotFound />;
+    }
     const to = { pathname: "/not-found", search: window.location.search };
     return <Navigate to={to} replace state={{ badCountry: country }} />;
   }
   return <AppRoutes />;
 }
+
+
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
