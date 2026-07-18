@@ -19,8 +19,10 @@ function parseSlotStart(slot: string): { h: number; m: number } {
   return m ? { h: +m[1], m: +m[2] } : { h: 9, m: 0 };
 }
 
-Deno.serve(async (req) => {
+Deno.serve(monitored("booking-plan-reminders", async (req, log) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+  const run = await startJobRun("booking-plan-reminders", log.correlationId);
+  const counters = { processed: 0, success: 0, failed: 0 };
 
   const admin = createClient(
     Deno.env.get("SUPABASE_URL")!,
