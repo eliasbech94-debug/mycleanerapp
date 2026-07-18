@@ -92,19 +92,19 @@ Deno.serve(async (req) => {
           details: { booking_refund: b.refund_amount, settlement_refund: stmt.refund_amount } });
       }
 
-      // Payout linkage (best-effort — payout may lag settlement)
+      // Payout linkage (best-effort — payout may lag settlement by several days)
       if (stmt) {
-        const { data: payout } = await admin.from("finance_payouts")
-          .select("id").contains("bookings", [b.id]).maybeSingle()
-          .then((r) => r, () => ({ data: null }));
-        // finance_payouts.bookings may not exist — degrade to booking_id match if column exists
-        if (!payout) {
-          const olderThan = Date.now() - new Date(b.updated_at).getTime() > 7 * 86400_000;
-          if (olderThan) {
-            alerts.push({ booking_id: b.id, code: "missing_payout",
-              severity: "warning",
-              message: "Settlement >7 days old with no linked payout" });
-          }
+        let payoutFound = false;
+        try {
+          const { data: payout } = await admin.from("finance_payouts")
+            .select("id").eq("booking_id", b.id).maybeSingle();
+          payoutFound = !!payout;
+        } catch { /* column may not exist in older schemas */ }
+        const olderThan = Date.now() - new Date(b.updated_at).getTime() > 7 * 86400_000;
+        if (!payoutFound && olderThan) {
+          alerts.push({ booking_id: b.id, code: "missing_payout",
+            severity: "warning",
+            message: "Settlement >7 days old with no linked payout" });
         }
       }
     }
