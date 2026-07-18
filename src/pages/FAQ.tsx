@@ -22,7 +22,7 @@ const FAQS: Array<{ q: string; a: string }> = [
   },
   {
     q: "Hvad koster platformen?",
-    a: "HomeHero tager 28% i platformgebyr — delt ligeligt mellem kunde og provider (14% oveni for kunden, 14% trukket fra provideren).",
+    a: "MyCleaner tager 28% i platformgebyr — delt ligeligt mellem kunde og provider (14% oveni for kunden, 14% trukket fra provideren).",
   },
   {
     q: "Kan jeg få servicefradrag?",

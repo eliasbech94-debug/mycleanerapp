@@ -42,7 +42,7 @@ const Footer = () => {
           </div>
         </div>
         <div className="mt-12 pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-xs text-muted-foreground">© 2026 HomeHero. Alle rettigheder forbeholdes.</p>
+          <p className="text-xs text-muted-foreground">© 2026 MyCleaner. Alle rettigheder forbeholdes.</p>
           <div className="flex items-center gap-4 text-xs text-muted-foreground">
             <span>🇩🇰 🇸🇪 🇳🇴 🇩🇪 🇳🇱 🇫🇷 🇪🇸 🇮🇹 🇬🇧 🇫🇮 🇵🇱 🇦🇹</span>
           </div>
