@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2 } from "lucide-react";
+import { Loader2, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import type { ProviderTaxProfile } from "@/lib/invoices";
 
@@ -22,16 +22,16 @@ export function ProviderTaxProfileTab() {
 
   useEffect(() => {
     (async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { setLoading(false); return; }
-      const { data } = await (supabase as any).from("provider_tax_profiles")
-        .select("*").eq("provider_user_id", user.id).maybeSingle();
-      if (data) setForm({
-        country_code: data.country_code, provider_type: data.provider_type,
-        vat_registered: data.vat_registered, vat_number: data.vat_number ?? "",
-        business_name: data.business_name ?? "", business_address: data.business_address ?? "",
-        tax_id: data.tax_id ?? "",
-      });
+      const { data, error } = await supabase.functions.invoke("provider-tax-profile", { method: "GET" });
+      if (!error && data?.profile) {
+        const p = data.profile;
+        setForm({
+          country_code: p.country_code, provider_type: p.provider_type,
+          vat_registered: p.vat_registered, vat_number: p.vat_number ?? "",
+          business_name: p.business_name ?? "", business_address: p.business_address ?? "",
+          tax_id: p.tax_id ?? "",
+        });
+      }
       setLoading(false);
     })();
   }, []);
@@ -39,12 +39,10 @@ export function ProviderTaxProfileTab() {
   async function save() {
     setSaving(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Ikke logget ind");
-      const payload = { ...form, provider_user_id: user.id };
-      const { error } = await (supabase as any).from("provider_tax_profiles")
-        .upsert(payload, { onConflict: "provider_user_id" });
-      if (error) throw error;
+      const { data, error } = await supabase.functions.invoke("provider-tax-profile", {
+        method: "POST", body: form,
+      });
+      if (error || data?.error) throw new Error(data?.error ?? error?.message ?? "save_failed");
       toast.success("Skatteoplysninger gemt");
     } catch (e: any) {
       toast.error(e.message ?? "Kunne ikke gemme");
@@ -61,6 +59,9 @@ export function ProviderTaxProfileTab() {
           Bruges når MyCleaner udsteder platformgebyr-fakturaen til dig. Angiv dit land, om du er
           privat eller erhverv, og om du er momsregistreret. Har du et gyldigt EU-VAT-nummer,
           anvender vi reverse charge på gebyret.
+        </p>
+        <p className="text-xs text-muted-foreground inline-flex items-center gap-1 pt-1">
+          <ShieldCheck className="h-3.5 w-3.5" /> Følsomme felter (VAT, CVR, firmanavn/adresse) gemmes AES-256-krypteret.
         </p>
       </CardHeader>
       <CardContent className="space-y-4">
