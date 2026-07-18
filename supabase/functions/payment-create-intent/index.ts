@@ -171,17 +171,26 @@ Deno.serve(monitored("payment-create-intent", async (req, _log) => {
       "metadata[customer_user_id]": userId,
       "metadata[provider_id]": provider_id,
       "metadata[transaction_reference]": txRef,
+      // Country + config lineage on every PaymentIntent — reconciles Stripe →
+      // marketplace even if the DB row is later archived.
+      "metadata[country_code]": cfg.iso,
+      "metadata[country_config_version]": String(cfg.config_version ?? 0),
     };
     if (providerUserId) piBody["metadata[provider_user_id]"] = providerUserId;
     if (providerAcct) {
       piBody["application_fee_amount"] = platformFee;
       piBody["transfer_data[destination]"] = providerAcct;
-      // Propagate identifiers onto the auto-created transfer for finance_payouts linkage.
       piBody["transfer_data[metadata][booking_id]"] = booking.id;
       piBody["transfer_data[metadata][transaction_reference]"] = txRef;
+      piBody["transfer_data[metadata][country_code]"] = cfg.iso;
+      piBody["transfer_data[metadata][country_config_version]"] = String(cfg.config_version ?? 0);
       if (providerUserId) piBody["transfer_data[metadata][provider_user_id]"] = providerUserId;
       piBody["transfer_data[metadata][provider_id]"] = provider_id;
     }
+
+    // Idempotency: same booking_id must produce the same PI (protects against
+    // retries after network errors).
+    const idemKey = `pi:${booking.id}`;
 
     let pi;
     try {
