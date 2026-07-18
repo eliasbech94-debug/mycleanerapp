@@ -499,6 +499,109 @@ export type Database = {
           },
         ]
       }
+      dispute_alerts: {
+        Row: {
+          code: string
+          created_at: string
+          details: Json
+          dispute_id: string | null
+          id: string
+          message: string
+          resolved_at: string | null
+          resolved_by: string | null
+          severity: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          details?: Json
+          dispute_id?: string | null
+          id?: string
+          message: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          details?: Json
+          dispute_id?: string | null
+          id?: string
+          message?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dispute_alerts_dispute_id_fkey"
+            columns: ["dispute_id"]
+            isOneToOne: false
+            referencedRelation: "stripe_disputes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dispute_evidence: {
+        Row: {
+          content_type: string | null
+          created_at: string
+          dispute_id: string
+          file_name: string | null
+          file_size: number | null
+          id: string
+          kind: string
+          note: string | null
+          storage_path: string | null
+          stripe_field: string | null
+          submitted_by: string | null
+          submitted_to_stripe_at: string | null
+          uploaded_by: string
+          uploader_role: string
+        }
+        Insert: {
+          content_type?: string | null
+          created_at?: string
+          dispute_id: string
+          file_name?: string | null
+          file_size?: number | null
+          id?: string
+          kind: string
+          note?: string | null
+          storage_path?: string | null
+          stripe_field?: string | null
+          submitted_by?: string | null
+          submitted_to_stripe_at?: string | null
+          uploaded_by: string
+          uploader_role: string
+        }
+        Update: {
+          content_type?: string | null
+          created_at?: string
+          dispute_id?: string
+          file_name?: string | null
+          file_size?: number | null
+          id?: string
+          kind?: string
+          note?: string | null
+          storage_path?: string | null
+          stripe_field?: string | null
+          submitted_by?: string | null
+          submitted_to_stripe_at?: string | null
+          uploaded_by?: string
+          uploader_role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dispute_evidence_dispute_id_fkey"
+            columns: ["dispute_id"]
+            isOneToOne: false
+            referencedRelation: "stripe_disputes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       finance_payouts: {
         Row: {
           arrival_date: string | null
@@ -1458,6 +1561,98 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      stripe_disputes: {
+        Row: {
+          amount: number
+          booking_id: string | null
+          closed_at: string | null
+          created_at: string
+          currency: string
+          customer_user_id: string | null
+          evidence_due_by: string | null
+          funds_reinstated_at: string | null
+          funds_withdrawn_at: string | null
+          has_evidence: boolean
+          id: string
+          is_charge_refundable: boolean | null
+          last_event_at: string | null
+          livemode: boolean
+          metadata: Json
+          outcome: string | null
+          provider_id: string | null
+          provider_user_id: string | null
+          reason: string | null
+          status: string
+          stripe_charge_id: string | null
+          stripe_dispute_id: string
+          stripe_payment_intent_id: string | null
+          submission_count: number
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          booking_id?: string | null
+          closed_at?: string | null
+          created_at?: string
+          currency?: string
+          customer_user_id?: string | null
+          evidence_due_by?: string | null
+          funds_reinstated_at?: string | null
+          funds_withdrawn_at?: string | null
+          has_evidence?: boolean
+          id?: string
+          is_charge_refundable?: boolean | null
+          last_event_at?: string | null
+          livemode?: boolean
+          metadata?: Json
+          outcome?: string | null
+          provider_id?: string | null
+          provider_user_id?: string | null
+          reason?: string | null
+          status?: string
+          stripe_charge_id?: string | null
+          stripe_dispute_id: string
+          stripe_payment_intent_id?: string | null
+          submission_count?: number
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          booking_id?: string | null
+          closed_at?: string | null
+          created_at?: string
+          currency?: string
+          customer_user_id?: string | null
+          evidence_due_by?: string | null
+          funds_reinstated_at?: string | null
+          funds_withdrawn_at?: string | null
+          has_evidence?: boolean
+          id?: string
+          is_charge_refundable?: boolean | null
+          last_event_at?: string | null
+          livemode?: boolean
+          metadata?: Json
+          outcome?: string | null
+          provider_id?: string | null
+          provider_user_id?: string | null
+          reason?: string | null
+          status?: string
+          stripe_charge_id?: string | null
+          stripe_dispute_id?: string
+          stripe_payment_intent_id?: string | null
+          submission_count?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stripe_disputes_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       stripe_webhook_events: {
         Row: {
