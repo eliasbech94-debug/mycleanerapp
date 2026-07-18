@@ -234,9 +234,70 @@ Deno.serve(async (req) => {
       stripe_payment_intent_id: booking.payment_intent_id,
     });
 
+    // ── Audit trail (immutable) ────────────────────────────────────────
+    await writeAudit(admin, req, {
+      actor_user_id: ctx.user.id,
+      actor_role,
+      action: "booking.cancelled",
+      target_type: "booking",
+      target_id: booking.id,
+      booking_id: booking.id,
+      previous_state: { status: booking.status, payment_status: booking.payment_status },
+      new_state: { status: "cancelled", payment_status: bookingUpdates.payment_status ?? booking.payment_status },
+      refund_amount: refundAmount,
+      currency: (booking.currency ?? "DKK").toUpperCase(),
+      stripe_refund_id: stripeRefundId,
+      stripe_payment_intent_id: booking.payment_intent_id,
+      metadata: { reason_code, refund_type: refundType, policy: policySnapshot },
+    });
+
+    // ── Customer + provider notifications (in-app + email + push) ──────
+    const currencyStr = (booking.currency ?? "DKK").toUpperCase();
+    const svc = booking.service ?? "rengøring";
+    const bookingRef = `MC-${booking.id.slice(0, 8).toUpperCase()}`;
+    const actionUrl = `/mine-bookinger?id=${booking.id}`;
+
+    // Customer
+    if (booking.customer_user_id) {
+      await notifyUser(admin, {
+        user_id: booking.customer_user_id,
+        event_type: "booking.cancelled",
+        dedupe_key: `booking.cancelled:${booking.id}`,
+        subject: `Booking ${bookingRef} annulleret`,
+        body: `Din booking af ${svc} er annulleret af ${actor_role}.`,
+        related_booking_id: booking.id,
+        action_label: "Se detaljer", action_url: actionUrl,
+      });
+      if (refundAmount > 0) {
+        await notifyUser(admin, {
+          user_id: booking.customer_user_id,
+          event_type: "refund.initiated",
+          dedupe_key: `refund.initiated:${stripeRefundId ?? booking.id}`,
+          subject: `Refundering igangsat`,
+          body: `Vi har igangsat en refundering på ${(refundAmount/100).toFixed(2)} ${currencyStr}. Beløbet er tilbage på kortet inden for 5-10 hverdage.`,
+          related_booking_id: booking.id,
+          action_label: "Se booking", action_url: actionUrl,
+          payload: { refund_amount: refundAmount, currency: currencyStr, stripe_refund_id: stripeRefundId },
+        });
+      }
+    }
+    // Provider
+    if (providerUserId) {
+      await notifyUser(admin, {
+        user_id: providerUserId,
+        event_type: "booking.cancelled.provider",
+        dedupe_key: `booking.cancelled.provider:${booking.id}`,
+        subject: `Booking ${bookingRef} annulleret`,
+        body: `Bookingen af ${svc} den ${booking.booking_date ?? ""} er annulleret af ${actor_role}.`,
+        related_booking_id: booking.id,
+        action_label: "Se booking", action_url: `/provider-dashboard`,
+      });
+    }
+
     // Credit note is issued asynchronously by the webhook when the refund
     // event settles (refund.updated → succeeded). We do NOT create it here to
     // avoid double-issuance if Stripe reports the refund as failed later.
+
 
     return json({
       ok: true,
