@@ -9,7 +9,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const SYSTEM_PROMPT = `Du er HomeHero support-assistent. Svar altid på dansk i en venlig, kort og professionel tone.
+const SYSTEM_PROMPT = `Du er MyCleaner support-assistent. Svar altid på dansk i en venlig, kort og professionel tone.
 
 Du hjælper kunder med spørgsmål om:
 - Bookinger, ændringer, afbestillinger

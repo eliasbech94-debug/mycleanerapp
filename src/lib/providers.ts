@@ -40,7 +40,8 @@ export interface ProviderProfileData {
   certifications: string[];
 }
 
-const STORAGE_KEY = "homehero.providers.v1";
+const STORAGE_KEY = "mycleaner.providers.v1";
+const LEGACY_STORAGE_KEY = "homehero.providers.v1";
 
 /* ---------- Auto pricing engine ----------
  * Prices are derived from the country's minimum hourly rate, the labor
@@ -254,7 +255,16 @@ const SEED: Record<string, ProviderProfileData> = {
 const readStore = (): Record<string, ProviderProfileData> => {
   if (typeof window === "undefined") return {};
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
+    let raw = window.localStorage.getItem(STORAGE_KEY);
+    if (!raw) {
+      // Migrate from legacy HomeHero key
+      const legacy = window.localStorage.getItem(LEGACY_STORAGE_KEY);
+      if (legacy) {
+        window.localStorage.setItem(STORAGE_KEY, legacy);
+        window.localStorage.removeItem(LEGACY_STORAGE_KEY);
+        raw = legacy;
+      }
+    }
     return raw ? JSON.parse(raw) : {};
   } catch {
     return {};

@@ -26,11 +26,20 @@ const mockOffers = [
   },
 ];
 
-const FAV_KEY = "homehero:favorites";
+const FAV_KEY = "mycleaner:favorites";
+const LEGACY_FAV_KEY = "homehero:favorites";
 
 const loadFavorites = (): string[] => {
   try {
-    const raw = localStorage.getItem(FAV_KEY);
+    let raw = localStorage.getItem(FAV_KEY);
+    if (!raw) {
+      const legacy = localStorage.getItem(LEGACY_FAV_KEY);
+      if (legacy) {
+        localStorage.setItem(FAV_KEY, legacy);
+        localStorage.removeItem(LEGACY_FAV_KEY);
+        raw = legacy;
+      }
+    }
     return raw ? JSON.parse(raw) : [];
   } catch {
     return [];
