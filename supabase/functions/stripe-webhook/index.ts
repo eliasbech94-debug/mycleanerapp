@@ -135,6 +135,28 @@ Deno.serve(async (req) => {
         }
 
         await admin.from("bookings").update(updates).eq("id", booking.id);
+
+        // Additive, non-blocking: issue a Platform Credit Note for this
+        // refund. Idempotent per (invoice, refund_id) inside the function.
+        if (succeeded.length > 0) {
+          try {
+            const projectUrl = Deno.env.get("SUPABASE_URL")!;
+            const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+            fetch(`${projectUrl}/functions/v1/credit-note-issue`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${serviceKey}`,
+              },
+              body: JSON.stringify({
+                booking_id: booking.id,
+                stripe_refund_id: last?.id ?? null,
+              }),
+            }).catch((e) => console.error("credit-note-issue trigger failed (non-fatal):", e));
+          } catch (e) {
+            console.error("credit-note dispatch failed (non-fatal):", (e as Error).message);
+          }
+        }
       }
     }
 
