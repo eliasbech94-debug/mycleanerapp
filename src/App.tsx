@@ -23,6 +23,7 @@ import AdminPayments from "./pages/AdminPayments";
 import AdminAccessLogs from "./pages/AdminAccessLogs";
 import EmployeeDashboard from "./pages/EmployeeDashboard";
 import BookingFlow from "./pages/BookingFlow";
+import BookingEntry from "./pages/BookingEntry";
 import MyBookings from "./pages/MyBookings";
 import BookingPlan from "./pages/BookingPlan";
 
@@ -75,6 +76,7 @@ function AppRoutes() {
       <Route path="/admin/payments" element={<RoleGuard allow={["admin"]}><AdminPayments /></RoleGuard>} />
       <Route path="/admin/access-logs" element={<RoleGuard allow={["admin"]}><AdminAccessLogs /></RoleGuard>} />
       <Route path="/employee" element={<RoleGuard allow={["admin", "employee"]}><EmployeeDashboard /></RoleGuard>} />
+      <Route path="/book" element={<BookingEntry />} />
       <Route path="/book/:id" element={<BookingFlow />} />
       <Route path="/mine-bookinger" element={<MyBookings />} />
       <Route path="/booking/:id/plan" element={<BookingPlan />} />
