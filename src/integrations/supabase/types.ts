@@ -56,6 +56,60 @@ export type Database = {
         }
         Relationships: []
       }
+      account_deletion_requests: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          deactivated_at: string | null
+          id: string
+          legal_hold_id: string | null
+          reason: string | null
+          rejection_legal_reason: string | null
+          requested_ip: string | null
+          requested_ua: string | null
+          reviewer_notes: string | null
+          reviewer_user_id: string | null
+          scheduled_delete_at: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          deactivated_at?: string | null
+          id?: string
+          legal_hold_id?: string | null
+          reason?: string | null
+          rejection_legal_reason?: string | null
+          requested_ip?: string | null
+          requested_ua?: string | null
+          reviewer_notes?: string | null
+          reviewer_user_id?: string | null
+          scheduled_delete_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          deactivated_at?: string | null
+          id?: string
+          legal_hold_id?: string | null
+          reason?: string | null
+          rejection_legal_reason?: string | null
+          requested_ip?: string | null
+          requested_ua?: string | null
+          reviewer_notes?: string | null
+          reviewer_user_id?: string | null
+          scheduled_delete_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       admin_audit_log: {
         Row: {
           action: string
@@ -346,6 +400,45 @@ export type Database = {
           },
         ]
       }
+      consent_ledger: {
+        Row: {
+          consent_type: string
+          country_code: string | null
+          created_at: string
+          granted: boolean
+          id: string
+          ip_address: string | null
+          policy_version: string
+          source: string | null
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          consent_type: string
+          country_code?: string | null
+          created_at?: string
+          granted: boolean
+          id?: string
+          ip_address?: string | null
+          policy_version: string
+          source?: string | null
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          consent_type?: string
+          country_code?: string | null
+          created_at?: string
+          granted?: boolean
+          id?: string
+          ip_address?: string | null
+          policy_version?: string
+          source?: string | null
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       customer_addresses: {
         Row: {
           access_code: string | null
@@ -498,6 +591,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      data_retention_policies: {
+        Row: {
+          action: string
+          created_at: string
+          description: string | null
+          dry_run: boolean
+          enabled: boolean
+          id: string
+          notes: string | null
+          record_type: string
+          respects_legal_hold: boolean
+          retention_days: number
+          updated_at: string
+        }
+        Insert: {
+          action?: string
+          created_at?: string
+          description?: string | null
+          dry_run?: boolean
+          enabled?: boolean
+          id?: string
+          notes?: string | null
+          record_type: string
+          respects_legal_hold?: boolean
+          retention_days: number
+          updated_at?: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          description?: string | null
+          dry_run?: boolean
+          enabled?: boolean
+          id?: string
+          notes?: string | null
+          record_type?: string
+          respects_legal_hold?: boolean
+          retention_days?: number
+          updated_at?: string
+        }
+        Relationships: []
       }
       dispute_alerts: {
         Row: {
@@ -842,6 +977,108 @@ export type Database = {
           platform_fee_total?: number
           provider_user_id?: string
           status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      gdpr_export_jobs: {
+        Row: {
+          created_at: string
+          download_count: number
+          downloaded_at: string | null
+          error_message: string | null
+          expires_at: string | null
+          file_bytes: number | null
+          format: string
+          id: string
+          ready_at: string | null
+          requested_ip: string | null
+          requested_ua: string | null
+          status: string
+          storage_path: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          download_count?: number
+          downloaded_at?: string | null
+          error_message?: string | null
+          expires_at?: string | null
+          file_bytes?: number | null
+          format?: string
+          id?: string
+          ready_at?: string | null
+          requested_ip?: string | null
+          requested_ua?: string | null
+          status?: string
+          storage_path?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          download_count?: number
+          downloaded_at?: string | null
+          error_message?: string | null
+          expires_at?: string | null
+          file_bytes?: number | null
+          format?: string
+          id?: string
+          ready_at?: string | null
+          requested_ip?: string | null
+          requested_ua?: string | null
+          status?: string
+          storage_path?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      legal_holds: {
+        Row: {
+          active: boolean
+          created_at: string
+          created_by: string | null
+          ends_at: string | null
+          id: string
+          notes: string | null
+          reason: string
+          released_at: string | null
+          released_by: string | null
+          starts_at: string
+          target_id: string
+          target_type: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          created_by?: string | null
+          ends_at?: string | null
+          id?: string
+          notes?: string | null
+          reason: string
+          released_at?: string | null
+          released_by?: string | null
+          starts_at?: string
+          target_id: string
+          target_type: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          created_by?: string | null
+          ends_at?: string | null
+          id?: string
+          notes?: string | null
+          reason?: string
+          released_at?: string | null
+          released_by?: string | null
+          starts_at?: string
+          target_id?: string
+          target_type?: string
           updated_at?: string
         }
         Relationships: []
@@ -1529,6 +1766,39 @@ export type Database = {
           },
         ]
       }
+      retention_worker_runs: {
+        Row: {
+          affected_counts: Json
+          dry_run: boolean
+          error_message: string | null
+          finished_at: string | null
+          id: string
+          report: Json
+          started_at: string
+          status: string
+        }
+        Insert: {
+          affected_counts?: Json
+          dry_run?: boolean
+          error_message?: string | null
+          finished_at?: string | null
+          id?: string
+          report?: Json
+          started_at?: string
+          status?: string
+        }
+        Update: {
+          affected_counts?: Json
+          dry_run?: boolean
+          error_message?: string | null
+          finished_at?: string | null
+          id?: string
+          report?: Json
+          started_at?: string
+          status?: string
+        }
+        Relationships: []
+      }
       sms_verifications: {
         Row: {
           attempts: number
@@ -1841,6 +2111,10 @@ export type Database = {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
+        Returns: boolean
+      }
+      is_under_legal_hold: {
+        Args: { _target_id: string; _target_type: string }
         Returns: boolean
       }
       next_credit_note_number: {
