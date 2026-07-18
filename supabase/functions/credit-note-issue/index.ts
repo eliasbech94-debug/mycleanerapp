@@ -7,6 +7,8 @@ import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { authenticate } from "../_shared/auth.ts";
 import { renderCreditNote } from "../_shared/invoice-pdf.ts";
+import { writeAudit } from "../_shared/audit.ts";
+import { notifyUser } from "../_shared/notify.ts";
 
 const admin = createClient(
   Deno.env.get("SUPABASE_URL")!,
