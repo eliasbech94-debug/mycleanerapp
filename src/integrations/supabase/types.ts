@@ -170,6 +170,30 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_country_locks: {
+        Row: {
+          acquired_at: string
+          expires_at: string
+          iso: string
+          locked_by: string
+          locked_by_email: string | null
+        }
+        Insert: {
+          acquired_at?: string
+          expires_at?: string
+          iso: string
+          locked_by: string
+          locked_by_email?: string | null
+        }
+        Update: {
+          acquired_at?: string
+          expires_at?: string
+          iso?: string
+          locked_by?: string
+          locked_by_email?: string | null
+        }
+        Relationships: []
+      }
       booking_cancellations: {
         Row: {
           actor_role: string
@@ -457,9 +481,46 @@ export type Database = {
         }
         Relationships: []
       }
+      country_config_versions: {
+        Row: {
+          change_summary: string | null
+          config_version: number
+          id: string
+          iso: string
+          published_at: string
+          published_by: string | null
+          snapshot: Json
+          superseded_at: string | null
+          validation_result: Json | null
+        }
+        Insert: {
+          change_summary?: string | null
+          config_version: number
+          id?: string
+          iso: string
+          published_at?: string
+          published_by?: string | null
+          snapshot: Json
+          superseded_at?: string | null
+          validation_result?: Json | null
+        }
+        Update: {
+          change_summary?: string | null
+          config_version?: number
+          id?: string
+          iso?: string
+          published_at?: string
+          published_by?: string | null
+          snapshot?: Json
+          superseded_at?: string | null
+          validation_result?: Json | null
+        }
+        Relationships: []
+      }
       country_configs: {
         Row: {
           active: boolean
+          booking_rules: Json
           commission_bps: number
           config: Json
           config_version: number
@@ -468,6 +529,7 @@ export type Database = {
           default_language: string
           iso: string
           launch_status: string
+          pricing_rules: Json
           published_at: string | null
           published_by: string | null
           status: string
@@ -479,6 +541,7 @@ export type Database = {
         }
         Insert: {
           active?: boolean
+          booking_rules?: Json
           commission_bps?: number
           config?: Json
           config_version?: number
@@ -487,6 +550,7 @@ export type Database = {
           default_language: string
           iso: string
           launch_status?: string
+          pricing_rules?: Json
           published_at?: string | null
           published_by?: string | null
           status?: string
@@ -498,6 +562,7 @@ export type Database = {
         }
         Update: {
           active?: boolean
+          booking_rules?: Json
           commission_bps?: number
           config?: Json
           config_version?: number
@@ -506,6 +571,7 @@ export type Database = {
           default_language?: string
           iso?: string
           launch_status?: string
+          pricing_rules?: Json
           published_at?: string | null
           published_by?: string | null
           status?: string
@@ -514,6 +580,48 @@ export type Database = {
           timezone?: string
           updated_at?: string
           vat_rate_bps?: number
+        }
+        Relationships: []
+      }
+      country_holidays: {
+        Row: {
+          active: boolean
+          country_code: string
+          created_at: string
+          holiday_date: string
+          id: string
+          name: string
+          region: string | null
+          source: string
+          surcharge_eligible: boolean
+          updated_at: string
+          year: number | null
+        }
+        Insert: {
+          active?: boolean
+          country_code: string
+          created_at?: string
+          holiday_date: string
+          id?: string
+          name: string
+          region?: string | null
+          source?: string
+          surcharge_eligible?: boolean
+          updated_at?: string
+          year?: number | null
+        }
+        Update: {
+          active?: boolean
+          country_code?: string
+          created_at?: string
+          holiday_date?: string
+          id?: string
+          name?: string
+          region?: string | null
+          source?: string
+          surcharge_eligible?: boolean
+          updated_at?: string
+          year?: number | null
         }
         Relationships: []
       }
@@ -1440,12 +1548,17 @@ export type Database = {
           created_at: string
           created_by: string | null
           effective_at: string | null
+          fallback_to_english: boolean
           id: string
           kind: string
           language: string
           published_at: string | null
+          required: boolean
+          scheduled_publish_at: string | null
           status: string
+          summary_md: string | null
           superseded_at: string | null
+          title: string | null
           version: string
         }
         Insert: {
@@ -1455,12 +1568,17 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           effective_at?: string | null
+          fallback_to_english?: boolean
           id?: string
           kind: string
           language: string
           published_at?: string | null
+          required?: boolean
+          scheduled_publish_at?: string | null
           status?: string
+          summary_md?: string | null
           superseded_at?: string | null
+          title?: string | null
           version: string
         }
         Update: {
@@ -1470,12 +1588,17 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           effective_at?: string | null
+          fallback_to_english?: boolean
           id?: string
           kind?: string
           language?: string
           published_at?: string | null
+          required?: boolean
+          scheduled_publish_at?: string | null
           status?: string
+          summary_md?: string | null
           superseded_at?: string | null
+          title?: string | null
           version?: string
         }
         Relationships: []
@@ -2815,6 +2938,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_country_launch_ready: { Args: { _iso: string }; Returns: boolean }
       is_under_legal_hold: {
         Args: { _target_id: string; _target_type: string }
         Returns: boolean
