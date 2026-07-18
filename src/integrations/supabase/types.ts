@@ -634,6 +634,53 @@ export type Database = {
         }
         Relationships: []
       }
+      deployments: {
+        Row: {
+          commit_sha: string | null
+          deployed_at: string
+          edge_versions: Json
+          environment: string
+          id: string
+          migration_version: string | null
+          notes: string | null
+          release: string
+          rolled_back_from: string | null
+          status: string
+        }
+        Insert: {
+          commit_sha?: string | null
+          deployed_at?: string
+          edge_versions?: Json
+          environment?: string
+          id?: string
+          migration_version?: string | null
+          notes?: string | null
+          release: string
+          rolled_back_from?: string | null
+          status?: string
+        }
+        Update: {
+          commit_sha?: string | null
+          deployed_at?: string
+          edge_versions?: Json
+          environment?: string
+          id?: string
+          migration_version?: string | null
+          notes?: string | null
+          release?: string
+          rolled_back_from?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deployments_rolled_back_from_fkey"
+            columns: ["rolled_back_from"]
+            isOneToOne: false
+            referencedRelation: "deployments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dispute_alerts: {
         Row: {
           code: string
@@ -736,6 +783,84 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      error_events: {
+        Row: {
+          booking_id: string | null
+          correlation_id: string | null
+          dispute_id: string | null
+          duration_ms: number | null
+          environment: string | null
+          error_category: string | null
+          function_name: string | null
+          id: string
+          ip_address: string | null
+          job_id: string | null
+          level: string
+          message: string
+          metadata: Json
+          occurred_at: string
+          payment_id: string | null
+          release: string | null
+          request_id: string | null
+          route: string | null
+          source: string
+          stack: string | null
+          status_code: number | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          booking_id?: string | null
+          correlation_id?: string | null
+          dispute_id?: string | null
+          duration_ms?: number | null
+          environment?: string | null
+          error_category?: string | null
+          function_name?: string | null
+          id?: string
+          ip_address?: string | null
+          job_id?: string | null
+          level?: string
+          message: string
+          metadata?: Json
+          occurred_at?: string
+          payment_id?: string | null
+          release?: string | null
+          request_id?: string | null
+          route?: string | null
+          source: string
+          stack?: string | null
+          status_code?: number | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          booking_id?: string | null
+          correlation_id?: string | null
+          dispute_id?: string | null
+          duration_ms?: number | null
+          environment?: string | null
+          error_category?: string | null
+          function_name?: string | null
+          id?: string
+          ip_address?: string | null
+          job_id?: string | null
+          level?: string
+          message?: string
+          metadata?: Json
+          occurred_at?: string
+          payment_id?: string | null
+          release?: string | null
+          request_id?: string | null
+          route?: string | null
+          source?: string
+          stack?: string | null
+          status_code?: number | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
       }
       finance_payouts: {
         Row: {
@@ -1032,6 +1157,158 @@ export type Database = {
           storage_path?: string | null
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      incident_timeline: {
+        Row: {
+          actor_user_id: string | null
+          created_at: string
+          id: string
+          incident_id: string
+          kind: string
+          message: string
+          metadata: Json
+        }
+        Insert: {
+          actor_user_id?: string | null
+          created_at?: string
+          id?: string
+          incident_id: string
+          kind: string
+          message: string
+          metadata?: Json
+        }
+        Update: {
+          actor_user_id?: string | null
+          created_at?: string
+          id?: string
+          incident_id?: string
+          kind?: string
+          message?: string
+          metadata?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "incident_timeline_incident_id_fkey"
+            columns: ["incident_id"]
+            isOneToOne: false
+            referencedRelation: "incidents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      incidents: {
+        Row: {
+          created_at: string
+          follow_up_actions: string | null
+          id: string
+          linked_alert_ids: string[]
+          linked_booking_ids: string[]
+          linked_deployment_ids: string[]
+          linked_payment_ids: string[]
+          opened_at: string
+          opened_by: string | null
+          owner_user_id: string | null
+          resolution: string | null
+          resolved_at: string | null
+          root_cause: string | null
+          severity: string
+          status: string
+          summary: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          follow_up_actions?: string | null
+          id?: string
+          linked_alert_ids?: string[]
+          linked_booking_ids?: string[]
+          linked_deployment_ids?: string[]
+          linked_payment_ids?: string[]
+          opened_at?: string
+          opened_by?: string | null
+          owner_user_id?: string | null
+          resolution?: string | null
+          resolved_at?: string | null
+          root_cause?: string | null
+          severity?: string
+          status?: string
+          summary?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          follow_up_actions?: string | null
+          id?: string
+          linked_alert_ids?: string[]
+          linked_booking_ids?: string[]
+          linked_deployment_ids?: string[]
+          linked_payment_ids?: string[]
+          opened_at?: string
+          opened_by?: string | null
+          owner_user_id?: string | null
+          resolution?: string | null
+          resolved_at?: string | null
+          root_cause?: string | null
+          severity?: string
+          status?: string
+          summary?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      job_runs: {
+        Row: {
+          correlation_id: string | null
+          deployment_release: string | null
+          duration_ms: number | null
+          error_summary: string | null
+          failed_count: number
+          finished_at: string | null
+          id: string
+          job_name: string
+          metadata: Json
+          processed_count: number
+          retry_count: number
+          started_at: string
+          status: string
+          success_count: number
+        }
+        Insert: {
+          correlation_id?: string | null
+          deployment_release?: string | null
+          duration_ms?: number | null
+          error_summary?: string | null
+          failed_count?: number
+          finished_at?: string | null
+          id?: string
+          job_name: string
+          metadata?: Json
+          processed_count?: number
+          retry_count?: number
+          started_at?: string
+          status?: string
+          success_count?: number
+        }
+        Update: {
+          correlation_id?: string | null
+          deployment_release?: string | null
+          duration_ms?: number | null
+          error_summary?: string | null
+          failed_count?: number
+          finished_at?: string | null
+          id?: string
+          job_name?: string
+          metadata?: Json
+          processed_count?: number
+          retry_count?: number
+          started_at?: string
+          status?: string
+          success_count?: number
         }
         Relationships: []
       }
@@ -2063,6 +2340,57 @@ export type Database = {
           },
         ]
       }
+      system_alerts: {
+        Row: {
+          alert_key: string
+          body: string | null
+          correlation_id: string | null
+          first_seen_at: string
+          id: string
+          last_seen_at: string
+          metadata: Json
+          resolved_at: string | null
+          resolved_by: string | null
+          seen_count: number
+          severity: string
+          source: string
+          status: string
+          title: string
+        }
+        Insert: {
+          alert_key: string
+          body?: string | null
+          correlation_id?: string | null
+          first_seen_at?: string
+          id?: string
+          last_seen_at?: string
+          metadata?: Json
+          resolved_at?: string | null
+          resolved_by?: string | null
+          seen_count?: number
+          severity?: string
+          source: string
+          status?: string
+          title: string
+        }
+        Update: {
+          alert_key?: string
+          body?: string | null
+          correlation_id?: string | null
+          first_seen_at?: string
+          id?: string
+          last_seen_at?: string
+          metadata?: Json
+          resolved_at?: string | null
+          resolved_by?: string | null
+          seen_count?: number
+          severity?: string
+          source?: string
+          status?: string
+          title?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -2081,6 +2409,51 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      webhook_metrics: {
+        Row: {
+          attempt_count: number
+          correlation_id: string | null
+          duration_ms: number | null
+          error_category: string | null
+          event_id: string
+          event_type: string
+          id: string
+          metadata: Json
+          processed_at: string | null
+          provider: string
+          received_at: string
+          result: string
+        }
+        Insert: {
+          attempt_count?: number
+          correlation_id?: string | null
+          duration_ms?: number | null
+          error_category?: string | null
+          event_id: string
+          event_type: string
+          id?: string
+          metadata?: Json
+          processed_at?: string | null
+          provider?: string
+          received_at?: string
+          result?: string
+        }
+        Update: {
+          attempt_count?: number
+          correlation_id?: string | null
+          duration_ms?: number | null
+          error_category?: string | null
+          event_id?: string
+          event_type?: string
+          id?: string
+          metadata?: Json
+          processed_at?: string | null
+          provider?: string
+          received_at?: string
+          result?: string
         }
         Relationships: []
       }
@@ -2122,6 +2495,22 @@ export type Database = {
         Returns: string
       }
       next_invoice_number: { Args: { _country_code: string }; Returns: string }
+      raise_system_alert: {
+        Args: {
+          _alert_key: string
+          _body?: string
+          _correlation_id?: string
+          _metadata?: Json
+          _severity: string
+          _source: string
+          _title: string
+        }
+        Returns: string
+      }
+      resolve_system_alert: {
+        Args: { _alert_key: string; _resolver?: string }
+        Returns: number
+      }
       tax_decrypt: {
         Args: { _ciphertext: string; _key: string }
         Returns: string
