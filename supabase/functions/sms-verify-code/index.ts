@@ -1,5 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
+import { monitored } from "../_shared/logger.ts";
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -17,7 +18,7 @@ async function sha256(input: string) {
   return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
-Deno.serve(async (req) => {
+Deno.serve(monitored("sms-verify-code", async (req, _log) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   try {
@@ -70,7 +71,7 @@ Deno.serve(async (req) => {
   } catch (e) {
     return json({ error: (e as Error).message }, 500);
   }
-});
+}));
 
 function json(data: unknown, status = 200) {
   return new Response(JSON.stringify(data), {

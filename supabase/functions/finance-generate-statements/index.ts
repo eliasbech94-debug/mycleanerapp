@@ -4,7 +4,8 @@ import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { requireServiceOrAdmin } from "../_shared/auth.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 
-Deno.serve(async (req) => {
+import { monitored } from "../_shared/logger.ts";
+Deno.serve(monitored("finance-generate-statements", async (req, _log) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   const gate = await requireServiceOrAdmin(req, corsHeaders);
@@ -106,7 +107,7 @@ Deno.serve(async (req) => {
     period: { start: startIso, end: endIso },
     statements_generated: rows.length,
   });
-});
+}));
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {

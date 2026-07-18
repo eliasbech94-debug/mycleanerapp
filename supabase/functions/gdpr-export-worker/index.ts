@@ -5,6 +5,7 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 import { collectUserData } from "../_shared/gdpr.ts";
 import { writeAudit } from "../_shared/audit.ts";
 
+import { monitored } from "../_shared/logger.ts";
 const admin = createClient(
   Deno.env.get("SUPABASE_URL")!,
   Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
@@ -13,7 +14,7 @@ const admin = createClient(
 const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const EXPIRY_HOURS = 24 * 7; // 7 days
 
-Deno.serve(async (req) => {
+Deno.serve(monitored("gdpr-export-worker", async (req, _log) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   const json = (b: unknown, s = 200) =>
     new Response(JSON.stringify(b), { status: s, headers: { ...corsHeaders, "Content-Type": "application/json" } });
@@ -76,4 +77,4 @@ Deno.serve(async (req) => {
   }
 
   return json({ processed: results.length, results });
-});
+}));
