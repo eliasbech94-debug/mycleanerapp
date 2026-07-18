@@ -196,7 +196,7 @@ Deno.serve(monitored("payment-create-intent", async (req, _log) => {
 
     let pi;
     try {
-      pi = await stripe("/payment_intents", piBody, stripeKey);
+      pi = await stripe("/payment_intents", piBody, stripeKey, idemKey);
     } catch (e) {
       await admin.from("bookings").delete().eq("id", booking.id);
       throw e;
