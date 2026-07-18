@@ -3,7 +3,8 @@
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { createClient } from "npm:@supabase/supabase-js@2";
 
-Deno.serve(async (req) => {
+import { monitored } from "../_shared/logger.ts";
+Deno.serve(monitored("payment-mark-authorized", async (req, _log) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   try {
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY")!;
@@ -56,4 +57,4 @@ Deno.serve(async (req) => {
       status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
-});
+}));

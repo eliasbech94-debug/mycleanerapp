@@ -41,8 +41,9 @@ import RouteLoadingBar from "@/components/RouteLoadingBar";
 import PrivacyCenter from "./pages/PrivacyCenter";
 import AdminOps from "./pages/AdminOps";
 import { AppErrorBoundary } from "@/components/AppErrorBoundary";
-import { installFrontendMonitoring } from "@/lib/monitoring";
+import { installFrontendMonitoring, initSentry } from "@/lib/monitoring";
 
+initSentry();
 installFrontendMonitoring();
 
 const queryClient = new QueryClient();

@@ -3,6 +3,7 @@
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { createClient } from "npm:@supabase/supabase-js@2";
 
+import { monitored } from "../_shared/logger.ts";
 async function stripePost(path: string, key: string) {
   const res = await fetch(`https://api.stripe.com/v1${path}`, {
     method: "POST", headers: { Authorization: `Bearer ${key}` },
@@ -12,7 +13,7 @@ async function stripePost(path: string, key: string) {
   return j;
 }
 
-Deno.serve(async (req) => {
+Deno.serve(monitored("booking-decide", async (req, _log) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   try {
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY")!;
@@ -118,4 +119,4 @@ Deno.serve(async (req) => {
       status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
-});
+}));

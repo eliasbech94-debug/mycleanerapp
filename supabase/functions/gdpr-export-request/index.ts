@@ -4,7 +4,8 @@ import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { authenticate } from "../_shared/auth.ts";
 import { writeAudit, requestFingerprint } from "../_shared/audit.ts";
 
-Deno.serve(async (req) => {
+import { monitored } from "../_shared/logger.ts";
+Deno.serve(monitored("gdpr-export-request", async (req, _log) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   const json = (b: unknown, s = 200) =>
     new Response(JSON.stringify(b), { status: s, headers: { ...corsHeaders, "Content-Type": "application/json" } });
@@ -50,4 +51,4 @@ Deno.serve(async (req) => {
   } catch { /* ignore */ }
 
   return json({ ok: true, job });
-});
+}));

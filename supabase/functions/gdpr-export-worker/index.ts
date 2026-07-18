@@ -5,6 +5,8 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 import { collectUserData } from "../_shared/gdpr.ts";
 import { writeAudit } from "../_shared/audit.ts";
 
+import { monitored } from "../_shared/logger.ts";
+import { startJobRun } from "../_shared/jobrun.ts";
 const admin = createClient(
   Deno.env.get("SUPABASE_URL")!,
   Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
@@ -13,7 +15,10 @@ const admin = createClient(
 const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const EXPIRY_HOURS = 24 * 7; // 7 days
 
-Deno.serve(async (req) => {
+Deno.serve(monitored("gdpr-export-worker", async (req, _log) => {
+  let _runDone = false;
+  const _run = await startJobRun("gdpr-export-worker", _log.correlationId);
+  try {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   const json = (b: unknown, s = 200) =>
     new Response(JSON.stringify(b), { status: s, headers: { ...corsHeaders, "Content-Type": "application/json" } });
@@ -76,4 +81,7 @@ Deno.serve(async (req) => {
   }
 
   return json({ processed: results.length, results });
-});
+
+  } catch (e) { _runDone = true; await _run.finish("failed", {}, e); throw e; }
+  finally { if (!_runDone) { try { await _run.finish("completed", {}); } catch {} } }
+}));

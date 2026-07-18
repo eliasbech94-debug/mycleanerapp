@@ -13,6 +13,8 @@ import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { authenticate, requireRole } from "../_shared/auth.ts";
 
+import { monitored } from "../_shared/logger.ts";
+import { startJobRun } from "../_shared/jobrun.ts";
 const admin = createClient(
   Deno.env.get("SUPABASE_URL")!,
   Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
@@ -33,7 +35,10 @@ type Alert = {
   details?: Record<string, unknown>;
 };
 
-Deno.serve(async (req) => {
+Deno.serve(monitored("finance-reconcile", async (req, _log) => {
+  let _runDone = false;
+  const _run = await startJobRun("finance-reconcile", _log.correlationId);
+  try {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   const authHeader = req.headers.get("Authorization") ?? "";
@@ -147,4 +152,7 @@ Deno.serve(async (req) => {
     alerts: alerts.length,
     window: { from: windowStart.toISOString(), to: windowEnd.toISOString() },
   });
-});
+
+  } catch (e) { _runDone = true; await _run.finish("failed", {}, e); throw e; }
+  finally { if (!_runDone) { try { await _run.finish("completed", {}); } catch {} } }
+}));

@@ -4,9 +4,10 @@ import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import Stripe from "npm:stripe@17";
 import { authenticate, requireRole } from "../_shared/auth.ts";
 
+import { monitored } from "../_shared/logger.ts";
 const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, { apiVersion: "2024-06-20" });
 
-Deno.serve(async (req) => {
+Deno.serve(monitored("dispute-evidence-submit", async (req, _log) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   const ctx = await authenticate(req, corsHeaders);
@@ -88,4 +89,4 @@ Deno.serve(async (req) => {
   return new Response(JSON.stringify({ ok: true, submitted: submittedIds.length }), {
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
-});
+}));

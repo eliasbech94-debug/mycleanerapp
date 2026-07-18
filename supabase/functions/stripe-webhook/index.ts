@@ -5,6 +5,7 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 import Stripe from "npm:stripe@17";
 import { handleDisputeEvent } from "../_shared/disputes.ts";
 
+import { monitored } from "../_shared/logger.ts";
 const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, { apiVersion: "2024-06-20" });
 
 const admin = createClient(
@@ -25,7 +26,7 @@ async function logEvent(event: Stripe.Event, extra: Record<string, any> = {}) {
   }
 }
 
-Deno.serve(async (req) => {
+Deno.serve(monitored("stripe-webhook", async (req, _log) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   const sig = req.headers.get("stripe-signature");
   const secret = Deno.env.get("STRIPE_WEBHOOK_SECRET");
@@ -364,4 +365,4 @@ Deno.serve(async (req) => {
     status: updates.payment_status ?? pi.status ?? null,
   });
   return new Response("ok", { status: 200 });
-});
+}));

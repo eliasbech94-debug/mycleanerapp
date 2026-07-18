@@ -9,6 +9,7 @@ import { authenticate } from "../_shared/auth.ts";
 import { writeAudit } from "../_shared/audit.ts";
 import { notifyUser } from "../_shared/notify.ts";
 
+import { monitored } from "../_shared/logger.ts";
 const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, { apiVersion: "2024-06-20" });
 const admin = createClient(
   Deno.env.get("SUPABASE_URL")!,
@@ -45,7 +46,7 @@ function policyRefundPercent(hoursUntilService: number): number {
   return 0;
 }
 
-Deno.serve(async (req) => {
+Deno.serve(monitored("booking-cancel", async (req, _log) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   if (req.method !== "POST") return json({ error: "method_not_allowed" }, 405);
 
@@ -311,4 +312,4 @@ Deno.serve(async (req) => {
     console.error("booking-cancel failed:", e);
     return json({ error: (e as Error).message }, 500);
   }
-});
+}));

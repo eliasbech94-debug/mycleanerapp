@@ -1,10 +1,50 @@
 // Frontend monitoring — correlation IDs, redaction, error capture, edge-function
-// error reporter. Optional Sentry hook if VITE_SENTRY_DSN is configured.
+// error reporter. Sentry SDK integration (opt-in via VITE_SENTRY_DSN).
 import { supabase } from "@/integrations/supabase/client";
+import * as Sentry from "@sentry/react";
 
 const RELEASE = (import.meta.env.VITE_APP_RELEASE as string | undefined) ?? "dev";
-const ENVIRONMENT = (import.meta.env.MODE as string | undefined) ?? "production";
+const DEPLOYMENT = (import.meta.env.VITE_APP_DEPLOYMENT as string | undefined) ?? undefined;
+const ENVIRONMENT = (import.meta.env.VITE_APP_ENVIRONMENT as string | undefined)
+  ?? (import.meta.env.MODE as string | undefined) ?? "production";
 const SENTRY_DSN = import.meta.env.VITE_SENTRY_DSN as string | undefined;
+const SENTRY_TRACES = Number(import.meta.env.VITE_SENTRY_TRACES ?? "0.1");
+
+/** Initialise Sentry (safe no-op when DSN absent). Call once at bootstrap. */
+export function initSentry() {
+  if (!SENTRY_DSN || typeof window === "undefined") return;
+  if ((Sentry as any).__initialized) return;
+  (Sentry as any).__initialized = true;
+  Sentry.init({
+    dsn: SENTRY_DSN,
+    release: RELEASE,
+    environment: ENVIRONMENT,
+    dist: DEPLOYMENT,
+    tracesSampleRate: Number.isFinite(SENTRY_TRACES) ? SENTRY_TRACES : 0.1,
+    // Do not automatically capture PII / IP.
+    sendDefaultPii: false,
+    // Strip sensitive keys BEFORE transmission.
+    beforeSend(event) {
+      try {
+        if (event.request?.cookies) delete event.request.cookies;
+        if (event.request?.headers) {
+          for (const h of Object.keys(event.request.headers)) {
+            if (/authorization|cookie|api[-_]?key/i.test(h)) delete event.request.headers[h];
+          }
+        }
+        event.extra = scrub(event.extra ?? {}) as any;
+        event.contexts = scrub(event.contexts ?? {}) as any;
+        if (event.message) event.message = String(event.message).slice(0, 4000);
+      } catch { /* ignore */ }
+      return event;
+    },
+    beforeBreadcrumb(breadcrumb) {
+      if (breadcrumb.data) breadcrumb.data = scrub(breadcrumb.data) as any;
+      return breadcrumb;
+    },
+  });
+  Sentry.setTag("correlation_id", correlationId());
+}
 
 const SENSITIVE = /(password|token|secret|otp|cpr|cvr|iban|card|cvv|cvc|authorization|cookie|signed[_-]?url)/i;
 
@@ -71,9 +111,9 @@ export async function captureError(input: CaptureInput | Error, meta?: Record<st
     await supabase.functions.invoke("client-error", { body: payload });
   } catch { /* swallow */ }
 
-  if (SENTRY_DSN && typeof (globalThis as any).Sentry?.captureException === "function") {
+  if (SENTRY_DSN) {
     try {
-      (globalThis as any).Sentry.captureException(input instanceof Error ? input : new Error(payload.message), {
+      Sentry.captureException(input instanceof Error ? input : new Error(payload.message), {
         tags: { category: payload.category, release: RELEASE, correlation_id: payload.correlation_id },
         extra: payload.metadata,
       });

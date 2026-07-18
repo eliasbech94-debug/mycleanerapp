@@ -5,6 +5,8 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 import { requireServiceOrAdmin } from "../_shared/auth.ts";
 import { notifyUser } from "../_shared/notify.ts";
 
+import { monitored } from "../_shared/logger.ts";
+import { startJobRun } from "../_shared/jobrun.ts";
 const admin = createClient(
   Deno.env.get("SUPABASE_URL")!,
   Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
@@ -14,7 +16,10 @@ const admin = createClient(
 const RATIO_WARN = 0.0075;
 const RATIO_CRIT = 0.01;
 
-Deno.serve(async (req) => {
+Deno.serve(monitored("dispute-monitor", async (req, _log) => {
+  let _runDone = false;
+  const _run = await startJobRun("dispute-monitor", _log.correlationId);
+  try {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   const guard = await requireServiceOrAdmin(req, corsHeaders);
@@ -88,4 +93,7 @@ Deno.serve(async (req) => {
     total_disputes: totalDisputes,
     total_charges: totalCharges,
   }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
-});
+
+  } catch (e) { _runDone = true; await _run.finish("failed", {}, e); throw e; }
+  finally { if (!_runDone) { try { await _run.finish("completed", {}); } catch {} } }
+}));

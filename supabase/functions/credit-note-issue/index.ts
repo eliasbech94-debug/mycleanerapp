@@ -10,6 +10,7 @@ import { renderCreditNote } from "../_shared/invoice-pdf.ts";
 import { writeAudit } from "../_shared/audit.ts";
 import { notifyUser } from "../_shared/notify.ts";
 
+import { monitored } from "../_shared/logger.ts";
 const admin = createClient(
   Deno.env.get("SUPABASE_URL")!,
   Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
@@ -22,7 +23,7 @@ function json(body: unknown, status = 200) {
   });
 }
 
-Deno.serve(async (req) => {
+Deno.serve(monitored("credit-note-issue", async (req, _log) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   if (req.method !== "POST") return json({ error: "method_not_allowed" }, 405);
   try {
@@ -253,4 +254,4 @@ Deno.serve(async (req) => {
     console.error("credit-note-issue failed:", e);
     return json({ error: (e as Error).message }, 500);
   }
-});
+}));

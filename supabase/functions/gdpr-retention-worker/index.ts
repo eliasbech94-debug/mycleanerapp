@@ -5,6 +5,8 @@ import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { requireServiceOrAdmin } from "../_shared/auth.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 
+import { monitored } from "../_shared/logger.ts";
+import { startJobRun } from "../_shared/jobrun.ts";
 const admin = createClient(
   Deno.env.get("SUPABASE_URL")!,
   Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
@@ -85,7 +87,10 @@ async function runPolicy(policy: any, forceDry: boolean): Promise<PolicyRun> {
   return res;
 }
 
-Deno.serve(async (req) => {
+Deno.serve(monitored("gdpr-retention-worker", async (req, _log) => {
+  let _runDone = false;
+  const _run = await startJobRun("gdpr-retention-worker", _log.correlationId);
+  try {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   const json = (b: unknown, s = 200) =>
     new Response(JSON.stringify(b), { status: s, headers: { ...corsHeaders, "Content-Type": "application/json" } });
@@ -120,4 +125,7 @@ Deno.serve(async (req) => {
     }).eq("id", run!.id);
     return json({ error: (e as Error).message }, 500);
   }
-});
+
+  } catch (e) { _runDone = true; await _run.finish("failed", {}, e); throw e; }
+  finally { if (!_runDone) { try { await _run.finish("completed", {}); } catch {} } }
+}));

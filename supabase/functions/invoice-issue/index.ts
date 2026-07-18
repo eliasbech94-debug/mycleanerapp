@@ -9,13 +9,14 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 import { authenticate } from "../_shared/auth.ts";
 import { renderPlatformFeeInvoice, renderSettlementStatement } from "../_shared/invoice-pdf.ts";
 
+import { monitored } from "../_shared/logger.ts";
 const admin = createClient(
   Deno.env.get("SUPABASE_URL")!,
   Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
   { auth: { persistSession: false } },
 );
 
-Deno.serve(async (req) => {
+Deno.serve(monitored("invoice-issue", async (req, _log) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   try {
     const body = await req.json().catch(() => ({}));
@@ -263,7 +264,7 @@ Deno.serve(async (req) => {
     console.error("invoice-issue failed:", e);
     return json({ error: (e as Error).message }, 500);
   }
-});
+}));
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {

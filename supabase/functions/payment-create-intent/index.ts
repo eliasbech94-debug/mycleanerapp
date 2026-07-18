@@ -3,6 +3,7 @@
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { createClient } from "npm:@supabase/supabase-js@2";
 
+import { monitored } from "../_shared/logger.ts";
 const STRIPE = "https://api.stripe.com/v1";
 
 function form(obj: Record<string, any>, prefix = ""): string {
@@ -33,7 +34,7 @@ async function stripe(path: string, body: Record<string, any>, key: string) {
   return json;
 }
 
-Deno.serve(async (req) => {
+Deno.serve(monitored("payment-create-intent", async (req, _log) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   try {
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
@@ -155,4 +156,4 @@ Deno.serve(async (req) => {
       status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
-});
+}));
