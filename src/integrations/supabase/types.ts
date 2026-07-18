@@ -717,6 +717,7 @@ export type Database = {
           created_at: string
           deactivated_at: string | null
           deactivation_reason: string | null
+          encryption_version: number
           full_name: string | null
           id: string
           lat: number | null
@@ -731,7 +732,9 @@ export type Database = {
           stripe_customer_id: string | null
           stripe_onboarded: boolean
           stripe_payouts_enabled: boolean
+          tax_id_enc: string | null
           tax_id_encrypted: string | null
+          tax_id_last4: string | null
           tax_municipality: string | null
           tax_type: string | null
           updated_at: string
@@ -744,6 +747,7 @@ export type Database = {
           created_at?: string
           deactivated_at?: string | null
           deactivation_reason?: string | null
+          encryption_version?: number
           full_name?: string | null
           id: string
           lat?: number | null
@@ -758,7 +762,9 @@ export type Database = {
           stripe_customer_id?: string | null
           stripe_onboarded?: boolean
           stripe_payouts_enabled?: boolean
+          tax_id_enc?: string | null
           tax_id_encrypted?: string | null
+          tax_id_last4?: string | null
           tax_municipality?: string | null
           tax_type?: string | null
           updated_at?: string
@@ -771,6 +777,7 @@ export type Database = {
           created_at?: string
           deactivated_at?: string | null
           deactivation_reason?: string | null
+          encryption_version?: number
           full_name?: string | null
           id?: string
           lat?: number | null
@@ -785,7 +792,9 @@ export type Database = {
           stripe_customer_id?: string | null
           stripe_onboarded?: boolean
           stripe_payouts_enabled?: boolean
+          tax_id_enc?: string | null
           tax_id_encrypted?: string | null
+          tax_id_last4?: string | null
           tax_municipality?: string | null
           tax_type?: string | null
           updated_at?: string
@@ -946,41 +955,62 @@ export type Database = {
       provider_tax_profiles: {
         Row: {
           business_address: string | null
+          business_address_enc: string | null
           business_name: string | null
+          business_name_enc: string | null
           country_code: string
           created_at: string
+          encryption_version: number
           id: string
           provider_type: string
           provider_user_id: string
           tax_id: string | null
+          tax_id_enc: string | null
+          tax_id_last4: string | null
           updated_at: string
           vat_number: string | null
+          vat_number_enc: string | null
+          vat_number_last4: string | null
           vat_registered: boolean
         }
         Insert: {
           business_address?: string | null
+          business_address_enc?: string | null
           business_name?: string | null
+          business_name_enc?: string | null
           country_code: string
           created_at?: string
+          encryption_version?: number
           id?: string
           provider_type?: string
           provider_user_id: string
           tax_id?: string | null
+          tax_id_enc?: string | null
+          tax_id_last4?: string | null
           updated_at?: string
           vat_number?: string | null
+          vat_number_enc?: string | null
+          vat_number_last4?: string | null
           vat_registered?: boolean
         }
         Update: {
           business_address?: string | null
+          business_address_enc?: string | null
           business_name?: string | null
+          business_name_enc?: string | null
           country_code?: string
           created_at?: string
+          encryption_version?: number
           id?: string
           provider_type?: string
           provider_user_id?: string
           tax_id?: string | null
+          tax_id_enc?: string | null
+          tax_id_last4?: string | null
           updated_at?: string
           vat_number?: string | null
+          vat_number_enc?: string | null
+          vat_number_last4?: string | null
           vat_registered?: boolean
         }
         Relationships: []
@@ -1208,6 +1238,14 @@ export type Database = {
         Returns: boolean
       }
       next_invoice_number: { Args: { _country_code: string }; Returns: string }
+      tax_decrypt: {
+        Args: { _ciphertext: string; _key: string }
+        Returns: string
+      }
+      tax_encrypt: {
+        Args: { _key: string; _plaintext: string }
+        Returns: string
+      }
       user_owns_provider: { Args: { _provider_id: string }; Returns: boolean }
     }
     Enums: {
