@@ -99,11 +99,13 @@ const Header = () => {
       <div className="container-wide flex h-16 items-center justify-between">
         <div className="flex items-center gap-2">
           <BackButton className="mr-1" />
-          <Link to="/" className="flex items-center gap-2">
-            <div className="gradient-hero rounded-xl w-9 h-9 flex items-center justify-center">
-              <span className="text-primary-foreground font-heading font-bold text-lg">H</span>
-            </div>
-            <span className="font-heading font-bold text-xl text-foreground">HomeHero</span>
+          <Link to="/" className="flex items-center gap-2" aria-label="MyCleaner – forside">
+            <img
+              src="/mycleaner-logo.png"
+              alt="MyCleaner"
+              className="h-9 w-9 object-contain"
+            />
+            <span className="font-heading font-bold text-xl text-foreground">MyCleaner</span>
           </Link>
         </div>
 
