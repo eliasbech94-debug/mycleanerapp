@@ -58,6 +58,7 @@ const rawConfig: Record<DashboardRole, NavGroup[]> = {
         { title: "Payments", url: "/admin/payments", icon: CreditCard },
         { title: "Stripe", url: "/admin/stripe", icon: CreditCard },
         { title: "Webhooks", url: "/admin/webhooks", icon: Webhook },
+        { title: "Indsigelser", url: "/admin/disputes", icon: AlertTriangle },
       ],
     },
     {
