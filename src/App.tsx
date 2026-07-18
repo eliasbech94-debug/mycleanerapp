@@ -39,11 +39,17 @@ import { RoleGuard } from "@/components/RoleGuard";
 import ScrollToTop from "@/components/ScrollToTop";
 import RouteLoadingBar from "@/components/RouteLoadingBar";
 import PrivacyCenter from "./pages/PrivacyCenter";
+import AdminOps from "./pages/AdminOps";
+import { AppErrorBoundary } from "@/components/AppErrorBoundary";
+import { installFrontendMonitoring } from "@/lib/monitoring";
+
+installFrontendMonitoring();
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
+    <AppErrorBoundary>
     <TooltipProvider>
       <Toaster />
       <Sonner />
