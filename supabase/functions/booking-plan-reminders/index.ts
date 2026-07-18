@@ -131,12 +131,16 @@ Deno.serve(monitored("booking-plan-reminders", async (req, log) => {
           dedupe_key: dedupe,
         });
 
-      if (!insErr) sent++;
+      if (!insErr) { sent++; counters.success += 1; }
+      else { counters.failed += 1; await log.error(insErr, { category: "reminder_insert", booking_id: b.id }); }
+      counters.processed += 1;
       results.push({ booking: b.id, role: r.role, window: win.key, ok: !insErr, error: insErr?.message });
     }
   }
 
+  await run.finish("completed", counters);
+  log.info("booking-plan-reminders.done", { checked: bookings?.length ?? 0, sent });
   return new Response(JSON.stringify({ checked: bookings?.length ?? 0, sent, results }), {
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
-});
+}));
