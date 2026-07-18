@@ -3,6 +3,8 @@
 // Idempotent via customer_notifications.dedupe_key.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
+import { monitored } from "../_shared/logger.ts";
+import { startJobRun } from "../_shared/jobrun.ts";
 
 type Window = { key: string; hoursAhead: number; toleranceHours: number; label: string };
 
@@ -17,8 +19,10 @@ function parseSlotStart(slot: string): { h: number; m: number } {
   return m ? { h: +m[1], m: +m[2] } : { h: 9, m: 0 };
 }
 
-Deno.serve(async (req) => {
+Deno.serve(monitored("booking-plan-reminders", async (req, log) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+  const run = await startJobRun("booking-plan-reminders", log.correlationId);
+  const counters = { processed: 0, success: 0, failed: 0 };
 
   const admin = createClient(
     Deno.env.get("SUPABASE_URL")!,
@@ -127,12 +131,16 @@ Deno.serve(async (req) => {
           dedupe_key: dedupe,
         });
 
-      if (!insErr) sent++;
+      if (!insErr) { sent++; counters.success += 1; }
+      else { counters.failed += 1; await log.error(insErr, { category: "reminder_insert", booking_id: b.id }); }
+      counters.processed += 1;
       results.push({ booking: b.id, role: r.role, window: win.key, ok: !insErr, error: insErr?.message });
     }
   }
 
+  await run.finish("completed", counters);
+  log.info("booking-plan-reminders.done", { checked: bookings?.length ?? 0, sent });
   return new Response(JSON.stringify({ checked: bookings?.length ?? 0, sent, results }), {
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
-});
+}));
