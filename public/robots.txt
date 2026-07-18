@@ -1,14 +1,20 @@
-User-agent: Googlebot
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
-User-agent: Twitterbot
-Allow: /
-
-User-agent: facebookexternalhit
-Allow: /
+# Production robots. Preview/staging deployments override this via a
+# runtime-generated response that emits Disallow: / — see docs/i18n/PHASE_4_REPORT.md.
 
 User-agent: *
 Allow: /
+Disallow: /admin
+Disallow: /admin/
+Disallow: /provider-dashboard
+Disallow: /provider/finance
+Disallow: /provider/disputes
+Disallow: /provider/bilag
+Disallow: /mine-bookinger
+Disallow: /book/
+Disallow: /booking/
+Disallow: /auth/
+Disallow: /privatliv
+Disallow: /profil
+Disallow: /task/
+
+Sitemap: https://mycleanerapp.lovable.app/sitemap.xml
