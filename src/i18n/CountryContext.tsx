@@ -3,7 +3,7 @@
 // back to a different country). Marketplace country is separate from UI
 // language — a user may browse SE in EN or DK in ES.
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import i18n, { getStoredLanguage, isManualLanguage, SupportedLanguage } from "./index";
 
@@ -52,9 +52,12 @@ function isCountryManual() {
 export function CountryProvider({ children }: { children: React.ReactNode }) {
   const [countries, setCountries] = useState<CountryPublic[]>([]);
   const [loading, setLoading] = useState(true);
-  const { country: urlCountry } = useParams<{ country?: string }>();
   const location = useLocation();
   const navigate = useNavigate();
+  const urlCountry = useMemo(() => {
+    const firstSegment = location.pathname.split("/").filter(Boolean)[0];
+    return isValidCountryParam(firstSegment) ? firstSegment : undefined;
+  }, [location.pathname]);
 
   useEffect(() => {
     (async () => {
@@ -82,14 +85,6 @@ export function CountryProvider({ children }: { children: React.ReactNode }) {
     // 3. Fallback: DK (default marketplace)
     return byIso("DK");
   }, [countries, urlCountry]);
-
-  // Unknown country in URL → controlled 404 redirect (never silent fallback)
-  useEffect(() => {
-    if (loading) return;
-    if (urlCountry && !isValidCountryParam(urlCountry)) {
-      navigate("/not-found", { replace: true });
-    }
-  }, [urlCountry, loading, navigate]);
 
   // Apply country's default language ONLY when no manual language exists AND no stored preference
   useEffect(() => {

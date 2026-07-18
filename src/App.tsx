@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Navigate, Route, Routes, useParams } from "react-router-dom";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -44,12 +44,13 @@ import AdminOps from "./pages/AdminOps";
 import CountryConsole from "./pages/admin/CountryConsole";
 import { AppErrorBoundary } from "@/components/AppErrorBoundary";
 import { installFrontendMonitoring, initSentry } from "@/lib/monitoring";
-import { CountryProvider, isValidCountryParam } from "@/i18n/CountryContext";
+import { CountryProvider } from "@/i18n/CountryContext";
 
 initSentry();
 installFrontendMonitoring();
 
 const queryClient = new QueryClient();
+const COUNTRY_ROUTE_PREFIXES = ["dk", "gb", "se", "es"] as const;
 
 /**
  * All application routes. Rendered once at "/*" and once under "/:country/*".
@@ -57,7 +58,7 @@ const queryClient = new QueryClient();
  * remainder path, so /dk/faq resolves to /faq inside this tree without
  * duplicating any route definition. Business algorithms untouched.
  */
-function AppRoutes() {
+export function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<Index />} />
@@ -101,26 +102,31 @@ function AppRoutes() {
   );
 }
 
-/**
- * Country-scoped tree. Rejects unknown ISO parameter with a localized 404
- * instead of silently falling back to another marketplace — preserves the
- * original path + query in the location so the 404 can offer a fixed URL.
- */
-function CountryScopedRoutes() {
-  const { country } = useParams<{ country?: string }>();
-  if (!isValidCountryParam(country)) {
-    // Avoid redirect loop: if we're already on /not-found (which matches
-    // /:country/* with country="not-found"), just render NotFound directly.
-    if (typeof window !== "undefined" && window.location.pathname === "/not-found") {
-      return <NotFound />;
-    }
-    const to = { pathname: "/not-found", search: window.location.search };
-    return <Navigate to={to} replace state={{ badCountry: country }} />;
-  }
-  return <AppRoutes />;
+export function RootRouteSwitch() {
+  return (
+    <Routes>
+      {COUNTRY_ROUTE_PREFIXES.map((country) => (
+        <Route
+          key={country}
+          path={`/${country}/*`}
+          element={
+            <CountryProvider>
+              <AppRoutes />
+            </CountryProvider>
+          }
+        />
+      ))}
+      <Route
+        path="/*"
+        element={
+          <CountryProvider>
+            <AppRoutes />
+          </CountryProvider>
+        }
+      />
+    </Routes>
+  );
 }
-
-
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -134,24 +140,7 @@ const App = () => (
             <ScrollToTop />
             <RouteLoadingBar />
             <Header />
-            <Routes>
-              <Route
-                path="/:country/*"
-                element={
-                  <CountryProvider>
-                    <CountryScopedRoutes />
-                  </CountryProvider>
-                }
-              />
-              <Route
-                path="/*"
-                element={
-                  <CountryProvider>
-                    <AppRoutes />
-                  </CountryProvider>
-                }
-              />
-            </Routes>
+            <RootRouteSwitch />
             <Footer />
           </AuthProvider>
         </BrowserRouter>
