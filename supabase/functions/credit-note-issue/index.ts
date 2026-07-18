@@ -7,6 +7,8 @@ import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { authenticate } from "../_shared/auth.ts";
 import { renderCreditNote } from "../_shared/invoice-pdf.ts";
+import { writeAudit } from "../_shared/audit.ts";
+import { notifyUser } from "../_shared/notify.ts";
 
 const admin = createClient(
   Deno.env.get("SUPABASE_URL")!,
@@ -165,6 +167,85 @@ Deno.serve(async (req) => {
         platform_fee_amount: adjustedFee,
         provider_net_amount: Math.max(0, netGross - adjustedFee),
       }).eq("id", stmt.id);
+    }
+
+    // ── Audit + notifications ─────────────────────────────────────────
+    await writeAudit(admin, req, {
+      actor_user_id: isService ? null : null,
+      actor_role: isService ? "system" : "admin",
+      action: "credit_note.issued",
+      target_type: "platform_credit_note",
+      target_id: inserted?.id ?? null,
+      booking_id: booking.id,
+      refund_amount: deltaRefund,
+      currency,
+      stripe_refund_id,
+      metadata: {
+        credit_note_number: creditNoteNumber,
+        original_invoice_id: originalInvoice.id,
+        reversed_total: reversedTotal,
+        settlement_adjusted: !!stmt,
+      },
+    });
+
+    // Refund completed → customer
+    const { data: bkFull } = await admin.from("bookings")
+      .select("customer_user_id, service").eq("id", booking.id).maybeSingle();
+    const bookingRefStr = `MC-${booking.id.slice(0, 8).toUpperCase()}`;
+    if (bkFull?.customer_user_id) {
+      await notifyUser(admin, {
+        user_id: bkFull.customer_user_id,
+        event_type: "refund.completed",
+        dedupe_key: `refund.completed:${stripe_refund_id ?? inserted?.id}`,
+        subject: "Refundering gennemført",
+        body: `Din refundering på ${(deltaRefund/100).toFixed(2)} ${currency} er gennemført.`,
+        related_booking_id: booking.id,
+        action_label: "Se detaljer", action_url: `/mine-bookinger?id=${booking.id}`,
+        severity: "success",
+      });
+      await notifyUser(admin, {
+        user_id: bkFull.customer_user_id,
+        event_type: "credit_note.available",
+        dedupe_key: `credit_note.available:${inserted?.id}`,
+        subject: `Kreditnota ${creditNoteNumber} tilgængelig`,
+        body: `En kreditnota for booking ${bookingRefStr} er nu klar til download.`,
+        related_booking_id: booking.id,
+        action_label: "Download", action_url: `/finance?tab=invoices`,
+      });
+    }
+
+    // Provider notifications: refund completed + settlement adjusted + credit note issued
+    if (providerUserId) {
+      await notifyUser(admin, {
+        user_id: providerUserId,
+        event_type: "refund.completed.provider",
+        dedupe_key: `refund.completed.provider:${stripe_refund_id ?? inserted?.id}`,
+        subject: "Refundering gennemført",
+        body: `En refundering på ${(deltaRefund/100).toFixed(2)} ${currency} er gennemført for booking ${bookingRefStr}.`,
+        related_booking_id: booking.id,
+        action_label: "Se regnskab", action_url: `/finance`,
+      });
+      if (stmt) {
+        await notifyUser(admin, {
+          user_id: providerUserId,
+          event_type: "settlement.adjusted",
+          dedupe_key: `settlement.adjusted:${stmt.id}:${stripe_refund_id ?? inserted?.id}`,
+          subject: "Afregning justeret",
+          body: `Din afregning for booking ${bookingRefStr} er justeret som følge af refunderingen.`,
+          related_booking_id: booking.id,
+          action_label: "Se afregning", action_url: `/finance?tab=payouts`,
+          severity: "warning",
+        });
+      }
+      await notifyUser(admin, {
+        user_id: providerUserId,
+        event_type: "credit_note.issued.provider",
+        dedupe_key: `credit_note.issued.provider:${inserted?.id}`,
+        subject: `Kreditnota ${creditNoteNumber} udstedt`,
+        body: `MyCleaner har udstedt en kreditnota for platformsgebyret på booking ${bookingRefStr}.`,
+        related_booking_id: booking.id,
+        action_label: "Se kreditnota", action_url: `/finance?tab=invoices`,
+      });
     }
 
     return json({ ok: true, credit_note: inserted });
