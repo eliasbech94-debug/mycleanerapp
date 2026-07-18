@@ -3,6 +3,8 @@
 // Idempotent via customer_notifications.dedupe_key.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
+import { monitored } from "../_shared/logger.ts";
+import { startJobRun } from "../_shared/jobrun.ts";
 
 type Window = { key: string; hoursAhead: number; toleranceHours: number; label: string };
 
