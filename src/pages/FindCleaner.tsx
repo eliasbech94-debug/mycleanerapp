@@ -847,11 +847,21 @@ export default function FindCleaner() {
                     </AvatarFallback>
                   </Avatar>
                   <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-1.5 flex-wrap">
                       <h3 className="truncate font-semibold">{provider.name}</h3>
                       {provider.verified && (
                         <Badge variant="secondary" className="h-4 px-1 text-[9px]">
                           Verificeret
+                        </Badge>
+                      )}
+                      {isInstantBook(provider.id) && (
+                        <Badge className="h-4 px-1 text-[9px] bg-primary/10 text-primary border-0 gap-0.5">
+                          <Zap className="h-2.5 w-2.5" /> Instant
+                        </Badge>
+                      )}
+                      {isAvailableToday(provider.id) && (
+                        <Badge variant="outline" className="h-4 px-1 text-[9px] border-success/40 text-success gap-0.5">
+                          <CalendarCheck className="h-2.5 w-2.5" /> I dag
                         </Badge>
                       )}
                     </div>
