@@ -135,6 +135,8 @@ Deno.serve(monitored("credit-note-issue", async (req, _log) => {
       contentType: "application/pdf", upsert: true,
     });
 
+    // Credit note inherits the FROZEN tax + country config lineage of the
+    // original invoice — a config change never rewrites historical VAT.
     const { data: inserted, error: insErr } = await admin.from("platform_credit_notes").insert({
       credit_note_number: creditNoteNumber,
       booking_id: booking.id,
@@ -152,7 +154,14 @@ Deno.serve(monitored("credit-note-issue", async (req, _log) => {
       provider_tax_snapshot: providerSnap,
       platform_tax_snapshot: platformSnap,
       pdf_storage_path: path,
-      metadata: { booking_ref: bookingRef, share_percent: Math.round(share * 10000) / 100 },
+      country_code: (originalInvoice as any).country_code ?? (platformSnap as any)?.country_code ?? null,
+      country_config_version: (originalInvoice as any).country_config_version ?? null,
+      tax_config_version: (originalInvoice as any).tax_config_version ?? null,
+      metadata: {
+        booking_ref: bookingRef,
+        share_percent: Math.round(share * 10000) / 100,
+        inherited_country_config_version: (originalInvoice as any).country_config_version ?? null,
+      },
     }).select("*").maybeSingle();
     if (insErr) return json({ error: `credit_note_insert_failed: ${insErr.message}` }, 500);
 

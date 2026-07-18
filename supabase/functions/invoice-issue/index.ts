@@ -99,6 +99,18 @@ Deno.serve(monitored("invoice-issue", async (req, _log) => {
       .select("*").eq("country_code", platformCountry).maybeSingle();
     if (!platformTax) return json({ error: `platform_tax_settings_missing:${platformCountry}` }, 500);
 
+    // Refuse to issue against a country that is not published + launch-ready.
+    // Prevents financial artifacts from ever being minted with draft config.
+    const { data: cfgRows } = await admin.rpc("get_published_country_config", { _iso: platformCountry });
+    const platformCountryCfg = Array.isArray(cfgRows) ? cfgRows[0] : cfgRows;
+    if (!platformCountryCfg) {
+      return json({ error: `country_not_published:${platformCountry}` }, 409);
+    }
+    if (!platformCountryCfg.active || !["launch_ready", "active"].includes(platformCountryCfg.launch_status)) {
+      return json({ error: `country_not_launch_ready:${platformCountry}` }, 409);
+    }
+    const countryConfigVersion: number = platformCountryCfg.config_version ?? 0;
+
     // Currency + numbers
     const currency = (booking.currency ?? "DKK").toUpperCase();
     const gross = booking.customer_pays ?? 0;
@@ -191,7 +203,10 @@ Deno.serve(monitored("invoice-issue", async (req, _log) => {
         currency, subtotal_amount: platformFee, vat_rate: vatRate, vat_amount: vatAmount,
         total_amount: invoiceTotal, vat_treatment: vatTreatment,
         pdf_storage_path: path,
-        metadata: { booking_ref: bookingRef, commission_pct: commissionPct },
+        country_code: platformCountry,
+        country_config_version: countryConfigVersion,
+        tax_config_version: countryConfigVersion,
+        metadata: { booking_ref: bookingRef, commission_pct: commissionPct, country_config_version: countryConfigVersion },
       }).select("*").maybeSingle();
       if (insErr) return json({ error: `invoice_insert_failed: ${insErr.message}` }, 500);
       invoiceRow = inserted as any;
