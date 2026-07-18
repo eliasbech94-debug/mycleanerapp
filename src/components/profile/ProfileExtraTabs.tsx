@@ -627,7 +627,7 @@ export function ServiceDeductionTab() {
     <Card title={`Servicefradrag ${year}`} icon={PiggyBank}>
       <p className="mb-5 text-sm opacity-75">
         Danske skatteydere kan trække udgifter til bestemte typer servicearbejde i hjemmet fra i skat.
-        Her ser du hvad du har brugt gennem HomeHero i år — og hvad du kan indberette.
+        Her ser du hvad du har brugt gennem MyCleaner i år — og hvad du kan indberette.
       </p>
 
       {/* Summary numbers */}
@@ -663,7 +663,7 @@ export function ServiceDeductionTab() {
           <li>Log ind på <a href="https://skat.dk" target="_blank" rel="noreferrer" className="underline font-bold">skat.dk</a> med MitID.</li>
           <li>Gå til <em>Årsopgørelsen</em> → <em>Ret årsopgørelsen</em> → rubrik <strong>458 (Servicefradrag)</strong>.</li>
           <li>Indtast det samlede beløb du har betalt for godkendte serviceydelser (arbejdsløn, ikke materialer).</li>
-          <li>Angiv HomeHero / providerens CVR som modtager. Gem dine kvitteringer i 5 år.</li>
+          <li>Angiv MyCleaner / providerens CVR som modtager. Gem dine kvitteringer i 5 år.</li>
           <li>Fradraget beregnes automatisk og reducerer din restskat (eller øger overskydende skat).</li>
         </ol>
         <div className="mt-4 flex flex-wrap gap-2">

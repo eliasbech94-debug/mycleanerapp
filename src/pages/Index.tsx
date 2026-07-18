@@ -116,7 +116,7 @@ function Hero() {
                 MyCleaner<sup className="text-[10px] opacity-70">™</sup>
               </div>
               <div className="text-[10px] uppercase tracking-[0.3em]" style={{ color: `${C.cream}99` }}>
-                A HomeHero Co.
+                A MyCleaner Co.
               </div>
             </div>
           </div>
@@ -757,7 +757,7 @@ export default function Index() {
       <Testimonial />
       <FinalCTA />
       <footer className="px-4 py-10 text-center text-xs sm:px-6" style={{ background: C.ink, color: `${C.cream}99` }}>
-        © {new Date().getFullYear()} MyCleaner™ · Et HomeHero-brand · Du booker personen, ikke opgaven.
+        © {new Date().getFullYear()} MyCleaner™ · Et MyCleaner-brand · Du booker personen, ikke opgaven.
       </footer>
     </main>
   );

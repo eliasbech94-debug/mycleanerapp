@@ -3,7 +3,7 @@ export default function Regler() {
     <main className="container-wide py-12 max-w-3xl">
       <h1 className="font-heading text-4xl mb-3">Regler og vilkår</h1>
       <p className="text-muted-foreground mb-10">
-        HomeHero er en tillidsbaseret platform. Disse regler gælder for både kunder og providere.
+        MyCleaner er en tillidsbaseret platform. Disse regler gælder for både kunder og providere.
       </p>
 
       <section className="space-y-8">
@@ -55,7 +55,7 @@ export default function Regler() {
         <div>
           <h2 className="font-heading text-2xl mb-3">6. Suspension og ophør</h2>
           <p className="text-muted-foreground">
-            HomeHero forbeholder sig retten til at suspendere eller ophæve konti der overtræder disse regler.
+            MyCleaner forbeholder sig retten til at suspendere eller ophæve konti der overtræder disse regler.
             Alvorlige overtrædelser kan medføre permanent udelukkelse og eventuel politianmeldelse.
           </p>
         </div>
