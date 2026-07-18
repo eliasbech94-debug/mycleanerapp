@@ -40,6 +40,7 @@ import ScrollToTop from "@/components/ScrollToTop";
 import RouteLoadingBar from "@/components/RouteLoadingBar";
 import PrivacyCenter from "./pages/PrivacyCenter";
 import AdminOps from "./pages/AdminOps";
+import CountryConsole from "./pages/admin/CountryConsole";
 import { AppErrorBoundary } from "@/components/AppErrorBoundary";
 import { installFrontendMonitoring, initSentry } from "@/lib/monitoring";
 import { CountryProvider, isValidCountryParam } from "@/i18n/CountryContext";
@@ -85,6 +86,7 @@ function AppRoutes() {
       <Route path="/provider/disputes/:id" element={<RoleGuard allow={["provider", "admin"]}><ProviderDisputes /></RoleGuard>} />
       <Route path="/privatliv" element={<PrivacyCenter />} />
       <Route path="/admin/ops" element={<RoleGuard allow={["admin"]}><AdminOps /></RoleGuard>} />
+      <Route path="/admin/countries" element={<RoleGuard allow={["admin"]}><CountryConsole /></RoleGuard>} />
       <Route path="/faq" element={<FAQ />} />
       <Route path="/regler" element={<Regler />} />
       <Route
