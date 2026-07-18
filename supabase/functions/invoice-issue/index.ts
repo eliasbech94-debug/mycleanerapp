@@ -203,7 +203,10 @@ Deno.serve(monitored("invoice-issue", async (req, _log) => {
         currency, subtotal_amount: platformFee, vat_rate: vatRate, vat_amount: vatAmount,
         total_amount: invoiceTotal, vat_treatment: vatTreatment,
         pdf_storage_path: path,
-        metadata: { booking_ref: bookingRef, commission_pct: commissionPct },
+        country_code: platformCountry,
+        country_config_version: countryConfigVersion,
+        tax_config_version: countryConfigVersion,
+        metadata: { booking_ref: bookingRef, commission_pct: commissionPct, country_config_version: countryConfigVersion },
       }).select("*").maybeSingle();
       if (insErr) return json({ error: `invoice_insert_failed: ${insErr.message}` }, 500);
       invoiceRow = inserted as any;
