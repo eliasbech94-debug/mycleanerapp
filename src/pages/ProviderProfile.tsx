@@ -52,7 +52,7 @@ const ProviderProfile = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen font-editorial" style={{ background: "#f5f0e0" }}>
       {/* Cover / hero */}
       <div className="relative h-48 sm:h-64 overflow-hidden">
         <div className="absolute inset-0 mesh-blob opacity-80" />
