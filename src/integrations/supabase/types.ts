@@ -56,6 +56,66 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_audit_log: {
+        Row: {
+          action: string
+          actor_role: string | null
+          actor_user_id: string | null
+          booking_id: string | null
+          created_at: string
+          currency: string | null
+          id: string
+          ip_address: unknown
+          metadata: Json | null
+          new_state: Json | null
+          previous_state: Json | null
+          refund_amount: number | null
+          stripe_payment_intent_id: string | null
+          stripe_refund_id: string | null
+          target_id: string | null
+          target_type: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          action: string
+          actor_role?: string | null
+          actor_user_id?: string | null
+          booking_id?: string | null
+          created_at?: string
+          currency?: string | null
+          id?: string
+          ip_address?: unknown
+          metadata?: Json | null
+          new_state?: Json | null
+          previous_state?: Json | null
+          refund_amount?: number | null
+          stripe_payment_intent_id?: string | null
+          stripe_refund_id?: string | null
+          target_id?: string | null
+          target_type?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          action?: string
+          actor_role?: string | null
+          actor_user_id?: string | null
+          booking_id?: string | null
+          created_at?: string
+          currency?: string | null
+          id?: string
+          ip_address?: unknown
+          metadata?: Json | null
+          new_state?: Json | null
+          previous_state?: Json | null
+          refund_amount?: number | null
+          stripe_payment_intent_id?: string | null
+          stripe_refund_id?: string | null
+          target_id?: string | null
+          target_type?: string | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       booking_cancellations: {
         Row: {
           actor_role: string
@@ -510,6 +570,89 @@ export type Database = {
           },
         ]
       }
+      finance_reconciliation_alerts: {
+        Row: {
+          booking_id: string | null
+          code: string
+          created_at: string
+          details: Json | null
+          id: string
+          message: string
+          resolved_at: string | null
+          resolved_by: string | null
+          run_id: string | null
+          severity: string
+          updated_at: string
+        }
+        Insert: {
+          booking_id?: string | null
+          code: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          message: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          run_id?: string | null
+          severity?: string
+          updated_at?: string
+        }
+        Update: {
+          booking_id?: string | null
+          code?: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          message?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          run_id?: string | null
+          severity?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "finance_reconciliation_alerts_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "finance_reconciliation_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      finance_reconciliation_runs: {
+        Row: {
+          alerts_created: number
+          bookings_scanned: number
+          created_at: string
+          id: string
+          status: string
+          summary: Json | null
+          window_end: string
+          window_start: string
+        }
+        Insert: {
+          alerts_created?: number
+          bookings_scanned?: number
+          created_at?: string
+          id?: string
+          status?: string
+          summary?: Json | null
+          window_end: string
+          window_start: string
+        }
+        Update: {
+          alerts_created?: number
+          bookings_scanned?: number
+          created_at?: string
+          id?: string
+          status?: string
+          summary?: Json | null
+          window_end?: string
+          window_start?: string
+        }
+        Relationships: []
+      }
       finance_settings: {
         Row: {
           country_code: string
@@ -627,6 +770,60 @@ export type Database = {
           notes?: string | null
           updated_at?: string
           updated_by?: string | null
+        }
+        Relationships: []
+      }
+      notification_outbox: {
+        Row: {
+          attempts: number
+          body: string | null
+          channel: string
+          created_at: string
+          dedupe_key: string
+          event_type: string
+          id: string
+          last_error: string | null
+          payload: Json | null
+          related_booking_id: string | null
+          sent_at: string | null
+          status: string
+          subject: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          attempts?: number
+          body?: string | null
+          channel: string
+          created_at?: string
+          dedupe_key: string
+          event_type: string
+          id?: string
+          last_error?: string | null
+          payload?: Json | null
+          related_booking_id?: string | null
+          sent_at?: string | null
+          status?: string
+          subject?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          attempts?: number
+          body?: string | null
+          channel?: string
+          created_at?: string
+          dedupe_key?: string
+          event_type?: string
+          id?: string
+          last_error?: string | null
+          payload?: Json | null
+          related_booking_id?: string | null
+          sent_at?: string | null
+          status?: string
+          subject?: string | null
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
