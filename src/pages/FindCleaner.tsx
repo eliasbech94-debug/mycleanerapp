@@ -161,13 +161,73 @@ export default function FindCleaner() {
   // Empty set = show all countries. Otherwise providers must match at least one selected code.
   const [countryFilter, setCountryFilter] = useState<Set<string>>(() => new Set());
 
-  const filteredProviders = useMemo(
-    () =>
-      countryFilter.size === 0
-        ? providers
-        : providers.filter((p) => countryFilter.has(p.countryCode)),
-    [providers, countryFilter],
-  );
+  // Marketplace filters
+  const [minRating, setMinRating] = useState(0);           // 0 = any
+  const [maxHourly, setMaxHourly] = useState<number | null>(null); // in local currency; null = any
+  const [minExperience, setMinExperience] = useState(0);   // years
+  const [selectedLanguages, setSelectedLanguages] = useState<Set<string>>(new Set());
+  const [selectedServices, setSelectedServices] = useState<Set<string>>(new Set());
+  const [availableTodayOnly, setAvailableTodayOnly] = useState(false);
+  const [instantBookOnly, setInstantBookOnly] = useState(false);
+  const [filterSheetOpen, setFilterSheetOpen] = useState(false);
+
+  const languageOptions = useMemo(() => {
+    const set = new Set<string>();
+    providers.forEach((p) => {
+      const seed = getProvider(p.providerId);
+      seed?.languages.forEach((l) => set.add(l));
+    });
+    if (set.size === 0) ["Dansk", "English", "Deutsch", "Svenska", "Español"].forEach((l) => set.add(l));
+    return Array.from(set).sort();
+  }, [providers]);
+
+  const serviceOptions = useMemo(() => {
+    return serviceCategories.find((c) => c.id === "cleaning")?.subcategories ?? [];
+  }, []);
+
+  const filteredProviders = useMemo(() => {
+    return providers.filter((p) => {
+      if (countryFilter.size > 0 && !countryFilter.has(p.countryCode)) return false;
+      if (minRating > 0 && p.rating < minRating) return false;
+      if (maxHourly !== null && p.hourlyRate > maxHourly) return false;
+      if (minExperience > 0 && yearsExperience(p.id) < minExperience) return false;
+      if (availableTodayOnly && !isAvailableToday(p.id)) return false;
+      if (instantBookOnly && !isInstantBook(p.id)) return false;
+      const seed = getProvider(p.providerId);
+      if (selectedLanguages.size > 0) {
+        const langs = seed?.languages ?? [];
+        if (!langs.some((l) => selectedLanguages.has(l))) return false;
+      }
+      if (selectedServices.size > 0) {
+        const subs = seed?.subcategories ?? [];
+        if (!subs.some((s) => selectedServices.has(s))) return false;
+      }
+      return true;
+    });
+  }, [
+    providers, countryFilter, minRating, maxHourly, minExperience,
+    availableTodayOnly, instantBookOnly, selectedLanguages, selectedServices,
+  ]);
+
+  const activeFilterCount =
+    (minRating > 0 ? 1 : 0) +
+    (maxHourly !== null ? 1 : 0) +
+    (minExperience > 0 ? 1 : 0) +
+    (availableTodayOnly ? 1 : 0) +
+    (instantBookOnly ? 1 : 0) +
+    selectedLanguages.size +
+    selectedServices.size;
+
+  const clearAllFilters = () => {
+    setMinRating(0);
+    setMaxHourly(null);
+    setMinExperience(0);
+    setSelectedLanguages(new Set());
+    setSelectedServices(new Set());
+    setAvailableTodayOnly(false);
+    setInstantBookOnly(false);
+  };
+
 
   const availableCountries = useMemo(() => {
     const codes = new Set(providers.map((p) => p.countryCode));
