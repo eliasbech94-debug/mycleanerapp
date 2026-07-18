@@ -5,12 +5,22 @@ import { supabase } from "@/integrations/supabase/client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetFooter } from "@/components/ui/sheet";
+import { Slider } from "@/components/ui/slider";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { Star, MapPin, Search, X, ChevronUp, Loader2 } from "lucide-react";
-import { formatPrice, countries } from "@/lib/countries";
+import { Star, MapPin, Search, X, ChevronUp, Loader2, SlidersHorizontal, Zap, CalendarCheck } from "lucide-react";
+import { formatPrice, countries, serviceCategories } from "@/lib/countries";
 import { getProvider, getCountry, deriveHourlyRate } from "@/lib/providers";
 import type { ProviderProfileData } from "@/lib/providers";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+// Deterministic marketplace attributes (until the DB carries them).
+// Same provider id always resolves to the same flags across renders/sessions.
+const hashSeed = (s: string) => s.split("").reduce((a, c) => a + c.charCodeAt(0), 0);
+export const isAvailableToday = (id: string) => hashSeed(id) % 3 !== 0;      // ~66% available
+export const isInstantBook = (id: string) => hashSeed(id) % 2 === 0;         // ~50% instant
+export const yearsExperience = (id: string) => 2 + (hashSeed(id) % 12);      // 2-13 yrs
 
 type MapProvider = {
   id: string;
@@ -151,13 +161,73 @@ export default function FindCleaner() {
   // Empty set = show all countries. Otherwise providers must match at least one selected code.
   const [countryFilter, setCountryFilter] = useState<Set<string>>(() => new Set());
 
-  const filteredProviders = useMemo(
-    () =>
-      countryFilter.size === 0
-        ? providers
-        : providers.filter((p) => countryFilter.has(p.countryCode)),
-    [providers, countryFilter],
-  );
+  // Marketplace filters
+  const [minRating, setMinRating] = useState(0);           // 0 = any
+  const [maxHourly, setMaxHourly] = useState<number | null>(null); // in local currency; null = any
+  const [minExperience, setMinExperience] = useState(0);   // years
+  const [selectedLanguages, setSelectedLanguages] = useState<Set<string>>(new Set());
+  const [selectedServices, setSelectedServices] = useState<Set<string>>(new Set());
+  const [availableTodayOnly, setAvailableTodayOnly] = useState(false);
+  const [instantBookOnly, setInstantBookOnly] = useState(false);
+  const [filterSheetOpen, setFilterSheetOpen] = useState(false);
+
+  const languageOptions = useMemo(() => {
+    const set = new Set<string>();
+    providers.forEach((p) => {
+      const seed = getProvider(p.providerId);
+      seed?.languages.forEach((l) => set.add(l));
+    });
+    if (set.size === 0) ["Dansk", "English", "Deutsch", "Svenska", "Español"].forEach((l) => set.add(l));
+    return Array.from(set).sort();
+  }, [providers]);
+
+  const serviceOptions = useMemo(() => {
+    return serviceCategories.find((c) => c.id === "cleaning")?.subcategories ?? [];
+  }, []);
+
+  const filteredProviders = useMemo(() => {
+    return providers.filter((p) => {
+      if (countryFilter.size > 0 && !countryFilter.has(p.countryCode)) return false;
+      if (minRating > 0 && p.rating < minRating) return false;
+      if (maxHourly !== null && p.hourlyRate > maxHourly) return false;
+      if (minExperience > 0 && yearsExperience(p.id) < minExperience) return false;
+      if (availableTodayOnly && !isAvailableToday(p.id)) return false;
+      if (instantBookOnly && !isInstantBook(p.id)) return false;
+      const seed = getProvider(p.providerId);
+      if (selectedLanguages.size > 0) {
+        const langs = seed?.languages ?? [];
+        if (!langs.some((l) => selectedLanguages.has(l))) return false;
+      }
+      if (selectedServices.size > 0) {
+        const subs = seed?.subcategories ?? [];
+        if (!subs.some((s) => selectedServices.has(s))) return false;
+      }
+      return true;
+    });
+  }, [
+    providers, countryFilter, minRating, maxHourly, minExperience,
+    availableTodayOnly, instantBookOnly, selectedLanguages, selectedServices,
+  ]);
+
+  const activeFilterCount =
+    (minRating > 0 ? 1 : 0) +
+    (maxHourly !== null ? 1 : 0) +
+    (minExperience > 0 ? 1 : 0) +
+    (availableTodayOnly ? 1 : 0) +
+    (instantBookOnly ? 1 : 0) +
+    selectedLanguages.size +
+    selectedServices.size;
+
+  const clearAllFilters = () => {
+    setMinRating(0);
+    setMaxHourly(null);
+    setMinExperience(0);
+    setSelectedLanguages(new Set());
+    setSelectedServices(new Set());
+    setAvailableTodayOnly(false);
+    setInstantBookOnly(false);
+  };
+
 
   const availableCountries = useMemo(() => {
     const codes = new Set(providers.map((p) => p.countryCode));
@@ -494,15 +564,171 @@ export default function FindCleaner() {
               </p>
             </div>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-9 gap-1.5 text-xs"
-            onClick={() => setDrawerOpen(true)}
-          >
-            <ChevronUp className="h-4 w-4" />
-            Se liste
-          </Button>
+          <div className="flex items-center gap-2">
+            <Sheet open={filterSheetOpen} onOpenChange={setFilterSheetOpen}>
+              <SheetTrigger asChild>
+                <Button variant="outline" size="sm" className="h-9 gap-1.5 text-xs relative">
+                  <SlidersHorizontal className="h-4 w-4" />
+                  Filtre
+                  {activeFilterCount > 0 && (
+                    <span className="ml-1 rounded-full bg-primary text-primary-foreground text-[10px] px-1.5 py-0.5 font-bold leading-none">
+                      {activeFilterCount}
+                    </span>
+                  )}
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
+                <SheetHeader>
+                  <SheetTitle>Filtrér cleaners</SheetTitle>
+                </SheetHeader>
+
+                <div className="mt-6 space-y-6 pb-6">
+                  {/* Quick toggles */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setAvailableTodayOnly((v) => !v)}
+                      aria-pressed={availableTodayOnly}
+                      className={`rounded-xl border p-3 text-left transition ${
+                        availableTodayOnly ? "border-primary bg-primary/5" : "border-border hover:bg-muted"
+                      }`}
+                    >
+                      <CalendarCheck className="h-4 w-4 mb-1 text-primary" />
+                      <div className="text-xs font-semibold">Ledig i dag</div>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setInstantBookOnly((v) => !v)}
+                      aria-pressed={instantBookOnly}
+                      className={`rounded-xl border p-3 text-left transition ${
+                        instantBookOnly ? "border-primary bg-primary/5" : "border-border hover:bg-muted"
+                      }`}
+                    >
+                      <Zap className="h-4 w-4 mb-1 text-primary" />
+                      <div className="text-xs font-semibold">Instant Book</div>
+                    </button>
+                  </div>
+
+                  {/* Rating */}
+                  <div>
+                    <div className="flex justify-between items-center mb-2">
+                      <label className="text-sm font-semibold">Min. rating</label>
+                      <span className="text-xs text-muted-foreground">
+                        {minRating > 0 ? `${minRating.toFixed(1)}★+` : "Alle"}
+                      </span>
+                    </div>
+                    <Slider
+                      value={[minRating]}
+                      onValueChange={([v]) => setMinRating(v)}
+                      min={0}
+                      max={5}
+                      step={0.5}
+                    />
+                  </div>
+
+                  {/* Max hourly */}
+                  <div>
+                    <div className="flex justify-between items-center mb-2">
+                      <label className="text-sm font-semibold">Maks. timepris</label>
+                      <span className="text-xs text-muted-foreground">
+                        {maxHourly !== null ? `${maxHourly} kr/t` : "Alle"}
+                      </span>
+                    </div>
+                    <Slider
+                      value={[maxHourly ?? 800]}
+                      onValueChange={([v]) => setMaxHourly(v >= 800 ? null : v)}
+                      min={150}
+                      max={800}
+                      step={25}
+                    />
+                  </div>
+
+                  {/* Experience */}
+                  <div>
+                    <div className="flex justify-between items-center mb-2">
+                      <label className="text-sm font-semibold">Min. års erfaring</label>
+                      <span className="text-xs text-muted-foreground">
+                        {minExperience > 0 ? `${minExperience}+ år` : "Alle"}
+                      </span>
+                    </div>
+                    <Slider
+                      value={[minExperience]}
+                      onValueChange={([v]) => setMinExperience(v)}
+                      min={0}
+                      max={15}
+                      step={1}
+                    />
+                  </div>
+
+                  {/* Languages */}
+                  <div>
+                    <div className="text-sm font-semibold mb-2">Sprog</div>
+                    <div className="flex flex-wrap gap-2">
+                      {languageOptions.map((lang) => {
+                        const active = selectedLanguages.has(lang);
+                        return (
+                          <button
+                            key={lang}
+                            type="button"
+                            onClick={() => setSelectedLanguages((prev) => {
+                              const next = new Set(prev);
+                              if (next.has(lang)) next.delete(lang); else next.add(lang);
+                              return next;
+                            })}
+                            aria-pressed={active}
+                            className={`rounded-full border px-3 py-1 text-xs font-medium transition ${
+                              active ? "border-primary bg-primary text-primary-foreground" : "border-border bg-background hover:bg-muted"
+                            }`}
+                          >
+                            {lang}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Services */}
+                  <div>
+                    <div className="text-sm font-semibold mb-2">Services</div>
+                    <div className="space-y-2">
+                      {serviceOptions.map((svc) => (
+                        <label key={svc} className="flex items-center gap-2 text-sm cursor-pointer">
+                          <Checkbox
+                            checked={selectedServices.has(svc)}
+                            onCheckedChange={(checked) => setSelectedServices((prev) => {
+                              const next = new Set(prev);
+                              if (checked) next.add(svc); else next.delete(svc);
+                              return next;
+                            })}
+                          />
+                          {svc}
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <SheetFooter className="sticky bottom-0 bg-background border-t pt-3 flex-row gap-2">
+                  <Button variant="outline" className="flex-1" onClick={clearAllFilters}>
+                    Nulstil
+                  </Button>
+                  <Button className="flex-1" onClick={() => setFilterSheetOpen(false)}>
+                    Vis {filteredProviders.length} cleaners
+                  </Button>
+                </SheetFooter>
+              </SheetContent>
+            </Sheet>
+
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-9 gap-1.5 text-xs"
+              onClick={() => setDrawerOpen(true)}
+            >
+              <ChevronUp className="h-4 w-4" />
+              Se liste
+            </Button>
+          </div>
         </div>
         <div
           className="flex flex-wrap gap-1.5"
@@ -621,11 +847,21 @@ export default function FindCleaner() {
                     </AvatarFallback>
                   </Avatar>
                   <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-1.5 flex-wrap">
                       <h3 className="truncate font-semibold">{provider.name}</h3>
                       {provider.verified && (
                         <Badge variant="secondary" className="h-4 px-1 text-[9px]">
                           Verificeret
+                        </Badge>
+                      )}
+                      {isInstantBook(provider.id) && (
+                        <Badge className="h-4 px-1 text-[9px] bg-primary/10 text-primary border-0 gap-0.5">
+                          <Zap className="h-2.5 w-2.5" /> Instant
+                        </Badge>
+                      )}
+                      {isAvailableToday(provider.id) && (
+                        <Badge variant="outline" className="h-4 px-1 text-[9px] border-success/40 text-success gap-0.5">
+                          <CalendarCheck className="h-2.5 w-2.5" /> I dag
                         </Badge>
                       )}
                     </div>
