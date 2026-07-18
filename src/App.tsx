@@ -38,6 +38,7 @@ import ProviderDisputes from "./pages/ProviderDisputes";
 import { RoleGuard } from "@/components/RoleGuard";
 import ScrollToTop from "@/components/ScrollToTop";
 import RouteLoadingBar from "@/components/RouteLoadingBar";
+import PrivacyCenter from "./pages/PrivacyCenter";
 
 const queryClient = new QueryClient();
 
@@ -133,6 +134,7 @@ const App = () => (
 
 
 
+            <Route path="/privatliv" element={<PrivacyCenter />} />
             <Route path="/faq" element={<FAQ />} />
             <Route path="/regler" element={<Regler />} />
             <Route
