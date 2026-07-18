@@ -238,3 +238,65 @@ export async function renderSettlementStatement(args: {
     footer: `MyCleaner marketplace • Settlement ${args.statement_number} • Booking ${args.booking_ref} • Ikke en momsfaktura`,
   });
 }
+
+export async function renderCreditNote(args: {
+  credit_note_number: string;
+  original_invoice_number: string;
+  issued_at: string;
+  currency: string;
+  reversed_subtotal: number;   // negative platform-fee portion, minor units, positive number
+  vat_rate: number;
+  reversed_vat_amount: number;
+  reversed_total: number;
+  vat_treatment: string;
+  refund_type: "partial" | "full";
+  booking_ref: string;
+  booking_id: string;
+  refund_amount: number;       // gross customer refund, minor units
+  stripe_refund_id: string | null;
+  issuer: { name: string; address?: string; taxId?: string; country: string };
+  provider: { name: string; address?: string; vat?: string; taxId?: string; country: string };
+}): Promise<Uint8Array> {
+  const treatmentLabel = args.vat_treatment === "reverse_charge"
+    ? "Reverse charge — modtager afregner moms (art. 196 EU-momsdir.)"
+    : args.vat_treatment === "outside_scope"
+    ? "Uden for EU-momsområdet"
+    : args.vat_treatment === "exempt"
+    ? "Momsfri"
+    : `Standard moms ${args.vat_rate.toFixed(2)}%`;
+
+  const disclaimer =
+    `Kreditnota der ophæver ${args.refund_type === "full" ? "hele" : "en del af"} platformgebyrfakturaen ${args.original_invoice_number}. ` +
+    "Beløbet krediteres udbyderen som følge af hel/delvis refusion af den underliggende booking. " +
+    "Dette dokument dækker udelukkende MyCleaners platformkommission — det er ikke en kreditnota på selve rengøringsydelsen.";
+
+  return renderDoc({
+    title: "Credit Note",
+    subtitle: `Kreditnota — refusion af platformgebyr (${args.refund_type === "full" ? "fuld" : "delvis"})`,
+    disclaimer,
+    issuer: args.issuer,
+    recipient: { name: args.provider.name, address: args.provider.address, country: args.provider.country, vat: args.provider.vat, taxId: args.provider.taxId },
+    meta: [
+      { label: "Kreditnota nr.", value: args.credit_note_number, bold: true },
+      { label: "Vedrører faktura", value: args.original_invoice_number, bold: true },
+      { label: "Udstedt", value: new Date(args.issued_at).toLocaleDateString("da-DK") },
+      { label: "Booking reference", value: args.booking_ref },
+      { label: "Booking ID", value: args.booking_id },
+      { label: "Kunderefusion (brutto)", value: money(args.refund_amount, args.currency) },
+      { label: "Stripe refund ID", value: args.stripe_refund_id ?? "—" },
+      { label: "Momsbehandling", value: treatmentLabel },
+    ],
+    lines: [
+      {
+        description: `Ophævelse af platformgebyr — booking ${args.booking_ref}`,
+        amount: `- ${money(args.reversed_subtotal, args.currency)}`,
+      },
+    ],
+    totals: [
+      { label: "Krediteret subtotal", value: `- ${money(args.reversed_subtotal, args.currency)}` },
+      { label: `Krediteret moms (${args.vat_rate.toFixed(2)}%)`, value: `- ${money(args.reversed_vat_amount, args.currency)}` },
+      { label: "Krediteret total", value: `- ${money(args.reversed_total, args.currency)}`, bold: true },
+    ],
+    footer: `MyCleaner marketplace • Kreditnota ${args.credit_note_number} • Vedr. ${args.original_invoice_number}`,
+  });
+}

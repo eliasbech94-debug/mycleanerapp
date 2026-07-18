@@ -56,12 +56,73 @@ export type Database = {
         }
         Relationships: []
       }
+      booking_cancellations: {
+        Row: {
+          actor_role: string
+          actor_user_id: string | null
+          booking_id: string
+          created_at: string
+          currency: string
+          id: string
+          policy_snapshot: Json
+          reason_code: string
+          reason_note: string | null
+          refund_amount: number
+          refund_type: string
+          stripe_payment_intent_id: string | null
+          stripe_refund_id: string | null
+        }
+        Insert: {
+          actor_role: string
+          actor_user_id?: string | null
+          booking_id: string
+          created_at?: string
+          currency: string
+          id?: string
+          policy_snapshot?: Json
+          reason_code: string
+          reason_note?: string | null
+          refund_amount?: number
+          refund_type?: string
+          stripe_payment_intent_id?: string | null
+          stripe_refund_id?: string | null
+        }
+        Update: {
+          actor_role?: string
+          actor_user_id?: string | null
+          booking_id?: string
+          created_at?: string
+          currency?: string
+          id?: string
+          policy_snapshot?: Json
+          reason_code?: string
+          reason_note?: string | null
+          refund_amount?: number
+          refund_type?: string
+          stripe_payment_intent_id?: string | null
+          stripe_refund_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "booking_cancellations_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bookings: {
         Row: {
           address: string
           address_place_id: string | null
           authorization_expires_at: string | null
           booking_date: string
+          cancellation_policy_snapshot: Json
+          cancellation_reason_code: string | null
+          cancelled_at: string | null
+          cancelled_by_role: string | null
+          cancelled_by_user_id: string | null
           created_at: string
           currency: string
           customer_pays: number
@@ -96,6 +157,11 @@ export type Database = {
           address_place_id?: string | null
           authorization_expires_at?: string | null
           booking_date: string
+          cancellation_policy_snapshot?: Json
+          cancellation_reason_code?: string | null
+          cancelled_at?: string | null
+          cancelled_by_role?: string | null
+          cancelled_by_user_id?: string | null
           created_at?: string
           currency?: string
           customer_pays: number
@@ -130,6 +196,11 @@ export type Database = {
           address_place_id?: string | null
           authorization_expires_at?: string | null
           booking_date?: string
+          cancellation_policy_snapshot?: Json
+          cancellation_reason_code?: string | null
+          cancelled_at?: string | null
+          cancelled_by_role?: string | null
+          cancelled_by_user_id?: string | null
           created_at?: string
           currency?: string
           customer_pays?: number
@@ -592,6 +663,93 @@ export type Database = {
         }
         Relationships: []
       }
+      platform_credit_notes: {
+        Row: {
+          booking_id: string
+          created_at: string
+          credit_note_number: string
+          currency: string
+          id: string
+          issued_at: string
+          metadata: Json
+          original_invoice_id: string
+          pdf_storage_path: string | null
+          platform_tax_snapshot: Json
+          provider_tax_snapshot: Json
+          provider_user_id: string
+          refund_amount: number
+          refund_type: string
+          reversed_subtotal: number
+          reversed_total: number
+          reversed_vat_amount: number
+          stripe_refund_id: string | null
+          updated_at: string
+          vat_rate: number
+          vat_treatment: string
+        }
+        Insert: {
+          booking_id: string
+          created_at?: string
+          credit_note_number: string
+          currency: string
+          id?: string
+          issued_at?: string
+          metadata?: Json
+          original_invoice_id: string
+          pdf_storage_path?: string | null
+          platform_tax_snapshot?: Json
+          provider_tax_snapshot?: Json
+          provider_user_id: string
+          refund_amount: number
+          refund_type: string
+          reversed_subtotal: number
+          reversed_total: number
+          reversed_vat_amount?: number
+          stripe_refund_id?: string | null
+          updated_at?: string
+          vat_rate?: number
+          vat_treatment: string
+        }
+        Update: {
+          booking_id?: string
+          created_at?: string
+          credit_note_number?: string
+          currency?: string
+          id?: string
+          issued_at?: string
+          metadata?: Json
+          original_invoice_id?: string
+          pdf_storage_path?: string | null
+          platform_tax_snapshot?: Json
+          provider_tax_snapshot?: Json
+          provider_user_id?: string
+          refund_amount?: number
+          refund_type?: string
+          reversed_subtotal?: number
+          reversed_total?: number
+          reversed_vat_amount?: number
+          stripe_refund_id?: string | null
+          updated_at?: string
+          vat_rate?: number
+          vat_treatment?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "platform_credit_notes_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "platform_credit_notes_original_invoice_id_fkey"
+            columns: ["original_invoice_id"]
+            isOneToOne: false
+            referencedRelation: "platform_fee_invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       platform_fee_invoices: {
         Row: {
           booking_id: string
@@ -1015,6 +1173,62 @@ export type Database = {
         }
         Relationships: []
       }
+      refund_requests: {
+        Row: {
+          actor_role: string
+          actor_user_id: string | null
+          booking_id: string
+          created_at: string
+          currency: string
+          id: string
+          idempotency_key: string
+          requested_amount: number
+          response_snapshot: Json
+          status: string
+          stripe_error: string | null
+          stripe_refund_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          actor_role: string
+          actor_user_id?: string | null
+          booking_id: string
+          created_at?: string
+          currency: string
+          id?: string
+          idempotency_key: string
+          requested_amount: number
+          response_snapshot?: Json
+          status?: string
+          stripe_error?: string | null
+          stripe_refund_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          actor_role?: string
+          actor_user_id?: string | null
+          booking_id?: string
+          created_at?: string
+          currency?: string
+          id?: string
+          idempotency_key?: string
+          requested_amount?: number
+          response_snapshot?: Json
+          status?: string
+          stripe_error?: string | null
+          stripe_refund_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "refund_requests_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sms_verifications: {
         Row: {
           attempts: number
@@ -1236,6 +1450,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      next_credit_note_number: {
+        Args: { _country_code: string }
+        Returns: string
       }
       next_invoice_number: { Args: { _country_code: string }; Returns: string }
       tax_decrypt: {
