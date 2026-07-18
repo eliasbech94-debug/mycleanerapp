@@ -21,6 +21,7 @@ function useMenuForRole() {
   const { isAdmin, isEmployee, isProvider } = useUserRoles();
 
   const publicLinks: NavLinkItem[] = [
+    { to: "/book", label: "Book en cleaner" },
     { to: "/find-cleaner", label: "Find cleaner" },
     { to: "/faq", label: "Sådan virker det" },
     { to: "/provider/register", label: "Bliv provider" },
@@ -65,7 +66,7 @@ function useMenuForRole() {
   // Customer (default logged-in)
   return {
     primary: [
-      { to: "/task/create", label: "Ny opgave" },
+      { to: "/book", label: "Book en cleaner" },
       { to: "/mine-bookinger", label: "Mine bookinger" },
       { to: "/faq", label: "FAQ" },
       { to: "/regler", label: "Regler" },
