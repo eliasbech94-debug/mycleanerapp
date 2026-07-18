@@ -232,11 +232,15 @@ export type Database = {
           address_place_id: string | null
           authorization_expires_at: string | null
           booking_date: string
+          booking_rules_snapshot: Json | null
           cancellation_policy_snapshot: Json
           cancellation_reason_code: string | null
           cancelled_at: string | null
           cancelled_by_role: string | null
           cancelled_by_user_id: string | null
+          commission_config_snapshot: Json | null
+          country_code: string | null
+          country_config_version: number | null
           created_at: string
           currency: string
           customer_pays: number
@@ -264,6 +268,8 @@ export type Database = {
           service: string
           slot: string
           status: Database["public"]["Enums"]["booking_status"]
+          tax_config_snapshot: Json | null
+          timezone: string | null
           updated_at: string
         }
         Insert: {
@@ -271,11 +277,15 @@ export type Database = {
           address_place_id?: string | null
           authorization_expires_at?: string | null
           booking_date: string
+          booking_rules_snapshot?: Json | null
           cancellation_policy_snapshot?: Json
           cancellation_reason_code?: string | null
           cancelled_at?: string | null
           cancelled_by_role?: string | null
           cancelled_by_user_id?: string | null
+          commission_config_snapshot?: Json | null
+          country_code?: string | null
+          country_config_version?: number | null
           created_at?: string
           currency?: string
           customer_pays: number
@@ -303,6 +313,8 @@ export type Database = {
           service: string
           slot: string
           status?: Database["public"]["Enums"]["booking_status"]
+          tax_config_snapshot?: Json | null
+          timezone?: string | null
           updated_at?: string
         }
         Update: {
@@ -310,11 +322,15 @@ export type Database = {
           address_place_id?: string | null
           authorization_expires_at?: string | null
           booking_date?: string
+          booking_rules_snapshot?: Json | null
           cancellation_policy_snapshot?: Json
           cancellation_reason_code?: string | null
           cancelled_at?: string | null
           cancelled_by_role?: string | null
           cancelled_by_user_id?: string | null
+          commission_config_snapshot?: Json | null
+          country_code?: string | null
+          country_config_version?: number | null
           created_at?: string
           currency?: string
           customer_pays?: number
@@ -342,6 +358,8 @@ export type Database = {
           service?: string
           slot?: string
           status?: Database["public"]["Enums"]["booking_status"]
+          tax_config_snapshot?: Json | null
+          timezone?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -1630,6 +1648,8 @@ export type Database = {
       platform_credit_notes: {
         Row: {
           booking_id: string
+          country_code: string | null
+          country_config_version: number | null
           created_at: string
           credit_note_number: string
           currency: string
@@ -1647,12 +1667,15 @@ export type Database = {
           reversed_total: number
           reversed_vat_amount: number
           stripe_refund_id: string | null
+          tax_config_version: number | null
           updated_at: string
           vat_rate: number
           vat_treatment: string
         }
         Insert: {
           booking_id: string
+          country_code?: string | null
+          country_config_version?: number | null
           created_at?: string
           credit_note_number: string
           currency: string
@@ -1670,12 +1693,15 @@ export type Database = {
           reversed_total: number
           reversed_vat_amount?: number
           stripe_refund_id?: string | null
+          tax_config_version?: number | null
           updated_at?: string
           vat_rate?: number
           vat_treatment: string
         }
         Update: {
           booking_id?: string
+          country_code?: string | null
+          country_config_version?: number | null
           created_at?: string
           credit_note_number?: string
           currency?: string
@@ -1693,6 +1719,7 @@ export type Database = {
           reversed_total?: number
           reversed_vat_amount?: number
           stripe_refund_id?: string | null
+          tax_config_version?: number | null
           updated_at?: string
           vat_rate?: number
           vat_treatment?: string
@@ -1717,6 +1744,8 @@ export type Database = {
       platform_fee_invoices: {
         Row: {
           booking_id: string
+          country_code: string | null
+          country_config_version: number | null
           created_at: string
           currency: string
           id: string
@@ -1729,6 +1758,7 @@ export type Database = {
           provider_user_id: string
           status: string
           subtotal_amount: number
+          tax_config_version: number | null
           total_amount: number
           updated_at: string
           vat_amount: number
@@ -1737,6 +1767,8 @@ export type Database = {
         }
         Insert: {
           booking_id: string
+          country_code?: string | null
+          country_config_version?: number | null
           created_at?: string
           currency: string
           id?: string
@@ -1749,6 +1781,7 @@ export type Database = {
           provider_user_id: string
           status?: string
           subtotal_amount: number
+          tax_config_version?: number | null
           total_amount: number
           updated_at?: string
           vat_amount?: number
@@ -1757,6 +1790,8 @@ export type Database = {
         }
         Update: {
           booking_id?: string
+          country_code?: string | null
+          country_config_version?: number | null
           created_at?: string
           currency?: string
           id?: string
@@ -1769,6 +1804,7 @@ export type Database = {
           provider_user_id?: string
           status?: string
           subtotal_amount?: number
+          tax_config_version?: number | null
           total_amount?: number
           updated_at?: string
           vat_amount?: number
@@ -2719,6 +2755,24 @@ export type Database = {
         }
         Relationships: []
       }
+      platform_tax_settings_v: {
+        Row: {
+          country_code: string | null
+          country_config_json: Json | null
+          country_config_status: string | null
+          country_config_version: number | null
+          created_at: string | null
+          id: string | null
+          invoice_series_prefix: string | null
+          legal_entity_address: string | null
+          legal_entity_name: string | null
+          next_invoice_number: number | null
+          tax_id: string | null
+          updated_at: string | null
+          vat_rate: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       get_providers_in_bounds: {
@@ -2732,6 +2786,22 @@ export type Database = {
           lat: number
           lng: number
           provider_id: string
+        }[]
+      }
+      get_published_country_config: {
+        Args: { _iso: string }
+        Returns: {
+          active: boolean
+          commission_bps: number
+          config: Json
+          config_version: number
+          currency: string
+          default_language: string
+          iso: string
+          launch_status: string
+          published_at: string
+          timezone: string
+          vat_rate_bps: number
         }[]
       }
       get_user_roles: {
