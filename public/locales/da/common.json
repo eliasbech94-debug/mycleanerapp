@@ -1,0 +1,35 @@
+{
+  "app_name": "MyCleaner",
+  "actions": {
+    "save": "Gem",
+    "cancel": "Annullér",
+    "back": "Tilbage",
+    "next": "Næste",
+    "continue": "Fortsæt",
+    "delete": "Slet",
+    "confirm": "Bekræft",
+    "close": "Luk",
+    "loading": "Indlæser…"
+  },
+  "nav": {
+    "home": "Forside",
+    "bookings": "Bookinger",
+    "inbox": "Indbakke",
+    "profile": "Profil",
+    "logout": "Log ud"
+  },
+  "language": {
+    "label": "Sprog",
+    "da": "Dansk",
+    "en": "English",
+    "sv": "Svenska",
+    "es": "Español"
+  },
+  "country": {
+    "label": "Land",
+    "DK": "Danmark",
+    "GB": "Storbritannien",
+    "SE": "Sverige",
+    "ES": "Spanien"
+  }
+}
