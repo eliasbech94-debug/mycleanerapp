@@ -85,6 +85,7 @@ function AppRoutes() {
       <Route path="/provider/disputes/:id" element={<RoleGuard allow={["provider", "admin"]}><ProviderDisputes /></RoleGuard>} />
       <Route path="/privatliv" element={<PrivacyCenter />} />
       <Route path="/admin/ops" element={<RoleGuard allow={["admin"]}><AdminOps /></RoleGuard>} />
+      <Route path="/admin/countries" element={<RoleGuard allow={["admin"]}><CountryConsole /></RoleGuard>} />
       <Route path="/faq" element={<FAQ />} />
       <Route path="/regler" element={<Regler />} />
       <Route
