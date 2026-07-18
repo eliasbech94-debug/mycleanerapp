@@ -20,13 +20,15 @@ function form(obj: Record<string, any>, prefix = ""): string {
   return out.join("&");
 }
 
-async function stripe(path: string, body: Record<string, any>, key: string) {
+async function stripe(path: string, body: Record<string, any>, key: string, idem?: string) {
+  const headers: Record<string, string> = {
+    Authorization: `Bearer ${key}`,
+    "Content-Type": "application/x-www-form-urlencoded",
+  };
+  if (idem) headers["Idempotency-Key"] = idem;
   const res = await fetch(`${STRIPE}${path}`, {
     method: "POST",
-    headers: {
-      Authorization: `Bearer ${key}`,
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
+    headers,
     body: form(body),
   });
   const json = await res.json();
