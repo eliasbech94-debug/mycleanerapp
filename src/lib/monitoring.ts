@@ -111,9 +111,9 @@ export async function captureError(input: CaptureInput | Error, meta?: Record<st
     await supabase.functions.invoke("client-error", { body: payload });
   } catch { /* swallow */ }
 
-  if (SENTRY_DSN && typeof (globalThis as any).Sentry?.captureException === "function") {
+  if (SENTRY_DSN) {
     try {
-      (globalThis as any).Sentry.captureException(input instanceof Error ? input : new Error(payload.message), {
+      Sentry.captureException(input instanceof Error ? input : new Error(payload.message), {
         tags: { category: payload.category, release: RELEASE, correlation_id: payload.correlation_id },
         extra: payload.metadata,
       });
