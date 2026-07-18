@@ -113,7 +113,7 @@ const Header = () => {
         <nav className="hidden md:flex items-center gap-8">
           {primary.map((l) => (
             <Link
-              key={l.to}
+              key={`${l.to}-${l.label}`}
               to={l.to}
               className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
             >
@@ -148,7 +148,7 @@ const Header = () => {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 {account.map((l) => (
-                  <DropdownMenuItem key={l.to} asChild>
+                  <DropdownMenuItem key={`${l.to}-${l.label}`} asChild>
                     <Link to={l.to}>{l.label}</Link>
                   </DropdownMenuItem>
                 ))}
@@ -179,7 +179,7 @@ const Header = () => {
         <div className="md:hidden border-t border-border bg-background p-4 space-y-3 animate-fade-up">
           {primary.map((l) => (
             <Link
-              key={l.to}
+              key={`${l.to}-${l.label}`}
               to={l.to}
               className="block py-2 text-sm font-medium"
               onClick={() => setMobileOpen(false)}
@@ -192,7 +192,7 @@ const Header = () => {
             <>
               {account.map((l) => (
                 <Link
-                  key={l.to}
+                  key={`${l.to}-${l.label}`}
                   to={l.to}
                   className="block py-2 text-sm font-medium"
                   onClick={() => setMobileOpen(false)}
