@@ -564,15 +564,171 @@ export default function FindCleaner() {
               </p>
             </div>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-9 gap-1.5 text-xs"
-            onClick={() => setDrawerOpen(true)}
-          >
-            <ChevronUp className="h-4 w-4" />
-            Se liste
-          </Button>
+          <div className="flex items-center gap-2">
+            <Sheet open={filterSheetOpen} onOpenChange={setFilterSheetOpen}>
+              <SheetTrigger asChild>
+                <Button variant="outline" size="sm" className="h-9 gap-1.5 text-xs relative">
+                  <SlidersHorizontal className="h-4 w-4" />
+                  Filtre
+                  {activeFilterCount > 0 && (
+                    <span className="ml-1 rounded-full bg-primary text-primary-foreground text-[10px] px-1.5 py-0.5 font-bold leading-none">
+                      {activeFilterCount}
+                    </span>
+                  )}
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
+                <SheetHeader>
+                  <SheetTitle>Filtrér cleaners</SheetTitle>
+                </SheetHeader>
+
+                <div className="mt-6 space-y-6 pb-6">
+                  {/* Quick toggles */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setAvailableTodayOnly((v) => !v)}
+                      aria-pressed={availableTodayOnly}
+                      className={`rounded-xl border p-3 text-left transition ${
+                        availableTodayOnly ? "border-primary bg-primary/5" : "border-border hover:bg-muted"
+                      }`}
+                    >
+                      <CalendarCheck className="h-4 w-4 mb-1 text-primary" />
+                      <div className="text-xs font-semibold">Ledig i dag</div>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setInstantBookOnly((v) => !v)}
+                      aria-pressed={instantBookOnly}
+                      className={`rounded-xl border p-3 text-left transition ${
+                        instantBookOnly ? "border-primary bg-primary/5" : "border-border hover:bg-muted"
+                      }`}
+                    >
+                      <Zap className="h-4 w-4 mb-1 text-primary" />
+                      <div className="text-xs font-semibold">Instant Book</div>
+                    </button>
+                  </div>
+
+                  {/* Rating */}
+                  <div>
+                    <div className="flex justify-between items-center mb-2">
+                      <label className="text-sm font-semibold">Min. rating</label>
+                      <span className="text-xs text-muted-foreground">
+                        {minRating > 0 ? `${minRating.toFixed(1)}★+` : "Alle"}
+                      </span>
+                    </div>
+                    <Slider
+                      value={[minRating]}
+                      onValueChange={([v]) => setMinRating(v)}
+                      min={0}
+                      max={5}
+                      step={0.5}
+                    />
+                  </div>
+
+                  {/* Max hourly */}
+                  <div>
+                    <div className="flex justify-between items-center mb-2">
+                      <label className="text-sm font-semibold">Maks. timepris</label>
+                      <span className="text-xs text-muted-foreground">
+                        {maxHourly !== null ? `${maxHourly} kr/t` : "Alle"}
+                      </span>
+                    </div>
+                    <Slider
+                      value={[maxHourly ?? 800]}
+                      onValueChange={([v]) => setMaxHourly(v >= 800 ? null : v)}
+                      min={150}
+                      max={800}
+                      step={25}
+                    />
+                  </div>
+
+                  {/* Experience */}
+                  <div>
+                    <div className="flex justify-between items-center mb-2">
+                      <label className="text-sm font-semibold">Min. års erfaring</label>
+                      <span className="text-xs text-muted-foreground">
+                        {minExperience > 0 ? `${minExperience}+ år` : "Alle"}
+                      </span>
+                    </div>
+                    <Slider
+                      value={[minExperience]}
+                      onValueChange={([v]) => setMinExperience(v)}
+                      min={0}
+                      max={15}
+                      step={1}
+                    />
+                  </div>
+
+                  {/* Languages */}
+                  <div>
+                    <div className="text-sm font-semibold mb-2">Sprog</div>
+                    <div className="flex flex-wrap gap-2">
+                      {languageOptions.map((lang) => {
+                        const active = selectedLanguages.has(lang);
+                        return (
+                          <button
+                            key={lang}
+                            type="button"
+                            onClick={() => setSelectedLanguages((prev) => {
+                              const next = new Set(prev);
+                              if (next.has(lang)) next.delete(lang); else next.add(lang);
+                              return next;
+                            })}
+                            aria-pressed={active}
+                            className={`rounded-full border px-3 py-1 text-xs font-medium transition ${
+                              active ? "border-primary bg-primary text-primary-foreground" : "border-border bg-background hover:bg-muted"
+                            }`}
+                          >
+                            {lang}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Services */}
+                  <div>
+                    <div className="text-sm font-semibold mb-2">Services</div>
+                    <div className="space-y-2">
+                      {serviceOptions.map((svc) => (
+                        <label key={svc} className="flex items-center gap-2 text-sm cursor-pointer">
+                          <Checkbox
+                            checked={selectedServices.has(svc)}
+                            onCheckedChange={(checked) => setSelectedServices((prev) => {
+                              const next = new Set(prev);
+                              if (checked) next.add(svc); else next.delete(svc);
+                              return next;
+                            })}
+                          />
+                          {svc}
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <SheetFooter className="sticky bottom-0 bg-background border-t pt-3 flex-row gap-2">
+                  <Button variant="outline" className="flex-1" onClick={clearAllFilters}>
+                    Nulstil
+                  </Button>
+                  <Button className="flex-1" onClick={() => setFilterSheetOpen(false)}>
+                    Vis {filteredProviders.length} cleaners
+                  </Button>
+                </SheetFooter>
+              </SheetContent>
+            </Sheet>
+
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-9 gap-1.5 text-xs"
+              onClick={() => setDrawerOpen(true)}
+            >
+              <ChevronUp className="h-4 w-4" />
+              Se liste
+            </Button>
+          </div>
         </div>
         <div
           className="flex flex-wrap gap-1.5"
