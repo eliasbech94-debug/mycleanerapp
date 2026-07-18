@@ -109,12 +109,15 @@ function AppRoutes() {
 function CountryScopedRoutes() {
   const { country } = useParams<{ country?: string }>();
   if (!isValidCountryParam(country)) {
-    // Preserve path + query so we don't drop deep links on redirect.
-    const to = { pathname: "/not-found", search: window.location.search };
-    return <Navigate to={to} replace state={{ badCountry: country }} />;
+    // Fall through to the un-prefixed route tree so that top-level paths
+    // like /not-found, /book, /faq, /provider/:id still resolve. Without
+    // this, "/not-found" would match /:country/* (country="not-found"),
+    // redirect back to "/not-found", and loop into the error boundary.
+    return <AppRoutes />;
   }
   return <AppRoutes />;
 }
+
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
