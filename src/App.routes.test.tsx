@@ -1,15 +1,21 @@
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter, useParams } from "react-router-dom";
+import type { ReactNode } from "react";
 import { describe, expect, it, vi } from "vitest";
 
+vi.mock("@/lib/monitoring", () => ({
+  initSentry: vi.fn(),
+  installFrontendMonitoring: vi.fn(),
+}));
+
 vi.mock("@/i18n/CountryContext", () => ({
-  CountryProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  CountryProvider: ({ children }: { children: ReactNode }) => <>{children}</>,
   isValidCountryParam: (p?: string) => !!p && ["dk", "gb", "se", "es"].includes(p.toLowerCase()),
   SUPPORTED_COUNTRIES: ["DK", "GB", "SE", "ES"],
 }));
 
 vi.mock("@/components/RoleGuard", () => ({
-  RoleGuard: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  RoleGuard: ({ children }: { children: ReactNode }) => <>{children}</>,
 }));
 
 vi.mock("./pages/FindCleaner", () => ({ default: () => <main data-testid="find-cleaner">FindCleaner</main> }));
