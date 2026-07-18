@@ -33,6 +33,8 @@ import FAQ from "./pages/FAQ";
 import Regler from "./pages/Regler";
 import FindCleaner from "./pages/FindCleaner";
 import { ProviderFinance, AdminFinance } from "./pages/finance/FinancePages";
+import AdminDisputes from "./pages/AdminDisputes";
+import ProviderDisputes from "./pages/ProviderDisputes";
 import { RoleGuard } from "@/components/RoleGuard";
 import ScrollToTop from "@/components/ScrollToTop";
 import RouteLoadingBar from "@/components/RouteLoadingBar";
@@ -124,6 +126,10 @@ const App = () => (
 
             <Route path="/provider/finance" element={<ProviderFinance />} />
             <Route path="/admin/finance" element={<AdminFinance />} />
+            <Route path="/admin/disputes" element={<RoleGuard allow={["admin"]}><AdminDisputes /></RoleGuard>} />
+            <Route path="/provider/disputes" element={<RoleGuard allow={["provider", "admin"]}><ProviderDisputes /></RoleGuard>} />
+            <Route path="/provider/disputes/:id" element={<RoleGuard allow={["provider", "admin"]}><ProviderDisputes /></RoleGuard>} />
+
 
 
 
