@@ -439,6 +439,66 @@ export type Database = {
         }
         Relationships: []
       }
+      country_configs: {
+        Row: {
+          active: boolean
+          commission_bps: number
+          config: Json
+          config_version: number
+          created_at: string
+          currency: string
+          default_language: string
+          iso: string
+          launch_status: string
+          published_at: string | null
+          published_by: string | null
+          status: string
+          stripe_account_id: string | null
+          supported_languages: string[]
+          timezone: string
+          updated_at: string
+          vat_rate_bps: number
+        }
+        Insert: {
+          active?: boolean
+          commission_bps?: number
+          config?: Json
+          config_version?: number
+          created_at?: string
+          currency: string
+          default_language: string
+          iso: string
+          launch_status?: string
+          published_at?: string | null
+          published_by?: string | null
+          status?: string
+          stripe_account_id?: string | null
+          supported_languages?: string[]
+          timezone: string
+          updated_at?: string
+          vat_rate_bps?: number
+        }
+        Update: {
+          active?: boolean
+          commission_bps?: number
+          config?: Json
+          config_version?: number
+          created_at?: string
+          currency?: string
+          default_language?: string
+          iso?: string
+          launch_status?: string
+          published_at?: string | null
+          published_by?: string | null
+          status?: string
+          stripe_account_id?: string | null
+          supported_languages?: string[]
+          timezone?: string
+          updated_at?: string
+          vat_rate_bps?: number
+        }
+        Relationships: []
+      }
       customer_addresses: {
         Row: {
           access_code: string | null
@@ -859,6 +919,48 @@ export type Database = {
           status_code?: number | null
           user_agent?: string | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      feature_flags: {
+        Row: {
+          created_at: string
+          enabled: boolean
+          flag_key: string
+          id: string
+          reason: string | null
+          rollout_pct: number
+          rollout_seed: string | null
+          scope: string
+          target_id: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          enabled?: boolean
+          flag_key: string
+          id?: string
+          reason?: string | null
+          rollout_pct?: number
+          rollout_seed?: string | null
+          scope: string
+          target_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          enabled?: boolean
+          flag_key?: string
+          id?: string
+          reason?: string | null
+          rollout_pct?: number
+          rollout_seed?: string | null
+          scope?: string
+          target_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
         }
         Relationships: []
       }
@@ -1312,6 +1414,54 @@ export type Database = {
         }
         Relationships: []
       }
+      legal_documents: {
+        Row: {
+          body_hash: string
+          body_md: string
+          country_code: string
+          created_at: string
+          created_by: string | null
+          effective_at: string | null
+          id: string
+          kind: string
+          language: string
+          published_at: string | null
+          status: string
+          superseded_at: string | null
+          version: string
+        }
+        Insert: {
+          body_hash: string
+          body_md: string
+          country_code: string
+          created_at?: string
+          created_by?: string | null
+          effective_at?: string | null
+          id?: string
+          kind: string
+          language: string
+          published_at?: string | null
+          status?: string
+          superseded_at?: string | null
+          version: string
+        }
+        Update: {
+          body_hash?: string
+          body_md?: string
+          country_code?: string
+          created_at?: string
+          created_by?: string | null
+          effective_at?: string | null
+          id?: string
+          kind?: string
+          language?: string
+          published_at?: string | null
+          status?: string
+          superseded_at?: string | null
+          version?: string
+        }
+        Relationships: []
+      }
       legal_holds: {
         Row: {
           active: boolean
@@ -1686,14 +1836,18 @@ export type Database = {
           address_country_code: string | null
           address_place_id: string | null
           country_code: string | null
+          country_manual: boolean
           created_at: string
           deactivated_at: string | null
           deactivation_reason: string | null
           encryption_version: number
           full_name: string | null
           id: string
+          language_manual: boolean
           lat: number | null
+          legal_acceptance_required: boolean
           lng: number | null
+          marketplace_country: string | null
           notification_prefs: Json
           phone: string | null
           provider_id: string | null
@@ -1709,6 +1863,7 @@ export type Database = {
           tax_id_last4: string | null
           tax_municipality: string | null
           tax_type: string | null
+          ui_language: string | null
           updated_at: string
         }
         Insert: {
@@ -1716,14 +1871,18 @@ export type Database = {
           address_country_code?: string | null
           address_place_id?: string | null
           country_code?: string | null
+          country_manual?: boolean
           created_at?: string
           deactivated_at?: string | null
           deactivation_reason?: string | null
           encryption_version?: number
           full_name?: string | null
           id: string
+          language_manual?: boolean
           lat?: number | null
+          legal_acceptance_required?: boolean
           lng?: number | null
+          marketplace_country?: string | null
           notification_prefs?: Json
           phone?: string | null
           provider_id?: string | null
@@ -1739,6 +1898,7 @@ export type Database = {
           tax_id_last4?: string | null
           tax_municipality?: string | null
           tax_type?: string | null
+          ui_language?: string | null
           updated_at?: string
         }
         Update: {
@@ -1746,14 +1906,18 @@ export type Database = {
           address_country_code?: string | null
           address_place_id?: string | null
           country_code?: string | null
+          country_manual?: boolean
           created_at?: string
           deactivated_at?: string | null
           deactivation_reason?: string | null
           encryption_version?: number
           full_name?: string | null
           id?: string
+          language_manual?: boolean
           lat?: number | null
+          legal_acceptance_required?: boolean
           lng?: number | null
+          marketplace_country?: string | null
           notification_prefs?: Json
           phone?: string | null
           provider_id?: string | null
@@ -1769,6 +1933,7 @@ export type Database = {
           tax_id_last4?: string | null
           tax_municipality?: string | null
           tax_type?: string | null
+          ui_language?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -2391,6 +2556,56 @@ export type Database = {
         }
         Relationships: []
       }
+      user_legal_acceptances: {
+        Row: {
+          accepted_at: string
+          country_code: string
+          document_hash: string
+          document_id: string
+          id: string
+          ip: string | null
+          language: string
+          source: string
+          user_agent: string | null
+          user_id: string
+          version: string
+        }
+        Insert: {
+          accepted_at?: string
+          country_code: string
+          document_hash: string
+          document_id: string
+          id?: string
+          ip?: string | null
+          language: string
+          source?: string
+          user_agent?: string | null
+          user_id: string
+          version: string
+        }
+        Update: {
+          accepted_at?: string
+          country_code?: string
+          document_hash?: string
+          document_id?: string
+          id?: string
+          ip?: string | null
+          language?: string
+          source?: string
+          user_agent?: string | null
+          user_id?: string
+          version?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_legal_acceptances_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "legal_documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -2459,7 +2674,51 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      country_configs_public: {
+        Row: {
+          active: boolean | null
+          booking_public: Json | null
+          contact_public: Json | null
+          currency: string | null
+          default_language: string | null
+          feature_availability_public: Json | null
+          iso: string | null
+          launch_status: string | null
+          legal_references_public: Json | null
+          payment_methods_public: Json | null
+          supported_languages: string[] | null
+          timezone: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          booking_public?: never
+          contact_public?: never
+          currency?: string | null
+          default_language?: string | null
+          feature_availability_public?: never
+          iso?: string | null
+          launch_status?: string | null
+          legal_references_public?: never
+          payment_methods_public?: never
+          supported_languages?: string[] | null
+          timezone?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          booking_public?: never
+          contact_public?: never
+          currency?: string | null
+          default_language?: string | null
+          feature_availability_public?: never
+          iso?: string | null
+          launch_status?: string | null
+          legal_references_public?: never
+          payment_methods_public?: never
+          supported_languages?: string[] | null
+          timezone?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       get_providers_in_bounds: {

@@ -1,0 +1,35 @@
+{
+  "app_name": "MyCleaner",
+  "actions": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "back": "Back",
+    "next": "Next",
+    "continue": "Continue",
+    "delete": "Delete",
+    "confirm": "Confirm",
+    "close": "Close",
+    "loading": "Loading…"
+  },
+  "nav": {
+    "home": "Home",
+    "bookings": "Bookings",
+    "inbox": "Inbox",
+    "profile": "Profile",
+    "logout": "Log out"
+  },
+  "language": {
+    "label": "Language",
+    "da": "Dansk",
+    "en": "English",
+    "sv": "Svenska",
+    "es": "Español"
+  },
+  "country": {
+    "label": "Country",
+    "DK": "Denmark",
+    "GB": "United Kingdom",
+    "SE": "Sweden",
+    "ES": "Spain"
+  }
+}
