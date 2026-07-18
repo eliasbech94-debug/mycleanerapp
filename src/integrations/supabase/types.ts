@@ -529,6 +529,7 @@ export type Database = {
           default_language: string
           iso: string
           launch_status: string
+          lifecycle_state: Database["public"]["Enums"]["country_lifecycle_state"]
           pricing_rules: Json
           published_at: string | null
           published_by: string | null
@@ -550,6 +551,7 @@ export type Database = {
           default_language: string
           iso: string
           launch_status?: string
+          lifecycle_state?: Database["public"]["Enums"]["country_lifecycle_state"]
           pricing_rules?: Json
           published_at?: string | null
           published_by?: string | null
@@ -571,6 +573,7 @@ export type Database = {
           default_language?: string
           iso?: string
           launch_status?: string
+          lifecycle_state?: Database["public"]["Enums"]["country_lifecycle_state"]
           pricing_rules?: Json
           published_at?: string | null
           published_by?: string | null
@@ -622,6 +625,42 @@ export type Database = {
           surcharge_eligible?: boolean
           updated_at?: string
           year?: number | null
+        }
+        Relationships: []
+      }
+      country_readiness_runs: {
+        Row: {
+          actor: string | null
+          actor_kind: string
+          checks: Json
+          config_version: number
+          deployment_version: string | null
+          id: string
+          iso: string
+          passed: boolean
+          ran_at: string
+        }
+        Insert: {
+          actor?: string | null
+          actor_kind?: string
+          checks?: Json
+          config_version: number
+          deployment_version?: string | null
+          id?: string
+          iso: string
+          passed: boolean
+          ran_at?: string
+        }
+        Update: {
+          actor?: string | null
+          actor_kind?: string
+          checks?: Json
+          config_version?: number
+          deployment_version?: string | null
+          id?: string
+          iso?: string
+          passed?: boolean
+          ran_at?: string
         }
         Relationships: []
       }
@@ -2898,6 +2937,14 @@ export type Database = {
       }
     }
     Functions: {
+      get_lifecycle_public_isos: {
+        Args: never
+        Returns: {
+          default_language: string
+          iso: string
+          supported_languages: string[]
+        }[]
+      }
       get_providers_in_bounds: {
         Args: { ne_lat: number; ne_lng: number; sw_lat: number; sw_lng: number }
         Returns: {
@@ -2938,7 +2985,9 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_country_bookable: { Args: { _iso: string }; Returns: boolean }
       is_country_launch_ready: { Args: { _iso: string }; Returns: boolean }
+      is_country_visible: { Args: { _iso: string }; Returns: boolean }
       is_under_legal_hold: {
         Args: { _target_id: string; _target_type: string }
         Returns: boolean
@@ -2990,6 +3039,13 @@ export type Database = {
         | "declined"
         | "cancelled"
         | "completed"
+      country_lifecycle_state:
+        | "development"
+        | "beta"
+        | "launch_ready"
+        | "active"
+        | "suspended"
+        | "retired"
       payment_status:
         | "none"
         | "authorized"
@@ -3142,6 +3198,14 @@ export const Constants = {
         "declined",
         "cancelled",
         "completed",
+      ],
+      country_lifecycle_state: [
+        "development",
+        "beta",
+        "launch_ready",
+        "active",
+        "suspended",
+        "retired",
       ],
       payment_status: [
         "none",
