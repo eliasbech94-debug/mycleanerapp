@@ -57,6 +57,24 @@ Deno.serve(async (req) => {
     });
   }
 
+  // ---------- Dispute / chargeback events ----------
+  if (event.type.startsWith("charge.dispute.")) {
+    try {
+      const res = await handleDisputeEvent(admin, stripe, event);
+      await logEvent(event, {
+        dispute_id: res.dispute_id,
+        booking_id: res.booking_id,
+        status: (event.data.object as any)?.status ?? null,
+        amount: (event.data.object as any)?.amount ?? null,
+        currency: (event.data.object as any)?.currency ?? null,
+      });
+    } catch (e) {
+      console.error("dispute handler failed", e);
+      await logEvent(event, { status: "handler_error" });
+    }
+    return new Response("ok", { status: 200 });
+  }
+
   // ---------- Refund events ----------
   if (
     event.type === "charge.refunded" ||
