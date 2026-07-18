@@ -3,7 +3,7 @@ import { Bell, Loader2, MessageSquare, PiggyBank, Receipt, ShieldOff, Sparkles }
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { DK_MUNICIPALITIES, validateCPR, validateCVR, encodeTaxId, maskTaxId } from "@/lib/tax";
+import { DK_MUNICIPALITIES, validateCPR, validateCVR } from "@/lib/tax";
 
 const C = { ink: "#0a3d3a", orange: "#ff6b35", cream: "#f5f0e0", teal: "#168a7a", mint: "#c8e6c0" };
 
@@ -331,7 +331,7 @@ export function SmsTab() {
   );
 }
 
-/* ---------- SKATTEOPLYSNINGER ---------- */
+/* ---------- SKATTEOPLYSNINGER (pgcrypto server-side) ---------- */
 export function TaxTab() {
   const { user } = useAuth();
   const [taxId, setTaxId] = useState("");
@@ -340,82 +340,66 @@ export function TaxTab() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const [storedEncoded, setStoredEncoded] = useState<string | null>(null);
+  const [storedLast4, setStoredLast4] = useState<string | null>(null);
+  const [hasStored, setHasStored] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const hasStored = !!storedEncoded;
 
   async function load() {
     if (!user) return;
     setLoading(true);
-    const { data } = await supabase
-      .from("profiles")
-      .select("tax_id_encrypted, tax_municipality, tax_type")
-      .eq("id", user.id)
-      .maybeSingle();
-    const d: any = data || {};
-    setStoredEncoded(d.tax_id_encrypted ?? null);
-    setMunicipality(d.tax_municipality || "");
-    setType((d.tax_type as "private" | "business") || "private");
+    const { data, error: err } = await supabase.functions.invoke("profile-tax-id", { method: "GET" });
+    if (!err && data) {
+      setStoredLast4(data.tax_id_last4 ?? null);
+      setHasStored(!!data.has_tax_id);
+      setMunicipality(data.tax_municipality || "");
+      setType((data.tax_type as "private" | "business") || "private");
+    }
     setLoading(false);
   }
 
   useEffect(() => { load(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [user]);
-
-  // Reset input when type changes so a CPR isn't validated as CVR
   useEffect(() => { setTaxId(""); setError(null); }, [type]);
 
   async function save() {
     if (!user) return;
     setError(null);
-
-    // Municipality required + must match known list
     if (!municipality) { setError("Vælg din skattekommune"); return; }
-    if (!DK_MUNICIPALITIES.includes(municipality)) {
-      setError("Ukendt kommune — vælg fra listen"); return;
-    }
+    if (!DK_MUNICIPALITIES.includes(municipality)) { setError("Ukendt kommune — vælg fra listen"); return; }
 
-    // Only validate/encode taxId if user typed one (or nothing stored yet)
-    let encoded: string | undefined;
+    let normalized: string | undefined;
     if (taxId.trim() || !hasStored) {
       if (!taxId.trim()) { setError(type === "private" ? "Indtast CPR-nummer" : "Indtast CVR-nummer"); return; }
       const v = type === "private" ? validateCPR(taxId) : validateCVR(taxId);
       if (!v.ok || !v.normalized) { setError(v.error || "Ugyldigt nummer"); return; }
-      encoded = encodeTaxId(v.normalized);
+      normalized = v.normalized;
     }
 
     setSaving(true);
-    const patch: any = { tax_municipality: municipality, tax_type: type };
-    if (encoded) patch.tax_id_encrypted = encoded;
-    const { error: err } = await supabase.from("profiles").update(patch).eq("id", user.id);
+    const { data, error: err } = await supabase.functions.invoke("profile-tax-id", {
+      method: "POST",
+      body: { tax_id: normalized, tax_municipality: municipality, tax_type: type },
+    });
     setSaving(false);
-    if (err) { toast.error("Kunne ikke gemme skatteoplysninger"); return; }
+    if (err || data?.error) { toast.error("Kunne ikke gemme skatteoplysninger"); return; }
     toast.success("Skatteoplysninger gemt");
     setTaxId("");
-    if (encoded) setStoredEncoded(encoded);
+    await load();
   }
 
   async function remove() {
     if (!user) return;
     if (!window.confirm("Slet dine skatteoplysninger permanent?")) return;
     setDeleting(true);
-    const { error: err } = await supabase.from("profiles").update({
-      tax_id_encrypted: null,
-      tax_municipality: null,
-      tax_type: null,
-    } as any).eq("id", user.id);
+    const { error: err } = await supabase.functions.invoke("profile-tax-id", { method: "DELETE" });
     setDeleting(false);
     if (err) { toast.error("Kunne ikke slette"); return; }
     toast.success("Skatteoplysninger slettet");
-    setStoredEncoded(null);
-    setMunicipality("");
-    setType("private");
-    setTaxId("");
+    setStoredLast4(null); setHasStored(false); setMunicipality(""); setType("private"); setTaxId("");
   }
 
   if (loading) return <div className="grid place-items-center py-16"><Loader2 className="h-6 w-6 animate-spin" /></div>;
 
-  const stored = hasStored ? maskTaxId(type, storedEncoded) : "";
+  const stored = hasStored && storedLast4 ? `••••${storedLast4}` : "";
 
   return (
     <Card title="Skatteoplysninger" icon={Receipt}>

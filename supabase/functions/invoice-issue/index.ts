@@ -57,9 +57,9 @@ Deno.serve(async (req) => {
     }
 
     // Provider tax profile
-    let { data: taxProfile } = await admin.from("provider_tax_profiles")
+    let { data: taxProfileRow } = await admin.from("provider_tax_profiles")
       .select("*").eq("provider_user_id", providerUserId).maybeSingle();
-    if (!taxProfile) {
+    if (!taxProfileRow) {
       // Auto-seed with country from profiles.country_code if present
       const { data: prof } = await admin.from("profiles")
         .select("country_code, tax_type").eq("id", providerUserId).maybeSingle();
@@ -71,8 +71,25 @@ Deno.serve(async (req) => {
       };
       const { data: created } = await admin.from("provider_tax_profiles")
         .insert(defaults).select("*").maybeSingle();
-      taxProfile = created;
+      taxProfileRow = created;
     }
+
+    // Decrypt sensitive tax fields for invoice/snapshot rendering.
+    const TAX_KEY = Deno.env.get("TAX_ENCRYPTION_KEY");
+    async function dec(v: unknown): Promise<string | null> {
+      if (!v || !TAX_KEY) return null;
+      const { data } = await admin.rpc("tax_decrypt", { _ciphertext: v, _key: TAX_KEY });
+      return (data as string | null) ?? null;
+    }
+    const [_vatNum, _bizName, _bizAddr, _taxId] = await Promise.all([
+      dec(taxProfileRow?.vat_number_enc),
+      dec(taxProfileRow?.business_name_enc),
+      dec(taxProfileRow?.business_address_enc),
+      dec(taxProfileRow?.tax_id_enc),
+    ]);
+    const taxProfile = taxProfileRow
+      ? { ...taxProfileRow, vat_number: _vatNum, business_name: _bizName, business_address: _bizAddr, tax_id: _taxId }
+      : null;
 
     // Platform tax settings — use provider country as invoicing country
     // (MyCleaner invoices in the market where the service is delivered).
