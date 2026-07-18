@@ -109,14 +109,17 @@ function AppRoutes() {
 function CountryScopedRoutes() {
   const { country } = useParams<{ country?: string }>();
   if (!isValidCountryParam(country)) {
-    // Fall through to the un-prefixed route tree so that top-level paths
-    // like /not-found, /book, /faq, /provider/:id still resolve. Without
-    // this, "/not-found" would match /:country/* (country="not-found"),
-    // redirect back to "/not-found", and loop into the error boundary.
-    return <AppRoutes />;
+    // Avoid redirect loop: if we're already on /not-found (which matches
+    // /:country/* with country="not-found"), just render NotFound directly.
+    if (typeof window !== "undefined" && window.location.pathname === "/not-found") {
+      return <NotFound />;
+    }
+    const to = { pathname: "/not-found", search: window.location.search };
+    return <Navigate to={to} replace state={{ badCountry: country }} />;
   }
   return <AppRoutes />;
 }
+
 
 
 const App = () => (
