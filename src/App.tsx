@@ -141,6 +141,7 @@ const App = () => (
 
 
             <Route path="/privatliv" element={<PrivacyCenter />} />
+            <Route path="/admin/ops" element={<RoleGuard allow={["admin"]}><AdminOps /></RoleGuard>} />
             <Route path="/faq" element={<FAQ />} />
             <Route path="/regler" element={<Regler />} />
             <Route
@@ -155,6 +156,7 @@ const App = () => (
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
+    </AppErrorBoundary>
   </QueryClientProvider>
 );
 
