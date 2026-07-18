@@ -6,6 +6,7 @@ import { collectUserData } from "../_shared/gdpr.ts";
 import { writeAudit } from "../_shared/audit.ts";
 
 import { monitored } from "../_shared/logger.ts";
+import { startJobRun } from "../_shared/jobrun.ts";
 const admin = createClient(
   Deno.env.get("SUPABASE_URL")!,
   Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
@@ -15,6 +16,8 @@ const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const EXPIRY_HOURS = 24 * 7; // 7 days
 
 Deno.serve(monitored("gdpr-export-worker", async (req, _log) => {
+  const _run = await startJobRun("gdpr-export-worker", _log.correlationId);
+  try {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   const json = (b: unknown, s = 200) =>
     new Response(JSON.stringify(b), { status: s, headers: { ...corsHeaders, "Content-Type": "application/json" } });
@@ -77,4 +80,7 @@ Deno.serve(monitored("gdpr-export-worker", async (req, _log) => {
   }
 
   return json({ processed: results.length, results });
+
+  } catch (e) { await _run.finish("failed", {}, e); throw e; }
+  finally { try { await _run.finish("completed", {}); } catch {} }
 }));

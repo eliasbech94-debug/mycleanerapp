@@ -14,6 +14,7 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 import { authenticate, requireRole } from "../_shared/auth.ts";
 
 import { monitored } from "../_shared/logger.ts";
+import { startJobRun } from "../_shared/jobrun.ts";
 const admin = createClient(
   Deno.env.get("SUPABASE_URL")!,
   Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
@@ -35,6 +36,8 @@ type Alert = {
 };
 
 Deno.serve(monitored("finance-reconcile", async (req, _log) => {
+  const _run = await startJobRun("finance-reconcile", _log.correlationId);
+  try {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   const authHeader = req.headers.get("Authorization") ?? "";
@@ -148,4 +151,7 @@ Deno.serve(monitored("finance-reconcile", async (req, _log) => {
     alerts: alerts.length,
     window: { from: windowStart.toISOString(), to: windowEnd.toISOString() },
   });
+
+  } catch (e) { await _run.finish("failed", {}, e); throw e; }
+  finally { try { await _run.finish("completed", {}); } catch {} }
 }));

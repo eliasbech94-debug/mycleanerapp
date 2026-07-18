@@ -6,6 +6,7 @@ import { requireServiceOrAdmin } from "../_shared/auth.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 
 import { monitored } from "../_shared/logger.ts";
+import { startJobRun } from "../_shared/jobrun.ts";
 const admin = createClient(
   Deno.env.get("SUPABASE_URL")!,
   Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
@@ -87,6 +88,8 @@ async function runPolicy(policy: any, forceDry: boolean): Promise<PolicyRun> {
 }
 
 Deno.serve(monitored("gdpr-retention-worker", async (req, _log) => {
+  const _run = await startJobRun("gdpr-retention-worker", _log.correlationId);
+  try {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   const json = (b: unknown, s = 200) =>
     new Response(JSON.stringify(b), { status: s, headers: { ...corsHeaders, "Content-Type": "application/json" } });
@@ -121,4 +124,7 @@ Deno.serve(monitored("gdpr-retention-worker", async (req, _log) => {
     }).eq("id", run!.id);
     return json({ error: (e as Error).message }, 500);
   }
+
+  } catch (e) { await _run.finish("failed", {}, e); throw e; }
+  finally { try { await _run.finish("completed", {}); } catch {} }
 }));
