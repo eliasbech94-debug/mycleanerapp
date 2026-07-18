@@ -14,6 +14,7 @@ import {
   LifeBuoy,
   Wallet,
   BarChart3,
+  AlertTriangle,
 } from "lucide-react";
 
 import type { AppRole } from "@/hooks/useUserRoles";
@@ -57,6 +58,7 @@ const rawConfig: Record<DashboardRole, NavGroup[]> = {
         { title: "Payments", url: "/admin/payments", icon: CreditCard },
         { title: "Stripe", url: "/admin/stripe", icon: CreditCard },
         { title: "Webhooks", url: "/admin/webhooks", icon: Webhook },
+        { title: "Indsigelser", url: "/admin/disputes", icon: AlertTriangle },
       ],
     },
     {
@@ -110,6 +112,7 @@ const rawConfig: Record<DashboardRole, NavGroup[]> = {
       defaultRoles: ["provider"],
       items: [
         { title: "Indtjening & udbetalinger", url: "/provider/finance", icon: Wallet },
+        { title: "Indsigelser", url: "/provider/disputes", icon: AlertTriangle },
       ],
     },
     {

@@ -3,6 +3,7 @@
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import Stripe from "npm:stripe@17";
+import { handleDisputeEvent } from "../_shared/disputes.ts";
 
 const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, { apiVersion: "2024-06-20" });
 
@@ -54,6 +55,24 @@ Deno.serve(async (req) => {
       status: 400,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
+  }
+
+  // ---------- Dispute / chargeback events ----------
+  if (event.type.startsWith("charge.dispute.")) {
+    try {
+      const res = await handleDisputeEvent(admin, stripe, event);
+      await logEvent(event, {
+        dispute_id: res.dispute_id,
+        booking_id: res.booking_id,
+        status: (event.data.object as any)?.status ?? null,
+        amount: (event.data.object as any)?.amount ?? null,
+        currency: (event.data.object as any)?.currency ?? null,
+      });
+    } catch (e) {
+      console.error("dispute handler failed", e);
+      await logEvent(event, { status: "handler_error" });
+    }
+    return new Response("ok", { status: 200 });
   }
 
   // ---------- Refund events ----------
