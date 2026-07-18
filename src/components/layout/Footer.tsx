@@ -6,11 +6,9 @@ const Footer = () => {
       <div className="container-wide section-padding">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           <div className="col-span-2 md:col-span-1">
-            <Link to="/" className="flex items-center gap-2 mb-4">
-              <div className="gradient-hero rounded-xl w-8 h-8 flex items-center justify-center">
-                <span className="text-primary-foreground font-heading font-bold">H</span>
-              </div>
-              <span className="font-heading font-bold text-lg">HomeHero</span>
+            <Link to="/" className="flex items-center gap-2 mb-4" aria-label="MyCleaner – forside">
+              <img src="/mycleaner-logo.png" alt="" className="h-8 w-8 object-contain" />
+              <span className="font-heading font-bold text-lg">MyCleaner</span>
             </Link>
             <p className="text-sm text-muted-foreground leading-relaxed">
               Europas smarteste platform for hjemmeservice. Find de bedste lokale fagfolk til enhver opgave.
