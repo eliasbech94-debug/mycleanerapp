@@ -112,6 +112,7 @@ const rawConfig: Record<DashboardRole, NavGroup[]> = {
       defaultRoles: ["provider"],
       items: [
         { title: "Indtjening & udbetalinger", url: "/provider/finance", icon: Wallet },
+        { title: "Indsigelser", url: "/provider/disputes", icon: AlertTriangle },
       ],
     },
     {
