@@ -97,6 +97,7 @@ export function AppRoutes() {
       <Route path="/employee" element={<RoleGuard allow={["employee"]}><EmployeeDashboard /></RoleGuard>} />
       <Route path="/support" element={<RoleGuard allow={["support", "admin"]}><SupportHome /></RoleGuard>} />
       <Route path="/support/inbox" element={<RoleGuard allow={["support", "admin"]}><SupportInbox /></RoleGuard>} />
+      <Route path="/support/inbox/:conversationId" element={<RoleGuard allow={["support", "admin"]}><SupportInbox /></RoleGuard>} />
       <Route path="/support/cases" element={<RoleGuard allow={["support", "admin"]}><SupportCases /></RoleGuard>} />
       <Route path="/support/customers" element={<RoleGuard allow={["support", "admin"]}><SupportCustomers /></RoleGuard>} />
       <Route path="/support/providers" element={<RoleGuard allow={["support", "admin"]}><SupportProviders /></RoleGuard>} />
