@@ -15,11 +15,15 @@ import {
   Wallet,
   BarChart3,
   AlertTriangle,
+  Bell,
+  FileText,
+  MapPin,
+  HelpCircle,
 } from "lucide-react";
 
 import type { AppRole } from "@/hooks/useUserRoles";
 
-export type DashboardRole = "admin" | "employee" | "provider";
+export type DashboardRole = "admin" | "employee" | "provider" | "customer";
 
 export interface NavItem {
   title: string;
