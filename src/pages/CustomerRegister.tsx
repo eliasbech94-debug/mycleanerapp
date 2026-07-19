@@ -211,6 +211,20 @@ const CustomerRegister = () => {
                     <SelectContent>{countries.map((c) => <SelectItem key={c.code} value={c.code}>{c.flag} {c.name}</SelectItem>)}</SelectContent>
                   </Select>
                 </div>
+                {!authed && requiredDocs.length > 0 && (
+                  <label className="flex items-start gap-2 rounded-lg border p-3 text-sm">
+                    <input type="checkbox" required checked={acceptedLegal} onChange={(e) => setAcceptedLegal(e.target.checked)} className="mt-1" />
+                    <span>
+                      Jeg accepterer{" "}
+                      <a href="/regler" target="_blank" rel="noreferrer" className="underline">vilkårene</a>{" "}
+                      og{" "}
+                      <a href="/privatliv" target="_blank" rel="noreferrer" className="underline">privatlivspolitikken</a>
+                      <span className="ml-1 opacity-60">
+                        ({requiredDocs.map((d) => `${d.kind}@${d.version}`).join(", ")})
+                      </span>
+                    </span>
+                  </label>
+                )}
               </div>
             )}
 
