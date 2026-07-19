@@ -81,48 +81,57 @@ export function ContextPanel({ detail }: Props) {
 
       {conv.customer_user_id && (
         <ContextCard title="Kunde" loading={customer.isLoading} error={customer.error as Error | null}>
-          {customer.data?.customer && (
-            <>
-              <Row label="Navn" value={customer.data.customer.full_name ?? "—"} />
-              <Row label="Telefon" value={customer.data.customer.phone ?? "—"} />
-              <Row label="Land" value={customer.data.customer.country_code ?? "—"} />
-              <Row label="Åbne sager" value={String(customer.data.open_cases ?? 0)} />
-            </>
-          )}
+          {(() => {
+            const c = customer.data?.customer ?? customer.data ?? {};
+            return (
+              <>
+                <Row label="Navn" value={c.full_name ?? "—"} />
+                <Row label="Telefon" value={c.phone ?? "—"} />
+                <Row label="Land" value={c.country_code ?? "—"} />
+                <Row label="Åbne sager" value={String(c.open_cases ?? customer.data?.open_cases ?? 0)} />
+              </>
+            );
+          })()}
         </ContextCard>
       )}
 
       {conv.provider_user_id && (
         <ContextCard title="Provider" loading={provider.isLoading} error={provider.error as Error | null}>
-          {provider.data?.provider && (
-            <>
-              <Row label="Navn" value={provider.data.provider.full_name ?? "—"} />
-              <Row label="Land" value={provider.data.provider.country_code ?? "—"} />
-              <Row label="Stripe klar" value={provider.data.provider.stripe_ready ? "Ja" : "Nej"} />
-              <Row label="Tvister" value={String(provider.data.disputes ?? 0)} />
-            </>
-          )}
+          {(() => {
+            const p = provider.data?.provider ?? provider.data ?? {};
+            return (
+              <>
+                <Row label="Navn" value={p.full_name ?? "—"} />
+                <Row label="Land" value={p.country_code ?? "—"} />
+                <Row label="Stripe klar" value={p.stripe_ready ? "Ja" : p.stripe_ready === false ? "Nej" : "—"} />
+                <Row label="Tvister" value={String(p.disputes ?? provider.data?.disputes ?? 0)} />
+              </>
+            );
+          })()}
         </ContextCard>
       )}
 
       {conv.booking_id && (
         <ContextCard title="Booking" loading={booking.isLoading} error={booking.error as Error | null}>
-          {booking.data?.booking && (
-            <>
-              <Row label="Dato" value={
-                booking.data.booking.booking_date
-                  ? format(new Date(booking.data.booking.booking_date), "d. MMM yyyy HH:mm", { locale: da })
-                  : "—"
-              } />
-              <Row label="Status" value={booking.data.booking.status ?? "—"} />
-              <Row label="Beløb" value={
-                booking.data.booking.customer_pays != null
-                  ? `${(booking.data.booking.customer_pays / 100).toFixed(2)} ${booking.data.booking.currency ?? ""}`
-                  : "—"
-              } />
-              <Row label="Adresse" value={booking.data.booking.address_masked ?? "—"} />
-            </>
-          )}
+          {(() => {
+            const b = booking.data?.booking ?? booking.data ?? {};
+            return (
+              <>
+                <Row label="Dato" value={
+                  b.booking_date
+                    ? format(new Date(b.booking_date), "d. MMM yyyy HH:mm", { locale: da })
+                    : "—"
+                } />
+                <Row label="Status" value={b.status ?? "—"} />
+                <Row label="Beløb" value={
+                  b.customer_pays != null
+                    ? `${(b.customer_pays / 100).toFixed(2)} ${b.currency ?? ""}`
+                    : "—"
+                } />
+                <Row label="Adresse" value={b.address_masked ?? b.address ?? "—"} />
+              </>
+            );
+          })()}
         </ContextCard>
       )}
     </div>
