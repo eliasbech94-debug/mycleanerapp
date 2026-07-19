@@ -6,7 +6,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useConversationDetail } from "@/hooks/useConversationDetail";
+import { useAuth } from "@/hooks/useAuth";
+import { useUserRoles } from "@/hooks/useUserRoles";
 import { MessageTimeline } from "./MessageTimeline";
+import { ActionBar } from "./ActionBar";
+import { Composer, confirmDiscardIfDirty, type OptimisticMessage } from "./Composer";
+import { PRIORITY_LABEL_DA, STATUS_LABEL_DA } from "@/lib/support/labels";
+import { useEffect, useRef } from "react";
+import { hasAnyDraft } from "@/lib/support/drafts";
 
 interface Props {
   conversationId: string | null;
@@ -16,14 +23,34 @@ interface Props {
 
 export function ConversationDetailView({ conversationId, onDetail, showBack }: Props) {
   const nav = useNavigate();
+  const { user } = useAuth();
+  const { isAdmin, isSupport } = useUserRoles();
   const state = useConversationDetail(conversationId);
-  const { detail, loading, error, hasMoreOlder, loadingOlder, loadOlder,
-          latestMessageId, markRead, realtimeStatus } = state;
+  const {
+    detail, loading, error, hasMoreOlder, loadingOlder, loadOlder,
+    latestMessageId, markRead, realtimeStatus,
+    addOptimistic, confirmOptimistic, failOptimistic,
+  } = state;
 
-  // Bubble detail up so the outer layout can render the context panel.
-  // Using useEffect avoids re-render loops.
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffectOnChange(detail, () => onDetail(detail));
+
+  const goBack = () => {
+    if (conversationId && !confirmDiscardIfDirty(conversationId)) return;
+    nav("/support/inbox");
+  };
+
+  // Warn before browser navigation with a non-empty draft in the active conversation.
+  useEffect(() => {
+    if (!conversationId) return;
+    const onBefore = (e: BeforeUnloadEvent) => {
+      if (hasAnyDraft(conversationId)) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    };
+    window.addEventListener("beforeunload", onBefore);
+    return () => window.removeEventListener("beforeunload", onBefore);
+  }, [conversationId]);
 
   if (!conversationId) {
     return (
@@ -61,14 +88,27 @@ export function ConversationDetailView({ conversationId, onDetail, showBack }: P
 
   if (!detail) return null;
   const conv = detail.conversation;
+  const closed = conv.status === "closed";
+
+  const handleOptimistic = (m: OptimisticMessage) => {
+    if (!user) return;
+    addOptimistic({
+      tempId: m.tempId,
+      body: m.body,
+      is_internal_note: m.is_internal_note,
+      sender_user_id: user.id,
+      sender_role: isAdmin ? "admin" : isSupport ? "support" : "customer",
+      created_at: m.created_at,
+      attachment: m.attachment,
+    });
+  };
 
   return (
     <div className="flex-1 flex flex-col min-h-0 min-w-0">
       <header className="border-b p-3 flex items-start gap-3">
         {showBack && (
           <Button
-            variant="ghost" size="icon"
-            onClick={() => nav("/support/inbox")}
+            variant="ghost" size="icon" onClick={goBack}
             aria-label="Tilbage til indbakke"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -76,11 +116,18 @@ export function ConversationDetailView({ conversationId, onDetail, showBack }: P
         )}
         <div className="min-w-0 flex-1 space-y-1">
           <div className="flex items-center gap-2 flex-wrap">
-            <h2 className="font-medium truncate">
-              {conv.subject || "Uden emne"}
-            </h2>
-            <Badge variant="outline" className="text-[10px]">{conv.status}</Badge>
-            {conv.priority && <Badge variant="secondary" className="text-[10px]">{conv.priority}</Badge>}
+            <h2 className="font-medium truncate">{conv.subject || "Uden emne"}</h2>
+            <Badge variant="outline" className="text-[10px]">
+              {STATUS_LABEL_DA[conv.status] ?? conv.status}
+            </Badge>
+            {conv.priority && (
+              <Badge
+                variant={conv.priority === "urgent" ? "destructive" : "secondary"}
+                className="text-[10px]"
+              >
+                {PRIORITY_LABEL_DA[conv.priority] ?? conv.priority}
+              </Badge>
+            )}
           </div>
           <p className="text-xs text-muted-foreground">
             Oprettet {format(new Date(conv.created_at), "d. MMM yyyy HH:mm", { locale: da })} · {conv.kind}
@@ -88,6 +135,10 @@ export function ConversationDetailView({ conversationId, onDetail, showBack }: P
         </div>
         <RealtimeIndicator status={realtimeStatus} />
       </header>
+
+      {isSupport && user && (
+        <ActionBar conversation={conv} isAdmin={isAdmin} currentUserId={user.id} />
+      )}
 
       <MessageTimeline
         messages={detail.messages}
@@ -101,11 +152,22 @@ export function ConversationDetailView({ conversationId, onDetail, showBack }: P
         }}
       />
 
-      <footer className="border-t p-3 bg-muted/30">
-        <p className="text-xs text-muted-foreground italic text-center">
-          Svar, tildeling, status og prioritet aktiveres i næste fase.
-        </p>
-      </footer>
+      {conversationId && user && !closed && (
+        <Composer
+          conversationId={conversationId}
+          isStaff={isSupport}
+          onOptimistic={handleOptimistic}
+          onConfirmed={confirmOptimistic}
+          onFailed={failOptimistic}
+        />
+      )}
+      {closed && (
+        <footer className="border-t p-3 bg-muted/30 text-center">
+          <p className="text-xs text-muted-foreground">
+            Sagen er lukket. Genåbn for at kunne svare.
+          </p>
+        </footer>
+      )}
     </div>
   );
 }
@@ -132,11 +194,10 @@ function RealtimeIndicator({ status }: { status: "connecting" | "live" | "error"
   );
 }
 
-// Small helper — invoke callback whenever value's reference changes.
-import { useEffect, useRef } from "react";
+import { useEffect as useEffectRaw, useRef as useRefRaw } from "react";
 function useEffectOnChange<T>(value: T, cb: () => void) {
-  const prev = useRef<T | undefined>(undefined);
-  useEffect(() => {
+  const prev = useRefRaw<T | undefined>(undefined);
+  useEffectRaw(() => {
     if (prev.current !== value) {
       prev.current = value;
       cb();
