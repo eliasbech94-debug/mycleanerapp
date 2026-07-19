@@ -243,10 +243,18 @@ export default function Login() {
               </>
             )}
 
+
+            <Turnstile
+              action={mode}
+              onToken={setCaptchaToken}
+              onExpire={() => setCaptchaToken(null)}
+            />
+
             <button
               type="submit"
               disabled={
                 loading ||
+                !captchaToken ||
                 (mode === "signup" && (!acceptedLegal || legalStatus !== "ready"))
               }
               className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3 text-xs font-bold uppercase tracking-[0.18em] shadow-[6px_6px_0_rgba(0,0,0,0.18)] transition hover:-translate-y-0.5 disabled:opacity-50"
