@@ -3036,9 +3036,11 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_admin_only: { Args: { _uid: string }; Returns: boolean }
       is_country_bookable: { Args: { _iso: string }; Returns: boolean }
       is_country_launch_ready: { Args: { _iso: string }; Returns: boolean }
       is_country_visible: { Args: { _iso: string }; Returns: boolean }
+      is_support_agent: { Args: { _uid: string }; Returns: boolean }
       is_under_legal_hold: {
         Args: { _target_id: string; _target_type: string }
         Returns: boolean
@@ -3064,6 +3066,17 @@ export type Database = {
         Args: { _alert_key: string; _resolver?: string }
         Returns: number
       }
+      support_search_users: {
+        Args: { _limit?: number; _q?: string }
+        Returns: {
+          country_code: string
+          created_at: string
+          deactivated_at: string
+          full_name: string
+          id: string
+          phone: string
+        }[]
+      }
       tax_decrypt: {
         Args: { _ciphertext: string; _key: string }
         Returns: string
@@ -3083,7 +3096,13 @@ export type Database = {
         | "code"
         | "other"
       address_place_type: "private" | "business" | "vacation" | "other"
-      app_role: "admin" | "employee" | "provider" | "customer" | "super_admin"
+      app_role:
+        | "admin"
+        | "employee"
+        | "provider"
+        | "customer"
+        | "super_admin"
+        | "support"
       booking_status:
         | "pending"
         | "accepted"
@@ -3242,7 +3261,14 @@ export const Constants = {
         "other",
       ],
       address_place_type: ["private", "business", "vacation", "other"],
-      app_role: ["admin", "employee", "provider", "customer", "super_admin"],
+      app_role: [
+        "admin",
+        "employee",
+        "provider",
+        "customer",
+        "super_admin",
+        "support",
+      ],
       booking_status: [
         "pending",
         "accepted",

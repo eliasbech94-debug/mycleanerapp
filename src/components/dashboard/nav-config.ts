@@ -4,12 +4,9 @@ import {
   CreditCard,
   Webhook,
   Shield,
-  Calendar,
   Inbox,
   UserCircle,
-  Briefcase,
   ListChecks,
-  Settings,
   Headphones,
   LifeBuoy,
   Wallet,
@@ -19,32 +16,35 @@ import {
   FileText,
   MapPin,
   HelpCircle,
+  UserSearch,
+  Briefcase,
+  Settings,
 } from "lucide-react";
 
 import type { AppRole } from "@/hooks/useUserRoles";
 
-export type DashboardRole = "admin" | "employee" | "provider" | "customer";
+export type DashboardRole = "admin" | "employee" | "provider" | "customer" | "support";
 
 export interface NavItem {
   title: string;
   url: string;
   icon: typeof LayoutDashboard;
   /**
-   * Roles allowed to see this item. The user is granted access if they hold
-   * AT LEAST ONE of these roles (super_admin always passes via hasRole()).
-   * Defaults are applied per-section below so newly added items are
-   * automatically protected by the section's role.
+   * Roles allowed to see this item. User needs AT LEAST ONE (super_admin bypass
+   * handled by hasRole()). Defaults inherit from the group.
    */
   roles: AppRole[];
 }
 
 export interface NavGroup {
   label: string;
-  /** Default roles applied to items in this group that don't override `roles`. */
   defaultRoles: AppRole[];
   items: Array<Omit<NavItem, "roles"> & { roles?: AppRole[] }>;
 }
 
+// NOTE: Only routes that actually exist in App.tsx may appear here. Broken
+// sidebar links (calendar/services/settings/etc.) were removed in Phase 1 —
+// they will return once the underlying pages are implemented.
 const rawConfig: Record<DashboardRole, NavGroup[]> = {
   admin: [
     {
@@ -52,7 +52,8 @@ const rawConfig: Record<DashboardRole, NavGroup[]> = {
       defaultRoles: ["admin"],
       items: [
         { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
-        { title: "Brugere", url: "/admin/users", icon: Users },
+        { title: "Brugere & roller", url: "/admin/users", icon: Users },
+        { title: "Lande", url: "/admin/countries", icon: MapPin },
       ],
     },
     {
@@ -73,28 +74,46 @@ const rawConfig: Record<DashboardRole, NavGroup[]> = {
       ],
     },
     {
-      label: "Sikkerhed",
-      defaultRoles: ["super_admin"],
+      label: "Drift & sikkerhed",
+      defaultRoles: ["admin"],
       items: [
-        { title: "Access logs", url: "/admin/access-logs", icon: Shield },
-        { title: "Indstillinger", url: "/admin/settings", icon: Settings },
+        { title: "Ops", url: "/admin/ops", icon: BarChart3 },
+        { title: "Access logs", url: "/admin/access-logs", icon: Shield, roles: ["super_admin"] },
       ],
     },
   ],
   employee: [
     {
-      label: "Support",
+      label: "Drift",
       defaultRoles: ["employee"],
       items: [
         { title: "Dashboard", url: "/employee", icon: LayoutDashboard },
-        { title: "Mine sager", url: "/employee#tickets", icon: LifeBuoy },
-        { title: "Provider-opfølgning", url: "/employee#providers", icon: Headphones },
-        { title: "Inbox", url: "/employee/inbox", icon: Inbox },
       ],
     },
     {
       label: "Konto",
-      defaultRoles: ["employee", "admin", "provider", "customer"],
+      defaultRoles: ["employee", "admin", "provider", "customer", "support"],
+      items: [
+        { title: "Profil", url: "/profil", icon: UserCircle },
+      ],
+    },
+  ],
+  support: [
+    {
+      label: "Support",
+      defaultRoles: ["support", "admin"],
+      items: [
+        { title: "Oversigt", url: "/support", icon: LayoutDashboard },
+        { title: "Indbakke", url: "/support/inbox", icon: Inbox },
+        { title: "Sager", url: "/support/cases", icon: LifeBuoy },
+        { title: "Kunder", url: "/support/customers", icon: UserSearch },
+        { title: "Providers", url: "/support/providers", icon: Headphones },
+        { title: "Bookinger", url: "/support/bookings", icon: ListChecks },
+      ],
+    },
+    {
+      label: "Konto",
+      defaultRoles: ["support", "admin", "employee", "provider", "customer"],
       items: [
         { title: "Profil", url: "/profil", icon: UserCircle },
       ],
@@ -106,9 +125,7 @@ const rawConfig: Record<DashboardRole, NavGroup[]> = {
       defaultRoles: ["provider"],
       items: [
         { title: "Dashboard", url: "/provider-dashboard", icon: LayoutDashboard },
-        { title: "Kalender", url: "/provider-dashboard/calendar", icon: Calendar },
-        { title: "Bookinger", url: "/provider-dashboard/bookings", icon: ListChecks },
-        { title: "Ydelser", url: "/provider-dashboard/services", icon: Briefcase },
+        { title: "Bilag", url: "/provider/bilag", icon: Briefcase },
       ],
     },
     {
@@ -121,10 +138,9 @@ const rawConfig: Record<DashboardRole, NavGroup[]> = {
     },
     {
       label: "Konto",
-      defaultRoles: ["provider", "admin", "employee", "customer"],
+      defaultRoles: ["provider", "admin", "employee", "customer", "support"],
       items: [
         { title: "Profil", url: "/profil", icon: UserCircle },
-        { title: "Indstillinger", url: "/provider-dashboard/settings", icon: Settings },
       ],
     },
   ],
@@ -157,7 +173,6 @@ export interface ResolvedNavGroup {
   items: NavItem[];
 }
 
-/** Resolve `roles` on every item (inheriting the group's defaultRoles). */
 export function resolveNavGroups(role: DashboardRole): ResolvedNavGroup[] {
   return rawConfig[role].map((g) => ({
     label: g.label,
@@ -165,7 +180,6 @@ export function resolveNavGroups(role: DashboardRole): ResolvedNavGroup[] {
   }));
 }
 
-/** Filter resolved groups by the user's actual roles. */
 export function filterNavGroupsByRoles(
   groups: ResolvedNavGroup[],
   hasRole: (r: AppRole) => boolean,

@@ -29,6 +29,11 @@ import BookingFlow from "./pages/BookingFlow";
 import BookingEntry from "./pages/BookingEntry";
 import MyBookings from "./pages/MyBookings";
 import BookingPlan from "./pages/BookingPlan";
+import AdminUsers from "./pages/admin/AdminUsers";
+import {
+  SupportHome, SupportInbox, SupportCases,
+  SupportCustomers, SupportProviders, SupportBookings,
+} from "./pages/support/SupportShell";
 
 import ProviderDashboard from "./pages/ProviderDashboard";
 import ProviderReceipts from "./pages/ProviderReceipts";
@@ -84,18 +89,25 @@ export function AppRoutes() {
       <Route path="/task/create" element={<CreateTask />} />
       <Route path="/task/offers" element={<MatchingOffers />} />
       <Route path="/admin" element={<RoleGuard allow={["admin"]}><AdminDashboard /></RoleGuard>} />
+      <Route path="/admin/users" element={<RoleGuard allow={["admin"]}><AdminUsers /></RoleGuard>} />
       <Route path="/admin/stripe" element={<RoleGuard allow={["admin"]}><AdminStripe /></RoleGuard>} />
-      <Route path="/admin/webhooks" element={<RoleGuard allow={["admin", "employee"]}><AdminWebhooks /></RoleGuard>} />
+      <Route path="/admin/webhooks" element={<RoleGuard allow={["admin"]}><AdminWebhooks /></RoleGuard>} />
       <Route path="/admin/payments" element={<RoleGuard allow={["admin"]}><AdminPayments /></RoleGuard>} />
       <Route path="/admin/access-logs" element={<RoleGuard allow={["admin"]}><AdminAccessLogs /></RoleGuard>} />
-      <Route path="/employee" element={<RoleGuard allow={["admin", "employee"]}><EmployeeDashboard /></RoleGuard>} />
+      <Route path="/employee" element={<RoleGuard allow={["employee"]}><EmployeeDashboard /></RoleGuard>} />
+      <Route path="/support" element={<RoleGuard allow={["support", "admin"]}><SupportHome /></RoleGuard>} />
+      <Route path="/support/inbox" element={<RoleGuard allow={["support", "admin"]}><SupportInbox /></RoleGuard>} />
+      <Route path="/support/cases" element={<RoleGuard allow={["support", "admin"]}><SupportCases /></RoleGuard>} />
+      <Route path="/support/customers" element={<RoleGuard allow={["support", "admin"]}><SupportCustomers /></RoleGuard>} />
+      <Route path="/support/providers" element={<RoleGuard allow={["support", "admin"]}><SupportProviders /></RoleGuard>} />
+      <Route path="/support/bookings" element={<RoleGuard allow={["support", "admin"]}><SupportBookings /></RoleGuard>} />
       <Route path="/book" element={<BookingEntry />} />
       <Route path="/book/:id" element={<BookingFlow />} />
       <Route path="/mine-bookinger" element={<MyBookings />} />
       <Route path="/booking/:id/plan" element={<BookingPlan />} />
       <Route path="/provider-dashboard" element={<RoleGuard allow={["provider", "admin"]}><ProviderDashboard /></RoleGuard>} />
-      <Route path="/provider/finance" element={<ProviderFinance />} />
-      <Route path="/admin/finance" element={<AdminFinance />} />
+      <Route path="/provider/finance" element={<RoleGuard allow={["provider", "admin"]}><ProviderFinance /></RoleGuard>} />
+      <Route path="/admin/finance" element={<RoleGuard allow={["admin"]}><AdminFinance /></RoleGuard>} />
       <Route path="/admin/disputes" element={<RoleGuard allow={["admin"]}><AdminDisputes /></RoleGuard>} />
       <Route path="/provider/disputes" element={<RoleGuard allow={["provider", "admin"]}><ProviderDisputes /></RoleGuard>} />
       <Route path="/provider/disputes/:id" element={<RoleGuard allow={["provider", "admin"]}><ProviderDisputes /></RoleGuard>} />
