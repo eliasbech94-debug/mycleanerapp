@@ -3492,6 +3492,38 @@ export type Database = {
         Args: { _alert_key: string; _resolver?: string }
         Returns: number
       }
+      support_booking_summary: { Args: { _booking_id: string }; Returns: Json }
+      support_counters: { Args: { _user: string }; Returns: Json }
+      support_customer_summary: { Args: { _user_id: string }; Returns: Json }
+      support_provider_summary: {
+        Args: { _provider_id: string }
+        Returns: Json
+      }
+      support_search_bookings: {
+        Args: { _limit?: number; _q?: string }
+        Returns: {
+          booking_date: string
+          country_code: string
+          currency: string
+          customer_pays: number
+          customer_user_id: string
+          id: string
+          payment_status: string
+          provider_id: string
+          status: string
+        }[]
+      }
+      support_search_providers: {
+        Args: { _limit?: number; _q?: string }
+        Returns: {
+          country_code: string
+          created_at: string
+          deactivated_at: string
+          full_name: string
+          id: string
+          provider_id: string
+        }[]
+      }
       support_search_users: {
         Args: { _limit?: number; _q?: string }
         Returns: {
@@ -3512,6 +3544,13 @@ export type Database = {
         Returns: string
       }
       user_owns_provider: { Args: { _provider_id: string }; Returns: boolean }
+      visible_conversation_ids: {
+        Args: { _user: string }
+        Returns: {
+          conversation_id: string
+          last_message_at: string
+        }[]
+      }
     }
     Enums: {
       address_access_method:
