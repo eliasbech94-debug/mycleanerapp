@@ -183,6 +183,8 @@ const CustomerRegister = () => {
     } catch (err: any) {
       toast.error(err?.message || "Noget gik galt");
     } finally {
+      setCaptchaToken(null);
+      resetTurnstile();
       setSubmitting(false);
     }
   };
