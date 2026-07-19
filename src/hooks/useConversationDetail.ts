@@ -338,5 +338,9 @@ export function useConversationDetail(conversationId: string | null) {
     markRead,
     latestMessageId,
     realtimeStatus: rtStatus,
+    addOptimistic,
+    confirmOptimistic,
+    failOptimistic,
   };
 }
+
