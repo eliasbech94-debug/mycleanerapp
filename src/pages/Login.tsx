@@ -70,6 +70,18 @@ export default function Login() {
     setLoading(true);
     const usedCaptcha = captchaToken;
     try {
+      // Server-side Turnstile verification — we enforce it ourselves
+      // instead of relying on Supabase's built-in provider setting.
+      const { data: verify, error: verifyErr } = await supabase.functions.invoke("captcha-verify", {
+        body: { token: usedCaptcha, action: mode },
+      });
+      if (verifyErr || !verify?.success) {
+        toast.error("Captcha kunne ikke bekræftes — prøv igen");
+        setCaptchaToken(null);
+        resetTurnstile();
+        setLoading(false);
+        return;
+      }
       if (mode === "signup") {
         if (legalStatus !== "ready" || requiredDocs.length === 0) {
           toast.error("Vilkårene for det valgte land er ikke tilgængelige lige nu. Prøv igen senere eller kontakt support.");

@@ -11,3 +11,6 @@ verify_jwt = false
 
 [functions.booking-expire-pending]
 verify_jwt = false
+
+[functions.captcha-verify]
+verify_jwt = false
