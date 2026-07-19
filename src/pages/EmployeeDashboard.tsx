@@ -1,117 +1,51 @@
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent } from "@/components/ui/card";
 import { DashboardLayout } from "@/components/dashboard";
-import {
-  Users, AlertTriangle, Search, Clock,
-  CheckCircle2, Phone, Mail, ArrowRight,
-} from "lucide-react";
+import { LifeBuoy, ExternalLink } from "lucide-react";
+import { Link } from "react-router-dom";
 
-const myTickets = [
-  { id: "T-1042", customer: "Anne Mortensen", issue: "Provider mødte ikke op", priority: "high", status: "open", created: "1 time siden", country: "🇩🇰" },
-  { id: "T-1039", customer: "Hans Klein", issue: "Forkert beløb trukket", priority: "medium", status: "in_progress", created: "3 timer siden", country: "🇩🇪" },
-  { id: "T-1035", customer: "Pierre Lefebvre", issue: "Kvalitetsklage", priority: "low", status: "open", created: "1 dag siden", country: "🇫🇷" },
-];
-
-const providerIssues = [
-  { id: "P-88", provider: "Maria Jensen", issue: "Manglende dokumenter", action: "Afventer straffeattest", country: "🇩🇰" },
-  { id: "P-85", provider: "Schmidt GmbH", issue: "Udløbet erhvervsbevis", action: "Kontakt og bed om fornyet", country: "🇩🇪" },
-];
-
-const priorityBadge = (p: string) => {
-  const map: Record<string, { label: string; variant: "default" | "secondary" | "destructive" }> = {
-    high: { label: "Høj", variant: "destructive" },
-    medium: { label: "Medium", variant: "default" },
-    low: { label: "Lav", variant: "secondary" },
-  };
-  const s = map[p] || map.low;
-  return <Badge variant={s.variant} className="text-xs">{s.label}</Badge>;
-};
-
+/**
+ * Employee dashboard — operations-only shell.
+ *
+ * Support tickets, cases and customer/provider workflows now live in the
+ * dedicated Support Panel (`/support/*`) which is role-gated to support
+ * and admin. This page is intentionally not connected to live support data
+ * to keep the employee (operations) role separate from the support role.
+ */
 const EmployeeDashboard = () => {
-  const [search, setSearch] = useState("");
-
-  const headerActions = (
-    <div className="relative w-full md:w-64">
-      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-      <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Søg sager, kunder..." className="pl-9 w-full" />
-    </div>
-  );
-
   return (
-    <DashboardLayout role="employee" title="Medarbejder Dashboard" headerActions={headerActions}>
-      <p className="text-sm text-muted-foreground mb-6">Hej Sarah — du har 3 åbne sager</p>
-
-      {/* Quick stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6 md:mb-8">
-        {[
-          { label: "Åbne sager", value: "3", icon: AlertTriangle, color: "text-warning" },
-          { label: "Løst i dag", value: "7", icon: CheckCircle2, color: "text-success" },
-          { label: "Gns. responstid", value: "14 min", icon: Clock, color: "text-primary" },
-          { label: "Kundetilfredshed", value: "4.8/5", icon: Users, color: "text-accent" },
-        ].map((s) => (
-          <div key={s.label} className="glass-card p-3 sm:p-4">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs text-muted-foreground line-clamp-1">{s.label}</span>
-              <s.icon className={`h-4 w-4 shrink-0 ${s.color}`} />
+    <DashboardLayout role="employee" title="Medarbejder Dashboard">
+      <div className="max-w-3xl mx-auto p-4 sm:p-6 space-y-4">
+        <Card>
+          <CardContent className="p-6 space-y-4">
+            <div className="flex items-start gap-3">
+              <LifeBuoy className="h-6 w-6 text-primary shrink-0 mt-1" aria-hidden />
+              <div className="space-y-2">
+                <h2 className="text-lg font-medium">Support-arbejde er flyttet</h2>
+                <p className="text-sm text-muted-foreground">
+                  Kundesager, provider-opfølgning og samtaler håndteres nu i det
+                  dedikerede support-panel. Kun brugere med rollen{" "}
+                  <span className="font-mono">support</span> eller{" "}
+                  <span className="font-mono">admin</span> har adgang.
+                </p>
+                <Button asChild size="sm">
+                  <Link to="/support">
+                    Åbn support-panel <ExternalLink className="ml-1 h-3 w-3" />
+                  </Link>
+                </Button>
+              </div>
             </div>
-            <div className="font-heading text-lg sm:text-xl font-bold">{s.value}</div>
-          </div>
-        ))}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6 text-sm text-muted-foreground">
+            Yderligere medarbejder-operationer bliver tilføjet her efterhånden
+            som de defineres. Denne side viser ikke længere test- eller
+            demodata.
+          </CardContent>
+        </Card>
       </div>
-
-      <Tabs defaultValue="tickets">
-        <TabsList>
-          <TabsTrigger value="tickets">Mine sager</TabsTrigger>
-          <TabsTrigger value="providers">Provider-opfølgning</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="tickets" className="space-y-3 mt-4">
-          {myTickets.map((t) => (
-            <div key={t.id} className="glass-card p-4 sm:p-5 hover:shadow-md transition-all">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2 mb-1 flex-wrap">
-                    <span className="text-xs text-muted-foreground font-mono">{t.id}</span>
-                    {priorityBadge(t.priority)}
-                    <span className="text-sm">{t.country}</span>
-                  </div>
-                  <h3 className="font-medium">{t.issue}</h3>
-                  <p className="text-sm text-muted-foreground mt-1">Kunde: {t.customer} • {t.created}</p>
-                </div>
-                <div className="flex items-center gap-2 sm:flex-shrink-0">
-                  <Button size="sm" variant="ghost"><Phone className="h-4 w-4" /></Button>
-                  <Button size="sm" variant="ghost"><Mail className="h-4 w-4" /></Button>
-                  <Button size="sm" className="ml-auto">Håndter <ArrowRight className="h-3 w-3 ml-1" /></Button>
-                </div>
-              </div>
-            </div>
-          ))}
-        </TabsContent>
-
-        <TabsContent value="providers" className="space-y-3 mt-4">
-          {providerIssues.map((p) => (
-            <div key={p.id} className="glass-card p-4 sm:p-5">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2 mb-1 flex-wrap">
-                    <span className="text-xs text-muted-foreground font-mono">{p.id}</span>
-                    <span className="text-sm">{p.country}</span>
-                  </div>
-                  <h3 className="font-medium">{p.provider} — {p.issue}</h3>
-                  <p className="text-sm text-muted-foreground mt-1">{p.action}</p>
-                </div>
-                <div className="flex gap-2 sm:flex-shrink-0">
-                  <Button size="sm" variant="outline" className="flex-1 sm:flex-none">Kontakt</Button>
-                  <Button size="sm" className="flex-1 sm:flex-none">Løs</Button>
-                </div>
-              </div>
-            </div>
-          ))}
-        </TabsContent>
-      </Tabs>
     </DashboardLayout>
   );
 };
