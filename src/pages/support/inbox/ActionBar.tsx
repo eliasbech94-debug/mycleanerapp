@@ -18,6 +18,8 @@ import {
   reasonRequired, STATUS_LABEL_DA,
 } from "@/lib/support/labels";
 import { AlertTriangle, ChevronDown, Tag as TagIcon, User } from "lucide-react";
+import { EscalateDialog } from "./EscalateDialog";
+import { RefundRequestDialog } from "./RefundRequestDialog";
 
 interface Props {
   conversation: any;
