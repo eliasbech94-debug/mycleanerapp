@@ -2979,6 +2979,15 @@ export type Database = {
       }
     }
     Functions: {
+      evaluate_feature_flag: {
+        Args: {
+          _country_iso?: string
+          _flag_key: string
+          _provider_id?: string
+          _user_id?: string
+        }
+        Returns: boolean
+      }
       get_lifecycle_public_isos: {
         Args: never
         Returns: {
