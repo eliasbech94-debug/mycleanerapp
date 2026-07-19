@@ -9,6 +9,7 @@ import { countries } from "@/lib/countries";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import BackButton from "@/components/BackButton";
+import Turnstile, { resetTurnstile } from "@/components/Turnstile";
 import { fetchActiveRequiredDocs, recordAcceptances, type ActiveLegalDoc } from "@/lib/legalAcceptance";
 
 const propertyTypes = ["Lejlighed", "Rækkehus", "Villa", "Landejendom", "Erhverv", "Andet"];
