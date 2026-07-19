@@ -154,13 +154,16 @@ export function MessageTimeline({
           }
 
           return (
-            <li key={m.id} ref={isLast ? bottomRef : undefined}>
+            <li key={m._tempId ?? m.id} ref={isLast ? bottomRef : undefined}>
               <article
                 className={cn(
                   "rounded-md border-l-4 border border-border/60 p-3 space-y-1",
                   ROLE_TONE[m.sender_role],
                   m.is_internal_note && "border-l-amber-600 bg-amber-50 dark:bg-amber-950/30 ring-1 ring-amber-500/20",
+                  m._optimistic && !m._failed && "opacity-70",
+                  m._failed && "ring-1 ring-destructive/50",
                 )}
+                data-optimistic={m._optimistic ? "true" : undefined}
               >
                 <header className="flex items-center gap-2 text-xs">
                   <span className="font-medium">{ROLE_LABEL[m.sender_role] ?? m.sender_role}</span>
@@ -168,6 +171,12 @@ export function MessageTimeline({
                     {format(new Date(m.created_at), "d. MMM yyyy HH:mm", { locale: da })}
                   </time>
                   {m.edited_at && <span className="text-muted-foreground italic">(redigeret)</span>}
+                  {m._optimistic && !m._failed && (
+                    <span className="text-muted-foreground italic">(sender…)</span>
+                  )}
+                  {m._failed && (
+                    <span className="text-destructive font-medium">Fejl — prøv igen</span>
+                  )}
                   {m.is_internal_note && (
                     <span className="ml-auto inline-flex items-center gap-1 text-amber-700 dark:text-amber-400 text-[11px] font-medium">
                       <Lock className="h-3 w-3" aria-hidden />
@@ -192,9 +201,7 @@ export function MessageTimeline({
                 {m.message_attachments && m.message_attachments.length > 0 && (
                   <ul className="mt-1 flex flex-wrap gap-1">
                     {m.message_attachments.map((a) => (
-                      <li key={a.id} className="text-[11px] bg-background border rounded px-1.5 py-0.5">
-                        📎 {a.original_filename}
-                      </li>
+                      <AttachmentChip key={a.id} attachment={a} optimistic={!!m._optimistic} />
                     ))}
                   </ul>
                 )}
