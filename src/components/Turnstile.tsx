@@ -1,6 +1,10 @@
 import { useEffect, useRef } from "react";
 
-export const TURNSTILE_SITE_KEY = "0x4AAAAAAD5P-enOWji6xsqR";
+// Site key is public. Read from Vite env; fall back to the MyCleaner
+// production key so the widget still mounts if the env var is missing.
+export const TURNSTILE_SITE_KEY =
+  (import.meta.env.VITE_TURNSTILE_SITE as string | undefined) ||
+  "0x4AAAAAAD5P-enOWji6xsqR";
 
 declare global {
   interface Window {

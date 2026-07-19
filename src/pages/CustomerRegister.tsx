@@ -9,6 +9,7 @@ import { countries } from "@/lib/countries";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import BackButton from "@/components/BackButton";
+import Turnstile, { resetTurnstile } from "@/components/Turnstile";
 import { fetchActiveRequiredDocs, recordAcceptances, type ActiveLegalDoc } from "@/lib/legalAcceptance";
 
 const propertyTypes = ["Lejlighed", "Rækkehus", "Villa", "Landejendom", "Erhverv", "Andet"];
@@ -21,6 +22,7 @@ const CustomerRegister = () => {
   const [authed, setAuthed] = useState<boolean>(false);
   const [requiredDocs, setRequiredDocs] = useState<ActiveLegalDoc[]>([]);
   const [acceptedLegal, setAcceptedLegal] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const [form, setForm] = useState({
     firstName: "", lastName: "", email: "", phone: "", password: "",
     country: "DK", city: "", postalCode: "", address: "",
@@ -65,6 +67,7 @@ const CustomerRegister = () => {
       if (!form.firstName || !form.lastName || !form.email || !form.phone) return false;
       if (!authed && form.password.length < 6) return false;
       if (!authed && requiredDocs.length > 0 && !acceptedLegal) return false;
+      if (!authed && !captchaToken) return false;
       return true;
     }
     if (step === 1) return !!form.propertyType && !!form.address && !!form.city && !!form.postalCode;
@@ -73,16 +76,34 @@ const CustomerRegister = () => {
 
   const handleSubmit = async () => {
     setSubmitting(true);
+    const usedCaptcha = captchaToken;
     try {
       let userId: string | null = null;
 
       if (!authed) {
+        if (!usedCaptcha) {
+          toast.error("Bekræft venligst captcha-udfordringen først");
+          setSubmitting(false);
+          return;
+        }
+        // Server-side Turnstile verification before any auth call.
+        const { data: verify, error: verifyErr } = await supabase.functions.invoke("captcha-verify", {
+          body: { token: usedCaptcha, action: "customer-signup" },
+        });
+        if (verifyErr || !verify?.success) {
+          toast.error("Captcha kunne ikke bekræftes — prøv igen");
+          setCaptchaToken(null);
+          resetTurnstile();
+          setSubmitting(false);
+          return;
+        }
         const { data, error } = await supabase.auth.signUp({
           email: form.email,
           password: form.password,
           options: {
             emailRedirectTo: `${window.location.origin}/profil`,
             data: { full_name: `${form.firstName} ${form.lastName}`.trim() },
+            captchaToken: usedCaptcha,
           },
         });
         if (error) throw error;
@@ -93,7 +114,8 @@ const CustomerRegister = () => {
           const { data: signin, error: signinErr } = await supabase.auth.signInWithPassword({
             email: form.email,
             password: form.password,
-          });
+            options: { captchaToken: usedCaptcha },
+          } as any);
           if (signinErr || !signin.session) {
             toast.success("Konto oprettet — bekræft din email for at færdiggøre profilen");
             navigate("/login?redirect=/profil");
@@ -161,6 +183,8 @@ const CustomerRegister = () => {
     } catch (err: any) {
       toast.error(err?.message || "Noget gik galt");
     } finally {
+      setCaptchaToken(null);
+      resetTurnstile();
       setSubmitting(false);
     }
   };
@@ -224,6 +248,15 @@ const CustomerRegister = () => {
                       </span>
                     </span>
                   </label>
+                )}
+                {!authed && (
+                  <div className="pt-2">
+                    <Turnstile
+                      action="customer-signup"
+                      onToken={setCaptchaToken}
+                      onExpire={() => setCaptchaToken(null)}
+                    />
+                  </div>
                 )}
               </div>
             )}
