@@ -2,7 +2,13 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
-export type AppRole = "super_admin" | "admin" | "employee" | "provider" | "customer";
+export type AppRole =
+  | "super_admin"
+  | "admin"
+  | "employee"
+  | "support"
+  | "provider"
+  | "customer";
 
 export function useUserRoles() {
   const { user, loading: authLoading } = useAuth();
@@ -37,14 +43,23 @@ export function useUserRoles() {
   }, [user, authLoading]);
 
   const isSuperAdmin = roles.includes("super_admin");
+  const isAdmin = isSuperAdmin || roles.includes("admin");
+  // Support agents include admins (per is_support_agent). Employee does NOT
+  // automatically get support access — it's an operations role.
+  const isSupport = isAdmin || roles.includes("support");
+  const isEmployee = isSuperAdmin || roles.includes("employee");
+  const isProvider = isSuperAdmin || roles.includes("provider");
+  const isCustomer = isSuperAdmin || roles.includes("customer");
 
   return {
     roles,
     loading: loading || authLoading,
     hasRole: (role: AppRole) => isSuperAdmin || roles.includes(role),
     isSuperAdmin,
-    isAdmin: isSuperAdmin || roles.includes("admin"),
-    isEmployee: isSuperAdmin || roles.includes("employee"),
-    isProvider: roles.includes("provider"),
+    isAdmin,
+    isSupport,
+    isEmployee,
+    isProvider,
+    isCustomer,
   };
 }

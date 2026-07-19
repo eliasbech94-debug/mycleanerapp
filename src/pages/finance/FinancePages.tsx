@@ -260,7 +260,7 @@ export function ProviderFinance() {
 
 export function AdminFinance() {
   return (
-    <RoleGuard allow={["admin", "employee"]}>
+    <RoleGuard allow={["admin"]}>
       <FinanceView scope="admin" title="Marketplace økonomi" />
     </RoleGuard>
   );
