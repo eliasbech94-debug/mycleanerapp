@@ -46,7 +46,7 @@ export function ConversationList({
   rows, activeId, onSelect, loading, error,
   hasNextPage, isFetchingNextPage, fetchNextPage,
 }: Props) {
-  const sentinelRef = useRef<HTMLDivElement | null>(null);
+  const sentinelRef = useRef<HTMLLIElement | null>(null);
 
   useEffect(() => {
     const el = sentinelRef.current;
