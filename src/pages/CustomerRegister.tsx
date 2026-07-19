@@ -137,6 +137,25 @@ const CustomerRegister = () => {
       });
       if (aErr) throw aErr;
 
+      // Persist onboarding preferences (idempotent per user).
+      const { error: prefErr } = await supabase.from("customer_preferences").upsert({
+        user_id: userId,
+        property_type: form.propertyType || null,
+        property_size_sqm: form.propertySize ? parseInt(form.propertySize, 10) : null,
+        floors: form.floors || null,
+        has_garden: form.hasGarden,
+        has_pets: form.hasPets,
+        preferred_days: form.preferredDays,
+        preferred_time: form.preferredTime || null,
+      }, { onConflict: "user_id" });
+      if (prefErr) console.warn("customer_preferences upsert failed", prefErr);
+
+      // Record legal acceptances (post-auth so RLS passes). Non-fatal if it fails.
+      if (requiredDocs.length && acceptedLegal) {
+        try { await recordAcceptances(userId, requiredDocs); }
+        catch (e) { console.warn("legal acceptance write failed", e); }
+      }
+
       toast.success("Velkommen! Din profil er oprettet");
       navigate("/profil");
     } catch (err: any) {
