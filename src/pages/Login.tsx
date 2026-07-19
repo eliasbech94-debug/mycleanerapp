@@ -19,6 +19,7 @@ export default function Login() {
   const [requiredDocs, setRequiredDocs] = useState<ActiveLegalDoc[]>([]);
   const [legalStatus, setLegalStatus] = useState<"idle" | "loading" | "ready" | "unavailable">("idle");
   const [loading, setLoading] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const explicitRedirect = params.get("redirect") || params.get("next");
