@@ -5,6 +5,7 @@ import { createClient, SupabaseClient } from "npm:@supabase/supabase-js@2";
 export type AppRole =
   | "super_admin"
   | "admin"
+  | "support"
   | "employee"
   | "provider"
   | "customer";
