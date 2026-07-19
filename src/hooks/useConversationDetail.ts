@@ -24,7 +24,12 @@ export interface ConversationMessage {
   edited_at: string | null;
   created_at: string;
   message_attachments?: MessageAttachment[];
+  /** Client-only fields for optimistic composer messages. */
+  _optimistic?: boolean;
+  _failed?: boolean;
+  _tempId?: string;
 }
+
 
 export interface ConversationEvent {
   id: string;
