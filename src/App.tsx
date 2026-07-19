@@ -11,6 +11,7 @@ import Index from "./pages/Index";
 import Login from "./pages/Login";
 import AuthCallback from "./pages/AuthCallback";
 import ResetPassword from "./pages/ResetPassword";
+import CustomerDashboard from "./pages/CustomerDashboard";
 import { Navigate } from "react-router-dom";
 import Profile from "./pages/Profile";
 import ProviderRegister from "./pages/ProviderRegister";
