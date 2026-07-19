@@ -44,6 +44,7 @@ import AdminOps from "./pages/AdminOps";
 import CountryConsole from "./pages/admin/CountryConsole";
 import { AppErrorBoundary } from "@/components/AppErrorBoundary";
 import { installFrontendMonitoring, initSentry } from "@/lib/monitoring";
+import OAuthConsent from "./pages/OAuthConsent";
 import { CountryProvider } from "@/i18n/CountryContext";
 
 initSentry();
@@ -96,6 +97,7 @@ export function AppRoutes() {
         path="/provider/bilag"
         element={<RoleGuard allow={["provider", "admin", "super_admin"]}><ProviderReceipts /></RoleGuard>}
       />
+      <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
       <Route path="/not-found" element={<NotFound />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
