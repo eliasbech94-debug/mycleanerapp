@@ -63,7 +63,12 @@ export default function Login() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!captchaToken) {
+      toast.error("Bekræft venligst captcha-udfordringen først");
+      return;
+    }
     setLoading(true);
+    const usedCaptcha = captchaToken;
     try {
       if (mode === "signup") {
         if (legalStatus !== "ready" || requiredDocs.length === 0) {
@@ -82,28 +87,31 @@ export default function Login() {
           options: {
             emailRedirectTo: callbackUrl,
             data: { full_name: fullName, country_code: country },
+            captchaToken: usedCaptcha,
           },
         });
         if (error) throw error;
-        // If a session exists, record acceptances now (RLS requires auth).
         const uid = data.session?.user?.id ?? data.user?.id ?? null;
         if (data.session && uid && requiredDocs.length) {
           try { await recordAcceptances(uid, requiredDocs); } catch { /* logged silently */ }
         } else if (uid && requiredDocs.length) {
-          // Stash for post-verification pickup by AuthCallback.
           sessionStorage.setItem("pendingLegalAcceptances", JSON.stringify(requiredDocs));
         }
         toast.success("Konto oprettet");
         navigate(await resolveDestination(), { replace: true });
       } else if (mode === "forgot") {
-        // Generic response regardless of whether the email exists.
         await supabase.auth.resetPasswordForEmail(email, {
           redirectTo: `${window.location.origin}/reset-password`,
+          captchaToken: usedCaptcha,
         });
         toast.success("Hvis kontoen findes, sender vi et gendannelseslink til din email");
         setMode("signin");
       } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+          options: { captchaToken: usedCaptcha },
+        } as any);
         if (error) throw error;
         toast.success("Velkommen tilbage");
         navigate(await resolveDestination(), { replace: true });
@@ -111,6 +119,8 @@ export default function Login() {
     } catch (err: any) {
       toast.error(err?.message || "Noget gik galt");
     } finally {
+      setCaptchaToken(null);
+      resetTurnstile();
       setLoading(false);
     }
   }
