@@ -37,7 +37,7 @@ export default function Login() {
   async function resolveDestination(): Promise<string> {
     if (explicitRedirect) return explicitRedirect;
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return "/profil";
+    if (!user) return "/customer";
     const { data: roles } = await supabase
       .from("user_roles")
       .select("role")
@@ -46,7 +46,7 @@ export default function Login() {
     if (r.includes("super_admin") || r.includes("admin")) return "/admin";
     if (r.includes("employee")) return "/employee";
     if (r.includes("provider")) return "/provider-dashboard";
-    return "/profil";
+    return "/customer";
   }
 
   const callbackUrl = `${window.location.origin}/auth/callback${explicitRedirect ? `?next=${encodeURIComponent(explicitRedirect)}` : ""}`;
