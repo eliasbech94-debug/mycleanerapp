@@ -7,7 +7,7 @@
  */
 import { Navigate } from "react-router-dom";
 
-export { default as SupportInbox } from "./SupportInbox";
+export { default as SupportInbox } from "./SupportInboxPage";
 export { default as SupportCases } from "./SupportCases";
 export { default as SupportCustomers } from "./SupportCustomers";
 export { default as SupportProviders } from "./SupportProviders";
