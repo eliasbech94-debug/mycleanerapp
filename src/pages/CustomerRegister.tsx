@@ -76,16 +76,34 @@ const CustomerRegister = () => {
 
   const handleSubmit = async () => {
     setSubmitting(true);
+    const usedCaptcha = captchaToken;
     try {
       let userId: string | null = null;
 
       if (!authed) {
+        if (!usedCaptcha) {
+          toast.error("Bekræft venligst captcha-udfordringen først");
+          setSubmitting(false);
+          return;
+        }
+        // Server-side Turnstile verification before any auth call.
+        const { data: verify, error: verifyErr } = await supabase.functions.invoke("captcha-verify", {
+          body: { token: usedCaptcha, action: "customer-signup" },
+        });
+        if (verifyErr || !verify?.success) {
+          toast.error("Captcha kunne ikke bekræftes — prøv igen");
+          setCaptchaToken(null);
+          resetTurnstile();
+          setSubmitting(false);
+          return;
+        }
         const { data, error } = await supabase.auth.signUp({
           email: form.email,
           password: form.password,
           options: {
             emailRedirectTo: `${window.location.origin}/profil`,
             data: { full_name: `${form.firstName} ${form.lastName}`.trim() },
+            captchaToken: usedCaptcha,
           },
         });
         if (error) throw error;
@@ -96,7 +114,8 @@ const CustomerRegister = () => {
           const { data: signin, error: signinErr } = await supabase.auth.signInWithPassword({
             email: form.email,
             password: form.password,
-          });
+            options: { captchaToken: usedCaptcha },
+          } as any);
           if (signinErr || !signin.session) {
             toast.success("Konto oprettet — bekræft din email for at færdiggøre profilen");
             navigate("/login?redirect=/profil");
