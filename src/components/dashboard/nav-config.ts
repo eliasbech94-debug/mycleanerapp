@@ -128,6 +128,28 @@ const rawConfig: Record<DashboardRole, NavGroup[]> = {
       ],
     },
   ],
+  customer: [
+    {
+      label: "Min konto",
+      defaultRoles: ["customer"],
+      items: [
+        { title: "Oversigt", url: "/customer", icon: LayoutDashboard },
+        { title: "Mine bookinger", url: "/customer/bookings", icon: ListChecks },
+        { title: "Notifikationer", url: "/customer/notifications", icon: Bell },
+        { title: "Fakturaer", url: "/customer/invoices", icon: FileText },
+        { title: "Adresser", url: "/customer/addresses", icon: MapPin },
+      ],
+    },
+    {
+      label: "Konto",
+      defaultRoles: ["customer"],
+      items: [
+        { title: "Profil", url: "/customer/profile", icon: UserCircle },
+        { title: "Indstillinger", url: "/customer/settings", icon: Settings },
+        { title: "Support", url: "/faq", icon: HelpCircle },
+      ],
+    },
+  ],
 };
 
 export interface ResolvedNavGroup {
