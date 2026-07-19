@@ -1,6 +1,10 @@
 // Determines which required legal documents the authenticated user still owes
-// acceptance for, in their marketplace country + language. Does NOT record
-// acceptance — that requires an explicit call to legal-accept.
+// acceptance for. Lookup order:
+//   1. country + language
+//   2. country + 'en'
+//   3. GLOBAL  + 'en'
+// The first tier that yields a published, required document for a given `kind`
+// is used for that kind. Different kinds can resolve at different tiers.
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { authenticate } from "../_shared/auth.ts";
@@ -10,6 +14,38 @@ const admin = createClient(
   Deno.env.get("SUPABASE_URL")!,
   Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
 );
+
+type Doc = {
+  id: string;
+  kind: string;
+  country_code: string;
+  language: string;
+  version: string;
+  body_hash: string;
+  title: string | null;
+  effective_at: string;
+  required: boolean;
+  fallback_to_english: boolean;
+};
+
+// Fallback tiers, tried in order per document kind
+function tiers(country: string, language: string): Array<{ country: string; language: string }> {
+  const t = [{ country, language }];
+  if (language !== "en") t.push({ country, language: "en" });
+  if (country !== "GLOBAL") t.push({ country: "GLOBAL", language: "en" });
+  return t;
+}
+
+async function fetchTier(country: string, language: string): Promise<Doc[]> {
+  const { data } = await admin
+    .from("legal_documents")
+    .select("id, kind, country_code, language, version, body_hash, title, effective_at, required, fallback_to_english")
+    .eq("status", "published")
+    .lte("effective_at", new Date().toISOString())
+    .eq("country_code", country)
+    .eq("language", language);
+  return (data ?? []) as Doc[];
+}
 
 Deno.serve(monitored("legal-gate-status", async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
@@ -22,31 +58,45 @@ Deno.serve(monitored("legal-gate-status", async (req) => {
   const language = (url.searchParams.get("language") ?? "da").toLowerCase();
   const isProvider = url.searchParams.get("is_provider") === "true";
 
-  // Effective published docs for country/language, or English fallback where allowed.
-  const { data: docs } = await admin
-    .from("legal_documents")
-    .select("id, kind, country_code, language, version, body_hash, title, effective_at, required, fallback_to_english")
-    .in("status", ["published"])
-    .lte("effective_at", new Date().toISOString())
-    .eq("country_code", country);
+  const wantedKinds = new Set<string>(["terms", "privacy"]);
+  if (isProvider) wantedKinds.add("provider_agreement");
 
-  const applicable = (docs ?? []).filter((d) => {
-    if (!d.required) return false;
-    if (d.kind === "provider_agreement" && !isProvider) return false;
-    return d.language === language || d.fallback_to_english;
-  });
+  // Resolve each kind at the highest-priority tier that has it
+  const resolved: Doc[] = [];
+  const resolvedKinds = new Set<string>();
+  const tierUsage: Record<string, string> = {};
+
+  for (const { country: c, language: l } of tiers(country, language)) {
+    if (resolvedKinds.size === wantedKinds.size) break;
+    const docs = await fetchTier(c, l);
+    for (const d of docs) {
+      if (!d.required) continue;
+      if (!wantedKinds.has(d.kind)) continue;
+      if (resolvedKinds.has(d.kind)) continue;
+      resolved.push(d);
+      resolvedKinds.add(d.kind);
+      tierUsage[d.kind] = `${c}/${l}`;
+    }
+  }
 
   // Which of these has the user accepted at the exact hash?
   const { data: accepts } = await admin
     .from("user_legal_acceptances")
     .select("document_id")
     .eq("user_id", ctx.userId)
-    .in("document_id", applicable.map((d) => d.id));
+    .in("document_id", resolved.map((d) => d.id));
 
   const acceptedIds = new Set((accepts ?? []).map((a) => a.document_id));
-  const pending = applicable.filter((d) => !acceptedIds.has(d.id));
+  const pending = resolved.filter((d) => !acceptedIds.has(d.id));
+  const missingKinds = [...wantedKinds].filter((k) => !resolvedKinds.has(k));
 
-  return new Response(JSON.stringify({ pending, applicable_count: applicable.length }), {
+  return new Response(JSON.stringify({
+    pending,
+    applicable: resolved,
+    applicable_count: resolved.length,
+    resolved_tiers: tierUsage,
+    missing_kinds: missingKinds,
+  }), {
     status: 200,
     headers: {
       ...corsHeaders,
