@@ -22,6 +22,7 @@ const CustomerRegister = () => {
   const [authed, setAuthed] = useState<boolean>(false);
   const [requiredDocs, setRequiredDocs] = useState<ActiveLegalDoc[]>([]);
   const [acceptedLegal, setAcceptedLegal] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const [form, setForm] = useState({
     firstName: "", lastName: "", email: "", phone: "", password: "",
     country: "DK", city: "", postalCode: "", address: "",
