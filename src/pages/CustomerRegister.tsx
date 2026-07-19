@@ -44,6 +44,20 @@ const CustomerRegister = () => {
     });
   }, []);
 
+  // Load active required legal documents for the selected country/language.
+  useEffect(() => {
+    if (authed) return; // already accepted at prior signup
+    const lang = (navigator.language || "da").slice(0, 2).toLowerCase();
+    fetchActiveRequiredDocs(form.country, lang)
+      .then((docs) => {
+        if (!docs.length && lang !== "en") {
+          return fetchActiveRequiredDocs(form.country, "en").then(setRequiredDocs);
+        }
+        setRequiredDocs(docs);
+      })
+      .catch(() => setRequiredDocs([]));
+  }, [form.country, authed]);
+
   const update = (key: string, value: any) => setForm((p) => ({ ...p, [key]: value }));
 
   const canContinue = () => {
