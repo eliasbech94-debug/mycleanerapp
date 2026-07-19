@@ -16,6 +16,7 @@ export default function Login() {
   const [country, setCountry] = useState("DK");
   const [acceptedLegal, setAcceptedLegal] = useState(false);
   const [requiredDocs, setRequiredDocs] = useState<ActiveLegalDoc[]>([]);
+  const [legalStatus, setLegalStatus] = useState<"idle" | "loading" | "ready" | "unavailable">("idle");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const [params] = useSearchParams();
@@ -23,15 +24,22 @@ export default function Login() {
 
   useEffect(() => {
     if (mode !== "signup") return;
+    setLegalStatus("loading");
     const lang = (navigator.language || "da").slice(0, 2).toLowerCase();
-    fetchActiveRequiredDocs(country, lang)
-      .then((docs) => {
+    (async () => {
+      try {
+        let docs = await fetchActiveRequiredDocs(country, lang);
         if (!docs.length && lang !== "en") {
-          return fetchActiveRequiredDocs(country, "en").then(setRequiredDocs);
+          docs = await fetchActiveRequiredDocs(country, "en");
         }
         setRequiredDocs(docs);
-      })
-      .catch(() => setRequiredDocs([]));
+        setLegalStatus(docs.length ? "ready" : "unavailable");
+      } catch (err) {
+        console.error("legal_docs_fetch_failed", { country, lang, err });
+        setRequiredDocs([]);
+        setLegalStatus("unavailable");
+      }
+    })();
   }, [mode, country]);
 
   async function resolveDestination(): Promise<string> {
