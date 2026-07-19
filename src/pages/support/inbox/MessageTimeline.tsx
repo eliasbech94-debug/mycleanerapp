@@ -234,3 +234,51 @@ function formatEvent(ev: ConversationEvent): string {
   };
   return map[ev.event_type] ?? ev.event_type;
 }
+
+function AttachmentChip({ attachment, optimistic }: { attachment: MessageAttachment; optimistic: boolean }) {
+  const [url, setUrl] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+  const isImage = attachment.mime_type?.startsWith("image/");
+
+  const load = async () => {
+    if (url || loading || optimistic) return;
+    setLoading(true);
+    setErr(null);
+    try {
+      const u = await getAttachmentUrl(attachment.id);
+      setUrl(u);
+    } catch (e: any) {
+      setErr(e?.message ?? "Kunne ikke hente fil");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <li className="text-[11px] bg-background border rounded px-2 py-1 inline-flex items-center gap-1.5 max-w-full">
+      {isImage ? <ImageIcon className="h-3 w-3 shrink-0" /> : <FileText className="h-3 w-3 shrink-0" />}
+      <span className="truncate max-w-[16rem]" title={attachment.original_filename}>
+        {attachment.original_filename}
+      </span>
+      {optimistic ? (
+        <span className="text-muted-foreground italic">(uploader)</span>
+      ) : url ? (
+        <a href={url} target="_blank" rel="noopener noreferrer" className="text-primary underline">
+          Åbn
+        </a>
+      ) : (
+        <button
+          type="button"
+          onClick={load}
+          disabled={loading}
+          className="text-primary underline disabled:opacity-60"
+        >
+          {loading ? <Loader2 className="h-3 w-3 animate-spin inline" /> : "Vis"}
+        </button>
+      )}
+      {err && <span className="text-destructive">{err}</span>}
+    </li>
+  );
+}
+
