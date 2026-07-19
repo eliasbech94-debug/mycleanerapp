@@ -10,25 +10,51 @@ export type ActiveLegalDoc = {
   title: string | null;
 };
 
-/** Fetch the active published required documents for a country/language. */
-export async function fetchActiveRequiredDocs(country: string, language: string): Promise<ActiveLegalDoc[]> {
+/**
+ * Fallback lookup order for legal documents:
+ *   1. country + language
+ *   2. country + 'en'
+ *   3. GLOBAL  + 'en'
+ * The first tier providing a document for each required kind (terms, privacy)
+ * is used for that kind. If a kind is not resolvable in any tier, signup
+ * remains blocked because the required document is unavailable.
+ */
+export function legalFallbackTiers(country: string, language: string): Array<{ country: string; language: string }> {
   const iso = (country || "DK").toUpperCase();
   const lang = (language || "da").toLowerCase();
-  const { data, error } = await supabase
-    .from("legal_documents")
-    .select("id,kind,country_code,language,version,body_hash,title,status,effective_at,required")
-    .eq("status", "published")
-    .eq("country_code", iso)
-    .eq("language", lang)
-    .in("kind", ["terms", "privacy"]);
-  if (error) throw error;
+  const tiers = [{ country: iso, language: lang }];
+  if (lang !== "en") tiers.push({ country: iso, language: "en" });
+  if (iso !== "GLOBAL") tiers.push({ country: "GLOBAL", language: "en" });
+  return tiers;
+}
+
+/** Fetch the active published required documents applying the global fallback chain. */
+export async function fetchActiveRequiredDocs(country: string, language: string): Promise<ActiveLegalDoc[]> {
   const now = Date.now();
-  return (data ?? [])
-    .filter((d: any) => d.required && d.effective_at && new Date(d.effective_at).getTime() <= now)
-    .map((d: any) => ({
-      id: d.id, kind: d.kind, country_code: d.country_code, language: d.language,
-      version: d.version, body_hash: d.body_hash, title: d.title ?? null,
-    }));
+  const wanted = new Set<string>(["terms", "privacy"]);
+  const resolved = new Map<string, ActiveLegalDoc>();
+
+  for (const tier of legalFallbackTiers(country, language)) {
+    if (resolved.size === wanted.size) break;
+    const { data, error } = await supabase
+      .from("legal_documents")
+      .select("id,kind,country_code,language,version,body_hash,title,status,effective_at,required")
+      .eq("status", "published")
+      .eq("country_code", tier.country)
+      .eq("language", tier.language)
+      .in("kind", ["terms", "privacy"]);
+    if (error) throw error;
+    for (const d of data ?? []) {
+      if (!wanted.has(d.kind) || resolved.has(d.kind)) continue;
+      if (!d.required || !d.effective_at) continue;
+      if (new Date(d.effective_at).getTime() > now) continue;
+      resolved.set(d.kind, {
+        id: d.id, kind: d.kind, country_code: d.country_code, language: d.language,
+        version: d.version, body_hash: d.body_hash, title: d.title ?? null,
+      });
+    }
+  }
+  return [...resolved.values()];
 }
 
 /** Persist acceptance rows for the current authenticated user. Idempotent per (user, doc). */
