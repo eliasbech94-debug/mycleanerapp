@@ -232,7 +232,16 @@ function formatEvent(ev: ConversationEvent): string {
     participant_joined: "Deltager tilføjet",
     participant_left: "Deltager fjernet",
   };
-  return map[ev.event_type] ?? ev.event_type;
+  const base = map[ev.event_type] ?? ev.event_type;
+  const p = (ev.payload ?? {}) as Record<string, unknown>;
+  if (ev.event_type === "escalated" && typeof p.reason === "string") {
+    return `${base} — ${String(p.reason).slice(0, 120)}`;
+  }
+  if (ev.event_type === "refund_requested" && p.requested_amount && p.currency) {
+    const amt = (Number(p.requested_amount) / 100).toFixed(2);
+    return `${base} — ${amt} ${String(p.currency)}`;
+  }
+  return base;
 }
 
 function AttachmentChip({ attachment, optimistic }: { attachment: MessageAttachment; optimistic: boolean }) {

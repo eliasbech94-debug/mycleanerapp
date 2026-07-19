@@ -18,6 +18,8 @@ import {
   reasonRequired, STATUS_LABEL_DA,
 } from "@/lib/support/labels";
 import { AlertTriangle, ChevronDown, Tag as TagIcon, User } from "lucide-react";
+import { EscalateDialog } from "./EscalateDialog";
+import { RefundRequestDialog } from "./RefundRequestDialog";
 
 interface Props {
   conversation: any;
@@ -52,6 +54,12 @@ export function ActionBar({ conversation, isAdmin, currentUserId }: Props) {
         onDone={refresh}
       />
       <TagsMenu conversationId={convId} onDone={refresh} />
+      <div className="ml-auto flex items-center gap-2">
+        <RefundRequestDialog conversation={conversation} />
+        {conversation.status !== "escalated" && (
+          <EscalateDialog conversation={conversation} onDone={refresh} />
+        )}
+      </div>
     </div>
   );
 }
