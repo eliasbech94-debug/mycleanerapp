@@ -364,7 +364,17 @@ function QuickActions() {
 }
 
 function IsolatedWidget({ children }: { children: React.ReactNode }) {
-  return <AppErrorBoundary>{children}</AppErrorBoundary>;
+  return (
+    <AppErrorBoundary
+      fallback={
+        <div className="rounded-2xl border-2 border-dashed bg-white p-4 text-xs opacity-70" style={{ borderColor: `${C.ink}22` }}>
+          Kunne ikke indlæse dette afsnit. Prøv at genindlæse siden.
+        </div>
+      }
+    >
+      {children}
+    </AppErrorBoundary>
+  );
 }
 
 /* ---------- Page ---------- */
