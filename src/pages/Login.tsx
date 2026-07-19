@@ -223,11 +223,20 @@ export default function Login() {
                     )}
                   </span>
                 </label>
+                {legalStatus === "unavailable" && (
+                  <div className="rounded-xl border-2 border-dashed p-3 text-xs" style={{ borderColor: "#8a5a00", background: "#fff5d6", color: "#8a5a00" }}>
+                    Vilkårene for {country} er ikke tilgængelige lige nu. Vælg et andet land eller prøv igen senere.
+                  </div>
+                )}
               </>
             )}
 
             <button
-              type="submit" disabled={loading || (mode === "signup" && !acceptedLegal)}
+              type="submit"
+              disabled={
+                loading ||
+                (mode === "signup" && (!acceptedLegal || legalStatus !== "ready"))
+              }
               className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3 text-xs font-bold uppercase tracking-[0.18em] shadow-[6px_6px_0_rgba(0,0,0,0.18)] transition hover:-translate-y-0.5 disabled:opacity-50"
               style={{ background: C.orange, color: C.ink }}
             >
