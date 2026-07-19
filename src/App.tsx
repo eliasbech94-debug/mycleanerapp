@@ -10,6 +10,8 @@ import { AuthProvider } from "@/hooks/useAuth";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import AuthCallback from "./pages/AuthCallback";
+import ResetPassword from "./pages/ResetPassword";
+import { Navigate } from "react-router-dom";
 import Profile from "./pages/Profile";
 import ProviderRegister from "./pages/ProviderRegister";
 import ProviderProfile from "./pages/ProviderProfile";
@@ -65,7 +67,9 @@ export function AppRoutes() {
       <Route path="/" element={<Index />} />
       <Route path="/login" element={<Login />} />
       <Route path="/auth/callback" element={<AuthCallback />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/profil" element={<Profile />} />
+      <Route path="/customer" element={<Navigate to="/profil?tab=overview" replace />} />
       <Route path="/provider/register" element={<ProviderRegister />} />
       <Route path="/provider/:id" element={<ProviderProfile />} />
       <Route path="/find-cleaner" element={<FindCleaner />} />

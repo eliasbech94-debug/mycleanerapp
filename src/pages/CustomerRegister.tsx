@@ -9,6 +9,7 @@ import { countries } from "@/lib/countries";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import BackButton from "@/components/BackButton";
+import { fetchActiveRequiredDocs, recordAcceptances, type ActiveLegalDoc } from "@/lib/legalAcceptance";
 
 const propertyTypes = ["Lejlighed", "Rækkehus", "Villa", "Landejendom", "Erhverv", "Andet"];
 const steps = ["Konto", "Bolig", "Præferencer"];
@@ -18,6 +19,8 @@ const CustomerRegister = () => {
   const [step, setStep] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [authed, setAuthed] = useState<boolean>(false);
+  const [requiredDocs, setRequiredDocs] = useState<ActiveLegalDoc[]>([]);
+  const [acceptedLegal, setAcceptedLegal] = useState(false);
   const [form, setForm] = useState({
     firstName: "", lastName: "", email: "", phone: "", password: "",
     country: "DK", city: "", postalCode: "", address: "",
@@ -41,12 +44,27 @@ const CustomerRegister = () => {
     });
   }, []);
 
+  // Load active required legal documents for the selected country/language.
+  useEffect(() => {
+    if (authed) return; // already accepted at prior signup
+    const lang = (navigator.language || "da").slice(0, 2).toLowerCase();
+    fetchActiveRequiredDocs(form.country, lang)
+      .then((docs) => {
+        if (!docs.length && lang !== "en") {
+          return fetchActiveRequiredDocs(form.country, "en").then(setRequiredDocs);
+        }
+        setRequiredDocs(docs);
+      })
+      .catch(() => setRequiredDocs([]));
+  }, [form.country, authed]);
+
   const update = (key: string, value: any) => setForm((p) => ({ ...p, [key]: value }));
 
   const canContinue = () => {
     if (step === 0) {
       if (!form.firstName || !form.lastName || !form.email || !form.phone) return false;
       if (!authed && form.password.length < 6) return false;
+      if (!authed && requiredDocs.length > 0 && !acceptedLegal) return false;
       return true;
     }
     if (step === 1) return !!form.propertyType && !!form.address && !!form.city && !!form.postalCode;
@@ -119,6 +137,25 @@ const CustomerRegister = () => {
       });
       if (aErr) throw aErr;
 
+      // Persist onboarding preferences (idempotent per user).
+      const { error: prefErr } = await supabase.from("customer_preferences").upsert({
+        user_id: userId,
+        property_type: form.propertyType || null,
+        property_size_sqm: form.propertySize ? parseInt(form.propertySize, 10) : null,
+        floors: form.floors || null,
+        has_garden: form.hasGarden,
+        has_pets: form.hasPets,
+        preferred_days: form.preferredDays,
+        preferred_time: form.preferredTime || null,
+      }, { onConflict: "user_id" });
+      if (prefErr) console.warn("customer_preferences upsert failed", prefErr);
+
+      // Record legal acceptances (post-auth so RLS passes). Non-fatal if it fails.
+      if (requiredDocs.length && acceptedLegal) {
+        try { await recordAcceptances(userId, requiredDocs); }
+        catch (e) { console.warn("legal acceptance write failed", e); }
+      }
+
       toast.success("Velkommen! Din profil er oprettet");
       navigate("/profil");
     } catch (err: any) {
@@ -174,6 +211,20 @@ const CustomerRegister = () => {
                     <SelectContent>{countries.map((c) => <SelectItem key={c.code} value={c.code}>{c.flag} {c.name}</SelectItem>)}</SelectContent>
                   </Select>
                 </div>
+                {!authed && requiredDocs.length > 0 && (
+                  <label className="flex items-start gap-2 rounded-lg border p-3 text-sm">
+                    <input type="checkbox" required checked={acceptedLegal} onChange={(e) => setAcceptedLegal(e.target.checked)} className="mt-1" />
+                    <span>
+                      Jeg accepterer{" "}
+                      <a href="/regler" target="_blank" rel="noreferrer" className="underline">vilkårene</a>{" "}
+                      og{" "}
+                      <a href="/privatliv" target="_blank" rel="noreferrer" className="underline">privatlivspolitikken</a>
+                      <span className="ml-1 opacity-60">
+                        ({requiredDocs.map((d) => `${d.kind}@${d.version}`).join(", ")})
+                      </span>
+                    </span>
+                  </label>
+                )}
               </div>
             )}
 

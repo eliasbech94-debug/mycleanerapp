@@ -817,6 +817,48 @@ export type Database = {
           },
         ]
       }
+      customer_preferences: {
+        Row: {
+          created_at: string
+          floors: string | null
+          has_garden: boolean
+          has_pets: boolean
+          notes: string | null
+          preferred_days: string[]
+          preferred_time: string | null
+          property_size_sqm: number | null
+          property_type: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          floors?: string | null
+          has_garden?: boolean
+          has_pets?: boolean
+          notes?: string | null
+          preferred_days?: string[]
+          preferred_time?: string | null
+          property_size_sqm?: number | null
+          property_type?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          floors?: string | null
+          has_garden?: boolean
+          has_pets?: boolean
+          notes?: string | null
+          preferred_days?: string[]
+          preferred_time?: string | null
+          property_size_sqm?: number | null
+          property_type?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       data_retention_policies: {
         Row: {
           action: string
