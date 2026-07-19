@@ -15,11 +15,15 @@ import {
   Wallet,
   BarChart3,
   AlertTriangle,
+  Bell,
+  FileText,
+  MapPin,
+  HelpCircle,
 } from "lucide-react";
 
 import type { AppRole } from "@/hooks/useUserRoles";
 
-export type DashboardRole = "admin" | "employee" | "provider";
+export type DashboardRole = "admin" | "employee" | "provider" | "customer";
 
 export interface NavItem {
   title: string;
@@ -121,6 +125,28 @@ const rawConfig: Record<DashboardRole, NavGroup[]> = {
       items: [
         { title: "Profil", url: "/profil", icon: UserCircle },
         { title: "Indstillinger", url: "/provider-dashboard/settings", icon: Settings },
+      ],
+    },
+  ],
+  customer: [
+    {
+      label: "Min konto",
+      defaultRoles: ["customer"],
+      items: [
+        { title: "Oversigt", url: "/customer", icon: LayoutDashboard },
+        { title: "Mine bookinger", url: "/customer/bookings", icon: ListChecks },
+        { title: "Notifikationer", url: "/customer/notifications", icon: Bell },
+        { title: "Fakturaer", url: "/customer/invoices", icon: FileText },
+        { title: "Adresser", url: "/customer/addresses", icon: MapPin },
+      ],
+    },
+    {
+      label: "Konto",
+      defaultRoles: ["customer"],
+      items: [
+        { title: "Profil", url: "/customer/profile", icon: UserCircle },
+        { title: "Indstillinger", url: "/customer/settings", icon: Settings },
+        { title: "Support", url: "/faq", icon: HelpCircle },
       ],
     },
   ],

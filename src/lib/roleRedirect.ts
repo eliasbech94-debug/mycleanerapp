@@ -1,6 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 
-export async function resolveHomeForCurrentUser(fallback = "/profil"): Promise<string> {
+export async function resolveHomeForCurrentUser(fallback = "/customer"): Promise<string> {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return "/login";
   const { data: roles } = await supabase
@@ -11,5 +11,6 @@ export async function resolveHomeForCurrentUser(fallback = "/profil"): Promise<s
   if (r.includes("super_admin") || r.includes("admin")) return "/admin";
   if (r.includes("employee")) return "/employee";
   if (r.includes("provider")) return "/provider-dashboard";
+  if (r.includes("customer")) return "/customer";
   return fallback;
 }

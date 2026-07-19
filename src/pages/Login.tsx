@@ -16,6 +16,7 @@ export default function Login() {
   const [country, setCountry] = useState("DK");
   const [acceptedLegal, setAcceptedLegal] = useState(false);
   const [requiredDocs, setRequiredDocs] = useState<ActiveLegalDoc[]>([]);
+  const [legalStatus, setLegalStatus] = useState<"idle" | "loading" | "ready" | "unavailable">("idle");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const [params] = useSearchParams();
@@ -23,21 +24,28 @@ export default function Login() {
 
   useEffect(() => {
     if (mode !== "signup") return;
+    setLegalStatus("loading");
     const lang = (navigator.language || "da").slice(0, 2).toLowerCase();
-    fetchActiveRequiredDocs(country, lang)
-      .then((docs) => {
+    (async () => {
+      try {
+        let docs = await fetchActiveRequiredDocs(country, lang);
         if (!docs.length && lang !== "en") {
-          return fetchActiveRequiredDocs(country, "en").then(setRequiredDocs);
+          docs = await fetchActiveRequiredDocs(country, "en");
         }
         setRequiredDocs(docs);
-      })
-      .catch(() => setRequiredDocs([]));
+        setLegalStatus(docs.length ? "ready" : "unavailable");
+      } catch (err) {
+        console.error("legal_docs_fetch_failed", { country, lang, err });
+        setRequiredDocs([]);
+        setLegalStatus("unavailable");
+      }
+    })();
   }, [mode, country]);
 
   async function resolveDestination(): Promise<string> {
     if (explicitRedirect) return explicitRedirect;
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return "/profil";
+    if (!user) return "/customer";
     const { data: roles } = await supabase
       .from("user_roles")
       .select("role")
@@ -46,7 +54,7 @@ export default function Login() {
     if (r.includes("super_admin") || r.includes("admin")) return "/admin";
     if (r.includes("employee")) return "/employee";
     if (r.includes("provider")) return "/provider-dashboard";
-    return "/profil";
+    return "/customer";
   }
 
   const callbackUrl = `${window.location.origin}/auth/callback${explicitRedirect ? `?next=${encodeURIComponent(explicitRedirect)}` : ""}`;
@@ -56,6 +64,11 @@ export default function Login() {
     setLoading(true);
     try {
       if (mode === "signup") {
+        if (legalStatus !== "ready" || requiredDocs.length === 0) {
+          toast.error("Vilkårene for det valgte land er ikke tilgængelige lige nu. Prøv igen senere eller kontakt support.");
+          setLoading(false);
+          return;
+        }
         if (!acceptedLegal) {
           toast.error("Du skal acceptere vilkårene for at oprette en konto");
           setLoading(false);
@@ -210,11 +223,20 @@ export default function Login() {
                     )}
                   </span>
                 </label>
+                {legalStatus === "unavailable" && (
+                  <div className="rounded-xl border-2 border-dashed p-3 text-xs" style={{ borderColor: "#8a5a00", background: "#fff5d6", color: "#8a5a00" }}>
+                    Vilkårene for {country} er ikke tilgængelige lige nu. Vælg et andet land eller prøv igen senere.
+                  </div>
+                )}
               </>
             )}
 
             <button
-              type="submit" disabled={loading || (mode === "signup" && !acceptedLegal)}
+              type="submit"
+              disabled={
+                loading ||
+                (mode === "signup" && (!acceptedLegal || legalStatus !== "ready"))
+              }
               className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3 text-xs font-bold uppercase tracking-[0.18em] shadow-[6px_6px_0_rgba(0,0,0,0.18)] transition hover:-translate-y-0.5 disabled:opacity-50"
               style={{ background: C.orange, color: C.ink }}
             >
