@@ -64,6 +64,11 @@ export default function Login() {
     setLoading(true);
     try {
       if (mode === "signup") {
+        if (legalStatus !== "ready" || requiredDocs.length === 0) {
+          toast.error("Vilkårene for det valgte land er ikke tilgængelige lige nu. Prøv igen senere eller kontakt support.");
+          setLoading(false);
+          return;
+        }
         if (!acceptedLegal) {
           toast.error("Du skal acceptere vilkårene for at oprette en konto");
           setLoading(false);
