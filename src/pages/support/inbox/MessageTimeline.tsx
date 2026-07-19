@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { format } from "date-fns";
 import { da } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { AlertTriangle, Lock, ChevronUp } from "lucide-react";
-import type { ConversationEvent, ConversationMessage, MessageRole } from "@/hooks/useConversationDetail";
+import { AlertTriangle, Lock, ChevronUp, FileText, ImageIcon, Loader2 } from "lucide-react";
+import type { ConversationEvent, ConversationMessage, MessageAttachment, MessageRole } from "@/hooks/useConversationDetail";
+import { getAttachmentUrl } from "@/lib/support/attachments";
 
 const ROLE_LABEL: Record<MessageRole, string> = {
   customer: "Kunde",
@@ -154,13 +155,16 @@ export function MessageTimeline({
           }
 
           return (
-            <li key={m.id} ref={isLast ? bottomRef : undefined}>
+            <li key={m._tempId ?? m.id} ref={isLast ? bottomRef : undefined}>
               <article
                 className={cn(
                   "rounded-md border-l-4 border border-border/60 p-3 space-y-1",
                   ROLE_TONE[m.sender_role],
                   m.is_internal_note && "border-l-amber-600 bg-amber-50 dark:bg-amber-950/30 ring-1 ring-amber-500/20",
+                  m._optimistic && !m._failed && "opacity-70",
+                  m._failed && "ring-1 ring-destructive/50",
                 )}
+                data-optimistic={m._optimistic ? "true" : undefined}
               >
                 <header className="flex items-center gap-2 text-xs">
                   <span className="font-medium">{ROLE_LABEL[m.sender_role] ?? m.sender_role}</span>
@@ -168,6 +172,12 @@ export function MessageTimeline({
                     {format(new Date(m.created_at), "d. MMM yyyy HH:mm", { locale: da })}
                   </time>
                   {m.edited_at && <span className="text-muted-foreground italic">(redigeret)</span>}
+                  {m._optimistic && !m._failed && (
+                    <span className="text-muted-foreground italic">(sender…)</span>
+                  )}
+                  {m._failed && (
+                    <span className="text-destructive font-medium">Fejl — prøv igen</span>
+                  )}
                   {m.is_internal_note && (
                     <span className="ml-auto inline-flex items-center gap-1 text-amber-700 dark:text-amber-400 text-[11px] font-medium">
                       <Lock className="h-3 w-3" aria-hidden />
@@ -192,9 +202,7 @@ export function MessageTimeline({
                 {m.message_attachments && m.message_attachments.length > 0 && (
                   <ul className="mt-1 flex flex-wrap gap-1">
                     {m.message_attachments.map((a) => (
-                      <li key={a.id} className="text-[11px] bg-background border rounded px-1.5 py-0.5">
-                        📎 {a.original_filename}
-                      </li>
+                      <AttachmentChip key={a.id} attachment={a} optimistic={!!m._optimistic} />
                     ))}
                   </ul>
                 )}
@@ -226,3 +234,51 @@ function formatEvent(ev: ConversationEvent): string {
   };
   return map[ev.event_type] ?? ev.event_type;
 }
+
+function AttachmentChip({ attachment, optimistic }: { attachment: MessageAttachment; optimistic: boolean }) {
+  const [url, setUrl] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+  const isImage = attachment.mime_type?.startsWith("image/");
+
+  const load = async () => {
+    if (url || loading || optimistic) return;
+    setLoading(true);
+    setErr(null);
+    try {
+      const u = await getAttachmentUrl(attachment.id);
+      setUrl(u);
+    } catch (e: any) {
+      setErr(e?.message ?? "Kunne ikke hente fil");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <li className="text-[11px] bg-background border rounded px-2 py-1 inline-flex items-center gap-1.5 max-w-full">
+      {isImage ? <ImageIcon className="h-3 w-3 shrink-0" /> : <FileText className="h-3 w-3 shrink-0" />}
+      <span className="truncate max-w-[16rem]" title={attachment.original_filename}>
+        {attachment.original_filename}
+      </span>
+      {optimistic ? (
+        <span className="text-muted-foreground italic">(uploader)</span>
+      ) : url ? (
+        <a href={url} target="_blank" rel="noopener noreferrer" className="text-primary underline">
+          Åbn
+        </a>
+      ) : (
+        <button
+          type="button"
+          onClick={load}
+          disabled={loading}
+          className="text-primary underline disabled:opacity-60"
+        >
+          {loading ? <Loader2 className="h-3 w-3 animate-spin inline" /> : "Vis"}
+        </button>
+      )}
+      {err && <span className="text-destructive">{err}</span>}
+    </li>
+  );
+}
+
