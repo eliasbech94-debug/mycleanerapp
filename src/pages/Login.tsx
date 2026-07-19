@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { toast } from "sonner";
 import { fetchActiveRequiredDocs, recordAcceptances, type ActiveLegalDoc } from "@/lib/legalAcceptance";
+import Turnstile, { resetTurnstile } from "@/components/Turnstile";
 
 const C = { ink: "#0a3d3a", orange: "#ff6b35", cream: "#f5f0e0", teal: "#168a7a" };
 
@@ -18,6 +19,7 @@ export default function Login() {
   const [requiredDocs, setRequiredDocs] = useState<ActiveLegalDoc[]>([]);
   const [legalStatus, setLegalStatus] = useState<"idle" | "loading" | "ready" | "unavailable">("idle");
   const [loading, setLoading] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const explicitRedirect = params.get("redirect") || params.get("next");
@@ -61,7 +63,12 @@ export default function Login() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!captchaToken) {
+      toast.error("Bekræft venligst captcha-udfordringen først");
+      return;
+    }
     setLoading(true);
+    const usedCaptcha = captchaToken;
     try {
       if (mode === "signup") {
         if (legalStatus !== "ready" || requiredDocs.length === 0) {
@@ -80,28 +87,31 @@ export default function Login() {
           options: {
             emailRedirectTo: callbackUrl,
             data: { full_name: fullName, country_code: country },
+            captchaToken: usedCaptcha,
           },
         });
         if (error) throw error;
-        // If a session exists, record acceptances now (RLS requires auth).
         const uid = data.session?.user?.id ?? data.user?.id ?? null;
         if (data.session && uid && requiredDocs.length) {
           try { await recordAcceptances(uid, requiredDocs); } catch { /* logged silently */ }
         } else if (uid && requiredDocs.length) {
-          // Stash for post-verification pickup by AuthCallback.
           sessionStorage.setItem("pendingLegalAcceptances", JSON.stringify(requiredDocs));
         }
         toast.success("Konto oprettet");
         navigate(await resolveDestination(), { replace: true });
       } else if (mode === "forgot") {
-        // Generic response regardless of whether the email exists.
         await supabase.auth.resetPasswordForEmail(email, {
           redirectTo: `${window.location.origin}/reset-password`,
+          captchaToken: usedCaptcha,
         });
         toast.success("Hvis kontoen findes, sender vi et gendannelseslink til din email");
         setMode("signin");
       } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+          options: { captchaToken: usedCaptcha },
+        } as any);
         if (error) throw error;
         toast.success("Velkommen tilbage");
         navigate(await resolveDestination(), { replace: true });
@@ -109,6 +119,8 @@ export default function Login() {
     } catch (err: any) {
       toast.error(err?.message || "Noget gik galt");
     } finally {
+      setCaptchaToken(null);
+      resetTurnstile();
       setLoading(false);
     }
   }
@@ -231,10 +243,18 @@ export default function Login() {
               </>
             )}
 
+
+            <Turnstile
+              action={mode}
+              onToken={setCaptchaToken}
+              onExpire={() => setCaptchaToken(null)}
+            />
+
             <button
               type="submit"
               disabled={
                 loading ||
+                !captchaToken ||
                 (mode === "signup" && (!acceptedLegal || legalStatus !== "ready"))
               }
               className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3 text-xs font-bold uppercase tracking-[0.18em] shadow-[6px_6px_0_rgba(0,0,0,0.18)] transition hover:-translate-y-0.5 disabled:opacity-50"
