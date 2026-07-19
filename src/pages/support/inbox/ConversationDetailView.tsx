@@ -194,13 +194,13 @@ function RealtimeIndicator({ status }: { status: "connecting" | "live" | "error"
   );
 }
 
-import { useEffect as useEffectRaw, useRef as useRefRaw } from "react";
 function useEffectOnChange<T>(value: T, cb: () => void) {
-  const prev = useRefRaw<T | undefined>(undefined);
-  useEffectRaw(() => {
+  const prev = useRef<T | undefined>(undefined);
+  useEffect(() => {
     if (prev.current !== value) {
       prev.current = value;
       cb();
     }
   });
 }
+
