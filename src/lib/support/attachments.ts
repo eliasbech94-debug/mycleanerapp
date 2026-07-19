@@ -49,7 +49,7 @@ export async function uploadAttachment(
   onProgress?: (pct: number) => void,
 ): Promise<{ init: UploadInit; original_filename: string }> {
   const v = validateFile(file);
-  if (!v.ok) throw new Error(v.error);
+  if (v.ok !== true) throw new Error(v.error);
   const init = await invoke<UploadInit>("conversation-attachment-upload", {
     step: "init",
     conversation_id,
