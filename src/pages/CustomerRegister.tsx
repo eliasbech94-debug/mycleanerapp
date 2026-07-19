@@ -249,6 +249,15 @@ const CustomerRegister = () => {
                     </span>
                   </label>
                 )}
+                {!authed && (
+                  <div className="pt-2">
+                    <Turnstile
+                      action="customer-signup"
+                      onToken={setCaptchaToken}
+                      onExpire={() => setCaptchaToken(null)}
+                    />
+                  </div>
+                )}
               </div>
             )}
 
