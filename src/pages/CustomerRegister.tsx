@@ -67,6 +67,7 @@ const CustomerRegister = () => {
       if (!form.firstName || !form.lastName || !form.email || !form.phone) return false;
       if (!authed && form.password.length < 6) return false;
       if (!authed && requiredDocs.length > 0 && !acceptedLegal) return false;
+      if (!authed && !captchaToken) return false;
       return true;
     }
     if (step === 1) return !!form.propertyType && !!form.address && !!form.city && !!form.postalCode;
