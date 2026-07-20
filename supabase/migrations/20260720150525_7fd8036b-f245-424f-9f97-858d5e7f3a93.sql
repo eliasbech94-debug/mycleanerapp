@@ -1,0 +1,2 @@
+UPDATE public.feature_flags SET enabled = true, rollout_pct = 100 WHERE flag_key IN ('identity.enabled','identity.webhook_processing');
+UPDATE public.feature_flags SET enabled = false WHERE flag_key IN ('identity.provider_verification_required','identity.customer_verification_required','identity.duplicate_identity_auto_restriction');
