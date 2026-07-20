@@ -2824,8 +2824,6 @@ export type Database = {
           terms_accepted_at: string | null
           tier_calculated_at: string | null
           tier_is_manual: boolean
-          trust_flags: Json
-          trust_score: number
           updated_at: string
           user_id: string
           visibility: Database["public"]["Enums"]["provider_visibility"]
@@ -2879,8 +2877,6 @@ export type Database = {
           terms_accepted_at?: string | null
           tier_calculated_at?: string | null
           tier_is_manual?: boolean
-          trust_flags?: Json
-          trust_score?: number
           updated_at?: string
           user_id: string
           visibility?: Database["public"]["Enums"]["provider_visibility"]
@@ -2934,8 +2930,6 @@ export type Database = {
           terms_accepted_at?: string | null
           tier_calculated_at?: string | null
           tier_is_manual?: boolean
-          trust_flags?: Json
-          trust_score?: number
           updated_at?: string
           user_id?: string
           visibility?: Database["public"]["Enums"]["provider_visibility"]
@@ -3279,6 +3273,57 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      provider_trust: {
+        Row: {
+          config_version: number
+          created_at: string
+          last_calculated_at: string
+          provider_id: string
+          risk_reason: string | null
+          trust_flags: Json
+          trust_level: string
+          trust_score: number
+          updated_at: string
+        }
+        Insert: {
+          config_version?: number
+          created_at?: string
+          last_calculated_at?: string
+          provider_id: string
+          risk_reason?: string | null
+          trust_flags?: Json
+          trust_level?: string
+          trust_score?: number
+          updated_at?: string
+        }
+        Update: {
+          config_version?: number
+          created_at?: string
+          last_calculated_at?: string
+          provider_id?: string
+          risk_reason?: string | null
+          trust_flags?: Json
+          trust_level?: string
+          trust_score?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_trust_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: true
+            referencedRelation: "provider_profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "provider_trust_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: true
+            referencedRelation: "public_provider_marketplace"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
       provider_trust_config: {
         Row: {
@@ -4018,6 +4063,27 @@ export type Database = {
     }
     Functions: {
       _pp_as_service: { Args: never; Returns: undefined }
+      admin_get_provider_trust: {
+        Args: { _uid: string }
+        Returns: {
+          config_version: number
+          created_at: string
+          last_calculated_at: string
+          provider_id: string
+          risk_reason: string | null
+          trust_flags: Json
+          trust_level: string
+          trust_score: number
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "provider_trust"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      admin_list_flagged_provider_ids: { Args: never; Returns: string[] }
       admin_provider_action: {
         Args: {
           _action: string
@@ -4190,8 +4256,6 @@ export type Database = {
           terms_accepted_at: string | null
           tier_calculated_at: string | null
           tier_is_manual: boolean
-          trust_flags: Json
-          trust_score: number
           updated_at: string
           user_id: string
           visibility: Database["public"]["Enums"]["provider_visibility"]
@@ -4262,8 +4326,6 @@ export type Database = {
           terms_accepted_at: string | null
           tier_calculated_at: string | null
           tier_is_manual: boolean
-          trust_flags: Json
-          trust_score: number
           updated_at: string
           user_id: string
           visibility: Database["public"]["Enums"]["provider_visibility"]
@@ -4326,8 +4388,6 @@ export type Database = {
           terms_accepted_at: string | null
           tier_calculated_at: string | null
           tier_is_manual: boolean
-          trust_flags: Json
-          trust_score: number
           updated_at: string
           user_id: string
           visibility: Database["public"]["Enums"]["provider_visibility"]

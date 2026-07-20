@@ -37,6 +37,7 @@ const ACTIONS: { key: string; label: string; variant?: "destructive" | "outline"
 
 export default function ProviderDetailDrawer({ userId, onClose, onChanged }: Props) {
   const [pp, setPp] = useState<Pp | null>(null);
+  const [trust, setTrust] = useState<any | null>(null);
   const [audit, setAudit] = useState<Audit[] | null>(null);
   const [scores, setScores] = useState<Score[] | null>(null);
   const [completion, setCompletion] = useState<any>(null);
@@ -44,13 +45,15 @@ export default function ProviderDetailDrawer({ userId, onClose, onChanged }: Pro
   const [reason, setReason] = useState("");
 
   const load = useCallback(async () => {
-    const [ppRes, auditRes, scoreRes, compRes] = await Promise.all([
+    const [ppRes, trustRes, auditRes, scoreRes, compRes] = await Promise.all([
       supabase.from("provider_profiles").select("*").eq("user_id", userId).maybeSingle(),
+      supabase.rpc("admin_get_provider_trust" as any, { _uid: userId }),
       supabase.from("provider_admin_actions").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(100),
       supabase.from("provider_score_history").select("id, provider_score, provider_tier, reason, created_at, breakdown, metrics_snapshot").eq("user_id", userId).order("created_at", { ascending: false }).limit(50),
       supabase.rpc("calc_provider_completion", { _uid: userId }),
     ]);
     setPp(ppRes.data);
+    setTrust(trustRes.data ?? null);
     setAudit((auditRes.data as any) || []);
     setScores((scoreRes.data as any) || []);
     setCompletion(compRes.data ?? null);
@@ -117,12 +120,14 @@ export default function ProviderDetailDrawer({ userId, onClose, onChanged }: Pro
               {pp.payout_frozen && <Badge variant="destructive">payout frozen</Badge>}
             </div>
 
-            {/* Trust Score — admin-only visibility (drawer is admin-gated) */}
+            {/* Trust Score — admin-only, fetched via admin_get_provider_trust RPC */}
             <div className="rounded-md border border-amber-300 bg-amber-50 p-3 text-sm">
               <div className="flex items-center gap-2 font-semibold"><ShieldAlert className="h-4 w-4" /> Intern Trust Score (kun admin)</div>
-              <div className="mt-1">Trust Score: <b>{pp.trust_score ?? 0}</b></div>
-              <div className="mt-1 text-xs">Flags: {Array.isArray(pp.trust_flags) && pp.trust_flags.length > 0 ? JSON.stringify(pp.trust_flags) : "ingen"}</div>
+              <div className="mt-1">Trust Score: <b>{trust?.trust_score ?? "—"}</b> · Niveau: <b>{trust?.trust_level ?? "—"}</b></div>
+              <div className="mt-1 text-xs">Flags: {Array.isArray(trust?.trust_flags) && trust.trust_flags.length > 0 ? JSON.stringify(trust.trust_flags) : "ingen"}</div>
+              {trust?.risk_reason && <div className="mt-1 text-xs">Årsag: {trust.risk_reason}</div>}
             </div>
+
 
             <Tabs defaultValue="actions">
               <TabsList className="flex-wrap">

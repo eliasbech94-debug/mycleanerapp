@@ -23,7 +23,6 @@ type ProviderRow = {
   provider_score: number | null;
   provider_tier: string | null;
   completion_pct: number | null;
-  trust_flags: any;
   payout_frozen: boolean | null;
   submitted_at: string | null;
   updated_at: string;
@@ -65,10 +64,19 @@ export default function AdminProviders() {
 
   const load = useCallback(async () => {
     setRows(null);
+
+    // Trust flags live in admin-only provider_trust. Fetch flagged IDs via RPC
+    // when the risk filter is on, then combine with payout_frozen.
+    let flaggedIds: string[] = [];
+    if (riskOnly) {
+      const { data: fids } = await supabase.rpc("admin_list_flagged_provider_ids" as any);
+      flaggedIds = Array.isArray(fids) ? (fids as string[]) : [];
+    }
+
     let q = supabase
       .from("provider_profiles")
       .select(
-        "user_id, display_name, status, visibility, identity_status, stripe_charges_enabled, stripe_payouts_enabled, provider_score, provider_tier, completion_pct, trust_flags, payout_frozen, submitted_at, updated_at",
+        "user_id, display_name, status, visibility, identity_status, stripe_charges_enabled, stripe_payouts_enabled, provider_score, provider_tier, completion_pct, payout_frozen, submitted_at, updated_at",
         { count: "exact" },
       )
       .order(reviewQueue ? "submitted_at" : "updated_at", { ascending: reviewQueue })
@@ -79,7 +87,13 @@ export default function AdminProviders() {
     if (tierFilter !== "all") q = q.eq("provider_tier", tierFilter as any);
     if (identityFilter !== "all") q = q.eq("identity_status", identityFilter);
     if (minScore !== "") q = q.gte("provider_score", Number(minScore) || 0);
-    if (riskOnly) q = q.or("payout_frozen.eq.true,trust_flags.neq.[]");
+    if (riskOnly) {
+      const idList = flaggedIds.map((v) => `"${v}"`).join(",");
+      const orExpr = idList.length > 0
+        ? `payout_frozen.eq.true,user_id.in.(${idList})`
+        : `payout_frozen.eq.true`;
+      q = q.or(orExpr);
+    }
     if (search.trim()) q = q.ilike("display_name", `%${search.trim()}%`);
 
     const { data, count, error } = await q;
@@ -190,7 +204,6 @@ export default function AdminProviders() {
                   )}
                   {rows?.map((r) => {
                     const stripeOk = r.stripe_charges_enabled && r.stripe_payouts_enabled;
-                    const flags = Array.isArray(r.trust_flags) ? r.trust_flags.length : 0;
                     return (
                       <tr key={r.user_id} className="border-t hover:bg-muted/30">
                         <td className="p-2"><Checkbox checked={selectedIds.has(r.user_id)} onCheckedChange={() => toggle(r.user_id)} aria-label={`Vælg ${r.display_name}`} /></td>
@@ -208,7 +221,6 @@ export default function AdminProviders() {
                         <td className="p-2">{stripeOk ? "✓" : "—"}</td>
                         <td className="p-2">
                           {r.payout_frozen && <Badge variant="destructive" className="mr-1">frozen</Badge>}
-                          {flags > 0 && <Badge variant="destructive">{flags}</Badge>}
                         </td>
                       </tr>
                     );
