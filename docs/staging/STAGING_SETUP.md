@@ -338,7 +338,7 @@ Every dashboard should populate.
 #   PARITY_ALLOW_PROD_READ=true
 
 cd staging-validation
-bun run tsx parity-check.ts
+bunx tsx parity-check.ts
 # ⇒ writes docs/staging/PARITY_REPORT.md
 ```
 
