@@ -50,44 +50,94 @@ function splitHusnr(husnr?: string): { house_number?: string; letter?: string } 
   return { house_number: m[1], letter: m[2] || undefined };
 }
 
-async function fetchDawaJson(url: string, attempt = 0): Promise<any> {
-  const res = await fetch(url, {
-    headers: {
-      "Accept": "application/json",
-      "Accept-Encoding": "identity",
-      "User-Agent": "MyCleaner/1.0 (+https://mycleaner.dk)",
-    },
-  });
-  if (res.status === 404) return { __notFound: true };
-  if (!res.ok) {
-    await res.body?.cancel().catch(() => {});
-    throw new Error(`dawa_http_${res.status}`);
-  }
-  let text: string;
+type DawaFetchResult =
+  | { ok: true; data: any }
+  | { ok: false; error: "dawa_not_found"; status: 404 }
+  | { ok: false; error: "dawa_invalid_response"; status: 502 };
+
+function headersForLog(headers: Headers): Record<string, string> {
+  const out: Record<string, string> = {};
+  headers.forEach((value, key) => { out[key] = value; });
+  return out;
+}
+
+function logInvalidDawaResponse(meta: Record<string, unknown>) {
+  console.error("[place-validate] DAWA invalid response", meta);
+}
+
+async function fetchDawaJson(url: string, attempt = 0): Promise<DawaFetchResult> {
   try {
-    text = await res.text();
+    const response = await fetch(url, {
+      headers: {
+        "Accept": "application/json",
+        "Accept-Encoding": "identity",
+        "User-Agent": "MyCleaner/1.0 (+https://mycleaner.dk)",
+      },
+    });
+
+    const status = response.status;
+    const headers = headersForLog(response.headers);
+    const contentType = response.headers.get("content-type") ?? "";
+
+    let body = "";
+    try {
+      body = await response.text();
+    } catch (e) {
+      if (attempt < 1) return fetchDawaJson(url, attempt + 1);
+      logInvalidDawaResponse({
+        status,
+        headers,
+        body_preview: "",
+        reason: "body_read_failed",
+        detail: (e as Error).message,
+      });
+      return { ok: false, error: "dawa_invalid_response", status: 502 };
+    }
+
+    if (status === 404) return { ok: false, error: "dawa_not_found", status: 404 };
+
+    if (!response.ok || !body || !contentType.toLowerCase().includes("application/json")) {
+      if (attempt < 1 && (!body || status >= 500)) return fetchDawaJson(url, attempt + 1);
+      logInvalidDawaResponse({
+        status,
+        headers,
+        body_preview: body.slice(0, 500),
+        reason: !response.ok ? "http_not_ok" : !body ? "empty_body" : "invalid_content_type",
+      });
+      return { ok: false, error: "dawa_invalid_response", status: 502 };
+    }
+
+    try {
+      return { ok: true, data: JSON.parse(body) };
+    } catch (e) {
+      if (attempt < 1) return fetchDawaJson(url, attempt + 1);
+      logInvalidDawaResponse({
+        status,
+        headers,
+        body_preview: body.slice(0, 500),
+        reason: "json_parse_failed",
+        detail: (e as Error).message,
+      });
+      return { ok: false, error: "dawa_invalid_response", status: 502 };
+    }
   } catch (e) {
     if (attempt < 1) return fetchDawaJson(url, attempt + 1);
-    throw new Error(`dawa_body_read_failed: ${(e as Error).message}`);
+    logInvalidDawaResponse({
+      status: null,
+      headers: {},
+      body_preview: "",
+      reason: "fetch_failed",
+      detail: (e as Error).message,
+    });
+    return { ok: false, error: "dawa_invalid_response", status: 502 };
   }
-  if (!text) {
-    if (attempt < 1) return fetchDawaJson(url, attempt + 1);
-    throw new Error("dawa_empty_body");
-  }
-  try { return JSON.parse(text); }
-  catch (e) { throw new Error(`dawa_invalid_json: ${(e as Error).message}`); }
 }
 
 async function validateDawa(ref: string) {
   const url = `https://api.dataforsyningen.dk/adresser/${encodeURIComponent(ref)}`;
-  let full: any;
-  try {
-    full = await fetchDawaJson(url);
-  } catch (e) {
-    console.error("[place-validate] DAWA fetch failed", { ref, err: (e as Error).message });
-    return { error: "dawa_lookup_failed", detail: (e as Error).message, status: 502 };
-  }
-  if (full?.__notFound) return { error: "dawa_not_found", status: 404 };
+  const fetched = await fetchDawaJson(url);
+  if (!fetched.ok) return { error: fetched.error, status: fetched.status };
+  const full = fetched.data;
   const { house_number, letter } = splitHusnr(full?.adgangsadresse?.husnr);
   const koord = full?.adgangsadresse?.adgangspunkt?.koordinater;
   const doorRaw: string | null = full?.dør ?? null;
@@ -163,8 +213,9 @@ async function validateGoogle(ref: string, apiKey: string) {
 }
 
 Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
-  if (req.method !== "POST") return json({ error: "method_not_allowed" }, 405);
+  try {
+    if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+    if (req.method !== "POST") return json({ error: "method_not_allowed" }, 405);
 
   const auth = req.headers.get("Authorization") ?? "";
   const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -217,25 +268,29 @@ Deno.serve(async (req) => {
 
   const match = !!profileCountry && profileCountry === result.row.country_code;
 
-  return json({
-    ok: true,
-    place_id: ref,
-    source: result.row.source,
-    country_code: result.row.country_code,
-    formatted_address: result.row.formatted_address,
-    normalized_address: result.row.normalized_address,
-    street: result.row.street,
-    house_number: result.row.house_number,
-    letter: result.row.letter,
-    floor: result.row.floor,
-    side: result.row.side,
-    door: result.row.door,
-    postal_code: result.row.postal_code,
-    city: result.row.city,
-    municipality: result.row.municipality,
-    lat: result.row.lat,
-    lng: result.row.lng,
-    profile_country_code: profileCountry || null,
-    country_matches_profile: match,
-  });
+    return json({
+      ok: true,
+      place_id: ref,
+      source: result.row.source,
+      country_code: result.row.country_code,
+      formatted_address: result.row.formatted_address,
+      normalized_address: result.row.normalized_address,
+      street: result.row.street,
+      house_number: result.row.house_number,
+      letter: result.row.letter,
+      floor: result.row.floor,
+      side: result.row.side,
+      door: result.row.door,
+      postal_code: result.row.postal_code,
+      city: result.row.city,
+      municipality: result.row.municipality,
+      lat: result.row.lat,
+      lng: result.row.lng,
+      profile_country_code: profileCountry || null,
+      country_matches_profile: match,
+    });
+  } catch (e) {
+    console.error("[place-validate] unhandled error", { err: (e as Error).message, stack: (e as Error).stack });
+    return json({ error: "internal_error" }, 500);
+  }
 });
