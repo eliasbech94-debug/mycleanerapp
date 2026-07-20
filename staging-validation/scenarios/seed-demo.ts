@@ -366,7 +366,7 @@ async function seedSupportTickets(customers: SeededUser[], providers: SeededUser
       assigned_support_id: support?.id ?? null,
       metadata: { seed: SEED_TAG, rc2_tag: RC2_TAG },
     };
-    if (DRY) { n++; continue; }
+    if (DRY) { n++; plan("conversations"); plan("conversation_participants", 2); plan("messages", 2); continue; }
     const { data: c, error } = await admin.from("conversations").insert(conv as any).select("id").maybeSingle();
     if (error || !c) { if (i === 0) console.warn(`  ⚠ conversations: ${error?.message}`); continue; }
     await admin.from("conversation_participants").insert([
