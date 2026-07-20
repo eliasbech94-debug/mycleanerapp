@@ -32,6 +32,27 @@ describe("Phase 1 – internal config tables are locked down for anon", () => {
   it("platform_tax_settings is not readable", () => mustBeBlocked("platform_tax_settings"));
   it("market_rate_thresholds is not readable", () => mustBeBlocked("market_rate_thresholds"));
   it("feature_flags raw table is not readable", () => mustBeBlocked("feature_flags"));
+  // RC1 FP1: country_configs base table must never leak stripe_account_id or
+  // internal payment routing to anonymous or authenticated clients.
+  it("country_configs base table is not readable by anon", () => mustBeBlocked("country_configs"));
+  it("anon cannot select stripe_account_id from country_configs", async () => {
+    const { data, error } = await anonClient
+      .from("country_configs" as never)
+      .select("stripe_account_id")
+      .limit(1);
+    if (error) {
+      expect(error).toBeTruthy();
+    } else {
+      expect((data ?? []).length).toBe(0);
+    }
+  });
+  it("country_configs_public view exposes safe fields to anon", async () => {
+    const { error } = await anonClient
+      .from("country_configs_public" as never)
+      .select("iso,currency,default_language,timezone")
+      .limit(1);
+    expect(error).toBeFalsy();
+  });
 });
 
 describe("Phase 1 – internal SECURITY DEFINER functions reject anon callers", () => {
