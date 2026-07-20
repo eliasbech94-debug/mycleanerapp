@@ -290,9 +290,9 @@ Once staging is reachable end-to-end:
 cd staging-validation
 cp .env.example .env      # fill in staging values
 bun install
-bun run tsx scenarios/seed-demo.ts --dry-run   # print counts, nothing written
-bun run tsx scenarios/seed-demo.ts             # real seed
-bun run tsx scenarios/seed-demo.ts --stats     # inventory afterwards
+bunx tsx scenarios/seed-demo.ts --dry-run   # prints exact per-table plan, writes nothing
+bunx tsx scenarios/seed-demo.ts             # real seed (idempotent)
+bunx tsx scenarios/seed-demo.ts --stats     # inventory afterwards
 ```
 
 Expected inventory:
@@ -303,12 +303,21 @@ Expected inventory:
 - 25 support conversations
 - 6 refund_requests_v2
 
-Reviews: **skipped** — no `reviews` table exists in the current schema
-(recorded in the seed output).
+Reviews: **skipped by design** — no `reviews` table exists in the current
+schema. See "Review system" under _Known gaps_ below and the
+proposal at the end of this document.
+
+**Address-validation caveat**: the seed writes `provider_profiles` rows with
+`base_address_place_id = NULL` to bypass the `place_validations` foreign-key
+trigger (real place IDs would require a live DAWA/Google round-trip per
+provider). Country, coordinates and formatted address are still populated
+and are exercised by marketplace search. The full validation path is covered
+by the RC2 UI scenarios (`12-ui-booking-stripe.spec.ts`), not by the seed.
 
 **Spot-check UI**: sign in as `demo+rc2-demo-customer-000@rc2.mycleaner.test`
 (password from `staging.secrets`), open `/marketplace`, `/admin`, `/support`.
 Every dashboard should populate.
+
 
 ---
 
