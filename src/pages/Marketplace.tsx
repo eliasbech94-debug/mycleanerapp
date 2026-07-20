@@ -14,6 +14,9 @@ import {
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const rpc = (name: string, args?: Record<string, unknown>) => (supabase.rpc as any)(name, args);
+
 type Row = {
   provider_slug: string;
   display_name: string;
