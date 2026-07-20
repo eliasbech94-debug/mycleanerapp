@@ -55,6 +55,7 @@ import { installFrontendMonitoring, initSentry } from "@/lib/monitoring";
 import OAuthConsent from "./pages/OAuthConsent";
 import { CountryProvider } from "@/i18n/CountryContext";
 import IdentityVerificationPage from "./pages/identity/IdentityVerificationPage";
+import ProviderOnboarding from "./pages/provider/ProviderOnboarding";
 
 
 initSentry();
