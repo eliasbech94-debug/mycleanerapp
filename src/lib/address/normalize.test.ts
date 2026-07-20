@@ -37,8 +37,9 @@ describe("normalizeAddress", () => {
 });
 
 describe("matchSpan", () => {
-  it("finds the match ignoring case + diacritics", () => {
-    expect(matchSpan("Sønder Boulevard 18", "sonder")).toEqual([0, 6]);
+  it("finds match on the transliterated form", () => {
+    // "Sønder" normalizes to "soender"; searching for "soender" returns [0,7].
+    expect(matchSpan("Sønder Boulevard 18", "soender")).toEqual([0, 7]);
   });
 
   it("returns null if not found", () => {
