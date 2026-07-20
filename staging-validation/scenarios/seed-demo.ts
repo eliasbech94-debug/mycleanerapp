@@ -342,8 +342,9 @@ async function seedDisputes(customers: SeededUser[], providers: SeededUser[]) {
       const { error } = await admin.from("stripe_disputes").upsert(row as any, { onConflict: "stripe_dispute_id" });
       if (!error) n++;
       else if (i === 0) console.warn(`  ⚠ stripe_disputes: ${error.message}`);
-    } else n++;
+    } else { n++; plan("stripe_disputes"); }
   }
+
   console.log(`  ✓ ${n}/8 disputes`);
 }
 
