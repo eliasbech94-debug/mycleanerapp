@@ -416,9 +416,59 @@ project, remove DNS. Total time: <10 minutes.
 
 ## Known gaps recorded in this doc
 
-- No `reviews` table exists in the schema; seed script logs a SKIP for reviews.
+- **Review system not implemented in schema.** `get_public_provider_profile_v1`
+  hardcodes `0` for `average_rating` and `total_reviews`, and both
+  `Marketplace.tsx` and `PublicProviderProfile.tsx` render those zeros. The
+  seed script logs a SKIP. A schema proposal is included at the end of this
+  document.
 - `person_identities` rows for `pending_identity` providers are created by the
   Sumsub sandbox flow during Phase 3.5 verification, not by the seed script.
 - The seed intentionally leaves `provider_profiles.base_address_place_id` NULL
   to avoid the `enforce_base_address` trigger's dependency on
-  `place_validations`. Coordinates and formatted addresses are still set.
+  `place_validations`. Coordinates and formatted addresses are still set. The
+  full address-validation path is exercised via the RC2 UI scenarios instead.
+
+---
+
+## Appendix — Review system proposal (not implemented)
+
+Recommend a single `reviews` table populated only after a `completed` booking,
+with an aggregate maintained by trigger so marketplace queries stay O(1):
+
+```sql
+create table public.reviews (
+  id uuid primary key default gen_random_uuid(),
+  booking_id uuid not null unique references public.bookings(id) on delete cascade,
+  customer_user_id uuid not null references auth.users(id) on delete cascade,
+  provider_id     uuid not null references auth.users(id) on delete cascade,
+  rating smallint not null check (rating between 1 and 5),
+  comment text check (char_length(coalesce(comment,'')) <= 2000),
+  provider_reply text,
+  provider_reply_at timestamptz,
+  is_hidden boolean not null default false,   -- admin moderation
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+grant select on public.reviews to anon;                        -- public marketplace
+grant select, insert, update on public.reviews to authenticated;
+grant all on public.reviews to service_role;
+alter table public.reviews enable row level security;
+
+-- policies: customer can insert once per completed booking of theirs;
+--           provider can update only provider_reply / provider_reply_at;
+--           anon can select where not is_hidden.
+
+-- aggregates on provider_profiles (add columns; keep in sync via trigger)
+alter table public.provider_profiles
+  add column if not exists rating_avg   numeric(3,2) not null default 0,
+  add column if not exists rating_count integer      not null default 0;
+```
+
+Follow-up work required outside this migration: swap the hardcoded `0`s in
+`get_public_provider_profile_v1` and `search_marketplace_providers_v1` for
+the aggregate columns, extend `seed-demo.ts` with ~180 reviews attached to
+`completed` bookings, and add a "Reviews" tab to the provider self-profile.
+Estimated effort: ~1 day, best done after RC2 sign-off so it doesn't block
+the launch checklist.
+
