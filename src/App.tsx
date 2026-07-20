@@ -54,6 +54,7 @@ import PrivacyCenter from "./pages/PrivacyCenter";
 import AdminOps from "./pages/AdminOps";
 import CountryConsole from "./pages/admin/CountryConsole";
 import { AppErrorBoundary } from "@/components/AppErrorBoundary";
+import { StagingBanner } from "@/components/StagingBanner";
 import { installFrontendMonitoring, initSentry } from "@/lib/monitoring";
 import OAuthConsent from "./pages/OAuthConsent";
 import { CountryProvider } from "@/i18n/CountryContext";
@@ -172,6 +173,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <AppErrorBoundary>
       <TooltipProvider>
+        <StagingBanner />
         <Toaster />
         <Sonner />
         <CustomCursor />
