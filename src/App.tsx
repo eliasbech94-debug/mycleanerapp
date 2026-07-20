@@ -54,6 +54,8 @@ import { AppErrorBoundary } from "@/components/AppErrorBoundary";
 import { installFrontendMonitoring, initSentry } from "@/lib/monitoring";
 import OAuthConsent from "./pages/OAuthConsent";
 import { CountryProvider } from "@/i18n/CountryContext";
+import IdentityVerificationPage from "./pages/identity/IdentityVerificationPage";
+
 
 initSentry();
 installFrontendMonitoring();
@@ -75,6 +77,8 @@ export function AppRoutes() {
       <Route path="/auth/callback" element={<AuthCallback />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/profil" element={<Profile />} />
+      <Route path="/verify-identity" element={<IdentityVerificationPage />} />
+
       <Route path="/customer" element={<RoleGuard allow={["customer"]}><CustomerDashboard /></RoleGuard>} />
       <Route path="/customer/bookings" element={<RoleGuard allow={["customer"]}><MyBookings /></RoleGuard>} />
       <Route path="/customer/notifications" element={<RoleGuard allow={["customer"]}><Navigate to="/profil?tab=inbox" replace /></RoleGuard>} />

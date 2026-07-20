@@ -14,3 +14,7 @@ verify_jwt = false
 
 [functions.captcha-verify]
 verify_jwt = false
+
+[functions.identity-webhook]
+verify_jwt = false
+

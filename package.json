@@ -48,6 +48,7 @@
     "@sentry/react": "^10.66.0",
     "@stripe/react-stripe-js": "^6.6.0",
     "@stripe/stripe-js": "^9.8.0",
+    "@sumsub/websdk-react": "^2.6.3",
     "@supabase/supabase-js": "^2.108.0",
     "@tanstack/react-query": "^5.83.0",
     "ai": "^6.0.199",
