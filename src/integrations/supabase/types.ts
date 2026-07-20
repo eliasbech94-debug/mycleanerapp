@@ -1712,6 +1712,130 @@ export type Database = {
         }
         Relationships: []
       }
+      identity_account_links: {
+        Row: {
+          id: string
+          identity_id: string
+          link_reason: Database["public"]["Enums"]["identity_link_reason"]
+          linked_at: string
+          linked_by: string | null
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          identity_id: string
+          link_reason?: Database["public"]["Enums"]["identity_link_reason"]
+          linked_at?: string
+          linked_by?: string | null
+          user_id: string
+        }
+        Update: {
+          id?: string
+          identity_id?: string
+          link_reason?: Database["public"]["Enums"]["identity_link_reason"]
+          linked_at?: string
+          linked_by?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "identity_account_links_identity_id_fkey"
+            columns: ["identity_id"]
+            isOneToOne: false
+            referencedRelation: "person_identities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      identity_verification_attempts: {
+        Row: {
+          closed_at: string | null
+          created_at: string
+          id: string
+          identity_id: string
+          level: Database["public"]["Enums"]["identity_level"] | null
+          provider: string
+          provider_applicant_id: string | null
+          review_summary: Json
+          started_at: string
+          status: Database["public"]["Enums"]["identity_status"]
+          updated_at: string
+        }
+        Insert: {
+          closed_at?: string | null
+          created_at?: string
+          id?: string
+          identity_id: string
+          level?: Database["public"]["Enums"]["identity_level"] | null
+          provider?: string
+          provider_applicant_id?: string | null
+          review_summary?: Json
+          started_at?: string
+          status?: Database["public"]["Enums"]["identity_status"]
+          updated_at?: string
+        }
+        Update: {
+          closed_at?: string | null
+          created_at?: string
+          id?: string
+          identity_id?: string
+          level?: Database["public"]["Enums"]["identity_level"] | null
+          provider?: string
+          provider_applicant_id?: string | null
+          review_summary?: Json
+          started_at?: string
+          status?: Database["public"]["Enums"]["identity_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "identity_verification_attempts_identity_id_fkey"
+            columns: ["identity_id"]
+            isOneToOne: false
+            referencedRelation: "person_identities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      identity_webhook_events: {
+        Row: {
+          error: string | null
+          event_id: string
+          event_type: string | null
+          id: string
+          payload_hash: string
+          processed_at: string | null
+          provider: string
+          received_at: string
+          result: Database["public"]["Enums"]["identity_webhook_result"]
+          signature_ok: boolean
+        }
+        Insert: {
+          error?: string | null
+          event_id: string
+          event_type?: string | null
+          id?: string
+          payload_hash: string
+          processed_at?: string | null
+          provider?: string
+          received_at?: string
+          result?: Database["public"]["Enums"]["identity_webhook_result"]
+          signature_ok?: boolean
+        }
+        Update: {
+          error?: string | null
+          event_id?: string
+          event_type?: string | null
+          id?: string
+          payload_hash?: string
+          processed_at?: string | null
+          provider?: string
+          received_at?: string
+          result?: Database["public"]["Enums"]["identity_webhook_result"]
+          signature_ok?: boolean
+        }
+        Relationships: []
+      }
       incident_timeline: {
         Row: {
           actor_user_id: string | null
@@ -2160,6 +2284,54 @@ export type Database = {
           subject?: string | null
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      person_identities: {
+        Row: {
+          country_code: string | null
+          created_at: string
+          expires_at: string | null
+          external_ref: string | null
+          id: string
+          last_review_at: string | null
+          level: Database["public"]["Enums"]["identity_level"] | null
+          metadata: Json
+          provider: string
+          risk_level: string | null
+          status: Database["public"]["Enums"]["identity_status"]
+          updated_at: string
+          verified_at: string | null
+        }
+        Insert: {
+          country_code?: string | null
+          created_at?: string
+          expires_at?: string | null
+          external_ref?: string | null
+          id?: string
+          last_review_at?: string | null
+          level?: Database["public"]["Enums"]["identity_level"] | null
+          metadata?: Json
+          provider?: string
+          risk_level?: string | null
+          status?: Database["public"]["Enums"]["identity_status"]
+          updated_at?: string
+          verified_at?: string | null
+        }
+        Update: {
+          country_code?: string | null
+          created_at?: string
+          expires_at?: string | null
+          external_ref?: string | null
+          id?: string
+          last_review_at?: string | null
+          level?: Database["public"]["Enums"]["identity_level"] | null
+          metadata?: Json
+          provider?: string
+          risk_level?: string | null
+          status?: Database["public"]["Enums"]["identity_status"]
+          updated_at?: string
+          verified_at?: string | null
         }
         Relationships: []
       }
@@ -3543,6 +3715,7 @@ export type Database = {
         Args: { _key: string; _plaintext: string }
         Returns: string
       }
+      user_owns_identity: { Args: { _identity_id: string }; Returns: boolean }
       user_owns_provider: { Args: { _provider_id: string }; Returns: boolean }
       visible_conversation_ids: {
         Args: { _user: string }
@@ -3581,6 +3754,26 @@ export type Database = {
         | "active"
         | "suspended"
         | "retired"
+      identity_level: "customer" | "provider"
+      identity_link_reason:
+        | "auto_created"
+        | "signup"
+        | "admin_merge"
+        | "admin_relink"
+      identity_status:
+        | "unverified"
+        | "pending"
+        | "approved"
+        | "rejected"
+        | "on_hold"
+        | "expired"
+      identity_webhook_result:
+        | "received"
+        | "processed"
+        | "duplicate"
+        | "failed"
+        | "signature_invalid"
+        | "unknown_type"
       payment_status:
         | "none"
         | "authorized"
@@ -3748,6 +3941,29 @@ export const Constants = {
         "active",
         "suspended",
         "retired",
+      ],
+      identity_level: ["customer", "provider"],
+      identity_link_reason: [
+        "auto_created",
+        "signup",
+        "admin_merge",
+        "admin_relink",
+      ],
+      identity_status: [
+        "unverified",
+        "pending",
+        "approved",
+        "rejected",
+        "on_hold",
+        "expired",
+      ],
+      identity_webhook_result: [
+        "received",
+        "processed",
+        "duplicate",
+        "failed",
+        "signature_invalid",
+        "unknown_type",
       ],
       payment_status: [
         "none",
