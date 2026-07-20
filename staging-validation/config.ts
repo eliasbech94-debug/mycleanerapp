@@ -76,13 +76,40 @@ if (!parsed.success) {
   process.exit(2);
 }
 
-// Environment protection — refuse production hosts up front.
+// Production detection — hard abort with the exact required message.
+const d = parsed.data;
+for (const ref of PROD_SUPABASE_REFS) {
+  if (d.STAGING_SUPABASE_URL.includes(ref) || d.STAGING_PG_CONN.includes(ref) ||
+      d.STRIPE_WEBHOOK_URL.includes(ref) || d.SUMSUB_WEBHOOK_URL.includes(ref)) {
+    abortProd(`Supabase project ref ${ref} is production.`);
+  }
+}
+for (const p of LIVE_STRIPE_PREFIXES) {
+  if (d.STRIPE_TEST_SECRET_KEY.startsWith(p) || d.STRIPE_TEST_PUBLISHABLE_KEY.startsWith(p)) {
+    abortProd(`Live Stripe key detected (prefix ${p}).`);
+  }
+}
+if (!/sbx[:\-_]/i.test(d.SUMSUB_APP_TOKEN)) {
+  abortProd(`Sumsub app token is not a sandbox token (must contain 'sbx').`);
+}
 try {
-  assertStagingUrl("STAGING_SUPABASE_URL", parsed.data.STAGING_SUPABASE_URL);
-  assertStagingUrl("STAGING_APP_URL", parsed.data.STAGING_APP_URL);
-  assertStagingUrl("STRIPE_WEBHOOK_URL", parsed.data.STRIPE_WEBHOOK_URL);
-  assertStagingUrl("SUMSUB_WEBHOOK_URL", parsed.data.SUMSUB_WEBHOOK_URL);
-  assertStagingPg(parsed.data.STAGING_PG_CONN);
+  new URL(d.STAGING_APP_URL).host.toLowerCase();
+} catch {}
+for (const bad of PROD_URL_DENYLIST) {
+  const host = new URL(d.STAGING_APP_URL).host.toLowerCase();
+  if (host === bad) abortProd(`STAGING_APP_URL host ${host} is production.`);
+}
+if (d.RC2_ALLOW_DESTRUCTIVE_STAGING_TESTS !== "true") {
+  console.error("❌ RC2_ALLOW_DESTRUCTIVE_STAGING_TESTS must be exactly 'true'."); process.exit(2);
+}
+
+// Environment protection — refuse production hosts / non-staging hosts.
+try {
+  assertStagingUrl("STAGING_SUPABASE_URL", d.STAGING_SUPABASE_URL);
+  assertStagingUrl("STAGING_APP_URL", d.STAGING_APP_URL);
+  assertStagingUrl("STRIPE_WEBHOOK_URL", d.STRIPE_WEBHOOK_URL);
+  assertStagingUrl("SUMSUB_WEBHOOK_URL", d.SUMSUB_WEBHOOK_URL);
+  assertStagingPg(d.STAGING_PG_CONN);
 } catch (e) {
   console.error(`❌ RC2 environment guard: ${(e as Error).message}`);
   process.exit(2);
