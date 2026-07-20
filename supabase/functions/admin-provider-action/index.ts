@@ -52,9 +52,10 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_ANON_KEY")!,
       { global: { headers: { Authorization: req.headers.get("Authorization")! } } },
     );
+    const rpcAction = ACTION_ALIAS[action] ?? action;
     const { data, error } = await userClient.rpc("admin_provider_action", {
       _target_user_id: targetUserId,
-      _action: action,
+      _action: rpcAction,
       _reason: reason,
       _idempotency_key: idempotencyKey,
       _metadata: metadata,
