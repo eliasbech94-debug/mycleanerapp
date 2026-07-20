@@ -2736,6 +2736,213 @@ export type Database = {
         }
         Relationships: []
       }
+      provider_admin_actions: {
+        Row: {
+          action: string
+          actor_id: string | null
+          created_at: string
+          from_status: Database["public"]["Enums"]["provider_status"] | null
+          id: number
+          idempotency_key: string | null
+          metadata: Json
+          reason: string | null
+          to_status: Database["public"]["Enums"]["provider_status"] | null
+          user_id: string
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          created_at?: string
+          from_status?: Database["public"]["Enums"]["provider_status"] | null
+          id?: number
+          idempotency_key?: string | null
+          metadata?: Json
+          reason?: string | null
+          to_status?: Database["public"]["Enums"]["provider_status"] | null
+          user_id: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          created_at?: string
+          from_status?: Database["public"]["Enums"]["provider_status"] | null
+          id?: number
+          idempotency_key?: string | null
+          metadata?: Json
+          reason?: string | null
+          to_status?: Database["public"]["Enums"]["provider_status"] | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      provider_profiles: {
+        Row: {
+          activated_at: string | null
+          approved_at: string | null
+          approved_by: string | null
+          archived_at: string | null
+          archived_by: string | null
+          base_address_formatted: string | null
+          base_address_place_id: string | null
+          base_country_code: string | null
+          base_lat: number | null
+          base_lng: number | null
+          base_validation_source: string | null
+          bio: string | null
+          completion_pct: number
+          created_at: string
+          date_of_birth: string | null
+          display_name: string | null
+          emergency_contact: Json | null
+          headline: string | null
+          hourly_rate: number | null
+          identity_status: string
+          insurance_doc_path: string | null
+          insurance_expires_on: string | null
+          insurance_policy_number: string | null
+          languages: string[]
+          payout_frozen: boolean
+          payout_frozen_reason: string | null
+          performance_snapshot: Json
+          photo_path: string | null
+          provider_score: number
+          provider_tier: Database["public"]["Enums"]["provider_tier"]
+          rejected_at: string | null
+          rejected_reason: string | null
+          scoring_config_version: number | null
+          service_area_radius_km: number | null
+          service_categories: string[]
+          status: Database["public"]["Enums"]["provider_status"]
+          stripe_charges_enabled: boolean
+          stripe_details_submitted: boolean
+          stripe_disabled_reason: string | null
+          stripe_payouts_enabled: boolean
+          stripe_requirements_due: string[]
+          submitted_at: string | null
+          suspended_at: string | null
+          suspended_by: string | null
+          terms_accepted_at: string | null
+          tier_calculated_at: string | null
+          tier_is_manual: boolean
+          trust_flags: Json
+          trust_score: number
+          updated_at: string
+          user_id: string
+          visibility: Database["public"]["Enums"]["provider_visibility"]
+          years_experience: number | null
+        }
+        Insert: {
+          activated_at?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
+          archived_at?: string | null
+          archived_by?: string | null
+          base_address_formatted?: string | null
+          base_address_place_id?: string | null
+          base_country_code?: string | null
+          base_lat?: number | null
+          base_lng?: number | null
+          base_validation_source?: string | null
+          bio?: string | null
+          completion_pct?: number
+          created_at?: string
+          date_of_birth?: string | null
+          display_name?: string | null
+          emergency_contact?: Json | null
+          headline?: string | null
+          hourly_rate?: number | null
+          identity_status?: string
+          insurance_doc_path?: string | null
+          insurance_expires_on?: string | null
+          insurance_policy_number?: string | null
+          languages?: string[]
+          payout_frozen?: boolean
+          payout_frozen_reason?: string | null
+          performance_snapshot?: Json
+          photo_path?: string | null
+          provider_score?: number
+          provider_tier?: Database["public"]["Enums"]["provider_tier"]
+          rejected_at?: string | null
+          rejected_reason?: string | null
+          scoring_config_version?: number | null
+          service_area_radius_km?: number | null
+          service_categories?: string[]
+          status?: Database["public"]["Enums"]["provider_status"]
+          stripe_charges_enabled?: boolean
+          stripe_details_submitted?: boolean
+          stripe_disabled_reason?: string | null
+          stripe_payouts_enabled?: boolean
+          stripe_requirements_due?: string[]
+          submitted_at?: string | null
+          suspended_at?: string | null
+          suspended_by?: string | null
+          terms_accepted_at?: string | null
+          tier_calculated_at?: string | null
+          tier_is_manual?: boolean
+          trust_flags?: Json
+          trust_score?: number
+          updated_at?: string
+          user_id: string
+          visibility?: Database["public"]["Enums"]["provider_visibility"]
+          years_experience?: number | null
+        }
+        Update: {
+          activated_at?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
+          archived_at?: string | null
+          archived_by?: string | null
+          base_address_formatted?: string | null
+          base_address_place_id?: string | null
+          base_country_code?: string | null
+          base_lat?: number | null
+          base_lng?: number | null
+          base_validation_source?: string | null
+          bio?: string | null
+          completion_pct?: number
+          created_at?: string
+          date_of_birth?: string | null
+          display_name?: string | null
+          emergency_contact?: Json | null
+          headline?: string | null
+          hourly_rate?: number | null
+          identity_status?: string
+          insurance_doc_path?: string | null
+          insurance_expires_on?: string | null
+          insurance_policy_number?: string | null
+          languages?: string[]
+          payout_frozen?: boolean
+          payout_frozen_reason?: string | null
+          performance_snapshot?: Json
+          photo_path?: string | null
+          provider_score?: number
+          provider_tier?: Database["public"]["Enums"]["provider_tier"]
+          rejected_at?: string | null
+          rejected_reason?: string | null
+          scoring_config_version?: number | null
+          service_area_radius_km?: number | null
+          service_categories?: string[]
+          status?: Database["public"]["Enums"]["provider_status"]
+          stripe_charges_enabled?: boolean
+          stripe_details_submitted?: boolean
+          stripe_disabled_reason?: string | null
+          stripe_payouts_enabled?: boolean
+          stripe_requirements_due?: string[]
+          submitted_at?: string | null
+          suspended_at?: string | null
+          suspended_by?: string | null
+          terms_accepted_at?: string | null
+          tier_calculated_at?: string | null
+          tier_is_manual?: boolean
+          trust_flags?: Json
+          trust_score?: number
+          updated_at?: string
+          user_id?: string
+          visibility?: Database["public"]["Enums"]["provider_visibility"]
+          years_experience?: number | null
+        }
+        Relationships: []
+      }
       provider_receipts: {
         Row: {
           amount_cents: number | null
@@ -2806,6 +3013,75 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      provider_score_history: {
+        Row: {
+          breakdown: Json
+          calculated_at: string
+          id: number
+          metrics_snapshot: Json
+          provider_score: number
+          provider_tier: Database["public"]["Enums"]["provider_tier"]
+          reason: string
+          scoring_config_version: number
+          trust_score: number | null
+          user_id: string
+        }
+        Insert: {
+          breakdown?: Json
+          calculated_at?: string
+          id?: number
+          metrics_snapshot?: Json
+          provider_score: number
+          provider_tier: Database["public"]["Enums"]["provider_tier"]
+          reason: string
+          scoring_config_version: number
+          trust_score?: number | null
+          user_id: string
+        }
+        Update: {
+          breakdown?: Json
+          calculated_at?: string
+          id?: number
+          metrics_snapshot?: Json
+          provider_score?: number
+          provider_tier?: Database["public"]["Enums"]["provider_tier"]
+          reason?: string
+          scoring_config_version?: number
+          trust_score?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      provider_scoring_config: {
+        Row: {
+          config_version: number
+          created_at: string
+          created_by: string | null
+          is_active: boolean
+          normalizers: Json
+          notes: string | null
+          weights: Json
+        }
+        Insert: {
+          config_version: number
+          created_at?: string
+          created_by?: string | null
+          is_active?: boolean
+          normalizers: Json
+          notes?: string | null
+          weights: Json
+        }
+        Update: {
+          config_version?: number
+          created_at?: string
+          created_by?: string | null
+          is_active?: boolean
+          normalizers?: Json
+          notes?: string | null
+          weights?: Json
+        }
+        Relationships: []
       }
       provider_settlement_statements: {
         Row: {
@@ -2947,6 +3223,90 @@ export type Database = {
           vat_number_enc?: string | null
           vat_number_last4?: string | null
           vat_registered?: boolean
+        }
+        Relationships: []
+      }
+      provider_tier_rules: {
+        Row: {
+          manual_only: boolean
+          max_cancellation_rate: number | null
+          min_completed: number
+          min_completion_rate: number | null
+          min_rating: number | null
+          min_repeat_customer_rate: number | null
+          notes: string | null
+          priority: number
+          require_email: boolean
+          require_identity: boolean
+          require_no_trust_flags: boolean
+          require_phone: boolean
+          require_stripe: boolean
+          tier: Database["public"]["Enums"]["provider_tier"]
+          updated_at: string
+        }
+        Insert: {
+          manual_only?: boolean
+          max_cancellation_rate?: number | null
+          min_completed?: number
+          min_completion_rate?: number | null
+          min_rating?: number | null
+          min_repeat_customer_rate?: number | null
+          notes?: string | null
+          priority: number
+          require_email?: boolean
+          require_identity?: boolean
+          require_no_trust_flags?: boolean
+          require_phone?: boolean
+          require_stripe?: boolean
+          tier: Database["public"]["Enums"]["provider_tier"]
+          updated_at?: string
+        }
+        Update: {
+          manual_only?: boolean
+          max_cancellation_rate?: number | null
+          min_completed?: number
+          min_completion_rate?: number | null
+          min_rating?: number | null
+          min_repeat_customer_rate?: number | null
+          notes?: string | null
+          priority?: number
+          require_email?: boolean
+          require_identity?: boolean
+          require_no_trust_flags?: boolean
+          require_phone?: boolean
+          require_stripe?: boolean
+          tier?: Database["public"]["Enums"]["provider_tier"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      provider_trust_config: {
+        Row: {
+          config_version: number
+          created_at: string
+          created_by: string | null
+          is_active: boolean
+          notes: string | null
+          thresholds: Json
+          weights: Json
+        }
+        Insert: {
+          config_version: number
+          created_at?: string
+          created_by?: string | null
+          is_active?: boolean
+          notes?: string | null
+          thresholds: Json
+          weights: Json
+        }
+        Update: {
+          config_version?: number
+          created_at?: string
+          created_by?: string | null
+          is_active?: boolean
+          notes?: string | null
+          thresholds?: Json
+          weights?: Json
         }
         Relationships: []
       }
@@ -3822,6 +4182,24 @@ export type Database = {
         | "expired"
         | "refunded"
         | "partially_refunded"
+      provider_status:
+        | "draft"
+        | "pending_identity"
+        | "pending_stripe"
+        | "pending_review"
+        | "active"
+        | "paused"
+        | "suspended"
+        | "rejected"
+        | "archived"
+      provider_tier:
+        | "new"
+        | "verified"
+        | "experienced"
+        | "top_rated"
+        | "elite"
+        | "partner"
+      provider_visibility: "hidden" | "public"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -4014,6 +4392,26 @@ export const Constants = {
         "refunded",
         "partially_refunded",
       ],
+      provider_status: [
+        "draft",
+        "pending_identity",
+        "pending_stripe",
+        "pending_review",
+        "active",
+        "paused",
+        "suspended",
+        "rejected",
+        "archived",
+      ],
+      provider_tier: [
+        "new",
+        "verified",
+        "experienced",
+        "top_rated",
+        "elite",
+        "partner",
+      ],
+      provider_visibility: ["hidden", "public"],
     },
   },
 } as const
