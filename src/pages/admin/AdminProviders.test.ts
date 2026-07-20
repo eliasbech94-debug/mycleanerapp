@@ -42,7 +42,7 @@ describe("AdminProviders payload safety", () => {
       "user_id", "display_name", "status", "visibility", "identity_status",
       "stripe_charges_enabled", "stripe_payouts_enabled",
       "provider_score", "provider_tier", "completion_pct",
-      "trust_flags", "payout_frozen", "submitted_at", "updated_at",
+      "payout_frozen", "submitted_at", "updated_at",
     ];
     for (const banned of ["date_of_birth", "cpr", "cvr", "phone", "email", "lat", "lng", "base_address_place_id"]) {
       expect(cols).not.toContain(banned);
