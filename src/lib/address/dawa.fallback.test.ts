@@ -55,7 +55,7 @@ describe("DAWA provider — automatic-fallback triggers", () => {
     globalThis.fetch = spy;
     const ctrl = new AbortController();
     ctrl.abort();
-    await expect(dawaProvider.suggest("x", ctrl.signal)).rejects.toMatchObject({
+    await expect(dawaProvider.suggest("xx", ctrl.signal)).rejects.toMatchObject({
       name: "AbortError",
     });
     // Caller cancelled → no retry attempts.
