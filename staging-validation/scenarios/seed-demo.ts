@@ -273,8 +273,9 @@ async function seedBookings(customers: SeededUser[], providers: SeededUser[]) {
         // seed already present is OK; other errors we log once
         if (i === 0) console.warn(`  ⚠ booking insert: ${error.message}`);
       }
-    } else inserted++;
+    } else { inserted++; plan("bookings"); }
   }
+
   console.log(`  ✓ ${inserted}/${target} bookings inserted (or already present)`);
 }
 
