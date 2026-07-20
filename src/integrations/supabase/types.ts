@@ -3958,6 +3958,63 @@ export type Database = {
         }
         Relationships: []
       }
+      public_provider_marketplace: {
+        Row: {
+          approx_lat: number | null
+          approx_lng: number | null
+          base_country_code: string | null
+          bio: string | null
+          display_name: string | null
+          headline: string | null
+          hourly_rate: number | null
+          languages: string[] | null
+          photo_path: string | null
+          provider_score: number | null
+          provider_tier: Database["public"]["Enums"]["provider_tier"] | null
+          service_area_radius_km: number | null
+          service_categories: string[] | null
+          tier_calculated_at: string | null
+          user_id: string | null
+          years_experience: number | null
+        }
+        Insert: {
+          approx_lat?: never
+          approx_lng?: never
+          base_country_code?: string | null
+          bio?: string | null
+          display_name?: string | null
+          headline?: string | null
+          hourly_rate?: number | null
+          languages?: string[] | null
+          photo_path?: string | null
+          provider_score?: number | null
+          provider_tier?: Database["public"]["Enums"]["provider_tier"] | null
+          service_area_radius_km?: number | null
+          service_categories?: string[] | null
+          tier_calculated_at?: string | null
+          user_id?: string | null
+          years_experience?: number | null
+        }
+        Update: {
+          approx_lat?: never
+          approx_lng?: never
+          base_country_code?: string | null
+          bio?: string | null
+          display_name?: string | null
+          headline?: string | null
+          hourly_rate?: number | null
+          languages?: string[] | null
+          photo_path?: string | null
+          provider_score?: number | null
+          provider_tier?: Database["public"]["Enums"]["provider_tier"] | null
+          service_area_radius_km?: number | null
+          service_categories?: string[] | null
+          tier_calculated_at?: string | null
+          user_id?: string | null
+          years_experience?: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       _pp_as_service: { Args: never; Returns: undefined }
