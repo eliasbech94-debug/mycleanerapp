@@ -422,4 +422,100 @@ function ProviderOnboardingChecklist({
   );
 }
 
+function PreActiveDashboard({ pp, user, authProfile }: { pp: any | null; user: any; authProfile: any }) {
+  const emailOk = !!(user?.email_confirmed_at || user?.confirmed_at);
+  const rows: CompletionRow[] = pp ? [
+    {
+      key: "basic",
+      label: "Grundprofil",
+      status: pp.display_name && pp.date_of_birth && pp.base_address_place_id && pp.photo_path ? "complete" : "incomplete",
+      hint: pp.display_name || "Navn, alder, adresse, foto",
+      href: "/bliv-cleaner",
+    },
+    {
+      key: "service",
+      label: "Serviceprofil",
+      status: pp.service_categories?.length && pp.hourly_rate && pp.service_area_radius_km ? "complete" : "incomplete",
+      hint: pp.service_categories?.join(", ") || "Kategorier, pris, radius",
+      href: "/bliv-cleaner",
+    },
+    {
+      key: "email",
+      label: "Email bekræftet",
+      status: emailOk ? "complete" : "pending",
+      hint: user?.email,
+    },
+    {
+      key: "phone",
+      label: "Telefon",
+      status: authProfile?.phone ? "complete" : "incomplete",
+      hint: authProfile?.phone || "Tilføj i din profil",
+      href: "/profil?tab=info",
+    },
+    {
+      key: "address",
+      label: "Base-adresse",
+      status: pp.base_address_place_id ? "complete" : "incomplete",
+      hint: pp.base_address_formatted || "DAWA-valideret adresse",
+      href: "/bliv-cleaner",
+    },
+    {
+      key: "identity",
+      label: "Identitetsverifikation",
+      status: pp.identity_status === "verified" ? "complete" : pp.identity_status === "pending" ? "pending" : "incomplete",
+      hint: `Sumsub: ${pp.identity_status}`,
+      href: "/verify-identity",
+    },
+    {
+      key: "stripe",
+      label: "Udbetalingskonto (Stripe)",
+      status: pp.stripe_charges_enabled && pp.stripe_payouts_enabled ? "complete" : pp.stripe_details_submitted ? "pending" : "incomplete",
+      hint: pp.stripe_disabled_reason || "Stripe Connect onboarding",
+      href: "/bliv-cleaner",
+    },
+    {
+      key: "insurance",
+      label: "Forsikring",
+      status: pp.insurance_doc_path ? "complete" : "pending",
+      hint: pp.insurance_expires_on ? `Udløber ${pp.insurance_expires_on}` : "Valgfri men anbefalet",
+    },
+    {
+      key: "terms",
+      label: "Vilkår accepteret",
+      status: pp.terms_accepted_at ? "complete" : "incomplete",
+      href: "/bliv-cleaner",
+    },
+  ] : [];
+
+  return (
+    <main className="font-editorial min-h-screen" style={{ background: C.cream, color: C.ink }}>
+      <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 space-y-6">
+        <BackButton />
+        <header>
+          <div className="text-[10px] font-black uppercase tracking-[0.22em]" style={{ color: C.orange }}>
+            Provider · Onboarding
+          </div>
+          <h1 className="mt-1 font-display text-3xl sm:text-4xl">Velkommen tilbage</h1>
+          <p className="mt-2 text-sm opacity-70 max-w-xl">
+            Din konto er endnu ikke aktiveret. Færdiggør de manglende trin nedenfor for at kunne modtage bookinger.
+          </p>
+        </header>
+
+        {pp && (
+          <ProviderCompletionCard
+            completionPct={pp.completion_pct ?? 0}
+            status={pp.status}
+            rows={rows}
+          />
+        )}
+
+        <ProviderScorePreview
+          score={pp?.provider_score ?? 0}
+          tier={pp?.provider_tier ?? "new"}
+          performance={pp?.performance_snapshot || {}}
+        />
+      </div>
+    </main>
+  );
+}
 
