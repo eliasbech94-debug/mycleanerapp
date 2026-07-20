@@ -90,15 +90,17 @@ diff /tmp/sec-prod.txt /tmp/sec-stg.txt          # values not shown by CLI
 
 ### 1.5 Storage buckets
 
-The migrations create every bucket. Confirm five exist:
+The migrations create every bucket. Confirm the expected buckets exist by
+querying the linked project directly (`supabase storage list` is not a stable
+CLI command across versions):
 
 ```bash
-supabase --project-ref <STAGING_REF> storage list
+psql "$STAGING_PG_CONN" -c "select id, public from storage.buckets order by id;"
 # expect: avatars, chat-attachments, receipts, identity-artifacts, legal-documents
 ```
 
-If any are missing, create via the dashboard (Storage → New bucket) with the
-same public/private setting as production.
+If any are missing, create via the Supabase dashboard (Storage → New bucket)
+with the same public/private setting as production.
 
 ### 1.6 Auth configuration (dashboard)
 
@@ -120,10 +122,15 @@ Supabase dashboard → **Authentication → Providers**:
 
 ```bash
 psql "$STAGING_PG_CONN" -f scripts/rls-regression.sql
-supabase db lint --linked
+# The Supabase linter runs via the platform's Advisors panel (dashboard →
+# Advisors → Security). There is no `supabase db lint` CLI command; use the
+# in-repo tooling instead:
+bun run --cwd staging-validation tsx preflight.ts
 ```
 
-Expect: `PASS` on the regression script, no CRITICAL findings from the linter.
+Expect: `PASS` on the regression script, no CRITICAL findings from the
+dashboard Advisors, and a green preflight report.
+
 
 ---
 
@@ -283,9 +290,9 @@ Once staging is reachable end-to-end:
 cd staging-validation
 cp .env.example .env      # fill in staging values
 bun install
-bun run tsx scenarios/seed-demo.ts --dry-run   # print counts, nothing written
-bun run tsx scenarios/seed-demo.ts             # real seed
-bun run tsx scenarios/seed-demo.ts --stats     # inventory afterwards
+bunx tsx scenarios/seed-demo.ts --dry-run   # prints exact per-table plan, writes nothing
+bunx tsx scenarios/seed-demo.ts             # real seed (idempotent)
+bunx tsx scenarios/seed-demo.ts --stats     # inventory afterwards
 ```
 
 Expected inventory:
@@ -296,12 +303,21 @@ Expected inventory:
 - 25 support conversations
 - 6 refund_requests_v2
 
-Reviews: **skipped** — no `reviews` table exists in the current schema
-(recorded in the seed output).
+Reviews: **skipped by design** — no `reviews` table exists in the current
+schema. See "Review system" under _Known gaps_ below and the
+proposal at the end of this document.
+
+**Address-validation caveat**: the seed writes `provider_profiles` rows with
+`base_address_place_id = NULL` to bypass the `place_validations` foreign-key
+trigger (real place IDs would require a live DAWA/Google round-trip per
+provider). Country, coordinates and formatted address are still populated
+and are exercised by marketplace search. The full validation path is covered
+by the RC2 UI scenarios (`12-ui-booking-stripe.spec.ts`), not by the seed.
 
 **Spot-check UI**: sign in as `demo+rc2-demo-customer-000@rc2.mycleaner.test`
 (password from `staging.secrets`), open `/marketplace`, `/admin`, `/support`.
 Every dashboard should populate.
+
 
 ---
 
@@ -322,7 +338,7 @@ Every dashboard should populate.
 #   PARITY_ALLOW_PROD_READ=true
 
 cd staging-validation
-bun run tsx parity-check.ts
+bunx tsx parity-check.ts
 # ⇒ writes docs/staging/PARITY_REPORT.md
 ```
 
@@ -400,9 +416,59 @@ project, remove DNS. Total time: <10 minutes.
 
 ## Known gaps recorded in this doc
 
-- No `reviews` table exists in the schema; seed script logs a SKIP for reviews.
+- **Review system not implemented in schema.** `get_public_provider_profile_v1`
+  hardcodes `0` for `average_rating` and `total_reviews`, and both
+  `Marketplace.tsx` and `PublicProviderProfile.tsx` render those zeros. The
+  seed script logs a SKIP. A schema proposal is included at the end of this
+  document.
 - `person_identities` rows for `pending_identity` providers are created by the
   Sumsub sandbox flow during Phase 3.5 verification, not by the seed script.
 - The seed intentionally leaves `provider_profiles.base_address_place_id` NULL
   to avoid the `enforce_base_address` trigger's dependency on
-  `place_validations`. Coordinates and formatted addresses are still set.
+  `place_validations`. Coordinates and formatted addresses are still set. The
+  full address-validation path is exercised via the RC2 UI scenarios instead.
+
+---
+
+## Appendix — Review system proposal (not implemented)
+
+Recommend a single `reviews` table populated only after a `completed` booking,
+with an aggregate maintained by trigger so marketplace queries stay O(1):
+
+```sql
+create table public.reviews (
+  id uuid primary key default gen_random_uuid(),
+  booking_id uuid not null unique references public.bookings(id) on delete cascade,
+  customer_user_id uuid not null references auth.users(id) on delete cascade,
+  provider_id     uuid not null references auth.users(id) on delete cascade,
+  rating smallint not null check (rating between 1 and 5),
+  comment text check (char_length(coalesce(comment,'')) <= 2000),
+  provider_reply text,
+  provider_reply_at timestamptz,
+  is_hidden boolean not null default false,   -- admin moderation
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+grant select on public.reviews to anon;                        -- public marketplace
+grant select, insert, update on public.reviews to authenticated;
+grant all on public.reviews to service_role;
+alter table public.reviews enable row level security;
+
+-- policies: customer can insert once per completed booking of theirs;
+--           provider can update only provider_reply / provider_reply_at;
+--           anon can select where not is_hidden.
+
+-- aggregates on provider_profiles (add columns; keep in sync via trigger)
+alter table public.provider_profiles
+  add column if not exists rating_avg   numeric(3,2) not null default 0,
+  add column if not exists rating_count integer      not null default 0;
+```
+
+Follow-up work required outside this migration: swap the hardcoded `0`s in
+`get_public_provider_profile_v1` and `search_marketplace_providers_v1` for
+the aggregate columns, extend `seed-demo.ts` with ~180 reviews attached to
+`completed` bookings, and add a "Reviews" tab to the provider self-profile.
+Estimated effort: ~1 day, best done after RC2 sign-off so it doesn't block
+the launch checklist.
+

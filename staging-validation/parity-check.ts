@@ -95,8 +95,27 @@ async function collect(label: string, conn: string) {
       select tablename, count(*)::int as n from pg_policies where schemaname='public' group by tablename order by tablename
     `),
     buckets: q<Row>(conn, `select id, public::text from storage.buckets order by id`),
+    extensions: q<Row>(conn, `
+      select extname as name, extversion as version
+      from pg_extension where extname not in ('plpgsql') order by extname
+    `),
+    // pg_cron may or may not be installed; guard with to_regclass so the query
+    // is safe on projects without the extension.
+    cron: q<Row>(conn, `
+      select case when to_regclass('cron.job') is null then '[]'::json
+             else (select coalesce(json_agg(row_to_json(j)), '[]'::json)
+                   from (select jobname, schedule, command from cron.job order by jobname) j)
+             end::text as payload
+    `),
+    // Auth providers surface via GoTrue config; we probe the auth.identities
+    // provider column as an inventory proxy that requires no admin API.
+    authProviders: q<Row>(conn, `
+      select provider, count(*)::int as n
+      from auth.identities group by provider order by provider
+    `),
   };
 }
+
 
 // ── Main ───────────────────────────────────────────────────────────
 console.log("\n▶ RC2 parity check\n");
@@ -111,6 +130,22 @@ const P = await collect("prod",    PROD_PG);
 const tableDiff = diffLists(S.tables.map(t=>t.table_name), P.tables.map(t=>t.table_name));
 const rpcDiff   = diffLists(S.rpcs.map(r=>r.name),        P.rpcs.map(r=>r.name));
 const bucketDiff= diffLists(S.buckets.map(b=>b.id),       P.buckets.map(b=>b.id));
+const extDiff   = diffLists(S.extensions.map(e=>e.name),  P.extensions.map(e=>e.name));
+const authDiff  = diffLists(S.authProviders.map(a=>a.provider), P.authProviders.map(a=>a.provider));
+
+// Edge Function names are read from the local repo — the same source that
+// deploys to both environments — so parity is deterministic without touching
+// either project's control plane.
+const localFns = execSync(`ls supabase/functions 2>/dev/null | grep -v '^_' || true`, { encoding: "utf8" })
+  .split("\n").map(s => s.trim()).filter(Boolean).sort();
+
+// Cron parity: pg_cron may be absent on one side; treat as empty inventory.
+const parseCron = (rows: Row[]) => {
+  try { return JSON.parse(rows?.[0]?.payload ?? "[]") as Row[]; } catch { return []; }
+};
+const cronS = parseCron(S.cron);
+const cronP = parseCron(P.cron);
+const cronDiff = diffLists(cronS.map(j=>j.jobname), cronP.map(j=>j.jobname));
 
 const policyBoth = Object.fromEntries(P.policies.map((p) => [p.tablename, p.n]));
 const policyStg  = Object.fromEntries(S.policies.map((p) => [p.tablename, p.n]));
@@ -125,6 +160,7 @@ const colDeltas = S.tables
     return p && p.cols !== s.cols;
   })
   .map((s) => ({ table: s.table_name, staging_cols: s.cols, prod_cols: P.tables.find(x=>x.table_name===s.table_name)!.cols }));
+
 
 // ── Report ─────────────────────────────────────────────────────────
 mkdirSync("docs/staging", { recursive: true });
@@ -141,11 +177,15 @@ Production:  ${PROD_URL}  (ref: ${PROD_REF})
 
 | Check | Staging | Prod | Δ |
 |---|---:|---:|---|
-| Tables (public)     | ${S.tables.length}   | ${P.tables.length}   | ${S.tables.length - P.tables.length} |
-| RPCs / functions    | ${S.rpcs.length}     | ${P.rpcs.length}     | ${S.rpcs.length - P.rpcs.length} |
-| Storage buckets     | ${S.buckets.length}  | ${P.buckets.length}  | ${S.buckets.length - P.buckets.length} |
-| Tables w/ policy diff | ${policyRows.length} | — | see below |
-| Tables w/ column diff | ${colDeltas.length}  | — | see below |
+| Tables (public)       | ${S.tables.length}     | ${P.tables.length}     | ${S.tables.length - P.tables.length} |
+| RPCs / functions      | ${S.rpcs.length}       | ${P.rpcs.length}       | ${S.rpcs.length - P.rpcs.length} |
+| Storage buckets       | ${S.buckets.length}    | ${P.buckets.length}    | ${S.buckets.length - P.buckets.length} |
+| Database extensions   | ${S.extensions.length} | ${P.extensions.length} | ${S.extensions.length - P.extensions.length} |
+| Scheduled jobs (cron) | ${cronS.length}        | ${cronP.length}        | ${cronS.length - cronP.length} |
+| Auth providers used   | ${S.authProviders.length} | ${P.authProviders.length} | ${S.authProviders.length - P.authProviders.length} |
+| Edge Functions (repo) | ${localFns.length}     | ${localFns.length}     | 0 (single source of truth) |
+| Tables w/ policy diff | ${policyRows.length}   | — | see below |
+| Tables w/ column diff | ${colDeltas.length}    | — | see below |
 
 ## Tables
 
@@ -171,33 +211,58 @@ ${policyRows.length === 0 ? "_all matching_" :
 **Only in staging:** ${bucketDiff.onlyStaging.join(", ") || "_none_"}
 **Only in production:** ${bucketDiff.onlyProd.join(", ") || "_none_"}
 
-## Auth providers, edge functions, secret names
+## Database extensions
 
-Auth providers, edge function inventory, and secret names cannot be queried
-from Postgres. Compare them manually via the Supabase CLI:
+**Only in staging:** ${extDiff.onlyStaging.join(", ") || "_none_"}
+**Only in production:** ${extDiff.onlyProd.join(", ") || "_none_"}
+
+## Scheduled jobs (pg_cron)
+
+**Only in staging:** ${cronDiff.onlyStaging.join(", ") || "_none_"}
+**Only in production:** ${cronDiff.onlyProd.join(", ") || "_none_"}
+
+_If pg_cron is not installed on either side its inventory is empty and this section shows \`_none_\`. Verify \`pg_cron\` itself under the extensions diff above._
+
+## Auth providers (from auth.identities)
+
+**Only in staging:** ${authDiff.onlyStaging.join(", ") || "_none_"}
+**Only in production:** ${authDiff.onlyProd.join(", ") || "_none_"}
+
+_Providers with zero linked identities won't appear here. Cross-check the enabled provider list in the Supabase Auth dashboard for each environment._
+
+## Edge Function inventory (repo — single source of truth)
+
+${localFns.length} functions deploy from \`supabase/functions/\` to every environment. Run \`supabase functions list --project-ref <ref>\` per environment and diff against this list to confirm the deploy landed:
+
+\`\`\`
+${localFns.join("\n")}
+\`\`\`
+
+## Secrets
+
+Secret **names** must match between environments; **values must not**. This
+report deliberately does not read either. Compare names via the CLI:
 
 \`\`\`bash
-# Edge function inventory
-supabase functions list --project-ref <staging-ref> > /tmp/fn-staging.txt
-supabase functions list --project-ref ${PROD_REF}     > /tmp/fn-prod.txt
-diff /tmp/fn-staging.txt /tmp/fn-prod.txt
-
-# Secret NAMES (values are hidden by design)
-supabase secrets list --project-ref <staging-ref> > /tmp/sec-staging.txt
-supabase secrets list --project-ref ${PROD_REF}     > /tmp/sec-prod.txt
+supabase secrets list --project-ref <staging-ref> | awk '{print $1}' | sort > /tmp/sec-staging.txt
+supabase secrets list --project-ref ${PROD_REF}     | awk '{print $1}' | sort > /tmp/sec-prod.txt
 diff /tmp/sec-staging.txt /tmp/sec-prod.txt
-
-# Auth providers
-supabase --project-ref <staging-ref> gotrue-admin providers list
-supabase --project-ref ${PROD_REF}     gotrue-admin providers list
 \`\`\`
 
 ## Verdict
 
-${tableDiff.onlyProd.length === 0 && rpcDiff.onlyProd.length === 0 && policyRows.length === 0 && colDeltas.length === 0 && bucketDiff.onlyProd.length === 0
+${tableDiff.onlyProd.length === 0
+  && rpcDiff.onlyProd.length === 0
+  && policyRows.length === 0
+  && colDeltas.length === 0
+  && bucketDiff.onlyProd.length === 0
+  && extDiff.onlyProd.length === 0
+  && cronDiff.onlyProd.length === 0
+  && authDiff.onlyProd.length === 0
   ? "**PASS** — staging matches production for every automated check."
-  : "**REVIEW REQUIRED** — see deltas above. Either apply missing migrations to staging, or if the difference is intentional, note it here in a follow-up commit."}
+  : "**REVIEW REQUIRED** — see deltas above. Either apply missing migrations/config to staging, or if the difference is intentional, note it in a follow-up commit."}
 `;
+
 
 writeFileSync(OUT, md);
 console.log(`\n✅ Wrote ${OUT}`);

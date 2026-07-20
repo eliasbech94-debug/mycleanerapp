@@ -59,6 +59,12 @@ const between = (a: number, b: number) => a + Math.floor(rng() * (b - a + 1));
 const DRY = process.argv.includes("--dry-run");
 const STATS = process.argv.includes("--stats");
 
+// ── Dry-run plan tracker ────────────────────────────────────────────
+// Every seeder increments this so the dry-run report is exact, not estimated.
+const PLAN: Record<string, number> = {};
+function plan(kind: string, n = 1) { PLAN[kind] = (PLAN[kind] ?? 0) + n; }
+
+
 // Provider lifecycle distribution — must sum to 50.
 const PROVIDER_STATE_MIX: Array<{ state: string; visibility: string; count: number; ready: boolean }> = [
   { state: "active",           visibility: "public", count: 30, ready: true  },
@@ -97,7 +103,7 @@ async function upsertUser(email: string, role: SeededUser["role"], country: stri
     await admin.from("user_roles").upsert({ user_id: existing, role: role as any }, { onConflict: "user_id,role" });
     return { id: existing, email, role, country };
   }
-  if (DRY) return { id: "dry-" + email, email, role, country };
+  if (DRY) { plan(`auth.users (${role})`); plan("profiles"); plan("user_roles"); return { id: "dry-" + email, email, role, country }; }
   const { data, error } = await admin.auth.admin.createUser({
     email,
     password: PASSWORD,
@@ -110,6 +116,7 @@ async function upsertUser(email: string, role: SeededUser["role"], country: stri
   await admin.from("user_roles").upsert({ user_id: uid, role: role as any }, { onConflict: "user_id,role" });
   return { id: uid, email, role, country };
 }
+
 
 async function tableCount(table: string, filter?: (q: any) => any): Promise<number> {
   let q = admin.from(table).select("*", { count: "exact", head: true });
@@ -179,11 +186,19 @@ async function seedProviders(): Promise<SeededUser[]> {
       if (!DRY) {
         // Trigger `provider_profiles_enforce_base_address` requires a matching
         // place_validations row for real place_ids. We DELIBERATELY leave
-        // base_address_place_id NULL, which the trigger allows.
+        // base_address_place_id NULL, which the trigger allows. This is the
+        // ONE place where seed diverges from the production lifecycle — see
+        // the "Address validation bypass" note in STAGING_SETUP.md. All other
+        // fields (formatted, country, lat/lng) still populate and are used
+        // by marketplace search and map rendering.
         const { error } = await admin.from("provider_profiles").upsert(profile as any, { onConflict: "user_id" });
         if (error) console.warn(`  ⚠ provider_profiles ${email}: ${error.message}`);
         await admin.from("provider_trust").upsert({ provider_id: user.id, trust_flags: [], notes: SEED_TAG } as any, { onConflict: "provider_id" });
+      } else {
+        plan("provider_profiles");
+        plan("provider_trust");
       }
+
       out.push(user);
     }
   }
@@ -258,8 +273,9 @@ async function seedBookings(customers: SeededUser[], providers: SeededUser[]) {
         // seed already present is OK; other errors we log once
         if (i === 0) console.warn(`  ⚠ booking insert: ${error.message}`);
       }
-    } else inserted++;
+    } else { inserted++; plan("bookings"); }
   }
+
   console.log(`  ✓ ${inserted}/${target} bookings inserted (or already present)`);
 }
 
@@ -297,8 +313,9 @@ async function seedFinance(providers: SeededUser[]) {
       const { error } = await admin.from("finance_payouts").upsert(row as any, { onConflict: "stripe_transfer_id" });
       if (!error) n++;
       else if (i === 0) console.warn(`  ⚠ finance_payouts: ${error.message}`);
-    } else n++;
+    } else { n++; plan("finance_payouts"); }
   }
+
   console.log(`  ✓ ${n}/40 finance_payouts`);
 }
 
@@ -325,8 +342,9 @@ async function seedDisputes(customers: SeededUser[], providers: SeededUser[]) {
       const { error } = await admin.from("stripe_disputes").upsert(row as any, { onConflict: "stripe_dispute_id" });
       if (!error) n++;
       else if (i === 0) console.warn(`  ⚠ stripe_disputes: ${error.message}`);
-    } else n++;
+    } else { n++; plan("stripe_disputes"); }
   }
+
   console.log(`  ✓ ${n}/8 disputes`);
 }
 
@@ -348,7 +366,7 @@ async function seedSupportTickets(customers: SeededUser[], providers: SeededUser
       assigned_support_id: support?.id ?? null,
       metadata: { seed: SEED_TAG, rc2_tag: RC2_TAG },
     };
-    if (DRY) { n++; continue; }
+    if (DRY) { n++; plan("conversations"); plan("conversation_participants", 2); plan("messages", 2); continue; }
     const { data: c, error } = await admin.from("conversations").insert(conv as any).select("id").maybeSingle();
     if (error || !c) { if (i === 0) console.warn(`  ⚠ conversations: ${error?.message}`); continue; }
     await admin.from("conversation_participants").insert([
@@ -382,8 +400,9 @@ async function seedRefundRequests(customers: SeededUser[]) {
       const { error } = await admin.from("refund_requests_v2").insert(row as any);
       if (!error) n++;
       else if (i === 0) console.warn(`  ⚠ refund_requests_v2: ${error.message}`);
-    } else n++;
+    } else { n++; plan("refund_requests_v2"); }
   }
+
   console.log(`  ✓ ${n}/6 refund requests`);
 }
 
@@ -398,7 +417,7 @@ async function stats() {
 
 // ── Main ────────────────────────────────────────────────────────────
 async function main() {
-  console.log(`\n▶ RC2 demo seed  (tag=${SEED_TAG}, run=${RC2_TAG})  ${DRY ? "[DRY-RUN]" : ""}\n`);
+  console.log(`\n▶ RC2 demo seed  (tag=${SEED_TAG}, run=${RC2_TAG})  ${DRY ? "[DRY-RUN — no rows will be written]" : ""}\n`);
   if (STATS) return stats();
   const customers = await seedCustomers();
   const providers = await seedProviders();
@@ -409,7 +428,26 @@ async function main() {
   await seedDisputes(customers, providers);
   await seedSupportTickets(customers, providers, staff);
   await seedRefundRequests(customers);
+
+  if (DRY) {
+    console.log(`\n📋 DRY-RUN PLAN — the following rows WOULD be created:\n`);
+    const rows = Object.entries(PLAN).sort(([a],[b]) => a.localeCompare(b));
+    const width = Math.max(...rows.map(([k]) => k.length));
+    for (const [k, v] of rows) console.log(`   ${k.padEnd(width)}  ${v}`);
+    console.log(`\n   Total planned inserts/upserts: ${rows.reduce((s,[,v]) => s + v, 0)}`);
+    console.log(`\n   Known bypasses vs. production lifecycle:`);
+    console.log(`   • provider_profiles.base_address_place_id left NULL (skips place_validations FK trigger)`);
+    console.log(`   • bookings.address is a plain string, not a validated place_id`);
+    console.log(`   • stripe_charges_enabled set directly (no Stripe onboarding round-trip)`);
+    console.log(`   • identity_status set directly (no Sumsub webhook round-trip)`);
+    console.log(`   Everything else follows the same triggers, RLS and constraints as production.\n`);
+    console.log(`✅ Dry-run complete. Re-run without --dry-run to seed.`);
+    return;
+  }
   console.log(`\n✅ Seed complete. To remove: ./cleanup-rc2.sh --all-rc2`);
 }
+
+main().catch((e) => { console.error("❌ seed failed:", e); process.exit(1); });
+
 
 main().catch((e) => { console.error("❌ seed failed:", e); process.exit(1); });
