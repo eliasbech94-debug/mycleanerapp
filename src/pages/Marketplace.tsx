@@ -104,23 +104,14 @@ export default function Marketplace() {
     return () => { supabase.removeChannel(ch); };
   }, [load]);
 
-  async function toggleFav(slug: string, providerId?: string) {
+  async function toggleFav(slug: string) {
     if (!user) { toast.info("Log ind for at gemme favoritter"); return; }
-    // We only have slug here; look up provider user_id via RPC list is not exposed by search.
-    // Instead re-fetch fav list after toggling by slug through a lookup RPC would be ideal,
-    // but we can call toggle_favorite by resolving provider_id lazily:
-    if (!providerId) {
-      // Optimistic UI: toggle set; refresh from server.
-      setFavIds((s) => { const n = new Set(s); if (n.has(slug)) n.delete(slug); else n.add(slug); return n; });
-    }
-    // Server side toggle needs uuid. Look up via public profile RPC:
-    const { data: prof } = await supabase.rpc("get_public_provider_profile_v1" as never, { _slug: slug });
-    const p = (prof as Row[] | null)?.[0];
-    if (!p) return;
-    // We don't expose provider_id in public output on purpose. Use favorites list to reconcile.
-    // Call toggle by trying to insert into customer_favorites via list-then-write pattern:
-    // Simpler path: server RPC toggles by provider_id, but we don't have it publicly.
-    // Solution: expose a helper 'favorite_by_slug' would be cleaner; for now no-op if unresolved.
+    // Optimistic UI update.
+    setFavIds((s) => { const n = new Set(s); if (n.has(slug)) n.delete(slug); else n.add(slug); return n; });
+    const { error } = await (supabase.rpc as unknown as (n: string, a: unknown) => Promise<{ error: { message: string } | null }>)(
+      "toggle_favorite_by_slug_v1", { _slug: slug },
+    );
+    if (error) toast.error(error.message);
     await loadFavs();
   }
 
