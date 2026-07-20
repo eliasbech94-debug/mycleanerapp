@@ -8,7 +8,8 @@
  * production bundles never ship the banner markup.
  */
 export function StagingBanner() {
-  const env = (import.meta as any).env?.VITE_APP_ENV;
+  // Vite replaces this at build time; in tests, vi.stubEnv overrides it.
+  const env = import.meta.env.VITE_APP_ENV;
   if (env !== "staging") return null;
 
   return (
