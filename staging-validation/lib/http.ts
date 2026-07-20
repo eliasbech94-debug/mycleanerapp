@@ -1,5 +1,6 @@
-// Instrumented fetch. Every call writes a transcript into evidence/http/.
+// Instrumented fetch. Every call writes a redacted transcript into evidence/http/.
 import { saveJson } from "./reporter.js";
+import { redactHeaders, redactValue } from "./redact.js";
 
 let seq = 0;
 
@@ -17,14 +18,14 @@ export async function httpCall(
     label,
     request: {
       method: init.method ?? "GET",
-      url: input,
-      headers: sanitize(init.headers as Record<string, string> | undefined),
-      body: typeof init.body === "string" ? tryJson(init.body) : null,
+      url: redactValue(input),
+      headers: redactHeaders(init.headers as Record<string, string> | undefined),
+      body: typeof init.body === "string" ? redactValue(tryJson(init.body)) : null,
     },
     response: {
       status: res.status,
-      headers: Object.fromEntries(res.headers.entries()),
-      body: json ?? body,
+      headers: redactHeaders(res.headers),
+      body: redactValue(json ?? body),
     },
     timing_ms: Date.now() - started,
     at: new Date().toISOString(),
@@ -32,16 +33,6 @@ export async function httpCall(
   const artifact = `http/${String(++seq).padStart(4, "0")}-${label}.json`;
   saveJson(artifact, record);
   return { status: res.status, body, json, artifact };
-}
-
-function sanitize(h?: Record<string, string>): Record<string, string> {
-  if (!h) return {};
-  const out: Record<string, string> = {};
-  for (const [k, v] of Object.entries(h)) {
-    if (/authorization|api[-_]?key|secret|token/i.test(k)) out[k] = "***redacted***";
-    else out[k] = v;
-  }
-  return out;
 }
 
 function tryJson(s: string): any {

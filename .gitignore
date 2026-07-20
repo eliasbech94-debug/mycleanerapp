@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# RC2 staging validation harness — never commit real secrets or evidence
+staging-validation/.env
+staging-validation/evidence/
