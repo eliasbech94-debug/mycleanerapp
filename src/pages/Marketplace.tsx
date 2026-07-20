@@ -71,7 +71,7 @@ export default function Marketplace() {
 
   const load = useCallback(async () => {
     setRows(null);
-    const { data, error } = await supabase.rpc("search_marketplace_providers_v1" as never, {
+    const { data, error } = await rpc("search_marketplace_providers_v1", {
       _country_code: country || null,
       _service_category: category === "all" ? null : category,
       _min_tier: tier === "all" ? null : tier,
@@ -81,7 +81,7 @@ export default function Marketplace() {
       _sort: sort,
       _limit: PAGE,
       _offset: page * PAGE,
-    } as never);
+    });
     if (error) { toast.error(error.message); setRows([]); return; }
     const list = (data as Row[] | null) ?? [];
     setRows(list);
