@@ -4577,6 +4577,7 @@ export type Database = {
         Args: { _key: string; _plaintext: string }
         Returns: string
       }
+      toggle_favorite_by_slug_v1: { Args: { _slug: string }; Returns: boolean }
       toggle_favorite_provider_v1: {
         Args: { _provider_id: string }
         Returns: boolean
