@@ -3049,6 +3049,7 @@ export type Database = {
           breakdown: Json
           calculated_at: string
           id: number
+          idempotency_key: string
           metrics_snapshot: Json
           provider_score: number
           provider_tier: Database["public"]["Enums"]["provider_tier"]
@@ -3061,6 +3062,7 @@ export type Database = {
           breakdown?: Json
           calculated_at?: string
           id?: number
+          idempotency_key: string
           metrics_snapshot?: Json
           provider_score: number
           provider_tier: Database["public"]["Enums"]["provider_tier"]
@@ -3073,6 +3075,7 @@ export type Database = {
           breakdown?: Json
           calculated_at?: string
           id?: number
+          idempotency_key?: string
           metrics_snapshot?: Json
           provider_score?: number
           provider_tier?: Database["public"]["Enums"]["provider_tier"]
@@ -4346,10 +4349,12 @@ export type Database = {
           isSetofReturn: false
         }
       }
-      refresh_provider_score_tier: {
-        Args: { _reason?: string; _uid: string }
-        Returns: Json
-      }
+      refresh_provider_score_tier:
+        | { Args: { _reason?: string; _uid: string }; Returns: Json }
+        | {
+            Args: { _event_id?: string; _reason?: string; _uid: string }
+            Returns: Json
+          }
       resolve_system_alert: {
         Args: { _alert_key: string; _resolver?: string }
         Returns: number
