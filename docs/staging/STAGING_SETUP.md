@@ -90,15 +90,17 @@ diff /tmp/sec-prod.txt /tmp/sec-stg.txt          # values not shown by CLI
 
 ### 1.5 Storage buckets
 
-The migrations create every bucket. Confirm five exist:
+The migrations create every bucket. Confirm the expected buckets exist by
+querying the linked project directly (`supabase storage list` is not a stable
+CLI command across versions):
 
 ```bash
-supabase --project-ref <STAGING_REF> storage list
+psql "$STAGING_PG_CONN" -c "select id, public from storage.buckets order by id;"
 # expect: avatars, chat-attachments, receipts, identity-artifacts, legal-documents
 ```
 
-If any are missing, create via the dashboard (Storage → New bucket) with the
-same public/private setting as production.
+If any are missing, create via the Supabase dashboard (Storage → New bucket)
+with the same public/private setting as production.
 
 ### 1.6 Auth configuration (dashboard)
 
@@ -120,10 +122,15 @@ Supabase dashboard → **Authentication → Providers**:
 
 ```bash
 psql "$STAGING_PG_CONN" -f scripts/rls-regression.sql
-supabase db lint --linked
+# The Supabase linter runs via the platform's Advisors panel (dashboard →
+# Advisors → Security). There is no `supabase db lint` CLI command; use the
+# in-repo tooling instead:
+bun run --cwd staging-validation tsx preflight.ts
 ```
 
-Expect: `PASS` on the regression script, no CRITICAL findings from the linter.
+Expect: `PASS` on the regression script, no CRITICAL findings from the
+dashboard Advisors, and a green preflight report.
+
 
 ---
 
