@@ -97,6 +97,7 @@ export function AppRoutes() {
       <Route path="/task/offers" element={<MatchingOffers />} />
       <Route path="/admin" element={<RoleGuard allow={["admin"]}><AdminDashboard /></RoleGuard>} />
       <Route path="/admin/users" element={<RoleGuard allow={["admin"]}><AdminUsers /></RoleGuard>} />
+      <Route path="/admin/providers" element={<RoleGuard allow={["admin"]}><AdminProviders /></RoleGuard>} />
       <Route path="/admin/stripe" element={<RoleGuard allow={["admin"]}><AdminStripe /></RoleGuard>} />
       <Route path="/admin/webhooks" element={<RoleGuard allow={["admin"]}><AdminWebhooks /></RoleGuard>} />
       <Route path="/admin/payments" element={<RoleGuard allow={["admin"]}><AdminPayments /></RoleGuard>} />
