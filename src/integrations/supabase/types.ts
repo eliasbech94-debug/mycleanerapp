@@ -3960,6 +3960,24 @@ export type Database = {
       }
     }
     Functions: {
+      _pp_as_service: { Args: never; Returns: undefined }
+      admin_provider_action: {
+        Args: {
+          _action: string
+          _idempotency_key?: string
+          _metadata?: Json
+          _reason?: string
+          _target_user_id: string
+        }
+        Returns: Json
+      }
+      calc_provider_completion: { Args: { _uid: string }; Returns: Json }
+      calc_provider_metrics: { Args: { _uid: string }; Returns: Json }
+      calc_provider_score: { Args: { _uid: string }; Returns: Json }
+      calc_provider_tier: {
+        Args: { _metrics?: Json; _uid: string }
+        Returns: Database["public"]["Enums"]["provider_tier"]
+      }
       evaluate_feature_flag: {
         Args: {
           _country_iso?: string
@@ -4047,6 +4065,12 @@ export type Database = {
         Returns: string
       }
       next_invoice_number: { Args: { _country_code: string }; Returns: string }
+      provider_can_accept_booking: { Args: { _uid: string }; Returns: boolean }
+      provider_can_receive_payout: { Args: { _uid: string }; Returns: boolean }
+      provider_is_marketplace_visible: {
+        Args: { _uid: string }
+        Returns: boolean
+      }
       raise_system_alert: {
         Args: {
           _alert_key: string
@@ -4059,9 +4083,205 @@ export type Database = {
         }
         Returns: string
       }
+      reconcile_provider_status: {
+        Args: { _uid: string }
+        Returns: {
+          activated_at: string | null
+          approved_at: string | null
+          approved_by: string | null
+          archived_at: string | null
+          archived_by: string | null
+          base_address_formatted: string | null
+          base_address_place_id: string | null
+          base_country_code: string | null
+          base_lat: number | null
+          base_lng: number | null
+          base_validation_source: string | null
+          bio: string | null
+          completion_pct: number
+          created_at: string
+          date_of_birth: string | null
+          display_name: string | null
+          emergency_contact: Json | null
+          headline: string | null
+          hourly_rate: number | null
+          identity_status: string
+          insurance_doc_path: string | null
+          insurance_expires_on: string | null
+          insurance_policy_number: string | null
+          languages: string[]
+          payout_frozen: boolean
+          payout_frozen_reason: string | null
+          performance_snapshot: Json
+          photo_path: string | null
+          provider_score: number
+          provider_tier: Database["public"]["Enums"]["provider_tier"]
+          rejected_at: string | null
+          rejected_reason: string | null
+          scoring_config_version: number | null
+          service_area_radius_km: number | null
+          service_categories: string[]
+          status: Database["public"]["Enums"]["provider_status"]
+          stripe_charges_enabled: boolean
+          stripe_details_submitted: boolean
+          stripe_disabled_reason: string | null
+          stripe_payouts_enabled: boolean
+          stripe_requirements_due: string[]
+          submitted_at: string | null
+          suspended_at: string | null
+          suspended_by: string | null
+          terms_accepted_at: string | null
+          tier_calculated_at: string | null
+          tier_is_manual: boolean
+          trust_flags: Json
+          trust_score: number
+          updated_at: string
+          user_id: string
+          visibility: Database["public"]["Enums"]["provider_visibility"]
+          years_experience: number | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "provider_profiles"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      refresh_provider_score_tier: {
+        Args: { _reason?: string; _uid: string }
+        Returns: Json
+      }
       resolve_system_alert: {
         Args: { _alert_key: string; _resolver?: string }
         Returns: number
+      }
+      start_provider_application: {
+        Args: never
+        Returns: {
+          activated_at: string | null
+          approved_at: string | null
+          approved_by: string | null
+          archived_at: string | null
+          archived_by: string | null
+          base_address_formatted: string | null
+          base_address_place_id: string | null
+          base_country_code: string | null
+          base_lat: number | null
+          base_lng: number | null
+          base_validation_source: string | null
+          bio: string | null
+          completion_pct: number
+          created_at: string
+          date_of_birth: string | null
+          display_name: string | null
+          emergency_contact: Json | null
+          headline: string | null
+          hourly_rate: number | null
+          identity_status: string
+          insurance_doc_path: string | null
+          insurance_expires_on: string | null
+          insurance_policy_number: string | null
+          languages: string[]
+          payout_frozen: boolean
+          payout_frozen_reason: string | null
+          performance_snapshot: Json
+          photo_path: string | null
+          provider_score: number
+          provider_tier: Database["public"]["Enums"]["provider_tier"]
+          rejected_at: string | null
+          rejected_reason: string | null
+          scoring_config_version: number | null
+          service_area_radius_km: number | null
+          service_categories: string[]
+          status: Database["public"]["Enums"]["provider_status"]
+          stripe_charges_enabled: boolean
+          stripe_details_submitted: boolean
+          stripe_disabled_reason: string | null
+          stripe_payouts_enabled: boolean
+          stripe_requirements_due: string[]
+          submitted_at: string | null
+          suspended_at: string | null
+          suspended_by: string | null
+          terms_accepted_at: string | null
+          tier_calculated_at: string | null
+          tier_is_manual: boolean
+          trust_flags: Json
+          trust_score: number
+          updated_at: string
+          user_id: string
+          visibility: Database["public"]["Enums"]["provider_visibility"]
+          years_experience: number | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "provider_profiles"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      submit_provider_application: {
+        Args: never
+        Returns: {
+          activated_at: string | null
+          approved_at: string | null
+          approved_by: string | null
+          archived_at: string | null
+          archived_by: string | null
+          base_address_formatted: string | null
+          base_address_place_id: string | null
+          base_country_code: string | null
+          base_lat: number | null
+          base_lng: number | null
+          base_validation_source: string | null
+          bio: string | null
+          completion_pct: number
+          created_at: string
+          date_of_birth: string | null
+          display_name: string | null
+          emergency_contact: Json | null
+          headline: string | null
+          hourly_rate: number | null
+          identity_status: string
+          insurance_doc_path: string | null
+          insurance_expires_on: string | null
+          insurance_policy_number: string | null
+          languages: string[]
+          payout_frozen: boolean
+          payout_frozen_reason: string | null
+          performance_snapshot: Json
+          photo_path: string | null
+          provider_score: number
+          provider_tier: Database["public"]["Enums"]["provider_tier"]
+          rejected_at: string | null
+          rejected_reason: string | null
+          scoring_config_version: number | null
+          service_area_radius_km: number | null
+          service_categories: string[]
+          status: Database["public"]["Enums"]["provider_status"]
+          stripe_charges_enabled: boolean
+          stripe_details_submitted: boolean
+          stripe_disabled_reason: string | null
+          stripe_payouts_enabled: boolean
+          stripe_requirements_due: string[]
+          submitted_at: string | null
+          suspended_at: string | null
+          suspended_by: string | null
+          terms_accepted_at: string | null
+          tier_calculated_at: string | null
+          tier_is_manual: boolean
+          trust_flags: Json
+          trust_score: number
+          updated_at: string
+          user_id: string
+          visibility: Database["public"]["Enums"]["provider_visibility"]
+          years_experience: number | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "provider_profiles"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       support_booking_summary: { Args: { _booking_id: string }; Returns: Json }
       support_counters: { Args: { _user: string }; Returns: Json }
