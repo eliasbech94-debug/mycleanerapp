@@ -243,7 +243,8 @@ export default function AddressAutocomplete({
         lat: data.lat ?? undefined,
         lng: data.lng ?? undefined,
       });
-    } catch {
+    } catch (e) {
+      console.error("[AddressAutocomplete] place-validate failed", e);
       setServerError("Kunne ikke validere adressen på serveren. Prøv igen om lidt.");
       onValidityChange?.(false);
     }
