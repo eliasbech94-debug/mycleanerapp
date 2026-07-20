@@ -53,6 +53,7 @@ const rawConfig: Record<DashboardRole, NavGroup[]> = {
       items: [
         { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
         { title: "Brugere & roller", url: "/admin/users", icon: Users },
+        { title: "Providere", url: "/admin/providers", icon: Users },
         { title: "Lande", url: "/admin/countries", icon: MapPin },
       ],
     },
