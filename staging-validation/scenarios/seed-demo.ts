@@ -186,11 +186,19 @@ async function seedProviders(): Promise<SeededUser[]> {
       if (!DRY) {
         // Trigger `provider_profiles_enforce_base_address` requires a matching
         // place_validations row for real place_ids. We DELIBERATELY leave
-        // base_address_place_id NULL, which the trigger allows.
+        // base_address_place_id NULL, which the trigger allows. This is the
+        // ONE place where seed diverges from the production lifecycle — see
+        // the "Address validation bypass" note in STAGING_SETUP.md. All other
+        // fields (formatted, country, lat/lng) still populate and are used
+        // by marketplace search and map rendering.
         const { error } = await admin.from("provider_profiles").upsert(profile as any, { onConflict: "user_id" });
         if (error) console.warn(`  ⚠ provider_profiles ${email}: ${error.message}`);
         await admin.from("provider_trust").upsert({ provider_id: user.id, trust_flags: [], notes: SEED_TAG } as any, { onConflict: "provider_id" });
+      } else {
+        plan("provider_profiles");
+        plan("provider_trust");
       }
+
       out.push(user);
     }
   }
