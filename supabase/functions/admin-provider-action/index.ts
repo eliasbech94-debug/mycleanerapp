@@ -9,12 +9,16 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 const json = (b: unknown, s = 200) =>
   new Response(JSON.stringify(b), { status: s, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
+// Admin-only action set; `pause`/`unpause` are aliases for the RPC's
+// self_pause/self_unpause branches which admins are explicitly allowed to invoke.
 const ALLOWED_ACTIONS = new Set([
   "approve", "reject", "suspend", "unsuspend",
+  "pause", "unpause",
   "archive", "restore",
   "set_partner", "unset_partner",
   "freeze_payout", "unfreeze_payout",
 ]);
+const ACTION_ALIAS: Record<string, string> = { pause: "self_pause", unpause: "self_unpause" };
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
