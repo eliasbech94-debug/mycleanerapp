@@ -146,6 +146,18 @@ Deno.serve(async (req) => {
       closed_at: (status === "approved" || status === "rejected") ? nowIso : null,
     });
 
+    // Explicit reconciliation for every linked provider (defensive; the
+    // person_identities trigger also fans out, but webhooks must call the
+    // trusted triple per Step 3a contract). Sumsub approval never activates.
+    try {
+      const { reconcileProvider } = await import("../_shared/providerReconcile.ts");
+      const { data: links } = await admin.from("identity_account_links")
+        .select("user_id").eq("identity_id", identityId);
+      for (const link of links ?? []) {
+        await reconcileProvider(admin, link.user_id, "identity_webhook");
+      }
+    } catch (e) { console.error("identity reconcile fanout failed", (e as Error).message); }
+
     await admin.from("identity_webhook_events").upsert({
       provider: "sumsub", event_id: eventId, event_type: parsed.type ?? null,
       payload_hash: payloadHash, signature_ok: true, result: "processed",

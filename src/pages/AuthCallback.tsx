@@ -41,6 +41,12 @@ export default function AuthCallback() {
         }
       } catch { /* non-fatal */ }
 
+      // Reconcile provider onboarding after email verification (safe no-op
+      // if no provider_profiles row exists).
+      try {
+        await supabase.functions.invoke("provider-recompute");
+      } catch { /* non-fatal */ }
+
       const dest = next || (await resolveHomeForCurrentUser());
       navigate(dest, { replace: true });
     }
