@@ -400,8 +400,9 @@ async function seedRefundRequests(customers: SeededUser[]) {
       const { error } = await admin.from("refund_requests_v2").insert(row as any);
       if (!error) n++;
       else if (i === 0) console.warn(`  ⚠ refund_requests_v2: ${error.message}`);
-    } else n++;
+    } else { n++; plan("refund_requests_v2"); }
   }
+
   console.log(`  ✓ ${n}/6 refund requests`);
 }
 
