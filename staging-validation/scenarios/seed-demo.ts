@@ -80,9 +80,9 @@ async function alreadyExists(email: string): Promise<string | null> {
   while (page < 30) {
     const { data, error } = await admin.auth.admin.listUsers({ page, perPage: 200 });
     if (error) throw error;
-    const users = (data as any)?.users ?? [];
-    const hit = users.find((u: any) => u.email === email);
-    if (hit) return hit.id as string;
+    const users: any[] = Array.isArray((data as any)?.users) ? (data as any).users : [];
+    const hit = users.find((u) => u?.email === email);
+    if (hit) return String(hit.id);
     if (users.length < 200) return null;
     page++;
   }
