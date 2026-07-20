@@ -2337,32 +2337,71 @@ export type Database = {
       }
       place_validations: {
         Row: {
+          apartment: string | null
+          city: string | null
           country_code: string
+          door: string | null
+          entrance: string | null
+          floor: string | null
           formatted_address: string
+          house_number: string | null
           id: string
           lat: number | null
+          letter: string | null
           lng: number | null
+          municipality: string | null
+          normalized_address: string | null
           place_id: string
+          postal_code: string | null
+          side: string | null
+          source: string
+          street: string | null
           user_id: string
           validated_at: string
         }
         Insert: {
+          apartment?: string | null
+          city?: string | null
           country_code: string
+          door?: string | null
+          entrance?: string | null
+          floor?: string | null
           formatted_address: string
+          house_number?: string | null
           id?: string
           lat?: number | null
+          letter?: string | null
           lng?: number | null
+          municipality?: string | null
+          normalized_address?: string | null
           place_id: string
+          postal_code?: string | null
+          side?: string | null
+          source?: string
+          street?: string | null
           user_id: string
           validated_at?: string
         }
         Update: {
+          apartment?: string | null
+          city?: string | null
           country_code?: string
+          door?: string | null
+          entrance?: string | null
+          floor?: string | null
           formatted_address?: string
+          house_number?: string | null
           id?: string
           lat?: number | null
+          letter?: string | null
           lng?: number | null
+          municipality?: string | null
+          normalized_address?: string | null
           place_id?: string
+          postal_code?: string | null
+          side?: string | null
+          source?: string
+          street?: string | null
           user_id?: string
           validated_at?: string
         }
