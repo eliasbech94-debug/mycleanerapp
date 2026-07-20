@@ -41,6 +41,7 @@ export default function Turnstile({ onToken, onExpire, action, theme = "light" }
     let attempts = 0;
     const mount = () => {
       if (cancelled || !ref.current) return;
+      if (!TURNSTILE_SITE_KEY) return;
       if (!window.turnstile) {
         if (attempts++ > 100) return;
         setTimeout(mount, 100);
