@@ -37,6 +37,7 @@ const ACTIONS: { key: string; label: string; variant?: "destructive" | "outline"
 
 export default function ProviderDetailDrawer({ userId, onClose, onChanged }: Props) {
   const [pp, setPp] = useState<Pp | null>(null);
+  const [trust, setTrust] = useState<any | null>(null);
   const [audit, setAudit] = useState<Audit[] | null>(null);
   const [scores, setScores] = useState<Score[] | null>(null);
   const [completion, setCompletion] = useState<any>(null);
@@ -44,13 +45,15 @@ export default function ProviderDetailDrawer({ userId, onClose, onChanged }: Pro
   const [reason, setReason] = useState("");
 
   const load = useCallback(async () => {
-    const [ppRes, auditRes, scoreRes, compRes] = await Promise.all([
+    const [ppRes, trustRes, auditRes, scoreRes, compRes] = await Promise.all([
       supabase.from("provider_profiles").select("*").eq("user_id", userId).maybeSingle(),
+      supabase.rpc("admin_get_provider_trust" as any, { _uid: userId }),
       supabase.from("provider_admin_actions").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(100),
       supabase.from("provider_score_history").select("id, provider_score, provider_tier, reason, created_at, breakdown, metrics_snapshot").eq("user_id", userId).order("created_at", { ascending: false }).limit(50),
       supabase.rpc("calc_provider_completion", { _uid: userId }),
     ]);
     setPp(ppRes.data);
+    setTrust(trustRes.data ?? null);
     setAudit((auditRes.data as any) || []);
     setScores((scoreRes.data as any) || []);
     setCompletion(compRes.data ?? null);
