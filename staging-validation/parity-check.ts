@@ -130,6 +130,22 @@ const P = await collect("prod",    PROD_PG);
 const tableDiff = diffLists(S.tables.map(t=>t.table_name), P.tables.map(t=>t.table_name));
 const rpcDiff   = diffLists(S.rpcs.map(r=>r.name),        P.rpcs.map(r=>r.name));
 const bucketDiff= diffLists(S.buckets.map(b=>b.id),       P.buckets.map(b=>b.id));
+const extDiff   = diffLists(S.extensions.map(e=>e.name),  P.extensions.map(e=>e.name));
+const authDiff  = diffLists(S.authProviders.map(a=>a.provider), P.authProviders.map(a=>a.provider));
+
+// Edge Function names are read from the local repo — the same source that
+// deploys to both environments — so parity is deterministic without touching
+// either project's control plane.
+const localFns = execSync(`ls supabase/functions 2>/dev/null | grep -v '^_' || true`, { encoding: "utf8" })
+  .split("\n").map(s => s.trim()).filter(Boolean).sort();
+
+// Cron parity: pg_cron may be absent on one side; treat as empty inventory.
+const parseCron = (rows: Row[]) => {
+  try { return JSON.parse(rows?.[0]?.payload ?? "[]") as Row[]; } catch { return []; }
+};
+const cronS = parseCron(S.cron);
+const cronP = parseCron(P.cron);
+const cronDiff = diffLists(cronS.map(j=>j.jobname), cronP.map(j=>j.jobname));
 
 const policyBoth = Object.fromEntries(P.policies.map((p) => [p.tablename, p.n]));
 const policyStg  = Object.fromEntries(S.policies.map((p) => [p.tablename, p.n]));
@@ -144,6 +160,7 @@ const colDeltas = S.tables
     return p && p.cols !== s.cols;
   })
   .map((s) => ({ table: s.table_name, staging_cols: s.cols, prod_cols: P.tables.find(x=>x.table_name===s.table_name)!.cols }));
+
 
 // ── Report ─────────────────────────────────────────────────────────
 mkdirSync("docs/staging", { recursive: true });
