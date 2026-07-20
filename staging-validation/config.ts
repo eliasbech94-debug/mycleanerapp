@@ -1,14 +1,47 @@
 import "dotenv/config";
 import { z } from "zod";
 
+// Environments the harness will refuse to touch. Extend as needed.
+const PROD_URL_DENYLIST = [
+  "mycleaner.dk",              // production apex
+  "www.mycleaner.dk",
+  "mycleanerapp.lovable.app",  // production Lovable domain
+];
+const STAGING_URL_HINT = /(staging|test|preview|dev|sandbox|rc2|localhost|127\.0\.0\.1|\.lovable\.app)/i;
+
+function assertStagingUrl(field: string, url: string) {
+  const host = new URL(url).host.toLowerCase();
+  for (const bad of PROD_URL_DENYLIST) {
+    if (host === bad) {
+      throw new Error(`${field}=${host} is on the production denylist — RC2 refuses to run against production.`);
+    }
+  }
+  if (!STAGING_URL_HINT.test(host)) {
+    throw new Error(`${field}=${host} does not look like a staging/test/preview host. Refusing to run. Override only by renaming the host.`);
+  }
+}
+
+function assertStagingPg(conn: string) {
+  const lower = conn.toLowerCase();
+  for (const bad of PROD_URL_DENYLIST) {
+    if (lower.includes(bad)) {
+      throw new Error(`STAGING_PG_CONN points at a production hostname (${bad}). Refusing to run.`);
+    }
+  }
+}
+
 const Schema = z.object({
   STAGING_SUPABASE_URL: z.string().url(),
   STAGING_SUPABASE_ANON_KEY: z.string().min(20),
   STAGING_SUPABASE_SERVICE_ROLE_KEY: z.string().min(20),
   STAGING_PG_CONN: z.string().startsWith("postgresql://"),
   STAGING_APP_URL: z.string().url(),
-  STRIPE_TEST_SECRET_KEY: z.string().startsWith("sk_test_"),
-  STRIPE_TEST_PUBLISHABLE_KEY: z.string().startsWith("pk_test_"),
+  STRIPE_TEST_SECRET_KEY: z.string().startsWith("sk_test_", {
+    message: "Live Stripe keys are refused. Use sk_test_ only.",
+  }),
+  STRIPE_TEST_PUBLISHABLE_KEY: z.string().startsWith("pk_test_", {
+    message: "Live Stripe publishable keys are refused. Use pk_test_ only.",
+  }),
   STRIPE_TEST_WEBHOOK_SECRET: z.string().startsWith("whsec_"),
   STRIPE_WEBHOOK_URL: z.string().url(),
   SUMSUB_APP_TOKEN: z.string().min(1),
@@ -19,17 +52,43 @@ const Schema = z.object({
   TEST_PASSWORD: z.string().min(10),
   K6_VUS: z.coerce.number().int().positive().default(50),
   K6_DURATION: z.string().default("60s"),
+  RC2_ALLOW_DESTRUCTIVE_STAGING_TESTS: z.literal("true", {
+    errorMap: () => ({
+      message:
+        "Set RC2_ALLOW_DESTRUCTIVE_STAGING_TESTS=true in .env to acknowledge this is a disposable staging environment.",
+    }),
+  }),
 });
 
 const parsed = Schema.safeParse(process.env);
 if (!parsed.success) {
-  console.error("❌ Missing/invalid env vars for RC2 harness:");
+  console.error("❌ RC2 preflight refused. Missing/invalid env:");
   console.error(parsed.error.flatten().fieldErrors);
   process.exit(2);
 }
+
+// Environment protection — refuse production hosts up front.
+try {
+  assertStagingUrl("STAGING_SUPABASE_URL", parsed.data.STAGING_SUPABASE_URL);
+  assertStagingUrl("STAGING_APP_URL", parsed.data.STAGING_APP_URL);
+  assertStagingUrl("STRIPE_WEBHOOK_URL", parsed.data.STRIPE_WEBHOOK_URL);
+  assertStagingUrl("SUMSUB_WEBHOOK_URL", parsed.data.SUMSUB_WEBHOOK_URL);
+  assertStagingPg(parsed.data.STAGING_PG_CONN);
+} catch (e) {
+  console.error(`❌ RC2 environment guard: ${(e as Error).message}`);
+  process.exit(2);
+}
+
 export const env = parsed.data;
 
 export const RUN_ID =
   process.env.RC2_RUN_ID ??
   new Date().toISOString().replace(/[:.]/g, "-");
+
+// Every seeded record is prefixed with this so cleanup can target them safely
+// and no real user / provider / booking is ever modified.
+export const RC2_TAG = `rc2-${RUN_ID}`;
+export const rc2Email = (slot: string) =>
+  `rc2+${RUN_ID}-${slot}@${env.TEST_EMAIL_DOMAIN}`;
+
 export const EVIDENCE_DIR = `${process.cwd()}/evidence/${RUN_ID}`;
