@@ -90,7 +90,7 @@ export default function Marketplace() {
 
   const loadFavs = useCallback(async () => {
     if (!user) { setFavIds(new Set()); return; }
-    const { data } = await supabase.rpc("list_favorite_providers_v1" as never);
+    const { data } = await rpc("list_favorite_providers_v1");
     setFavIds(new Set(((data as { provider_slug: string }[] | null) ?? []).map((r) => r.provider_slug)));
   }, [user]);
 
