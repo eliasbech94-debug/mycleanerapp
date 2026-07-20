@@ -120,12 +120,14 @@ export default function ProviderDetailDrawer({ userId, onClose, onChanged }: Pro
               {pp.payout_frozen && <Badge variant="destructive">payout frozen</Badge>}
             </div>
 
-            {/* Trust Score — admin-only visibility (drawer is admin-gated) */}
+            {/* Trust Score — admin-only, fetched via admin_get_provider_trust RPC */}
             <div className="rounded-md border border-amber-300 bg-amber-50 p-3 text-sm">
               <div className="flex items-center gap-2 font-semibold"><ShieldAlert className="h-4 w-4" /> Intern Trust Score (kun admin)</div>
-              <div className="mt-1">Trust Score: <b>{pp.trust_score ?? 0}</b></div>
-              <div className="mt-1 text-xs">Flags: {Array.isArray(pp.trust_flags) && pp.trust_flags.length > 0 ? JSON.stringify(pp.trust_flags) : "ingen"}</div>
+              <div className="mt-1">Trust Score: <b>{trust?.trust_score ?? "—"}</b> · Niveau: <b>{trust?.trust_level ?? "—"}</b></div>
+              <div className="mt-1 text-xs">Flags: {Array.isArray(trust?.trust_flags) && trust.trust_flags.length > 0 ? JSON.stringify(trust.trust_flags) : "ingen"}</div>
+              {trust?.risk_reason && <div className="mt-1 text-xs">Årsag: {trust.risk_reason}</div>}
             </div>
+
 
             <Tabs defaultValue="actions">
               <TabsList className="flex-wrap">
