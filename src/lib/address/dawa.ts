@@ -132,9 +132,63 @@ export async function fetchDawaAddressById(
 }
 
 /**
+ * Thrown when DAWA is unreachable (network/timeout/5xx). Callers use this
+ * signal to trigger automatic fallback to another provider (e.g. Google) —
+ * a soft "no matches" empty array would silently hide the outage instead.
+ */
+export class DawaUnavailableError extends Error {
+  constructor(
+    message: string,
+    public readonly reason: "timeout" | "network" | "server_error",
+    public readonly status?: number,
+  ) {
+    super(message);
+    this.name = "DawaUnavailableError";
+  }
+}
+
+/** DAWA request budget. Kept tight so fallback kicks in before the user notices. */
+const DAWA_TIMEOUT_MS = 2500;
+/** One extra attempt on transient failure — total = 2 tries. */
+const DAWA_RETRIES = 1;
+
+async function fetchDawaWithRetry(url: string, signal?: AbortSignal): Promise<Response> {
+  let lastErr: unknown;
+  for (let attempt = 0; attempt <= DAWA_RETRIES; attempt++) {
+    const ctrl = new AbortController();
+    const onAbort = () => ctrl.abort();
+    signal?.addEventListener("abort", onAbort);
+    const timer = setTimeout(() => ctrl.abort(new DOMException("timeout", "AbortError")), DAWA_TIMEOUT_MS);
+    try {
+      const res = await fetch(url, { signal: ctrl.signal });
+      if (res.status >= 500) {
+        throw new DawaUnavailableError(`dawa_${res.status}`, "server_error", res.status);
+      }
+      return res;
+    } catch (e: any) {
+      lastErr = e;
+      // Caller-initiated abort — surface immediately, do not retry or fall back.
+      if (signal?.aborted) throw e;
+      // Only retry on transient conditions; abort on last attempt.
+      if (attempt === DAWA_RETRIES) break;
+    } finally {
+      clearTimeout(timer);
+      signal?.removeEventListener("abort", onAbort);
+    }
+  }
+  if (lastErr instanceof DawaUnavailableError) throw lastErr;
+  const isTimeout = (lastErr as any)?.name === "AbortError";
+  throw new DawaUnavailableError(
+    isTimeout ? "dawa_timeout" : "dawa_network",
+    isTimeout ? "timeout" : "network",
+  );
+}
+
+/**
  * Browser-side DAWA provider. `suggest()` accepts an AbortSignal so that
  * a keystroke fired after the previous request lands cancels the earlier
- * fetch without producing stale UI.
+ * fetch without producing stale UI. Throws `DawaUnavailableError` on
+ * timeout / network / 5xx so callers can trigger provider fallback.
  */
 export const dawaProvider: AddressProvider = {
   source: "dawa",
@@ -146,7 +200,7 @@ export const dawaProvider: AddressProvider = {
     url.searchParams.set("q", q);
     url.searchParams.set("fuzzy", "");
     url.searchParams.set("per_side", "8");
-    const res = await fetch(url.toString(), { signal });
+    const res = await fetchDawaWithRetry(url.toString(), signal);
     if (!res.ok) return [];
     const rows = (await res.json()) as DawaAutocompleteRow[];
     return rows.map((r) => toSuggestion(r, q));
@@ -154,7 +208,7 @@ export const dawaProvider: AddressProvider = {
 
   async resolve(ref, signal) {
     const url = `${DAWA_BASE}/adresser/${encodeURIComponent(ref)}`;
-    const res = await fetch(url, { signal });
+    const res = await fetchDawaWithRetry(url, signal);
     if (!res.ok) return null;
     const full = (await res.json()) as DawaAdresseFull;
     return parseDawaFull(full);
@@ -163,3 +217,4 @@ export const dawaProvider: AddressProvider = {
 
 /** Regex the edge function uses to recognise a DAWA UUID ref. */
 export const DAWA_UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+

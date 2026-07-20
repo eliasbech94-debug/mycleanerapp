@@ -3,10 +3,11 @@ import { useEffect, useMemo, useRef, useState, useCallback, KeyboardEvent } from
 import { MapPin, Loader2, CheckCircle2, AlertTriangle } from "lucide-react";
 import { loadGoogleMaps } from "@/lib/googleMaps";
 import { supabase } from "@/integrations/supabase/client";
-import { dawaProvider } from "@/lib/address/dawa";
+import { dawaProvider, DawaUnavailableError } from "@/lib/address/dawa";
 import { LruCache } from "@/lib/address/cache";
 import { normalizeAddress, matchSpan } from "@/lib/address/normalize";
 import type { AddressSuggestion, AddressSource } from "@/lib/address/types";
+
 
 /**
  * Shared session-wide LRU cache. Keyed by "<source>::<normalized-query>" so
@@ -48,18 +49,30 @@ export default function AddressAutocomplete({
   const wrapRef = useRef<HTMLDivElement>(null);
   const listboxId = useMemo(() => `addr-listbox-${Math.random().toString(36).slice(2)}`, []);
 
+  /**
+   * Lazily boot Google Places. Used both as the primary provider for
+   * non-DK countries AND as the automatic fallback when DAWA is
+   * unreachable (timeout / network / 5xx) for a DK lookup.
+   */
+  const ensureGoogleReady = useCallback(async () => {
+    if (googleSessionRef.current) return true;
+    try {
+      await loadGoogleMaps();
+      const { AutocompleteSessionToken } = (await google.maps.importLibrary(
+        "places",
+      )) as google.maps.PlacesLibrary;
+      googleSessionRef.current = new AutocompleteSessionToken();
+      return true;
+    } catch (e) {
+      console.warn("[AddressAutocomplete] google load failed:", e);
+      return false;
+    }
+  }, []);
+
   useEffect(() => {
     if (source !== "google") return;
-    loadGoogleMaps()
-      .then(async () => {
-        const { AutocompleteSessionToken } = (await google.maps.importLibrary(
-          "places",
-        )) as google.maps.PlacesLibrary;
-        googleSessionRef.current = new AutocompleteSessionToken();
-        setReady(true);
-      })
-      .catch((e) => console.warn("[AddressAutocomplete] google load failed:", e));
-  }, [source]);
+    ensureGoogleReady().then((ok) => ok && setReady(true));
+  }, [source, ensureGoogleReady]);
 
   useEffect(() => {
     function onDocClick(e: MouseEvent) {
@@ -68,6 +81,36 @@ export default function AddressAutocomplete({
     document.addEventListener("mousedown", onDocClick);
     return () => document.removeEventListener("mousedown", onDocClick);
   }, []);
+
+  const suggestViaGoogle = useCallback(
+    async (q: string): Promise<AddressSuggestion[]> => {
+      const { AutocompleteSuggestion } = (await google.maps.importLibrary(
+        "places",
+      )) as google.maps.PlacesLibrary;
+      const { suggestions: res } =
+        await AutocompleteSuggestion.fetchAutocompleteSuggestions({
+          input: q,
+          sessionToken: googleSessionRef.current!,
+          includedRegionCodes: countries,
+          language: primaryCountry,
+        });
+      return (res || [])
+        .map((s) => s.placePrediction)
+        .filter(Boolean)
+        .map((p: any) => {
+          const primary = p.mainText?.text ?? p.text?.text ?? "";
+          const secondary = p.secondaryText?.text ?? "";
+          return {
+            source: "google" as const,
+            ref: p.placeId,
+            primary,
+            secondary,
+            match: matchSpan(primary, q) ?? undefined,
+          };
+        });
+    },
+    [countries, primaryCountry],
+  );
 
   const runSuggest = useCallback(
     async (input: string) => {
@@ -95,32 +138,28 @@ export default function AddressAutocomplete({
       try {
         let items: AddressSuggestion[] = [];
         if (source === "dawa") {
-          items = await dawaProvider.suggest(q, ctrl.signal);
+          try {
+            items = await dawaProvider.suggest(q, ctrl.signal);
+          } catch (e: any) {
+            if (e?.name === "AbortError" || ctrl.signal.aborted) return;
+            if (e instanceof DawaUnavailableError) {
+              // Automatic transparent fallback to Google for this single
+              // lookup. Next keystroke retries DAWA — we never mark the
+              // provider as "sticky broken" so recovery is instant.
+              console.warn(
+                `[AddressAutocomplete] DAWA unavailable (${e.reason}${
+                  e.status ? ` ${e.status}` : ""
+                }) — falling back to Google Places for query: ${q}`,
+              );
+              const booted = await ensureGoogleReady();
+              if (!booted) throw e;
+              items = await suggestViaGoogle(q);
+            } else {
+              throw e;
+            }
+          }
         } else {
-          const { AutocompleteSuggestion } = (await google.maps.importLibrary(
-            "places",
-          )) as google.maps.PlacesLibrary;
-          const { suggestions: res } =
-            await AutocompleteSuggestion.fetchAutocompleteSuggestions({
-              input: q,
-              sessionToken: googleSessionRef.current!,
-              includedRegionCodes: countries,
-              language: primaryCountry,
-            });
-          items = (res || [])
-            .map((s) => s.placePrediction)
-            .filter(Boolean)
-            .map((p: any) => {
-              const primary = p.mainText?.text ?? p.text?.text ?? "";
-              const secondary = p.secondaryText?.text ?? "";
-              return {
-                source: "google" as const,
-                ref: p.placeId,
-                primary,
-                secondary,
-                match: matchSpan(primary, q) ?? undefined,
-              };
-            });
+          items = await suggestViaGoogle(q);
         }
         if (ctrl.signal.aborted) return;
         suggestionCache.set(cacheKey, items);
@@ -136,7 +175,8 @@ export default function AddressAutocomplete({
         if (!ctrl.signal.aborted) setLoading(false);
       }
     },
-    [ready, source, countries, primaryCountry],
+    [ready, source, ensureGoogleReady, suggestViaGoogle],
+
   );
 
   function onInputChange(next: string) {
