@@ -30,6 +30,7 @@ import BookingEntry from "./pages/BookingEntry";
 import MyBookings from "./pages/MyBookings";
 import BookingPlan from "./pages/BookingPlan";
 import AdminUsers from "./pages/admin/AdminUsers";
+import AdminProviders from "./pages/admin/AdminProviders";
 import {
   SupportHome, SupportInbox, SupportCases,
   SupportCustomers, SupportProviders, SupportBookings,
