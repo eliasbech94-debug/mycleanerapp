@@ -177,11 +177,15 @@ Production:  ${PROD_URL}  (ref: ${PROD_REF})
 
 | Check | Staging | Prod | Δ |
 |---|---:|---:|---|
-| Tables (public)     | ${S.tables.length}   | ${P.tables.length}   | ${S.tables.length - P.tables.length} |
-| RPCs / functions    | ${S.rpcs.length}     | ${P.rpcs.length}     | ${S.rpcs.length - P.rpcs.length} |
-| Storage buckets     | ${S.buckets.length}  | ${P.buckets.length}  | ${S.buckets.length - P.buckets.length} |
-| Tables w/ policy diff | ${policyRows.length} | — | see below |
-| Tables w/ column diff | ${colDeltas.length}  | — | see below |
+| Tables (public)       | ${S.tables.length}     | ${P.tables.length}     | ${S.tables.length - P.tables.length} |
+| RPCs / functions      | ${S.rpcs.length}       | ${P.rpcs.length}       | ${S.rpcs.length - P.rpcs.length} |
+| Storage buckets       | ${S.buckets.length}    | ${P.buckets.length}    | ${S.buckets.length - P.buckets.length} |
+| Database extensions   | ${S.extensions.length} | ${P.extensions.length} | ${S.extensions.length - P.extensions.length} |
+| Scheduled jobs (cron) | ${cronS.length}        | ${cronP.length}        | ${cronS.length - cronP.length} |
+| Auth providers used   | ${S.authProviders.length} | ${P.authProviders.length} | ${S.authProviders.length - P.authProviders.length} |
+| Edge Functions (repo) | ${localFns.length}     | ${localFns.length}     | 0 (single source of truth) |
+| Tables w/ policy diff | ${policyRows.length}   | — | see below |
+| Tables w/ column diff | ${colDeltas.length}    | — | see below |
 
 ## Tables
 
@@ -207,33 +211,58 @@ ${policyRows.length === 0 ? "_all matching_" :
 **Only in staging:** ${bucketDiff.onlyStaging.join(", ") || "_none_"}
 **Only in production:** ${bucketDiff.onlyProd.join(", ") || "_none_"}
 
-## Auth providers, edge functions, secret names
+## Database extensions
 
-Auth providers, edge function inventory, and secret names cannot be queried
-from Postgres. Compare them manually via the Supabase CLI:
+**Only in staging:** ${extDiff.onlyStaging.join(", ") || "_none_"}
+**Only in production:** ${extDiff.onlyProd.join(", ") || "_none_"}
+
+## Scheduled jobs (pg_cron)
+
+**Only in staging:** ${cronDiff.onlyStaging.join(", ") || "_none_"}
+**Only in production:** ${cronDiff.onlyProd.join(", ") || "_none_"}
+
+_If pg_cron is not installed on either side its inventory is empty and this section shows \`_none_\`. Verify \`pg_cron\` itself under the extensions diff above._
+
+## Auth providers (from auth.identities)
+
+**Only in staging:** ${authDiff.onlyStaging.join(", ") || "_none_"}
+**Only in production:** ${authDiff.onlyProd.join(", ") || "_none_"}
+
+_Providers with zero linked identities won't appear here. Cross-check the enabled provider list in the Supabase Auth dashboard for each environment._
+
+## Edge Function inventory (repo — single source of truth)
+
+${localFns.length} functions deploy from \`supabase/functions/\` to every environment. Run \`supabase functions list --project-ref <ref>\` per environment and diff against this list to confirm the deploy landed:
+
+\`\`\`
+${localFns.join("\n")}
+\`\`\`
+
+## Secrets
+
+Secret **names** must match between environments; **values must not**. This
+report deliberately does not read either. Compare names via the CLI:
 
 \`\`\`bash
-# Edge function inventory
-supabase functions list --project-ref <staging-ref> > /tmp/fn-staging.txt
-supabase functions list --project-ref ${PROD_REF}     > /tmp/fn-prod.txt
-diff /tmp/fn-staging.txt /tmp/fn-prod.txt
-
-# Secret NAMES (values are hidden by design)
-supabase secrets list --project-ref <staging-ref> > /tmp/sec-staging.txt
-supabase secrets list --project-ref ${PROD_REF}     > /tmp/sec-prod.txt
+supabase secrets list --project-ref <staging-ref> | awk '{print $1}' | sort > /tmp/sec-staging.txt
+supabase secrets list --project-ref ${PROD_REF}     | awk '{print $1}' | sort > /tmp/sec-prod.txt
 diff /tmp/sec-staging.txt /tmp/sec-prod.txt
-
-# Auth providers
-supabase --project-ref <staging-ref> gotrue-admin providers list
-supabase --project-ref ${PROD_REF}     gotrue-admin providers list
 \`\`\`
 
 ## Verdict
 
-${tableDiff.onlyProd.length === 0 && rpcDiff.onlyProd.length === 0 && policyRows.length === 0 && colDeltas.length === 0 && bucketDiff.onlyProd.length === 0
+${tableDiff.onlyProd.length === 0
+  && rpcDiff.onlyProd.length === 0
+  && policyRows.length === 0
+  && colDeltas.length === 0
+  && bucketDiff.onlyProd.length === 0
+  && extDiff.onlyProd.length === 0
+  && cronDiff.onlyProd.length === 0
+  && authDiff.onlyProd.length === 0
   ? "**PASS** — staging matches production for every automated check."
-  : "**REVIEW REQUIRED** — see deltas above. Either apply missing migrations to staging, or if the difference is intentional, note it here in a follow-up commit."}
+  : "**REVIEW REQUIRED** — see deltas above. Either apply missing migrations/config to staging, or if the difference is intentional, note it in a follow-up commit."}
 `;
+
 
 writeFileSync(OUT, md);
 console.log(`\n✅ Wrote ${OUT}`);
