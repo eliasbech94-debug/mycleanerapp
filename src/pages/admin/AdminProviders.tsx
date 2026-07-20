@@ -23,7 +23,6 @@ type ProviderRow = {
   provider_score: number | null;
   provider_tier: string | null;
   completion_pct: number | null;
-  trust_flags: any;
   payout_frozen: boolean | null;
   submitted_at: string | null;
   updated_at: string;
