@@ -1,3 +1,22 @@
+/**
+ * place-validate — server-side authoritative address validator.
+ *
+ * Contract:
+ *   POST { place_id: string, source?: "dawa" | "google" }
+ *
+ * Behaviour:
+ *   - `source: "dawa"` (or omitted when the ref is a DAWA UUID) → re-fetches
+ *     the canonical address from DAWA and stores structured fields
+ *     (street, house_number, floor, side, door, postal_code, city,
+ *     municipality) in `place_validations`. Country is always DK.
+ *   - `source: "google"` (default legacy path) → unchanged Google Places
+ *     Details fetch. Existing bookings and saved addresses keep working
+ *     with no code changes elsewhere.
+ *
+ * The DB trigger `enforce_address_country` still reads formatted_address
+ * + country_code + lat/lng from the same row, so downstream save paths
+ * are 100% backwards compatible.
+ */
 import { createClient } from "npm:@supabase/supabase-js@2";
 
 const corsHeaders = {
@@ -10,6 +29,105 @@ function json(body: unknown, status = 200) {
     status,
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
+}
+
+const DAWA_UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function normalize(input: string): string {
+  return (input || "")
+    .toLowerCase()
+    .replace(/æ/g, "ae").replace(/ø/g, "oe").replace(/å/g, "aa")
+    .replace(/ä/g, "ae").replace(/ö/g, "oe")
+    .replace(/[.,;]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function splitHusnr(husnr?: string): { house_number?: string; letter?: string } {
+  if (!husnr) return {};
+  const m = /^(\d+)([A-Za-zÆØÅæøå]*)$/.exec(husnr.trim());
+  if (!m) return { house_number: husnr };
+  return { house_number: m[1], letter: m[2] || undefined };
+}
+
+async function validateDawa(ref: string) {
+  const url = `https://api.dataforsyningen.dk/adresser/${encodeURIComponent(ref)}`;
+  const res = await fetch(url);
+  if (res.status === 404) return { error: "dawa_not_found", status: 404 };
+  if (!res.ok) return { error: "dawa_lookup_failed", status: 502 };
+  const full = await res.json();
+  const { house_number, letter } = splitHusnr(full?.adgangsadresse?.husnr);
+  const koord = full?.adgangsadresse?.adgangspunkt?.koordinater;
+  const doorRaw: string | null = full?.dør ?? null;
+  const side = doorRaw && ["tv", "th", "mf"].includes(doorRaw.toLowerCase())
+    ? doorRaw.toLowerCase()
+    : null;
+  return {
+    ok: true as const,
+    row: {
+      source: "dawa",
+      country_code: "DK",
+      formatted_address: full.adressebetegnelse as string,
+      normalized_address: normalize(full.adressebetegnelse),
+      street: full?.adgangsadresse?.vejstykke?.navn ?? null,
+      house_number: house_number ?? null,
+      letter: letter ?? null,
+      floor: full?.etage ?? null,
+      side,
+      door: doorRaw,
+      entrance: null,
+      apartment: null,
+      postal_code: full?.adgangsadresse?.postnummer?.nr ?? null,
+      city: full?.adgangsadresse?.postnummer?.navn ?? null,
+      municipality: full?.adgangsadresse?.kommune?.navn ?? null,
+      lat: Array.isArray(koord) ? koord[1] : null,
+      lng: Array.isArray(koord) ? koord[0] : null,
+    },
+  };
+}
+
+async function validateGoogle(ref: string, apiKey: string) {
+  const url = `https://places.googleapis.com/v1/places/${encodeURIComponent(ref)}`;
+  const gRes = await fetch(url, {
+    headers: {
+      "X-Goog-Api-Key": apiKey,
+      "X-Goog-FieldMask": "formattedAddress,location,addressComponents",
+    },
+  });
+  if (!gRes.ok) {
+    const t = await gRes.text();
+    return { error: "google_places_failed", detail: t.slice(0, 300), status: 502 };
+  }
+  const place = await gRes.json();
+  const comps: any[] = place.addressComponents || [];
+  const country = comps.find((c) => (c.types || []).includes("country"));
+  const countryCode: string | null = country?.shortText || country?.short_name || null;
+  const formatted: string | null = place.formattedAddress || null;
+  if (!countryCode || !formatted) {
+    return { error: "place_missing_country", status: 422 };
+  }
+  return {
+    ok: true as const,
+    row: {
+      source: "google",
+      country_code: countryCode.toUpperCase(),
+      formatted_address: formatted,
+      normalized_address: normalize(formatted),
+      street: null,
+      house_number: null,
+      letter: null,
+      floor: null,
+      side: null,
+      door: null,
+      entrance: null,
+      apartment: null,
+      postal_code: null,
+      city: null,
+      municipality: null,
+      lat: place.location?.latitude ?? null,
+      lng: place.location?.longitude ?? null,
+    },
+  };
 }
 
 Deno.serve(async (req) => {
@@ -29,77 +147,62 @@ Deno.serve(async (req) => {
   const { data: userRes } = await userClient.auth.getUser();
   const user = userRes?.user;
   if (!user) return json({ error: "unauthorized" }, 401);
-  if (!gKey) return json({ error: "google_key_missing" }, 500);
 
-  let body: { place_id?: unknown } = {};
-  try {
-    body = await req.json();
-  } catch {
-    return json({ error: "invalid_json" }, 400);
-  }
-  const placeId = String(body.place_id ?? "").trim();
-  if (!placeId || placeId.length > 300 || !/^[A-Za-z0-9_\-]+$/.test(placeId)) {
+  let body: { place_id?: unknown; source?: unknown } = {};
+  try { body = await req.json(); } catch { return json({ error: "invalid_json" }, 400); }
+
+  const ref = String(body.place_id ?? "").trim();
+  if (!ref || ref.length > 300 || !/^[A-Za-z0-9_\-]+$/.test(ref)) {
     return json({ error: "invalid_place_id" }, 400);
   }
+  const requestedSource = String(body.source ?? "").toLowerCase();
+  const source =
+    requestedSource === "dawa" || (!requestedSource && DAWA_UUID_RE.test(ref))
+      ? "dawa"
+      : "google";
 
-  // Google Places v1 (New) — Place Details
-  const url =
-    `https://places.googleapis.com/v1/places/${encodeURIComponent(placeId)}`;
-  const gRes = await fetch(url, {
-    headers: {
-      "X-Goog-Api-Key": gKey,
-      "X-Goog-FieldMask": "formattedAddress,location,addressComponents",
-    },
-  });
-  if (!gRes.ok) {
-    const t = await gRes.text();
-    return json({ error: "google_places_failed", detail: t.slice(0, 300) }, 502);
+  let result: any;
+  if (source === "dawa") {
+    result = await validateDawa(ref);
+  } else {
+    if (!gKey) return json({ error: "google_key_missing" }, 500);
+    result = await validateGoogle(ref, gKey);
   }
-  const place = await gRes.json();
-  const comps: any[] = place.addressComponents || [];
-  const country = comps.find((c) => (c.types || []).includes("country"));
-  const countryCode: string | null =
-    country?.shortText || country?.short_name || null;
-  const formatted: string | null = place.formattedAddress || null;
-  const lat: number | null = place.location?.latitude ?? null;
-  const lng: number | null = place.location?.longitude ?? null;
+  if (!result.ok) return json({ error: result.error, detail: result.detail }, result.status ?? 500);
 
-  if (!countryCode || !formatted) {
-    return json({ error: "place_missing_country" }, 422);
-  }
+  const admin = createClient(supabaseUrl, serviceKey, { auth: { persistSession: false } });
 
-  const admin = createClient(supabaseUrl, serviceKey, {
-    auth: { persistSession: false },
-  });
-
-  // Look up user's profile country for immediate feedback
   const { data: prof } = await admin
-    .from("profiles")
-    .select("country_code")
-    .eq("id", user.id)
-    .maybeSingle();
+    .from("profiles").select("country_code").eq("id", user.id).maybeSingle();
   const profileCountry = (prof?.country_code || "").toUpperCase();
 
-  // Store the validation row so the DB trigger will accept a subsequent save
   const { error: insErr } = await admin.from("place_validations").insert({
     user_id: user.id,
-    place_id: placeId,
-    country_code: countryCode.toUpperCase(),
-    formatted_address: formatted,
-    lat,
-    lng,
+    place_id: ref,
+    ...result.row,
   });
   if (insErr) return json({ error: "store_failed", detail: insErr.message }, 500);
 
-  const match = !!profileCountry && profileCountry === countryCode.toUpperCase();
+  const match = !!profileCountry && profileCountry === result.row.country_code;
 
   return json({
     ok: true,
-    place_id: placeId,
-    country_code: countryCode.toUpperCase(),
-    formatted_address: formatted,
-    lat,
-    lng,
+    place_id: ref,
+    source: result.row.source,
+    country_code: result.row.country_code,
+    formatted_address: result.row.formatted_address,
+    normalized_address: result.row.normalized_address,
+    street: result.row.street,
+    house_number: result.row.house_number,
+    letter: result.row.letter,
+    floor: result.row.floor,
+    side: result.row.side,
+    door: result.row.door,
+    postal_code: result.row.postal_code,
+    city: result.row.city,
+    municipality: result.row.municipality,
+    lat: result.row.lat,
+    lng: result.row.lng,
     profile_country_code: profileCountry || null,
     country_matches_profile: match,
   });
