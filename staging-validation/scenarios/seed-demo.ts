@@ -313,8 +313,9 @@ async function seedFinance(providers: SeededUser[]) {
       const { error } = await admin.from("finance_payouts").upsert(row as any, { onConflict: "stripe_transfer_id" });
       if (!error) n++;
       else if (i === 0) console.warn(`  ⚠ finance_payouts: ${error.message}`);
-    } else n++;
+    } else { n++; plan("finance_payouts"); }
   }
+
   console.log(`  ✓ ${n}/40 finance_payouts`);
 }
 
