@@ -102,8 +102,8 @@ export default function ProviderProfilePage() {
       if ((OWNER_EDITABLE_COLUMNS as readonly string[]).includes(k)) payload[k] = (dirty as any)[k];
     }
     setSaving(true);
-    const { error } = await supabase
-      .from("provider_profiles").update(payload).eq("user_id", user.id);
+    const { error } = await (supabase.from("provider_profiles") as any)
+      .update(payload).eq("user_id", user.id);
     setSaving(false);
     if (error) { toast.error(error.message || "Kunne ikke gemme"); return; }
     setDirty({});
