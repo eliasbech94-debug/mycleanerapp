@@ -1,16 +1,16 @@
+import { getAppEnv } from "@/lib/appEnv";
+
 /**
  * <StagingBanner /> — visible ONLY when VITE_APP_ENV === "staging".
  *
  * Purpose: make it impossible for a tester to confuse the staging deploy with
  * production. Renders nothing in every other environment (prod, dev, test).
  *
- * The gate is a strict `===` check against the compile-time Vite constant, so
- * production bundles never ship the banner markup.
+ * The gate is a strict `===` check, so production bundles ship the markup
+ * but never mount it (the early return runs first).
  */
 export function StagingBanner() {
-  // Vite replaces this at build time; in tests, vi.stubEnv overrides it.
-  const env = import.meta.env.VITE_APP_ENV;
-  if (env !== "staging") return null;
+  if (getAppEnv() !== "staging") return null;
 
   return (
     <div
