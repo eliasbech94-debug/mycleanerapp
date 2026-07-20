@@ -298,7 +298,30 @@ Deno.serve(monitored("stripe-webhook", async (req, _log) => {
     return new Response("ok", { status: 200 });
   }
 
-
+  // ---------- Connect account status → provider onboarding reconciliation ----------
+  if (event.type === "account.updated") {
+    try {
+      const acct = event.data.object as Stripe.Account;
+      const { data: prof } = await admin.from("profiles")
+        .select("id").eq("stripe_account_id", acct.id).maybeSingle();
+      if (prof?.id) {
+        await admin.from("provider_profiles").update({
+          stripe_charges_enabled: !!acct.charges_enabled,
+          stripe_payouts_enabled: !!acct.payouts_enabled,
+          stripe_details_submitted: !!acct.details_submitted,
+          stripe_requirements_due: acct.requirements?.currently_due ?? [],
+          stripe_disabled_reason: acct.requirements?.disabled_reason ?? null,
+          updated_at: new Date().toISOString(),
+        }).eq("user_id", prof.id);
+        // Trusted reconciliation: never activates by itself.
+        await reconcileProvider(admin, prof.id, "stripe_account_updated");
+      }
+    } catch (e) {
+      console.error("account.updated handler failed", (e as Error).message);
+    }
+    await logEvent(event, { status: "processed" });
+    return new Response("ok", { status: 200 });
+  }
 
   // ---------- PaymentIntent events ----------
   const pi = event.data.object as Stripe.PaymentIntent;
