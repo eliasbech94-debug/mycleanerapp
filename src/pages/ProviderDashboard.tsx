@@ -9,6 +9,9 @@ import { toast } from "sonner";
 import { DashboardLayout } from "@/components/dashboard";
 import { StripeConnectStatusWidget } from "@/components/provider/StripeConnectStatusWidget";
 import { IdentityVerificationCard } from "@/components/identity/IdentityVerificationCard";
+import { ProviderCompletionCard, CompletionRow } from "@/components/provider/ProviderCompletionCard";
+import { ProviderScorePreview } from "@/components/provider/ProviderScorePreview";
+import BackButton from "@/components/BackButton";
 
 
 
