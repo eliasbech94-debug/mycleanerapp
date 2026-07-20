@@ -7,7 +7,16 @@ const PROD_URL_DENYLIST = [
   "www.mycleaner.dk",
   "mycleanerapp.lovable.app",  // production Lovable domain
 ];
+// Known production Supabase project refs — MUST NEVER appear in staging config.
+const PROD_SUPABASE_REFS = ["qfjgifubavuomwvroahy"];
+// Live Stripe key prefixes — hard block.
+const LIVE_STRIPE_PREFIXES = ["sk_live_", "pk_live_", "rk_live_"];
 const STAGING_URL_HINT = /(staging|test|preview|dev|sandbox|rc2|localhost|127\.0\.0\.1|\.lovable\.app)/i;
+
+function abortProd(reason: string): never {
+  console.error(`\nABORTED — PRODUCTION ENVIRONMENT DETECTED\n  reason: ${reason}\n`);
+  process.exit(3);
+}
 
 function assertStagingUrl(field: string, url: string) {
   const host = new URL(url).host.toLowerCase();
