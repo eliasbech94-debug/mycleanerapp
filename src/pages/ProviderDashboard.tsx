@@ -48,10 +48,35 @@ export default function ProviderDashboard() {
   const [bookings, setBookings] = useState<Booking[] | null>(null);
   const [acting, setActing] = useState<string | null>(null);
   const [tab, setTab] = useState<"pending" | "all">("pending");
+  const [pp, setPp] = useState<any | null>(null);
+  const [ppLoaded, setPpLoaded] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) navigate("/login?redirect=/provider-dashboard");
   }, [loading, user, navigate]);
+
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    async function load() {
+      const { data } = await supabase
+        .from("provider_profiles")
+        .select("*")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (!cancelled) { setPp(data); setPpLoaded(true); }
+    }
+    load();
+    const ch = supabase
+      .channel(`pp-dash-${user.id}`)
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "provider_profiles", filter: `user_id=eq.${user.id}` },
+        (p) => setPp((prev: any) => ({ ...(prev || {}), ...(p.new as any) })),
+      )
+      .subscribe();
+    return () => { cancelled = true; supabase.removeChannel(ch); };
+  }, [user]);
 
   useEffect(() => {
     if (!user || !profile?.provider_id) return;
