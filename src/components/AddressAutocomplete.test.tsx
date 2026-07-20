@@ -151,6 +151,25 @@ async function typeAddress(value: string) {
   return input;
 }
 
+/**
+ * findByText can't match text that Google's `<mark>` highlight splits into
+ * sibling nodes ("Alex</mark>anderplatz 1"). Match on the option's combined
+ * textContent instead so both DAWA (no highlight) and Google (highlighted)
+ * paths pass with the same assertion.
+ */
+async function findOptionByText(needle: string): Promise<HTMLElement> {
+  return await waitFor(() => {
+    const options = screen.getAllByRole("option");
+    const hit = options.find((o) => (o.textContent || "").includes(needle));
+    if (!hit) throw new Error(`option containing "${needle}" not found`);
+    return hit;
+  });
+}
+function queryOptionByText(needle: string): HTMLElement | null {
+  const options = screen.queryAllByRole("option");
+  return options.find((o) => (o.textContent || "").includes(needle)) ?? null;
+}
+
 // ---- Tests ----------------------------------------------------------------
 
 describe("AddressAutocomplete — DK uses DAWA (primary)", () => {
