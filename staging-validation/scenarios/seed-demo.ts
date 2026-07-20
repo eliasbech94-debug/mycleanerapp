@@ -59,6 +59,12 @@ const between = (a: number, b: number) => a + Math.floor(rng() * (b - a + 1));
 const DRY = process.argv.includes("--dry-run");
 const STATS = process.argv.includes("--stats");
 
+// ── Dry-run plan tracker ────────────────────────────────────────────
+// Every seeder increments this so the dry-run report is exact, not estimated.
+const PLAN: Record<string, number> = {};
+function plan(kind: string, n = 1) { PLAN[kind] = (PLAN[kind] ?? 0) + n; }
+
+
 // Provider lifecycle distribution — must sum to 50.
 const PROVIDER_STATE_MIX: Array<{ state: string; visibility: string; count: number; ready: boolean }> = [
   { state: "active",           visibility: "public", count: 30, ready: true  },
