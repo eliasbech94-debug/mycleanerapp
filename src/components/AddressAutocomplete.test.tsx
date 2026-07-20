@@ -186,7 +186,7 @@ describe("AddressAutocomplete — DK uses DAWA (primary)", () => {
     await typeAddress("Nørrebro");
     await waitFor(() => expect(dawaSpy).toHaveBeenCalled());
     expect(fetchSuggestionsSpy).not.toHaveBeenCalled();
-    expect(await screen.findByText("Nørrebrogade 1")).toBeInTheDocument();
+    expect(await findOptionByText("Nørrebrogade 1")).toBeInTheDocument();
   });
 
   it("falls back to Google Places when DAWA is unavailable", async () => {
@@ -199,7 +199,7 @@ describe("AddressAutocomplete — DK uses DAWA (primary)", () => {
     expect(fetchSuggestionsSpy.mock.calls[0][0].includedRegionCodes).toEqual([
       "dk",
     ]);
-    expect(await screen.findByText("Nørrebrogade 1")).toBeInTheDocument();
+    expect(await findOptionByText("Nørrebrogade 1")).toBeInTheDocument();
   });
 });
 
@@ -212,7 +212,7 @@ describe("AddressAutocomplete — non-DK countries use Google", () => {
       "se",
     ]);
     expect(dawaSpy).not.toHaveBeenCalled();
-    expect(await screen.findByText("Kungsgatan 1")).toBeInTheDocument();
+    expect(await findOptionByText("Kungsgatan 1")).toBeInTheDocument();
   });
 
   it("passes countries=['de'] to Google Places for German users", async () => {
@@ -222,8 +222,8 @@ describe("AddressAutocomplete — non-DK countries use Google", () => {
     expect(fetchSuggestionsSpy.mock.calls.at(-1)![0].includedRegionCodes).toEqual([
       "de",
     ]);
-    expect(await screen.findByText("Alexanderplatz 1")).toBeInTheDocument();
-    expect(screen.queryByText("Kungsgatan 1")).not.toBeInTheDocument();
+    expect(await findOptionByText("Alexanderplatz 1")).toBeInTheDocument();
+    expect(queryOptionByText("Kungsgatan 1")).not.toBeInTheDocument();
   });
 });
 
@@ -274,7 +274,7 @@ describe("Booking flow gate — DAWA validation is required", () => {
     render(<BookingGateHarness />);
     const next = screen.getByTestId("next") as HTMLButtonElement;
     await typeAddress("Nørrebrogade");
-    const suggestion = await screen.findByText("Nørrebrogade 1");
+    const suggestion = await findOptionByText("Nørrebrogade 1");
     expect(next).toBeDisabled();
     await act(async () => {
       fireEvent.click(suggestion);
@@ -289,7 +289,7 @@ describe("Booking flow gate — DAWA validation is required", () => {
     render(<BookingGateHarness />);
     const next = screen.getByTestId("next") as HTMLButtonElement;
     await typeAddress("Nørrebrogade");
-    const suggestion = await screen.findByText("Nørrebrogade 1");
+    const suggestion = await findOptionByText("Nørrebrogade 1");
     await act(async () => {
       fireEvent.click(suggestion);
     });
