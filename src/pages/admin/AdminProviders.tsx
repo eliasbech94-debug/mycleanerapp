@@ -205,7 +205,6 @@ export default function AdminProviders() {
                   )}
                   {rows?.map((r) => {
                     const stripeOk = r.stripe_charges_enabled && r.stripe_payouts_enabled;
-                    const flags = Array.isArray(r.trust_flags) ? r.trust_flags.length : 0;
                     return (
                       <tr key={r.user_id} className="border-t hover:bg-muted/30">
                         <td className="p-2"><Checkbox checked={selectedIds.has(r.user_id)} onCheckedChange={() => toggle(r.user_id)} aria-label={`Vælg ${r.display_name}`} /></td>
@@ -223,7 +222,6 @@ export default function AdminProviders() {
                         <td className="p-2">{stripeOk ? "✓" : "—"}</td>
                         <td className="p-2">
                           {r.payout_frozen && <Badge variant="destructive" className="mr-1">frozen</Badge>}
-                          {flags > 0 && <Badge variant="destructive">{flags}</Badge>}
                         </td>
                       </tr>
                     );
