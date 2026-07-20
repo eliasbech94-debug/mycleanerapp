@@ -3,10 +3,11 @@ import { useEffect, useMemo, useRef, useState, useCallback, KeyboardEvent } from
 import { MapPin, Loader2, CheckCircle2, AlertTriangle } from "lucide-react";
 import { loadGoogleMaps } from "@/lib/googleMaps";
 import { supabase } from "@/integrations/supabase/client";
-import { dawaProvider } from "@/lib/address/dawa";
+import { dawaProvider, DawaUnavailableError } from "@/lib/address/dawa";
 import { LruCache } from "@/lib/address/cache";
 import { normalizeAddress, matchSpan } from "@/lib/address/normalize";
 import type { AddressSuggestion, AddressSource } from "@/lib/address/types";
+
 
 /**
  * Shared session-wide LRU cache. Keyed by "<source>::<normalized-query>" so
