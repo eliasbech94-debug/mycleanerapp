@@ -111,9 +111,7 @@ export default function Marketplace() {
     if (!user) { toast.info("Log ind for at gemme favoritter"); return; }
     // Optimistic UI update.
     setFavIds((s) => { const n = new Set(s); if (n.has(slug)) n.delete(slug); else n.add(slug); return n; });
-    const { error } = await (supabase.rpc as unknown as (n: string, a: unknown) => Promise<{ error: { message: string } | null }>)(
-      "toggle_favorite_by_slug_v1", { _slug: slug },
-    );
+    const { error } = await rpc("toggle_favorite_by_slug_v1", { _slug: slug });
     if (error) toast.error(error.message);
     await loadFavs();
   }
