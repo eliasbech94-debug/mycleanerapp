@@ -95,8 +95,27 @@ async function collect(label: string, conn: string) {
       select tablename, count(*)::int as n from pg_policies where schemaname='public' group by tablename order by tablename
     `),
     buckets: q<Row>(conn, `select id, public::text from storage.buckets order by id`),
+    extensions: q<Row>(conn, `
+      select extname as name, extversion as version
+      from pg_extension where extname not in ('plpgsql') order by extname
+    `),
+    // pg_cron may or may not be installed; guard with to_regclass so the query
+    // is safe on projects without the extension.
+    cron: q<Row>(conn, `
+      select case when to_regclass('cron.job') is null then '[]'::json
+             else (select coalesce(json_agg(row_to_json(j)), '[]'::json)
+                   from (select jobname, schedule, command from cron.job order by jobname) j)
+             end::text as payload
+    `),
+    // Auth providers surface via GoTrue config; we probe the auth.identities
+    // provider column as an inventory proxy that requires no admin API.
+    authProviders: q<Row>(conn, `
+      select provider, count(*)::int as n
+      from auth.identities group by provider order by provider
+    `),
   };
 }
+
 
 // ── Main ───────────────────────────────────────────────────────────
 console.log("\n▶ RC2 parity check\n");
