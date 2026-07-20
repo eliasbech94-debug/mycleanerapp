@@ -162,7 +162,9 @@ async function findOptionByText(needle: string): Promise<HTMLElement> {
     const options = screen.getAllByRole("option");
     const hit = options.find((o) => (o.textContent || "").includes(needle));
     if (!hit) throw new Error(`option containing "${needle}" not found`);
-    return hit;
+    // The clickable element is the <button> inside the <li role="option">.
+    const btn = hit.querySelector("button");
+    return (btn ?? hit) as HTMLElement;
   });
 }
 function queryOptionByText(needle: string): HTMLElement | null {
