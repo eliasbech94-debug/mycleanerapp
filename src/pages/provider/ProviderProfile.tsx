@@ -304,15 +304,13 @@ function AreaTab({ pp, patch }: { pp: PP; patch: (k: OwnerCol, v: any) => void }
       <AddressAutocomplete
         value={pp.base_address_formatted ?? ""}
         onChange={(v) => patch("base_address_formatted", v)}
-        onSelect={(res: any) => {
-          patch("base_address_place_id", res.place_id);
-          patch("base_address_formatted", res.formatted);
-          patch("base_country_code", res.country_code);
-          patch("base_lat", res.lat);
-          patch("base_lng", res.lng);
-          patch("base_validation_source", res.source ?? "google");
+        onSelect={(res) => {
+          patch("base_address_place_id", res.placeId);
+          patch("base_address_formatted", res.address);
+          if (res.lat != null) patch("base_lat", res.lat);
+          if (res.lng != null) patch("base_lng", res.lng);
         }}
-        countryCode={pp.base_country_code ?? "DK"}
+        countries={[(pp.base_country_code ?? "DK").toLowerCase()]}
       />
       <div className="max-w-xs">
         <Label>Serviceradius (km)</Label>
