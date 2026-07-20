@@ -16,16 +16,18 @@
 const enc = new TextEncoder();
 
 async function hmacSha256Hex(secret: string, message: string | Uint8Array): Promise<string> {
+  const keyBytes = enc.encode(secret);
   const key = await crypto.subtle.importKey(
     "raw",
-    enc.encode(secret),
+    keyBytes.buffer.slice(keyBytes.byteOffset, keyBytes.byteOffset + keyBytes.byteLength) as ArrayBuffer,
     { name: "HMAC", hash: "SHA-256" },
     false,
     ["sign"],
   );
-  const data = typeof message === "string" ? enc.encode(message) : message;
-  const sig = await crypto.subtle.sign("HMAC", key, data);
-  return [...new Uint8Array(sig)]
+  const dataView = typeof message === "string" ? enc.encode(message) : message;
+  const dataBuf = dataView.buffer.slice(dataView.byteOffset, dataView.byteOffset + dataView.byteLength) as ArrayBuffer;
+  const sig = await crypto.subtle.sign("HMAC", key, dataBuf);
+  return Array.from(new Uint8Array(sig))
     .map((b) => b.toString(16).padStart(2, "0"))
     .join("");
 }
