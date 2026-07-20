@@ -67,6 +67,13 @@ Deno.serve(monitored("sms-verify-code", async (req, _log) => {
       .eq("id", userId);
     if (profErr) return json({ error: profErr.message }, 500);
 
+    // Trusted reconciliation: SMS is a completion signal for providers.
+    try {
+      const { reconcileProvider } = await import("../_shared/providerReconcile.ts");
+      await reconcileProvider(supabase, userId, "sms_verified");
+    } catch (e) { console.error("provider reconcile after sms failed", (e as Error).message); }
+
+
     return json({ ok: true, phone, verified_at: now });
   } catch (e) {
     return json({ error: (e as Error).message }, 500);
