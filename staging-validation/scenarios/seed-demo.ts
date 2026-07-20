@@ -103,7 +103,7 @@ async function upsertUser(email: string, role: SeededUser["role"], country: stri
     await admin.from("user_roles").upsert({ user_id: existing, role: role as any }, { onConflict: "user_id,role" });
     return { id: existing, email, role, country };
   }
-  if (DRY) return { id: "dry-" + email, email, role, country };
+  if (DRY) { plan(`auth.users (${role})`); plan("profiles"); plan("user_roles"); return { id: "dry-" + email, email, role, country }; }
   const { data, error } = await admin.auth.admin.createUser({
     email,
     password: PASSWORD,
@@ -116,6 +116,7 @@ async function upsertUser(email: string, role: SeededUser["role"], country: stri
   await admin.from("user_roles").upsert({ user_id: uid, role: role as any }, { onConflict: "user_id,role" });
   return { id: uid, email, role, country };
 }
+
 
 async function tableCount(table: string, filter?: (q: any) => any): Promise<number> {
   let q = admin.from(table).select("*", { count: "exact", head: true });
