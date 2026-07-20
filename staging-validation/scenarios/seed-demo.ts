@@ -417,7 +417,7 @@ async function stats() {
 
 // ── Main ────────────────────────────────────────────────────────────
 async function main() {
-  console.log(`\n▶ RC2 demo seed  (tag=${SEED_TAG}, run=${RC2_TAG})  ${DRY ? "[DRY-RUN]" : ""}\n`);
+  console.log(`\n▶ RC2 demo seed  (tag=${SEED_TAG}, run=${RC2_TAG})  ${DRY ? "[DRY-RUN — no rows will be written]" : ""}\n`);
   if (STATS) return stats();
   const customers = await seedCustomers();
   const providers = await seedProviders();
@@ -428,7 +428,26 @@ async function main() {
   await seedDisputes(customers, providers);
   await seedSupportTickets(customers, providers, staff);
   await seedRefundRequests(customers);
+
+  if (DRY) {
+    console.log(`\n📋 DRY-RUN PLAN — the following rows WOULD be created:\n`);
+    const rows = Object.entries(PLAN).sort(([a],[b]) => a.localeCompare(b));
+    const width = Math.max(...rows.map(([k]) => k.length));
+    for (const [k, v] of rows) console.log(`   ${k.padEnd(width)}  ${v}`);
+    console.log(`\n   Total planned inserts/upserts: ${rows.reduce((s,[,v]) => s + v, 0)}`);
+    console.log(`\n   Known bypasses vs. production lifecycle:`);
+    console.log(`   • provider_profiles.base_address_place_id left NULL (skips place_validations FK trigger)`);
+    console.log(`   • bookings.address is a plain string, not a validated place_id`);
+    console.log(`   • stripe_charges_enabled set directly (no Stripe onboarding round-trip)`);
+    console.log(`   • identity_status set directly (no Sumsub webhook round-trip)`);
+    console.log(`   Everything else follows the same triggers, RLS and constraints as production.\n`);
+    console.log(`✅ Dry-run complete. Re-run without --dry-run to seed.`);
+    return;
+  }
   console.log(`\n✅ Seed complete. To remove: ./cleanup-rc2.sh --all-rc2`);
 }
+
+main().catch((e) => { console.error("❌ seed failed:", e); process.exit(1); });
+
 
 main().catch((e) => { console.error("❌ seed failed:", e); process.exit(1); });
