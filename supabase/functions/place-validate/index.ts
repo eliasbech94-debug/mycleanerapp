@@ -50,12 +50,44 @@ function splitHusnr(husnr?: string): { house_number?: string; letter?: string } 
   return { house_number: m[1], letter: m[2] || undefined };
 }
 
+async function fetchDawaJson(url: string, attempt = 0): Promise<any> {
+  const res = await fetch(url, {
+    headers: {
+      "Accept": "application/json",
+      "Accept-Encoding": "identity",
+      "User-Agent": "MyCleaner/1.0 (+https://mycleaner.dk)",
+    },
+  });
+  if (res.status === 404) return { __notFound: true };
+  if (!res.ok) {
+    await res.body?.cancel().catch(() => {});
+    throw new Error(`dawa_http_${res.status}`);
+  }
+  let text: string;
+  try {
+    text = await res.text();
+  } catch (e) {
+    if (attempt < 1) return fetchDawaJson(url, attempt + 1);
+    throw new Error(`dawa_body_read_failed: ${(e as Error).message}`);
+  }
+  if (!text) {
+    if (attempt < 1) return fetchDawaJson(url, attempt + 1);
+    throw new Error("dawa_empty_body");
+  }
+  try { return JSON.parse(text); }
+  catch (e) { throw new Error(`dawa_invalid_json: ${(e as Error).message}`); }
+}
+
 async function validateDawa(ref: string) {
   const url = `https://api.dataforsyningen.dk/adresser/${encodeURIComponent(ref)}`;
-  const res = await fetch(url);
-  if (res.status === 404) return { error: "dawa_not_found", status: 404 };
-  if (!res.ok) return { error: "dawa_lookup_failed", status: 502 };
-  const full = await res.json();
+  let full: any;
+  try {
+    full = await fetchDawaJson(url);
+  } catch (e) {
+    console.error("[place-validate] DAWA fetch failed", { ref, err: (e as Error).message });
+    return { error: "dawa_lookup_failed", detail: (e as Error).message, status: 502 };
+  }
+  if (full?.__notFound) return { error: "dawa_not_found", status: 404 };
   const { house_number, letter } = splitHusnr(full?.adgangsadresse?.husnr);
   const koord = full?.adgangsadresse?.adgangspunkt?.koordinater;
   const doorRaw: string | null = full?.dør ?? null;
