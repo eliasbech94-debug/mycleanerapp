@@ -994,6 +994,27 @@ export type Database = {
         }
         Relationships: []
       }
+      customer_favorites: {
+        Row: {
+          created_at: string
+          customer_id: string
+          id: string
+          provider_id: string
+        }
+        Insert: {
+          created_at?: string
+          customer_id: string
+          id?: string
+          provider_id: string
+        }
+        Update: {
+          created_at?: string
+          customer_id?: string
+          id?: string
+          provider_id?: string
+        }
+        Relationships: []
+      }
       customer_notifications: {
         Row: {
           action_label: string | null
@@ -2782,6 +2803,7 @@ export type Database = {
           approved_by: string | null
           archived_at: string | null
           archived_by: string | null
+          avg_response_minutes: number | null
           base_address_formatted: string | null
           base_address_place_id: string | null
           base_country_code: string | null
@@ -2794,19 +2816,23 @@ export type Database = {
           date_of_birth: string | null
           display_name: string | null
           emergency_contact: Json | null
+          equipment_badges: Json
           headline: string | null
           hourly_rate: number | null
           identity_status: string
           insurance_doc_path: string | null
           insurance_expires_on: string | null
           insurance_policy_number: string | null
+          is_public: boolean
           languages: string[]
           payout_frozen: boolean
           payout_frozen_reason: string | null
           performance_snapshot: Json
           photo_path: string | null
           provider_score: number
+          provider_slug: string
           provider_tier: Database["public"]["Enums"]["provider_tier"]
+          public_bio: string | null
           rejected_at: string | null
           rejected_reason: string | null
           scoring_config_version: number | null
@@ -2835,6 +2861,7 @@ export type Database = {
           approved_by?: string | null
           archived_at?: string | null
           archived_by?: string | null
+          avg_response_minutes?: number | null
           base_address_formatted?: string | null
           base_address_place_id?: string | null
           base_country_code?: string | null
@@ -2847,19 +2874,23 @@ export type Database = {
           date_of_birth?: string | null
           display_name?: string | null
           emergency_contact?: Json | null
+          equipment_badges?: Json
           headline?: string | null
           hourly_rate?: number | null
           identity_status?: string
           insurance_doc_path?: string | null
           insurance_expires_on?: string | null
           insurance_policy_number?: string | null
+          is_public?: boolean
           languages?: string[]
           payout_frozen?: boolean
           payout_frozen_reason?: string | null
           performance_snapshot?: Json
           photo_path?: string | null
           provider_score?: number
+          provider_slug: string
           provider_tier?: Database["public"]["Enums"]["provider_tier"]
+          public_bio?: string | null
           rejected_at?: string | null
           rejected_reason?: string | null
           scoring_config_version?: number | null
@@ -2888,6 +2919,7 @@ export type Database = {
           approved_by?: string | null
           archived_at?: string | null
           archived_by?: string | null
+          avg_response_minutes?: number | null
           base_address_formatted?: string | null
           base_address_place_id?: string | null
           base_country_code?: string | null
@@ -2900,19 +2932,23 @@ export type Database = {
           date_of_birth?: string | null
           display_name?: string | null
           emergency_contact?: Json | null
+          equipment_badges?: Json
           headline?: string | null
           hourly_rate?: number | null
           identity_status?: string
           insurance_doc_path?: string | null
           insurance_expires_on?: string | null
           insurance_policy_number?: string | null
+          is_public?: boolean
           languages?: string[]
           payout_frozen?: boolean
           payout_frozen_reason?: string | null
           performance_snapshot?: Json
           photo_path?: string | null
           provider_score?: number
+          provider_slug?: string
           provider_tier?: Database["public"]["Enums"]["provider_tier"]
+          public_bio?: string | null
           rejected_at?: string | null
           rejected_reason?: string | null
           scoring_config_version?: number | null
@@ -4110,6 +4146,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      gen_provider_slug: {
+        Args: { _display_name: string; _user_id: string }
+        Returns: string
+      }
       get_lifecycle_public_isos: {
         Args: never
         Returns: {
@@ -4129,6 +4169,31 @@ export type Database = {
           lat: number
           lng: number
           provider_id: string
+        }[]
+      }
+      get_public_provider_profile_v1: {
+        Args: { _slug: string }
+        Returns: {
+          approximate_service_area: Json
+          avatar_url: string
+          average_rating: number
+          avg_response_minutes: number
+          completed_bookings: number
+          country_code: string
+          display_name: string
+          equipment_badges: Json
+          identity_verified_badge: boolean
+          languages: string[]
+          marketplace_score: number
+          price_from: number
+          provider_slug: string
+          provider_tier: Database["public"]["Enums"]["provider_tier"]
+          public_bio: string
+          service_categories: string[]
+          service_radius_km: number
+          total_reviews: number
+          years_experience: number
+          years_on_platform: number
         }[]
       }
       get_published_country_config: {
@@ -4175,6 +4240,14 @@ export type Database = {
         Args: { _target_id: string; _target_type: string }
         Returns: boolean
       }
+      list_favorite_providers_v1: {
+        Args: never
+        Returns: {
+          added_at: string
+          provider_id: string
+          provider_slug: string
+        }[]
+      }
       migrate_legacy_support_threads: {
         Args: never
         Returns: {
@@ -4214,6 +4287,7 @@ export type Database = {
           approved_by: string | null
           archived_at: string | null
           archived_by: string | null
+          avg_response_minutes: number | null
           base_address_formatted: string | null
           base_address_place_id: string | null
           base_country_code: string | null
@@ -4226,19 +4300,23 @@ export type Database = {
           date_of_birth: string | null
           display_name: string | null
           emergency_contact: Json | null
+          equipment_badges: Json
           headline: string | null
           hourly_rate: number | null
           identity_status: string
           insurance_doc_path: string | null
           insurance_expires_on: string | null
           insurance_policy_number: string | null
+          is_public: boolean
           languages: string[]
           payout_frozen: boolean
           payout_frozen_reason: string | null
           performance_snapshot: Json
           photo_path: string | null
           provider_score: number
+          provider_slug: string
           provider_tier: Database["public"]["Enums"]["provider_tier"]
+          public_bio: string | null
           rejected_at: string | null
           rejected_reason: string | null
           scoring_config_version: number | null
@@ -4276,6 +4354,44 @@ export type Database = {
         Args: { _alert_key: string; _resolver?: string }
         Returns: number
       }
+      search_marketplace_providers_v1: {
+        Args: {
+          _country_code?: string
+          _language?: string
+          _limit?: number
+          _max_hourly_rate?: number
+          _min_score?: number
+          _min_tier?: Database["public"]["Enums"]["provider_tier"]
+          _offset?: number
+          _search?: string
+          _service_category?: string
+          _sort?: string
+        }
+        Returns: {
+          approximate_service_area: Json
+          avatar_url: string
+          average_rating: number
+          avg_response_minutes: number
+          completed_bookings: number
+          country_code: string
+          display_name: string
+          equipment_badges: Json
+          identity_verified_badge: boolean
+          languages: string[]
+          marketplace_score: number
+          price_from: number
+          provider_slug: string
+          provider_tier: Database["public"]["Enums"]["provider_tier"]
+          public_bio: string
+          repeat_customer_badge: boolean
+          service_categories: string[]
+          service_radius_km: number
+          total_count: number
+          total_reviews: number
+          years_experience: number
+          years_on_platform: number
+        }[]
+      }
       start_provider_application: {
         Args: never
         Returns: {
@@ -4284,6 +4400,7 @@ export type Database = {
           approved_by: string | null
           archived_at: string | null
           archived_by: string | null
+          avg_response_minutes: number | null
           base_address_formatted: string | null
           base_address_place_id: string | null
           base_country_code: string | null
@@ -4296,19 +4413,23 @@ export type Database = {
           date_of_birth: string | null
           display_name: string | null
           emergency_contact: Json | null
+          equipment_badges: Json
           headline: string | null
           hourly_rate: number | null
           identity_status: string
           insurance_doc_path: string | null
           insurance_expires_on: string | null
           insurance_policy_number: string | null
+          is_public: boolean
           languages: string[]
           payout_frozen: boolean
           payout_frozen_reason: string | null
           performance_snapshot: Json
           photo_path: string | null
           provider_score: number
+          provider_slug: string
           provider_tier: Database["public"]["Enums"]["provider_tier"]
+          public_bio: string | null
           rejected_at: string | null
           rejected_reason: string | null
           scoring_config_version: number | null
@@ -4346,6 +4467,7 @@ export type Database = {
           approved_by: string | null
           archived_at: string | null
           archived_by: string | null
+          avg_response_minutes: number | null
           base_address_formatted: string | null
           base_address_place_id: string | null
           base_country_code: string | null
@@ -4358,19 +4480,23 @@ export type Database = {
           date_of_birth: string | null
           display_name: string | null
           emergency_contact: Json | null
+          equipment_badges: Json
           headline: string | null
           hourly_rate: number | null
           identity_status: string
           insurance_doc_path: string | null
           insurance_expires_on: string | null
           insurance_policy_number: string | null
+          is_public: boolean
           languages: string[]
           payout_frozen: boolean
           payout_frozen_reason: string | null
           performance_snapshot: Json
           photo_path: string | null
           provider_score: number
+          provider_slug: string
           provider_tier: Database["public"]["Enums"]["provider_tier"]
+          public_bio: string | null
           rejected_at: string | null
           rejected_reason: string | null
           scoring_config_version: number | null
@@ -4450,6 +4576,11 @@ export type Database = {
       tax_encrypt: {
         Args: { _key: string; _plaintext: string }
         Returns: string
+      }
+      toggle_favorite_by_slug_v1: { Args: { _slug: string }; Returns: boolean }
+      toggle_favorite_provider_v1: {
+        Args: { _provider_id: string }
+        Returns: boolean
       }
       user_owns_identity: { Args: { _identity_id: string }; Returns: boolean }
       user_owns_provider: { Args: { _provider_id: string }; Returns: boolean }

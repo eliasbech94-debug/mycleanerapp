@@ -31,6 +31,10 @@ where they need pgcrypto) to prevent search-path hijacking.
 | `get_user_roles(uuid)` | ✅ | `authenticated`, `service_role` | **Intentionally callable by signed-in users** — used by the `useUserRoles` hook to render role-scoped UI. RLS on `user_roles` still restricts what a caller can read via the function's `SECURITY DEFINER` grant. |
 | `user_owns_provider(text)` | ✅ | `authenticated`, `service_role` | **Intentionally callable by signed-in users** — RLS policies on provider-scoped tables call it to check ownership without leaking cross-user profile rows. |
 | `get_providers_in_bounds(...)` | ✅ | `anon`, `authenticated`, `service_role` | **Intentionally public** — powers the public Find Cleaner map. Returns only coarse, non-PII fields (display name, obfuscated area, country code, business flag). No emails, phone numbers, addresses, or tax data. |
+| `search_marketplace_providers_v1(...)` | ✅ | `anon`, `authenticated`, `service_role` | **Intentionally public** — powers the public marketplace grid. Whitelisted PII-safe columns only (slug, display name, avatar, marketplace score, tier, country, categories, languages, price_from, radius, bio, badges, response time, approximate area, aggregated booking count, years on platform). Never returns trust score, tax data, exact address, phone/email, Stripe/identity metadata or documents. |
+| `get_public_provider_profile_v1(slug)` | ✅ | `anon`, `authenticated`, `service_role` | **Intentionally public** — powers the public provider detail page. Same whitelist as the search RPC, single-row lookup by slug. |
+| `list_favorite_providers_v1()` | ✅ | `authenticated`, `service_role` | Signed-in customers only. Returns the caller's own favourites (slugs). |
+| `toggle_favorite_provider_v1(uuid)` / `toggle_favorite_by_slug_v1(text)` | ✅ | `authenticated`, `service_role` | Signed-in customers only. Toggles caller's favourite for the given provider. |
 
 ## Linter warnings — accepted
 

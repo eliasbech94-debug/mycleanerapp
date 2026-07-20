@@ -42,6 +42,8 @@ import NotFound from "./pages/NotFound";
 import FAQ from "./pages/FAQ";
 import Regler from "./pages/Regler";
 import FindCleaner from "./pages/FindCleaner";
+import Marketplace from "./pages/Marketplace";
+import PublicProviderProfile from "./pages/PublicProviderProfile";
 import { ProviderFinance, AdminFinance } from "./pages/finance/FinancePages";
 import AdminDisputes from "./pages/AdminDisputes";
 import ProviderDisputes from "./pages/ProviderDisputes";
@@ -92,6 +94,8 @@ export function AppRoutes() {
       <Route path="/provider/register" element={<ProviderRegister />} />
       <Route path="/provider/:id" element={<ProviderProfile />} />
       <Route path="/find-cleaner" element={<FindCleaner />} />
+      <Route path="/marketplace" element={<Marketplace />} />
+      <Route path="/c/:slug" element={<PublicProviderProfile />} />
       <Route path="/customer/register" element={<CustomerRegister />} />
       <Route path="/task/create" element={<CreateTask />} />
       <Route path="/task/offers" element={<MatchingOffers />} />
