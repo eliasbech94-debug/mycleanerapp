@@ -65,10 +65,19 @@ export default function AdminProviders() {
 
   const load = useCallback(async () => {
     setRows(null);
+
+    // Trust flags live in admin-only provider_trust. Fetch flagged IDs via RPC
+    // when the risk filter is on, then combine with payout_frozen.
+    let flaggedIds: string[] = [];
+    if (riskOnly) {
+      const { data: fids } = await supabase.rpc("admin_list_flagged_provider_ids" as any);
+      flaggedIds = Array.isArray(fids) ? (fids as string[]) : [];
+    }
+
     let q = supabase
       .from("provider_profiles")
       .select(
-        "user_id, display_name, status, visibility, identity_status, stripe_charges_enabled, stripe_payouts_enabled, provider_score, provider_tier, completion_pct, trust_flags, payout_frozen, submitted_at, updated_at",
+        "user_id, display_name, status, visibility, identity_status, stripe_charges_enabled, stripe_payouts_enabled, provider_score, provider_tier, completion_pct, payout_frozen, submitted_at, updated_at",
         { count: "exact" },
       )
       .order(reviewQueue ? "submitted_at" : "updated_at", { ascending: reviewQueue })
@@ -79,7 +88,13 @@ export default function AdminProviders() {
     if (tierFilter !== "all") q = q.eq("provider_tier", tierFilter as any);
     if (identityFilter !== "all") q = q.eq("identity_status", identityFilter);
     if (minScore !== "") q = q.gte("provider_score", Number(minScore) || 0);
-    if (riskOnly) q = q.or("payout_frozen.eq.true,trust_flags.neq.[]");
+    if (riskOnly) {
+      const idList = flaggedIds.map((v) => `"${v}"`).join(",");
+      const orExpr = idList.length > 0
+        ? `payout_frozen.eq.true,user_id.in.(${idList})`
+        : `payout_frozen.eq.true`;
+      q = q.or(orExpr);
+    }
     if (search.trim()) q = q.ilike("display_name", `%${search.trim()}%`);
 
     const { data, count, error } = await q;
