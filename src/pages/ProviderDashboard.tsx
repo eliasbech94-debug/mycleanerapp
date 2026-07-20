@@ -110,12 +110,17 @@ export default function ProviderDashboard() {
     }
   }
 
-  if (loading || !user) {
+  if (loading || !user || !ppLoaded) {
     return (
       <main className="grid min-h-screen place-items-center" style={{ background: C.cream }}>
         <Loader2 className="h-6 w-6 animate-spin" />
       </main>
     );
+  }
+
+  // Pre-active applicants → onboarding dashboard
+  if (!pp || pp.status !== "active") {
+    return <PreActiveDashboard pp={pp} user={user} authProfile={profile} />;
   }
 
   if (!profile?.provider_id) {
