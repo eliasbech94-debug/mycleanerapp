@@ -42,6 +42,8 @@ import NotFound from "./pages/NotFound";
 import FAQ from "./pages/FAQ";
 import Regler from "./pages/Regler";
 import FindCleaner from "./pages/FindCleaner";
+import Marketplace from "./pages/Marketplace";
+import PublicProviderProfile from "./pages/PublicProviderProfile";
 import { ProviderFinance, AdminFinance } from "./pages/finance/FinancePages";
 import AdminDisputes from "./pages/AdminDisputes";
 import ProviderDisputes from "./pages/ProviderDisputes";
