@@ -191,10 +191,10 @@ describe("AddressAutocomplete — DK uses DAWA (primary)", () => {
 
   it("falls back to Google Places when DAWA is unavailable", async () => {
     dawaSpy.mockRejectedValueOnce(
-      new DawaUnavailableError("dawa_503", "server_error", 503),
+      new DawaUnavailableError("dawa_fallback_503", "server_error", 503),
     );
     render(<AddressAutocomplete value="" onChange={() => {}} countries={["dk"]} />);
-    await typeAddress("Nørrebro");
+    await typeAddress("FallbackStreet");
     await waitFor(() => expect(fetchSuggestionsSpy).toHaveBeenCalled());
     expect(fetchSuggestionsSpy.mock.calls[0][0].includedRegionCodes).toEqual([
       "dk",
@@ -269,12 +269,12 @@ describe("Booking flow gate — DAWA validation is required", () => {
 
   it("enables Next only after picking a validated DAWA suggestion", async () => {
     dawaSpy.mockResolvedValueOnce([
-      { source: "dawa", ref: "dawa-1", primary: "Nørrebrogade 1", secondary: "2200 København N" },
+      { source: "dawa", ref: "dawa-pick", primary: "Amagerbrogade 7", secondary: "2300 København S" },
     ]);
     render(<BookingGateHarness />);
     const next = screen.getByTestId("next") as HTMLButtonElement;
-    await typeAddress("Nørrebrogade");
-    const suggestion = await findOptionByText("Nørrebrogade 1");
+    await typeAddress("Amagerbro");
+    const suggestion = await findOptionByText("Amagerbrogade 7");
     expect(next).toBeDisabled();
     await act(async () => {
       fireEvent.click(suggestion);
@@ -284,18 +284,18 @@ describe("Booking flow gate — DAWA validation is required", () => {
 
   it("re-locks Next if the user edits the address after picking", async () => {
     dawaSpy.mockResolvedValue([
-      { source: "dawa", ref: "dawa-1", primary: "Nørrebrogade 1", secondary: "2200 København N" },
+      { source: "dawa", ref: "dawa-relock", primary: "Frederiksberg Allé 5", secondary: "1820 Frederiksberg C" },
     ]);
     render(<BookingGateHarness />);
     const next = screen.getByTestId("next") as HTMLButtonElement;
-    await typeAddress("Nørrebrogade");
-    const suggestion = await findOptionByText("Nørrebrogade 1");
+    await typeAddress("Frederiksberg Al");
+    const suggestion = await findOptionByText("Frederiksberg Allé 5");
     await act(async () => {
       fireEvent.click(suggestion);
     });
     await waitFor(() => expect(next).not.toBeDisabled());
     fireEvent.change(screen.getByPlaceholderText(/Indtast adresse/i), {
-      target: { value: "Nørrebrogade 1 (etage 3)" },
+      target: { value: "Frederiksberg Allé 5 (etage 3)" },
     });
     expect(next).toBeDisabled();
   });
