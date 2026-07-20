@@ -94,6 +94,8 @@ export function AppRoutes() {
       <Route path="/provider/register" element={<ProviderRegister />} />
       <Route path="/provider/:id" element={<ProviderProfile />} />
       <Route path="/find-cleaner" element={<FindCleaner />} />
+      <Route path="/marketplace" element={<Marketplace />} />
+      <Route path="/c/:slug" element={<PublicProviderProfile />} />
       <Route path="/customer/register" element={<CustomerRegister />} />
       <Route path="/task/create" element={<CreateTask />} />
       <Route path="/task/offers" element={<MatchingOffers />} />
