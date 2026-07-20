@@ -1,10 +1,12 @@
 import { useEffect, useRef } from "react";
 
-// Site key is public. Read from Vite env; fall back to the MyCleaner
-// production key so the widget still mounts if the env var is missing.
-export const TURNSTILE_SITE_KEY =
-  (import.meta.env.VITE_TURNSTILE_SITE as string | undefined) ||
-  "0x4AAAAAAD5P-enOWji6xsqR";
+// Site key is public but MUST be configured explicitly via VITE_TURNSTILE_SITE.
+// No dev/fallback key — a missing key surfaces loudly instead of silently
+// mounting the wrong widget (which would break server-side siteverify).
+export const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE as string | undefined;
+if (!TURNSTILE_SITE_KEY && typeof window !== "undefined") {
+  console.error("[Turnstile] VITE_TURNSTILE_SITE is not configured — captcha widget will not render.");
+}
 
 declare global {
   interface Window {
