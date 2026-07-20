@@ -172,7 +172,7 @@ describe("AddressAutocomplete — DK uses DAWA (primary)", () => {
 
   it("falls back to Google Places when DAWA is unavailable", async () => {
     dawaSpy.mockRejectedValueOnce(
-      new DawaUnavailableError("server_error", 503),
+      new DawaUnavailableError("dawa_503", "server_error", 503),
     );
     render(<AddressAutocomplete value="" onChange={() => {}} countries={["dk"]} />);
     await typeAddress("Nørrebro");
