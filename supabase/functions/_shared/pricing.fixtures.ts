@@ -25,7 +25,7 @@ export const COMMISSION_FIXTURES: CommissionFixture[] = [
     expected: { customer_total_minor: 68400, provider_net_minor: 51600, platform_fee_minor: 16800 } },
   { name: "odd bps (2801) — customer pays the extra half",
     subtotal_minor: 60000, commission_bps: 2801,
-    expected: { customer_total_minor: 68403, provider_net_minor: 51600, platform_fee_minor: 16803 } },
+    expected: { customer_total_minor: 68406, provider_net_minor: 51600, platform_fee_minor: 16806 } },
   { name: "even bps small (1000)",
     subtotal_minor: 100000, commission_bps: 1000,
     expected: { customer_total_minor: 105000, provider_net_minor: 95000, platform_fee_minor: 10000 } },
