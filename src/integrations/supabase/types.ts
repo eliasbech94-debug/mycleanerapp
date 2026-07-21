@@ -270,6 +270,7 @@ export type Database = {
           customer_pays: number
           customer_user_id: string
           decided_at: string | null
+          dynamic_pricing_applied: boolean | null
           hours: number
           id: string
           lat: number | null
@@ -280,6 +281,10 @@ export type Database = {
           payment_method_last4: string | null
           payment_status: Database["public"]["Enums"]["payment_status"]
           platform_fee_amount: number
+          pricing_calculation_id: string | null
+          pricing_mode: Database["public"]["Enums"]["pricing_mode"] | null
+          pricing_snapshot: Json | null
+          pricing_version: number | null
           provider_gets: number
           provider_id: string
           provider_name: string
@@ -315,6 +320,7 @@ export type Database = {
           customer_pays: number
           customer_user_id: string
           decided_at?: string | null
+          dynamic_pricing_applied?: boolean | null
           hours: number
           id?: string
           lat?: number | null
@@ -325,6 +331,10 @@ export type Database = {
           payment_method_last4?: string | null
           payment_status?: Database["public"]["Enums"]["payment_status"]
           platform_fee_amount?: number
+          pricing_calculation_id?: string | null
+          pricing_mode?: Database["public"]["Enums"]["pricing_mode"] | null
+          pricing_snapshot?: Json | null
+          pricing_version?: number | null
           provider_gets: number
           provider_id: string
           provider_name: string
@@ -360,6 +370,7 @@ export type Database = {
           customer_pays?: number
           customer_user_id?: string
           decided_at?: string | null
+          dynamic_pricing_applied?: boolean | null
           hours?: number
           id?: string
           lat?: number | null
@@ -370,6 +381,10 @@ export type Database = {
           payment_method_last4?: string | null
           payment_status?: Database["public"]["Enums"]["payment_status"]
           platform_fee_amount?: number
+          pricing_calculation_id?: string | null
+          pricing_mode?: Database["public"]["Enums"]["pricing_mode"] | null
+          pricing_snapshot?: Json | null
+          pricing_version?: number | null
           provider_gets?: number
           provider_id?: string
           provider_name?: string
@@ -386,7 +401,15 @@ export type Database = {
           timezone?: string | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "bookings_pricing_calculation_id_fkey"
+            columns: ["pricing_calculation_id"]
+            isOneToOne: false
+            referencedRelation: "pricing_calculations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       cleaning_plans: {
         Row: {
@@ -1314,6 +1337,69 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      dynamic_pricing_config: {
+        Row: {
+          band_bps: Json
+          band_thresholds: Json
+          country_code: string
+          created_at: string
+          created_by: string | null
+          enabled: boolean
+          id: string
+          max_total_adjustment_bps: number
+          min_supply_for_dynamic: number
+          same_day_hours: number
+          service_category: string | null
+          surcharge_holiday_bps: number
+          surcharge_same_day_bps: number
+          surcharge_urgent_bps: number
+          surcharge_weekend_bps: number
+          updated_at: string
+          urgent_hours: number
+          version: number
+        }
+        Insert: {
+          band_bps: Json
+          band_thresholds: Json
+          country_code: string
+          created_at?: string
+          created_by?: string | null
+          enabled?: boolean
+          id?: string
+          max_total_adjustment_bps?: number
+          min_supply_for_dynamic?: number
+          same_day_hours?: number
+          service_category?: string | null
+          surcharge_holiday_bps?: number
+          surcharge_same_day_bps?: number
+          surcharge_urgent_bps?: number
+          surcharge_weekend_bps?: number
+          updated_at?: string
+          urgent_hours?: number
+          version?: number
+        }
+        Update: {
+          band_bps?: Json
+          band_thresholds?: Json
+          country_code?: string
+          created_at?: string
+          created_by?: string | null
+          enabled?: boolean
+          id?: string
+          max_total_adjustment_bps?: number
+          min_supply_for_dynamic?: number
+          same_day_hours?: number
+          service_category?: string | null
+          surcharge_holiday_bps?: number
+          surcharge_same_day_bps?: number
+          surcharge_urgent_bps?: number
+          surcharge_weekend_bps?: number
+          updated_at?: string
+          urgent_hours?: number
+          version?: number
+        }
+        Relationships: []
       }
       error_events: {
         Row: {
@@ -2649,6 +2735,203 @@ export type Database = {
         }
         Relationships: []
       }
+      pricing_calculations: {
+        Row: {
+          adjusted_rate_minor: number
+          allow_decrease: boolean
+          allow_increase: boolean
+          base_rate_minor: number
+          booking_id: string | null
+          clamped_rate_minor: number
+          commission_bps: number
+          config_version: number | null
+          country_code: string
+          created_at: string
+          currency: string
+          customer_half_bps: number
+          customer_total_minor: number
+          customer_user_id: string | null
+          demand_band: Database["public"]["Enums"]["pricing_demand_band"]
+          demand_band_bps: number
+          demand_count: number
+          demand_ratio_bps: number
+          duration_minutes: number
+          dynamic_pricing_applied: boolean
+          dynamic_pricing_config_id: string | null
+          expires_at: string
+          fail_reason: string | null
+          holiday_bps: number
+          hours_billed: number
+          id: string
+          location_fingerprint: string
+          locked_at: string | null
+          notes: Json
+          platform_fee_minor: number
+          pricing_mode: Database["public"]["Enums"]["pricing_mode"]
+          pricing_version: number
+          provider_half_bps: number
+          provider_id_text: string
+          provider_max_rate_minor: number
+          provider_min_rate_minor: number
+          provider_net_minor: number
+          provider_pricing_settings_id: string | null
+          provider_settings_version: number | null
+          provider_user_id: string
+          quote_context: Database["public"]["Enums"]["pricing_quote_context"]
+          quote_context_key: string
+          requester_user_id: string
+          same_day_bps: number
+          service_category: string
+          start_at: string
+          status: Database["public"]["Enums"]["pricing_quote_status"]
+          subtotal_minor: number
+          supersedes_id: string | null
+          supply_count: number
+          total_adjustment_bps: number
+          urgent_bps: number
+          weekend_bps: number
+        }
+        Insert: {
+          adjusted_rate_minor: number
+          allow_decrease: boolean
+          allow_increase: boolean
+          base_rate_minor: number
+          booking_id?: string | null
+          clamped_rate_minor: number
+          commission_bps: number
+          config_version?: number | null
+          country_code: string
+          created_at?: string
+          currency: string
+          customer_half_bps: number
+          customer_total_minor: number
+          customer_user_id?: string | null
+          demand_band: Database["public"]["Enums"]["pricing_demand_band"]
+          demand_band_bps: number
+          demand_count: number
+          demand_ratio_bps: number
+          duration_minutes: number
+          dynamic_pricing_applied: boolean
+          dynamic_pricing_config_id?: string | null
+          expires_at: string
+          fail_reason?: string | null
+          holiday_bps: number
+          hours_billed: number
+          id?: string
+          location_fingerprint: string
+          locked_at?: string | null
+          notes?: Json
+          platform_fee_minor: number
+          pricing_mode: Database["public"]["Enums"]["pricing_mode"]
+          pricing_version?: number
+          provider_half_bps: number
+          provider_id_text: string
+          provider_max_rate_minor: number
+          provider_min_rate_minor: number
+          provider_net_minor: number
+          provider_pricing_settings_id?: string | null
+          provider_settings_version?: number | null
+          provider_user_id: string
+          quote_context: Database["public"]["Enums"]["pricing_quote_context"]
+          quote_context_key: string
+          requester_user_id: string
+          same_day_bps: number
+          service_category: string
+          start_at: string
+          status?: Database["public"]["Enums"]["pricing_quote_status"]
+          subtotal_minor: number
+          supersedes_id?: string | null
+          supply_count: number
+          total_adjustment_bps: number
+          urgent_bps: number
+          weekend_bps: number
+        }
+        Update: {
+          adjusted_rate_minor?: number
+          allow_decrease?: boolean
+          allow_increase?: boolean
+          base_rate_minor?: number
+          booking_id?: string | null
+          clamped_rate_minor?: number
+          commission_bps?: number
+          config_version?: number | null
+          country_code?: string
+          created_at?: string
+          currency?: string
+          customer_half_bps?: number
+          customer_total_minor?: number
+          customer_user_id?: string | null
+          demand_band?: Database["public"]["Enums"]["pricing_demand_band"]
+          demand_band_bps?: number
+          demand_count?: number
+          demand_ratio_bps?: number
+          duration_minutes?: number
+          dynamic_pricing_applied?: boolean
+          dynamic_pricing_config_id?: string | null
+          expires_at?: string
+          fail_reason?: string | null
+          holiday_bps?: number
+          hours_billed?: number
+          id?: string
+          location_fingerprint?: string
+          locked_at?: string | null
+          notes?: Json
+          platform_fee_minor?: number
+          pricing_mode?: Database["public"]["Enums"]["pricing_mode"]
+          pricing_version?: number
+          provider_half_bps?: number
+          provider_id_text?: string
+          provider_max_rate_minor?: number
+          provider_min_rate_minor?: number
+          provider_net_minor?: number
+          provider_pricing_settings_id?: string | null
+          provider_settings_version?: number | null
+          provider_user_id?: string
+          quote_context?: Database["public"]["Enums"]["pricing_quote_context"]
+          quote_context_key?: string
+          requester_user_id?: string
+          same_day_bps?: number
+          service_category?: string
+          start_at?: string
+          status?: Database["public"]["Enums"]["pricing_quote_status"]
+          subtotal_minor?: number
+          supersedes_id?: string | null
+          supply_count?: number
+          total_adjustment_bps?: number
+          urgent_bps?: number
+          weekend_bps?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pricing_calculations_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pricing_calculations_dynamic_pricing_config_id_fkey"
+            columns: ["dynamic_pricing_config_id"]
+            isOneToOne: false
+            referencedRelation: "dynamic_pricing_config"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pricing_calculations_provider_pricing_settings_id_fkey"
+            columns: ["provider_pricing_settings_id"]
+            isOneToOne: false
+            referencedRelation: "provider_pricing_settings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pricing_calculations_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "pricing_calculations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           address: string | null
@@ -2793,6 +3076,63 @@ export type Database = {
           reason?: string | null
           to_status?: Database["public"]["Enums"]["provider_status"] | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      provider_pricing_settings: {
+        Row: {
+          allow_decrease: boolean
+          allow_increase: boolean
+          base_rate_minor: number
+          country_code: string
+          created_at: string
+          currency: string
+          enabled: boolean
+          id: string
+          max_decrease_bps: number
+          max_increase_bps: number
+          max_rate_minor: number
+          min_rate_minor: number
+          provider_user_id: string
+          service_category: string
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          allow_decrease?: boolean
+          allow_increase?: boolean
+          base_rate_minor: number
+          country_code: string
+          created_at?: string
+          currency: string
+          enabled?: boolean
+          id?: string
+          max_decrease_bps?: number
+          max_increase_bps?: number
+          max_rate_minor: number
+          min_rate_minor: number
+          provider_user_id: string
+          service_category: string
+          updated_at?: string
+          version?: number
+        }
+        Update: {
+          allow_decrease?: boolean
+          allow_increase?: boolean
+          base_rate_minor?: number
+          country_code?: string
+          created_at?: string
+          currency?: string
+          enabled?: boolean
+          id?: string
+          max_decrease_bps?: number
+          max_increase_bps?: number
+          max_rate_minor?: number
+          min_rate_minor?: number
+          provider_user_id?: string
+          service_category?: string
+          updated_at?: string
+          version?: number
         }
         Relationships: []
       }
@@ -4149,6 +4489,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      expire_pricing_quotes: { Args: never; Returns: number }
       gen_provider_slug: {
         Args: { _display_name: string; _user_id: string }
         Returns: string
@@ -4250,6 +4591,70 @@ export type Database = {
           provider_id: string
           provider_slug: string
         }[]
+      }
+      lock_pricing_quote: {
+        Args: { _booking_id: string; _quote_id: string }
+        Returns: {
+          adjusted_rate_minor: number
+          allow_decrease: boolean
+          allow_increase: boolean
+          base_rate_minor: number
+          booking_id: string | null
+          clamped_rate_minor: number
+          commission_bps: number
+          config_version: number | null
+          country_code: string
+          created_at: string
+          currency: string
+          customer_half_bps: number
+          customer_total_minor: number
+          customer_user_id: string | null
+          demand_band: Database["public"]["Enums"]["pricing_demand_band"]
+          demand_band_bps: number
+          demand_count: number
+          demand_ratio_bps: number
+          duration_minutes: number
+          dynamic_pricing_applied: boolean
+          dynamic_pricing_config_id: string | null
+          expires_at: string
+          fail_reason: string | null
+          holiday_bps: number
+          hours_billed: number
+          id: string
+          location_fingerprint: string
+          locked_at: string | null
+          notes: Json
+          platform_fee_minor: number
+          pricing_mode: Database["public"]["Enums"]["pricing_mode"]
+          pricing_version: number
+          provider_half_bps: number
+          provider_id_text: string
+          provider_max_rate_minor: number
+          provider_min_rate_minor: number
+          provider_net_minor: number
+          provider_pricing_settings_id: string | null
+          provider_settings_version: number | null
+          provider_user_id: string
+          quote_context: Database["public"]["Enums"]["pricing_quote_context"]
+          quote_context_key: string
+          requester_user_id: string
+          same_day_bps: number
+          service_category: string
+          start_at: string
+          status: Database["public"]["Enums"]["pricing_quote_status"]
+          subtotal_minor: number
+          supersedes_id: string | null
+          supply_count: number
+          total_adjustment_bps: number
+          urgent_bps: number
+          weekend_bps: number
+        }
+        SetofOptions: {
+          from: "*"
+          to: "pricing_calculations"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       migrate_legacy_support_threads: {
         Args: never
@@ -4355,10 +4760,40 @@ export type Database = {
             Args: { _event_id?: string; _reason?: string; _uid: string }
             Returns: Json
           }
+      resolve_dynamic_pricing_config: {
+        Args: { _category: string; _country: string }
+        Returns: {
+          band_bps: Json
+          band_thresholds: Json
+          country_code: string
+          created_at: string
+          created_by: string | null
+          enabled: boolean
+          id: string
+          max_total_adjustment_bps: number
+          min_supply_for_dynamic: number
+          same_day_hours: number
+          service_category: string | null
+          surcharge_holiday_bps: number
+          surcharge_same_day_bps: number
+          surcharge_urgent_bps: number
+          surcharge_weekend_bps: number
+          updated_at: string
+          urgent_hours: number
+          version: number
+        }
+        SetofOptions: {
+          from: "*"
+          to: "dynamic_pricing_config"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       resolve_system_alert: {
         Args: { _alert_key: string; _resolver?: string }
         Returns: number
       }
+      round_half_away: { Args: { _x: number }; Returns: number }
       search_marketplace_providers_v1: {
         Args: {
           _country_code?: string
@@ -4655,6 +5090,18 @@ export type Database = {
         | "expired"
         | "refunded"
         | "partially_refunded"
+      pricing_demand_band: "very_low" | "low" | "normal" | "high" | "very_high"
+      pricing_mode: "static" | "dynamic"
+      pricing_quote_context:
+        | "customer_checkout"
+        | "provider_preview"
+        | "admin_preview"
+      pricing_quote_status:
+        | "quoted"
+        | "locked"
+        | "expired"
+        | "superseded"
+        | "void"
       provider_status:
         | "draft"
         | "pending_identity"
@@ -4864,6 +5311,20 @@ export const Constants = {
         "expired",
         "refunded",
         "partially_refunded",
+      ],
+      pricing_demand_band: ["very_low", "low", "normal", "high", "very_high"],
+      pricing_mode: ["static", "dynamic"],
+      pricing_quote_context: [
+        "customer_checkout",
+        "provider_preview",
+        "admin_preview",
+      ],
+      pricing_quote_status: [
+        "quoted",
+        "locked",
+        "expired",
+        "superseded",
+        "void",
       ],
       provider_status: [
         "draft",
