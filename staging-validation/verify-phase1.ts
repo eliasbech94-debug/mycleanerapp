@@ -1,20 +1,23 @@
 // staging-validation/verify-phase1.ts
 //
 // Read-only verifier for the Phase 1 staging bootstrap.
-// Connects to a staging Supabase project using the STAGING_* env vars from
-// staging-validation/.env, inspects schema/RLS/RPCs/buckets/functions/extensions,
-// and writes two artifacts:
+//
+// Uses `psql` (shelled out with STAGING_PG_CONN) so no additional npm
+// dependency is required. Also uses @supabase/supabase-js for a Data-API
+// smoke test and (optionally) the Supabase Management API for edge-function
+// and secret-name inventories.
+//
+// Writes:
 //   docs/staging/PHASE1_REPORT.md
 //   staging-validation/artifacts/phase1-report.json
 //
 // Every check returns PASS | FAIL | BLOCKED | MANUAL_VERIFICATION_REQUIRED.
-// The overall verdict is PASS only when every required check is PASS.
-//
-// This script performs NO writes. It refuses to run against production.
+// Overall verdict is PASS only when every REQUIRED check is PASS.
+// This script performs NO writes to the staging database.
 
 import "dotenv/config";
 import { createClient } from "@supabase/supabase-js";
-import { Client as PgClient } from "pg";
+import { execSync } from "node:child_process";
 import { readdir, mkdir, writeFile, readFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { join, resolve } from "node:path";
@@ -31,6 +34,7 @@ interface Check {
   detail?: string;
   data?: unknown;
 }
+
 const checks: Check[] = [];
 const push = (c: Check) => { checks.push(c); logCheck(c); };
 function logCheck(c: Check) {
@@ -40,19 +44,17 @@ function logCheck(c: Check) {
   if (c.detail) console.log(`     ${c.detail}`);
 }
 
-// ── Guard: refuse production ─────────────────────────────────────────────
+// ── Env guard ─────────────────────────────────────────────────────────────
 const url = process.env.STAGING_SUPABASE_URL ?? "";
-const anon = process.env.STAGING_SUPABASE_ANON_KEY ?? "";
 const service = process.env.STAGING_SUPABASE_SERVICE_ROLE_KEY ?? "";
 const pgConn = process.env.STAGING_PG_CONN ?? "";
 
-if (!url || !anon || !service || !pgConn) {
-  console.error("❌ Missing required env: STAGING_SUPABASE_URL / STAGING_SUPABASE_ANON_KEY / STAGING_SUPABASE_SERVICE_ROLE_KEY / STAGING_PG_CONN");
-  console.error("   Populate staging-validation/.env from .env.example and re-run.");
+if (!url || !service || !pgConn) {
+  console.error("❌ Missing STAGING_SUPABASE_URL / STAGING_SUPABASE_SERVICE_ROLE_KEY / STAGING_PG_CONN in staging-validation/.env");
   process.exit(2);
 }
 if (url.includes(PROD_REF) || pgConn.includes(PROD_REF)) {
-  console.error(`⛔ Refusing to run: STAGING_SUPABASE_URL or STAGING_PG_CONN references the production project ref (${PROD_REF}).`);
+  console.error(`⛔ Refusing to run: staging config references the production project ref (${PROD_REF}).`);
   process.exit(3);
 }
 for (const bad of PROD_HOSTS) {
@@ -64,11 +66,27 @@ for (const bad of PROD_HOSTS) {
 push({
   id: "guard.production_ref",
   title: "Staging config does not reference the production project ref",
-  status: "PASS", required: true,
+  status: "PASS",
+  required: true,
   detail: `Configured host: ${new URL(url).host}`,
 });
 
-// ── Repo inventory (source of truth for what SHOULD be in staging) ───────
+// ── psql check ────────────────────────────────────────────────────────────
+try {
+  execSync("psql --version", { stdio: "ignore" });
+} catch {
+  push({
+    id: "tool.psql",
+    title: "psql CLI available on PATH",
+    status: "BLOCKED",
+    required: true,
+    detail: "psql is required to run schema checks. Install PostgreSQL client tools and re-run.",
+  });
+  await finalize();
+  process.exit(1);
+}
+
+// ── Repo inventory ────────────────────────────────────────────────────────
 const repoRoot = resolve(process.cwd(), process.cwd().endsWith("staging-validation") ? ".." : ".");
 const migrationsDir = join(repoRoot, "supabase/migrations");
 const functionsDir = join(repoRoot, "supabase/functions");
@@ -81,9 +99,7 @@ async function listMigrationFiles(): Promise<string[]> {
 async function listLocalFunctions(): Promise<string[]> {
   if (!existsSync(functionsDir)) return [];
   const entries = await readdir(functionsDir, { withFileTypes: true });
-  return entries
-    .filter((e) => e.isDirectory() && !e.name.startsWith("_"))
-    .map((e) => e.name).sort();
+  return entries.filter((e) => e.isDirectory() && !e.name.startsWith("_")).map((e) => e.name).sort();
 }
 async function requiredSecretNames(): Promise<string[]> {
   if (!existsSync(secretsExample)) return [];
@@ -98,31 +114,32 @@ async function requiredSecretNames(): Promise<string[]> {
   return names.sort();
 }
 
-// ── Postgres helpers ─────────────────────────────────────────────────────
-const pg = new PgClient({ connectionString: pgConn });
-async function q<T = Record<string, unknown>>(sql: string, params: unknown[] = []): Promise<T[]> {
-  const r = await pg.query({ text: sql, values: params as never });
-  return r.rows as T[];
+// ── psql helper (shell-quoted, JSON-agg) ──────────────────────────────────
+type Row = Record<string, unknown>;
+function q<T = Row>(sql: string): T[] {
+  const inner = sql.replace(/"/g, '\\"');
+  const cmd = `psql "${pgConn}" -A -t -X -c "select coalesce(json_agg(t), '[]'::json) from (${inner}) t"`;
+  const out = execSync(cmd, { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim();
+  return JSON.parse(out || "[]") as T[];
 }
 
 async function main() {
-  // ── Connectivity ────────────────────────────────────────────────────────
-  const sb = createClient(url, service, { auth: { persistSession: false } });
+  // ── Connectivity: Postgres ─────────────────────────────────────────────
   try {
-    await pg.connect();
-    const r = await q<{ v: string }>("select version() as v");
+    const r = q<{ v: string }>("select split_part(version(), ',', 1) as v");
     push({
       id: "conn.postgres",
-      title: "Postgres connection (service role via STAGING_PG_CONN)",
-      status: "PASS", required: true,
-      detail: r[0]?.v?.split(",")[0],
+      title: "Postgres connection (STAGING_PG_CONN)",
+      status: "PASS", required: true, detail: r[0]?.v,
     });
   } catch (e) {
-    push({ id: "conn.postgres", title: "Postgres connection", status: "FAIL", required: true, detail: (e as Error).message });
+    push({ id: "conn.postgres", title: "Postgres connection", status: "FAIL", required: true, detail: (e as Error).message.slice(0, 300) });
     return finalize();
   }
 
+  // ── Connectivity: Data API ─────────────────────────────────────────────
   try {
+    const sb = createClient(url, service, { auth: { persistSession: false } });
     const { error } = await sb.from("profiles").select("id", { count: "exact", head: true });
     if (error) throw error;
     push({ id: "conn.data_api", title: "PostgREST Data API reachable (service role)", status: "PASS", required: true });
@@ -130,11 +147,11 @@ async function main() {
     push({ id: "conn.data_api", title: "PostgREST Data API reachable", status: "FAIL", required: true, detail: (e as Error).message });
   }
 
-  // ── Migrations inventory ────────────────────────────────────────────────
+  // ── Migrations ─────────────────────────────────────────────────────────
   const localMigrations = await listMigrationFiles();
   try {
-    const applied = await q<{ version: string; name: string | null }>(
-      `select version, name from supabase_migrations.schema_migrations order by version`
+    const applied = q<{ version: string }>(
+      `select version from supabase_migrations.schema_migrations order by version`
     );
     const appliedVersions = new Set(applied.map((r) => r.version));
     const missing = localMigrations
@@ -153,12 +170,11 @@ async function main() {
       id: "migrations.applied",
       title: "All local migrations applied to staging",
       status: "FAIL", required: true,
-      detail: `Could not read supabase_migrations.schema_migrations: ${(e as Error).message}`,
+      detail: `Could not read supabase_migrations.schema_migrations: ${(e as Error).message.slice(0, 300)}`,
     });
   }
 
-  // ── Schema presence ─────────────────────────────────────────────────────
-  // Sample of critical tables from the codebase; if any missing => FAIL.
+  // ── Critical tables ────────────────────────────────────────────────────
   const criticalTables = [
     "profiles", "user_roles", "provider_profiles", "provider_trust",
     "bookings", "conversations", "messages", "customer_addresses",
@@ -167,7 +183,7 @@ async function main() {
     "person_identities", "identity_account_links", "identity_webhook_events",
     "sms_verifications", "place_validations",
   ];
-  const tableRows = await q<{ table_name: string }>(
+  const tableRows = q<{ table_name: string }>(
     `select table_name from information_schema.tables
       where table_schema='public' and table_type='BASE TABLE'`
   );
@@ -182,13 +198,11 @@ async function main() {
     data: { missing: missingTables, totalPublicTables: tableRows.length },
   });
 
-  // ── RLS enabled everywhere in public ────────────────────────────────────
-  const rlsRows = await q<{ table_name: string; rls: boolean }>(
+  // ── RLS enabled ────────────────────────────────────────────────────────
+  const rlsRows = q<{ table_name: string; rls: boolean }>(
     `select c.relname as table_name, c.relrowsecurity as rls
-       from pg_class c
-       join pg_namespace n on n.oid = c.relnamespace
-      where n.nspname='public' and c.relkind='r'
-      order by c.relname`
+       from pg_class c join pg_namespace n on n.oid = c.relnamespace
+      where n.nspname='public' and c.relkind='r' order by c.relname`
   );
   const rlsDisabled = rlsRows.filter((r) => !r.rls).map((r) => r.table_name);
   push({
@@ -200,8 +214,8 @@ async function main() {
     data: { rlsDisabled },
   });
 
-  // ── Policy inventory ────────────────────────────────────────────────────
-  const policyRows = await q<{ tablename: string; n: number }>(
+  // ── Policy inventory ───────────────────────────────────────────────────
+  const policyRows = q<{ tablename: string; n: number }>(
     `select tablename, count(*)::int as n
        from pg_policies where schemaname='public'
       group by tablename order by tablename`
@@ -212,20 +226,19 @@ async function main() {
     .filter((t) => !policyRows.some((p) => p.tablename === t));
   push({
     id: "rls.policies_inventory",
-    title: "Every RLS-enabled table has at least one policy",
+    title: "Every public table has at least one RLS policy",
     status: tablesWithoutPolicies.length === 0 ? "PASS" : "FAIL",
     required: true,
     detail: `policies=${totalPolicies}  tables_missing_policies=${tablesWithoutPolicies.length}`,
     data: { tablesWithoutPolicies, byTable: policyRows },
   });
 
-  // ── RPC / function inventory ────────────────────────────────────────────
-  const funcRows = await q<{ name: string; args: string; ret: string }>(
+  // ── RPC inventory ──────────────────────────────────────────────────────
+  const funcRows = q<{ name: string; args: string; ret: string }>(
     `select p.proname as name,
             pg_get_function_arguments(p.oid) as args,
             pg_get_function_result(p.oid) as ret
-       from pg_proc p
-       join pg_namespace n on n.oid=p.pronamespace
+       from pg_proc p join pg_namespace n on n.oid=p.pronamespace
       where n.nspname='public' and p.prokind='f'
       order by p.proname`
   );
@@ -247,7 +260,7 @@ async function main() {
     data: { missing: missingRpcs, total: funcRows.length },
   });
 
-  // ── RPC signature spot check (arity + arg presence) ────────────────────
+  // ── RPC signature spot check ───────────────────────────────────────────
   const sigSpotCheck = [
     { name: "has_role", mustContain: ["_user_id", "_role"] },
     { name: "get_public_provider_profile_v1", mustContain: ["_slug"] },
@@ -270,8 +283,8 @@ async function main() {
     data: { sigProblems },
   });
 
-  // ── Storage buckets ─────────────────────────────────────────────────────
-  const bucketRows = await q<{ id: string; public: boolean }>(
+  // ── Storage buckets ────────────────────────────────────────────────────
+  const bucketRows = q<{ id: string; public: boolean }>(
     `select id, public from storage.buckets order by id`
   );
   const expectedBuckets = ["avatars", "chat-attachments", "receipts", "identity-artifacts", "legal-documents"];
@@ -287,7 +300,7 @@ async function main() {
   });
 
   // ── Extensions ─────────────────────────────────────────────────────────
-  const extRows = await q<{ extname: string; extversion: string }>(
+  const extRows = q<{ extname: string; extversion: string }>(
     `select extname, extversion from pg_extension order by extname`
   );
   const extSet = new Set(extRows.map((r) => r.extname));
@@ -302,7 +315,7 @@ async function main() {
     data: { installed: extRows, missing: missingExts },
   });
 
-  // ── Edge functions inventory (via Management API) ──────────────────────
+  // ── Edge functions (via Management API if token present) ───────────────
   const localFns = await listLocalFunctions();
   const projectRef = new URL(url).host.split(".")[0];
   const mgmtToken = process.env.SUPABASE_ACCESS_TOKEN ?? "";
@@ -311,8 +324,8 @@ async function main() {
       id: "functions.inventory",
       title: "Edge Functions deployed to staging",
       status: "MANUAL_VERIFICATION_REQUIRED", required: true,
-      detail: `Set SUPABASE_ACCESS_TOKEN (personal access token) to enable API-based check, OR run: supabase functions list --project-ref ${projectRef}  and compare to ${localFns.length} local functions.`,
-      data: { localCount: localFns.length },
+      detail: `Set SUPABASE_ACCESS_TOKEN (personal access token) to enable API check, OR run: supabase functions list --project-ref ${projectRef}  and confirm all ${localFns.length} local functions are listed.`,
+      data: { localCount: localFns.length, localFns },
     });
   } else {
     try {
@@ -320,7 +333,7 @@ async function main() {
         headers: { Authorization: `Bearer ${mgmtToken}` },
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const deployed = await res.json() as Array<{ slug: string; status?: string }>;
+      const deployed = await res.json() as Array<{ slug: string }>;
       const deployedNames = new Set(deployed.map((d) => d.slug));
       const missingFns = localFns.filter((f) => !deployedNames.has(f));
       push({
@@ -341,14 +354,14 @@ async function main() {
     }
   }
 
-  // ── Required secret names (names only, no values) ───────────────────────
+  // ── Required secret names (names only) ─────────────────────────────────
   const requiredSecrets = await requiredSecretNames();
   if (!mgmtToken) {
     push({
       id: "secrets.names",
       title: "Required secret names configured on staging (names only)",
       status: "MANUAL_VERIFICATION_REQUIRED", required: true,
-      detail: `${requiredSecrets.length} names expected. Verify with: supabase secrets list --project-ref ${projectRef}`,
+      detail: `${requiredSecrets.length} names expected. Verify with: supabase secrets list --project-ref ${projectRef}  (values are masked).`,
       data: { required: requiredSecrets },
     });
   } else {
@@ -365,7 +378,7 @@ async function main() {
         title: "Required secret names present on staging (values never read)",
         status: missing.length === 0 ? "PASS" : "FAIL",
         required: true,
-        detail: `required=${requiredSecrets.length}  present=${rows.length}  missing=${JSON.stringify(missing)}`,
+        detail: `required=${requiredSecrets.length}  present_on_project=${rows.length}  missing=${JSON.stringify(missing)}`,
         data: { missing },
       });
     } catch (e) {
@@ -378,9 +391,9 @@ async function main() {
     }
   }
 
-  // ── Auth providers (proxy: auth.identities.provider distinct values) ───
+  // ── Auth providers (proxy) ─────────────────────────────────────────────
   try {
-    const rows = await q<{ provider: string; n: number }>(
+    const rows = q<{ provider: string; n: number }>(
       `select provider, count(*)::int as n from auth.identities group by provider order by provider`
     );
     push({
@@ -388,8 +401,8 @@ async function main() {
       title: "Auth providers visible via auth.identities (inventory proxy)",
       status: "MANUAL_VERIFICATION_REQUIRED", required: true,
       detail: rows.length
-        ? `Seen: ${rows.map((r) => `${r.provider}(${r.n})`).join(", ")}. Confirm dashboard config (email confirmations, HIBP, Google/Apple, URL allowlist) manually.`
-        : "No identities yet. Confirm auth provider configuration manually in the Supabase dashboard.",
+        ? `Seen: ${rows.map((r) => `${r.provider}(${r.n})`).join(", ")}. Confirm full config manually (email confirmations, HIBP, Google/Apple, URL allowlist).`
+        : "No identities yet. Confirm provider configuration manually in the staging Supabase dashboard.",
       data: { rows },
     });
   } catch (e) {
@@ -397,22 +410,22 @@ async function main() {
       id: "auth.providers_seen",
       title: "Auth providers inventory",
       status: "BLOCKED", required: false,
-      detail: `Could not read auth.identities: ${(e as Error).message}`,
+      detail: `Could not read auth.identities: ${(e as Error).message.slice(0, 200)}`,
     });
   }
 
-  // ── Manual verification reminders ───────────────────────────────────────
+  // ── Manual reminders (required, not auto-resolvable) ───────────────────
   push({
     id: "manual.auth_url_allowlist",
     title: "Auth → URL Configuration contains staging + fallback + localhost",
     status: "MANUAL_VERIFICATION_REQUIRED", required: true,
-    detail: "Verify in the staging project's Supabase dashboard: Authentication → URL Configuration.",
+    detail: "Verify in the staging Supabase dashboard: Authentication → URL Configuration.",
   });
   push({
     id: "manual.storage_policies",
     title: "Storage bucket RLS policies match production",
     status: "MANUAL_VERIFICATION_REQUIRED", required: true,
-    detail: "Bucket rows are covered above; policies on storage.objects should be verified against migrations.",
+    detail: "Bucket rows are covered above; policies on storage.objects should be reviewed against migrations.",
   });
   push({
     id: "manual.rls_regression",
@@ -421,24 +434,23 @@ async function main() {
     detail: `Run locally: psql "$STAGING_PG_CONN" -f scripts/rls-regression.sql`,
   });
 
-  await pg.end().catch(() => {});
   await finalize();
 }
 
 async function finalize() {
-  const counts = { PASS: 0, FAIL: 0, BLOCKED: 0, MANUAL_VERIFICATION_REQUIRED: 0 } as Record<Status, number>;
+  const counts: Record<Status, number> = { PASS: 0, FAIL: 0, BLOCKED: 0, MANUAL_VERIFICATION_REQUIRED: 0 };
   for (const c of checks) counts[c.status]++;
 
-  const requiredNotPass = checks.filter(
-    (c) => c.required && c.status !== "PASS"
-  );
-  const verdict =
+  const requiredNotPass = checks.filter((c) => c.required && c.status !== "PASS");
+  const verdict: Status =
     requiredNotPass.length === 0 ? "PASS"
     : requiredNotPass.some((c) => c.status === "FAIL") ? "FAIL"
-    : "BLOCKED"; // required but not PASS and not FAIL ⇒ blocked / needs manual
+    : "BLOCKED";
 
-  const artifactsDir = join(process.cwd().endsWith("staging-validation") ? "." : "staging-validation", "artifacts");
-  const docsDir = join(process.cwd().endsWith("staging-validation") ? ".." : ".", "docs/staging");
+  const cwd = process.cwd();
+  const inStaging = cwd.endsWith("staging-validation");
+  const artifactsDir = inStaging ? "artifacts" : "staging-validation/artifacts";
+  const docsDir = inStaging ? "../docs/staging" : "docs/staging";
   await mkdir(artifactsDir, { recursive: true });
   await mkdir(docsDir, { recursive: true });
 
@@ -449,16 +461,19 @@ async function finalize() {
   await writeFile(jsonPath, JSON.stringify({
     generatedAt: now,
     stagingHost: new URL(url).host,
-    verdict,
-    counts,
-    checks,
+    verdict, counts, checks,
   }, null, 2));
 
   const rows = checks.map((c) => {
     const badge = { PASS: "✅ PASS", FAIL: "❌ FAIL", BLOCKED: "⛔ BLOCKED", MANUAL_VERIFICATION_REQUIRED: "🔎 MANUAL" }[c.status];
-    const detail = (c.detail ?? "").replace(/\|/g, "\\|");
+    const detail = (c.detail ?? "").replace(/\|/g, "\\|").replace(/\n/g, " ");
     return `| \`${c.id}\` | ${badge} | ${c.required ? "yes" : "no"} | ${c.title} | ${detail} |`;
   }).join("\n");
+
+  const manualBlock = checks
+    .filter((c) => c.required && c.status === "MANUAL_VERIFICATION_REQUIRED")
+    .map((c) => `- **${c.id}** — ${c.title}\n  ${c.detail ?? ""}`)
+    .join("\n") || "_(none — every required check was answered automatically)_";
 
   const md = `# Phase 1 verification report
 
@@ -474,7 +489,7 @@ Staging host: \`${new URL(url).host}\`
 - BLOCKED: ${counts.BLOCKED}
 - MANUAL_VERIFICATION_REQUIRED: ${counts.MANUAL_VERIFICATION_REQUIRED}
 
-> Verdict is PASS only when every required check is PASS. Any required
+> The verdict is PASS only when every required check is PASS. Any required
 > FAIL / BLOCKED / MANUAL check downgrades the verdict.
 
 ## Checks
@@ -485,17 +500,14 @@ ${rows}
 
 ## Remaining manual actions
 
-The following required checks could not be answered automatically. The
-operator must confirm each one before Phase 2 begins:
-
-${checks.filter((c) => c.required && c.status === "MANUAL_VERIFICATION_REQUIRED").map((c) => `- **${c.id}** — ${c.title}\n  ${c.detail ?? ""}`).join("\n") || "_(none — every required check was answered automatically)_"}
+${manualBlock}
 
 ## Artifacts
 
 - JSON: \`staging-validation/artifacts/phase1-report.json\`
 - Markdown: \`docs/staging/PHASE1_REPORT.md\` (this file)
 
-_Report is fully re-generated each run; no in-place edits._
+_Report is fully re-generated on each run; no in-place edits._
 `;
   await writeFile(mdPath, md);
 
@@ -505,8 +517,7 @@ _Report is fully re-generated each run; no in-place edits._
   process.exit(verdict === "PASS" ? 0 : 1);
 }
 
-main().catch(async (e) => {
+main().catch((e) => {
   console.error("verify-phase1 crashed:", e);
-  try { await pg.end(); } catch {}
   process.exit(1);
 });
