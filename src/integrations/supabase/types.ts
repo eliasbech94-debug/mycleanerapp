@@ -2206,6 +2206,90 @@ export type Database = {
         }
         Relationships: []
       }
+      market_pricing_multipliers: {
+        Row: {
+          active: boolean
+          country_code: string
+          created_at: string
+          id: string
+          key: string
+          label: string | null
+          multiplier_bps: number
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          country_code: string
+          created_at?: string
+          id?: string
+          key: string
+          label?: string | null
+          multiplier_bps: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          country_code?: string
+          created_at?: string
+          id?: string
+          key?: string
+          label?: string | null
+          multiplier_bps?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      market_pricing_rules: {
+        Row: {
+          active: boolean
+          city: string | null
+          country_code: string
+          created_at: string
+          currency: string
+          id: string
+          max_hourly_minor: number | null
+          min_hourly_minor: number
+          notes: string | null
+          postcode: string | null
+          recommended_hourly_minor: number | null
+          region: string | null
+          scope: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          city?: string | null
+          country_code: string
+          created_at?: string
+          currency: string
+          id?: string
+          max_hourly_minor?: number | null
+          min_hourly_minor: number
+          notes?: string | null
+          postcode?: string | null
+          recommended_hourly_minor?: number | null
+          region?: string | null
+          scope: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          city?: string | null
+          country_code?: string
+          created_at?: string
+          currency?: string
+          id?: string
+          max_hourly_minor?: number | null
+          min_hourly_minor?: number
+          notes?: string | null
+          postcode?: string | null
+          recommended_hourly_minor?: number | null
+          region?: string | null
+          scope?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       market_rate_thresholds: {
         Row: {
           country_code: string
@@ -3075,6 +3159,60 @@ export type Database = {
           metadata?: Json
           reason?: string | null
           to_status?: Database["public"]["Enums"]["provider_status"] | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      provider_pricing_preferences: {
+        Row: {
+          city: string | null
+          country_code: string
+          created_at: string
+          currency: string
+          hourly_rate_minor: number
+          matched_scope: string | null
+          postcode: string | null
+          region: string | null
+          resolved_max_minor: number | null
+          resolved_min_minor: number | null
+          smart_max_minor: number | null
+          smart_min_minor: number | null
+          smart_pricing_enabled: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          city?: string | null
+          country_code: string
+          created_at?: string
+          currency: string
+          hourly_rate_minor: number
+          matched_scope?: string | null
+          postcode?: string | null
+          region?: string | null
+          resolved_max_minor?: number | null
+          resolved_min_minor?: number | null
+          smart_max_minor?: number | null
+          smart_min_minor?: number | null
+          smart_pricing_enabled?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          city?: string | null
+          country_code?: string
+          created_at?: string
+          currency?: string
+          hourly_rate_minor?: number
+          matched_scope?: string | null
+          postcode?: string | null
+          region?: string | null
+          resolved_max_minor?: number | null
+          resolved_min_minor?: number | null
+          smart_max_minor?: number | null
+          smart_min_minor?: number | null
+          smart_pricing_enabled?: boolean
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
@@ -4441,6 +4579,13 @@ export type Database = {
       }
     }
     Functions: {
+      _market_rule_to_jsonb: {
+        Args: {
+          _matched: string
+          r: Database["public"]["Tables"]["market_pricing_rules"]["Row"]
+        }
+        Returns: Json
+      }
       _pp_as_service: { Args: never; Returns: undefined }
       admin_get_provider_trust: {
         Args: { _uid: string }
@@ -4480,6 +4625,7 @@ export type Database = {
         Args: { _metrics?: Json; _uid: string }
         Returns: Database["public"]["Enums"]["provider_tier"]
       }
+      compute_recommended_price: { Args: { _user_id: string }; Returns: Json }
       evaluate_feature_flag: {
         Args: {
           _country_iso?: string
@@ -4789,11 +4935,21 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      resolve_market_minimum: {
+        Args: {
+          _city?: string
+          _country_code: string
+          _postcode?: string
+          _region?: string
+        }
+        Returns: Json
+      }
       resolve_system_alert: {
         Args: { _alert_key: string; _resolver?: string }
         Returns: number
       }
       round_half_away: { Args: { _x: number }; Returns: number }
+      save_provider_pricing: { Args: { _payload: Json }; Returns: Json }
       search_marketplace_providers_v1: {
         Args: {
           _country_code?: string
