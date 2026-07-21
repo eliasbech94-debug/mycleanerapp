@@ -61,6 +61,8 @@ import { CountryProvider } from "@/i18n/CountryContext";
 import IdentityVerificationPage from "./pages/identity/IdentityVerificationPage";
 import ProviderOnboarding from "./pages/provider/ProviderOnboarding";
 import ProviderProfilePage from "./pages/provider/ProviderProfile";
+import ProviderPricing from "./pages/provider/ProviderPricing";
+import AdminPricing from "./pages/admin/AdminPricing";
 
 
 initSentry();
