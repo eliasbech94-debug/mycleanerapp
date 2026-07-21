@@ -200,16 +200,34 @@ function BookingFlowInner() {
 
       setSubmitting(true);
       try {
-        // 1) Create booking + PaymentIntent (or reuse if user clicked again)
+        // 1) Fetch authoritative server-side price quote (P0.1).
+        //    The client is never trusted for money values — payment-create-intent
+        //    reads customer_pays / provider_gets / currency from the locked quote.
         let secret = clientSecret;
         let bid = bookingId;
         if (!secret) {
+          const startAt = new Date(`${fmtISO(date!)}T${slot}:00`).toISOString();
+          const { data: quote, error: qErr } = await supabase.functions.invoke("pricing-quote", {
+            body: {
+              provider_id_text: provider.id,
+              service_category: service?.subcategory || "Rengøring",
+              currency: country?.currency || "DKK",
+              start_at: startAt,
+              duration_minutes: Math.round(hours * 60),
+              address_place_id: addressPlaceId,
+              lat: addressLat,
+              lng: addressLng,
+              quote_context: "customer_checkout",
+            },
+          });
+          if (qErr || !quote?.quote_id) {
+            throw new Error(qErr?.message || quote?.error || "Kunne ikke beregne pris");
+          }
+
           const { data, error } = await supabase.functions.invoke("payment-create-intent", {
             body: {
-              provider_id: provider.id,
+              quote_id: quote.quote_id,
               provider_name: provider.name,
-              service: service?.subcategory || "Rengøring",
-              hours,
               booking_date: fmtISO(date!),
               slot,
               address,
@@ -217,12 +235,11 @@ function BookingFlowInner() {
               lat: addressLat,
               lng: addressLng,
               notes: notes || null,
-              customer_pays: customerPays,
-              provider_gets: providerGets,
-              currency: country?.currency || "DKK",
             },
           });
-          if (error || !data?.client_secret) throw new Error(error?.message || data?.error || "Kunne ikke oprette betaling");
+          if (error || !data?.client_secret) {
+            throw new Error(error?.message || data?.error || "Kunne ikke oprette betaling");
+          }
           secret = data.client_secret;
           bid = data.booking_id;
           setClientSecret(secret);
