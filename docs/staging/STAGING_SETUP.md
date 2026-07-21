@@ -131,8 +131,57 @@ bun run --cwd staging-validation tsx preflight.ts
 Expect: `PASS` on the regression script, no CRITICAL findings from the
 dashboard Advisors, and a green preflight report.
 
+### 1.8 Phase 1 helper commands
+
+The repo ships three helpers so Phase 1 is scripted end-to-end:
+
+```bash
+# 1. Dry-run bootstrap — prints planned actions, mutates nothing.
+./scripts/staging-bootstrap.sh --project-ref <STAGING_REF> --dry-run
+
+# 2. Real bootstrap — links, pushes migrations, deploys functions, uploads secrets.
+#    Refuses production ref (qfjgifubavuomwvroahy). Never prints secret values.
+./scripts/staging-bootstrap.sh --project-ref <STAGING_REF> --confirm
+
+# 3. Phase 1 verification — read-only. Writes docs/staging/PHASE1_REPORT.md
+#    and staging-validation/artifacts/phase1-report.json.
+cd staging-validation
+bunx tsx verify-phase1.ts
+```
+
+`verify-phase1.ts` uses `STAGING_SUPABASE_URL`, `STAGING_SUPABASE_SERVICE_ROLE_KEY`
+and `STAGING_PG_CONN` from `staging-validation/.env`. Set
+`SUPABASE_ACCESS_TOKEN` (a personal access token) to enable API-based edge
+function and secret-name checks; without it those checks return
+`MANUAL_VERIFICATION_REQUIRED` and print the exact CLI command to run.
+
+### 1.9 Phase 1 completion checklist
+
+Tick every box before starting Phase 2. Anything unchecked ⇒ **do not
+proceed**.
+
+- [ ] Supabase staging project created (`mycleaner-staging`, Pro plan, same region as prod)
+- [ ] Project ref, DB password, `service_role` key, `anon` key, project URL stored in password manager
+- [ ] `supabase login` succeeds locally
+- [ ] Project linked: `supabase link --project-ref <STAGING_REF>` (or via `./scripts/staging-bootstrap.sh --dry-run`)
+- [ ] Migrations deployed: `supabase db push` (or via bootstrap `--confirm`)
+- [ ] Edge Functions deployed: `supabase functions deploy` (all local functions present)
+- [ ] `staging.secrets` filled from `staging.secrets.example` and uploaded via `supabase secrets set --env-file staging.secrets`
+- [ ] Storage buckets present (avatars, chat-attachments, receipts, identity-artifacts, legal-documents)
+- [ ] Auth configured: email confirmations ON, HIBP ON, Google provider ON, staging URL allowlist populated
+- [ ] RLS verified: `scripts/rls-regression.sql` returns PASS
+- [ ] RPCs verified: `verify-phase1.ts` reports `rpc.inventory` and `rpc.signatures` PASS
+- [ ] Required extensions installed (`pgcrypto`, `pgjwt`, `uuid-ossp`)
+- [ ] `docs/staging/PHASE1_REPORT.md` generated and overall verdict = `PASS`
+- [ ] Final approval gate: operator signs off on the report **before** Phase 2
+
+If `verify-phase1.ts` verdict is anything other than `PASS`, resolve the
+listed FAIL / BLOCKED / MANUAL items and re-run. Do not begin Phase 2 on
+a partial pass.
 
 ---
+
+
 
 ## Phase 2 — Stripe (Test mode)
 
