@@ -11,6 +11,7 @@ import { scenarioAdminBulk } from "./scenarios/07-admin-bulk.js";
 import { scenarioPayoutValidation } from "./scenarios/08-payout-validation.js";
 import { scenarioScoreTier } from "./scenarios/09-score-tier.js";
 import { scenarioFailureRecovery } from "./scenarios/10-failure-recovery.js";
+import { scenarioP0PricingCheckout } from "./scenarios/16-p0-pricing-checkout.js";
 
 async function main() {
   // Order matters: seed → lifecycle → webhooks → derived state → recovery.
@@ -24,6 +25,7 @@ async function main() {
   await scenarioPayoutValidation();
   await scenarioScoreTier();
   await scenarioFailureRecovery();
+  await scenarioP0PricingCheckout();
 
   const totals = writeReport();
   console.log(`\n▶ Totals: ${JSON.stringify(totals)}`);
