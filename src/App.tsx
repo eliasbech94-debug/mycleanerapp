@@ -124,6 +124,8 @@ export function AppRoutes() {
       <Route path="/mine-bookinger" element={<MyBookings />} />
       <Route path="/booking/:id/plan" element={<BookingPlan />} />
       <Route path="/provider-dashboard" element={<RoleGuard allow={["provider", "admin"]}><ProviderDashboard /></RoleGuard>} />
+      <Route path="/provider/pricing" element={<RoleGuard allow={["provider", "admin"]}><ProviderPricing /></RoleGuard>} />
+      <Route path="/admin/pricing" element={<RoleGuard allow={["admin"]}><AdminPricing /></RoleGuard>} />
       <Route path="/provider/finance" element={<RoleGuard allow={["provider", "admin"]}><ProviderFinance /></RoleGuard>} />
       <Route path="/admin/finance" element={<RoleGuard allow={["admin"]}><AdminFinance /></RoleGuard>} />
       <Route path="/admin/disputes" element={<RoleGuard allow={["admin"]}><AdminDisputes /></RoleGuard>} />
