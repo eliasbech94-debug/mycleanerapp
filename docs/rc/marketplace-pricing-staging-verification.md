@@ -124,3 +124,95 @@ Migrations run this turn:
 - **`resolve_market_minimum` intentionally anon-callable** so browse-time
   price advisories work. Its output is derived from admin-managed rules only,
   so no user data is exposed.
+
+---
+
+## 7. Authenticated E2E JWT matrix
+
+**Status: PENDING — awaiting real staging JWT identities.**
+
+The harness in `staging-validation/scenarios/15-marketplace-pricing-rls.ts`
+has been extended with the full signed-in matrix below. Each check runs
+through **PostgREST + the publishable/anon key with a real user Bearer
+token** — the exact path the browser client uses. **No service-role key is
+used for any provider or customer assertion.** The block is gated on env
+vars and self-skips (with a warning) when they are absent so CI stays
+green until credentials are seeded.
+
+### Required env for the run
+
+```
+PROVIDER_A_JWT=<staging access_token for Provider A>
+PROVIDER_A_USER_ID=<auth.users.id for Provider A>
+PROVIDER_B_JWT=<staging access_token for Provider B>
+PROVIDER_B_USER_ID=<auth.users.id for Provider B>
+ADMIN_JWT=<staging access_token for an admin user>
+CUSTOMER_JWT=<optional — access_token for a customer>
+```
+
+### Identity matrix (to execute once JWTs are provided)
+
+| # | Identity | Action | Expected |
+| - | - | - | - |
+| 1 | Provider A | SELECT own `provider_pricing_preferences` | ✅ allowed |
+| 2 | Provider A | RPC `save_provider_pricing` (valid rate) | ✅ allowed |
+| 3 | Provider A | RPC `save_provider_pricing` (rate < min) | ❌ `below_market_minimum` |
+| 4 | Provider A | RPC `save_provider_pricing` (rate > max) | ❌ `above_market_maximum` |
+| 5 | Provider A | RPC `save_provider_pricing` (Smart on, no bounds) | ❌ `smart_bounds_required` |
+| 6 | Provider A | RPC `save_provider_pricing` (smart_max < smart_min) | ❌ `smart_max_below_min` |
+| 7 | Provider A | RPC `save_provider_pricing` with `currency:"USD"` on a DK rule | ✅ ignored — persisted `currency = DKK` |
+| 8 | Provider A | RPC `compute_recommended_price(self)` | ✅ returns recommendation |
+| 9 | Provider A | SELECT Provider B's preferences | ✅ RLS filters → 0 rows |
+| 10 | Provider A | RPC `save_provider_pricing({ user_id: PB })` | ❌ `forbidden_other_user` |
+| 11 | Provider A | RPC `compute_recommended_price(PB)` | ❌ forbidden |
+| 12 | Provider B | SELECT Provider A's preferences | ✅ RLS filters → 0 rows |
+| 13 | Provider B | UPDATE Provider A row directly | ✅ RLS filters → 0 rows affected |
+| 14 | Provider B | RPC `save_provider_pricing` (own, valid) | ✅ allowed |
+| 15 | Customer | RPC `save_provider_pricing` | ❌ `not_a_provider` |
+| 16 | Customer | INSERT `provider_pricing_preferences` | ❌ RLS reject |
+| 17 | Customer | INSERT `market_pricing_rules` | ❌ RLS reject |
+| 18 | Admin | INSERT `market_pricing_rules` | ✅ allowed |
+| 19 | Admin | UPDATE `market_pricing_rules` (edit) | ✅ allowed |
+| 20 | Admin | UPDATE `market_pricing_rules` (deactivate) | ✅ allowed |
+| 21 | Admin | UPDATE `market_pricing_rules` (reactivate) | ✅ allowed |
+| 22 | Admin | INSERT `market_pricing_multipliers` | ✅ allowed |
+| 23 | Admin | UPDATE `market_pricing_multipliers` (toggle) | ✅ allowed |
+| 24 | Admin | RPC `save_provider_pricing({ user_id: PA })` | ✅ allowed — **documented admin override** |
+
+### Documented admin override
+
+`save_provider_pricing` intentionally permits an admin (as determined by
+`is_admin_only(auth.uid())`) to save pricing on behalf of another provider.
+This is the *only* server-side path by which admin bypass is allowed, and
+market min/max validation still runs (an admin **cannot** submit a rate
+below the resolved market minimum). Providers and customers hit
+`forbidden_other_user` on the same call. No other bypass exists.
+
+### JWT identity matrix — result
+
+| Metric | Value |
+| --- | --- |
+| Total checks | 24 (23 without optional Customer) |
+| Passed | ⏳ pending run |
+| Failed | ⏳ pending run |
+| Policy discrepancies | ⏳ pending run |
+| Service-role key used for provider/customer assertions | **No** — every provider/customer/admin check is executed through PostgREST + anon key + user Bearer token |
+
+### Final production-readiness recommendation
+
+**Phase 1 staging verified — authenticated E2E security validation pending
+before production release.**
+
+- All non-authenticated attack surfaces (anon, cross-tenant SELECT via
+  RLS predicate, direct table writes) are proven closed against staging.
+- Server-side validation (min/max, smart bounds, currency override,
+  ownership, role) is codified in `save_provider_pricing` and unit-tested
+  client-side.
+- The full 24-check JWT matrix is committed and ready to execute the moment
+  staging JWT credentials for one admin + two providers (+ optional
+  customer) are provided.
+- Recommendation: hold the production release on this feature until the
+  JWT matrix run returns **24/24 pass** and this section is re-signed with
+  observed outcomes. Do not start automatic price adjustment or payment
+  integration in the meantime.
+
