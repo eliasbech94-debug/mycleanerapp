@@ -5,6 +5,8 @@
   "scripts": {
     "seed": "tsx scenarios/01-seed.ts",
     "run": "./run-rc2.sh",
+    "rc2": "./run-rc2.sh --server-only",
+    "rc2:p0.1": "tsx scenarios/16-p0-pricing-checkout.ts",
     "playwright": "playwright test --config=playwright.config.ts"
   },
   "dependencies": {
