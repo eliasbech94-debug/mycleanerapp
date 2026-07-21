@@ -48,7 +48,7 @@ export async function resolveMarket(input: {
     _postcode: input.postcode ?? null,
   });
   if (error) throw error;
-  return data as ResolvedMarket;
+  return data as unknown as ResolvedMarket;
 }
 
 export async function saveProviderPricing(payload: {
@@ -64,13 +64,13 @@ export async function saveProviderPricing(payload: {
 }) {
   const { data, error } = await supabase.rpc("save_provider_pricing", { _payload: payload as never });
   if (error) throw error;
-  return data as { ok: true; currency: string; hourly_rate_minor: number; resolved: ResolvedMarket };
+  return data as unknown as { ok: true; currency: string; hourly_rate_minor: number; resolved: ResolvedMarket };
 }
 
 export async function getRecommendation(userId: string): Promise<Recommendation> {
   const { data, error } = await supabase.rpc("compute_recommended_price", { _user_id: userId });
   if (error) throw error;
-  return data as Recommendation;
+  return data as unknown as Recommendation;
 }
 
 export function classifyIndicator(hourlyMinor: number, recommendedMinor: number): IndicatorLevel {
