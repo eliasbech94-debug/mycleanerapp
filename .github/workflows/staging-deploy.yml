@@ -47,17 +47,13 @@ jobs:
       - name: Refuse if required secrets missing
         run: |
           missing=0
-          for name in STAGING_SUPABASE_ACCESS_TOKEN STAGING_SUPABASE_PROJECT_REF STAGING_SUPABASE_DB_PASSWORD; do
-            if [ -z "$(eval echo \$$name)" ]; then
-              echo "::error::Missing required GitHub Secret: $name"
-              missing=1
-            fi
-          done
-          # Presence check without echoing values:
-          [ -n "$SUPABASE_ACCESS_TOKEN" ] || { echo "::error::SUPABASE_ACCESS_TOKEN empty"; missing=1; }
-          [ -n "$STAGING_REF" ]           || { echo "::error::STAGING_SUPABASE_PROJECT_REF empty"; missing=1; }
-          [ -n "$SUPABASE_DB_PASSWORD" ]  || { echo "::error::STAGING_SUPABASE_DB_PASSWORD empty"; missing=1; }
-          if [ "$missing" = "1" ]; then exit 1; fi
+          [ -n "$SUPABASE_ACCESS_TOKEN" ] || { echo "::error::STAGING_SUPABASE_ACCESS_TOKEN is missing"; missing=1; }
+          [ -n "$STAGING_REF" ] || { echo "::error::STAGING_SUPABASE_PROJECT_REF is missing"; missing=1; }
+          [ -n "$SUPABASE_DB_PASSWORD" ] || { echo "::error::STAGING_SUPABASE_DB_PASSWORD is missing"; missing=1; }
+          if [ "$missing" = "1" ]; then
+            exit 1
+          fi
+
 
       - name: Refuse if project ref matches production
         run: |
