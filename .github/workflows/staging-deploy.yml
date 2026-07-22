@@ -1,13 +1,16 @@
 name: Staging Deploy (Supabase)
 
 # Manual only. Never runs on push. Never targets production.
-on:
+"on":
   workflow_dispatch:
     inputs:
       confirm:
         description: 'Type "deploy-staging" to confirm.'
         required: true
         default: ''
+
+permissions:
+  contents: read
 
 concurrency:
   group: staging-deploy
