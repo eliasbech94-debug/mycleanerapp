@@ -22,16 +22,23 @@ CREATE POLICY "Admins can read webhook events"
   TO authenticated
   USING (public.has_role(auth.uid(), 'admin'));
 
--- 3. realtime.messages: add baseline RLS so users only receive their own topics
-ALTER TABLE IF EXISTS realtime.messages ENABLE ROW LEVEL SECURITY;
-
-DROP POLICY IF EXISTS "Users receive own user-scoped realtime messages" ON realtime.messages;
-CREATE POLICY "Users receive own user-scoped realtime messages"
-  ON realtime.messages
-  FOR SELECT
-  TO authenticated
-  USING (
-    -- Allow topics that explicitly include the auth uid as a suffix,
-    -- e.g. 'bookings:user:<uid>', 'notifications:<uid>', 'inbox:<uid>'
-    realtime.messages.topic LIKE '%' || auth.uid()::text
-  );
+-- 3. realtime.messages: intentionally NOT modified here.
+--
+-- `realtime.messages` is a Supabase-managed internal table owned by the
+-- `supabase_admin` role. The migration role used by `supabase db push`
+-- (and by Lovable Cloud) is NOT the owner, so
+-- `ALTER TABLE realtime.messages ENABLE ROW LEVEL SECURITY` fails with
+-- `ERROR: must be owner of table messages (SQLSTATE 42501)` on any fresh
+-- deploy (e.g. the staging environment).
+--
+-- Realtime authorization must be configured through supported Supabase
+-- mechanisms instead of altering the managed table directly:
+--   * Broadcast/Presence authorization policies via the Supabase
+--     dashboard (Realtime → Policies) or the Management API.
+--   * Per-topic access enforced by the app using private channels and
+--     server-signed tokens (supabase.channel(name, { config: { private:
+--     true } }) + realtime.set_auth).
+--   * RLS on the underlying application tables that Realtime replicates
+--     (already enforced elsewhere in these migrations).
+--
+-- Do NOT re-add an `ALTER TABLE realtime.messages ...` statement here.
