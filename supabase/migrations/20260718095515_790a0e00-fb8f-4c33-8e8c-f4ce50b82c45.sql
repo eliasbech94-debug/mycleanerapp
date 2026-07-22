@@ -157,14 +157,31 @@ CREATE POLICY "Admins manage dispute evidence files"
   WITH CHECK (bucket_id = 'dispute-evidence' AND public.has_role(auth.uid(), 'admin'));
 
 -- ============ Cron: daily dispute monitor ============
-SELECT cron.schedule(
-  'dispute-monitor-daily',
-  '15 4 * * *',
-  $$
-  SELECT net.http_post(
-    url:='https://qfjgifubavuomwvroahy.supabase.co/functions/v1/dispute-monitor',
-    headers:='{"Content-Type":"application/json","Authorization":"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFmamdpZnViYXZ1b213dnJvYWh5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5ODg2MTEsImV4cCI6MjA5NjU2NDYxMX0.XHCdkV5NXExJsZYEoTH4yrXWrdYpqOYrPX3ERa8mU4Q"}'::jsonb,
-    body:='{"source":"cron"}'::jsonb
-  );
-  $$
-);
+-- Guarded: pg_cron is not available on fresh Supabase projects by default.
+-- If the `cron` schema is missing, skip scheduling and emit a NOTICE.
+-- Idempotent: uses unschedule-if-exists before re-scheduling.
+DO $do$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_namespace WHERE nspname = 'cron') THEN
+    BEGIN
+      PERFORM cron.unschedule('dispute-monitor-daily');
+    EXCEPTION WHEN OTHERS THEN
+      NULL;
+    END;
+
+    PERFORM cron.schedule(
+      'dispute-monitor-daily',
+      '15 4 * * *',
+      $cron$
+      SELECT net.http_post(
+        url:='https://qfjgifubavuomwvroahy.supabase.co/functions/v1/dispute-monitor',
+        headers:='{"Content-Type":"application/json","Authorization":"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFmamdpZnViYXZ1b213dnJvYWh5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5ODg2MTEsImV4cCI6MjA5NjU2NDYxMX0.XHCdkV5NXExJsZYEoTH4yrXWrdYpqOYrPX3ERa8mU4Q"}'::jsonb,
+        body:='{"source":"cron"}'::jsonb
+      );
+      $cron$
+    );
+  ELSE
+    RAISE NOTICE 'pg_cron not installed; skipping dispute-monitor-daily schedule.';
+  END IF;
+END
+$do$;
