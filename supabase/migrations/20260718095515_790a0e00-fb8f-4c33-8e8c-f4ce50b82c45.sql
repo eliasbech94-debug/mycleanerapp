@@ -157,14 +157,31 @@ CREATE POLICY "Admins manage dispute evidence files"
   WITH CHECK (bucket_id = 'dispute-evidence' AND public.has_role(auth.uid(), 'admin'));
 
 -- ============ Cron: daily dispute monitor ============
-SELECT cron.schedule(
-  'dispute-monitor-daily',
-  '15 4 * * *',
-  $$
-  SELECT net.http_post(
-    url:='https://qfjgifubavuomwvroahy.supabase.co/functions/v1/dispute-monitor',
-    headers:='{"Content-Type":"application/json","Authorization":"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFmamdpZnViYXZ1b213dnJvYWh5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5ODg2MTEsImV4cCI6MjA5NjU2NDYxMX0.XHCdkV5NXExJsZYEoTH4yrXWrdYpqOYrPX3ERa8mU4Q"}'::jsonb,
-    body:='{"source":"cron"}'::jsonb
-  );
-  $$
-);
+-- Environment-safe: this historical migration must NEVER hardcode a project URL,
+-- service-role key, anon key, or Authorization bearer. Doing so would cause a
+-- fresh staging deployment to call the production dispute-monitor endpoint.
+--
+-- Behaviour:
+--   * If the `cron` schema is missing (pg_cron not installed): NOTICE + skip.
+--   * Otherwise: unschedule any stale job of the same name and NOTICE + skip.
+--     The dispute-monitor cron job MUST be registered per-environment
+--     out-of-band using that environment's own function URL and credentials
+--     sourced from a secret store. It is intentionally NOT scheduled from
+--     application migrations, so staging can never inherit production config.
+--
+-- Idempotent: unschedules any prior 'dispute-monitor-daily' job so re-running
+-- this migration never leaves a stale schedule pointing at a wrong environment.
+DO $do$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_namespace WHERE nspname = 'cron') THEN
+    BEGIN
+      PERFORM cron.unschedule('dispute-monitor-daily');
+    EXCEPTION WHEN OTHERS THEN
+      NULL;
+    END;
+    RAISE NOTICE 'pg_cron present, but dispute-monitor-daily is intentionally not scheduled from this migration. Register it per-environment using that environment''s own function URL and credentials.';
+  ELSE
+    RAISE NOTICE 'pg_cron not installed; skipping dispute-monitor-daily schedule.';
+  END IF;
+END
+$do$;
