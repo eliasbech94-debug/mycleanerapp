@@ -301,6 +301,65 @@ export type Database = {
           },
         ]
       }
+      booking_holds: {
+        Row: {
+          booking_id: string
+          created_at: string
+          created_by: string | null
+          created_by_role: string | null
+          expires_at: string | null
+          hold_type: Database["public"]["Enums"]["booking_hold_type"]
+          id: string
+          metadata: Json
+          reason: string
+          release_note: string | null
+          released_at: string | null
+          released_by: string | null
+          released_by_role: string | null
+          status: Database["public"]["Enums"]["booking_hold_status"]
+        }
+        Insert: {
+          booking_id: string
+          created_at?: string
+          created_by?: string | null
+          created_by_role?: string | null
+          expires_at?: string | null
+          hold_type: Database["public"]["Enums"]["booking_hold_type"]
+          id?: string
+          metadata?: Json
+          reason: string
+          release_note?: string | null
+          released_at?: string | null
+          released_by?: string | null
+          released_by_role?: string | null
+          status?: Database["public"]["Enums"]["booking_hold_status"]
+        }
+        Update: {
+          booking_id?: string
+          created_at?: string
+          created_by?: string | null
+          created_by_role?: string | null
+          expires_at?: string | null
+          hold_type?: Database["public"]["Enums"]["booking_hold_type"]
+          id?: string
+          metadata?: Json
+          reason?: string
+          release_note?: string | null
+          released_at?: string | null
+          released_by?: string | null
+          released_by_role?: string | null
+          status?: Database["public"]["Enums"]["booking_hold_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "booking_holds_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       booking_workers: {
         Row: {
           assigned_at: string
@@ -4833,6 +4892,65 @@ export type Database = {
           },
         ]
       }
+      release_eligibility_decisions: {
+        Row: {
+          booking_id: string
+          booking_snapshot: Json
+          decision: string
+          engine_version: string
+          evaluated_at: string
+          evaluator_role: string | null
+          evaluator_user_id: string | null
+          failed_rules: Json
+          hold_snapshot: Json
+          id: string
+          provider_readiness: Json
+          provider_user_id: string | null
+          remaining_hold_seconds: number | null
+          scheduled_release_at: string | null
+        }
+        Insert: {
+          booking_id: string
+          booking_snapshot?: Json
+          decision: string
+          engine_version?: string
+          evaluated_at?: string
+          evaluator_role?: string | null
+          evaluator_user_id?: string | null
+          failed_rules?: Json
+          hold_snapshot?: Json
+          id?: string
+          provider_readiness?: Json
+          provider_user_id?: string | null
+          remaining_hold_seconds?: number | null
+          scheduled_release_at?: string | null
+        }
+        Update: {
+          booking_id?: string
+          booking_snapshot?: Json
+          decision?: string
+          engine_version?: string
+          evaluated_at?: string
+          evaluator_role?: string | null
+          evaluator_user_id?: string | null
+          failed_rules?: Json
+          hold_snapshot?: Json
+          id?: string
+          provider_readiness?: Json
+          provider_user_id?: string | null
+          remaining_hold_seconds?: number | null
+          scheduled_release_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "release_eligibility_decisions_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       retention_worker_runs: {
         Row: {
           affected_counts: Json
@@ -5723,6 +5841,10 @@ export type Database = {
         Args: { _metrics?: Json; _uid: string }
         Returns: Database["public"]["Enums"]["provider_tier"]
       }
+      check_provider_payout_readiness_v1: {
+        Args: { p_provider_user_id: string }
+        Returns: Json
+      }
       classify_booking_payment_flow_v1: {
         Args: {
           _booking_id: string
@@ -5732,6 +5854,26 @@ export type Database = {
         Returns: Database["public"]["Enums"]["booking_payment_flow_version"]
       }
       compute_recommended_price: { Args: { _user_id: string }; Returns: Json }
+      create_booking_hold_v1: {
+        Args: {
+          p_actor_role?: string
+          p_actor_user_id: string
+          p_booking_id: string
+          p_expires_at?: string
+          p_hold_type: Database["public"]["Enums"]["booking_hold_type"]
+          p_metadata?: Json
+          p_reason: string
+        }
+        Returns: string
+      }
+      evaluate_booking_release_eligibility_v1: {
+        Args: {
+          p_booking_id: string
+          p_evaluator_role?: string
+          p_evaluator_user_id?: string
+        }
+        Returns: Json
+      }
       evaluate_feature_flag: {
         Args: {
           _country_iso?: string
@@ -6136,6 +6278,15 @@ export type Database = {
             Args: { _event_id?: string; _reason?: string; _uid: string }
             Returns: Json
           }
+      release_booking_hold_v1: {
+        Args: {
+          p_actor_role?: string
+          p_actor_user_id: string
+          p_hold_id: string
+          p_note?: string
+        }
+        Returns: undefined
+      }
       resolve_dynamic_pricing_config: {
         Args: { _category: string; _country: string }
         Returns: {
@@ -6434,6 +6585,14 @@ export type Database = {
         | "customer"
         | "super_admin"
         | "support"
+      booking_hold_status: "active" | "released" | "expired"
+      booking_hold_type:
+        | "complaint"
+        | "dispute"
+        | "refund"
+        | "cancellation"
+        | "manual"
+        | "admin_block"
       booking_payment_flow_version:
         | "destination_charge_v1"
         | "separate_charges_v1"
@@ -6681,6 +6840,15 @@ export const Constants = {
         "customer",
         "super_admin",
         "support",
+      ],
+      booking_hold_status: ["active", "released", "expired"],
+      booking_hold_type: [
+        "complaint",
+        "dispute",
+        "refund",
+        "cancellation",
+        "manual",
+        "admin_block",
       ],
       booking_payment_flow_version: [
         "destination_charge_v1",
