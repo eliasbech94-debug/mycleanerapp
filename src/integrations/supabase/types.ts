@@ -5699,6 +5699,8 @@ export type Database = {
         }
         Returns: Json
       }
+      assert_ledger_writer_authorized: { Args: never; Returns: undefined }
+      begin_ledger_write: { Args: never; Returns: undefined }
       calc_provider_completion: { Args: { _uid: string }; Returns: Json }
       calc_provider_metrics: { Args: { _uid: string }; Returns: Json }
       calc_provider_score: { Args: { _uid: string }; Returns: Json }
