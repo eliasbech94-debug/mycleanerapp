@@ -5884,6 +5884,7 @@ export type Database = {
         Returns: boolean
       }
       expire_pricing_quotes: { Args: never; Returns: number }
+      funds_release_worker_tick_v1: { Args: { _limit?: number }; Returns: Json }
       gen_provider_slug: {
         Args: { _display_name: string; _user_id: string }
         Returns: string
@@ -6173,6 +6174,10 @@ export type Database = {
         Returns: string
       }
       next_invoice_number: { Args: { _country_code: string }; Returns: string }
+      plan_pending_releases_v1: {
+        Args: { _force_dry_run?: boolean; _limit?: number }
+        Returns: Json
+      }
       post_ledger_transaction_v1: {
         Args: {
           _booking_id?: string
@@ -6204,6 +6209,10 @@ export type Database = {
           _title: string
         }
         Returns: string
+      }
+      reconcile_provider_payout_readiness_v1: {
+        Args: { _limit?: number }
+        Returns: Json
       }
       reconcile_provider_status: {
         Args: { _uid: string }
