@@ -64,6 +64,10 @@ Deno.serve(async (req) => {
         "capabilities[card_payments][requested]": "true",
         "capabilities[transfers][requested]": "true",
         "business_type": "individual",
+        // Weekly payout schedule — funds settle to the cleaner every Monday.
+        // Stripe manages the actual arrival timing per country.
+        "settings[payouts][schedule][interval]": "weekly",
+        "settings[payouts][schedule][weekly_anchor]": "monday",
       }, stripeKey);
       acctId = acct.id;
       await admin.from("profiles").update({ stripe_account_id: acctId }).eq("id", userId);
