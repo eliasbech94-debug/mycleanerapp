@@ -1,5 +1,11 @@
 # Funds Release v7 — Step 7 Report
 
+> **Staging evidence workflow:** `.github/workflows/v7-step7-funds-release.yml`
+> (job `step7`, `workflow_dispatch` on `refs/heads/staging`).
+> Run reference: _to be filled in after the first successful GitHub Actions
+> run — record `run_id`, `run_attempt`, commit SHA, and the 14/14 Scenario 18
+> assertion summary here before Step 8 begins._
+
 **Scope:** Dual-control authorization + dry-run rehearsal layer.
 Every gate — eligibility, hold, dispute, refund, cancellation, provider
 readiness, source-linked capacity — is re-checked server-side before an
