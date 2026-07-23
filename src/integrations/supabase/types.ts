@@ -5884,6 +5884,12 @@ export type Database = {
         Returns: boolean
       }
       expire_pricing_quotes: { Args: never; Returns: number }
+      funds_release_max_retries_v1: { Args: never; Returns: number }
+      funds_release_reason_codes_v1: { Args: never; Returns: Json }
+      funds_release_rehearsal_worker_tick_v1: {
+        Args: { _limit?: number }
+        Returns: Json
+      }
       funds_release_worker_tick_v1: { Args: { _limit?: number }; Returns: Json }
       gen_provider_slug: {
         Args: { _display_name: string; _user_id: string }
@@ -6287,6 +6293,10 @@ export type Database = {
             Args: { _event_id?: string; _reason?: string; _uid: string }
             Returns: Json
           }
+      rehearse_release_attempt_v1: {
+        Args: { _authorization_id: string; _simulate_failure_code?: string }
+        Returns: Json
+      }
       release_booking_hold_v1: {
         Args: {
           p_actor_role?: string
@@ -6295,6 +6305,15 @@ export type Database = {
           p_note?: string
         }
         Returns: undefined
+      }
+      request_release_authorization_v1: {
+        Args: {
+          _booking_id: string
+          _reason?: string
+          _request_id: string
+          _requested_by: string
+        }
+        Returns: Json
       }
       resolve_dynamic_pricing_config: {
         Args: { _category: string; _country: string }
