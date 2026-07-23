@@ -2354,6 +2354,7 @@ export type Database = {
           event_type: string
           id: string
           memo: string | null
+          payload_fingerprint: string | null
           posted_at: string
           provider_user_id: string | null
           raw: Json | null
@@ -2366,6 +2367,7 @@ export type Database = {
           event_type: string
           id?: string
           memo?: string | null
+          payload_fingerprint?: string | null
           posted_at?: string
           provider_user_id?: string | null
           raw?: Json | null
@@ -2378,6 +2380,7 @@ export type Database = {
           event_type?: string
           id?: string
           memo?: string | null
+          payload_fingerprint?: string | null
           posted_at?: string
           provider_user_id?: string | null
           raw?: Json | null
@@ -5660,6 +5663,18 @@ export type Database = {
       }
     }
     Functions: {
+      _ledger_normalize_entries: { Args: { _entries: Json }; Returns: Json }
+      _ledger_payload_fingerprint: {
+        Args: {
+          _booking_id: string
+          _currency: string
+          _entries: Json
+          _event_id: string
+          _event_type: string
+          _provider_user_id: string
+        }
+        Returns: string
+      }
       _market_rule_to_jsonb: {
         Args: {
           _matched: string
@@ -5707,6 +5722,14 @@ export type Database = {
       calc_provider_tier: {
         Args: { _metrics?: Json; _uid: string }
         Returns: Database["public"]["Enums"]["provider_tier"]
+      }
+      classify_booking_payment_flow_v1: {
+        Args: {
+          _booking_id: string
+          _flow: Database["public"]["Enums"]["booking_payment_flow_version"]
+          _reason?: string
+        }
+        Returns: Database["public"]["Enums"]["booking_payment_flow_version"]
       }
       compute_recommended_price: { Args: { _user_id: string }; Returns: Json }
       evaluate_feature_flag: {
@@ -5785,6 +5808,20 @@ export type Database = {
           vat_rate_bps: number
         }[]
       }
+      get_source_transfer_capacity_v1: {
+        Args: {
+          _currency: string
+          _expected_charge_gross_minor: number
+          _source_charge_id: string
+        }
+        Returns: {
+          charge_gross_minor: number
+          consumed_minor: number
+          currency: string
+          remaining_minor: number
+          source_charge_id: string
+        }[]
+      }
       get_user_roles: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"][]
@@ -5795,6 +5832,67 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      ingest_payment_captured_reclassify_v1: {
+        Args: {
+          _booking_id: string
+          _currency: string
+          _gross_minor: number
+          _payment_intent_id: string
+          _raw?: Json
+          _version: number
+        }
+        Returns: string
+      }
+      ingest_payment_captured_suspense_v1: {
+        Args: {
+          _currency: string
+          _gross_minor: number
+          _payment_intent_id: string
+          _raw?: Json
+        }
+        Returns: string
+      }
+      ingest_payment_captured_v1: {
+        Args: {
+          _booking_id: string
+          _currency: string
+          _gross_minor: number
+          _payment_intent_id: string
+          _raw?: Json
+        }
+        Returns: string
+      }
+      ingest_stripe_fee_actual_v1: {
+        Args: {
+          _balance_tx_id: string
+          _booking_id: string
+          _currency: string
+          _fee_minor: number
+          _raw?: Json
+        }
+        Returns: string
+      }
+      ingest_stripe_fee_estimate_v1: {
+        Args: {
+          _booking_id: string
+          _currency: string
+          _estimate_minor: number
+          _payment_intent_id: string
+          _raw?: Json
+        }
+        Returns: string
+      }
+      ingest_stripe_fee_zero_v1: {
+        Args: {
+          _booking_id: string
+          _currency: string
+          _estimate_minor: number
+          _evidence_id: string
+          _payment_intent_id: string
+          _raw?: Json
+        }
+        Returns: string
       }
       is_admin_only: { Args: { _uid: string }; Returns: boolean }
       is_conversation_participant: {
@@ -5898,6 +5996,20 @@ export type Database = {
         Returns: string
       }
       next_invoice_number: { Args: { _country_code: string }; Returns: string }
+      post_ledger_transaction_v1: {
+        Args: {
+          _booking_id?: string
+          _currency: string
+          _entries: Json
+          _event_id: string
+          _event_type: string
+          _memo?: string
+          _provider_user_id?: string
+          _raw?: Json
+          _source?: string
+        }
+        Returns: string
+      }
       provider_can_accept_booking: { Args: { _uid: string }; Returns: boolean }
       provider_can_receive_payout: { Args: { _uid: string }; Returns: boolean }
       provider_is_marketplace_visible: {
