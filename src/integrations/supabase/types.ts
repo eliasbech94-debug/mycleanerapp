@@ -5746,6 +5746,14 @@ export type Database = {
         Args: { _display_name: string; _user_id: string }
         Returns: string
       }
+      get_booking_captured_gross_minor_v1: {
+        Args: { _booking_id: string }
+        Returns: number
+      }
+      get_booking_refunded_gross_minor_v1: {
+        Args: { _booking_id: string }
+        Returns: number
+      }
       get_lifecycle_public_isos: {
         Args: never
         Returns: {
@@ -5863,6 +5871,19 @@ export type Database = {
         }
         Returns: string
       }
+      ingest_refund_recorded_v1: {
+        Args: {
+          _amount_minor: number
+          _booking_id: string
+          _currency: string
+          _raw?: Json
+          _status: string
+          _stripe_created_at: string
+          _stripe_event_id: string
+          _stripe_refund_id: string
+        }
+        Returns: string
+      }
       ingest_stripe_fee_actual_v1: {
         Args: {
           _balance_tx_id: string
@@ -5893,6 +5914,20 @@ export type Database = {
           _raw?: Json
         }
         Returns: string
+      }
+      ingest_transfer_event_v1: {
+        Args: {
+          _booking_id: string
+          _currency: string
+          _event_kind: string
+          _gross_minor: number
+          _raw?: Json
+          _source_charge_id: string
+          _stripe_created_at: string
+          _stripe_event_id: string
+          _stripe_transfer_id: string
+        }
+        Returns: undefined
       }
       is_admin_only: { Args: { _uid: string }; Returns: boolean }
       is_conversation_participant: {
