@@ -250,6 +250,53 @@ export type Database = {
           },
         ]
       }
+      booking_workers: {
+        Row: {
+          assigned_at: string
+          booking_id: string
+          created_at: string
+          id: string
+          is_lead: boolean
+          provider_id: string
+          share_bps: number
+          status: string
+          updated_at: string
+          worker_user_id: string
+        }
+        Insert: {
+          assigned_at?: string
+          booking_id: string
+          created_at?: string
+          id?: string
+          is_lead?: boolean
+          provider_id: string
+          share_bps: number
+          status?: string
+          updated_at?: string
+          worker_user_id: string
+        }
+        Update: {
+          assigned_at?: string
+          booking_id?: string
+          created_at?: string
+          id?: string
+          is_lead?: boolean
+          provider_id?: string
+          share_bps?: number
+          status?: string
+          updated_at?: string
+          worker_user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "booking_workers_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bookings: {
         Row: {
           address: string
@@ -4454,6 +4501,65 @@ export type Database = {
           result?: string
         }
         Relationships: []
+      }
+      worker_earnings: {
+        Row: {
+          booking_id: string
+          created_at: string
+          currency: string
+          earned_at: string
+          gross_amount_minor: number
+          id: string
+          net_amount_minor: number
+          platform_fee_amount_minor: number
+          provider_id: string
+          status: string
+          stripe_destination_account: string | null
+          stripe_transfer_id: string | null
+          updated_at: string
+          worker_user_id: string
+        }
+        Insert: {
+          booking_id: string
+          created_at?: string
+          currency: string
+          earned_at?: string
+          gross_amount_minor: number
+          id?: string
+          net_amount_minor: number
+          platform_fee_amount_minor?: number
+          provider_id: string
+          status?: string
+          stripe_destination_account?: string | null
+          stripe_transfer_id?: string | null
+          updated_at?: string
+          worker_user_id: string
+        }
+        Update: {
+          booking_id?: string
+          created_at?: string
+          currency?: string
+          earned_at?: string
+          gross_amount_minor?: number
+          id?: string
+          net_amount_minor?: number
+          platform_fee_amount_minor?: number
+          provider_id?: string
+          status?: string
+          stripe_destination_account?: string | null
+          stripe_transfer_id?: string | null
+          updated_at?: string
+          worker_user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "worker_earnings_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
