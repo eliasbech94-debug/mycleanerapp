@@ -112,7 +112,7 @@ let flagRowPresent = false;
 try {
   const r = await admin
     .from("feature_flags")
-    .select("flag_key,scope,enabled,value")
+    .select("flag_key,scope,enabled")
     .eq("flag_key", "funds_release.enabled")
     .eq("scope", "global")
     .maybeSingle();
@@ -124,7 +124,7 @@ try {
       ? null
       : typeof (r.data as any).enabled === "boolean"
         ? (r.data as any).enabled
-        : (r.data as any).value === true || (r.data as any).value === "true";
+        : null;
   // Strict: row MUST exist AND enabled MUST be exactly false.
   assert(
     "funds_release_flag_disabled",
