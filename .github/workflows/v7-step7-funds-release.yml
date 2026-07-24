@@ -162,10 +162,12 @@ jobs:
           HARNESS_SOURCE: ${{ steps.layout.outputs.harness_source }}
         run: |
           echo "=== Pre-run harness diagnostics ==="
+          git rev-parse HEAD
+          git branch --show-current
           pwd
           ls -la
           cat package.json
-          grep '"v7:step7"' package.json
+          grep '"v7:step7"' package.json || true
           bun run v7:step7
 
       - name: Collect redacted evidence
