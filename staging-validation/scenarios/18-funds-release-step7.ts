@@ -185,16 +185,35 @@ assert("no_committed_rehearsal_transfers", noCommittedTransfers, committedDetail
 // -------------------------------------------------------------------------
 // 10-13. RPC privilege lockdown — anon must NOT execute Step 7 RPCs.
 //        Missing RPC ALSO fails (schema drift is not "safe").
+//        Args match the canonical signatures so PostgREST resolves the
+//        function and returns a real permission-denied (42501) rather than
+//        PGRST202 "not found in schema cache" from an overload miss.
 // -------------------------------------------------------------------------
-async function rpcLockdown(fn: string): Promise<{ locked: boolean; detail: string }> {
-  const r = await anon.rpc(fn, {});
-  if (!r.error) return { locked: false, detail: "anon executed RPC" };
+const NIL_UUID = "00000000-0000-0000-0000-000000000000";
+const RPC_ARGS: Record<string, Record<string, unknown>> = {
+  request_release_authorization_v1: {
+    _booking_id: NIL_UUID,
+    _request_id: `harness-${RUN_ID}`,
+    _requested_by: NIL_UUID,
+    _reason: "harness_lockdown_probe",
+  },
+  rehearse_release_attempt_v1: {
+    _authorization_id: NIL_UUID,
+    _simulate_failure_code: null,
+  },
+  funds_release_rehearsal_worker_tick_v1: { _limit: 1 },
+};
+
+async function rpcLockdown(
+  client: typeof anon,
+  fn: string,
+): Promise<{ locked: boolean; detail: string }> {
+  const r = await client.rpc(fn, RPC_ARGS[fn] ?? {});
+  if (!r.error) return { locked: false, detail: "client executed RPC" };
   const msg = r.error.message || "";
-  // Missing RPC (PGRST202 / 42883 / "not found in schema cache") = FAIL.
   if (/not.?found|schema cache|PGRST202|PGRST203|42883/i.test(msg)) {
     return { locked: false, detail: `RPC MISSING: ${msg.slice(0, 120)}` };
   }
-  // Explicit denial from PostgREST/PG = LOCKED.
   const locked = /permission denied|42501|insufficient privilege/i.test(msg);
   return { locked, detail: msg.slice(0, 160) };
 }
@@ -204,18 +223,22 @@ for (const [fn, name] of [
   ["rehearse_release_attempt_v1", "rpc_rehearse_release_attempt_locked_from_anon"],
   ["funds_release_rehearsal_worker_tick_v1", "rpc_rehearsal_worker_tick_locked_from_anon"],
 ] as const) {
-  const r = await rpcLockdown(fn);
+  const r = await rpcLockdown(anon, fn);
   assert(name, r.locked, r.detail);
 }
 
 {
-  const r = await rpcLockdown("request_release_authorization_v1");
+  // authenticated role is granted no EXECUTE on Step 7 RPCs (only service_role
+  // is). Anon is our authenticated surrogate here because the harness has no
+  // end-user JWT; both roles are equally revoked by the M-10 DO-block.
+  const r = await rpcLockdown(anon, "request_release_authorization_v1");
   assert(
     "rpc_request_release_authorization_locked_from_authenticated",
     r.locked,
     "authenticated surrogate: " + r.detail,
   );
 }
+
 
 // -------------------------------------------------------------------------
 // 14. Evidence bundle
