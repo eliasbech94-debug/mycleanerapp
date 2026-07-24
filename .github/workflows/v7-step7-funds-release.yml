@@ -2,6 +2,11 @@ name: Funds Release v7 Step 7 — Staging Evidence
 
 on:
   workflow_dispatch:
+    inputs:
+      harness_ref:
+        description: "Fallback branch/ref to source the staging-validation harness from if it does not exist on 'staging' (default: develop)"
+        required: false
+        default: "develop"
 
 concurrency:
   group: v7-step7-staging
@@ -49,6 +54,53 @@ jobs:
         with:
           ref: staging
           fetch-depth: 1
+          path: repo
+
+      - name: Detect repository layout and locate harness directory
+        id: layout
+        env:
+          FALLBACK_REF: ${{ github.event.inputs.harness_ref || 'develop' }}
+        run: |
+          set -euo pipefail
+          echo "=== Top-level layout on staging ==="
+          ls -la repo || true
+          echo "=== Searching for staging-validation on staging ==="
+          HARNESS_PATH="$(find repo -maxdepth 4 -type d -name staging-validation -not -path '*/node_modules/*' | head -n 1 || true)"
+
+          if [ -z "$HARNESS_PATH" ]; then
+            echo "staging-validation not found on 'staging' branch."
+            echo "Falling back to ref: $FALLBACK_REF"
+            # Use a separate directory so we do not disturb the staging checkout.
+            git -C repo fetch --depth=1 origin "$FALLBACK_REF"
+            FALLBACK_SHA="$(git -C repo rev-parse FETCH_HEAD)"
+            echo "Fallback SHA: $FALLBACK_SHA"
+
+            # Extract only the staging-validation subtree from the fallback ref
+            # without switching the working tree away from staging.
+            mkdir -p repo/staging-validation
+            git -C repo archive --format=tar "$FALLBACK_SHA" -- staging-validation \
+              | tar -x -C repo
+            HARNESS_PATH="repo/staging-validation"
+
+            if [ ! -d "$HARNESS_PATH" ]; then
+              echo "ERROR: staging-validation still missing after fallback checkout from '$FALLBACK_REF'."
+              exit 1
+            fi
+            echo "harness_source=fallback:$FALLBACK_REF@$FALLBACK_SHA" >> "$GITHUB_OUTPUT"
+          else
+            echo "harness_source=staging" >> "$GITHUB_OUTPUT"
+          fi
+
+          echo "Resolved harness directory: $HARNESS_PATH"
+          echo "harness_dir=$HARNESS_PATH" >> "$GITHUB_OUTPUT"
+
+          echo "=== Harness contents ==="
+          ls -la "$HARNESS_PATH"
+
+          if [ ! -f "$HARNESS_PATH/package.json" ]; then
+            echo "ERROR: $HARNESS_PATH/package.json is missing; cannot run Scenario 18."
+            exit 1
+          fi
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
@@ -56,26 +108,33 @@ jobs:
           bun-version: latest
 
       - name: Install staging-validation deps
-        working-directory: staging-validation
-        run: bun install --frozen-lockfile
+        working-directory: ${{ steps.layout.outputs.harness_dir }}
+        run: |
+          if [ -f bun.lock ] || [ -f bun.lockb ]; then
+            bun install --frozen-lockfile
+          else
+            echo "No bun lockfile present; installing without --frozen-lockfile."
+            bun install
+          fi
 
       - name: Run Scenario 18 (Funds Release v7 Step 7 rehearsal evidence)
-        working-directory: staging-validation
+        working-directory: ${{ steps.layout.outputs.harness_dir }}
         env:
           NODE_ENV: staging
           FUNDS_RELEASE_STEP: "7"
+          HARNESS_SOURCE: ${{ steps.layout.outputs.harness_source }}
         run: bun run v7:step7
 
       - name: Collect redacted evidence
         if: always()
-        working-directory: staging-validation
+        working-directory: ${{ steps.layout.outputs.harness_dir }}
         run: |
-          mkdir -p ../artifacts
+          mkdir -p "$GITHUB_WORKSPACE/artifacts"
           if [ -d reports ]; then
-            cp -r reports ../artifacts/reports || true
+            cp -r reports "$GITHUB_WORKSPACE/artifacts/reports" || true
           fi
           if [ -d logs ]; then
-            cp -r logs ../artifacts/logs || true
+            cp -r logs "$GITHUB_WORKSPACE/artifacts/logs" || true
           fi
 
       - name: Upload evidence artifact
