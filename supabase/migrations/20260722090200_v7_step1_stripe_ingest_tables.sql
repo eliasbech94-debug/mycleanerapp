@@ -124,8 +124,9 @@ CREATE INDEX stripe_source_transfer_events_charge_idx ON public.stripe_source_tr
 ALTER TABLE ONLY public.booking_bank_payout_attributions
     ADD CONSTRAINT booking_bank_payout_attributions_booking_id_fkey FOREIGN KEY (booking_id) REFERENCES public.bookings(id) ON DELETE RESTRICT;
 
-ALTER TABLE ONLY public.booking_bank_payout_attributions
-    ADD CONSTRAINT booking_bank_payout_attributions_provider_bank_payout_id_fkey FOREIGN KEY (provider_bank_payout_id) REFERENCES public.provider_bank_payouts(id) ON DELETE RESTRICT;
+-- NOTE: FK booking_bank_payout_attributions.provider_bank_payout_id -> provider_bank_payouts(id)
+-- is installed in M-04 (20260722090300_v7_step1_provider_balance_credit.sql) after
+-- public.provider_bank_payouts is created. Do not install it here (forward table reference).
 
 ALTER TABLE ONLY public.stripe_refunds
     ADD CONSTRAINT stripe_refunds_booking_id_fkey FOREIGN KEY (booking_id) REFERENCES public.bookings(id) ON DELETE RESTRICT;
