@@ -24,7 +24,7 @@ concurrency:
 jobs:
   step7:
     # Hard gate: this workflow is only allowed on the `staging` branch.
-    if: github.ref == 'refs/heads/staging'
+    if: github.ref_name == 'staging'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     defaults:
@@ -40,11 +40,15 @@ jobs:
 
     steps:
       - name: Guard — refuse to run outside the staging branch
+        env:
+          REF_NAME: ${{ github.ref_name }}
+          REF: ${{ github.ref }}
         run: |
-          if [ "${GITHUB_REF}" != "refs/heads/staging" ]; then
-            echo "This workflow may only run against refs/heads/staging (got ${GITHUB_REF})."
+          if [ "${REF_NAME}" != "staging" ]; then
+            echo "This workflow may only run against the staging branch (got ref_name=${REF_NAME}, ref=${REF})."
             exit 1
           fi
+          echo "Branch guard OK: ref_name=${REF_NAME}, ref=${REF}"
 
       - name: Guard — required staging secrets present
         run: |
@@ -56,6 +60,7 @@ jobs:
             fi
           done
           if [ "$missing" = "1" ]; then exit 1; fi
+
 
       - name: Checkout (staging)
         uses: actions/checkout@v4
