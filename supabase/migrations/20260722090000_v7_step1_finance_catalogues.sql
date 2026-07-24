@@ -35,6 +35,9 @@ DO $$ BEGIN
     CREATE TYPE public.booking_payment_flow_version AS ENUM
       ('destination_charge_v1','separate_charges_v1');
   END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname='ledger_entry_direction') THEN
+    CREATE TYPE public.ledger_entry_direction AS ENUM ('debit','credit');
+  END IF;
 END $$;
 
 
