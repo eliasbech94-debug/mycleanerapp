@@ -194,6 +194,57 @@ export type Database = {
         }
         Relationships: []
       }
+      booking_bank_payout_attributions: {
+        Row: {
+          attribution_method: string
+          attribution_source: string
+          booking_id: string
+          confidence: string
+          created_at: string
+          id: string
+          provider_bank_payout_id: string
+          reconciliation_run_id: string | null
+          stripe_transfer_id: string
+        }
+        Insert: {
+          attribution_method: string
+          attribution_source: string
+          booking_id: string
+          confidence?: string
+          created_at?: string
+          id?: string
+          provider_bank_payout_id: string
+          reconciliation_run_id?: string | null
+          stripe_transfer_id: string
+        }
+        Update: {
+          attribution_method?: string
+          attribution_source?: string
+          booking_id?: string
+          confidence?: string
+          created_at?: string
+          id?: string
+          provider_bank_payout_id?: string
+          reconciliation_run_id?: string | null
+          stripe_transfer_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "booking_bank_payout_attributions_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "booking_bank_payout_attributions_provider_bank_payout_id_fkey"
+            columns: ["provider_bank_payout_id"]
+            isOneToOne: false
+            referencedRelation: "provider_bank_payouts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       booking_cancellations: {
         Row: {
           actor_role: string
@@ -250,6 +301,112 @@ export type Database = {
           },
         ]
       }
+      booking_holds: {
+        Row: {
+          booking_id: string
+          created_at: string
+          created_by: string | null
+          created_by_role: string | null
+          expires_at: string | null
+          hold_type: Database["public"]["Enums"]["booking_hold_type"]
+          id: string
+          metadata: Json
+          reason: string
+          release_note: string | null
+          released_at: string | null
+          released_by: string | null
+          released_by_role: string | null
+          status: Database["public"]["Enums"]["booking_hold_status"]
+        }
+        Insert: {
+          booking_id: string
+          created_at?: string
+          created_by?: string | null
+          created_by_role?: string | null
+          expires_at?: string | null
+          hold_type: Database["public"]["Enums"]["booking_hold_type"]
+          id?: string
+          metadata?: Json
+          reason: string
+          release_note?: string | null
+          released_at?: string | null
+          released_by?: string | null
+          released_by_role?: string | null
+          status?: Database["public"]["Enums"]["booking_hold_status"]
+        }
+        Update: {
+          booking_id?: string
+          created_at?: string
+          created_by?: string | null
+          created_by_role?: string | null
+          expires_at?: string | null
+          hold_type?: Database["public"]["Enums"]["booking_hold_type"]
+          id?: string
+          metadata?: Json
+          reason?: string
+          release_note?: string | null
+          released_at?: string | null
+          released_by?: string | null
+          released_by_role?: string | null
+          status?: Database["public"]["Enums"]["booking_hold_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "booking_holds_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      booking_workers: {
+        Row: {
+          assigned_at: string
+          booking_id: string
+          created_at: string
+          id: string
+          is_lead: boolean
+          provider_id: string
+          share_bps: number
+          status: string
+          updated_at: string
+          worker_user_id: string
+        }
+        Insert: {
+          assigned_at?: string
+          booking_id: string
+          created_at?: string
+          id?: string
+          is_lead?: boolean
+          provider_id: string
+          share_bps: number
+          status?: string
+          updated_at?: string
+          worker_user_id: string
+        }
+        Update: {
+          assigned_at?: string
+          booking_id?: string
+          created_at?: string
+          id?: string
+          is_lead?: boolean
+          provider_id?: string
+          share_bps?: number
+          status?: string
+          updated_at?: string
+          worker_user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "booking_workers_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bookings: {
         Row: {
           address: string
@@ -271,15 +428,24 @@ export type Database = {
           customer_user_id: string
           decided_at: string | null
           dynamic_pricing_applied: boolean | null
+          fee_reconciliation_overdue: boolean
+          funds_release_at: string | null
           hours: number
           id: string
           lat: number | null
+          legacy_classification: string | null
           lng: number | null
           notes: string | null
+          payment_flow_version:
+            | Database["public"]["Enums"]["booking_payment_flow_version"]
+            | null
           payment_intent_id: string | null
           payment_method_brand: string | null
           payment_method_last4: string | null
           payment_status: Database["public"]["Enums"]["payment_status"]
+          payout_status:
+            | Database["public"]["Enums"]["booking_payout_status"]
+            | null
           platform_fee_amount: number
           pricing_calculation_id: string | null
           pricing_mode: Database["public"]["Enums"]["pricing_mode"] | null
@@ -295,6 +461,7 @@ export type Database = {
           refunded_at: string | null
           refunds: Json
           service: string
+          settled_reason: string | null
           slot: string
           status: Database["public"]["Enums"]["booking_status"]
           tax_config_snapshot: Json | null
@@ -321,15 +488,24 @@ export type Database = {
           customer_user_id: string
           decided_at?: string | null
           dynamic_pricing_applied?: boolean | null
+          fee_reconciliation_overdue?: boolean
+          funds_release_at?: string | null
           hours: number
           id?: string
           lat?: number | null
+          legacy_classification?: string | null
           lng?: number | null
           notes?: string | null
+          payment_flow_version?:
+            | Database["public"]["Enums"]["booking_payment_flow_version"]
+            | null
           payment_intent_id?: string | null
           payment_method_brand?: string | null
           payment_method_last4?: string | null
           payment_status?: Database["public"]["Enums"]["payment_status"]
+          payout_status?:
+            | Database["public"]["Enums"]["booking_payout_status"]
+            | null
           platform_fee_amount?: number
           pricing_calculation_id?: string | null
           pricing_mode?: Database["public"]["Enums"]["pricing_mode"] | null
@@ -345,6 +521,7 @@ export type Database = {
           refunded_at?: string | null
           refunds?: Json
           service: string
+          settled_reason?: string | null
           slot: string
           status?: Database["public"]["Enums"]["booking_status"]
           tax_config_snapshot?: Json | null
@@ -371,15 +548,24 @@ export type Database = {
           customer_user_id?: string
           decided_at?: string | null
           dynamic_pricing_applied?: boolean | null
+          fee_reconciliation_overdue?: boolean
+          funds_release_at?: string | null
           hours?: number
           id?: string
           lat?: number | null
+          legacy_classification?: string | null
           lng?: number | null
           notes?: string | null
+          payment_flow_version?:
+            | Database["public"]["Enums"]["booking_payment_flow_version"]
+            | null
           payment_intent_id?: string | null
           payment_method_brand?: string | null
           payment_method_last4?: string | null
           payment_status?: Database["public"]["Enums"]["payment_status"]
+          payout_status?:
+            | Database["public"]["Enums"]["booking_payout_status"]
+            | null
           platform_fee_amount?: number
           pricing_calculation_id?: string | null
           pricing_mode?: Database["public"]["Enums"]["pricing_mode"] | null
@@ -395,6 +581,7 @@ export type Database = {
           refunded_at?: string | null
           refunds?: Json
           service?: string
+          settled_reason?: string | null
           slot?: string
           status?: Database["public"]["Enums"]["booking_status"]
           tax_config_snapshot?: Json | null
@@ -793,12 +980,15 @@ export type Database = {
           created_at: string
           currency: string
           default_language: string
+          funds_release_enabled: boolean
           iso: string
           launch_status: string
           lifecycle_state: Database["public"]["Enums"]["country_lifecycle_state"]
           pricing_rules: Json
+          provider_liability_policy: Json
           published_at: string | null
           published_by: string | null
+          require_bank_payout_ready: boolean
           status: string
           stripe_account_id: string | null
           supported_languages: string[]
@@ -815,12 +1005,15 @@ export type Database = {
           created_at?: string
           currency: string
           default_language: string
+          funds_release_enabled?: boolean
           iso: string
           launch_status?: string
           lifecycle_state?: Database["public"]["Enums"]["country_lifecycle_state"]
           pricing_rules?: Json
+          provider_liability_policy?: Json
           published_at?: string | null
           published_by?: string | null
+          require_bank_payout_ready?: boolean
           status?: string
           stripe_account_id?: string | null
           supported_languages?: string[]
@@ -837,12 +1030,15 @@ export type Database = {
           created_at?: string
           currency?: string
           default_language?: string
+          funds_release_enabled?: boolean
           iso?: string
           launch_status?: string
           lifecycle_state?: Database["public"]["Enums"]["country_lifecycle_state"]
           pricing_rules?: Json
+          provider_liability_policy?: Json
           published_at?: string | null
           published_by?: string | null
+          require_bank_payout_ready?: boolean
           status?: string
           stripe_account_id?: string | null
           supported_languages?: string[]
@@ -1521,6 +1717,66 @@ export type Database = {
         }
         Relationships: []
       }
+      finance_accounts: {
+        Row: {
+          account_class: Database["public"]["Enums"]["finance_account_class"]
+          code: string
+          created_at: string
+          description: string
+          enabled: boolean
+          reserved: boolean
+          scope_keys: string[]
+        }
+        Insert: {
+          account_class: Database["public"]["Enums"]["finance_account_class"]
+          code: string
+          created_at?: string
+          description: string
+          enabled?: boolean
+          reserved?: boolean
+          scope_keys?: string[]
+        }
+        Update: {
+          account_class?: Database["public"]["Enums"]["finance_account_class"]
+          code?: string
+          created_at?: string
+          description?: string
+          enabled?: boolean
+          reserved?: boolean
+          scope_keys?: string[]
+        }
+        Relationships: []
+      }
+      finance_event_catalogue: {
+        Row: {
+          created_at: string
+          description: string
+          enabled: boolean
+          event_type: string
+          idempotency_shape: string
+          multi_leg_accounts: string[]
+          reserved: boolean
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          enabled?: boolean
+          event_type: string
+          idempotency_shape: string
+          multi_leg_accounts?: string[]
+          reserved?: boolean
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          enabled?: boolean
+          event_type?: string
+          idempotency_shape?: string
+          multi_leg_accounts?: string[]
+          reserved?: boolean
+        }
+        Relationships: []
+      }
       finance_payouts: {
         Row: {
           arrival_date: string | null
@@ -2095,6 +2351,117 @@ export type Database = {
         }
         Relationships: []
       }
+      ledger_entries: {
+        Row: {
+          account: string
+          amount_minor: number
+          booking_id: string | null
+          created_at: string
+          currency: string
+          direction: Database["public"]["Enums"]["ledger_entry_direction"]
+          id: string
+          leg_index: number
+          provider_user_id: string | null
+          transaction_id: string
+        }
+        Insert: {
+          account: string
+          amount_minor: number
+          booking_id?: string | null
+          created_at?: string
+          currency: string
+          direction: Database["public"]["Enums"]["ledger_entry_direction"]
+          id?: string
+          leg_index?: number
+          provider_user_id?: string | null
+          transaction_id: string
+        }
+        Update: {
+          account?: string
+          amount_minor?: number
+          booking_id?: string | null
+          created_at?: string
+          currency?: string
+          direction?: Database["public"]["Enums"]["ledger_entry_direction"]
+          id?: string
+          leg_index?: number
+          provider_user_id?: string | null
+          transaction_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ledger_entries_account_fkey"
+            columns: ["account"]
+            isOneToOne: false
+            referencedRelation: "finance_accounts"
+            referencedColumns: ["code"]
+          },
+          {
+            foreignKeyName: "ledger_entries_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "ledger_transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ledger_transactions: {
+        Row: {
+          booking_id: string | null
+          currency: string
+          event_id: string
+          event_type: string
+          id: string
+          memo: string | null
+          payload_fingerprint: string | null
+          posted_at: string
+          provider_user_id: string | null
+          raw: Json | null
+          source: string
+        }
+        Insert: {
+          booking_id?: string | null
+          currency: string
+          event_id: string
+          event_type: string
+          id?: string
+          memo?: string | null
+          payload_fingerprint?: string | null
+          posted_at?: string
+          provider_user_id?: string | null
+          raw?: Json | null
+          source?: string
+        }
+        Update: {
+          booking_id?: string | null
+          currency?: string
+          event_id?: string
+          event_type?: string
+          id?: string
+          memo?: string | null
+          payload_fingerprint?: string | null
+          posted_at?: string
+          provider_user_id?: string | null
+          raw?: Json | null
+          source?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ledger_transactions_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ledger_transactions_event_type_fkey"
+            columns: ["event_type"]
+            isOneToOne: false
+            referencedRelation: "finance_event_catalogue"
+            referencedColumns: ["event_type"]
+          },
+        ]
+      }
       legal_documents: {
         Row: {
           body_hash: string
@@ -2477,6 +2844,187 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      payout_audit_log: {
+        Row: {
+          action: string
+          actor: string
+          authorization_id: string | null
+          booking_id: string | null
+          created_at: string
+          detail: Json | null
+          from_state: string | null
+          id: string
+          provider_user_id: string | null
+          reason: string | null
+          to_state: string | null
+        }
+        Insert: {
+          action: string
+          actor: string
+          authorization_id?: string | null
+          booking_id?: string | null
+          created_at?: string
+          detail?: Json | null
+          from_state?: string | null
+          id?: string
+          provider_user_id?: string | null
+          reason?: string | null
+          to_state?: string | null
+        }
+        Update: {
+          action?: string
+          actor?: string
+          authorization_id?: string | null
+          booking_id?: string | null
+          created_at?: string
+          detail?: Json | null
+          from_state?: string | null
+          id?: string
+          provider_user_id?: string | null
+          reason?: string | null
+          to_state?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payout_audit_log_authorization_id_fkey"
+            columns: ["authorization_id"]
+            isOneToOne: false
+            referencedRelation: "payout_authorizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payout_audit_log_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payout_authorizations: {
+        Row: {
+          action: string
+          booking_id: string | null
+          consumed_at: string | null
+          expires_at: string
+          id: string
+          issued_at: string
+          payload: Json
+          reason: string
+          request_id: string
+          requested_by: string
+          status: string
+        }
+        Insert: {
+          action: string
+          booking_id?: string | null
+          consumed_at?: string | null
+          expires_at?: string
+          id?: string
+          issued_at?: string
+          payload?: Json
+          reason: string
+          request_id: string
+          requested_by: string
+          status?: string
+        }
+        Update: {
+          action?: string
+          booking_id?: string | null
+          consumed_at?: string | null
+          expires_at?: string
+          id?: string
+          issued_at?: string
+          payload?: Json
+          reason?: string
+          request_id?: string
+          requested_by?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payout_authorizations_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payout_transfer_attempts: {
+        Row: {
+          amount_minor: number
+          attempt_number: number
+          attempt_scope: string
+          booking_id: string
+          created_at: string
+          currency: string
+          eligibility_snapshot: Json | null
+          funding_mode: Database["public"]["Enums"]["transfer_funding_mode"]
+          funding_source_ref: string | null
+          id: string
+          last_error_code: string | null
+          last_error_message: string | null
+          provider_user_id: string
+          retry_count: number
+          state: string
+          stripe_idempotency_key: string
+          stripe_transfer_id: string | null
+          transfer_group: string
+          updated_at: string
+        }
+        Insert: {
+          amount_minor: number
+          attempt_number?: number
+          attempt_scope: string
+          booking_id: string
+          created_at?: string
+          currency: string
+          eligibility_snapshot?: Json | null
+          funding_mode: Database["public"]["Enums"]["transfer_funding_mode"]
+          funding_source_ref?: string | null
+          id?: string
+          last_error_code?: string | null
+          last_error_message?: string | null
+          provider_user_id: string
+          retry_count?: number
+          state?: string
+          stripe_idempotency_key: string
+          stripe_transfer_id?: string | null
+          transfer_group: string
+          updated_at?: string
+        }
+        Update: {
+          amount_minor?: number
+          attempt_number?: number
+          attempt_scope?: string
+          booking_id?: string
+          created_at?: string
+          currency?: string
+          eligibility_snapshot?: Json | null
+          funding_mode?: Database["public"]["Enums"]["transfer_funding_mode"]
+          funding_source_ref?: string | null
+          id?: string
+          last_error_code?: string | null
+          last_error_message?: string | null
+          provider_user_id?: string
+          retry_count?: number
+          state?: string
+          stripe_idempotency_key?: string
+          stripe_transfer_id?: string | null
+          transfer_group?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payout_transfer_attempts_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       person_identities: {
         Row: {
@@ -3162,6 +3710,359 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      provider_balance_accounts: {
+        Row: {
+          available_credit_minor: number
+          currency: string
+          outstanding_debt_minor: number
+          provider_user_id: string
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          available_credit_minor?: number
+          currency: string
+          outstanding_debt_minor?: number
+          provider_user_id: string
+          updated_at?: string
+          version?: number
+        }
+        Update: {
+          available_credit_minor?: number
+          currency?: string
+          outstanding_debt_minor?: number
+          provider_user_id?: string
+          updated_at?: string
+          version?: number
+        }
+        Relationships: []
+      }
+      provider_balance_movements: {
+        Row: {
+          amount_minor: number
+          created_at: string
+          credit_item_id: string | null
+          currency: string
+          debt_item_id: string | null
+          id: string
+          ledger_transaction_id: string
+          movement_type: Database["public"]["Enums"]["provider_balance_movement_type"]
+          provider_user_id: string
+        }
+        Insert: {
+          amount_minor: number
+          created_at?: string
+          credit_item_id?: string | null
+          currency: string
+          debt_item_id?: string | null
+          id?: string
+          ledger_transaction_id: string
+          movement_type: Database["public"]["Enums"]["provider_balance_movement_type"]
+          provider_user_id: string
+        }
+        Update: {
+          amount_minor?: number
+          created_at?: string
+          credit_item_id?: string | null
+          currency?: string
+          debt_item_id?: string | null
+          id?: string
+          ledger_transaction_id?: string
+          movement_type?: Database["public"]["Enums"]["provider_balance_movement_type"]
+          provider_user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_balance_movements_credit_item_id_fkey"
+            columns: ["credit_item_id"]
+            isOneToOne: false
+            referencedRelation: "provider_credit_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "provider_balance_movements_debt_item_id_fkey"
+            columns: ["debt_item_id"]
+            isOneToOne: false
+            referencedRelation: "provider_debt_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "provider_balance_movements_ledger_transaction_id_fkey"
+            columns: ["ledger_transaction_id"]
+            isOneToOne: false
+            referencedRelation: "ledger_transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      provider_bank_payouts: {
+        Row: {
+          amount_minor: number
+          arrival_date: string | null
+          created_at: string
+          currency: string
+          failure_code: string | null
+          failure_message: string | null
+          id: string
+          method: string | null
+          provider_user_id: string
+          raw: Json
+          source_type: string | null
+          status: string
+          stripe_account_id: string
+          stripe_payout_id: string
+          updated_at: string
+        }
+        Insert: {
+          amount_minor: number
+          arrival_date?: string | null
+          created_at?: string
+          currency: string
+          failure_code?: string | null
+          failure_message?: string | null
+          id?: string
+          method?: string | null
+          provider_user_id: string
+          raw: Json
+          source_type?: string | null
+          status: string
+          stripe_account_id: string
+          stripe_payout_id: string
+          updated_at?: string
+        }
+        Update: {
+          amount_minor?: number
+          arrival_date?: string | null
+          created_at?: string
+          currency?: string
+          failure_code?: string | null
+          failure_message?: string | null
+          id?: string
+          method?: string | null
+          provider_user_id?: string
+          raw?: Json
+          source_type?: string | null
+          status?: string
+          stripe_account_id?: string
+          stripe_payout_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      provider_credit_allocations: {
+        Row: {
+          amount_minor: number
+          booking_id: string | null
+          created_at: string
+          credit_item_id: string
+          id: string
+          ledger_transaction_id: string
+          target: string
+          target_debt_item_id: string | null
+        }
+        Insert: {
+          amount_minor: number
+          booking_id?: string | null
+          created_at?: string
+          credit_item_id: string
+          id?: string
+          ledger_transaction_id: string
+          target: string
+          target_debt_item_id?: string | null
+        }
+        Update: {
+          amount_minor?: number
+          booking_id?: string | null
+          created_at?: string
+          credit_item_id?: string
+          id?: string
+          ledger_transaction_id?: string
+          target?: string
+          target_debt_item_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_credit_allocations_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "provider_credit_allocations_credit_item_id_fkey"
+            columns: ["credit_item_id"]
+            isOneToOne: false
+            referencedRelation: "provider_credit_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "provider_credit_allocations_ledger_transaction_id_fkey"
+            columns: ["ledger_transaction_id"]
+            isOneToOne: false
+            referencedRelation: "ledger_transactions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "provider_credit_allocations_target_debt_item_id_fkey"
+            columns: ["target_debt_item_id"]
+            isOneToOne: false
+            referencedRelation: "provider_debt_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      provider_credit_items: {
+        Row: {
+          created_at: string
+          currency: string
+          id: string
+          original_amount_minor: number
+          provider_user_id: string
+          source_booking_id: string | null
+          source_movement_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          currency: string
+          id?: string
+          original_amount_minor: number
+          provider_user_id: string
+          source_booking_id?: string | null
+          source_movement_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          id?: string
+          original_amount_minor?: number
+          provider_user_id?: string
+          source_booking_id?: string | null
+          source_movement_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_credit_items_source_booking_id_fkey"
+            columns: ["source_booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "provider_credit_items_source_movement_fkey"
+            columns: ["source_movement_id"]
+            isOneToOne: false
+            referencedRelation: "provider_balance_movements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      provider_debt_allocations: {
+        Row: {
+          amount_minor: number
+          booking_id: string | null
+          created_at: string
+          debt_item_id: string
+          id: string
+          ledger_transaction_id: string
+          source: string
+          source_credit_item_id: string | null
+        }
+        Insert: {
+          amount_minor: number
+          booking_id?: string | null
+          created_at?: string
+          debt_item_id: string
+          id?: string
+          ledger_transaction_id: string
+          source: string
+          source_credit_item_id?: string | null
+        }
+        Update: {
+          amount_minor?: number
+          booking_id?: string | null
+          created_at?: string
+          debt_item_id?: string
+          id?: string
+          ledger_transaction_id?: string
+          source?: string
+          source_credit_item_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_debt_allocations_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "provider_debt_allocations_debt_item_id_fkey"
+            columns: ["debt_item_id"]
+            isOneToOne: false
+            referencedRelation: "provider_debt_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "provider_debt_allocations_ledger_transaction_id_fkey"
+            columns: ["ledger_transaction_id"]
+            isOneToOne: false
+            referencedRelation: "ledger_transactions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "provider_debt_allocations_source_credit_item_id_fkey"
+            columns: ["source_credit_item_id"]
+            isOneToOne: false
+            referencedRelation: "provider_credit_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      provider_debt_items: {
+        Row: {
+          created_at: string
+          currency: string
+          id: string
+          original_amount_minor: number
+          provider_user_id: string
+          source_booking_id: string | null
+          source_movement_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          currency: string
+          id?: string
+          original_amount_minor: number
+          provider_user_id: string
+          source_booking_id?: string | null
+          source_movement_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          id?: string
+          original_amount_minor?: number
+          provider_user_id?: string
+          source_booking_id?: string | null
+          source_movement_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_debt_items_source_booking_id_fkey"
+            columns: ["source_booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "provider_debt_items_source_movement_fkey"
+            columns: ["source_movement_id"]
+            isOneToOne: false
+            referencedRelation: "provider_balance_movements"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       provider_pricing_preferences: {
         Row: {
@@ -3991,6 +4892,65 @@ export type Database = {
           },
         ]
       }
+      release_eligibility_decisions: {
+        Row: {
+          booking_id: string
+          booking_snapshot: Json
+          decision: string
+          engine_version: string
+          evaluated_at: string
+          evaluator_role: string | null
+          evaluator_user_id: string | null
+          failed_rules: Json
+          hold_snapshot: Json
+          id: string
+          provider_readiness: Json
+          provider_user_id: string | null
+          remaining_hold_seconds: number | null
+          scheduled_release_at: string | null
+        }
+        Insert: {
+          booking_id: string
+          booking_snapshot?: Json
+          decision: string
+          engine_version?: string
+          evaluated_at?: string
+          evaluator_role?: string | null
+          evaluator_user_id?: string | null
+          failed_rules?: Json
+          hold_snapshot?: Json
+          id?: string
+          provider_readiness?: Json
+          provider_user_id?: string | null
+          remaining_hold_seconds?: number | null
+          scheduled_release_at?: string | null
+        }
+        Update: {
+          booking_id?: string
+          booking_snapshot?: Json
+          decision?: string
+          engine_version?: string
+          evaluated_at?: string
+          evaluator_role?: string | null
+          evaluator_user_id?: string | null
+          failed_rules?: Json
+          hold_snapshot?: Json
+          id?: string
+          provider_readiness?: Json
+          provider_user_id?: string | null
+          remaining_hold_seconds?: number | null
+          scheduled_release_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "release_eligibility_decisions_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       retention_worker_runs: {
         Row: {
           affected_counts: Json
@@ -4142,6 +5102,139 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "stripe_disputes_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stripe_refund_events: {
+        Row: {
+          amount_minor: number
+          currency: string
+          id: string
+          raw: Json
+          received_at: string
+          source: string
+          status: string
+          stripe_created_at: string
+          stripe_event_id: string
+          stripe_refund_id: string
+        }
+        Insert: {
+          amount_minor: number
+          currency: string
+          id?: string
+          raw: Json
+          received_at?: string
+          source?: string
+          status: string
+          stripe_created_at: string
+          stripe_event_id: string
+          stripe_refund_id: string
+        }
+        Update: {
+          amount_minor?: number
+          currency?: string
+          id?: string
+          raw?: Json
+          received_at?: string
+          source?: string
+          status?: string
+          stripe_created_at?: string
+          stripe_event_id?: string
+          stripe_refund_id?: string
+        }
+        Relationships: []
+      }
+      stripe_refunds: {
+        Row: {
+          amount_minor: number
+          booking_id: string | null
+          currency: string
+          last_received_at: string
+          last_stripe_event_created_at: string
+          last_stripe_event_id: string
+          status: string
+          stripe_refund_id: string
+          updated_at: string
+        }
+        Insert: {
+          amount_minor: number
+          booking_id?: string | null
+          currency: string
+          last_received_at: string
+          last_stripe_event_created_at: string
+          last_stripe_event_id: string
+          status: string
+          stripe_refund_id: string
+          updated_at?: string
+        }
+        Update: {
+          amount_minor?: number
+          booking_id?: string | null
+          currency?: string
+          last_received_at?: string
+          last_stripe_event_created_at?: string
+          last_stripe_event_id?: string
+          status?: string
+          stripe_refund_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stripe_refunds_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stripe_source_transfer_events: {
+        Row: {
+          booking_id: string | null
+          created_at: string
+          currency: string
+          event_kind: string
+          gross_amount_minor: number
+          id: string
+          raw: Json
+          source_charge_id: string
+          stripe_created_at: string
+          stripe_event_id: string
+          stripe_transfer_id: string
+        }
+        Insert: {
+          booking_id?: string | null
+          created_at?: string
+          currency: string
+          event_kind: string
+          gross_amount_minor: number
+          id?: string
+          raw: Json
+          source_charge_id: string
+          stripe_created_at: string
+          stripe_event_id: string
+          stripe_transfer_id: string
+        }
+        Update: {
+          booking_id?: string | null
+          created_at?: string
+          currency?: string
+          event_kind?: string
+          gross_amount_minor?: number
+          id?: string
+          raw?: Json
+          source_charge_id?: string
+          stripe_created_at?: string
+          stripe_event_id?: string
+          stripe_transfer_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stripe_source_transfer_events_booking_id_fkey"
             columns: ["booking_id"]
             isOneToOne: false
             referencedRelation: "bookings"
@@ -4339,6 +5432,48 @@ export type Database = {
         }
         Relationships: []
       }
+      unclassified_balance_transactions: {
+        Row: {
+          amount_minor: number | null
+          created_at: string
+          currency: string | null
+          id: string
+          raw: Json
+          reason: string
+          reporting_category: string | null
+          resolution_note: string | null
+          resolved_at: string | null
+          status: string
+          stripe_balance_transaction_id: string
+        }
+        Insert: {
+          amount_minor?: number | null
+          created_at?: string
+          currency?: string | null
+          id?: string
+          raw: Json
+          reason: string
+          reporting_category?: string | null
+          resolution_note?: string | null
+          resolved_at?: string | null
+          status?: string
+          stripe_balance_transaction_id: string
+        }
+        Update: {
+          amount_minor?: number | null
+          created_at?: string
+          currency?: string | null
+          id?: string
+          raw?: Json
+          reason?: string
+          reporting_category?: string | null
+          resolution_note?: string | null
+          resolved_at?: string | null
+          status?: string
+          stripe_balance_transaction_id?: string
+        }
+        Relationships: []
+      }
       user_legal_acceptances: {
         Row: {
           accepted_at: string
@@ -4454,6 +5589,65 @@ export type Database = {
           result?: string
         }
         Relationships: []
+      }
+      worker_earnings: {
+        Row: {
+          booking_id: string
+          created_at: string
+          currency: string
+          earned_at: string
+          gross_amount_minor: number
+          id: string
+          net_amount_minor: number
+          platform_fee_amount_minor: number
+          provider_id: string
+          status: string
+          stripe_destination_account: string | null
+          stripe_transfer_id: string | null
+          updated_at: string
+          worker_user_id: string
+        }
+        Insert: {
+          booking_id: string
+          created_at?: string
+          currency: string
+          earned_at?: string
+          gross_amount_minor: number
+          id?: string
+          net_amount_minor: number
+          platform_fee_amount_minor?: number
+          provider_id: string
+          status?: string
+          stripe_destination_account?: string | null
+          stripe_transfer_id?: string | null
+          updated_at?: string
+          worker_user_id: string
+        }
+        Update: {
+          booking_id?: string
+          created_at?: string
+          currency?: string
+          earned_at?: string
+          gross_amount_minor?: number
+          id?: string
+          net_amount_minor?: number
+          platform_fee_amount_minor?: number
+          provider_id?: string
+          status?: string
+          stripe_destination_account?: string | null
+          stripe_transfer_id?: string | null
+          updated_at?: string
+          worker_user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "worker_earnings_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
@@ -4577,8 +5771,28 @@ export type Database = {
         }
         Relationships: []
       }
+      v_source_transfer_capacity: {
+        Row: {
+          currency: string | null
+          source_charge_id: string | null
+          source_linked_gross_transfers_minor: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
+      _ledger_normalize_entries: { Args: { _entries: Json }; Returns: Json }
+      _ledger_payload_fingerprint: {
+        Args: {
+          _booking_id: string
+          _currency: string
+          _entries: Json
+          _event_id: string
+          _event_type: string
+          _provider_user_id: string
+        }
+        Returns: string
+      }
       _market_rule_to_jsonb: {
         Args: {
           _matched: string
@@ -4618,6 +5832,8 @@ export type Database = {
         }
         Returns: Json
       }
+      assert_ledger_writer_authorized: { Args: never; Returns: undefined }
+      begin_ledger_write: { Args: never; Returns: undefined }
       calc_provider_completion: { Args: { _uid: string }; Returns: Json }
       calc_provider_metrics: { Args: { _uid: string }; Returns: Json }
       calc_provider_score: { Args: { _uid: string }; Returns: Json }
@@ -4625,7 +5841,39 @@ export type Database = {
         Args: { _metrics?: Json; _uid: string }
         Returns: Database["public"]["Enums"]["provider_tier"]
       }
+      check_provider_payout_readiness_v1: {
+        Args: { p_provider_user_id: string }
+        Returns: Json
+      }
+      classify_booking_payment_flow_v1: {
+        Args: {
+          _booking_id: string
+          _flow: Database["public"]["Enums"]["booking_payment_flow_version"]
+          _reason?: string
+        }
+        Returns: Database["public"]["Enums"]["booking_payment_flow_version"]
+      }
       compute_recommended_price: { Args: { _user_id: string }; Returns: Json }
+      create_booking_hold_v1: {
+        Args: {
+          p_actor_role?: string
+          p_actor_user_id: string
+          p_booking_id: string
+          p_expires_at?: string
+          p_hold_type: Database["public"]["Enums"]["booking_hold_type"]
+          p_metadata?: Json
+          p_reason: string
+        }
+        Returns: string
+      }
+      evaluate_booking_release_eligibility_v1: {
+        Args: {
+          p_booking_id: string
+          p_evaluator_role?: string
+          p_evaluator_user_id?: string
+        }
+        Returns: Json
+      }
       evaluate_feature_flag: {
         Args: {
           _country_iso?: string
@@ -4636,9 +5884,24 @@ export type Database = {
         Returns: boolean
       }
       expire_pricing_quotes: { Args: never; Returns: number }
+      funds_release_max_retries_v1: { Args: never; Returns: number }
+      funds_release_reason_codes_v1: { Args: never; Returns: Json }
+      funds_release_rehearsal_worker_tick_v1: {
+        Args: { _limit?: number }
+        Returns: Json
+      }
+      funds_release_worker_tick_v1: { Args: { _limit?: number }; Returns: Json }
       gen_provider_slug: {
         Args: { _display_name: string; _user_id: string }
         Returns: string
+      }
+      get_booking_captured_gross_minor_v1: {
+        Args: { _booking_id: string }
+        Returns: number
+      }
+      get_booking_refunded_gross_minor_v1: {
+        Args: { _booking_id: string }
+        Returns: number
       }
       get_lifecycle_public_isos: {
         Args: never
@@ -4702,6 +5965,20 @@ export type Database = {
           vat_rate_bps: number
         }[]
       }
+      get_source_transfer_capacity_v1: {
+        Args: {
+          _currency: string
+          _expected_charge_gross_minor: number
+          _source_charge_id: string
+        }
+        Returns: {
+          charge_gross_minor: number
+          consumed_minor: number
+          currency: string
+          remaining_minor: number
+          source_charge_id: string
+        }[]
+      }
       get_user_roles: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"][]
@@ -4712,6 +5989,94 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      ingest_payment_captured_reclassify_v1: {
+        Args: {
+          _booking_id: string
+          _currency: string
+          _gross_minor: number
+          _payment_intent_id: string
+          _raw?: Json
+          _version: number
+        }
+        Returns: string
+      }
+      ingest_payment_captured_suspense_v1: {
+        Args: {
+          _currency: string
+          _gross_minor: number
+          _payment_intent_id: string
+          _raw?: Json
+        }
+        Returns: string
+      }
+      ingest_payment_captured_v1: {
+        Args: {
+          _booking_id: string
+          _currency: string
+          _gross_minor: number
+          _payment_intent_id: string
+          _raw?: Json
+        }
+        Returns: string
+      }
+      ingest_refund_recorded_v1: {
+        Args: {
+          _amount_minor: number
+          _booking_id: string
+          _currency: string
+          _raw?: Json
+          _status: string
+          _stripe_created_at: string
+          _stripe_event_id: string
+          _stripe_refund_id: string
+        }
+        Returns: string
+      }
+      ingest_stripe_fee_actual_v1: {
+        Args: {
+          _balance_tx_id: string
+          _booking_id: string
+          _currency: string
+          _fee_minor: number
+          _raw?: Json
+        }
+        Returns: string
+      }
+      ingest_stripe_fee_estimate_v1: {
+        Args: {
+          _booking_id: string
+          _currency: string
+          _estimate_minor: number
+          _payment_intent_id: string
+          _raw?: Json
+        }
+        Returns: string
+      }
+      ingest_stripe_fee_zero_v1: {
+        Args: {
+          _booking_id: string
+          _currency: string
+          _estimate_minor: number
+          _evidence_id: string
+          _payment_intent_id: string
+          _raw?: Json
+        }
+        Returns: string
+      }
+      ingest_transfer_event_v1: {
+        Args: {
+          _booking_id: string
+          _currency: string
+          _event_kind: string
+          _gross_minor: number
+          _raw?: Json
+          _source_charge_id: string
+          _stripe_created_at: string
+          _stripe_event_id: string
+          _stripe_transfer_id: string
+        }
+        Returns: undefined
       }
       is_admin_only: { Args: { _uid: string }; Returns: boolean }
       is_conversation_participant: {
@@ -4815,6 +6180,24 @@ export type Database = {
         Returns: string
       }
       next_invoice_number: { Args: { _country_code: string }; Returns: string }
+      plan_pending_releases_v1: {
+        Args: { _force_dry_run?: boolean; _limit?: number }
+        Returns: Json
+      }
+      post_ledger_transaction_v1: {
+        Args: {
+          _booking_id?: string
+          _currency: string
+          _entries: Json
+          _event_id: string
+          _event_type: string
+          _memo?: string
+          _provider_user_id?: string
+          _raw?: Json
+          _source?: string
+        }
+        Returns: string
+      }
       provider_can_accept_booking: { Args: { _uid: string }; Returns: boolean }
       provider_can_receive_payout: { Args: { _uid: string }; Returns: boolean }
       provider_is_marketplace_visible: {
@@ -4832,6 +6215,10 @@ export type Database = {
           _title: string
         }
         Returns: string
+      }
+      reconcile_provider_payout_readiness_v1: {
+        Args: { _limit?: number }
+        Returns: Json
       }
       reconcile_provider_status: {
         Args: { _uid: string }
@@ -4906,6 +6293,28 @@ export type Database = {
             Args: { _event_id?: string; _reason?: string; _uid: string }
             Returns: Json
           }
+      rehearse_release_attempt_v1: {
+        Args: { _authorization_id: string; _simulate_failure_code?: string }
+        Returns: Json
+      }
+      release_booking_hold_v1: {
+        Args: {
+          p_actor_role?: string
+          p_actor_user_id: string
+          p_hold_id: string
+          p_note?: string
+        }
+        Returns: undefined
+      }
+      request_release_authorization_v1: {
+        Args: {
+          _booking_id: string
+          _reason?: string
+          _request_id: string
+          _requested_by: string
+        }
+        Returns: Json
+      }
       resolve_dynamic_pricing_config: {
         Args: { _category: string; _country: string }
         Returns: {
@@ -5204,6 +6613,29 @@ export type Database = {
         | "customer"
         | "super_admin"
         | "support"
+      booking_hold_status: "active" | "released" | "expired"
+      booking_hold_type:
+        | "complaint"
+        | "dispute"
+        | "refund"
+        | "cancellation"
+        | "manual"
+        | "admin_block"
+      booking_payment_flow_version:
+        | "destination_charge_v1"
+        | "separate_charges_v1"
+      booking_payout_status:
+        | "pending"
+        | "eligible"
+        | "attempting"
+        | "retry_pending"
+        | "transferred"
+        | "partially_reversed"
+        | "fully_reversed"
+        | "settled_no_transfer"
+        | "needs_review"
+        | "frozen"
+        | "disputed"
       booking_status:
         | "pending"
         | "accepted"
@@ -5217,6 +6649,15 @@ export type Database = {
         | "active"
         | "suspended"
         | "retired"
+      finance_account_class:
+        | "asset"
+        | "liability"
+        | "revenue"
+        | "expense"
+        | "clearing"
+        | "contra_revenue"
+        | "contra_liability"
+        | "suspense"
       identity_level: "customer" | "provider"
       identity_link_reason:
         | "auto_created"
@@ -5237,6 +6678,7 @@ export type Database = {
         | "failed"
         | "signature_invalid"
         | "unknown_type"
+      ledger_entry_direction: "debit" | "credit"
       payment_status:
         | "none"
         | "authorized"
@@ -5258,6 +6700,12 @@ export type Database = {
         | "expired"
         | "superseded"
         | "void"
+      provider_balance_movement_type:
+        | "debt_increase"
+        | "debt_decrease"
+        | "credit_increase"
+        | "credit_decrease"
+        | "credit_to_debt_offset"
       provider_status:
         | "draft"
         | "pending_identity"
@@ -5276,6 +6724,7 @@ export type Database = {
         | "elite"
         | "partner"
       provider_visibility: "hidden" | "public"
+      transfer_funding_mode: "source_linked" | "platform_unlinked"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -5420,6 +6869,32 @@ export const Constants = {
         "super_admin",
         "support",
       ],
+      booking_hold_status: ["active", "released", "expired"],
+      booking_hold_type: [
+        "complaint",
+        "dispute",
+        "refund",
+        "cancellation",
+        "manual",
+        "admin_block",
+      ],
+      booking_payment_flow_version: [
+        "destination_charge_v1",
+        "separate_charges_v1",
+      ],
+      booking_payout_status: [
+        "pending",
+        "eligible",
+        "attempting",
+        "retry_pending",
+        "transferred",
+        "partially_reversed",
+        "fully_reversed",
+        "settled_no_transfer",
+        "needs_review",
+        "frozen",
+        "disputed",
+      ],
       booking_status: [
         "pending",
         "accepted",
@@ -5434,6 +6909,16 @@ export const Constants = {
         "active",
         "suspended",
         "retired",
+      ],
+      finance_account_class: [
+        "asset",
+        "liability",
+        "revenue",
+        "expense",
+        "clearing",
+        "contra_revenue",
+        "contra_liability",
+        "suspense",
       ],
       identity_level: ["customer", "provider"],
       identity_link_reason: [
@@ -5458,6 +6943,7 @@ export const Constants = {
         "signature_invalid",
         "unknown_type",
       ],
+      ledger_entry_direction: ["debit", "credit"],
       payment_status: [
         "none",
         "authorized",
@@ -5482,6 +6968,13 @@ export const Constants = {
         "superseded",
         "void",
       ],
+      provider_balance_movement_type: [
+        "debt_increase",
+        "debt_decrease",
+        "credit_increase",
+        "credit_decrease",
+        "credit_to_debt_offset",
+      ],
       provider_status: [
         "draft",
         "pending_identity",
@@ -5502,6 +6995,7 @@ export const Constants = {
         "partner",
       ],
       provider_visibility: ["hidden", "public"],
+      transfer_funding_mode: ["source_linked", "platform_unlinked"],
     },
   },
 } as const
