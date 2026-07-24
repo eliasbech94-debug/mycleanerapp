@@ -466,7 +466,12 @@ BEGIN
     v_src_count  int;
     v_bk_currency char(3);
     v_expected_gross bigint;
-    v_cap_row public.get_source_transfer_capacity_v1%ROWTYPE;
+    -- get_source_transfer_capacity_v1 RETURNS TABLE(...), which is an
+    -- anonymous rowtype with no catalog entry, so %ROWTYPE cannot reference
+    -- it. A RECORD variable receives the row via SELECT INTO STRICT and
+    -- exposes source_charge_id/currency/charge_gross_minor/consumed_minor/
+    -- remaining_minor as named fields — identical to the prior semantics.
+    v_cap_row record;
     v_cap_error_sqlstate text;
     v_cap_error_message  text;
   BEGIN
