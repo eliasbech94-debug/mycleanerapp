@@ -62,7 +62,7 @@ CREATE INDEX idx_red_decision ON public.release_eligibility_decisions USING btre
 
 CREATE INDEX idx_red_provider ON public.release_eligibility_decisions USING btree (provider_user_id, evaluated_at DESC);
 
-CREATE TRIGGER trg_red_no_update BEFORE UPDATE ON public.release_eligibility_decisions FOR EACH ROW EXECUTE FUNCTION public.reject_release_decision_mutation();
+-- trg_red_no_update is installed once, after ENABLE ROW LEVEL SECURITY (below).
 
 ALTER TABLE ONLY public.booking_holds
     ADD CONSTRAINT booking_holds_booking_id_fkey FOREIGN KEY (booking_id) REFERENCES public.bookings(id) ON DELETE CASCADE;
