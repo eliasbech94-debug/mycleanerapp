@@ -127,11 +127,7 @@ ALTER TABLE public.payout_transfer_attempts ENABLE ROW LEVEL SECURITY;
 CREATE POLICY payout_transfer_attempts_deny_all ON public.payout_transfer_attempts TO authenticated, anon, service_role USING (false) WITH CHECK (false);
 
 
--- Append-only triggers on payout_audit_log -----------------------------------
-CREATE TRIGGER payout_audit_log_no_update BEFORE UPDATE ON public.payout_audit_log
-  FOR EACH ROW EXECUTE FUNCTION public.reject_ledger_mutation();
-CREATE TRIGGER payout_audit_log_no_delete BEFORE DELETE ON public.payout_audit_log
-  FOR EACH ROW EXECUTE FUNCTION public.reject_ledger_mutation();
+-- Append-only triggers on payout_audit_log are installed once above (lines 92-94).
 
 -- Grants ---------------------------------------------------------------------
 GRANT SELECT, INSERT         ON public.payout_audit_log         TO service_role;
@@ -213,6 +209,13 @@ BEGIN
     WHERE b.funds_release_at IS NOT NULL
       AND b.funds_release_at <= now()
       AND b.status IN ('completed'::public.booking_status, 'accepted'::public.booking_status)
+      -- Only source-linked releases are eligible for the Step 6 planner.
+      -- Bookings without an ingested source_charge_id are NOT source_linked
+      -- and MUST NOT be tagged as such.
+      AND EXISTS (
+        SELECT 1 FROM public.stripe_source_transfer_events s
+        WHERE s.booking_id = b.id
+      )
       AND NOT EXISTS (
         SELECT 1 FROM public.payout_transfer_attempts pa
         WHERE pa.booking_id = b.id AND pa.attempt_scope = v_scope
@@ -244,7 +247,7 @@ BEGIN
     )
     VALUES (
       v_booking.id, v_provider_uuid, v_scope, 1,
-      'separate_charges_transfers_v1'::public.transfer_funding_mode,
+      'source_linked'::public.transfer_funding_mode,
       COALESCE((v_eligibility->'amounts'->>'provider_net_minor')::bigint, 1),
       COALESCE(v_eligibility->>'currency', 'dkk'),
       'grp_dryrun_' || v_booking.id::text,
@@ -444,18 +447,108 @@ BEGIN
     RETURN jsonb_build_object('ok', false, 'reason_code', v_reason_code, 'readiness', v_readiness);
   END IF;
 
+  -- =========================================================================
+  -- FIX #5: real capacity check using the canonical 3-arg signature
+  --   public.get_source_transfer_capacity_v1(source_charge_id text,
+  --                                          currency character,
+  --                                          expected_charge_gross_minor bigint)
+  -- Authoritative input sources:
+  --   source_charge_id             := stripe_source_transfer_events.source_charge_id
+  --                                    (unique per booking; guarded below)
+  --   currency                     := bookings.currency (lower-cased char(3))
+  --   expected_charge_gross_minor  := get_booking_captured_gross_minor_v1(booking)
+  -- Distinguishes: missing source reference, unsupported funding mode,
+  -- insufficient capacity, and internal capacity-check failure.
+  -- Rehearsal-only: does NOT call Stripe and does NOT create a transfer.
+  -- =========================================================================
+  DECLARE
+    v_src_charge text;
+    v_src_count  int;
+    v_bk_currency char(3);
+    v_expected_gross bigint;
+    v_cap_row public.get_source_transfer_capacity_v1%ROWTYPE;
+    v_cap_error_sqlstate text;
+    v_cap_error_message  text;
   BEGIN
-    v_capacity := public.get_source_transfer_capacity_v1(_booking_id);
-  EXCEPTION WHEN others THEN
-    v_capacity := jsonb_build_object('available_minor', 0, 'error', SQLERRM);
+    -- Funding mode gate: only 'source_linked' attempts flow through this path.
+    IF v_attempt.funding_mode IS DISTINCT FROM 'source_linked'::public.transfer_funding_mode THEN
+      v_reason_code := 'BLOCKED_UNSUPPORTED_FUNDING_MODE';
+      INSERT INTO public.payout_audit_log(booking_id,provider_user_id,actor,action,reason,detail)
+      VALUES (_booking_id,v_provider,'step7_worker','authorize.refuse', v_reason_code,
+              jsonb_build_object('request_id', _request_id,
+                                 'funding_mode', v_attempt.funding_mode));
+      RETURN jsonb_build_object('ok', false, 'reason_code', v_reason_code,
+                                'funding_mode', v_attempt.funding_mode);
+    END IF;
+
+    -- Resolve authoritative source_charge_id from Stripe ingest.
+    SELECT COUNT(DISTINCT s.source_charge_id), MIN(s.source_charge_id)
+      INTO v_src_count, v_src_charge
+      FROM public.stripe_source_transfer_events s
+      WHERE s.booking_id = _booking_id;
+
+    -- Resolve authoritative booking currency.
+    SELECT lower(b.currency)::char(3) INTO v_bk_currency
+      FROM public.bookings b WHERE b.id = _booking_id;
+
+    -- Resolve authoritative captured gross from the ledger.
+    v_expected_gross := public.get_booking_captured_gross_minor_v1(_booking_id);
+
+    IF v_src_charge IS NULL OR v_src_count IS DISTINCT FROM 1
+       OR v_bk_currency IS NULL OR v_expected_gross IS NULL OR v_expected_gross <= 0 THEN
+      v_reason_code := 'BLOCKED_SOURCE_REFERENCE_MISSING';
+      INSERT INTO public.payout_audit_log(booking_id,provider_user_id,actor,action,reason,detail)
+      VALUES (_booking_id,v_provider,'step7_worker','authorize.refuse', v_reason_code,
+              jsonb_build_object('request_id', _request_id,
+                                 'source_charge_id', v_src_charge,
+                                 'source_charge_count', v_src_count,
+                                 'currency', v_bk_currency,
+                                 'expected_gross_minor', v_expected_gross));
+      RETURN jsonb_build_object('ok', false, 'reason_code', v_reason_code);
+    END IF;
+
+    -- Call the real capacity RPC with the correct signature. Any error here is
+    -- an internal capacity-check failure and MUST NOT be swallowed as
+    -- "insufficient capacity".
+    BEGIN
+      SELECT * INTO STRICT v_cap_row
+        FROM public.get_source_transfer_capacity_v1(v_src_charge, v_bk_currency, v_expected_gross);
+    EXCEPTION WHEN others THEN
+      GET STACKED DIAGNOSTICS
+        v_cap_error_sqlstate = RETURNED_SQLSTATE,
+        v_cap_error_message  = MESSAGE_TEXT;
+      v_reason_code := 'BLOCKED_CAPACITY_CHECK_FAILED';
+      INSERT INTO public.payout_audit_log(booking_id,provider_user_id,actor,action,reason,detail)
+      VALUES (_booking_id,v_provider,'step7_worker','authorize.refuse', v_reason_code,
+              jsonb_build_object('request_id', _request_id,
+                                 'source_charge_id', v_src_charge,
+                                 'currency', v_bk_currency,
+                                 'expected_gross_minor', v_expected_gross,
+                                 'sqlstate', v_cap_error_sqlstate,
+                                 'error', v_cap_error_message));
+      RETURN jsonb_build_object('ok', false, 'reason_code', v_reason_code,
+                                'sqlstate', v_cap_error_sqlstate);
+    END;
+
+    v_capacity := jsonb_build_object(
+      'source_charge_id',    v_cap_row.source_charge_id,
+      'currency',            v_cap_row.currency,
+      'charge_gross_minor',  v_cap_row.charge_gross_minor,
+      'consumed_minor',      v_cap_row.consumed_minor,
+      'remaining_minor',     v_cap_row.remaining_minor
+    );
+
+    IF COALESCE(v_cap_row.remaining_minor, 0) < v_amount THEN
+      v_reason_code := 'BLOCKED_INSUFFICIENT_CAPACITY';
+      INSERT INTO public.payout_audit_log(booking_id,provider_user_id,actor,action,reason,detail)
+      VALUES (_booking_id,v_provider,'step7_worker','authorize.refuse', v_reason_code,
+              jsonb_build_object('request_id', _request_id,
+                                 'capacity', v_capacity,
+                                 'required_minor', v_amount));
+      RETURN jsonb_build_object('ok', false, 'reason_code', v_reason_code,
+                                'capacity', v_capacity);
+    END IF;
   END;
-  IF COALESCE((v_capacity->>'available_minor')::bigint, 0) < v_amount THEN
-    v_reason_code := 'BLOCKED_INSUFFICIENT_CAPACITY';
-    INSERT INTO public.payout_audit_log(booking_id,provider_user_id,actor,action,reason,detail)
-    VALUES (_booking_id,v_provider,'step7_worker','authorize.refuse', v_reason_code,
-            jsonb_build_object('request_id', _request_id, 'capacity', v_capacity, 'required_minor', v_amount));
-    RETURN jsonb_build_object('ok', false, 'reason_code', v_reason_code, 'capacity', v_capacity);
-  END IF;
 
   INSERT INTO public.payout_authorizations(
     request_id, requested_by, reason, booking_id, action, payload, status, expires_at
