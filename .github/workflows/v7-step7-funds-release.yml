@@ -74,6 +74,10 @@ jobs:
             git -C repo fetch --no-tags --prune --depth=1 origin "+refs/heads/$FALLBACK_REF:refs/remotes/origin/$FALLBACK_REF"
             FALLBACK_SHA="$(git -C repo rev-parse "refs/remotes/origin/$FALLBACK_REF")"
             echo "Fallback SHA: $FALLBACK_SHA"
+            echo "Fallback package.json from $FALLBACK_REF@$FALLBACK_SHA:"
+            git -C repo show "$FALLBACK_SHA:staging-validation/package.json"
+            echo "Fallback script check:"
+            git -C repo show "$FALLBACK_SHA:staging-validation/package.json" | grep '"v7:step7"'
 
             # Extract only the staging-validation subtree from the fallback ref
             # without switching the working tree away from staging.
@@ -108,6 +112,10 @@ jobs:
             git -C repo fetch --no-tags --prune --depth=1 origin "+refs/heads/$FALLBACK_REF:refs/remotes/origin/$FALLBACK_REF"
             FALLBACK_SHA="$(git -C repo rev-parse "refs/remotes/origin/$FALLBACK_REF")"
             echo "Fallback SHA: $FALLBACK_SHA"
+            echo "Fallback package.json from $FALLBACK_REF@$FALLBACK_SHA:"
+            git -C repo show "$FALLBACK_SHA:staging-validation/package.json"
+            echo "Fallback script check:"
+            git -C repo show "$FALLBACK_SHA:staging-validation/package.json" | grep '"v7:step7"'
             rm -rf repo/staging-validation
             git -C repo archive --format=tar "$FALLBACK_SHA" -- staging-validation \
               | tar -x -C repo
