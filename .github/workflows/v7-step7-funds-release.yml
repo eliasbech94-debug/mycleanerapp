@@ -1,0 +1,88 @@
+name: Funds Release v7 Step 7 — Staging Evidence
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: v7-step7-staging
+  cancel-in-progress: false
+
+jobs:
+  step7:
+    name: Scenario 18 — dry-run rehearsal evidence
+    if: github.ref_name == 'staging'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: staging
+    env:
+      STAGING_SUPABASE_URL: ${{ secrets.STAGING_SUPABASE_URL }}
+      STAGING_SUPABASE_ANON_KEY: ${{ secrets.STAGING_SUPABASE_ANON_KEY }}
+      STAGING_SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.STAGING_SUPABASE_SERVICE_ROLE_KEY }}
+      STAGING_SUPABASE_PROJECT_REF: ${{ secrets.STAGING_SUPABASE_PROJECT_REF }}
+    steps:
+      - name: Guard — refuse to run outside the staging branch
+        env:
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          if [ "$REF_NAME" != "staging" ]; then
+            echo "Refusing to run: workflow must be dispatched from the 'staging' branch (got: $REF_NAME)."
+            exit 1
+          fi
+          echo "Branch guard OK: $REF_NAME"
+
+      - name: Guard — required staging secrets present
+        run: |
+          missing=0
+          for name in STAGING_SUPABASE_URL STAGING_SUPABASE_ANON_KEY STAGING_SUPABASE_SERVICE_ROLE_KEY STAGING_SUPABASE_PROJECT_REF; do
+            if [ -z "${!name}" ]; then
+              echo "Missing required secret: $name"
+              missing=1
+            fi
+          done
+          if [ "$missing" = "1" ]; then
+            exit 1
+          fi
+          echo "All required staging secrets are present."
+
+      - name: Checkout staging
+        uses: actions/checkout@v4
+        with:
+          ref: staging
+          fetch-depth: 1
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install staging-validation deps
+        working-directory: staging-validation
+        run: bun install --frozen-lockfile
+
+      - name: Run Scenario 18 (Funds Release v7 Step 7 rehearsal evidence)
+        working-directory: staging-validation
+        env:
+          NODE_ENV: staging
+          FUNDS_RELEASE_STEP: "7"
+        run: bun run v7:step7
+
+      - name: Collect redacted evidence
+        if: always()
+        working-directory: staging-validation
+        run: |
+          mkdir -p ../artifacts
+          if [ -d reports ]; then
+            cp -r reports ../artifacts/reports || true
+          fi
+          if [ -d logs ]; then
+            cp -r logs ../artifacts/logs || true
+          fi
+
+      - name: Upload evidence artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v7-step7-staging-evidence-${{ github.run_id }}
+          path: artifacts/
+          retention-days: 30
+          if-no-files-found: warn
