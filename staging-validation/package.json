@@ -7,6 +7,8 @@
     "run": "./run-rc2.sh",
     "rc2": "./run-rc2.sh --server-only",
     "rc2:p0.1": "tsx scenarios/16-p0-pricing-checkout.ts",
+    "v7:step6": "tsx scenarios/17-funds-release-step6.ts",
+    "v7:step7": "tsx scenarios/18-funds-release-step7.ts",
     "playwright": "playwright test --config=playwright.config.ts"
   },
   "dependencies": {
