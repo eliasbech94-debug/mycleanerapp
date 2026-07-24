@@ -145,25 +145,10 @@ CREATE UNIQUE INDEX provider_debt_allocations_dedup_idx ON public.provider_debt_
 
 CREATE INDEX provider_debt_items_provider_ccy_idx ON public.provider_debt_items USING btree (provider_user_id, currency, created_at, id);
 
-CREATE TRIGGER provider_balance_movements_no_delete BEFORE DELETE ON public.provider_balance_movements FOR EACH ROW EXECUTE FUNCTION public.reject_ledger_mutation();
+-- Append-only triggers on provider_balance_movements, provider_credit_items,
+-- provider_credit_allocations, provider_debt_items and provider_debt_allocations
+-- are installed in M-06 after public.reject_ledger_mutation() is defined.
 
-CREATE TRIGGER provider_balance_movements_no_update BEFORE UPDATE ON public.provider_balance_movements FOR EACH ROW EXECUTE FUNCTION public.reject_ledger_mutation();
-
-CREATE TRIGGER provider_credit_allocations_no_delete BEFORE DELETE ON public.provider_credit_allocations FOR EACH ROW EXECUTE FUNCTION public.reject_ledger_mutation();
-
-CREATE TRIGGER provider_credit_allocations_no_update BEFORE UPDATE ON public.provider_credit_allocations FOR EACH ROW EXECUTE FUNCTION public.reject_ledger_mutation();
-
-CREATE TRIGGER provider_credit_items_no_delete BEFORE DELETE ON public.provider_credit_items FOR EACH ROW EXECUTE FUNCTION public.reject_ledger_mutation();
-
-CREATE TRIGGER provider_credit_items_no_update BEFORE UPDATE ON public.provider_credit_items FOR EACH ROW EXECUTE FUNCTION public.reject_ledger_mutation();
-
-CREATE TRIGGER provider_debt_allocations_no_delete BEFORE DELETE ON public.provider_debt_allocations FOR EACH ROW EXECUTE FUNCTION public.reject_ledger_mutation();
-
-CREATE TRIGGER provider_debt_allocations_no_update BEFORE UPDATE ON public.provider_debt_allocations FOR EACH ROW EXECUTE FUNCTION public.reject_ledger_mutation();
-
-CREATE TRIGGER provider_debt_items_no_delete BEFORE DELETE ON public.provider_debt_items FOR EACH ROW EXECUTE FUNCTION public.reject_ledger_mutation();
-
-CREATE TRIGGER provider_debt_items_no_update BEFORE UPDATE ON public.provider_debt_items FOR EACH ROW EXECUTE FUNCTION public.reject_ledger_mutation();
 
 ALTER TABLE ONLY public.provider_balance_accounts
     ADD CONSTRAINT provider_balance_accounts_provider_user_id_fkey FOREIGN KEY (provider_user_id) REFERENCES auth.users(id) ON DELETE RESTRICT;
