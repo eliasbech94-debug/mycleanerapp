@@ -168,6 +168,12 @@ ALTER TABLE ONLY public.provider_balance_movements
 ALTER TABLE ONLY public.provider_bank_payouts
     ADD CONSTRAINT provider_bank_payouts_provider_user_id_fkey FOREIGN KEY (provider_user_id) REFERENCES auth.users(id) ON DELETE RESTRICT;
 
+-- FK deferred from M-03 (booking_bank_payout_attributions was created there,
+-- provider_bank_payouts is created in this migration). Installed here to avoid
+-- forward table dependency.
+ALTER TABLE ONLY public.booking_bank_payout_attributions
+    ADD CONSTRAINT booking_bank_payout_attributions_provider_bank_payout_id_fkey FOREIGN KEY (provider_bank_payout_id) REFERENCES public.provider_bank_payouts(id) ON DELETE RESTRICT;
+
 ALTER TABLE ONLY public.provider_credit_allocations
     ADD CONSTRAINT provider_credit_allocations_booking_id_fkey FOREIGN KEY (booking_id) REFERENCES public.bookings(id) ON DELETE RESTRICT;
 
