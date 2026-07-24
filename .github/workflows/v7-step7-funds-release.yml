@@ -71,9 +71,13 @@ jobs:
             echo "staging-validation not found on 'staging' branch."
             echo "Falling back to ref: $FALLBACK_REF"
             # Use a separate directory so we do not disturb the staging checkout.
-            git -C repo fetch --depth=1 origin "$FALLBACK_REF"
-            FALLBACK_SHA="$(git -C repo rev-parse FETCH_HEAD)"
+            git -C repo fetch --no-tags --prune --depth=1 origin "+refs/heads/$FALLBACK_REF:refs/remotes/origin/$FALLBACK_REF"
+            FALLBACK_SHA="$(git -C repo rev-parse "refs/remotes/origin/$FALLBACK_REF")"
             echo "Fallback SHA: $FALLBACK_SHA"
+            echo "Fallback package.json from $FALLBACK_REF@$FALLBACK_SHA:"
+            git -C repo show "$FALLBACK_SHA:staging-validation/package.json"
+            echo "Fallback script check:"
+            git -C repo show "$FALLBACK_SHA:staging-validation/package.json" | grep '"v7:step7"'
 
             # Extract only the staging-validation subtree from the fallback ref
             # without switching the working tree away from staging.
@@ -102,6 +106,34 @@ jobs:
             exit 1
           fi
 
+          if ! grep -q '"v7:step7"' "$HARNESS_PATH/package.json"; then
+            echo "WARNING: Existing harness package.json does not contain v7:step7."
+            echo "Falling back to latest ref: $FALLBACK_REF"
+            git -C repo fetch --no-tags --prune --depth=1 origin "+refs/heads/$FALLBACK_REF:refs/remotes/origin/$FALLBACK_REF"
+            FALLBACK_SHA="$(git -C repo rev-parse "refs/remotes/origin/$FALLBACK_REF")"
+            echo "Fallback SHA: $FALLBACK_SHA"
+            echo "Fallback package.json from $FALLBACK_REF@$FALLBACK_SHA:"
+            git -C repo show "$FALLBACK_SHA:staging-validation/package.json"
+            echo "Fallback script check:"
+            git -C repo show "$FALLBACK_SHA:staging-validation/package.json" | grep '"v7:step7"'
+            rm -rf repo/staging-validation
+            git -C repo archive --format=tar "$FALLBACK_SHA" -- staging-validation \
+              | tar -x -C repo
+            HARNESS_PATH="repo/staging-validation"
+            echo "harness_source=fallback:$FALLBACK_REF@$FALLBACK_SHA" >> "$GITHUB_OUTPUT"
+            echo "harness_dir=$HARNESS_PATH" >> "$GITHUB_OUTPUT"
+          fi
+
+          echo "=== Scenario 18 harness diagnostics ==="
+          cd "$HARNESS_PATH"
+          echo "pwd: $(pwd)"
+          echo "ls -la:"
+          ls -la
+          echo "package.json:"
+          cat package.json
+          echo "grep v7:step7:"
+          grep '"v7:step7"' package.json
+
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
         with:
@@ -110,6 +142,11 @@ jobs:
       - name: Install staging-validation deps
         working-directory: ${{ steps.layout.outputs.harness_dir }}
         run: |
+          echo "=== Pre-install harness diagnostics ==="
+          pwd
+          ls -la
+          cat package.json
+          grep '"v7:step7"' package.json
           if [ -f bun.lock ] || [ -f bun.lockb ]; then
             bun install --frozen-lockfile
           else
@@ -123,7 +160,15 @@ jobs:
           NODE_ENV: staging
           FUNDS_RELEASE_STEP: "7"
           HARNESS_SOURCE: ${{ steps.layout.outputs.harness_source }}
-        run: bun run v7:step7
+        run: |
+          echo "=== Pre-run harness diagnostics ==="
+          git rev-parse HEAD
+          git branch --show-current
+          pwd
+          ls -la
+          cat package.json
+          grep '"v7:step7"' package.json || true
+          bun run v7:step7
 
       - name: Collect redacted evidence
         if: always()
