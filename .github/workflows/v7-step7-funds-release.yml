@@ -1,0 +1,100 @@
+name: Funds Release v7 Step 7 — Staging Evidence
+
+# Manually triggered only. Runs Scenario 18 (Funds Release v7 Step 7:
+# dual-control authorization + dry-run rehearsal) against the staging
+# environment. Never runs on push. Never deploys. Never touches production.
+# The feature flag funds_release.enabled MUST remain false throughout.
+# See docs/finance/FUNDS_RELEASE_V7_STEP7_REPORT.md.
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_note:
+        description: "Optional free-text note attached to the run"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: v7-step7-staging
+  cancel-in-progress: false
+
+jobs:
+  step7:
+    # Hard gate: this workflow is only allowed on the `staging` branch.
+    if: github.ref == 'refs/heads/staging'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: staging-validation
+
+    env:
+      STAGING_SUPABASE_URL: ${{ secrets.STAGING_SUPABASE_URL }}
+      STAGING_SUPABASE_ANON_KEY: ${{ secrets.STAGING_SUPABASE_ANON_KEY }}
+      STAGING_SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.STAGING_SUPABASE_SERVICE_ROLE_KEY }}
+      STAGING_PG_CONN: ${{ secrets.STAGING_PG_CONN }}
+      V7_STEP7_RUN_ID: gha-${{ github.run_id }}-${{ github.run_attempt }}
+
+    steps:
+      - name: Guard — refuse to run outside the staging branch
+        run: |
+          if [ "${GITHUB_REF}" != "refs/heads/staging" ]; then
+            echo "This workflow may only run against refs/heads/staging (got ${GITHUB_REF})."
+            exit 1
+          fi
+
+      - name: Guard — required staging secrets present
+        run: |
+          missing=0
+          for name in STAGING_SUPABASE_URL STAGING_SUPABASE_ANON_KEY STAGING_SUPABASE_SERVICE_ROLE_KEY STAGING_PG_CONN; do
+            if [ -z "${!name}" ]; then
+              echo "Missing required secret: $name"
+              missing=1
+            fi
+          done
+          if [ "$missing" = "1" ]; then exit 1; fi
+
+      - name: Checkout (staging)
+        uses: actions/checkout@v4
+        with:
+          ref: staging
+          persist-credentials: false
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies (frozen)
+        run: bun install --frozen-lockfile
+
+      - name: Run Funds Release v7 Step 7 scenario (Scenario 18)
+        # Scenario 18 asserts all 14 checks: privilege lockdown,
+        # dry-run-only state transitions, idempotency, advisory locking,
+        # executable-path isolation (no ledger/bank/transfer/payout writes),
+        # and feature-flag OFF invariant.
+        run: bun run v7:step7
+
+      - name: Verify evidence artefacts exist
+        if: always()
+        run: |
+          set -e
+          ls -R evidence/"${V7_STEP7_RUN_ID}" || (echo "No evidence produced"; exit 1)
+          test -f "evidence/${V7_STEP7_RUN_ID}/report.json" || (echo "report.json missing"; exit 1)
+
+      - name: Upload redacted evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v7-step7-staging-evidence
+          retention-days: 30
+          if-no-files-found: error
+          # Only redacted machine-readable + markdown summaries. Never
+          # raw HTTP transcripts or environment files.
+          path: |
+            staging-validation/evidence/**/report.json
+            staging-validation/evidence/**/report.md
+            staging-validation/evidence/**/manifest.json
