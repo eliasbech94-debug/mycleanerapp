@@ -297,8 +297,8 @@ REVOKE ALL ON FUNCTION public.post_ledger_transaction_v1(text,text,character,jso
 GRANT EXECUTE ON FUNCTION public.post_ledger_transaction_v1(text,text,character,jsonb,uuid,uuid,text,text,jsonb) TO service_role;
 REVOKE ALL ON FUNCTION public.classify_booking_payment_flow_v1(uuid,public.booking_payment_flow_version,text) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION public.classify_booking_payment_flow_v1(uuid,public.booking_payment_flow_version,text) TO service_role;
-REVOKE ALL ON FUNCTION public.get_source_transfer_capacity_v1(text) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION public.get_source_transfer_capacity_v1(text) TO service_role;
+REVOKE ALL ON FUNCTION public.get_source_transfer_capacity_v1(text, character, bigint) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.get_source_transfer_capacity_v1(text, character, bigint) TO service_role;
 REVOKE ALL ON FUNCTION public.get_booking_captured_gross_minor_v1(uuid) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION public.get_booking_captured_gross_minor_v1(uuid) TO service_role;
 REVOKE ALL ON FUNCTION public.get_booking_refunded_gross_minor_v1(uuid) FROM PUBLIC;
