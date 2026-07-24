@@ -204,6 +204,9 @@ CREATE TRIGGER ledger_entries_currency_match    AFTER INSERT ON public.ledger_en
 CREATE CONSTRAINT TRIGGER ledger_entry_balance_check AFTER INSERT ON public.ledger_entries
   DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION public.validate_ledger_transaction_balance();
 
+CREATE TRIGGER ledger_tx_event_enabled BEFORE INSERT ON public.ledger_transactions
+  FOR EACH ROW EXECUTE FUNCTION public.ledger_event_enabled_check();
+
 -- Append-only triggers on ingest / balance / credit / debt tables ------------
 CREATE TRIGGER booking_bank_payout_attributions_no_update BEFORE UPDATE ON public.booking_bank_payout_attributions FOR EACH ROW EXECUTE FUNCTION public.reject_ledger_mutation();
 CREATE TRIGGER booking_bank_payout_attributions_no_delete BEFORE DELETE ON public.booking_bank_payout_attributions FOR EACH ROW EXECUTE FUNCTION public.reject_ledger_mutation();
