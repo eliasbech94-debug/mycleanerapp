@@ -168,6 +168,10 @@ jobs:
           ls -la
           cat package.json
           grep '"v7:step7"' package.json || true
+          echo "=== Scenarios directory tree ==="
+          ls -R scenarios || true
+          echo "=== Resolved v7:step7 target ==="
+          ls -la scenarios/18-funds-release-step7.ts || true
           bun run v7:step7
 
       - name: Collect redacted evidence
