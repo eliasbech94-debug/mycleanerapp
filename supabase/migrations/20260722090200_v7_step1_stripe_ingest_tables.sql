@@ -116,17 +116,10 @@ CREATE INDEX stripe_refund_events_refund_idx ON public.stripe_refund_events USIN
 
 CREATE INDEX stripe_source_transfer_events_charge_idx ON public.stripe_source_transfer_events USING btree (source_charge_id, event_kind);
 
-CREATE TRIGGER booking_bank_payout_attributions_no_delete BEFORE DELETE ON public.booking_bank_payout_attributions FOR EACH ROW EXECUTE FUNCTION public.reject_ledger_mutation();
+-- Append-only triggers on booking_bank_payout_attributions, stripe_refund_events,
+-- and stripe_source_transfer_events are installed in M-06 after
+-- public.reject_ledger_mutation() is defined.
 
-CREATE TRIGGER booking_bank_payout_attributions_no_update BEFORE UPDATE ON public.booking_bank_payout_attributions FOR EACH ROW EXECUTE FUNCTION public.reject_ledger_mutation();
-
-CREATE TRIGGER stripe_refund_events_no_delete BEFORE DELETE ON public.stripe_refund_events FOR EACH ROW EXECUTE FUNCTION public.reject_ledger_mutation();
-
-CREATE TRIGGER stripe_refund_events_no_update BEFORE UPDATE ON public.stripe_refund_events FOR EACH ROW EXECUTE FUNCTION public.reject_ledger_mutation();
-
-CREATE TRIGGER stripe_source_transfer_events_no_delete BEFORE DELETE ON public.stripe_source_transfer_events FOR EACH ROW EXECUTE FUNCTION public.reject_ledger_mutation();
-
-CREATE TRIGGER stripe_source_transfer_events_no_update BEFORE UPDATE ON public.stripe_source_transfer_events FOR EACH ROW EXECUTE FUNCTION public.reject_ledger_mutation();
 
 ALTER TABLE ONLY public.booking_bank_payout_attributions
     ADD CONSTRAINT booking_bank_payout_attributions_booking_id_fkey FOREIGN KEY (booking_id) REFERENCES public.bookings(id) ON DELETE RESTRICT;

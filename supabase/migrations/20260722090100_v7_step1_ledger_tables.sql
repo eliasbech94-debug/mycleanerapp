@@ -64,25 +64,13 @@ CREATE INDEX ledger_transactions_posted_at_idx ON public.ledger_transactions USI
 
 CREATE INDEX ledger_transactions_provider_idx ON public.ledger_transactions USING btree (provider_user_id);
 
-CREATE TRIGGER ledger_entries_currency_match AFTER INSERT ON public.ledger_entries FOR EACH ROW EXECUTE FUNCTION public.ledger_entry_currency_match();
+-- Triggers on ledger_entries and ledger_transactions are installed in M-06
+-- (20260722090500_v7_step2_ledger_safeguards.sql) after their trigger functions
+-- exist. Creating them here would fail with 42883 because the functions
+-- (ledger_entry_currency_match, ledger_writer_guard, reject_ledger_mutation,
+-- validate_ledger_transaction_balance, ledger_event_enabled_check) are
+-- defined in M-06.
 
-CREATE TRIGGER ledger_entries_no_delete BEFORE DELETE ON public.ledger_entries FOR EACH ROW EXECUTE FUNCTION public.reject_ledger_mutation();
-
-CREATE TRIGGER ledger_entries_no_update BEFORE UPDATE ON public.ledger_entries FOR EACH ROW EXECUTE FUNCTION public.reject_ledger_mutation();
-
-CREATE TRIGGER ledger_entries_writer_guard BEFORE INSERT ON public.ledger_entries FOR EACH ROW EXECUTE FUNCTION public.ledger_writer_guard();
-
-CREATE CONSTRAINT TRIGGER ledger_entry_balance_check AFTER INSERT ON public.ledger_entries DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION public.validate_ledger_transaction_balance();
-
-CREATE TRIGGER ledger_transactions_no_delete BEFORE DELETE ON public.ledger_transactions FOR EACH ROW EXECUTE FUNCTION public.reject_ledger_mutation();
-
-CREATE TRIGGER ledger_transactions_no_update BEFORE UPDATE ON public.ledger_transactions FOR EACH ROW EXECUTE FUNCTION public.reject_ledger_mutation();
-
-CREATE TRIGGER ledger_transactions_writer_guard BEFORE INSERT ON public.ledger_transactions FOR EACH ROW EXECUTE FUNCTION public.ledger_writer_guard();
-
-CREATE CONSTRAINT TRIGGER ledger_tx_balance_check AFTER INSERT ON public.ledger_transactions DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION public.validate_ledger_transaction_balance();
-
-CREATE TRIGGER ledger_tx_event_enabled BEFORE INSERT ON public.ledger_transactions FOR EACH ROW EXECUTE FUNCTION public.ledger_event_enabled_check();
 
 ALTER TABLE ONLY public.ledger_entries
     ADD CONSTRAINT ledger_entries_account_fkey FOREIGN KEY (account) REFERENCES public.finance_accounts(code);
