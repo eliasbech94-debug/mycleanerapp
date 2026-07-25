@@ -2,20 +2,26 @@
  * AppContext — the canonical Context Engine for MyCleaner.
  *
  * Vision v1.0 mandates ONE global context that resolves every signal a
- * page might need. Do not create parallel context stores; extend this one.
+ * page or future feature might need. Do NOT create parallel context
+ * stores; extend this one.
+ *
+ * Every homepage component, booking flow, provider page, search result,
+ * AI Concierge and future service category reads from `useAppContext()`.
+ * No hardcoded countries, cities, currencies, copy or duplicated logic.
  *
  * Composes (never duplicates state):
- *   - market      → ActiveMarketContext (address → profile → explicit → locale → neutral)
- *   - auth        → useAuth (user, session, profile, loading)
- *   - roles       → user_roles table via useUserRoles
- *   - category    → active service category (URL ?category= or explicit setter, persisted)
- *   - device      → viewport-derived (mobile / tablet / desktop)
- *   - time        → part-of-day + weekend flag, recomputed every minute in market timezone
- *   - campaign    → URL ?utm_campaign / ?campaign (persisted for the session)
- *   - locale      → market.locale (single source; do not read navigator.language elsewhere)
- *
- * Read-only surface. Mutations go through the owning provider
- * (setMarket, setCategory, signOut, …).
+ *   - market            → ActiveMarketContext (address > profile > explicit > locale > neutral)
+ *   - auth              → useAuth (user, session, profile, loading)
+ *   - roles / userType  → user_roles table via useUserRoles
+ *   - category          → active service category (URL ?category=, persisted)
+ *   - device            → viewport-derived (mobile / tablet / desktop)
+ *   - time              → part-of-day + weekend flag, per market timezone, ticks every minute
+ *   - campaign          → URL ?utm_campaign / ?campaign (persisted for the session)
+ *   - locale            → market.locale
+ *   - bookingAddress    → primary customer_addresses row (source of truth for market)
+ *   - favouriteProviders→ customer_favorites for the signed-in customer
+ *   - isReturningCustomer → derived from bookings count
+ *   - featureFlags      → async evaluator bound to current market/user/provider
  */
 import {
   createContext,
@@ -30,6 +36,8 @@ import { useLocation } from "react-router-dom";
 import { useActiveMarket } from "@/context/ActiveMarketContext";
 import { useAuth, type Profile } from "@/hooks/useAuth";
 import { useUserRoles } from "@/hooks/useUserRoles";
+import { hasFlag as evaluateFlag } from "@/lib/featureFlags";
+import { supabase } from "@/integrations/supabase/client";
 import type { Market } from "@/lib/markets";
 
 /* -------------------------------------------------------------------------- */
@@ -76,8 +84,7 @@ function categoryBySlug(slug?: string | null): ServiceCategory | null {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Device — coarse breakpoints; consumers should still prefer CSS media       */
-/* queries for layout, and use this only for behavioural branching.           */
+/* Device                                                                     */
 /* -------------------------------------------------------------------------- */
 
 export type DeviceKind = "mobile" | "tablet" | "desktop";
@@ -89,8 +96,7 @@ function deviceFor(width: number): DeviceKind {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Time-of-day — resolved in the active market's timezone so a Berlin visitor */
-/* served from a CDN in Ireland still sees the correct greeting.              */
+/* Time-of-day — resolved in the active market's timezone.                    */
 /* -------------------------------------------------------------------------- */
 
 export type PartOfDay = "morning" | "afternoon" | "evening" | "night";
@@ -122,10 +128,39 @@ function timeInZone(tz: string): { hour: number; weekday: number } {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Context value                                                              */
+/* User type — a coarse, product-facing classification derived from roles.    */
+/* Guests are unauthenticated visitors. Admin covers admin + super_admin.     */
 /* -------------------------------------------------------------------------- */
 
+export type UserType = "guest" | "customer" | "provider" | "admin";
 export type AppRole = "customer" | "provider" | "employee" | "support" | "admin" | "super_admin";
+
+function classifyUser(isAuthenticated: boolean, roles: AppRole[]): UserType {
+  if (!isAuthenticated) return "guest";
+  if (roles.includes("admin") || roles.includes("super_admin")) return "admin";
+  if (roles.includes("provider")) return "provider";
+  return "customer";
+}
+
+/* -------------------------------------------------------------------------- */
+/* Booking address                                                            */
+/* -------------------------------------------------------------------------- */
+
+export type BookingAddress = {
+  id: string;
+  formatted_address: string | null;
+  address_line1: string | null;
+  postal_code: string | null;
+  city: string | null;
+  address_country_code: string | null;
+  lat: number | null;
+  lng: number | null;
+  is_primary: boolean;
+};
+
+/* -------------------------------------------------------------------------- */
+/* Context value                                                              */
+/* -------------------------------------------------------------------------- */
 
 export interface AppContextValue {
   // Market
@@ -140,6 +175,7 @@ export interface AppContextValue {
   authLoading: boolean;
   roles: AppRole[];
   hasRole: (role: AppRole) => boolean;
+  userType: UserType;
 
   // Service category
   category: ServiceCategory;
@@ -161,6 +197,17 @@ export interface AppContextValue {
 
   // Locale — always derived from active market
   locale: string;
+
+  // Booking / service address (source of truth for market)
+  bookingAddress: BookingAddress | null;
+
+  // Customer relationship
+  favouriteProviderIds: string[];
+  isReturningCustomer: boolean;
+
+  // Feature flags — async evaluator bound to current context.
+  // Use for gated features that need country/user targeting.
+  hasFeatureFlag: (key: string) => Promise<boolean>;
 }
 
 const Ctx = createContext<AppContextValue | null>(null);
@@ -170,6 +217,11 @@ export function AppContextProvider({ children }: { children: ReactNode }) {
   const { user, session, profile, loading: authLoading } = useAuth();
   const { roles: rawRoles } = useUserRoles();
   const location = useLocation();
+
+  const roles = (rawRoles ?? []) as AppRole[];
+  const hasRole = useCallback((r: AppRole) => roles.includes(r), [roles]);
+  const isAuthenticated = !!user;
+  const userType = classifyUser(isAuthenticated, roles);
 
   // ---------- Category (URL query > localStorage > default) ----------
   const urlCategory = useMemo(() => {
@@ -228,8 +280,56 @@ export function AppContextProvider({ children }: { children: ReactNode }) {
     [market.timezone, tick]
   );
 
-  const roles = (rawRoles ?? []) as AppRole[];
-  const hasRole = useCallback((r: AppRole) => roles.includes(r), [roles]);
+  // ---------- Customer-scoped data (address, favourites, returning) ----------
+  const [bookingAddress, setBookingAddress] = useState<BookingAddress | null>(null);
+  const [favouriteProviderIds, setFavouriteProviderIds] = useState<string[]>([]);
+  const [isReturningCustomer, setReturning] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!user) {
+      setBookingAddress(null);
+      setFavouriteProviderIds([]);
+      setReturning(false);
+      return;
+    }
+    (async () => {
+      const [{ data: addr }, { data: favs }, { count }] = await Promise.all([
+        supabase
+          .from("customer_addresses")
+          .select("id,formatted_address,address_line1,postal_code,city,address_country_code,lat,lng,is_primary,updated_at")
+          .eq("user_id", user.id)
+          .order("is_primary", { ascending: false })
+          .order("updated_at", { ascending: false })
+          .limit(1)
+          .maybeSingle(),
+        supabase
+          .from("customer_favorites")
+          .select("provider_id")
+          .eq("customer_id", user.id),
+        supabase
+          .from("bookings")
+          .select("id", { count: "exact", head: true })
+          .eq("customer_id", user.id),
+      ]);
+      if (cancelled) return;
+      setBookingAddress((addr as BookingAddress | null) ?? null);
+      setFavouriteProviderIds(((favs ?? []) as { provider_id: string }[]).map((r) => r.provider_id));
+      setReturning((count ?? 0) > 0);
+    })();
+    return () => { cancelled = true; };
+  }, [user]);
+
+  // ---------- Feature flags — bound to current context ----------
+  const hasFeatureFlag = useCallback(
+    (key: string) =>
+      evaluateFlag(key, {
+        userId: user?.id,
+        providerId: profile?.provider_id ?? undefined,
+        countryIso: market.code === "EU" ? undefined : market.code,
+      }),
+    [user?.id, profile?.provider_id, market.code],
+  );
 
   const value: AppContextValue = {
     market,
@@ -238,10 +338,11 @@ export function AppContextProvider({ children }: { children: ReactNode }) {
     user,
     session,
     profile,
-    isAuthenticated: !!user,
+    isAuthenticated,
     authLoading,
     roles,
     hasRole,
+    userType,
 
     category,
     categories: SERVICE_CATEGORIES,
@@ -258,6 +359,13 @@ export function AppContextProvider({ children }: { children: ReactNode }) {
     campaign,
 
     locale: market.locale,
+
+    bookingAddress,
+
+    favouriteProviderIds,
+    isReturningCustomer,
+
+    hasFeatureFlag,
   };
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
