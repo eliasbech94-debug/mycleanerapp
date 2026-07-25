@@ -17,11 +17,16 @@ export function CleanerResultsList({
   loading,
   emptyLabel,
   isDemo = false,
+  error = null,
+  onRetry,
 }: {
   providers: MarketplaceProvider[] | null;
   loading: boolean;
   emptyLabel?: string;
   isDemo?: boolean;
+  /** Structured error object from useMarketplaceProviders. Never rendered raw. */
+  error?: null | { code: string; message: string };
+  onRetry?: () => void;
 }) {
   const { t } = useTranslation("marketplace");
   const fav = useFavoriteProviders();
@@ -52,15 +57,35 @@ export function CleanerResultsList({
         aria-busy={loading}
         className="flex flex-col gap-3"
       >
-        {loading && (!providers || providers.length === 0)
-          ? Array.from({ length: 3 }).map((_, i) => <SkeletonRow key={i} />)
-          : (providers ?? []).length === 0
-          ? (
-            <div className="rounded-2xl border border-dashed border-[hsl(var(--mkt-border-strong))] bg-[hsl(var(--mkt-surface))] p-10 text-center text-[14px] text-[hsl(var(--mkt-ink-muted))]">
-              {t("results.empty", { defaultValue: "No cleaners yet in {{area}}. Try another area.", area: emptyLabel ?? t("results.empty_area", "your area") })}
-            </div>
-          )
-          : (providers ?? []).slice(0, 6).map((p) => (
+        {loading && (!providers || providers.length === 0) ? (
+          Array.from({ length: 3 }).map((_, i) => <SkeletonRow key={i} />)
+        ) : error ? (
+          <div
+            role="alert"
+            className="rounded-2xl border border-[hsl(var(--mkt-border-strong))] bg-[hsl(var(--mkt-surface))] p-8 text-center"
+          >
+            <p className="text-[14px] font-medium text-[hsl(var(--mkt-ink))]">
+              {t("results.error_title", "We couldn't load available cleaners right now.")}
+            </p>
+            <p className="mt-1 text-[13px] text-[hsl(var(--mkt-ink-muted))]">
+              {t("results.error_hint", "Please try again in a moment.")}
+            </p>
+            {onRetry && (
+              <button
+                type="button"
+                onClick={onRetry}
+                className="mt-4 inline-flex items-center justify-center rounded-lg bg-[hsl(var(--mkt-brand))] px-4 py-2 text-[13px] font-semibold text-[hsl(var(--mkt-brand-on))] transition hover:bg-[hsl(var(--mkt-brand-hover))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--mkt-brand))] focus-visible:ring-offset-2"
+              >
+                {t("results.retry", "Try again")}
+              </button>
+            )}
+          </div>
+        ) : (providers ?? []).length === 0 ? (
+          <div className="rounded-2xl border border-dashed border-[hsl(var(--mkt-border-strong))] bg-[hsl(var(--mkt-surface))] p-10 text-center text-[14px] text-[hsl(var(--mkt-ink-muted))]">
+            {t("results.empty", { defaultValue: "No cleaners yet in {{area}}. Try another area.", area: emptyLabel ?? t("results.empty_area", "your area") })}
+          </div>
+        ) : (
+          (providers ?? []).slice(0, 6).map((p) => (
             <ProviderRow
               key={p.provider_slug}
               p={p}
@@ -68,7 +93,8 @@ export function CleanerResultsList({
               onToggleFav={() => fav.toggle(p.provider_slug)}
               pending={fav.isPending(p.provider_slug)}
             />
-          ))}
+          ))
+        )}
       </div>
     </section>
   );

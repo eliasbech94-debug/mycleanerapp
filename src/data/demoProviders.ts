@@ -1,15 +1,17 @@
 import type { MarketplaceProvider } from "@/hooks/useMarketplaceProviders";
 
 /**
- * Demo providers — HOMEPAGE PRESENTATION ONLY.
+ * Demo providers — **development / explicit demo mode only**.
  *
- * Rendered as a visual placeholder when no real providers match the
- * active market so the homepage never appears empty. These entries are
- * never bookable: their slugs point at `#` and BookingSidebar / checkout
- * ignore them. Do not import into Marketplace, FindCleaner, or any
- * server-side path.
+ * These are fictional cleaners used exclusively for local UI development
+ * and design review. They must NEVER be rendered in staging or production
+ * because they carry invented names, ratings, prices, and availability
+ * that could mislead real customers.
+ *
+ * Gate: enabled when `import.meta.env.DEV` is true, or when the build
+ * defines `VITE_ENABLE_DEMO_PROVIDERS === "true"`.
  */
-export const DEMO_PROVIDERS: MarketplaceProvider[] = [
+const DEMO_PROVIDERS_INTERNAL: MarketplaceProvider[] = [
   {
     provider_slug: "demo-maria-silva",
     display_name: "Maria Silva",
@@ -65,5 +67,24 @@ export const DEMO_PROVIDERS: MarketplaceProvider[] = [
     total_count: 3,
   },
 ];
+
+/** True only in development or when the demo flag is explicitly enabled. */
+export function isDemoProvidersEnabled(): boolean {
+  try {
+    // Vite exposes DEV as a compile-time boolean; guard for non-Vite envs (tests).
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const env = (import.meta as any)?.env ?? {};
+    if (env.DEV === true) return true;
+    if (env.VITE_ENABLE_DEMO_PROVIDERS === "true") return true;
+  } catch {
+    /* noop */
+  }
+  return false;
+}
+
+/** Empty in staging/production; populated only when demo mode is on. */
+export const DEMO_PROVIDERS: MarketplaceProvider[] = isDemoProvidersEnabled()
+  ? DEMO_PROVIDERS_INTERNAL
+  : [];
 
 export const isDemoProviderSlug = (slug: string) => slug.startsWith("demo-");

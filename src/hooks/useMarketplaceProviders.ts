@@ -42,7 +42,9 @@ type State = {
   data: MarketplaceProvider[] | null;
   total: number;
   loading: boolean;
-  error: string | null;
+  /** Structured error code so UIs can render "temporarily unavailable" without
+   *  leaking raw Postgres error text. `null` when the last call succeeded. */
+  error: null | { code: "rpc_failed"; message: string };
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -72,7 +74,9 @@ export function useMarketplaceProviders(query: MarketplaceQuery, opts?: { realti
     // Drop stale response
     if (id !== reqIdRef.current) return;
     if (error) {
-      setState({ data: [], total: 0, loading: false, error: error.message });
+      // Log for observability but never leak raw DB error text to the UI.
+      if (typeof console !== "undefined") console.error("[marketplace] search_marketplace_providers_v1 failed", error);
+      setState({ data: null, total: 0, loading: false, error: { code: "rpc_failed", message: error.message } });
       return;
     }
     const list = (data as MarketplaceProvider[] | null) ?? [];
