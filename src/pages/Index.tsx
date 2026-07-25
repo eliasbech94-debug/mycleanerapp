@@ -417,7 +417,7 @@ function ProviderCard({ p, sym }: { p: ProviderRow; sym: string }) {
 
   return (
     <Link
-      to={`/c/${p.provider_slug}`}
+      to={`/p/${p.provider_slug}?src=marketplace_pick`}
       className="group relative flex flex-col overflow-hidden rounded-2xl border border-white/[0.06] bg-[#0b1f1e] transition hover:-translate-y-1 hover:border-white/[0.14] hover:shadow-[0_30px_60px_-20px_rgba(0,0,0,0.7)]"
     >
       <div className="relative aspect-[4/5] overflow-hidden bg-gradient-to-br from-[#0a3d3a] to-[#04100f]">
