@@ -409,6 +409,8 @@ export type Database = {
       }
       bookings: {
         Row: {
+          acquisition_provider_id: string | null
+          acquisition_source: string
           address: string
           address_place_id: string | null
           authorization_expires_at: string | null
@@ -469,6 +471,8 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          acquisition_provider_id?: string | null
+          acquisition_source?: string
           address: string
           address_place_id?: string | null
           authorization_expires_at?: string | null
@@ -529,6 +533,8 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          acquisition_provider_id?: string | null
+          acquisition_source?: string
           address?: string
           address_place_id?: string | null
           authorization_expires_at?: string | null
@@ -5936,6 +5942,7 @@ export type Database = {
           display_name: string
           equipment_badges: Json
           identity_verified_badge: boolean
+          insurance_valid: boolean
           languages: string[]
           marketplace_score: number
           price_from: number
@@ -6101,6 +6108,13 @@ export type Database = {
           added_at: string
           provider_id: string
           provider_slug: string
+        }[]
+      }
+      list_provider_bookable_slots_v1: {
+        Args: { _from: string; _slug: string; _to: string }
+        Returns: {
+          slot_date: string
+          slot_hour: number
         }[]
       }
       lock_pricing_quote: {
