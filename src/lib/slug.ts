@@ -37,7 +37,7 @@ export function validateSlugFormat(input: string): SlugValidation {
 }
 
 /** Human-readable Danish reason mapper. */
-export function slugReasonLabel(reason: SlugValidation extends { ok: false; reason: infer R } ? R : never): string {
+export function slugReasonLabel(reason: SlugReason | string): string {
   switch (reason) {
     case "empty": return "Skriv et link-navn.";
     case "length": return `Skal være mellem ${SLUG_MIN} og ${SLUG_MAX} tegn.`;
