@@ -105,12 +105,16 @@ function ProviderRow({ p, isFav, onToggleFav, pending }: { p: MarketplaceProvide
 
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
-          <Link
-            to={`/p/${p.provider_slug}?src=marketplace_pick`}
-            className="text-[15.5px] font-semibold text-[hsl(var(--mkt-ink))] hover:text-[hsl(var(--mkt-brand))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--mkt-brand))]"
-          >
-            {p.display_name}
-          </Link>
+          {isDemoProviderSlug(p.provider_slug) ? (
+            <span className="text-[15.5px] font-semibold text-[hsl(var(--mkt-ink))]">{p.display_name}</span>
+          ) : (
+            <Link
+              to={`/p/${p.provider_slug}?src=marketplace_pick`}
+              className="text-[15.5px] font-semibold text-[hsl(var(--mkt-ink))] hover:text-[hsl(var(--mkt-brand))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--mkt-brand))]"
+            >
+              {p.display_name}
+            </Link>
+          )}
           {p.identity_verified_badge && (
             <ShieldCheck className="h-4 w-4 text-[hsl(var(--mkt-brand))]" aria-label={t("card.verified", "Verified")} />
           )}
