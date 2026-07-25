@@ -67,13 +67,13 @@ export function CleanerSearchBar({ compact = false }: { compact?: boolean }) {
       </Field>
       <Field label={t("search.service", "Service")} icon={<Sparkles className="h-4 w-4" />}>
         <select
-          value={category}
-          onChange={(e) => setCategory(e.target.value as (typeof CATEGORIES)[number])}
+          value={sub}
+          onChange={(e) => setSub(e.target.value as (typeof SUBCATEGORIES)[number])}
           className="w-full appearance-none bg-transparent text-[15px] text-[hsl(var(--mkt-ink))] focus:outline-none"
           aria-label={t("search.service", "Service")}
         >
-          {CATEGORIES.map((c) => (
-            <option key={c} value={c}>{t(`categories.${c}`, c)}</option>
+          {SUBCATEGORIES.map((c) => (
+            <option key={c} value={c}>{t(`categories.tiles.${c}`, c)}</option>
           ))}
         </select>
       </Field>
