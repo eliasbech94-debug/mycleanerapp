@@ -5,21 +5,22 @@ export const SLUG_RE = /^[a-z0-9](?:[a-z0-9-]{0,38}[a-z0-9])?$/;
 export const SLUG_MIN = 2;
 export const SLUG_MAX = 40;
 
+export type SlugReason =
+  | "empty"
+  | "length"
+  | "format"
+  | "reserved"
+  | "taken"
+  | "history_conflict"
+  | "rate_limited"
+  | "unauthorized"
+  | "current"
+  | "ok"
+  | "unknown";
+
 export type SlugValidation =
   | { ok: true; slug: string }
-  | {
-      ok: false;
-      reason:
-        | "empty"
-        | "length"
-        | "format"
-        | "reserved"
-        | "taken"
-        | "history_conflict"
-        | "rate_limited"
-        | "unauthorized"
-        | "unknown";
-    };
+  | { ok: false; reason: SlugReason };
 
 export function normalizeSlug(input: string): string {
   return (input ?? "").trim().toLowerCase();
