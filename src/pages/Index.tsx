@@ -1,30 +1,26 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import {
-  ArrowUpRight,
-  ArrowRight,
+  Search,
+  MapPin,
   Star,
   ShieldCheck,
-  MapPin,
+  Wallet,
+  Globe2,
+  Calendar as CalendarIcon,
+  ArrowRight,
   Clock,
   Sparkles,
-  Search,
-  Heart,
-  Zap,
-  Activity,
-  Command,
-  Radio,
-  ChevronRight,
-  Calendar as CalendarIcon,
 } from "lucide-react";
 
 /**
- * MyCleaner — Product surface (not a marketing page).
- *
- * The homepage is the app: live marketplace, live calendar, live activity.
- * Backend/routing untouched. UI reads from search_marketplace_providers_v1.
+ * MyCleaner — Home v2.
+ * Evolution of the current MyCleaner homepage: same DNA (dark green hero,
+ * orange accent, pill search, country chips, feature trio, provider grid),
+ * refined for spacing, typography, shadows, motion and a11y.
+ * Backend & routing untouched.
  */
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -38,8 +34,6 @@ type ProviderRow = {
   provider_tier: string;
   country_code: string | null;
   service_categories: string[] | null;
-  languages: string[] | null;
-  years_experience: number | null;
   price_from: number | null;
   service_radius_km: number | null;
   public_bio: string | null;
@@ -48,79 +42,32 @@ type ProviderRow = {
   average_rating: number;
   total_reviews: number;
   completed_bookings: number;
-  years_on_platform: number;
   total_count: number;
 };
 
 const MARKETS = [
-  { code: "DK", label: "København", currency: "DKK", flag: "🇩🇰" },
-  { code: "SE", label: "Stockholm", currency: "SEK", flag: "🇸🇪" },
-  { code: "DE", label: "Berlin", currency: "EUR", flag: "🇩🇪" },
-  { code: "GB", label: "London", currency: "GBP", flag: "🇬🇧" },
-  { code: "ES", label: "Madrid", currency: "EUR", flag: "🇪🇸" },
-  { code: "NL", label: "Amsterdam", currency: "EUR", flag: "🇳🇱" },
-  { code: "FR", label: "Paris", currency: "EUR", flag: "🇫🇷" },
-  { code: "NO", label: "Oslo", currency: "NOK", flag: "🇳🇴" },
+  { code: "DK", label: "Danmark", flag: "🇩🇰", currency: "DKK", sym: "kr" },
+  { code: "SE", label: "Sverige", flag: "🇸🇪", currency: "SEK", sym: "kr" },
+  { code: "GB", label: "United Kingdom", flag: "🇬🇧", currency: "GBP", sym: "£" },
+  { code: "DE", label: "Deutschland", flag: "🇩🇪", currency: "EUR", sym: "€" },
+  { code: "ES", label: "España", flag: "🇪🇸", currency: "EUR", sym: "€" },
 ];
 
-const CATEGORIES = [
-  { key: "cleaning", label: "Cleaning" },
-  { key: "handyman", label: "Handyman" },
-  { key: "garden", label: "Garden" },
-  { key: "moving", label: "Moving" },
-];
-
-const CURRENCY_SYMBOL: Record<string, string> = {
-  DKK: "kr", SEK: "kr", NOK: "kr", EUR: "€", GBP: "£",
-};
-
-// -- helpers ----------------------------------------------------------------
 function initials(name: string) {
   return name.split(/\s+/).map((p) => p[0]).filter(Boolean).slice(0, 2).join("").toUpperCase();
 }
 
-function useNow(intervalMs = 1000) {
-  const [now, setNow] = useState<Date>(() => new Date());
-  useEffect(() => {
-    const id = setInterval(() => setNow(new Date()), intervalMs);
-    return () => clearInterval(id);
-  }, [intervalMs]);
-  return now;
-}
-
-// Generate a stable pseudo-availability grid per provider slug + day.
-// Deterministic so it doesn't jitter between renders but varies across cards.
-function hashStr(s: string) {
-  let h = 2166136261;
-  for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
-  return h >>> 0;
-}
-function availabilityFor(slug: string, dayIndex: number): number[] {
-  // returns array of hour slots (9..18) that are OPEN
-  const h = hashStr(`${slug}:${dayIndex}`);
-  const open: number[] = [];
-  for (let hr = 9; hr <= 18; hr++) {
-    if (((h >> (hr - 9)) & 1) === 1) open.push(hr);
-  }
-  return open;
-}
-
-// ---------------------------------------------------------------------------
-// Page
-// ---------------------------------------------------------------------------
 export default function Index() {
   const { user } = useAuth();
   const [market, setMarket] = useState(MARKETS[0]);
-  const [category, setCategory] = useState<string>("cleaning");
-  const [providers, setProviders] = useState<ProviderRow[] | null>(null);
-  const [total, setTotal] = useState<number>(0);
   const [query, setQuery] = useState("");
+  const [providers, setProviders] = useState<ProviderRow[] | null>(null);
 
   const load = useCallback(async () => {
     setProviders(null);
     const { data } = await rpc("search_marketplace_providers_v1", {
       _country_code: market.code,
-      _service_category: category,
+      _service_category: "cleaning",
       _min_tier: null,
       _language: null,
       _max_hourly_rate: null,
@@ -129,14 +76,11 @@ export default function Index() {
       _limit: 8,
       _offset: 0,
     });
-    const list = (data as ProviderRow[] | null) ?? [];
-    setProviders(list);
-    setTotal(list[0]?.total_count ?? 0);
-  }, [market.code, category, query]);
+    setProviders(((data as ProviderRow[] | null) ?? []));
+  }, [market.code, query]);
 
   useEffect(() => { load(); }, [load]);
 
-  // Realtime pulse: refresh when provider profiles change.
   useEffect(() => {
     const ch = supabase.channel("index-marketplace")
       .on("postgres_changes", { event: "*", schema: "public", table: "provider_profiles" }, () => load())
@@ -145,98 +89,89 @@ export default function Index() {
   }, [load]);
 
   return (
-    <div className="min-h-screen bg-[#0b0f0e] text-white selection:bg-[#c8e6c0] selection:text-[#0a1f1e]">
-      <BackgroundGrid />
-      <TopBar market={market} setMarket={setMarket} user={!!user} />
-
-      <main className="relative z-10">
-        <HeroDock
-          market={market}
-          category={category}
-          setCategory={setCategory}
-          query={query}
-          setQuery={setQuery}
-          onSubmit={load}
-          total={total}
-        />
-
-        <LiveTicker market={market} providers={providers ?? []} />
-
-        <MarketplaceCanvas
-          providers={providers}
-          market={market}
-          category={category}
-        />
-
-        <CalendarStrip providers={providers ?? []} />
-
-        <BookingRail providers={providers ?? []} />
-
-        <FooterDock />
-      </main>
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Background — subtle grid + mesh, feels like an app canvas
-// ---------------------------------------------------------------------------
-function BackgroundGrid() {
-  return (
-    <div aria-hidden className="pointer-events-none fixed inset-0 z-0">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(22,138,122,0.18),transparent_55%),radial-gradient(ellipse_at_bottom_right,_rgba(255,107,53,0.10),transparent_55%)]" />
-      <div
-        className="absolute inset-0 opacity-[0.08]"
-        style={{
-          backgroundImage:
-            "linear-gradient(to right, rgba(255,255,255,0.6) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.6) 1px, transparent 1px)",
-          backgroundSize: "48px 48px",
-          maskImage: "radial-gradient(ellipse at 50% 30%, black 40%, transparent 85%)",
-          WebkitMaskImage: "radial-gradient(ellipse at 50% 30%, black 40%, transparent 85%)",
-        }}
+    <div className="min-h-screen bg-white text-[#0a1f1e]">
+      <TopBar user={!!user} market={market} setMarket={setMarket} />
+      <Hero
+        market={market}
+        setMarket={setMarket}
+        query={query}
+        setQuery={setQuery}
+        onSubmit={load}
       />
+      <TrustStrip />
+      <Features />
+      <ProviderSection providers={providers} market={market} />
+      <CalendarPreview />
+      <CTASection user={!!user} />
+      <Footer />
     </div>
   );
 }
 
-// ---------------------------------------------------------------------------
-// Top bar — command-line feel
-// ---------------------------------------------------------------------------
-function TopBar({ market, setMarket, user }: { market: typeof MARKETS[0]; setMarket: (m: typeof MARKETS[0]) => void; user: boolean }) {
+/* ------------------------------------------------------------------ */
+/* Top bar                                                             */
+/* ------------------------------------------------------------------ */
+function TopBar({ user, market, setMarket }: { user: boolean; market: typeof MARKETS[0]; setMarket: (m: typeof MARKETS[0]) => void }) {
+  const [openMarket, setOpenMarket] = useState(false);
   return (
-    <header className="relative z-20 border-b border-white/[0.06] bg-black/30 backdrop-blur-xl">
-      <div className="mx-auto flex max-w-[1400px] items-center justify-between gap-4 px-4 py-3 sm:px-6">
-        <Link to="/" className="flex items-center gap-2">
-          <div className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-[#168a7a] to-[#0a3d3a] shadow-[inset_0_1px_0_rgba(255,255,255,0.2)]">
-            <Sparkles className="h-4 w-4 text-white" />
+    <header className="sticky top-0 z-40 border-b border-black/[0.06] bg-white/85 backdrop-blur-xl">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
+        <Link to="/" className="flex items-center gap-2.5">
+          <div className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-[#0f4d47] to-[#0a3d3a] shadow-[inset_0_1px_0_rgba(255,255,255,0.15),0_2px_8px_-2px_rgba(10,61,58,0.4)]">
+            <Sparkles className="h-4.5 w-4.5 text-white" strokeWidth={2.25} />
           </div>
-          <span className="text-[15px] font-medium tracking-tight">MyCleaner</span>
-          <span className="ml-1 hidden rounded-md border border-white/10 px-1.5 py-0.5 text-[10px] uppercase tracking-widest text-white/60 sm:inline">Live</span>
+          <span className="text-[17px] font-semibold tracking-tight">MyCleaner</span>
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex">
-          {["Marketplace", "Calendar", "Providers", "How it works"].map((n, i) => (
+          {[
+            { label: "Home", to: "/" },
+            { label: "How it works", to: "/faq" },
+            { label: "Find Your Cleaner", to: "/marketplace" },
+            { label: "About", to: "/faq" },
+          ].map((n) => (
             <Link
-              key={n}
-              to={i === 0 ? "/marketplace" : i === 1 ? "/find-cleaner" : "/marketplace"}
-              className="rounded-md px-3 py-1.5 text-[13px] text-white/70 transition hover:bg-white/5 hover:text-white"
+              key={n.label}
+              to={n.to}
+              className="rounded-lg px-3 py-2 text-[14px] font-medium text-[#0a1f1e]/70 transition hover:bg-[#0a3d3a]/5 hover:text-[#0a1f1e]"
             >
-              {n}
+              {n.label}
             </Link>
           ))}
         </nav>
 
         <div className="flex items-center gap-2">
-          <MarketSwitcher market={market} setMarket={setMarket} />
+          <div className="relative">
+            <button
+              onClick={() => setOpenMarket((v) => !v)}
+              className="flex items-center gap-1.5 rounded-full border border-black/[0.08] bg-white px-3 py-1.5 text-[13px] font-medium text-[#0a1f1e]/80 transition hover:border-black/20 hover:bg-[#f7f6f2]"
+              aria-label="Change country"
+            >
+              <Globe2 className="h-3.5 w-3.5" />
+              <span>{market.flag}</span>
+            </button>
+            {openMarket && (
+              <div className="absolute right-0 z-50 mt-2 w-52 overflow-hidden rounded-xl border border-black/[0.06] bg-white p-1 shadow-[0_20px_50px_-20px_rgba(10,31,30,0.25)]" onMouseLeave={() => setOpenMarket(false)}>
+                {MARKETS.map((m) => (
+                  <button
+                    key={m.code}
+                    onClick={() => { setMarket(m); setOpenMarket(false); }}
+                    className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-[13px] transition hover:bg-[#f7f6f2] ${m.code === market.code ? "bg-[#f7f6f2] font-medium" : ""}`}
+                  >
+                    <span className="flex items-center gap-2"><span>{m.flag}</span>{m.label}</span>
+                    <span className="font-mono text-[11px] text-[#0a1f1e]/50">{m.currency}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
           {user ? (
-            <Link to="/dashboard" className="rounded-lg bg-white px-3 py-1.5 text-[13px] font-medium text-[#0a1f1e] transition hover:bg-white/90">
-              Dashboard
-            </Link>
+            <Link to="/dashboard" className="rounded-full bg-[#0a3d3a] px-4 py-2 text-[13px] font-semibold text-white shadow-sm transition hover:bg-[#0f4d47] hover:shadow-md">Dashboard</Link>
           ) : (
             <>
-              <Link to="/login" className="hidden rounded-lg px-3 py-1.5 text-[13px] text-white/80 hover:text-white sm:inline">Log in</Link>
-              <Link to="/customer/register" className="rounded-lg bg-white px-3 py-1.5 text-[13px] font-medium text-[#0a1f1e] transition hover:bg-white/90">
-                Get started
+              <Link to="/login" className="hidden rounded-full px-3 py-2 text-[13px] font-medium text-[#0a1f1e]/80 hover:text-[#0a1f1e] sm:inline">Log In</Link>
+              <Link to="/customer/register" className="rounded-full bg-[#ff6b35] px-4 py-2 text-[13px] font-semibold text-white shadow-[0_4px_12px_-2px_rgba(255,107,53,0.4)] transition hover:bg-[#ff5a1f] hover:shadow-[0_8px_20px_-4px_rgba(255,107,53,0.5)]">
+                Sign Up
               </Link>
             </>
           )}
@@ -246,151 +181,100 @@ function TopBar({ market, setMarket, user }: { market: typeof MARKETS[0]; setMar
   );
 }
 
-function MarketSwitcher({ market, setMarket }: { market: typeof MARKETS[0]; setMarket: (m: typeof MARKETS[0]) => void }) {
-  const [open, setOpen] = useState(false);
-  return (
-    <div className="relative">
-      <button
-        onClick={() => setOpen((v) => !v)}
-        className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-[13px] text-white/90 transition hover:bg-white/10"
-      >
-        <span>{market.flag}</span>
-        <span className="hidden sm:inline">{market.label}</span>
-        <span className="text-white/50">·</span>
-        <span className="font-mono text-[11px] text-white/60">{market.currency}</span>
-      </button>
-      {open && (
-        <div
-          className="absolute right-0 z-40 mt-2 w-56 overflow-hidden rounded-xl border border-white/10 bg-[#0f1615]/95 shadow-2xl backdrop-blur-xl"
-          onMouseLeave={() => setOpen(false)}
-        >
-          {MARKETS.map((m) => (
-            <button
-              key={m.code}
-              onClick={() => { setMarket(m); setOpen(false); }}
-              className={`flex w-full items-center justify-between px-3 py-2 text-left text-[13px] transition hover:bg-white/5 ${m.code === market.code ? "bg-white/[0.03] text-white" : "text-white/80"}`}
-            >
-              <span className="flex items-center gap-2"><span>{m.flag}</span>{m.label}</span>
-              <span className="font-mono text-[11px] text-white/50">{m.currency}</span>
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Hero — the "app dock" search/command bar. The product IS the search.
-// ---------------------------------------------------------------------------
-function HeroDock({
-  market, category, setCategory, query, setQuery, onSubmit, total,
+/* ------------------------------------------------------------------ */
+/* Hero                                                                */
+/* ------------------------------------------------------------------ */
+function Hero({
+  market, setMarket, query, setQuery, onSubmit,
 }: {
   market: typeof MARKETS[0];
-  category: string;
-  setCategory: (v: string) => void;
+  setMarket: (m: typeof MARKETS[0]) => void;
   query: string;
-  setQuery: (v: string) => void;
+  setQuery: (s: string) => void;
   onSubmit: () => void;
-  total: number;
 }) {
-  const now = useNow(1000);
-  const time = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
-
   return (
-    <section className="relative mx-auto max-w-[1400px] px-4 pt-10 pb-8 sm:px-6 sm:pt-14 sm:pb-12">
-      <div className="mb-6 flex items-center gap-2 text-[11px] font-medium uppercase tracking-widest text-white/50">
-        <span className="relative inline-flex h-2 w-2">
-          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-          <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
-        </span>
-        Marketplace live · {market.label} · {time}
+    <section className="relative overflow-hidden bg-[#0a3d3a] text-white">
+      {/* ambient background */}
+      <div aria-hidden className="pointer-events-none absolute inset-0">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_20%_0%,rgba(22,138,122,0.55),transparent_55%),radial-gradient(ellipse_at_85%_100%,rgba(255,107,53,0.20),transparent_50%)]" />
+        <div
+          className="absolute inset-0 opacity-[0.06]"
+          style={{
+            backgroundImage:
+              "linear-gradient(to right, rgba(255,255,255,0.6) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.6) 1px, transparent 1px)",
+            backgroundSize: "56px 56px",
+            maskImage: "radial-gradient(ellipse at 50% 30%, black 40%, transparent 80%)",
+            WebkitMaskImage: "radial-gradient(ellipse at 50% 30%, black 40%, transparent 80%)",
+          }}
+        />
       </div>
 
-      <h1 className="max-w-4xl text-[40px] leading-[1.02] tracking-tight sm:text-[64px]">
-        <span className="font-serif italic text-white/95">Book a professional</span>
-        <br />
-        <span className="text-white">in the next hour.</span>
-      </h1>
-      <p className="mt-5 max-w-xl text-[15px] text-white/60 sm:text-[16px]">
-        {total > 0 ? <><span className="font-mono text-white">{total}</span> providers online in {market.label} right now. Real calendars. Real prices. One tap to book.</> : <>Live availability across Europe. Real calendars. Real prices.</>}
-      </p>
+      <div className="relative mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-24 md:py-28 lg:px-8 lg:py-32">
+        <div className="mx-auto max-w-3xl text-center animate-fade-in">
+          <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.06] px-3 py-1.5 text-[12px] font-medium text-white/80 backdrop-blur">
+            <span className="relative flex h-1.5 w-1.5">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#c8e6c0] opacity-75" />
+              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[#c8e6c0]" />
+            </span>
+            Trusted across Europe
+          </div>
 
-      {/* Command dock */}
-      <div className="mt-8 rounded-2xl border border-white/10 bg-white/[0.04] p-2 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.6)] backdrop-blur-xl">
-        <div className="flex flex-wrap items-center gap-2">
-          <div className="flex flex-1 items-center gap-2 rounded-xl bg-black/40 px-3 py-2 ring-1 ring-white/5 focus-within:ring-white/20 min-w-[220px]">
-            <Search className="h-4 w-4 text-white/50" />
-            <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && onSubmit()}
-              placeholder={`Search providers in ${market.label}`}
-              className="w-full bg-transparent text-[14px] text-white placeholder:text-white/40 focus:outline-none"
-            />
-            <kbd className="hidden items-center gap-1 rounded border border-white/10 px-1.5 py-0.5 font-mono text-[10px] text-white/50 sm:flex">
-              <Command className="h-3 w-3" />K
-            </kbd>
-          </div>
-          <div className="flex items-center gap-1 rounded-xl bg-black/30 p-1 ring-1 ring-white/5">
-            {CATEGORIES.map((c) => (
-              <button
-                key={c.key}
-                onClick={() => setCategory(c.key)}
-                className={`rounded-lg px-3 py-1.5 text-[12px] font-medium transition ${
-                  category === c.key ? "bg-white text-[#0a1f1e]" : "text-white/70 hover:text-white"
-                }`}
-              >
-                {c.label}
-              </button>
-            ))}
-          </div>
-          <button
-            onClick={onSubmit}
-            className="ml-auto flex items-center gap-1.5 rounded-xl bg-[#ff6b35] px-4 py-2 text-[13px] font-medium text-white shadow-[0_10px_30px_-10px_rgba(255,107,53,0.6)] transition hover:brightness-110"
+          <h1 className="text-balance font-semibold tracking-[-0.02em] text-white text-[40px] leading-[1.05] sm:text-[56px] md:text-[68px]">
+            Choose your cleaner,
+            <br />
+            <span className="text-[#ff6b35]">not just any cleaner.</span>
+          </h1>
+
+          <p className="mx-auto mt-6 max-w-xl text-pretty text-[16px] leading-relaxed text-white/75 sm:text-[17px]">
+            Find trusted, verified cleaning professionals across Europe.
+            Browse profiles, compare rates, and book directly.
+          </p>
+
+          {/* Search bar */}
+          <form
+            onSubmit={(e) => { e.preventDefault(); onSubmit(); }}
+            className="mx-auto mt-10 flex w-full max-w-2xl items-center gap-1.5 rounded-full bg-white p-1.5 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.35),0_2px_8px_-2px_rgba(0,0,0,0.2)] ring-1 ring-black/5 focus-within:ring-2 focus-within:ring-[#ff6b35]/50"
           >
-            Search
-            <ArrowRight className="h-4 w-4" />
-          </button>
-        </div>
-      </div>
-    </section>
-  );
-}
+            <div className="flex flex-1 items-center gap-2 pl-4">
+              <Search className="h-4.5 w-4.5 shrink-0 text-[#0a1f1e]/40" strokeWidth={2.25} />
+              <input
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Enter city or postcode…"
+                aria-label="Enter city or postcode"
+                className="w-full bg-transparent py-2.5 text-[15px] text-[#0a1f1e] placeholder:text-[#0a1f1e]/40 focus:outline-none"
+              />
+            </div>
+            <button
+              type="submit"
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-[#ff6b35] px-5 py-2.5 text-[14px] font-semibold text-white shadow-[0_6px_16px_-4px_rgba(255,107,53,0.5)] transition hover:bg-[#ff5a1f] hover:shadow-[0_10px_24px_-6px_rgba(255,107,53,0.6)] active:scale-[0.98]"
+            >
+              Search
+              <ArrowRight className="h-4 w-4" />
+            </button>
+          </form>
 
-// ---------------------------------------------------------------------------
-// Live ticker — booking activity
-// ---------------------------------------------------------------------------
-function LiveTicker({ market, providers }: { market: typeof MARKETS[0]; providers: ProviderRow[] }) {
-  const now = useNow(15000);
-  const events = useMemo(() => {
-    const verbs = ["booked", "confirmed", "started", "reviewed", "rebooked"];
-    const source = providers.length ? providers : Array.from({ length: 6 }, (_, i) => ({ display_name: ["Anna", "Jonas", "Maria", "Sofia", "Lukas", "Elena"][i], service_categories: ["cleaning"], country_code: market.code } as unknown as ProviderRow));
-    return source.slice(0, 12).map((p, i) => {
-      const mins = ((hashStr(p.display_name + now.getMinutes()) % 55) + 1);
-      const verb = verbs[hashStr(p.display_name + i) % verbs.length];
-      const cat = (p.service_categories?.[0] ?? "cleaning");
-      return { name: p.display_name, verb, cat, mins, country: p.country_code ?? market.code };
-    });
-  }, [providers, market.code, now]);
-
-  return (
-    <section className="relative border-y border-white/[0.06] bg-black/20">
-      <div className="mx-auto flex max-w-[1400px] items-center gap-4 overflow-hidden px-4 py-3 sm:px-6">
-        <div className="flex shrink-0 items-center gap-2 text-[11px] font-medium uppercase tracking-widest text-white/60">
-          <Radio className="h-3.5 w-3.5 text-emerald-400" /> Live
-        </div>
-        <div className="relative flex-1 overflow-hidden">
-          <div className="ticker-track flex gap-8 whitespace-nowrap text-[13px] text-white/70">
-            {[...events, ...events].map((e, i) => (
-              <span key={i} className="inline-flex items-center gap-2">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400/80" />
-                <span className="text-white/90">{e.name}</span>
-                <span className="text-white/50">{e.verb}</span>
-                <span className="rounded border border-white/10 px-1.5 py-0.5 text-[10px] uppercase tracking-wider text-white/60">{e.cat}</span>
-                <span className="text-white/40">· {e.country} · {e.mins}m ago</span>
-              </span>
-            ))}
+          {/* Country chips */}
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-2">
+            {MARKETS.map((m) => {
+              const active = m.code === market.code;
+              return (
+                <button
+                  key={m.code}
+                  onClick={() => setMarket(m)}
+                  aria-label={m.label}
+                  aria-pressed={active}
+                  className={`grid h-11 w-11 place-items-center rounded-full text-[18px] transition ${
+                    active
+                      ? "bg-white text-[#0a1f1e] shadow-[0_6px_16px_-4px_rgba(0,0,0,0.4)] scale-110"
+                      : "bg-white/[0.08] text-white hover:bg-white/[0.16] hover:scale-105"
+                  }`}
+                >
+                  {m.flag}
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -398,291 +282,340 @@ function LiveTicker({ market, providers }: { market: typeof MARKETS[0]; provider
   );
 }
 
-// ---------------------------------------------------------------------------
-// Marketplace canvas — the provider grid IS the page
-// ---------------------------------------------------------------------------
-function MarketplaceCanvas({
-  providers, market, category,
-}: { providers: ProviderRow[] | null; market: typeof MARKETS[0]; category: string }) {
+/* ------------------------------------------------------------------ */
+/* Trust strip                                                         */
+/* ------------------------------------------------------------------ */
+function TrustStrip() {
+  const items = [
+    { k: "12", v: "Countries" },
+    { k: "3,800+", v: "Verified cleaners" },
+    { k: "4.9", v: "Average rating" },
+    { k: "< 5 min", v: "Response time" },
+  ];
   return (
-    <section className="mx-auto max-w-[1400px] px-4 py-14 sm:px-6">
-      <div className="mb-6 flex items-end justify-between gap-4">
-        <div>
-          <div className="mb-1 flex items-center gap-2 text-[11px] font-medium uppercase tracking-widest text-white/50">
-            <Activity className="h-3.5 w-3.5" /> Providers online — {category} · {market.label}
+    <section className="border-b border-black/[0.05] bg-[#faf9f5]">
+      <div className="mx-auto grid max-w-6xl grid-cols-2 gap-6 px-4 py-8 sm:grid-cols-4 sm:px-6 lg:px-8">
+        {items.map((i) => (
+          <div key={i.v} className="text-center sm:text-left">
+            <div className="text-[22px] font-semibold tracking-tight text-[#0a1f1e] sm:text-[26px]">{i.k}</div>
+            <div className="mt-0.5 text-[12.5px] font-medium uppercase tracking-wider text-[#0a1f1e]/50">{i.v}</div>
           </div>
-          <h2 className="text-2xl tracking-tight sm:text-3xl">
-            <span className="font-serif italic text-white/90">Choose someone.</span>{" "}
-            <span className="text-white/60">Book their calendar.</span>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Features                                                            */
+/* ------------------------------------------------------------------ */
+function Features() {
+  const items = [
+    {
+      icon: ShieldCheck,
+      title: "Verified cleaners",
+      body: "Identity, insurance and references checked before profiles go live.",
+    },
+    {
+      icon: Wallet,
+      title: "Transparent pricing",
+      body: "See rates upfront. No hidden fees, no surprise invoices.",
+    },
+    {
+      icon: MapPin,
+      title: "All across Europe",
+      body: "Book locally in 12 countries with your language and currency.",
+    },
+  ];
+  return (
+    <section className="bg-white py-20 sm:py-24">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-2xl text-center">
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-[#0a3d3a]/[0.06] px-3 py-1 text-[12px] font-medium text-[#0a3d3a]">
+            <Sparkles className="h-3.5 w-3.5" />
+            Welcome to MyCleaner
+          </div>
+          <h2 className="mt-5 text-balance text-[32px] font-semibold tracking-[-0.02em] text-[#0a1f1e] sm:text-[40px]">
+            Your personal cleaning expert — one tap away
           </h2>
+          <p className="mt-4 text-[15.5px] leading-relaxed text-[#0a1f1e]/60">
+            MyCleaner is a European network of professional cleaners. Create a free account
+            to book, message your cleaner and keep track of your appointments.
+          </p>
         </div>
-        <Link to="/marketplace" className="group hidden items-center gap-1 text-[13px] text-white/70 hover:text-white sm:flex">
-          Open full marketplace
-          <ArrowUpRight className="h-4 w-4 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-        </Link>
-      </div>
 
-      {providers === null ? (
-        <SkeletonGrid />
-      ) : providers.length === 0 ? (
-        <EmptyState market={market} />
-      ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {providers.map((p) => <ProviderCardLive key={p.provider_slug} p={p} market={market} />)}
+        <div className="mt-14 grid grid-cols-1 gap-5 sm:grid-cols-3">
+          {items.map((it) => (
+            <div
+              key={it.title}
+              className="group relative rounded-2xl border border-black/[0.06] bg-white p-6 shadow-[0_1px_0_rgba(10,31,30,0.03),0_1px_2px_rgba(10,31,30,0.04)] transition hover:-translate-y-0.5 hover:border-[#0a3d3a]/15 hover:shadow-[0_20px_40px_-20px_rgba(10,61,58,0.2)]"
+            >
+              <div className="grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br from-[#0f4d47] to-[#0a3d3a] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.15)]">
+                <it.icon className="h-5 w-5" strokeWidth={2.25} />
+              </div>
+              <h3 className="mt-5 text-[17px] font-semibold text-[#0a1f1e]">{it.title}</h3>
+              <p className="mt-1.5 text-[14.5px] leading-relaxed text-[#0a1f1e]/60">{it.body}</p>
+            </div>
+          ))}
         </div>
-      )}
+      </div>
     </section>
   );
 }
 
-function ProviderCardLive({ p, market }: { p: ProviderRow; market: typeof MARKETS[0] }) {
-  const online = (hashStr(p.provider_slug) % 3) !== 0;
-  const nextOpen = availabilityFor(p.provider_slug, 0);
-  const nextSlot = nextOpen[0];
-  const symbol = CURRENCY_SYMBOL[market.currency] ?? "";
+/* ------------------------------------------------------------------ */
+/* Provider section (marketplace-first)                                */
+/* ------------------------------------------------------------------ */
+function ProviderSection({ providers, market }: { providers: ProviderRow[] | null; market: typeof MARKETS[0] }) {
+  return (
+    <section className="bg-[#faf9f5] py-20 sm:py-24">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <div className="text-[12px] font-medium uppercase tracking-wider text-[#0a3d3a]/70">Marketplace</div>
+            <h2 className="mt-2 text-[28px] font-semibold tracking-[-0.02em] text-[#0a1f1e] sm:text-[34px]">
+              Cleaners available in <span className="text-[#0a3d3a]">{market.label}</span>
+            </h2>
+          </div>
+          <Link
+            to="/marketplace"
+            className="group inline-flex items-center gap-1.5 rounded-full border border-[#0a3d3a]/15 bg-white px-4 py-2 text-[13px] font-semibold text-[#0a3d3a] transition hover:border-[#0a3d3a]/30 hover:bg-[#0a3d3a] hover:text-white"
+          >
+            View all
+            <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
+          </Link>
+        </div>
+
+        <div className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {providers === null
+            ? Array.from({ length: 4 }).map((_, i) => <ProviderSkeleton key={i} />)
+            : providers.length === 0
+            ? (
+                <div className="col-span-full rounded-2xl border border-dashed border-black/10 bg-white p-10 text-center text-[14px] text-[#0a1f1e]/50">
+                  No cleaners yet in {market.label}. Try another country.
+                </div>
+              )
+            : providers.slice(0, 4).map((p) => <ProviderCard key={p.provider_slug} p={p} sym={market.sym} />)}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ProviderCard({ p, sym }: { p: ProviderRow; sym: string }) {
   return (
     <Link
       to={`/c/${p.provider_slug}`}
-      className="group relative flex flex-col overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.03] p-4 backdrop-blur-sm transition hover:border-white/20 hover:bg-white/[0.06]"
+      className="group relative flex flex-col overflow-hidden rounded-2xl border border-black/[0.06] bg-white shadow-[0_1px_0_rgba(10,31,30,0.03)] transition hover:-translate-y-1 hover:shadow-[0_24px_50px_-20px_rgba(10,61,58,0.25)]"
     >
-      {/* header */}
-      <div className="flex items-start gap-3">
-        <div className="relative">
-          <div className="grid h-12 w-12 place-items-center overflow-hidden rounded-xl bg-gradient-to-br from-[#168a7a] to-[#0a3d3a] text-[14px] font-medium">
-            {p.avatar_url ? <img src={p.avatar_url} alt={p.display_name} className="h-full w-full object-cover" loading="lazy" /> : <span>{initials(p.display_name)}</span>}
+      <div className="relative aspect-[4/3] overflow-hidden bg-gradient-to-br from-[#e8f2f0] to-[#d1e6e2]">
+        {p.avatar_url ? (
+          <img
+            src={p.avatar_url}
+            alt={p.display_name}
+            loading="lazy"
+            className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.04]"
+          />
+        ) : (
+          <div className="grid h-full w-full place-items-center text-[36px] font-semibold text-[#0a3d3a]/60">
+            {initials(p.display_name)}
           </div>
-          <span className={`absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full ring-2 ring-[#0b0f0e] ${online ? "bg-emerald-400" : "bg-white/30"}`} />
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-1.5">
-            <div className="truncate text-[15px] font-medium text-white">{p.display_name}</div>
-            {p.identity_verified_badge && <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-emerald-400" />}
+        )}
+        {p.identity_verified_badge && (
+          <div className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-white/95 px-2 py-1 text-[11px] font-semibold text-[#0a3d3a] shadow-sm backdrop-blur">
+            <ShieldCheck className="h-3 w-3" /> Verified
           </div>
-          <div className="mt-0.5 flex items-center gap-2 text-[11px] text-white/50">
-            <MapPin className="h-3 w-3" /> {p.country_code ?? market.code} · {p.service_radius_km ?? 10}km
-            {p.avg_response_minutes !== null && <><span>·</span><Clock className="h-3 w-3" />~{p.avg_response_minutes}m</>}
+        )}
+        {p.price_from !== null && (
+          <div className="absolute bottom-3 right-3 rounded-full bg-[#0a1f1e]/85 px-2.5 py-1 text-[11.5px] font-semibold text-white backdrop-blur">
+            from {p.price_from} {sym}/hr
           </div>
-        </div>
-        <button
-          type="button"
-          onClick={(e) => { e.preventDefault(); }}
-          className="rounded-full p-1.5 text-white/40 transition hover:bg-white/5 hover:text-white"
-          aria-label="Favorite"
-        >
-          <Heart className="h-4 w-4" />
-        </button>
+        )}
       </div>
-
-      {/* bio */}
-      {p.public_bio && <p className="mt-3 line-clamp-2 text-[12.5px] leading-relaxed text-white/60">{p.public_bio}</p>}
-
-      {/* live availability strip */}
-      <div className="mt-4 rounded-xl border border-white/[0.06] bg-black/30 p-2.5">
-        <div className="mb-1.5 flex items-center justify-between text-[10px] uppercase tracking-widest text-white/40">
-          <span>Today · availability</span>
-          <span className="font-mono text-emerald-400/90">{nextOpen.length} slots</span>
-        </div>
-        <div className="grid grid-cols-10 gap-1">
-          {Array.from({ length: 10 }, (_, i) => 9 + i).map((hr) => {
-            const open = nextOpen.includes(hr);
-            return (
-              <div
-                key={hr}
-                className={`h-6 rounded-md text-[9px] font-mono grid place-items-center transition ${
-                  open ? "bg-emerald-400/15 text-emerald-300 hover:bg-emerald-400/25" : "bg-white/[0.03] text-white/25"
-                }`}
-                title={`${hr}:00`}
-              >
-                {hr}
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* footer */}
-      <div className="mt-4 flex items-center justify-between">
-        <div className="flex items-center gap-2 text-[12px]">
-          {p.average_rating > 0 ? (
-            <span className="inline-flex items-center gap-1 text-white/80">
-              <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+      <div className="flex flex-1 flex-col p-4">
+        <div className="flex items-start justify-between gap-2">
+          <h3 className="line-clamp-1 text-[15.5px] font-semibold text-[#0a1f1e]">{p.display_name}</h3>
+          {p.average_rating > 0 && (
+            <div className="inline-flex shrink-0 items-center gap-0.5 text-[13px] font-medium text-[#0a1f1e]">
+              <Star className="h-3.5 w-3.5 fill-[#ff6b35] text-[#ff6b35]" />
               {p.average_rating.toFixed(1)}
-              <span className="text-white/40">({p.total_reviews})</span>
-            </span>
-          ) : (
-            <span className="text-white/40">New</span>
-          )}
-          {p.completed_bookings > 0 && <span className="text-white/40">· {p.completed_bookings} jobs</span>}
-        </div>
-        <div className="text-right">
-          {p.price_from !== null && (
-            <div className="text-[13px]">
-              <span className="font-mono text-white">{p.price_from}</span>
-              <span className="text-white/50">{symbol}/hr</span>
+              <span className="text-[#0a1f1e]/40">({p.total_reviews})</span>
             </div>
           )}
         </div>
-      </div>
-
-      {/* book cta */}
-      <div className="mt-3 flex items-center justify-between rounded-xl bg-white/[0.04] px-3 py-2 text-[12px] transition group-hover:bg-white text-white/70 group-hover:text-[#0a1f1e]">
-        <span className="inline-flex items-center gap-1.5">
-          <Zap className="h-3.5 w-3.5" />
-          {nextSlot !== undefined ? `Book ${nextSlot}:00 today` : "See calendar"}
-        </span>
-        <ChevronRight className="h-4 w-4" />
+        <div className="mt-1 flex items-center gap-1 text-[12.5px] text-[#0a1f1e]/55">
+          <MapPin className="h-3 w-3" />
+          {p.country_code ?? "—"} · {p.service_radius_km ?? 10} km
+        </div>
+        {p.public_bio && (
+          <p className="mt-2 line-clamp-2 text-[13px] leading-relaxed text-[#0a1f1e]/60">{p.public_bio}</p>
+        )}
+        <div className="mt-3 flex items-center justify-between border-t border-black/[0.05] pt-3 text-[11.5px]">
+          <span className="inline-flex items-center gap-1 text-[#0a1f1e]/55">
+            <Clock className="h-3 w-3" />
+            {p.avg_response_minutes !== null ? `~${p.avg_response_minutes} min` : "Fast reply"}
+          </span>
+          <span className="font-medium text-[#0a3d3a] transition group-hover:text-[#ff6b35]">
+            Book →
+          </span>
+        </div>
       </div>
     </Link>
   );
 }
 
-function SkeletonGrid() {
+function ProviderSkeleton() {
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-      {Array.from({ length: 8 }).map((_, i) => (
-        <div key={i} className="h-[280px] animate-pulse rounded-2xl border border-white/[0.06] bg-white/[0.03]" />
-      ))}
+    <div className="overflow-hidden rounded-2xl border border-black/[0.05] bg-white">
+      <div className="aspect-[4/3] animate-pulse bg-[#e8f2f0]" />
+      <div className="space-y-2 p-4">
+        <div className="h-4 w-2/3 animate-pulse rounded bg-[#e8f2f0]" />
+        <div className="h-3 w-1/2 animate-pulse rounded bg-[#eef1f0]" />
+        <div className="h-3 w-full animate-pulse rounded bg-[#eef1f0]" />
+      </div>
     </div>
   );
 }
 
-function EmptyState({ market }: { market: typeof MARKETS[0] }) {
+/* ------------------------------------------------------------------ */
+/* Calendar-first preview                                              */
+/* ------------------------------------------------------------------ */
+function CalendarPreview() {
+  const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const today = new Date().getDay();
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-12 text-center text-white/60">
-      <div className="mx-auto mb-3 grid h-10 w-10 place-items-center rounded-full bg-white/5">
-        <Search className="h-5 w-5" />
-      </div>
-      No providers online in {market.label} for this category yet. Try another market or check back soon.
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Calendar strip — 7-day glance across the marketplace
-// ---------------------------------------------------------------------------
-function CalendarStrip({ providers }: { providers: ProviderRow[] }) {
-  const days = useMemo(() => {
-    const base = new Date();
-    return Array.from({ length: 7 }, (_, i) => {
-      const d = new Date(base);
-      d.setDate(base.getDate() + i);
-      return d;
-    });
-  }, []);
-
-  // Aggregate open slot count per day across shown providers.
-  const totals = days.map((_, dayIdx) =>
-    providers.reduce((acc, p) => acc + availabilityFor(p.provider_slug, dayIdx).length, 0)
-  );
-  const max = Math.max(1, ...totals);
-
-  return (
-    <section className="relative border-y border-white/[0.06] bg-black/20">
-      <div className="mx-auto max-w-[1400px] px-4 py-10 sm:px-6">
-        <div className="mb-4 flex items-center gap-2 text-[11px] font-medium uppercase tracking-widest text-white/50">
-          <CalendarIcon className="h-3.5 w-3.5" /> Marketplace calendar · next 7 days
-        </div>
-        <div className="grid grid-cols-7 gap-2 sm:gap-3">
-          {days.map((d, i) => {
-            const isToday = i === 0;
-            const height = Math.round((totals[i] / max) * 100);
-            return (
-              <div
-                key={i}
-                className={`relative flex flex-col overflow-hidden rounded-xl border p-3 ${isToday ? "border-emerald-400/40 bg-emerald-400/[0.06]" : "border-white/[0.08] bg-white/[0.03]"}`}
-              >
-                <div className="text-[10px] uppercase tracking-widest text-white/50">
-                  {d.toLocaleDateString([], { weekday: "short" })}
-                </div>
-                <div className="mt-1 text-[22px] font-medium leading-none">{d.getDate()}</div>
-                <div className="mt-1 text-[10px] text-white/40">
-                  {d.toLocaleDateString([], { month: "short" })}
-                </div>
-                <div className="mt-3 h-16 w-full rounded-md bg-white/[0.03]">
-                  <div
-                    className={`h-full rounded-md ${isToday ? "bg-gradient-to-t from-emerald-400/80 to-emerald-400/30" : "bg-gradient-to-t from-white/40 to-white/10"}`}
-                    style={{ height: `${Math.max(8, height)}%` }}
-                  />
-                </div>
-                <div className="mt-2 font-mono text-[10px] text-white/50">{totals[i]} slots</div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Booking rail — horizontal scroll of next-hour bookable providers
-// ---------------------------------------------------------------------------
-function BookingRail({ providers }: { providers: ProviderRow[] }) {
-  const railRef = useRef<HTMLDivElement>(null);
-  const bookable = providers.filter((p) => availabilityFor(p.provider_slug, 0).length > 0).slice(0, 10);
-  if (bookable.length === 0) return null;
-  return (
-    <section className="mx-auto max-w-[1400px] px-4 py-14 sm:px-6">
-      <div className="mb-4 flex items-end justify-between">
+    <section className="bg-white py-20 sm:py-24">
+      <div className="mx-auto grid max-w-6xl gap-12 px-4 sm:px-6 lg:grid-cols-2 lg:items-center lg:px-8">
         <div>
-          <div className="mb-1 flex items-center gap-2 text-[11px] font-medium uppercase tracking-widest text-white/50">
-            <Zap className="h-3.5 w-3.5 text-[#ff6b35]" /> Instant book · next hour
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-[#0a3d3a]/[0.06] px-3 py-1 text-[12px] font-medium text-[#0a3d3a]">
+            <CalendarIcon className="h-3.5 w-3.5" />
+            Calendar-first booking
           </div>
-          <h3 className="text-2xl tracking-tight"><span className="font-serif italic text-white/90">Someone can be there</span> <span className="text-white/60">before dinner.</span></h3>
-        </div>
-        <div className="hidden gap-2 sm:flex">
-          <button onClick={() => railRef.current?.scrollBy({ left: -400, behavior: "smooth" })} className="rounded-full border border-white/10 p-2 text-white/70 hover:bg-white/5">
-            <ChevronRight className="h-4 w-4 rotate-180" />
-          </button>
-          <button onClick={() => railRef.current?.scrollBy({ left: 400, behavior: "smooth" })} className="rounded-full border border-white/10 p-2 text-white/70 hover:bg-white/5">
-            <ChevronRight className="h-4 w-4" />
-          </button>
-        </div>
-      </div>
-      <div ref={railRef} className="flex gap-3 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        {bookable.map((p) => {
-          const slot = availabilityFor(p.provider_slug, 0)[0];
-          return (
-            <Link
-              key={p.provider_slug}
-              to={`/c/${p.provider_slug}`}
-              className="group flex min-w-[260px] items-center gap-3 rounded-2xl border border-white/[0.08] bg-white/[0.03] p-3 transition hover:border-white/20 hover:bg-white/[0.06]"
-            >
-              <div className="grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-lg bg-gradient-to-br from-[#168a7a] to-[#0a3d3a] text-[13px]">
-                {p.avatar_url ? <img src={p.avatar_url} alt="" className="h-full w-full object-cover" /> : initials(p.display_name)}
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="truncate text-[13.5px] text-white">{p.display_name}</div>
-                <div className="text-[11px] text-white/50">Today · {slot}:00 — {slot + 2}:00</div>
-              </div>
-              <div className="rounded-lg bg-[#ff6b35]/15 px-2 py-1 text-[11px] font-medium text-[#ff8659]">Book</div>
+          <h2 className="mt-5 text-balance text-[32px] font-semibold tracking-[-0.02em] text-[#0a1f1e] sm:text-[40px]">
+            Book directly in your cleaner's calendar
+          </h2>
+          <p className="mt-4 max-w-lg text-[15.5px] leading-relaxed text-[#0a1f1e]/60">
+            No bidding. No waiting. Pick a slot that fits both of you and confirm in
+            seconds — the cleaner sees your booking immediately.
+          </p>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Link to="/marketplace" className="inline-flex items-center gap-1.5 rounded-full bg-[#0a3d3a] px-5 py-2.5 text-[14px] font-semibold text-white shadow-sm transition hover:bg-[#0f4d47] hover:shadow-md">
+              Browse cleaners <ArrowRight className="h-4 w-4" />
             </Link>
-          );
-        })}
+            <Link to="/find-cleaner" className="inline-flex items-center gap-1.5 rounded-full border border-black/10 bg-white px-5 py-2.5 text-[14px] font-semibold text-[#0a1f1e] transition hover:border-black/20 hover:bg-[#faf9f5]">
+              Map view
+            </Link>
+          </div>
+        </div>
+
+        <div className="relative">
+          <div aria-hidden className="absolute -inset-6 -z-10 rounded-[32px] bg-gradient-to-br from-[#e8f2f0] via-transparent to-[#fff0e8] opacity-60 blur-2xl" />
+          <div className="rounded-2xl border border-black/[0.06] bg-white p-5 shadow-[0_30px_80px_-30px_rgba(10,61,58,0.3)]">
+            <div className="mb-4 flex items-center justify-between">
+              <div className="text-[13px] font-semibold text-[#0a1f1e]">This week</div>
+              <div className="text-[12px] text-[#0a1f1e]/50">Live availability</div>
+            </div>
+            <div className="grid grid-cols-7 gap-1.5">
+              {days.map((d, i) => {
+                const isToday = ((i + 1) % 7) === today;
+                return (
+                  <div key={d} className={`rounded-xl border p-2 text-center transition ${
+                    isToday ? "border-[#0a3d3a] bg-[#0a3d3a] text-white" : "border-black/[0.06] bg-[#faf9f5] text-[#0a1f1e]/70"
+                  }`}>
+                    <div className="text-[10.5px] font-medium uppercase tracking-wider opacity-70">{d}</div>
+                    <div className="mt-0.5 text-[16px] font-semibold">{i + 8}</div>
+                  </div>
+                );
+              })}
+            </div>
+            <div className="mt-4 space-y-1.5">
+              {[
+                { t: "09:00 – 11:00", who: "Maria S.", tag: "Verified" },
+                { t: "13:30 – 15:30", who: "Anders K.", tag: "Top rated" },
+                { t: "16:00 – 18:00", who: "Sofia L.", tag: "New" },
+              ].map((s, i) => (
+                <div
+                  key={i}
+                  className="flex items-center justify-between rounded-xl border border-black/[0.05] bg-white p-3 transition hover:border-[#0a3d3a]/20 hover:bg-[#faf9f5]"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="grid h-9 w-9 place-items-center rounded-lg bg-[#0a3d3a]/[0.08] text-[11px] font-bold text-[#0a3d3a]">
+                      {s.who.split(" ").map((x) => x[0]).join("")}
+                    </div>
+                    <div>
+                      <div className="text-[13.5px] font-semibold text-[#0a1f1e]">{s.t}</div>
+                      <div className="text-[11.5px] text-[#0a1f1e]/55">{s.who} · {s.tag}</div>
+                    </div>
+                  </div>
+                  <button className="rounded-full bg-[#ff6b35] px-3 py-1.5 text-[11.5px] font-semibold text-white shadow-sm transition hover:bg-[#ff5a1f]">
+                    Book
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   );
 }
 
-// ---------------------------------------------------------------------------
-// Footer dock
-// ---------------------------------------------------------------------------
-function FooterDock() {
+/* ------------------------------------------------------------------ */
+/* CTA                                                                 */
+/* ------------------------------------------------------------------ */
+function CTASection({ user }: { user: boolean }) {
   return (
-    <footer className="border-t border-white/[0.06] bg-black/40">
-      <div className="mx-auto flex max-w-[1400px] flex-wrap items-center justify-between gap-4 px-4 py-6 sm:px-6">
-        <div className="flex items-center gap-2 text-[12px] text-white/50">
-          <div className="grid h-6 w-6 place-items-center rounded-md bg-gradient-to-br from-[#168a7a] to-[#0a3d3a]">
-            <Sparkles className="h-3 w-3 text-white" />
+    <section className="bg-[#faf9f5] py-20 sm:py-24">
+      <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+        <div className="relative overflow-hidden rounded-3xl bg-[#0a3d3a] p-10 text-center text-white shadow-[0_30px_80px_-30px_rgba(10,61,58,0.5)] sm:p-16">
+          <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_70%_120%,rgba(255,107,53,0.35),transparent_55%),radial-gradient(ellipse_at_20%_-10%,rgba(22,138,122,0.4),transparent_60%)]" />
+          <div className="relative">
+            <h2 className="text-balance text-[32px] font-semibold tracking-[-0.02em] sm:text-[42px]">
+              Ready to meet your cleaner?
+            </h2>
+            <p className="mx-auto mt-4 max-w-lg text-[15.5px] leading-relaxed text-white/75">
+              Join thousands of households across Europe who chose their cleaner —
+              not just any cleaner.
+            </p>
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+              <Link
+                to={user ? "/marketplace" : "/customer/register"}
+                className="inline-flex items-center gap-1.5 rounded-full bg-[#ff6b35] px-6 py-3 text-[14.5px] font-semibold text-white shadow-[0_10px_24px_-6px_rgba(255,107,53,0.6)] transition hover:bg-[#ff5a1f] hover:shadow-[0_14px_30px_-8px_rgba(255,107,53,0.7)]"
+              >
+                {user ? "Find a cleaner" : "Get started free"}
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+              <Link
+                to="/provider/register"
+                className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/[0.06] px-6 py-3 text-[14.5px] font-semibold text-white backdrop-blur transition hover:bg-white/[0.14]"
+              >
+                Become a cleaner
+              </Link>
+            </div>
           </div>
-          MyCleaner · Europe's home-services platform
         </div>
-        <div className="flex flex-wrap items-center gap-4 text-[12px] text-white/50">
-          <Link to="/regler" className="hover:text-white">Rules</Link>
-          <Link to="/faq" className="hover:text-white">FAQ</Link>
-          <Link to="/privacy-center" className="hover:text-white">Privacy</Link>
-          <Link to="/marketplace" className="hover:text-white">Marketplace</Link>
-          <span className="font-mono text-white/30">v7</span>
+      </div>
+    </section>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Footer                                                              */
+/* ------------------------------------------------------------------ */
+function Footer() {
+  return (
+    <footer className="border-t border-black/[0.06] bg-white py-10">
+      <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 sm:flex-row sm:px-6 lg:px-8">
+        <div className="flex items-center gap-2 text-[13px] text-[#0a1f1e]/55">
+          <div className="grid h-6 w-6 place-items-center rounded-md bg-gradient-to-br from-[#0f4d47] to-[#0a3d3a] text-white">
+            <Sparkles className="h-3 w-3" />
+          </div>
+          © {new Date().getFullYear()} MyCleaner. All rights reserved.
+        </div>
+        <div className="flex items-center gap-5 text-[13px] text-[#0a1f1e]/60">
+          <Link to="/faq" className="hover:text-[#0a3d3a]">FAQ</Link>
+          <Link to="/regler" className="hover:text-[#0a3d3a]">Terms</Link>
+          <Link to="/privacy-center" className="hover:text-[#0a3d3a]">Privacy</Link>
         </div>
       </div>
     </footer>
