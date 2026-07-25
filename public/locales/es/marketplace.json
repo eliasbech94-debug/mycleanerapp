@@ -1,0 +1,57 @@
+{
+  "hero": {
+    "eyebrow": "El marketplace europeo de limpieza",
+    "title_line_1": "Reserva tu limpiador.",
+    "title_line_2": "Verificado. Local. De confianza.",
+    "subtitle": "Compara reseñas reales y precios transparentes. Reserva directamente en el calendario del limpiador — sin pujas, sin esperas.",
+    "price_note": "El precio se calcula durante la reserva según tu profesional y servicio.",
+    "image_alt": "Hogar recién limpiado"
+  },
+  "search": {
+    "aria": "Encontrar limpiador",
+    "where": "Dónde",
+    "where_placeholder": "Ciudad o código postal",
+    "when": "Cuándo",
+    "service": "Servicio",
+    "submit": "Buscar limpiador"
+  },
+  "categories": {
+    "heading": "Servicios populares",
+    "cleaning": "Limpieza",
+    "handyman": "Manitas",
+    "garden": "Jardín",
+    "moving": "Mudanza"
+  },
+  "results": {
+    "heading": "Los mejor valorados cerca de ti",
+    "subtitle": "Profesionales verificados. Reseñas reales. Reserva con confianza.",
+    "see_all": "Ver todos los limpiadores",
+    "empty": "Aún no hay limpiadores en {{area}}. Prueba con otra zona.",
+    "empty_area": "tu zona"
+  },
+  "card": {
+    "verified": "Verificado",
+    "add_fav": "Añadir a favoritos",
+    "remove_fav": "Quitar de favoritos",
+    "avatar_alt": "Foto de perfil de {{name}}",
+    "radius": "hasta {{km}} km",
+    "completed": "{{n}} reservas",
+    "price_note": "El precio se calcula durante la reserva",
+    "view": "Ver perfil"
+  },
+  "trust": {
+    "heading": "Por qué los clientes eligen MyCleaner",
+    "identity": { "title": "Identidad verificada", "body": "Todos los profesionales pasan por verificación de identidad antes de aceptar reservas." },
+    "payments": { "title": "Pagos seguros", "body": "Los pagos se procesan mediante Stripe. Tus datos de tarjeta nunca se comparten con el profesional." },
+    "reviews":  { "title": "Reseñas reales", "body": "Solo los clientes con reservas completadas pueden dejar una reseña." },
+    "support":  { "title": "Atención al cliente", "body": "¿Algo no cuadra? Escríbenos y te acompañamos en cada caso." }
+  },
+  "summary": {
+    "heading": "Resumen de la reserva",
+    "service": "Servicio",
+    "when": "Cuándo",
+    "where": "Dónde",
+    "total": "Total",
+    "price_note": "El precio se calcula durante la reserva según tu profesional y servicio."
+  }
+}

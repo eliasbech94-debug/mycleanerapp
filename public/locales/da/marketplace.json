@@ -1,0 +1,57 @@
+{
+  "hero": {
+    "eyebrow": "Europas cleaning marketplace",
+    "title_line_1": "Book din cleaner.",
+    "title_line_2": "Verificeret. Lokal. Tryg.",
+    "subtitle": "Sammenlign rigtige anmeldelser og gennemsigtige priser. Book direkte i cleanerens kalender — ingen budkrig, ingen ventetid.",
+    "price_note": "Prisen beregnes ved booking baseret på din cleaner og service.",
+    "image_alt": "Nyrengjort hjem"
+  },
+  "search": {
+    "aria": "Find cleaner",
+    "where": "Hvor",
+    "where_placeholder": "By eller postnummer",
+    "when": "Hvornår",
+    "service": "Service",
+    "submit": "Find cleaner"
+  },
+  "categories": {
+    "heading": "Populære services",
+    "cleaning": "Rengøring",
+    "handyman": "Handyman",
+    "garden": "Have",
+    "moving": "Flytning"
+  },
+  "results": {
+    "heading": "Bedst bedømte cleaners nær dig",
+    "subtitle": "Verificerede professionelle. Rigtige anmeldelser. Book med ro i sindet.",
+    "see_all": "Se alle cleaners",
+    "empty": "Ingen cleaners endnu i {{area}}. Prøv et andet område.",
+    "empty_area": "dit område"
+  },
+  "card": {
+    "verified": "Verificeret",
+    "add_fav": "Tilføj til favoritter",
+    "remove_fav": "Fjern favorit",
+    "avatar_alt": "{{name}} profilfoto",
+    "radius": "inden for {{km}} km",
+    "completed": "{{n}} bookinger",
+    "price_note": "Prisen beregnes ved booking",
+    "view": "Se profil"
+  },
+  "trust": {
+    "heading": "Derfor vælger kunder MyCleaner",
+    "identity": { "title": "Verificeret identitet", "body": "Alle providere gennemgår ID-verifikation, før de kan modtage bookinger." },
+    "payments": { "title": "Sikre betalinger", "body": "Betalinger håndteres via Stripe. Dine kortdata deles aldrig med provideren." },
+    "reviews":  { "title": "Rigtige anmeldelser", "body": "Kun kunder med gennemførte bookinger kan skrive anmeldelser." },
+    "support":  { "title": "Kundesupport", "body": "Skriv til os hvis noget går galt — vi hjælper hver enkelt sag igennem." }
+  },
+  "summary": {
+    "heading": "Booking oversigt",
+    "service": "Service",
+    "when": "Hvornår",
+    "where": "Hvor",
+    "total": "Total",
+    "price_note": "Prisen beregnes ved booking baseret på din cleaner og service."
+  }
+}
