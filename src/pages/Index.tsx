@@ -140,6 +140,11 @@ function Hero({ market, isNeutral, setMarket }: { market: Market; isNeutral: boo
       {/* ambient Europe backdrop — highlights active markets, spotlights current selection */}
       <EuropeBackdrop activeCodes={MARKETS.map((m) => m.code)} selectedCode={isNeutral ? undefined : market.code} />
 
+      {/* Hero collage — real interiors freshly cleaned. Absolute so it never shifts the left column. */}
+      <HeroCollage />
+
+
+
 
       <div className="relative mx-auto max-w-[1400px] px-5 pb-14 pt-10 lg:px-8 lg:pt-12">
         {/* Content occupies left half; the Europe backdrop naturally shows through on the right */}
