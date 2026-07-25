@@ -37,12 +37,10 @@ jobs:
           STAGING_SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.STAGING_SUPABASE_SERVICE_ROLE_KEY }}
           STAGING_SUPABASE_PROJECT_REF: ${{ secrets.STAGING_SUPABASE_PROJECT_REF }}
           STAGING_SUPABASE_DB_PASSWORD: ${{ secrets.STAGING_SUPABASE_DB_PASSWORD }}
-          STAGING_DB_HOST: ${{ secrets.STAGING_DB_HOST }}
-          STAGING_DB_USER: ${{ secrets.STAGING_DB_USER }}
         run: |
           missing=0
 
-          for name in STAGING_SUPABASE_URL STAGING_SUPABASE_SERVICE_ROLE_KEY STAGING_SUPABASE_PROJECT_REF STAGING_SUPABASE_DB_PASSWORD STAGING_DB_HOST STAGING_DB_USER; do
+          for name in STAGING_SUPABASE_URL STAGING_SUPABASE_SERVICE_ROLE_KEY STAGING_SUPABASE_PROJECT_REF STAGING_SUPABASE_DB_PASSWORD; do
             if [ -z "${!name}" ]; then
               echo "::error::Missing required secret: $name"
               missing=1
@@ -94,10 +92,10 @@ jobs:
 
       - name: Run SQL seed — providers (idempotent)
         env:
-          PGHOST: ${{ secrets.STAGING_DB_HOST }}
+          PGHOST: aws-0-eu-west-1.pooler.supabase.com
           PGPORT: "5432"
           PGDATABASE: postgres
-          PGUSER: ${{ secrets.STAGING_DB_USER }}
+          PGUSER: postgres.acxtqclnrvpyncmtptdd
           PGPASSWORD: ${{ secrets.STAGING_SUPABASE_DB_PASSWORD }}
           PGSSLMODE: require
         run: |
@@ -119,10 +117,10 @@ jobs:
       - name: Verify seeded data (read-only)
         id: verify
         env:
-          PGHOST: ${{ secrets.STAGING_DB_HOST }}
+          PGHOST: aws-0-eu-west-1.pooler.supabase.com
           PGPORT: "5432"
           PGDATABASE: postgres
-          PGUSER: ${{ secrets.STAGING_DB_USER }}
+          PGUSER: postgres.acxtqclnrvpyncmtptdd
           PGPASSWORD: ${{ secrets.STAGING_SUPABASE_DB_PASSWORD }}
           PGSSLMODE: require
         run: |
