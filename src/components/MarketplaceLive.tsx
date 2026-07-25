@@ -6,35 +6,22 @@ import {
   Globe2,
   Star,
   UserPlus,
-  Users,
   Wifi,
   Car,
   ThumbsUp,
 } from "lucide-react";
+import type { Market } from "@/lib/markets";
 
 /**
  * MarketplaceLive
- * Rotating anonymised marketplace activity feed + live platform metrics.
- * Market-aware: switching country updates cities and metric snapshot.
- * Uses deterministic pseudo-live demo data until real telemetry is wired.
+ * Anonymised, rotating marketplace activity feed + live platform metrics.
+ * Fully driven by the active Market from ActiveMarketContext — no hardcoded
+ * cities, currencies or country names live in this component.
+ *
+ * When `isNeutral` is true, we render Europe-wide content: cities come from
+ * the neutral market's full city pool and metrics show the aggregate, so we
+ * never silently default to a single country's data.
  */
-
-type Market = { code: string; label: string; flag: string; city?: string };
-
-const CITIES: Record<string, string[]> = {
-  DK: ["København", "Aarhus", "Odense", "Aalborg", "Esbjerg"],
-  SE: ["Stockholm", "Göteborg", "Malmö", "Uppsala", "Västerås"],
-  DE: ["Berlin", "München", "Hamburg", "Köln", "Frankfurt"],
-  GB: ["London", "Manchester", "Birmingham", "Leeds", "Bristol"],
-  ES: ["Madrid", "Barcelona", "Valencia", "Sevilla", "Bilbao"],
-  NL: ["Amsterdam", "Rotterdam", "Utrecht", "Eindhoven", "Den Haag"],
-  FR: ["Paris", "Lyon", "Marseille", "Toulouse", "Nice"],
-  IT: ["Milano", "Roma", "Torino", "Napoli", "Bologna"],
-  NO: ["Oslo", "Bergen", "Trondheim", "Stavanger", "Tromsø"],
-  BE: ["Brussels", "Antwerp", "Ghent", "Bruges", "Liège"],
-  PL: ["Warszawa", "Kraków", "Gdańsk", "Wrocław", "Poznań"],
-  PT: ["Lisboa", "Porto", "Braga", "Coimbra", "Faro"],
-};
 
 const EVENT_TEMPLATES = [
   { kind: "accepted",   icon: CheckCircle2, tone: "teal",   text: (city: string) => `Provider accepted a booking in ${city}` },
@@ -48,19 +35,19 @@ const EVENT_TEMPLATES = [
 
 type Event = { id: number; kind: string; text: string; city: string; agoSec: number; icon: typeof CheckCircle2; tone: string };
 
-// deterministic hash → varies feed per market without random flicker
+// deterministic hash → per-market feed remains stable across re-renders
 function hash(str: string, seed = 0) {
   let h = seed;
   for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) >>> 0;
   return h;
 }
 
-function buildFeed(marketCode: string, count = 6): Event[] {
-  const cities = CITIES[marketCode] ?? [marketCode];
+function buildFeed(marketCode: string, cities: string[], count = 6): Event[] {
+  const pool = cities.length ? cities : [marketCode];
   const out: Event[] = [];
   for (let i = 0; i < count; i++) {
     const t = EVENT_TEMPLATES[hash(marketCode + i) % EVENT_TEMPLATES.length];
-    const city = cities[hash(marketCode + "c" + i) % cities.length];
+    const city = pool[hash(marketCode + "c" + i) % pool.length];
     out.push({
       id: i,
       kind: t.kind,
@@ -74,18 +61,17 @@ function buildFeed(marketCode: string, count = 6): Event[] {
   return out;
 }
 
-// deterministic per-market metric snapshot (demo)
-function marketMetrics(code: string) {
+// deterministic per-market metric snapshot (anonymised demo)
+function marketMetrics(code: string, isNeutral: boolean) {
+  if (isNeutral) {
+    return { online: 1284, bookingsToday: 2531, rating: 4.9, responseMin: 6 };
+  }
   const seed = hash(code, 7);
-  const online = 60 + (seed % 380);
-  const bookingsToday = 120 + (seed % 640);
-  const rating = 4.7 + ((seed % 30) / 100); // 4.70 – 4.99
-  const responseMin = 3 + (seed % 9); // 3 – 11 min
   return {
-    online,
-    bookingsToday,
-    rating: Math.min(rating, 4.99),
-    responseMin,
+    online: 60 + (seed % 380),
+    bookingsToday: 120 + (seed % 640),
+    rating: Math.min(4.7 + ((seed % 30) / 100), 4.99),
+    responseMin: 3 + (seed % 9),
   };
 }
 
@@ -96,18 +82,21 @@ const toneMap: Record<string, string> = {
   blue:   "bg-[#4a8fe8]/15 text-[#a5c8f5] ring-[#4a8fe8]/30",
 };
 
-export default function MarketplaceLive({ market }: { market: Market }) {
-  const baseFeed = useMemo(() => buildFeed(market.code, 6), [market.code]);
+export default function MarketplaceLive({ market, isNeutral = false }: { market: Market; isNeutral?: boolean }) {
+  const baseFeed = useMemo(
+    () => buildFeed(market.code, market.cities, 6),
+    [market.code, market.cities],
+  );
   const [tick, setTick] = useState(0);
 
-  // rotate every 3.5s — cycles the visible window through the feed
+  // Rotate feed every 3.5s. Reset tick when market changes so the visible
+  // window immediately reflects the newly selected country.
   useEffect(() => {
     setTick(0);
     const id = setInterval(() => setTick((t) => t + 1), 3500);
     return () => clearInterval(id);
   }, [market.code]);
 
-  // sliding window of 4 events; ages tick up over time
   const visible = useMemo(() => {
     const window: Event[] = [];
     for (let i = 0; i < 4; i++) {
@@ -117,13 +106,15 @@ export default function MarketplaceLive({ market }: { market: Market }) {
     return window;
   }, [baseFeed, tick]);
 
-  const m = useMemo(() => marketMetrics(market.code), [market.code]);
+  const m = useMemo(() => marketMetrics(market.code, isNeutral), [market.code, isNeutral]);
+  const inLabel = isNeutral ? "across Europe" : `in ${market.label}`;
+
   const metrics = [
-    { icon: Wifi,       label: "Providers online",    value: m.online.toLocaleString(),                foot: `In ${market.label}` },
-    { icon: CheckCircle2, label: "Bookings today",    value: m.bookingsToday.toLocaleString(),         foot: "Local marketplace" },
-    { icon: Star,       label: "Average rating",      value: `${m.rating.toFixed(2)}/5`,               foot: "Verified reviews" },
-    { icon: Globe2,     label: "Active markets",      value: "12",                                     foot: "Across Europe" },
-    { icon: Clock,      label: "Avg. response time",  value: `${m.responseMin} min`,                   foot: "First provider reply" },
+    { icon: Wifi,         label: "Providers online",   value: m.online.toLocaleString(market.locale),        foot: inLabel.charAt(0).toUpperCase() + inLabel.slice(1) },
+    { icon: CheckCircle2, label: "Bookings today",     value: m.bookingsToday.toLocaleString(market.locale), foot: isNeutral ? "European marketplace" : "Local marketplace" },
+    { icon: Star,         label: "Average rating",     value: `${m.rating.toFixed(2)}/5`,                    foot: "Verified reviews" },
+    { icon: Globe2,       label: "Active markets",     value: "12",                                          foot: "Across Europe" },
+    { icon: Clock,        label: "Avg. response time", value: `${m.responseMin} min`,                        foot: "First provider reply" },
   ];
 
   return (
@@ -142,7 +133,9 @@ export default function MarketplaceLive({ market }: { market: Market }) {
               What's happening right now
             </h2>
             <p className="mt-2 max-w-lg text-[14px] text-white/60">
-              Anonymised, real-time activity across MyCleaner. Switch market to see local activity.
+              {isNeutral
+                ? "Anonymised, real-time activity across MyCleaner in Europe. Pick a market to see local activity."
+                : "Anonymised, real-time activity across MyCleaner. Switch market to see local activity."}
             </p>
           </div>
         </div>
@@ -154,10 +147,7 @@ export default function MarketplaceLive({ market }: { market: Market }) {
               {visible.map((e) => {
                 const Icon = e.icon;
                 return (
-                  <li
-                    key={e.id}
-                    className="flex items-center gap-3 px-4 py-3.5 animate-fade-in"
-                  >
+                  <li key={e.id} className="flex items-center gap-3 px-4 py-3.5 animate-fade-in">
                     <div className={`grid h-9 w-9 shrink-0 place-items-center rounded-full ring-1 ${toneMap[e.tone] ?? toneMap.teal}`}>
                       <Icon className="h-4 w-4" strokeWidth={2.2} />
                     </div>
