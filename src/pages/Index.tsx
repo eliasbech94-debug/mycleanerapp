@@ -115,7 +115,9 @@ export default function Index() {
       <Hero market={market} isNeutral={isNeutral} setMarket={setMarket} />
       <CountryStrip market={market} isNeutral={isNeutral} setMarket={setMarket} />
       <ProviderSection providers={providers} market={market} isNeutral={isNeutral} />
+      <FreshHomesStrip />
       <MarketplaceLive market={market} isNeutral={isNeutral} />
+      <TrustStrip />
       <StatsBand />
     </div>
   );
