@@ -297,17 +297,18 @@ function StatCard({
 /* ------------------------------------------------------------------ */
 /* Country strip                                                       */
 /* ------------------------------------------------------------------ */
-function CountryStrip({ market, setMarket }: { market: Market; setMarket: (m: Market) => void }) {
+function CountryStrip({ market, isNeutral, setMarket }: { market: Market; isNeutral: boolean; setMarket: (m: Market) => void }) {
   return (
     <section className="border-y border-white/[0.05] bg-white/[0.015]">
       <div className="mx-auto flex max-w-[1400px] items-center gap-4 overflow-x-auto px-5 py-4 lg:px-8">
         <div className="flex shrink-0 flex-col text-[10.5px] font-semibold uppercase leading-tight tracking-[0.14em] text-white/45">
-          <span>Live in 12</span>
+          <span>Live in {MARKETS.length}</span>
           <span>European countries</span>
         </div>
         <div className="flex items-center gap-1.5">
           {MARKETS.map((m) => {
-            const active = m.code === market.code;
+            const active = !isNeutral && m.code === market.code;
+
             return (
               <button
                 key={m.code}
