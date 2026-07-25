@@ -106,16 +106,15 @@ export default function Index() {
   }, [load]);
 
   return (
-    <div className="min-h-screen bg-[#061615] text-white antialiased [font-feature-settings:'ss01','cv11']">
-      <TopBar user={!!user} market={market} setMarket={setMarket} />
+    <div className="bg-[#061615] text-white antialiased [font-feature-settings:'ss01','cv11']">
       <Hero market={market} setMarket={setMarket} />
       <CountryStrip market={market} setMarket={setMarket} />
       <ProviderSection providers={providers} market={market} />
       <StatsBand />
-      <Footer />
     </div>
   );
 }
+
 
 /* ------------------------------------------------------------------ */
 /* Top bar                                                             */
