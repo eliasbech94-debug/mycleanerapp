@@ -96,6 +96,7 @@ function BookingFlowInner() {
   const [date, setDate] = useState<Date | null>(null);
   const [slot, setSlot] = useState<string>(params.get("slot") || "");
   const { profile, user } = useAuth();
+  const { providerLock } = useAppContext();
   const [address, setAddress] = useState<string>("");
   const [addressPlaceId, setAddressPlaceId] = useState<string | null>(null);
   const [addressLat, setAddressLat] = useState<number | null>(null);
