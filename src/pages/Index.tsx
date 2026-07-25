@@ -111,7 +111,9 @@ export default function Index() {
       <Hero market={market} setMarket={setMarket} />
       <CountryStrip market={market} setMarket={setMarket} />
       <ProviderSection providers={providers} market={market} />
+      <MarketplaceLive market={market} />
       <StatsBand />
+
     </div>
   );
 }
