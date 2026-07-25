@@ -77,7 +77,7 @@ export function useMarketplaceProviders(query: MarketplaceQuery, opts?: { realti
     }
     const list = (data as MarketplaceProvider[] | null) ?? [];
     setState({ data: list, total: list[0]?.total_count ?? 0, loading: false, error: null });
-  }, [query.countryCode, query.serviceCategory, query.minTier, query.language, query.maxHourlyRate, query.search, query.sort, query.limit, query.offset]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [query.countryCode, query.serviceCategory, query.minTier, query.language, query.maxHourlyRate, query.search, query.sort, query.limit, query.offset]);
 
   useEffect(() => {
     const ms = opts?.debounceMs ?? 200;
