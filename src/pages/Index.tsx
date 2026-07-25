@@ -4,6 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import EuropeBackdrop from "@/components/EuropeBackdrop";
 import MarketplaceLive from "@/components/MarketplaceLive";
+import { useActiveMarket } from "@/context/ActiveMarketContext";
+import { MARKETS, type Market } from "@/lib/markets";
 import {
   Search,
   MapPin,
@@ -27,10 +29,10 @@ import {
 
 /**
  * MyCleaner — Home v2.0
- * Product-first homepage. Dark premium canvas, split hero (headline + tabbed
- * search left, live Europe map + live stat cards right), country strip,
- * "Top rated cleaners in your area" grid, and a footer stats band.
- * Backend & routing untouched — real providers loaded via RPC + realtime.
+ * All market-derived content (city names, providers, currency, live activity,
+ * highlighted map country) comes from ActiveMarketContext. Never hardcode a
+ * country here — switch flags flow through setMarket() and every child
+ * re-renders from the same source of truth.
  */
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -55,22 +57,7 @@ type ProviderRow = {
   total_count: number;
 };
 
-type Market = { code: string; label: string; flag: string; currency: string; sym: string; city?: string };
 
-const MARKETS: Market[] = [
-  { code: "DK", label: "Denmark", flag: "🇩🇰", currency: "DKK", sym: "kr./h", city: "København" },
-  { code: "SE", label: "Sweden", flag: "🇸🇪", currency: "SEK", sym: "kr./h", city: "Stockholm" },
-  { code: "DE", label: "Germany", flag: "🇩🇪", currency: "EUR", sym: "€/h", city: "Berlin" },
-  { code: "GB", label: "United Kingdom", flag: "🇬🇧", currency: "GBP", sym: "£/h", city: "London" },
-  { code: "ES", label: "Spain", flag: "🇪🇸", currency: "EUR", sym: "€/h", city: "Madrid" },
-  { code: "NL", label: "Netherlands", flag: "🇳🇱", currency: "EUR", sym: "€/h", city: "Amsterdam" },
-  { code: "FR", label: "France", flag: "🇫🇷", currency: "EUR", sym: "€/h", city: "Paris" },
-  { code: "IT", label: "Italy", flag: "🇮🇹", currency: "EUR", sym: "€/h", city: "Milano" },
-  { code: "NO", label: "Norway", flag: "🇳🇴", currency: "NOK", sym: "kr./h", city: "Oslo" },
-  { code: "BE", label: "Belgium", flag: "🇧🇪", currency: "EUR", sym: "€/h", city: "Brussels" },
-  { code: "PL", label: "Poland", flag: "🇵🇱", currency: "PLN", sym: "zł/h", city: "Warszawa" },
-  { code: "PT", label: "Portugal", flag: "🇵🇹", currency: "EUR", sym: "€/h", city: "Lisboa" },
-];
 
 function initials(name: string) {
   return name.split(/\s+/).map((p) => p[0]).filter(Boolean).slice(0, 2).join("").toUpperCase();
