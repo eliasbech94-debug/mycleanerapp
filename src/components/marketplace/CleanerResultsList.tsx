@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Star, MapPin, Heart, ShieldCheck, User as UserIcon } from "lucide-react";
 import { MarketplaceProvider } from "@/hooks/useMarketplaceProviders";
 import { useFavoriteProviders } from "@/hooks/useFavoriteProviders";
+import { isDemoProviderSlug } from "@/data/demoProviders";
 
 /**
  * Homepage top-rated cleaners — horizontal-row layout matching the
@@ -13,10 +14,12 @@ export function CleanerResultsList({
   providers,
   loading,
   emptyLabel,
+  isDemo = false,
 }: {
   providers: MarketplaceProvider[] | null;
   loading: boolean;
   emptyLabel?: string;
+  isDemo?: boolean;
 }) {
   const { t } = useTranslation("marketplace");
   const fav = useFavoriteProviders();
@@ -24,9 +27,16 @@ export function CleanerResultsList({
   return (
     <section className="mx-auto max-w-[1400px] px-5 pt-10 lg:px-8">
       <div className="mb-5 flex items-end justify-between gap-3">
-        <h2 className="text-[18px] font-semibold text-[hsl(var(--mkt-ink))]">
-          {t("results.heading", "Top rated cleaners near you")}
-        </h2>
+        <div className="flex items-center gap-2">
+          <h2 className="text-[18px] font-semibold text-[hsl(var(--mkt-ink))]">
+            {t("results.heading", "Top rated cleaners near you")}
+          </h2>
+          {isDemo && (
+            <span className="rounded-full border border-[hsl(var(--mkt-border))] bg-[hsl(var(--mkt-surface-muted))] px-2 py-0.5 text-[10.5px] font-semibold uppercase tracking-wider text-[hsl(var(--mkt-ink-muted))]">
+              {t("results.demo_badge", "Demo")}
+            </span>
+          )}
+        </div>
         <Link
           to="/marketplace"
           className="text-[13.5px] font-semibold text-[hsl(var(--mkt-brand))] hover:underline"
@@ -95,12 +105,16 @@ function ProviderRow({ p, isFav, onToggleFav, pending }: { p: MarketplaceProvide
 
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
-          <Link
-            to={`/p/${p.provider_slug}?src=marketplace_pick`}
-            className="text-[15.5px] font-semibold text-[hsl(var(--mkt-ink))] hover:text-[hsl(var(--mkt-brand))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--mkt-brand))]"
-          >
-            {p.display_name}
-          </Link>
+          {isDemoProviderSlug(p.provider_slug) ? (
+            <span className="text-[15.5px] font-semibold text-[hsl(var(--mkt-ink))]">{p.display_name}</span>
+          ) : (
+            <Link
+              to={`/p/${p.provider_slug}?src=marketplace_pick`}
+              className="text-[15.5px] font-semibold text-[hsl(var(--mkt-ink))] hover:text-[hsl(var(--mkt-brand))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--mkt-brand))]"
+            >
+              {p.display_name}
+            </Link>
+          )}
           {p.identity_verified_badge && (
             <ShieldCheck className="h-4 w-4 text-[hsl(var(--mkt-brand))]" aria-label={t("card.verified", "Verified")} />
           )}
@@ -148,24 +162,36 @@ function ProviderRow({ p, isFav, onToggleFav, pending }: { p: MarketplaceProvide
             {t("card.price_note_short", "See profile")}
           </div>
         </div>
-        <Link
-          to={`/p/${p.provider_slug}?src=marketplace_pick`}
-          className="inline-flex items-center justify-center rounded-lg bg-[hsl(var(--mkt-brand))] px-4 py-2 text-[13px] font-semibold text-[hsl(var(--mkt-brand-on))] transition hover:bg-[hsl(var(--mkt-brand-hover))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--mkt-brand))] focus-visible:ring-offset-2"
-        >
-          {t("card.view", "View profile")}
-        </Link>
+        {isDemoProviderSlug(p.provider_slug) ? (
+          <span
+            aria-disabled="true"
+            title={t("card.demo_hint", "Demo profile — sign in to browse real cleaners")}
+            className="inline-flex cursor-not-allowed items-center justify-center rounded-lg bg-[hsl(var(--mkt-brand))]/60 px-4 py-2 text-[13px] font-semibold text-[hsl(var(--mkt-brand-on))]"
+          >
+            {t("card.view", "View profile")}
+          </span>
+        ) : (
+          <Link
+            to={`/p/${p.provider_slug}?src=marketplace_pick`}
+            className="inline-flex items-center justify-center rounded-lg bg-[hsl(var(--mkt-brand))] px-4 py-2 text-[13px] font-semibold text-[hsl(var(--mkt-brand-on))] transition hover:bg-[hsl(var(--mkt-brand-hover))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--mkt-brand))] focus-visible:ring-offset-2"
+          >
+            {t("card.view", "View profile")}
+          </Link>
+        )}
       </div>
 
-      <button
-        type="button"
-        onClick={onToggleFav}
-        disabled={pending}
-        aria-pressed={isFav}
-        aria-label={isFav ? t("card.remove_fav", "Remove from favorites") : t("card.add_fav", "Add to favorites")}
-        className="absolute right-3 top-3 grid h-8 w-8 place-items-center rounded-full text-[hsl(var(--mkt-ink-soft))] transition hover:bg-[hsl(var(--mkt-surface-muted))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--mkt-brand))] disabled:opacity-60"
-      >
-        <Heart className={`h-4 w-4 ${isFav ? "fill-[hsl(0_84%_58%)] text-[hsl(0_84%_58%)]" : ""}`} />
-      </button>
+      {!isDemoProviderSlug(p.provider_slug) && (
+        <button
+          type="button"
+          onClick={onToggleFav}
+          disabled={pending}
+          aria-pressed={isFav}
+          aria-label={isFav ? t("card.remove_fav", "Remove from favorites") : t("card.add_fav", "Add to favorites")}
+          className="absolute right-3 top-3 grid h-8 w-8 place-items-center rounded-full text-[hsl(var(--mkt-ink-soft))] transition hover:bg-[hsl(var(--mkt-surface-muted))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--mkt-brand))] disabled:opacity-60"
+        >
+          <Heart className={`h-4 w-4 ${isFav ? "fill-[hsl(0_84%_58%)] text-[hsl(0_84%_58%)]" : ""}`} />
+        </button>
+      )}
     </article>
   );
 }

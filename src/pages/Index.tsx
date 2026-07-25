@@ -6,6 +6,7 @@ import { ServiceCategoryGrid } from "@/components/marketplace/ServiceCategoryGri
 import { CleanerResultsList } from "@/components/marketplace/CleanerResultsList";
 import { BookingSidebar } from "@/components/marketplace/BookingSidebar";
 import { MarketplaceStats } from "@/components/marketplace/MarketplaceStats";
+import { DEMO_PROVIDERS } from "@/data/demoProviders";
 
 /**
  * MyCleaner — public homepage v2.1.
@@ -27,6 +28,9 @@ export default function Index() {
     { realtime: true },
   );
 
+  const hasReal = !loading && data && data.length > 0;
+  const providers = hasReal ? data : DEMO_PROVIDERS;
+
   return (
     <MarketplaceSurface>
       <MarketplaceHero />
@@ -35,8 +39,9 @@ export default function Index() {
         <div className="min-w-0">
           <ServiceCategoryGrid />
           <CleanerResultsList
-            providers={data}
-            loading={loading}
+            providers={providers}
+            loading={loading && !hasReal ? false : loading}
+            isDemo={!hasReal}
             emptyLabel={isNeutral ? undefined : market.label}
           />
         </div>
