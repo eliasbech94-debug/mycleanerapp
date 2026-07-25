@@ -6,6 +6,7 @@ import { ServiceCategoryGrid } from "@/components/marketplace/ServiceCategoryGri
 import { CleanerResultsList } from "@/components/marketplace/CleanerResultsList";
 import { BookingSidebar } from "@/components/marketplace/BookingSidebar";
 import { MarketplaceStats } from "@/components/marketplace/MarketplaceStats";
+import { CountryConfirmDialog } from "@/components/marketplace/CountryConfirmDialog";
 import { DEMO_PROVIDERS } from "@/data/demoProviders";
 
 /**
@@ -51,6 +52,7 @@ export default function Index() {
       </div>
 
       <MarketplaceStats />
+      <CountryConfirmDialog />
     </MarketplaceSurface>
   );
 }

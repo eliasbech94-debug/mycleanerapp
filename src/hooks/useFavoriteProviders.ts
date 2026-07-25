@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { useAuthGate } from "@/context/AuthGateContext";
 
 /**
  * Shared favorite-provider state built on `toggle_favorite_by_slug_v1`.
@@ -14,6 +15,7 @@ const rpc = (name: string, args?: Record<string, unknown>) => (supabase.rpc as a
 
 export function useFavoriteProviders() {
   const { user } = useAuth();
+  const { openLogin } = useAuthGate();
   const [ids, setIds] = useState<Set<string>>(new Set());
   const [ready, setReady] = useState(false);
   const inFlight = useRef<Set<string>>(new Set());
@@ -30,7 +32,11 @@ export function useFavoriteProviders() {
   const isFavorite = useCallback((slug: string) => ids.has(slug), [ids]);
 
   const toggle = useCallback(async (slug: string) => {
-    if (!user) { toast.info("Log ind for at gemme favoritter"); return; }
+    if (!user) {
+      toast.info("Log ind for at gemme favoritter");
+      openLogin({ reason: "favorite" });
+      return;
+    }
     if (inFlight.current.has(slug)) return;
     inFlight.current.add(slug);
 
@@ -44,7 +50,7 @@ export function useFavoriteProviders() {
       setIds((s) => { const n = new Set(s); if (wasFav) n.add(slug); else n.delete(slug); return n; });
       toast.error(error.message);
     }
-  }, [ids, user]);
+  }, [ids, user, openLogin]);
 
   return { isFavorite, toggle, ids, ready, refresh, isPending: (slug: string) => inFlight.current.has(slug) };
 }
