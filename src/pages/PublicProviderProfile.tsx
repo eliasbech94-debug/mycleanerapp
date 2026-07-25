@@ -1,12 +1,13 @@
-import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, MapPin, Star, Sparkles, Heart, CalendarCheck } from "lucide-react";
+import { Loader2, MapPin, Sparkles, Heart, CalendarCheck, ShieldCheck, Clock } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
+import { useAppContext, type AcquisitionSource } from "@/context/AppContext";
 import BackButton from "@/components/BackButton";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -29,17 +30,55 @@ type Profile = {
   avg_response_minutes: number | null;
   approximate_service_area: { country?: string; radius_km?: number } | null;
   identity_verified_badge: boolean;
-  average_rating: number;
-  total_reviews: number;
+  average_rating: number | null;
+  total_reviews: number | null;
   completed_bookings: number;
   years_on_platform: number;
+  insurance_valid: boolean;
 };
+
+type Slot = { slot_date: string; slot_hour: number };
+
+const KNOWN_SOURCES: AcquisitionSource[] = [
+  "provider_direct_link",
+  "provider_qr_code",
+  "provider_social_share",
+  "provider_embedded_widget",
+];
+
+function parseSource(v: string | null): AcquisitionSource {
+  if (v && (KNOWN_SOURCES as string[]).includes(v)) return v as AcquisitionSource;
+  return "provider_direct_link";
+}
 
 export default function PublicProviderProfile() {
   const { slug } = useParams<{ slug: string }>();
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { setProviderLock, hydrateProviderLockId, campaign } = useAppContext();
+
   const [profile, setProfile] = useState<Profile | null | undefined>(undefined);
   const [isFav, setIsFav] = useState(false);
+  const [slots, setSlots] = useState<Slot[] | null>(null);
+
+  const search = useMemo(() => new URLSearchParams(location.search), [location.search]);
+  const source = parseSource(search.get("src"));
+  const ref = search.get("ref");
+
+  // Attribution capture the moment we land on a /p/:slug URL.
+  useEffect(() => {
+    if (!slug) return;
+    setProviderLock({
+      slug,
+      source,
+      ref,
+      campaign,
+      landingUrl: window.location.href,
+      firstSeenAt: new Date().toISOString(),
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [slug]);
 
   useEffect(() => {
     if (!slug) return;
@@ -48,7 +87,12 @@ export default function PublicProviderProfile() {
       if (error) { toast.error(error.message); setProfile(null); return; }
       const p = ((data as Profile[] | null) ?? [])[0] ?? null;
       setProfile(p);
+      // Server-side slug resolution succeeded — safe to hydrate the lock's providerId hint.
+      // We do NOT expose provider user_id publicly; the slug itself is the authoritative key
+      // on the server, so we hydrate providerId with the slug as a stable client hint only.
+      if (p) hydrateProviderLockId(slug, p.provider_slug);
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug]);
 
   useEffect(() => {
@@ -60,6 +104,21 @@ export default function PublicProviderProfile() {
     })();
   }, [user, slug]);
 
+  // Availability — only bookable slots, next 14 days.
+  useEffect(() => {
+    if (!slug) return;
+    (async () => {
+      const today = new Date();
+      const to = new Date(today.getTime() + 14 * 86400000);
+      const iso = (d: Date) => d.toISOString().slice(0, 10);
+      const { data, error } = await rpc("list_provider_bookable_slots_v1", {
+        _slug: slug, _from: iso(today), _to: iso(to),
+      });
+      if (error) { setSlots([]); return; }
+      setSlots(((data as Slot[] | null) ?? []).slice(0, 60));
+    })();
+  }, [slug]);
+
   async function toggleFav() {
     if (!user) { toast.info("Log ind for at gemme favoritter"); return; }
     setIsFav((v) => !v);
@@ -67,14 +126,34 @@ export default function PublicProviderProfile() {
     if (error) toast.error(error.message);
   }
 
+  function bookDirect() {
+    if (!slug) return;
+    // Lock is already set. Booking flow will re-derive provider server-side.
+    navigate(`/book?provider=${encodeURIComponent(slug)}&src=${encodeURIComponent(source)}`);
+  }
+
   if (profile === undefined) {
     return <main className="grid min-h-screen place-items-center"><Loader2 className="h-6 w-6 animate-spin" /></main>;
   }
   if (profile === null) {
-    return <main className="grid min-h-screen place-items-center p-6 text-center">
-      <div><h1 className="text-2xl font-serif">Provider ikke fundet</h1><p className="mt-2 text-muted-foreground">Profilen findes ikke, eller er ikke offentlig.</p><Button asChild className="mt-4"><Link to="/marketplace">Tilbage til marketplace</Link></Button></div>
-    </main>;
+    return (
+      <main className="grid min-h-screen place-items-center p-6 text-center">
+        <div>
+          <h1 className="text-2xl font-serif">Provider ikke fundet</h1>
+          <p className="mt-2 text-muted-foreground">Profilen findes ikke, eller er ikke offentlig.</p>
+          <Button asChild className="mt-4"><Link to="/marketplace">Tilbage til marketplace</Link></Button>
+        </div>
+      </main>
+    );
   }
+
+  // Group slots by day for a compact 14-day view.
+  const slotsByDay = new Map<string, number[]>();
+  (slots ?? []).forEach((s) => {
+    const arr = slotsByDay.get(s.slot_date) ?? [];
+    arr.push(s.slot_hour);
+    slotsByDay.set(s.slot_date, arr);
+  });
 
   return (
     <main className="min-h-screen bg-background">
@@ -86,8 +165,9 @@ export default function PublicProviderProfile() {
             <Card className="overflow-hidden">
               <div className="relative aspect-[16/9] bg-gradient-to-br from-primary/20 to-accent/20">
                 {profile.avatar_url && <img src={profile.avatar_url} alt={profile.display_name} className="h-full w-full object-cover" />}
-                <div className="absolute left-3 top-3 flex gap-2">
+                <div className="absolute left-3 top-3 flex flex-wrap gap-2">
                   {profile.identity_verified_badge && <Badge className="bg-green-600 text-white">Verificeret</Badge>}
+                  {profile.insurance_valid && <Badge className="bg-blue-600 text-white inline-flex items-center gap-1"><ShieldCheck className="h-3 w-3" />Forsikret</Badge>}
                   <Badge variant="secondary" className="capitalize">{profile.provider_tier}</Badge>
                 </div>
                 <button type="button" onClick={toggleFav} className="absolute right-3 top-3 rounded-full bg-background/80 p-2 shadow backdrop-blur" aria-label={isFav ? "Fjern favorit" : "Tilføj favorit"}>
@@ -104,8 +184,16 @@ export default function PublicProviderProfile() {
                   )}
                 </div>
                 <div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-                  {profile.country_code && <span className="inline-flex items-center gap-1"><MapPin className="h-4 w-4" />{profile.country_code} · dækker {profile.service_radius_km ?? 10} km</span>}
-                  {profile.avg_response_minutes !== null && <span>Svarer typisk inden for {profile.avg_response_minutes} min</span>}
+                  {profile.country_code && (
+                    <span className="inline-flex items-center gap-1">
+                      <MapPin className="h-4 w-4" />{profile.country_code} · dækker {profile.service_radius_km ?? 10} km
+                    </span>
+                  )}
+                  {profile.avg_response_minutes !== null && (
+                    <span className="inline-flex items-center gap-1">
+                      <Clock className="h-4 w-4" />Svarer typisk inden for {profile.avg_response_minutes} min
+                    </span>
+                  )}
                   {profile.years_on_platform > 0 && <span>{profile.years_on_platform} år på platformen</span>}
                 </div>
                 {profile.public_bio && <p className="mt-4 whitespace-pre-line text-sm leading-relaxed">{profile.public_bio}</p>}
@@ -139,6 +227,43 @@ export default function PublicProviderProfile() {
                 )}
               </CardContent>
             </Card>
+
+            {/* Bookable availability — only free slots, never other bookings or blocked events. */}
+            <Card>
+              <CardContent className="p-6">
+                <h2 className="mb-3 font-serif text-xl">Ledige tider</h2>
+                {slots === null && <div className="text-sm text-muted-foreground inline-flex items-center gap-2"><Loader2 className="h-3 w-3 animate-spin" />Henter ledige tider…</div>}
+                {slots !== null && slotsByDay.size === 0 && (
+                  <div className="text-sm text-muted-foreground">
+                    Ingen ledige tider de næste 14 dage. Du kan sende en booking-forespørgsel via knappen til højre.
+                  </div>
+                )}
+                {slotsByDay.size > 0 && (
+                  <div className="grid gap-2 sm:grid-cols-2">
+                    {Array.from(slotsByDay.entries()).slice(0, 6).map(([day, hours]) => (
+                      <div key={day} className="rounded-lg border p-3">
+                        <div className="mb-2 text-sm font-medium">
+                          {new Date(day).toLocaleDateString("da-DK", { weekday: "short", day: "numeric", month: "short" })}
+                        </div>
+                        <div className="flex flex-wrap gap-1">
+                          {hours.slice(0, 6).map((h) => (
+                            <button
+                              key={h}
+                              type="button"
+                              onClick={bookDirect}
+                              className="rounded-md border px-2 py-1 text-xs hover:bg-primary hover:text-primary-foreground transition"
+                            >
+                              {String(h).padStart(2, "0")}:00
+                            </button>
+                          ))}
+                          {hours.length > 6 && <span className="text-xs text-muted-foreground self-center">+{hours.length - 6}</span>}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </div>
 
           <aside className="space-y-4">
@@ -146,23 +271,42 @@ export default function PublicProviderProfile() {
               <CardContent className="p-6">
                 <div className="text-sm text-muted-foreground">Timepris fra</div>
                 <div className="text-3xl font-serif">{profile.price_from ? `${profile.price_from} kr` : "—"}</div>
-                <Button asChild className="mt-4 w-full" size="lg">
-                  <Link to={`/booking/new?provider=${profile.provider_slug}`}><CalendarCheck className="mr-2 h-4 w-4" />Book denne cleaner</Link>
+                <Button className="mt-4 w-full" size="lg" onClick={bookDirect}>
+                  <CalendarCheck className="mr-2 h-4 w-4" />Book denne cleaner
                 </Button>
                 <Button variant="outline" className="mt-2 w-full" onClick={toggleFav}>
                   <Heart className={`mr-2 h-4 w-4 ${isFav ? "fill-red-500 text-red-500" : ""}`} />
                   {isFav ? "Fjern favorit" : "Gem som favorit"}
                 </Button>
+                <p className="mt-3 text-xs text-muted-foreground">
+                  Sikker betaling gennem MyCleaner. Ingen adresser, telefonnumre eller e-mails deles udenfor platformen.
+                </p>
               </CardContent>
             </Card>
 
+            {/* Only show numbers we can prove. Ratings hidden until backed by real reviews. */}
             <Card>
               <CardContent className="p-6 text-sm">
-                <h3 className="mb-2 font-medium">Statistik</h3>
+                <h3 className="mb-2 font-medium">Om denne cleaner</h3>
                 <dl className="space-y-1">
-                  <div className="flex justify-between"><dt className="text-muted-foreground">Bookinger gennemført</dt><dd>{profile.completed_bookings}</dd></div>
-                  <div className="flex justify-between"><dt className="text-muted-foreground">Års erfaring</dt><dd>{profile.years_experience ?? "—"}</dd></div>
-                  <div className="flex justify-between"><dt className="text-muted-foreground">Rating</dt><dd className="inline-flex items-center gap-1">{profile.average_rating > 0 ? (<><Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />{profile.average_rating.toFixed(1)} ({profile.total_reviews})</>) : "—"}</dd></div>
+                  <div className="flex justify-between">
+                    <dt className="text-muted-foreground">Bookinger gennemført</dt>
+                    <dd>{profile.completed_bookings > 0 ? profile.completed_bookings : "—"}</dd>
+                  </div>
+                  {profile.years_experience != null && (
+                    <div className="flex justify-between">
+                      <dt className="text-muted-foreground">Års erfaring (selvangivet)</dt>
+                      <dd>{profile.years_experience}</dd>
+                    </div>
+                  )}
+                  <div className="flex justify-between">
+                    <dt className="text-muted-foreground">Identitet verificeret</dt>
+                    <dd>{profile.identity_verified_badge ? "Ja" : "Nej"}</dd>
+                  </div>
+                  <div className="flex justify-between">
+                    <dt className="text-muted-foreground">Forsikring</dt>
+                    <dd>{profile.insurance_valid ? "Aktiv" : "—"}</dd>
+                  </div>
                 </dl>
               </CardContent>
             </Card>
