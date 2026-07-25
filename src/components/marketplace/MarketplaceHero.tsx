@@ -60,6 +60,51 @@ export function MarketplaceHero() {
   );
 }
 
+/**
+ * RotatingWord — cycles a short list of adjectives inside the H1.
+ * Presentation-only; respects prefers-reduced-motion by disabling the
+ * animation and pausing rotation for accessibility.
+ */
+function RotatingWord({ words, intervalMs = 2200 }: { words: string[]; intervalMs?: number }) {
+  const safeWords = words && words.length > 0 ? words : ["verificerede"];
+  const [i, setI] = useState(0);
+  const [reduced, setReduced] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const update = () => setReduced(mq.matches);
+    update();
+    mq.addEventListener?.("change", update);
+    return () => mq.removeEventListener?.("change", update);
+  }, []);
+
+  useEffect(() => {
+    if (reduced || safeWords.length < 2) return;
+    const id = window.setInterval(() => setI((v) => (v + 1) % safeWords.length), intervalMs);
+    return () => window.clearInterval(id);
+  }, [reduced, safeWords.length, intervalMs]);
+
+  // Reserve width using the longest word so the following <br/> line doesn't jump.
+  const longest = safeWords.reduce((a, b) => (b.length > a.length ? b : a), "");
+  const current = safeWords[i];
+
+  return (
+    <span
+      className="relative inline-grid align-baseline text-[hsl(var(--mkt-brand))]"
+      aria-live="polite"
+    >
+      <span className="invisible col-start-1 row-start-1 whitespace-nowrap italic">{longest}</span>
+      <span
+        key={current}
+        className="col-start-1 row-start-1 whitespace-nowrap italic animate-[mktRotateWord_600ms_ease-out]"
+      >
+        {current}
+      </span>
+    </span>
+  );
+}
+
 function TrustChip({ icon, label }: { icon: React.ReactNode; label: string }) {
   return (
     <span className="inline-flex items-center gap-1.5">
