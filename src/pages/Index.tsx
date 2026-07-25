@@ -65,13 +65,15 @@ function initials(name: string) {
 
 export default function Index() {
   const { user } = useAuth();
-  const [market, setMarket] = useState<Market>(MARKETS[0]);
+  const { market, isNeutral, setMarket } = useActiveMarket();
   const [providers, setProviders] = useState<ProviderRow[] | null>(null);
 
+  // In neutral mode we query without a country filter so the grid stays populated
+  // with Europe-wide results instead of silently defaulting to a specific country.
   const load = useCallback(async () => {
     setProviders(null);
     const { data } = await rpc("search_marketplace_providers_v1", {
-      _country_code: market.code,
+      _country_code: isNeutral ? null : market.code,
       _service_category: "cleaning",
       _min_tier: null,
       _language: null,
@@ -82,7 +84,7 @@ export default function Index() {
       _offset: 0,
     });
     setProviders(((data as ProviderRow[] | null) ?? []));
-  }, [market.code]);
+  }, [market.code, isNeutral]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -95,15 +97,15 @@ export default function Index() {
 
   return (
     <div className="bg-[#061615] text-white antialiased [font-feature-settings:'ss01','cv11']">
-      <Hero market={market} setMarket={setMarket} />
-      <CountryStrip market={market} setMarket={setMarket} />
-      <ProviderSection providers={providers} market={market} />
-      <MarketplaceLive market={market} />
+      <Hero market={market} isNeutral={isNeutral} setMarket={setMarket} />
+      <CountryStrip market={market} isNeutral={isNeutral} setMarket={setMarket} />
+      <ProviderSection providers={providers} market={market} isNeutral={isNeutral} />
+      <MarketplaceLive market={market} isNeutral={isNeutral} />
       <StatsBand />
-
     </div>
   );
 }
+
 
 
 
