@@ -4,17 +4,16 @@ import { MarketplaceSurface } from "@/components/marketplace/MarketplaceSurface"
 import { MarketplaceHero } from "@/components/marketplace/MarketplaceHero";
 import { ServiceCategoryGrid } from "@/components/marketplace/ServiceCategoryGrid";
 import { CleanerResultsList } from "@/components/marketplace/CleanerResultsList";
-import { TrustSection } from "@/components/marketplace/TrustSection";
+import { BookingSidebar } from "@/components/marketplace/BookingSidebar";
 import { MarketplaceStats } from "@/components/marketplace/MarketplaceStats";
 
 /**
- * MyCleaner — public homepage v2.0 (Phase 2A).
+ * MyCleaner — public homepage v2.1.
  *
- * Scoped light marketplace surface. All authenticated dashboards keep
- * their existing tokens (see index.css / `[data-surface="marketplace"]`).
- * Provider data comes from the shared `useMarketplaceProviders` hook so
- * Homepage, Marketplace and FindCleaner never diverge on query shape.
- * Statistics render nothing until an authoritative source ships.
+ * Reference-matched layout: full-bleed hero + horizontal search, then a
+ * two-column body with Popular services + Top-rated cleaners on the left
+ * and a sticky "Your booking" / "Why choose" sidebar on the right.
+ * Stats stay hidden until a real source exists.
  */
 export default function Index() {
   const { market, isNeutral } = useActiveMarket();
@@ -23,7 +22,7 @@ export default function Index() {
       countryCode: isNeutral ? null : market.code,
       serviceCategory: "cleaning",
       sort: "score",
-      limit: 8,
+      limit: 6,
     },
     { realtime: true },
   );
@@ -31,14 +30,22 @@ export default function Index() {
   return (
     <MarketplaceSurface>
       <MarketplaceHero />
-      <ServiceCategoryGrid />
-      <CleanerResultsList
-        providers={data}
-        loading={loading}
-        emptyLabel={isNeutral ? undefined : market.label}
-      />
+
+      <div className="mx-auto grid max-w-[1400px] grid-cols-1 gap-8 px-5 pb-16 lg:grid-cols-[1fr_360px] lg:gap-10 lg:px-8">
+        <div className="min-w-0">
+          <ServiceCategoryGrid />
+          <CleanerResultsList
+            providers={data}
+            loading={loading}
+            emptyLabel={isNeutral ? undefined : market.label}
+          />
+        </div>
+        <div className="lg:sticky lg:top-24 lg:self-start lg:pt-10">
+          <BookingSidebar />
+        </div>
+      </div>
+
       <MarketplaceStats />
-      <TrustSection />
     </MarketplaceSurface>
   );
 }
