@@ -34,10 +34,11 @@ jobs:
         env:
           STAGING_SUPABASE_URL: ${{ secrets.STAGING_SUPABASE_URL }}
           STAGING_SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.STAGING_SUPABASE_SERVICE_ROLE_KEY }}
-          STAGING_PG_CONN: ${{ secrets.STAGING_PG_CONN }}
+          STAGING_SUPABASE_PROJECT_REF: ${{ secrets.STAGING_SUPABASE_PROJECT_REF }}
+          STAGING_SUPABASE_DB_PASSWORD: ${{ secrets.STAGING_SUPABASE_DB_PASSWORD }}
         run: |
           missing=0
-          for name in STAGING_SUPABASE_URL STAGING_SUPABASE_SERVICE_ROLE_KEY STAGING_PG_CONN; do
+          for name in STAGING_SUPABASE_URL STAGING_SUPABASE_SERVICE_ROLE_KEY STAGING_SUPABASE_PROJECT_REF STAGING_SUPABASE_DB_PASSWORD; do
             if [ -z "${!name}" ]; then
               echo "::error::Missing required secret: $name"
               missing=1
@@ -50,17 +51,22 @@ jobs:
       - name: Safe diagnostics (no secret values)
         env:
           STAGING_SUPABASE_URL: ${{ secrets.STAGING_SUPABASE_URL }}
+          STAGING_SUPABASE_PROJECT_REF: ${{ secrets.STAGING_SUPABASE_PROJECT_REF }}
         run: |
           # Extract project ref from https://<ref>.supabase.co — public identifier, not a secret.
           host="${STAGING_SUPABASE_URL#https://}"
           host="${host#http://}"
-          project_ref="${host%%.*}"
+          url_project_ref="${host%%.*}"
           echo "ref=${{ github.ref }}"
           echo "ref_name=${{ github.ref_name }}"
           echo "sha=${{ github.sha }}"
-          echo "supabase_project_ref=${project_ref}"
-          if [[ "$project_ref" == "qfjgifubavuomwvroahy" ]]; then
-            echo "::error::Refusing to run — STAGING_SUPABASE_URL points at the production project."
+          echo "supabase_project_ref=${url_project_ref}"
+          if [[ "$url_project_ref" == "qfjgifubavuomwvroahy" ]] || [[ "$STAGING_SUPABASE_PROJECT_REF" == "qfjgifubavuomwvroahy" ]]; then
+            echo "::error::Refusing to run — staging secrets point at the production project."
+            exit 1
+          fi
+          if [[ "$url_project_ref" != "$STAGING_SUPABASE_PROJECT_REF" ]]; then
+            echo "::error::STAGING_SUPABASE_URL project ref does not match STAGING_SUPABASE_PROJECT_REF."
             exit 1
           fi
 
