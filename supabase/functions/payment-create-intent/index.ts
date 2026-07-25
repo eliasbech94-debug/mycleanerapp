@@ -11,6 +11,15 @@ import { monitored } from "../_shared/logger.ts";
 
 const STRIPE = "https://api.stripe.com/v1";
 
+const ACQUISITION_SOURCES = [
+  "marketplace",
+  "provider_direct_link",
+  "provider_qr_code",
+  "provider_social_share",
+  "provider_embedded_widget",
+  "unknown",
+] as const;
+
 const BodySchema = z.object({
   quote_id: z.string().uuid(),
   booking_date: z.string().min(4),          // YYYY-MM-DD
@@ -22,6 +31,10 @@ const BodySchema = z.object({
   notes: z.string().nullable().optional(),
   provider_name: z.string().nullable().optional(),  // display-only
   payment_method_type: z.string().optional(),
+  // Attribution — the slug is validated server-side against the quote's provider.
+  // If validation fails we fall back to "marketplace" rather than trust the client.
+  acquisition_source: z.enum(ACQUISITION_SOURCES).optional(),
+  acquisition_provider_slug: z.string().min(1).max(120).nullable().optional(),
 });
 
 function form(obj: Record<string, any>, prefix = ""): string {
