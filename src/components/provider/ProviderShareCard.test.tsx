@@ -30,8 +30,16 @@ describe("ProviderShareCard", () => {
     expect(input.value).toContain("/p/marie?src=provider_direct_link");
   });
 
-  it("QR payload uses provider_qr_code source", () => {
-    expect(providerShareUrl("marie", "provider_qr_code")).toContain("src=provider_qr_code");
+  it("QR payload uses canonical provider_qr source", () => {
+    expect(providerShareUrl("marie", "provider_qr")).toContain("src=provider_qr");
+    expect(providerShareUrl("marie", "provider_qr")).not.toContain("provider_qr_code");
+  });
+
+  it("preview section links to the public profile", () => {
+    render(<ProviderShareCard slug="marie" isPublic />);
+    const link = screen.getByRole("link", { name: /Åbn offentlig profil/i }) as HTMLAnchorElement;
+    expect(link.href).toContain("/p/marie");
+    expect(link.href).toContain("src=provider_direct_link");
   });
 
   it("copy button writes URL to clipboard", async () => {

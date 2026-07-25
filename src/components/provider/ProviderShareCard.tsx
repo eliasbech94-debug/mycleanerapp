@@ -31,13 +31,13 @@ function publicOrigin(): string {
   return o.replace(/\/$/, "");
 }
 
-export function providerShareUrl(slug: string, src: "provider_direct_link" | "provider_qr_code" = "provider_direct_link") {
+export function providerShareUrl(slug: string, src: "provider_direct_link" | "provider_qr" = "provider_direct_link") {
   return `${publicOrigin()}/p/${slug}?src=${src}`;
 }
 
 export default function ProviderShareCard({ slug, isPublic, onRenamed }: Props) {
   const shareUrl = useMemo(() => providerShareUrl(slug, "provider_direct_link"), [slug]);
-  const qrUrl = useMemo(() => providerShareUrl(slug, "provider_qr_code"), [slug]);
+  const qrUrl = useMemo(() => providerShareUrl(slug, "provider_qr"), [slug]);
 
   const [qrSvg, setQrSvg] = useState<string>("");
   const [copied, setCopied] = useState(false);

@@ -92,7 +92,7 @@ describe("AppContext — providerLock", () => {
     const { result } = renderHook(() => useAppContext(), { wrapper });
     act(() => {
       result.current.setProviderLock({
-        slug: "anna-clean", source: "provider_qr_code", ref: null, campaign: null,
+        slug: "anna-clean", source: "provider_qr", ref: null, campaign: null,
         landingUrl: "http://x", firstSeenAt: "2026-07-25T10:00:00.000Z",
       });
     });

@@ -47,7 +47,7 @@ describe("resolveAcquisition — server-side attribution", () => {
 
   it("downgrades to 'marketplace' when slug does not resolve at all", async () => {
     const res = await resolveAcquisition({
-      source: "provider_qr_code",
+      source: "provider_qr",
       providerSlug: "does-not-exist",
       quoteProviderUserId: QUOTE_PROVIDER,
       slugLookup: lookup({}),

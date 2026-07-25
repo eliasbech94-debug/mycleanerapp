@@ -46,7 +46,7 @@ type Slot = { slot_date: string; slot_hour: number };
 
 const KNOWN_SOURCES: AcquisitionSource[] = [
   "provider_direct_link",
-  "provider_qr_code",
+  "provider_qr",
   "provider_social_share",
   "provider_embedded_widget",
   "marketplace_pick",
