@@ -4,6 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import EuropeBackdrop from "@/components/EuropeBackdrop";
 import MarketplaceLive from "@/components/MarketplaceLive";
+import { useActiveMarket } from "@/context/ActiveMarketContext";
+import { MARKETS, type Market } from "@/lib/markets";
 import {
   Search,
   MapPin,
@@ -27,10 +29,10 @@ import {
 
 /**
  * MyCleaner — Home v2.0
- * Product-first homepage. Dark premium canvas, split hero (headline + tabbed
- * search left, live Europe map + live stat cards right), country strip,
- * "Top rated cleaners in your area" grid, and a footer stats band.
- * Backend & routing untouched — real providers loaded via RPC + realtime.
+ * All market-derived content (city names, providers, currency, live activity,
+ * highlighted map country) comes from ActiveMarketContext. Never hardcode a
+ * country here — switch flags flow through setMarket() and every child
+ * re-renders from the same source of truth.
  */
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -55,22 +57,7 @@ type ProviderRow = {
   total_count: number;
 };
 
-type Market = { code: string; label: string; flag: string; currency: string; sym: string; city?: string };
 
-const MARKETS: Market[] = [
-  { code: "DK", label: "Denmark", flag: "🇩🇰", currency: "DKK", sym: "kr./h", city: "København" },
-  { code: "SE", label: "Sweden", flag: "🇸🇪", currency: "SEK", sym: "kr./h", city: "Stockholm" },
-  { code: "DE", label: "Germany", flag: "🇩🇪", currency: "EUR", sym: "€/h", city: "Berlin" },
-  { code: "GB", label: "United Kingdom", flag: "🇬🇧", currency: "GBP", sym: "£/h", city: "London" },
-  { code: "ES", label: "Spain", flag: "🇪🇸", currency: "EUR", sym: "€/h", city: "Madrid" },
-  { code: "NL", label: "Netherlands", flag: "🇳🇱", currency: "EUR", sym: "€/h", city: "Amsterdam" },
-  { code: "FR", label: "France", flag: "🇫🇷", currency: "EUR", sym: "€/h", city: "Paris" },
-  { code: "IT", label: "Italy", flag: "🇮🇹", currency: "EUR", sym: "€/h", city: "Milano" },
-  { code: "NO", label: "Norway", flag: "🇳🇴", currency: "NOK", sym: "kr./h", city: "Oslo" },
-  { code: "BE", label: "Belgium", flag: "🇧🇪", currency: "EUR", sym: "€/h", city: "Brussels" },
-  { code: "PL", label: "Poland", flag: "🇵🇱", currency: "PLN", sym: "zł/h", city: "Warszawa" },
-  { code: "PT", label: "Portugal", flag: "🇵🇹", currency: "EUR", sym: "€/h", city: "Lisboa" },
-];
 
 function initials(name: string) {
   return name.split(/\s+/).map((p) => p[0]).filter(Boolean).slice(0, 2).join("").toUpperCase();
@@ -78,13 +65,15 @@ function initials(name: string) {
 
 export default function Index() {
   const { user } = useAuth();
-  const [market, setMarket] = useState<Market>(MARKETS[0]);
+  const { market, isNeutral, setMarket } = useActiveMarket();
   const [providers, setProviders] = useState<ProviderRow[] | null>(null);
 
+  // In neutral mode we query without a country filter so the grid stays populated
+  // with Europe-wide results instead of silently defaulting to a specific country.
   const load = useCallback(async () => {
     setProviders(null);
     const { data } = await rpc("search_marketplace_providers_v1", {
-      _country_code: market.code,
+      _country_code: isNeutral ? null : market.code,
       _service_category: "cleaning",
       _min_tier: null,
       _language: null,
@@ -95,7 +84,7 @@ export default function Index() {
       _offset: 0,
     });
     setProviders(((data as ProviderRow[] | null) ?? []));
-  }, [market.code]);
+  }, [market.code, isNeutral]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -108,12 +97,11 @@ export default function Index() {
 
   return (
     <div className="bg-[#061615] text-white antialiased [font-feature-settings:'ss01','cv11']">
-      <Hero market={market} setMarket={setMarket} />
-      <CountryStrip market={market} setMarket={setMarket} />
-      <ProviderSection providers={providers} market={market} />
-      <MarketplaceLive market={market} />
+      <Hero market={market} isNeutral={isNeutral} setMarket={setMarket} />
+      <CountryStrip market={market} isNeutral={isNeutral} setMarket={setMarket} />
+      <ProviderSection providers={providers} market={market} isNeutral={isNeutral} />
+      <MarketplaceLive market={market} isNeutral={isNeutral} />
       <StatsBand />
-
     </div>
   );
 }
@@ -122,17 +110,19 @@ export default function Index() {
 
 
 
+
 /* ------------------------------------------------------------------ */
 /* Hero                                                                */
 /* ------------------------------------------------------------------ */
-function Hero({ market, setMarket }: { market: Market; setMarket: (m: Market) => void }) {
+function Hero({ market, isNeutral, setMarket }: { market: Market; isNeutral: boolean; setMarket: (m: Market) => void }) {
   const [tab, setTab] = useState<"book" | "avail" | "again">("book");
   const [where, setWhere] = useState("");
 
   return (
     <section className="relative overflow-hidden">
-      {/* ambient Europe backdrop — integrated into the hero, never dominant */}
-      <EuropeBackdrop activeCodes={MARKETS.map((m) => m.code)} selectedCode={market.code} />
+      {/* ambient Europe backdrop — highlights active markets, spotlights current selection */}
+      <EuropeBackdrop activeCodes={MARKETS.map((m) => m.code)} selectedCode={isNeutral ? undefined : market.code} />
+
 
       <div className="relative mx-auto max-w-[1400px] px-5 pb-14 pt-10 lg:px-8 lg:pt-12">
         {/* Content occupies left half; the Europe backdrop naturally shows through on the right */}
@@ -307,17 +297,18 @@ function StatCard({
 /* ------------------------------------------------------------------ */
 /* Country strip                                                       */
 /* ------------------------------------------------------------------ */
-function CountryStrip({ market, setMarket }: { market: Market; setMarket: (m: Market) => void }) {
+function CountryStrip({ market, isNeutral, setMarket }: { market: Market; isNeutral: boolean; setMarket: (m: Market) => void }) {
   return (
     <section className="border-y border-white/[0.05] bg-white/[0.015]">
       <div className="mx-auto flex max-w-[1400px] items-center gap-4 overflow-x-auto px-5 py-4 lg:px-8">
         <div className="flex shrink-0 flex-col text-[10.5px] font-semibold uppercase leading-tight tracking-[0.14em] text-white/45">
-          <span>Live in 12</span>
+          <span>Live in {MARKETS.length}</span>
           <span>European countries</span>
         </div>
         <div className="flex items-center gap-1.5">
           {MARKETS.map((m) => {
-            const active = m.code === market.code;
+            const active = !isNeutral && m.code === market.code;
+
             return (
               <button
                 key={m.code}
@@ -345,14 +336,18 @@ function CountryStrip({ market, setMarket }: { market: Market; setMarket: (m: Ma
 /* ------------------------------------------------------------------ */
 /* Provider section                                                    */
 /* ------------------------------------------------------------------ */
-function ProviderSection({ providers, market }: { providers: ProviderRow[] | null; market: Market }) {
+function ProviderSection({ providers, market, isNeutral }: { providers: ProviderRow[] | null; market: Market; isNeutral: boolean }) {
+  const heading = isNeutral ? "Top rated cleaners across Europe" : `Top rated cleaners in ${market.city}`;
+  const emptyLabel = isNeutral ? "your area" : market.label;
   return (
     <section className="py-14">
       <div className="mx-auto max-w-[1400px] px-5 lg:px-8">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <h2 className="font-serif text-[32px] leading-tight tracking-[-0.02em] text-white sm:text-[38px]">
-              Top rated cleaners in <span className="italic text-white/60">{market.city ?? market.label}</span>
+              {isNeutral
+                ? <>Top rated cleaners <span className="italic text-white/60">across Europe</span></>
+                : <>Top rated cleaners in <span className="italic text-white/60">{market.city}</span></>}
             </h2>
             <p className="mt-2 text-[14px] text-white/55">
               Verified professionals. Real reviews. Book with confidence.
@@ -373,7 +368,7 @@ function ProviderSection({ providers, market }: { providers: ProviderRow[] | nul
             : providers.length === 0
             ? (
                 <div className="col-span-full rounded-2xl border border-dashed border-white/10 bg-white/[0.02] p-10 text-center text-[14px] text-white/50">
-                  No cleaners yet in {market.label}. Try another market.
+                  No cleaners yet in {emptyLabel}. Try another market.
                 </div>
               )
             : providers.slice(0, 4).map((p) => <ProviderCard key={p.provider_slug} p={p} sym={market.sym} />)}
@@ -382,6 +377,7 @@ function ProviderSection({ providers, market }: { providers: ProviderRow[] | nul
     </section>
   );
 }
+
 
 function ProviderCard({ p, sym }: { p: ProviderRow; sym: string }) {
   const badges: { label: string; tone: "orange" | "teal" | "blue" }[] = [];
