@@ -57,10 +57,9 @@ export function AuthDialog({ open, onOpenChange, onSwitchToRegister }: Props) {
     submittingRef.current = true;
     setLoading(true);
     const result = await performEmailSignIn({ email, password, captchaToken });
-    if (!result.ok) {
-      const kind = result.kind;
+    if (result.ok !== true) {
       toast.error(
-        kind === "captcha"
+        result.kind === "captcha"
           ? t("auth.captcha_failed", "Captcha verification failed — please try again")
           : t("auth.invalid_credentials", "Invalid email or password"),
       );
