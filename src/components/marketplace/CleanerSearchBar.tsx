@@ -15,20 +15,27 @@ import { Search, MapPin, Calendar as CalendarIcon, Sparkles } from "lucide-react
  * are carried forward for BookingEntry/BookingFlow when a provider is chosen.
  * No new URL contract is introduced.
  */
-const CATEGORIES = ["cleaning", "handyman", "garden", "moving"] as const;
+/**
+ * Cleaning-only: MyCleaner is a cleaning marketplace. The `Service`
+ * selector lists cleaning subcategories (mirroring ServiceCategoryGrid)
+ * and never exposes handyman/garden/moving — those are not supported
+ * services on the platform today.
+ */
+const SUBCATEGORIES = ["regular", "deep", "move", "office", "custom"] as const;
 
 export function CleanerSearchBar({ compact = false }: { compact?: boolean }) {
   const { t } = useTranslation("marketplace");
   const navigate = useNavigate();
   const [where, setWhere] = useState("");
   const [date, setDate] = useState("");
-  const [category, setCategory] = useState<(typeof CATEGORIES)[number]>("cleaning");
+  const [sub, setSub] = useState<(typeof SUBCATEGORIES)[number]>("regular");
 
   function submit(e?: FormEvent) {
     e?.preventDefault();
     const params = new URLSearchParams();
     if (where.trim()) params.set("q", where.trim());
-    if (category) params.set("category", category);
+    params.set("category", "cleaning");
+    if (sub) params.set("sub", sub);
     if (date) params.set("date", date);
     const qs = params.toString();
     navigate(`/marketplace${qs ? `?${qs}` : ""}`);
