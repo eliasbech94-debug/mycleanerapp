@@ -12,6 +12,7 @@ import AddressBook from "@/components/AddressBook";
 import { listAddresses, buildAutoNotes, updateAddressAccess, PLACE_TYPE_LABEL, ACCESS_METHOD_LABEL, type CustomerAddress, type AccessMethod } from "@/lib/customerAddresses";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { useAuth } from "@/hooks/useAuth";
+import { useAppContext } from "@/context/AppContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Elements, CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { loadStripe, type Stripe as StripeJS } from "@stripe/stripe-js";
