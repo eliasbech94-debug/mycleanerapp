@@ -232,6 +232,8 @@ Deno.serve(monitored("payment-create-intent", async (req, _log) => {
         commission_config_snapshot: commissionSnapshot,
         booking_rules_snapshot: bookingRulesSnapshot,
         pricing_calculation_id: quote.id,
+        acquisition_source: acquisitionSource,
+        acquisition_provider_id: acquisitionProviderId,
       })
       .select("id")
       .single();
