@@ -23,7 +23,9 @@ describe("public discovery CTAs use /p/:slug?src=marketplace_pick", () => {
   });
 
   it("Homepage provider cards link to /p/:slug?src=marketplace_pick", () => {
-    const src = read("src/pages/Index.tsx");
+    // Homepage delegates the result rows to <CleanerResultsList/> — the
+    // CTA contract lives in that shared component (used by Index.tsx).
+    const src = read("src/components/marketplace/CleanerResultsList.tsx");
     expect(src).toMatch(/\/p\/\$\{[^}]+\}\?src=marketplace_pick/);
   });
 
