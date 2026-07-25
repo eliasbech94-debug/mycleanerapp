@@ -537,3 +537,165 @@ function StatsBand() {
   );
 }
 
+/* ------------------------------------------------------------------ */
+/* Hero collage — real freshly cleaned interiors, absolute layer.      */
+/* ------------------------------------------------------------------ */
+function HeroCollage() {
+  return (
+    <div
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-y-0 right-0 hidden w-[46%] lg:block xl:w-[48%]"
+    >
+      {/* soft mask so the collage fades into the dark background */}
+      <div className="absolute inset-0 bg-gradient-to-l from-transparent via-[#061615]/10 to-[#061615]" />
+
+      <div className="absolute inset-0">
+        {/* Primary — sunlit living room */}
+        <div className="absolute right-[6%] top-[6%] h-[62%] w-[58%] overflow-hidden rounded-3xl border border-white/[0.08] shadow-[0_40px_80px_-20px_rgba(0,0,0,0.75)] rotate-[-2deg]">
+          <img src={livingroomAsset.url} alt="" loading="lazy" className="h-full w-full object-cover" />
+          <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/70 to-transparent" />
+          <div className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-white/95 px-2 py-0.5 text-[10px] font-semibold text-[#0b1f1e] shadow">
+            <BadgeCheck className="h-3 w-3 text-[#168a7a]" /> Verified pro
+          </div>
+          <div className="absolute inset-x-3 bottom-3">
+            <div className="text-[11px] font-medium uppercase tracking-[0.14em] text-white/70">Living room · Copenhagen</div>
+            <div className="mt-0.5 flex items-center gap-1.5 text-[12.5px] text-white">
+              <span className="font-semibold">Maja L.</span>
+              <span className="inline-flex items-center gap-0.5 text-white/85">
+                <Star className="h-3 w-3 fill-[#ff6b35] text-[#ff6b35]" /> 4.98
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Secondary — kitchen */}
+        <div className="absolute bottom-[10%] right-[38%] h-[42%] w-[40%] overflow-hidden rounded-2xl border border-white/[0.08] shadow-[0_30px_60px_-20px_rgba(0,0,0,0.7)] rotate-[3deg]">
+          <img src={kitchenAsset.url} alt="" loading="lazy" className="h-full w-full object-cover" />
+          <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/70 to-transparent" />
+          <div className="absolute inset-x-3 bottom-3">
+            <div className="text-[10.5px] font-medium uppercase tracking-[0.14em] text-white/70">Kitchen · Stockholm</div>
+            <div className="mt-0.5 flex items-center gap-1.5 text-[12px] text-white">
+              <span className="font-semibold">Ivan R.</span>
+              <span className="inline-flex items-center gap-0.5 text-white/85">
+                <Star className="h-3 w-3 fill-[#ff6b35] text-[#ff6b35]" /> 4.96
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Tertiary — bedroom */}
+        <div className="absolute bottom-[4%] right-[4%] h-[32%] w-[28%] overflow-hidden rounded-2xl border border-white/[0.08] shadow-[0_20px_50px_-15px_rgba(0,0,0,0.7)] rotate-[-4deg]">
+          <img src={bedroomAsset.url} alt="" loading="lazy" className="h-full w-full object-cover" />
+        </div>
+
+        {/* Floating live booking chip */}
+        <div className="absolute right-[10%] top-[2%] flex items-center gap-2 rounded-full border border-white/12 bg-[#061615]/85 px-3 py-1.5 text-[11.5px] text-white/85 shadow-lg backdrop-blur">
+          <span className="relative flex h-1.5 w-1.5">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#4ade80] opacity-70" />
+            <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[#4ade80]" />
+          </span>
+          Just now · Booked in Amsterdam
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Real homes strip — before/after feeling through pristine interiors  */
+/* ------------------------------------------------------------------ */
+function FreshHomesStrip() {
+  return (
+    <section className="border-t border-white/[0.05] bg-[#04100f] py-14">
+      <div className="mx-auto max-w-[1400px] px-5 lg:px-8">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.04] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-white/70">
+              <Sparkles className="h-3 w-3 text-[#ff6b35]" /> Real homes · freshly cleaned
+            </div>
+            <h2 className="mt-3 font-serif text-[30px] leading-tight tracking-[-0.02em] text-white sm:text-[36px]">
+              This is what <span className="italic text-white/60">clean</span> looks like.
+            </h2>
+            <p className="mt-2 max-w-xl text-[14px] text-white/55">
+              Homes handed back to their owners this week by verified MyCleaner professionals across Europe.
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {HOME_SHOTS.map((s, i) => (
+            <figure
+              key={s.url}
+              className="group relative overflow-hidden rounded-2xl border border-white/[0.06] bg-[#0b1f1e]"
+            >
+              <div className="aspect-[4/5] overflow-hidden">
+                <img
+                  src={s.url}
+                  alt={s.label}
+                  loading="lazy"
+                  className="h-full w-full object-cover transition duration-700 group-hover:scale-[1.04]"
+                />
+              </div>
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+
+              <div className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-[#ff6b35]/95 px-2 py-0.5 text-[10.5px] font-semibold text-white shadow-sm">
+                <Sparkles className="h-3 w-3" /> Freshly cleaned
+              </div>
+              <div className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-white/95 px-2 py-0.5 text-[10.5px] font-semibold text-[#0b1f1e] shadow-sm">
+                <BadgeCheck className="h-3 w-3 text-[#168a7a]" /> Verified pro
+              </div>
+
+              <figcaption className="absolute inset-x-4 bottom-4">
+                <div className="text-[11px] font-medium uppercase tracking-[0.14em] text-white/70">{s.label}</div>
+                <div className="mt-1 flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2">
+                    <img
+                      src={PRO_FALLBACKS[i % PRO_FALLBACKS.length]}
+                      alt=""
+                      loading="lazy"
+                      className="h-7 w-7 rounded-full border border-white/20 object-cover"
+                    />
+                    <span className="text-[13px] font-semibold text-white">{s.pro}</span>
+                  </div>
+                  <span className="inline-flex items-center gap-1 rounded-full bg-black/45 px-2 py-0.5 text-[11.5px] font-semibold text-white backdrop-blur">
+                    <Star className="h-3 w-3 fill-[#ff6b35] text-[#ff6b35]" /> {s.rating}
+                  </span>
+                </div>
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Trust strip — badges that back the marketplace claim                */
+/* ------------------------------------------------------------------ */
+function TrustStrip() {
+  const items = [
+    { icon: ShieldCheck, k: "ID-verified",       v: "Sumsub KYC on every pro" },
+    { icon: BadgeCheck,  k: "Insured bookings",  v: "Damage cover up to €1M" },
+    { icon: Lock,        k: "Stripe payments",   v: "PSD2 · SCA · 3-D Secure" },
+    { icon: Award,       k: "GDPR compliant",    v: "EU data · full portability" },
+  ];
+  return (
+    <section className="border-t border-white/[0.05] bg-white/[0.015]">
+      <div className="mx-auto grid max-w-[1400px] grid-cols-2 gap-4 px-5 py-6 sm:grid-cols-4 lg:px-8">
+        {items.map((i) => (
+          <div key={i.k} className="flex items-center gap-3">
+            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-white/[0.08] bg-white/[0.03] text-[#8fe0d0]">
+              <i.icon className="h-4.5 w-4.5" strokeWidth={2} />
+            </div>
+            <div className="min-w-0">
+              <div className="text-[13px] font-semibold text-white">{i.k}</div>
+              <div className="mt-0.5 text-[11.5px] text-white/55">{i.v}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
