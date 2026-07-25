@@ -14,10 +14,20 @@ Configure these on the **`staging` environment** in
 |---|---|
 | `STAGING_SUPABASE_URL` | `https://<staging-ref>.supabase.co` |
 | `STAGING_SUPABASE_SERVICE_ROLE_KEY` | Staging service-role key (never production) |
-| `STAGING_PG_CONN` | Staging Postgres connection string (pooled or direct) |
+| `STAGING_SUPABASE_PROJECT_REF` | Staging Supabase project ref (the `<ref>` in the URL above) |
+| `STAGING_SUPABASE_DB_PASSWORD` | Staging Postgres database password |
+
+The workflow constructs the Postgres connection string at runtime as:
+
+```
+postgresql://postgres:${STAGING_SUPABASE_DB_PASSWORD}@db.${STAGING_SUPABASE_PROJECT_REF}.supabase.co:5432/postgres
+```
+
+No `STAGING_PG_CONN` secret is required or used.
 
 > ⚠️ **Never** paste production credentials. The workflow refuses to run if
-> `STAGING_SUPABASE_URL` resolves to the production project ref.
+> `STAGING_SUPABASE_URL` or `STAGING_SUPABASE_PROJECT_REF` resolves to the
+> production project ref, and it aborts if the two do not match.
 
 ### Adding secrets safely
 1. GitHub → **Settings → Environments → staging** (create it if missing).
@@ -75,6 +85,7 @@ Then dispatch the workflow again to reseed.
 
 ## ⚠️ Never use production credentials
 
-This workflow targets **staging only**. Using production `SUPABASE_URL`,
-service-role key, or Postgres connection would pollute production data and
-is explicitly blocked by the production-ref check.
+This workflow targets **staging only**. Using a production `SUPABASE_URL`,
+service-role key, project ref, or database password would pollute production
+data and is explicitly blocked by the production-ref check and the
+URL/project-ref match check.
