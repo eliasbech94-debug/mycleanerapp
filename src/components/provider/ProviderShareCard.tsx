@@ -104,7 +104,7 @@ export default function ProviderShareCard({ slug, isPublic, onRenamed }: Props) 
     if (!renameOpen || !candidate) return;
     const norm = normalizeSlug(candidate);
     const fmt = validateSlugFormat(norm);
-    if (!fmt.ok) {
+    if (fmt.ok === false) {
       setAvailability({ available: false, reason: fmt.reason });
       return;
     }
@@ -126,7 +126,7 @@ export default function ProviderShareCard({ slug, isPublic, onRenamed }: Props) 
   async function submitRename() {
     const norm = normalizeSlug(candidate);
     const fmt = validateSlugFormat(norm);
-    if (!fmt.ok) { toast.error(slugReasonLabel(fmt.reason)); return; }
+    if (fmt.ok === false) { toast.error(slugReasonLabel(fmt.reason)); return; }
     setRenaming(true);
     const { data, error } = await rpc("rename_provider_slug_v1", { _new_slug: norm });
     setRenaming(false);
