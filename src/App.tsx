@@ -99,10 +99,13 @@ export function AppRoutes() {
       <Route path="/customer/profile" element={<RoleGuard allow={["customer"]}><Navigate to="/profil?tab=info" replace /></RoleGuard>} />
       <Route path="/customer/settings" element={<RoleGuard allow={["customer"]}><Navigate to="/profil?tab=notifications" replace /></RoleGuard>} />
       <Route path="/provider/register" element={<ProviderRegister />} />
-      <Route path="/provider/:id" element={<ProviderProfile />} />
+      {/* UUID-guarded internal provider route. Non-UUID falls through to NotFound. */}
+      <Route path="/provider/:id" element={<UuidGuard param="id"><ProviderProfile /></UuidGuard>} />
       <Route path="/find-cleaner" element={<FindCleaner />} />
       <Route path="/marketplace" element={<Marketplace />} />
-      <Route path="/c/:slug" element={<PublicProviderProfile />} />
+      {/* Canonical public provider URL. `/c/:slug` is kept as a legacy alias and client-redirects. */}
+      <Route path="/p/:slug" element={<PublicProviderProfile />} />
+      <Route path="/c/:slug" element={<LegacySlugRedirect />} />
       <Route path="/customer/register" element={<CustomerRegister />} />
       <Route path="/task/create" element={<CreateTask />} />
       <Route path="/task/offers" element={<MatchingOffers />} />
