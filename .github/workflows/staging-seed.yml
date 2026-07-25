@@ -134,12 +134,22 @@ jobs:
             echo "## Providers per country"
           } > artifact/seed-report.md
 
+          SLUGS="'mette-copenhagen','anders-aarhus','sofia-odense','jonas-aalborg','camilla-esbjerg',
+          'linnea-stockholm','erik-goteborg','astrid-malmo',
+          'lena-berlin','markus-munich','sabine-hamburg',
+          'carmen-madrid','pablo-barcelona','lucia-valencia',
+          'emma-london','daniel-manchester','olivia-edinburgh'"
+
           psql \
             -v ON_ERROR_STOP=1 \
             -A \
             -F'|' \
             -t \
-            -c "select country_code, count(*) from public.provider_profiles where is_test_seed = true group by country_code order by country_code;" \
+            -c "SELECT base_country_code, count(*)
+                FROM public.provider_profiles
+                WHERE provider_slug IN ($SLUGS)
+                GROUP BY base_country_code
+                ORDER BY base_country_code;" \
             > artifact/counts.txt
 
           echo '| country | count |' >> artifact/seed-report.md
@@ -154,13 +164,17 @@ jobs:
             -v ON_ERROR_STOP=1 \
             -A \
             -t \
-            -c "select count(*) from public.provider_profiles where is_test_seed = true;")
+            -c "SELECT count(*)
+                FROM public.provider_profiles
+                WHERE provider_slug IN ($SLUGS);")
 
           mette=$(psql \
             -v ON_ERROR_STOP=1 \
             -A \
             -t \
-            -c "select count(*) from public.provider_profiles where slug = 'mette-copenhagen';")
+            -c "SELECT count(*)
+                FROM public.provider_profiles
+                WHERE provider_slug = 'mette-copenhagen';")
 
           total=$(echo "$total" | xargs)
           mette=$(echo "$mette" | xargs)
