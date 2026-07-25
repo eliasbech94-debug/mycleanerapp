@@ -48,6 +48,7 @@ import { ProviderFinance, AdminFinance } from "./pages/finance/FinancePages";
 import AdminDisputes from "./pages/AdminDisputes";
 import ProviderDisputes from "./pages/ProviderDisputes";
 import { RoleGuard } from "@/components/RoleGuard";
+import { UuidGuard, LegacySlugRedirect } from "@/components/routing/UuidGuard";
 import ScrollToTop from "@/components/ScrollToTop";
 import RouteLoadingBar from "@/components/RouteLoadingBar";
 import PrivacyCenter from "./pages/PrivacyCenter";
