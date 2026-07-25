@@ -1,6 +1,3 @@
-`staging-validation/seed/test-providers.sql`
-
-```sql
 -- =============================================================================
 -- MyCleaner — Staging test data seed (schema-corrected)
 --
@@ -220,4 +217,3 @@ WHERE provider_slug IN (
   'emma-london','daniel-manchester','olivia-edinburgh'
 )
 ORDER BY base_country_code, provider_slug;
-```
