@@ -537,26 +537,3 @@ function StatsBand() {
   );
 }
 
-/* ------------------------------------------------------------------ */
-/* Footer                                                              */
-/* ------------------------------------------------------------------ */
-function Footer() {
-  return (
-    <footer className="border-t border-white/[0.05] bg-[#04100f] py-10">
-      <div className="mx-auto flex max-w-[1400px] flex-col items-center justify-between gap-4 px-5 sm:flex-row lg:px-8">
-        <div className="flex items-center gap-2 text-[12.5px] text-white/50">
-          <div className="grid h-6 w-6 place-items-center rounded-md bg-gradient-to-br from-[#168a7a] to-[#0a3d3a] text-white">
-            <Sparkles className="h-3 w-3" />
-          </div>
-          © {new Date().getFullYear()} MyCleaner — Europe's marketplace for trusted home services.
-        </div>
-        <div className="flex items-center gap-5 text-[12.5px] text-white/60">
-          <Link to="/faq" className="hover:text-white">FAQ</Link>
-          <Link to="/regler" className="hover:text-white">Terms</Link>
-          <Link to="/privacy-center" className="hover:text-white">Privacy</Link>
-          <span className="hidden items-center gap-1 text-white/40 sm:inline-flex"><Award className="h-3.5 w-3.5" /> GDPR ready</span>
-        </div>
-      </div>
-    </footer>
-  );
-}
