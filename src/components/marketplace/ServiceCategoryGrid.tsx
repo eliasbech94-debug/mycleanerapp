@@ -7,7 +7,8 @@ import { Home, Sparkles, Package, Briefcase, AppWindow, Shirt, Plus } from "luci
  * Each tile deep-links into /marketplace with `category=cleaning` plus a
  * non-authoritative `sub` hint (Marketplace only consumes `category`).
  */
-const ITEMS = [
+type Tile = { key: string; icon: typeof Home; sub: string; featured?: boolean };
+const ITEMS: readonly Tile[] = [
   { key: "regular",  icon: Home,      sub: "regular",  featured: true },
   { key: "deep",     icon: Sparkles,  sub: "deep" },
   { key: "move",     icon: Package,   sub: "move" },
@@ -15,7 +16,7 @@ const ITEMS = [
   { key: "windows",  icon: AppWindow, sub: "windows" },
   { key: "ironing",  icon: Shirt,     sub: "ironing" },
   { key: "custom",   icon: Plus,      sub: "custom" },
-] as const;
+];
 
 export function ServiceCategoryGrid() {
   const { t } = useTranslation("marketplace");
