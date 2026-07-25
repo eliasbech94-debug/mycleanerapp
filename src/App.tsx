@@ -58,6 +58,7 @@ import { StagingBanner } from "@/components/StagingBanner";
 import { installFrontendMonitoring, initSentry } from "@/lib/monitoring";
 import OAuthConsent from "./pages/OAuthConsent";
 import { CountryProvider } from "@/i18n/CountryContext";
+import { ActiveMarketProvider } from "@/context/ActiveMarketContext";
 import IdentityVerificationPage from "./pages/identity/IdentityVerificationPage";
 import ProviderOnboarding from "./pages/provider/ProviderOnboarding";
 import ProviderProfilePage from "./pages/provider/ProviderProfile";
@@ -183,12 +184,15 @@ const App = () => (
         <CustomCursor />
         <BrowserRouter>
           <AuthProvider>
-            <ScrollToTop />
-            <RouteLoadingBar />
-            <Header />
-            <RootRouteSwitch />
-            <Footer />
+            <ActiveMarketProvider>
+              <ScrollToTop />
+              <RouteLoadingBar />
+              <Header />
+              <RootRouteSwitch />
+              <Footer />
+            </ActiveMarketProvider>
           </AuthProvider>
+
         </BrowserRouter>
       </TooltipProvider>
     </AppErrorBoundary>
