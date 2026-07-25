@@ -1,17 +1,30 @@
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Sparkles, Map as MapIcon, ArrowRight, Zap, ShieldCheck, Clock, Star, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useAppContext } from "@/context/AppContext";
 
 /**
  * Marketplace entry point. Customer chooses between:
  *  1. "Find best cleaner for me" — algorithmic match (posts a task).
  *  2. "Choose my own cleaner"    — browse map + profiles + calendar.
  *
- * Purely presentational: routes to existing flows. No design-system changes.
+ * When the visitor arrived via a provider-specific link (/p/:slug), we short-
+ * circuit selection and jump straight into the locked booking flow for that
+ * provider. The slug is the only authoritative signal — payment/booking still
+ * re-derive the provider server-side against the quote.
  */
 const BookingEntry = () => {
   const navigate = useNavigate();
+  const { providerLock } = useAppContext();
+
+  useEffect(() => {
+    if (providerLock?.slug) {
+      navigate(`/book?provider=${encodeURIComponent(providerLock.slug)}&src=${encodeURIComponent(providerLock.source)}`, { replace: true });
+    }
+  }, [providerLock, navigate]);
+
 
   return (
     <div className="min-h-screen bg-background">
