@@ -165,6 +165,7 @@ export type BookingAddress = {
 
 export type AcquisitionSource =
   | "marketplace"
+  | "marketplace_pick"
   | "provider_direct_link"
   | "provider_qr_code"
   | "provider_social_share"
@@ -178,8 +179,14 @@ export type ProviderLock = {
   campaign: string | null;
   landingUrl: string;
   firstSeenAt: string;
-  /** Optional. Only set after a successful server-side slug resolution. Never trusted for payment. */
-  providerId?: string | null;
+  /**
+   * Non-authoritative UI hint captured after a successful server-side slug
+   * resolution. Never a real provider UUID and never trusted for payment — the
+   * locked pricing quote + persisted booking row remain the authoritative
+   * provider identity on the server. Kept only so components can show
+   * "You are currently booking X" without a second round-trip.
+   */
+  providerHint?: string | null;
 };
 
 const PROVIDER_LOCK_KEY = "mc.providerLock";
@@ -188,7 +195,15 @@ function readProviderLock(): ProviderLock | null {
   if (typeof sessionStorage === "undefined") return null;
   try {
     const raw = sessionStorage.getItem(PROVIDER_LOCK_KEY);
-    return raw ? (JSON.parse(raw) as ProviderLock) : null;
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as ProviderLock & { providerId?: string | null };
+    // Backwards-compat: earlier builds persisted the misleadingly-named
+    // `providerId` field. Migrate it to `providerHint` on read.
+    if (parsed && parsed.providerId && !parsed.providerHint) {
+      parsed.providerHint = parsed.providerId;
+      delete parsed.providerId;
+    }
+    return parsed;
   } catch {
     return null;
   }
@@ -201,6 +216,7 @@ function writeProviderLock(v: ProviderLock | null) {
     else sessionStorage.removeItem(PROVIDER_LOCK_KEY);
   } catch { /* ignore */ }
 }
+
 
 /* -------------------------------------------------------------------------- */
 /* Context value                                                              */
@@ -249,10 +265,12 @@ export interface AppContextValue {
   favouriteProviderIds: string[];
   isReturningCustomer: boolean;
 
-  // Provider lock (session-scoped; slug + attribution authoritative, providerId hint-only)
+  // Provider lock (session-scoped; slug + attribution authoritative, providerHint UI-only)
   providerLock: ProviderLock | null;
   setProviderLock: (v: ProviderLock | null) => void;
-  hydrateProviderLockId: (slug: string, providerId: string) => void;
+  clearProviderLock: () => void;
+  setProviderHint: (slug: string, hint: string) => void;
+
 
   // Feature flags — async evaluator bound to current context.
   // Use for gated features that need country/user targeting.
@@ -375,14 +393,19 @@ export function AppContextProvider({ children }: { children: ReactNode }) {
     setProviderLockState(v);
     writeProviderLock(v);
   }, []);
-  const hydrateProviderLockId = useCallback((slug: string, providerId: string) => {
+  const clearProviderLock = useCallback(() => {
+    setProviderLockState(null);
+    writeProviderLock(null);
+  }, []);
+  const setProviderHint = useCallback((slug: string, hint: string) => {
     setProviderLockState((prev) => {
       if (!prev || prev.slug !== slug) return prev;
-      const next = { ...prev, providerId };
+      const next = { ...prev, providerHint: hint };
       writeProviderLock(next);
       return next;
     });
   }, []);
+
 
   // ---------- Feature flags — bound to current context ----------
   const hasFeatureFlag = useCallback(
@@ -431,10 +454,12 @@ export function AppContextProvider({ children }: { children: ReactNode }) {
 
     providerLock,
     setProviderLock,
-    hydrateProviderLockId,
+    clearProviderLock,
+    setProviderHint,
 
     hasFeatureFlag,
   };
+
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

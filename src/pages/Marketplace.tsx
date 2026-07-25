@@ -229,7 +229,7 @@ function ProviderCard({ r, isFav, onToggleFav }: { r: Row; isFav: boolean; onTog
         </div>
       </div>
       <CardContent className="p-4">
-        <Link to={`/c/${r.provider_slug}`} className="block">
+        <Link to={`/p/${r.provider_slug}?src=marketplace_pick`} className="block">
           <div className="flex items-start justify-between gap-2">
             <h3 className="font-serif text-lg leading-tight group-hover:underline">{r.display_name}</h3>
             {r.marketplace_score !== null && (

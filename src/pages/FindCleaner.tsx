@@ -25,6 +25,7 @@ export const yearsExperience = (id: string) => 2 + (hashSeed(id) % 12);      // 
 type MapProvider = {
   id: string;
   profileId: string;
+  slug: string | null;
   name: string;
   providerId: string;
   lat: number;
@@ -40,6 +41,7 @@ type MapProvider = {
   hourlyRate: number;
   currency: string;
 };
+
 
 const DEFAULT_CENTER = { lat: 55.6761, lng: 12.5683 }; // Copenhagen
 const DEFAULT_ZOOM = 11;
@@ -271,6 +273,7 @@ export default function FindCleaner() {
             return {
               id: p.provider_id,
               profileId: p.id,
+              slug: (p as { provider_slug?: string | null }).provider_slug ?? null,
               name: p.full_name || seed?.name || "Cleaner",
               providerId: p.provider_id,
               lat: obf.lat,
@@ -287,6 +290,7 @@ export default function FindCleaner() {
               currency: country.currency,
             };
           });
+
       }
 
       if (dbProviders.length > 0) {
@@ -311,6 +315,7 @@ export default function FindCleaner() {
           return {
             id: seed.id,
             profileId: "",
+            slug: null,
             name: seed.name,
             providerId: seed.id,
             lat: obfuscate(coords.lat, coords.lng, seed.id).lat,
@@ -327,6 +332,7 @@ export default function FindCleaner() {
             currency: country.currency,
           };
         })
+
         .filter((p): p is MapProvider => p !== null);
 
       setProviders(fallback);
@@ -928,7 +934,10 @@ export default function FindCleaner() {
               <Button
                 size="sm"
                 className="flex-1"
-                onClick={() => navigate(`/provider/${selectedProvider.id}`)}
+                onClick={() => {
+                  if (selectedProvider.slug) navigate(`/p/${selectedProvider.slug}?src=marketplace_pick`);
+                  else navigate(`/provider/${selectedProvider.id}`);
+                }}
               >
                 Se profil
               </Button>
@@ -936,11 +945,15 @@ export default function FindCleaner() {
                 variant="outline"
                 size="sm"
                 className="flex-1"
-                onClick={() => navigate(`/book/${selectedProvider.id}`)}
+                onClick={() => {
+                  if (selectedProvider.slug) navigate(`/p/${selectedProvider.slug}?src=marketplace_pick`);
+                  else navigate(`/book/${selectedProvider.id}`);
+                }}
               >
                 Book nu
               </Button>
             </div>
+
           </div>
         </div>
       )}

@@ -4,7 +4,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, MapPin, Sparkles, Heart, CalendarCheck, ShieldCheck, Clock } from "lucide-react";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Loader2, MapPin, Sparkles, Heart, CalendarCheck, ShieldCheck, Clock, BellRing, CalendarPlus, Search } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { useAppContext, type AcquisitionSource } from "@/context/AppContext";
@@ -12,6 +16,7 @@ import BackButton from "@/components/BackButton";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const rpc = (name: string, args?: Record<string, unknown>) => (supabase.rpc as any)(name, args);
+
 
 type Profile = {
   provider_slug: string;
@@ -44,7 +49,9 @@ const KNOWN_SOURCES: AcquisitionSource[] = [
   "provider_qr_code",
   "provider_social_share",
   "provider_embedded_widget",
+  "marketplace_pick",
 ];
+
 
 function parseSource(v: string | null): AcquisitionSource {
   if (v && (KNOWN_SOURCES as string[]).includes(v)) return v as AcquisitionSource;
@@ -56,11 +63,14 @@ export default function PublicProviderProfile() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const { setProviderLock, hydrateProviderLockId, campaign } = useAppContext();
+  const { setProviderLock, setProviderHint, clearProviderLock, campaign } = useAppContext();
 
   const [profile, setProfile] = useState<Profile | null | undefined>(undefined);
   const [isFav, setIsFav] = useState(false);
   const [slots, setSlots] = useState<Slot[] | null>(null);
+  const [nextSlot, setNextSlot] = useState<Slot | null>(null);
+  const [notifyRequested, setNotifyRequested] = useState(false);
+  const [showAltDialog, setShowAltDialog] = useState(false);
 
   const search = useMemo(() => new URLSearchParams(location.search), [location.search]);
   const source = parseSource(search.get("src"));
@@ -87,13 +97,13 @@ export default function PublicProviderProfile() {
       if (error) { toast.error(error.message); setProfile(null); return; }
       const p = ((data as Profile[] | null) ?? [])[0] ?? null;
       setProfile(p);
-      // Server-side slug resolution succeeded — safe to hydrate the lock's providerId hint.
-      // We do NOT expose provider user_id publicly; the slug itself is the authoritative key
-      // on the server, so we hydrate providerId with the slug as a stable client hint only.
-      if (p) hydrateProviderLockId(slug, p.provider_slug);
+      // Server-side slug resolution succeeded — store the display name as a
+      // UI-only hint. Never a real provider UUID, never authoritative.
+      if (p) setProviderHint(slug, p.display_name);
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug]);
+
 
   useEffect(() => {
     if (!user || !slug) return;
@@ -115,7 +125,20 @@ export default function PublicProviderProfile() {
         _slug: slug, _from: iso(today), _to: iso(to),
       });
       if (error) { setSlots([]); return; }
-      setSlots(((data as Slot[] | null) ?? []).slice(0, 60));
+      const rows = ((data as Slot[] | null) ?? []).slice(0, 60);
+      setSlots(rows);
+      // No slots in the 14-day window → look ahead 60 days for the next single
+      // bookable slot so the fallback UI can show "next available".
+      if (rows.length === 0) {
+        const far = new Date(today.getTime() + 60 * 86400000);
+        const { data: farData } = await rpc("list_provider_bookable_slots_v1", {
+          _slug: slug, _from: iso(today), _to: iso(far),
+        });
+        const first = ((farData as Slot[] | null) ?? [])[0] ?? null;
+        setNextSlot(first);
+      } else {
+        setNextSlot(null);
+      }
     })();
   }, [slug]);
 
@@ -126,11 +149,29 @@ export default function PublicProviderProfile() {
     if (error) toast.error(error.message);
   }
 
-  function bookDirect() {
+  function bookDirect(prefillDate?: string, prefillSlot?: string) {
     if (!slug) return;
+    const qs = new URLSearchParams({
+      provider: slug,
+      src: source,
+    });
+    if (prefillDate) qs.set("date", prefillDate);
+    if (prefillSlot) qs.set("slot", prefillSlot);
     // Lock is already set. Booking flow will re-derive provider server-side.
-    navigate(`/book?provider=${encodeURIComponent(slug)}&src=${encodeURIComponent(source)}`);
+    navigate(`/book?${qs.toString()}`);
   }
+
+  function requestNotification() {
+    setNotifyRequested(true);
+    toast.success("Vi giver besked, når der åbner en ny tid.");
+  }
+
+  function confirmSeeAlternatives() {
+    clearProviderLock();
+    setShowAltDialog(false);
+    navigate("/find-cleaner");
+  }
+
 
   if (profile === undefined) {
     return <main className="grid min-h-screen place-items-center"><Loader2 className="h-6 w-6 animate-spin" /></main>;
@@ -233,11 +274,60 @@ export default function PublicProviderProfile() {
               <CardContent className="p-6">
                 <h2 className="mb-3 font-serif text-xl">Ledige tider</h2>
                 {slots === null && <div className="text-sm text-muted-foreground inline-flex items-center gap-2"><Loader2 className="h-3 w-3 animate-spin" />Henter ledige tider…</div>}
+
+                {/* No-slot fallback: next-slot suggestion + request time + notify placeholder + alternatives (secondary) */}
                 {slots !== null && slotsByDay.size === 0 && (
-                  <div className="text-sm text-muted-foreground">
-                    Ingen ledige tider de næste 14 dage. Du kan sende en booking-forespørgsel via knappen til højre.
+                  <div className="space-y-4" data-testid="no-slot-fallback">
+                    <p className="text-sm text-muted-foreground">
+                      {profile.display_name} har ingen ledige tider de næste 14 dage.
+                    </p>
+
+                    {nextSlot && (
+                      <div className="rounded-lg border p-3">
+                        <div className="text-xs uppercase tracking-wide text-muted-foreground">Næste ledige tid</div>
+                        <div className="mt-1 text-base font-medium">
+                          {new Date(nextSlot.slot_date).toLocaleDateString("da-DK", { weekday: "long", day: "numeric", month: "long" })}
+                          {" kl. "}
+                          {String(nextSlot.slot_hour).padStart(2, "0")}:00
+                        </div>
+                        <Button
+                          size="sm"
+                          className="mt-2"
+                          onClick={() => bookDirect(nextSlot.slot_date, `${String(nextSlot.slot_hour).padStart(2, "0")}:00`)}
+                        >
+                          <CalendarCheck className="mr-2 h-4 w-4" />Book denne tid
+                        </Button>
+                      </div>
+                    )}
+
+                    <div className="flex flex-wrap gap-2">
+                      <Button variant="outline" size="sm" onClick={() => bookDirect()}>
+                        <CalendarPlus className="mr-2 h-4 w-4" />Anmod om en anden tid
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={requestNotification}
+                        disabled={notifyRequested}
+                      >
+                        <BellRing className="mr-2 h-4 w-4" />
+                        {notifyRequested ? "Vi giver besked" : "Giv besked ved ny tid"}
+                      </Button>
+                    </div>
+
+                    <div className="border-t pt-3">
+                      <button
+                        type="button"
+                        onClick={() => setShowAltDialog(true)}
+                        className="text-xs text-muted-foreground underline underline-offset-2 hover:text-foreground"
+                      >
+                        <Search className="mr-1 inline h-3 w-3" />
+                        Se andre cleaners i stedet
+                      </button>
+                    </div>
                   </div>
                 )}
+
                 {slotsByDay.size > 0 && (
                   <div className="grid gap-2 sm:grid-cols-2">
                     {Array.from(slotsByDay.entries()).slice(0, 6).map(([day, hours]) => (
@@ -250,7 +340,7 @@ export default function PublicProviderProfile() {
                             <button
                               key={h}
                               type="button"
-                              onClick={bookDirect}
+                              onClick={() => bookDirect(day, `${String(h).padStart(2, "0")}:00`)}
                               className="rounded-md border px-2 py-1 text-xs hover:bg-primary hover:text-primary-foreground transition"
                             >
                               {String(h).padStart(2, "0")}:00
@@ -271,18 +361,28 @@ export default function PublicProviderProfile() {
               <CardContent className="p-6">
                 <div className="text-sm text-muted-foreground">Timepris fra</div>
                 <div className="text-3xl font-serif">{profile.price_from ? `${profile.price_from} kr` : "—"}</div>
-                <Button className="mt-4 w-full" size="lg" onClick={bookDirect}>
+                <Button className="mt-4 w-full" size="lg" onClick={() => bookDirect()}>
                   <CalendarCheck className="mr-2 h-4 w-4" />Book denne cleaner
                 </Button>
                 <Button variant="outline" className="mt-2 w-full" onClick={toggleFav}>
                   <Heart className={`mr-2 h-4 w-4 ${isFav ? "fill-red-500 text-red-500" : ""}`} />
                   {isFav ? "Fjern favorit" : "Gem som favorit"}
                 </Button>
+                <button
+                  type="button"
+                  onClick={() => setShowAltDialog(true)}
+                  className="mt-3 w-full text-xs text-muted-foreground underline underline-offset-2 hover:text-foreground"
+                  data-testid="see-alternatives-btn"
+                >
+                  Se andre cleaners
+                </button>
                 <p className="mt-3 text-xs text-muted-foreground">
                   Sikker betaling gennem MyCleaner. Ingen adresser, telefonnumre eller e-mails deles udenfor platformen.
                 </p>
               </CardContent>
             </Card>
+
+
 
             {/* Only show numbers we can prove. Ratings hidden until backed by real reviews. */}
             <Card>
@@ -313,6 +413,24 @@ export default function PublicProviderProfile() {
           </aside>
         </div>
       </div>
+
+      <AlertDialog open={showAltDialog} onOpenChange={setShowAltDialog}>
+        <AlertDialogContent data-testid="see-alternatives-dialog">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Skift til andre cleaners?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Du er ved at booke <strong>{profile.display_name}</strong>. Vil du se andre cleaners i stedet?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Bliv hos {profile.display_name.split(" ")[0]}</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmSeeAlternatives} data-testid="see-alternatives-confirm">
+              Ja, vis andre cleaners
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </main>
   );
 }
+
