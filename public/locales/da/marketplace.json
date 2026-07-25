@@ -31,6 +31,10 @@
   },
   "card": {
     "verified": "Verificeret",
+    "badge_verified": "Verificeret",
+    "badge_top": "Top bedømt",
+    "badge_fast": "Hurtigt svar",
+    "badge_today": "Ledig i dag",
     "add_fav": "Tilføj til favoritter",
     "remove_fav": "Fjern favorit",
     "avatar_alt": "{{name}} profilfoto",
