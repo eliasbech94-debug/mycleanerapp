@@ -131,10 +131,9 @@ function Hero({ market, setMarket }: { market: Market; setMarket: (m: Market) =>
       {/* ambient Europe backdrop — integrated into the hero, never dominant */}
       <EuropeBackdrop activeCodes={MARKETS.map((m) => m.code)} selectedCode={market.code} />
 
-      <div className="relative mx-auto grid max-w-[1400px] gap-10 px-5 pb-14 pt-10 lg:grid-cols-[minmax(0,1fr)_440px] lg:gap-14 lg:px-8 lg:pt-12">
-
-        {/* LEFT — headline + search */}
-        <div className="min-w-0 animate-fade-in">
+      <div className="relative mx-auto max-w-[1400px] px-5 pb-14 pt-10 lg:px-8 lg:pt-12">
+        {/* Content occupies left half; the Europe backdrop naturally shows through on the right */}
+        <div className="min-w-0 max-w-[640px] animate-fade-in">
           <div className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.04] px-3 py-1.5 text-[11.5px] font-medium uppercase tracking-[0.14em] text-white/75 backdrop-blur">
             <span className="relative flex h-1.5 w-1.5">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#4ade80] opacity-70" />
@@ -239,7 +238,7 @@ function Hero({ market, setMarket }: { market: Market; setMarket: (m: Market) =>
             </div>
           </div>
 
-          {/* Trustpilot-ish row */}
+          {/* Trust indicators — Trustpilot-style rating */}
           <div className="mt-5 flex flex-wrap items-center gap-3 text-[12.5px] text-white/60">
             <span className="font-semibold text-white">Excellent</span>
             <span className="inline-flex gap-0.5">
@@ -253,46 +252,8 @@ function Hero({ market, setMarket }: { market: Market; setMarket: (m: Market) =>
             <span className="text-[#00b67a]">★ 18,400+ reviews</span>
           </div>
         </div>
-
-        {/* RIGHT — live stat cards (map is now the ambient hero backdrop) */}
-        <div className="relative flex min-w-0 flex-col gap-4 animate-fade-in">
-
-
-          <div className="grid grid-cols-2 gap-3">
-            <StatCard
-              label="Live booking"
-              accent={<span className="inline-flex items-center gap-1 rounded-full bg-[#4ade80]/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[#4ade80]">Now</span>}
-              body={
-                <div className="flex items-center gap-2.5">
-                  <div className="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-[#ff6b35] to-[#c94a1f] text-[12px] font-bold text-white">S</div>
-                  <div className="min-w-0">
-                    <div className="truncate text-[13px] font-semibold text-white">Sofia in Stockholm</div>
-                    <div className="truncate text-[11.5px] text-white/55">Booked Maria · 2 min ago</div>
-                  </div>
-                </div>
-              }
-            />
-            <StatCard
-              label="Cleaners online"
-              value="1,284"
-              foot={<span className="text-white/50">Across Europe</span>}
-              icon={<TrendingUp className="h-4 w-4 text-[#4ade80]" />}
-            />
-            <StatCard
-              label="Today's bookings"
-              value="2,531"
-              foot={<span className="text-white/50">vs yesterday</span>}
-              badge={<span className="rounded-full bg-[#4ade80]/15 px-2 py-0.5 text-[10.5px] font-semibold text-[#4ade80]">+12%</span>}
-            />
-            <StatCard
-              label="Top rated"
-              value={<span>4.9<span className="text-[16px] text-white/40">/5</span></span>}
-              foot={<span className="text-white/50">From 18,400+ reviews</span>}
-              icon={<div className="grid h-8 w-8 place-items-center rounded-full border-2 border-[#ff6b35] bg-[#ff6b35]/15"><Star className="h-4 w-4 fill-[#ff6b35] text-[#ff6b35]" /></div>}
-            />
-          </div>
-        </div>
       </div>
+
     </section>
   );
 }
