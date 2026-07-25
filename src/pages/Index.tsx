@@ -257,7 +257,7 @@ function Hero({ market, setMarket }: { market: Market; setMarket: (m: Market) =>
   return (
     <section className="relative overflow-hidden">
       {/* ambient Europe backdrop — integrated into the hero, never dominant */}
-      <EuropeBackdrop />
+      <EuropeBackdrop activeCodes={MARKETS.map((m) => m.code)} selectedCode={market.code} />
 
       <div className="relative mx-auto grid max-w-[1400px] gap-10 px-5 pb-14 pt-10 lg:grid-cols-[minmax(0,1fr)_440px] lg:gap-14 lg:px-8 lg:pt-12">
 
