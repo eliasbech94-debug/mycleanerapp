@@ -162,24 +162,36 @@ function ProviderRow({ p, isFav, onToggleFav, pending }: { p: MarketplaceProvide
             {t("card.price_note_short", "See profile")}
           </div>
         </div>
-        <Link
-          to={`/p/${p.provider_slug}?src=marketplace_pick`}
-          className="inline-flex items-center justify-center rounded-lg bg-[hsl(var(--mkt-brand))] px-4 py-2 text-[13px] font-semibold text-[hsl(var(--mkt-brand-on))] transition hover:bg-[hsl(var(--mkt-brand-hover))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--mkt-brand))] focus-visible:ring-offset-2"
-        >
-          {t("card.view", "View profile")}
-        </Link>
+        {isDemoProviderSlug(p.provider_slug) ? (
+          <span
+            aria-disabled="true"
+            title={t("card.demo_hint", "Demo profile — sign in to browse real cleaners")}
+            className="inline-flex cursor-not-allowed items-center justify-center rounded-lg bg-[hsl(var(--mkt-brand))]/60 px-4 py-2 text-[13px] font-semibold text-[hsl(var(--mkt-brand-on))]"
+          >
+            {t("card.view", "View profile")}
+          </span>
+        ) : (
+          <Link
+            to={`/p/${p.provider_slug}?src=marketplace_pick`}
+            className="inline-flex items-center justify-center rounded-lg bg-[hsl(var(--mkt-brand))] px-4 py-2 text-[13px] font-semibold text-[hsl(var(--mkt-brand-on))] transition hover:bg-[hsl(var(--mkt-brand-hover))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--mkt-brand))] focus-visible:ring-offset-2"
+          >
+            {t("card.view", "View profile")}
+          </Link>
+        )}
       </div>
 
-      <button
-        type="button"
-        onClick={onToggleFav}
-        disabled={pending}
-        aria-pressed={isFav}
-        aria-label={isFav ? t("card.remove_fav", "Remove from favorites") : t("card.add_fav", "Add to favorites")}
-        className="absolute right-3 top-3 grid h-8 w-8 place-items-center rounded-full text-[hsl(var(--mkt-ink-soft))] transition hover:bg-[hsl(var(--mkt-surface-muted))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--mkt-brand))] disabled:opacity-60"
-      >
-        <Heart className={`h-4 w-4 ${isFav ? "fill-[hsl(0_84%_58%)] text-[hsl(0_84%_58%)]" : ""}`} />
-      </button>
+      {!isDemoProviderSlug(p.provider_slug) && (
+        <button
+          type="button"
+          onClick={onToggleFav}
+          disabled={pending}
+          aria-pressed={isFav}
+          aria-label={isFav ? t("card.remove_fav", "Remove from favorites") : t("card.add_fav", "Add to favorites")}
+          className="absolute right-3 top-3 grid h-8 w-8 place-items-center rounded-full text-[hsl(var(--mkt-ink-soft))] transition hover:bg-[hsl(var(--mkt-surface-muted))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--mkt-brand))] disabled:opacity-60"
+        >
+          <Heart className={`h-4 w-4 ${isFav ? "fill-[hsl(0_84%_58%)] text-[hsl(0_84%_58%)]" : ""}`} />
+        </button>
+      )}
     </article>
   );
 }
