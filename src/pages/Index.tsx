@@ -336,14 +336,18 @@ function CountryStrip({ market, isNeutral, setMarket }: { market: Market; isNeut
 /* ------------------------------------------------------------------ */
 /* Provider section                                                    */
 /* ------------------------------------------------------------------ */
-function ProviderSection({ providers, market }: { providers: ProviderRow[] | null; market: Market }) {
+function ProviderSection({ providers, market, isNeutral }: { providers: ProviderRow[] | null; market: Market; isNeutral: boolean }) {
+  const heading = isNeutral ? "Top rated cleaners across Europe" : `Top rated cleaners in ${market.city}`;
+  const emptyLabel = isNeutral ? "your area" : market.label;
   return (
     <section className="py-14">
       <div className="mx-auto max-w-[1400px] px-5 lg:px-8">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <h2 className="font-serif text-[32px] leading-tight tracking-[-0.02em] text-white sm:text-[38px]">
-              Top rated cleaners in <span className="italic text-white/60">{market.city ?? market.label}</span>
+              {isNeutral
+                ? <>Top rated cleaners <span className="italic text-white/60">across Europe</span></>
+                : <>Top rated cleaners in <span className="italic text-white/60">{market.city}</span></>}
             </h2>
             <p className="mt-2 text-[14px] text-white/55">
               Verified professionals. Real reviews. Book with confidence.
@@ -364,11 +368,13 @@ function ProviderSection({ providers, market }: { providers: ProviderRow[] | nul
             : providers.length === 0
             ? (
                 <div className="col-span-full rounded-2xl border border-dashed border-white/10 bg-white/[0.02] p-10 text-center text-[14px] text-white/50">
-                  No cleaners yet in {market.label}. Try another market.
+                  No cleaners yet in {emptyLabel}. Try another market.
                 </div>
               )
             : providers.slice(0, 4).map((p) => <ProviderCard key={p.provider_slug} p={p} sym={market.sym} />)}
         </div>
+      </div>
+
       </div>
     </section>
   );
