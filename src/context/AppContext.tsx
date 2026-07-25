@@ -249,6 +249,11 @@ export interface AppContextValue {
   favouriteProviderIds: string[];
   isReturningCustomer: boolean;
 
+  // Provider lock (session-scoped; slug + attribution authoritative, providerId hint-only)
+  providerLock: ProviderLock | null;
+  setProviderLock: (v: ProviderLock | null) => void;
+  hydrateProviderLockId: (slug: string, providerId: string) => void;
+
   // Feature flags — async evaluator bound to current context.
   // Use for gated features that need country/user targeting.
   hasFeatureFlag: (key: string) => Promise<boolean>;
