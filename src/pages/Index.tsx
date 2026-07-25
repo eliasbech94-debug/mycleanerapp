@@ -374,11 +374,10 @@ function ProviderSection({ providers, market, isNeutral }: { providers: Provider
             : providers.slice(0, 4).map((p) => <ProviderCard key={p.provider_slug} p={p} sym={market.sym} />)}
         </div>
       </div>
-
-      </div>
     </section>
   );
 }
+
 
 function ProviderCard({ p, sym }: { p: ProviderRow; sym: string }) {
   const badges: { label: string; tone: "orange" | "teal" | "blue" }[] = [];
