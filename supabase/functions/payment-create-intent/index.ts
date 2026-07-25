@@ -167,6 +167,32 @@ Deno.serve(monitored("payment-create-intent", async (req, _log) => {
     const providerAcct = provProfile?.stripe_charges_enabled ? provProfile.stripe_account_id : null;
     const providerUserId = provProfile?.id ?? quote.provider_user_id ?? null;
 
+    // ---- 5b. Attribution — validate slug against the quote's provider -----
+    // Slug is the authoritative attribution key. If it does not resolve to the
+    // same provider as the locked quote, we discard the acquisition metadata and
+    // record the booking as "marketplace". We never let the client pick a
+    // different provider or bypass the quote.
+    let acquisitionSource: string = b.acquisition_source ?? "marketplace";
+    let acquisitionProviderId: string | null = null;
+    if (b.acquisition_provider_slug) {
+      const { data: slugRow } = await admin
+        .from("provider_profiles")
+        .select("user_id, provider_slug")
+        .eq("provider_slug", b.acquisition_provider_slug)
+        .maybeSingle();
+      const slugMatchesQuote = slugRow?.user_id && providerUserId && slugRow.user_id === providerUserId;
+      if (slugMatchesQuote) {
+        acquisitionProviderId = slugRow!.user_id as string;
+        if (acquisitionSource === "marketplace") acquisitionSource = "provider_direct_link";
+      } else {
+        acquisitionSource = "marketplace";
+      }
+    } else if (acquisitionSource !== "marketplace") {
+      // Source claimed a provider-channel but no slug provided — untrusted.
+      acquisitionSource = "marketplace";
+    }
+
+
     // ---- 5. Idempotent booking creation ----------------------------------
     // Race-safe: unique index on bookings.pricing_calculation_id.
     const taxSnapshot = {
