@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Star, MapPin, Heart, ShieldCheck, User as UserIcon } from "lucide-react";
 import { MarketplaceProvider } from "@/hooks/useMarketplaceProviders";
 import { useFavoriteProviders } from "@/hooks/useFavoriteProviders";
+import { isDemoProviderSlug } from "@/data/demoProviders";
 
 /**
  * Homepage top-rated cleaners — horizontal-row layout matching the
