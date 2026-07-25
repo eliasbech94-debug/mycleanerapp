@@ -7,7 +7,7 @@ import { CleanerResultsList } from "@/components/marketplace/CleanerResultsList"
 import { BookingSidebar } from "@/components/marketplace/BookingSidebar";
 import { MarketplaceStats } from "@/components/marketplace/MarketplaceStats";
 import { CountryConfirmDialog } from "@/components/marketplace/CountryConfirmDialog";
-import { DEMO_PROVIDERS } from "@/data/demoProviders";
+import { DEMO_PROVIDERS, isDemoProvidersEnabled } from "@/data/demoProviders";
 
 /**
  * MyCleaner — public homepage v2.1.
@@ -15,11 +15,15 @@ import { DEMO_PROVIDERS } from "@/data/demoProviders";
  * Reference-matched layout: full-bleed hero + horizontal search, then a
  * two-column body with Popular services + Top-rated cleaners on the left
  * and a sticky "Your booking" / "Why choose" sidebar on the right.
- * Stats stay hidden until a real source exists.
+ *
+ * Provider results come from the authoritative `search_marketplace_providers_v1`
+ * RPC. Demo providers are shown ONLY when demo mode is enabled (dev builds or
+ * `VITE_ENABLE_DEMO_PROVIDERS=true`). In staging and production, an RPC failure
+ * shows an error state with a retry button — never invented cleaners.
  */
 export default function Index() {
   const { market, isNeutral } = useActiveMarket();
-  const { data, loading } = useMarketplaceProviders(
+  const { data, loading, error, refetch } = useMarketplaceProviders(
     {
       countryCode: isNeutral ? null : market.code,
       serviceCategory: "cleaning",
@@ -29,8 +33,14 @@ export default function Index() {
     { realtime: true },
   );
 
-  const hasReal = !loading && data && data.length > 0;
-  const providers = hasReal ? data : DEMO_PROVIDERS;
+  const demoEnabled = isDemoProvidersEnabled();
+  const hasReal = !loading && !error && data && data.length > 0;
+  // In demo mode only, backfill the row when there are no real results yet so
+  // designers can review the layout. Otherwise pass real data (or null on error)
+  // straight through and let CleanerResultsList render empty/error states.
+  const providers = hasReal
+    ? data
+    : (demoEnabled ? DEMO_PROVIDERS : (data ?? null));
 
   return (
     <MarketplaceSurface>
@@ -41,8 +51,10 @@ export default function Index() {
           <ServiceCategoryGrid />
           <CleanerResultsList
             providers={providers}
-            loading={loading && !hasReal ? false : loading}
-            isDemo={!hasReal}
+            loading={loading}
+            error={error}
+            onRetry={refetch}
+            isDemo={!hasReal && demoEnabled && (providers?.length ?? 0) > 0}
             emptyLabel={isNeutral ? undefined : market.label}
           />
         </div>

@@ -132,7 +132,7 @@ const Header = () => {
           </Link>
         </div>
 
-        <nav className="hidden md:flex items-center gap-8">
+        <nav className="hidden lg:flex items-center gap-8">
           {primary.map((l) => (
             <Link
               key={`${l.to}-${l.label}`}
@@ -144,7 +144,7 @@ const Header = () => {
           ))}
         </nav>
 
-        <div className="hidden md:flex items-center gap-3">
+        <div className="hidden lg:flex items-center gap-3">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="sm" className="gap-2">
@@ -192,13 +192,13 @@ const Header = () => {
           )}
         </div>
 
-        <button className="md:hidden" onClick={() => setMobileOpen(!mobileOpen)}>
+        <button className="lg:hidden" aria-label="Toggle menu" aria-expanded={mobileOpen} onClick={() => setMobileOpen(!mobileOpen)}>
           {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </button>
       </div>
 
       {mobileOpen && (
-        <div className="md:hidden border-t border-border bg-background p-4 space-y-3 animate-fade-up">
+        <div className="lg:hidden border-t border-border bg-background p-4 space-y-3 animate-fade-up">
           {primary.map((l) => (
             <Link
               key={`${l.to}-${l.label}`}

@@ -91,24 +91,26 @@ export default function MarketplaceHeader() {
           </Link>
         </div>
 
-        <nav className="hidden items-center gap-7 md:flex" aria-label={t("nav.primary", "Primary")}>
+        {/* Tablet (<1024px) collapses into the hamburger menu so navigation
+            labels never wrap. Every action stays reachable via the sheet. */}
+        <nav className="hidden items-center gap-7 lg:flex" aria-label={t("nav.primary", "Primary")}>
           {primary.map((l) => (
             <Link
               key={`${l.to}-${l.label}`}
               to={l.to}
-              className="text-[13.5px] font-medium text-[hsl(var(--mkt-ink-muted))] transition hover:text-[hsl(var(--mkt-ink))]"
+              className="whitespace-nowrap text-[13.5px] font-medium text-[hsl(var(--mkt-ink-muted))] transition hover:text-[hsl(var(--mkt-ink))]"
             >
               {l.label}
             </Link>
           ))}
         </nav>
 
-        <div className="hidden items-center gap-2 md:flex">
+        <div className="hidden items-center gap-2 lg:flex">
           <MarketMenu />
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="gap-2 text-[hsl(var(--mkt-ink))]">
+                <Button variant="ghost" size="sm" className="gap-2 whitespace-nowrap text-[hsl(var(--mkt-ink))]">
                   <UserIcon className="h-4 w-4" /> {t("nav.my_account", "My account")}
                 </Button>
               </DropdownMenuTrigger>
@@ -126,13 +128,13 @@ export default function MarketplaceHeader() {
             </DropdownMenu>
           ) : (
             <>
-              <Button variant="ghost" size="sm" onClick={() => openLogin({ reason: "navbar" })}>
+              <Button variant="ghost" size="sm" className="whitespace-nowrap" onClick={() => openLogin({ reason: "navbar" })}>
                 {t("nav.sign_in", "Log in")}
               </Button>
               <Button
                 size="sm"
                 onClick={openRegister}
-                className="bg-[hsl(var(--mkt-brand))] text-[hsl(var(--mkt-brand-on))] hover:bg-[hsl(var(--mkt-brand-hover))]"
+                className="whitespace-nowrap bg-[hsl(var(--mkt-brand))] text-[hsl(var(--mkt-brand-on))] hover:bg-[hsl(var(--mkt-brand-hover))]"
               >
                 {t("nav.get_started", "Get started")}
               </Button>
@@ -142,8 +144,9 @@ export default function MarketplaceHeader() {
 
         <button
           type="button"
-          className="text-[hsl(var(--mkt-ink))] md:hidden"
+          className="text-[hsl(var(--mkt-ink))] lg:hidden"
           aria-label={t("nav.toggle", "Toggle menu")}
+          aria-expanded={mobileOpen}
           onClick={() => setMobileOpen((v) => !v)}
         >
           {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -151,8 +154,8 @@ export default function MarketplaceHeader() {
       </div>
 
       {mobileOpen && (
-        <div className="border-t border-[hsl(var(--mkt-border))] bg-[hsl(var(--mkt-surface))] p-4 md:hidden">
-          <nav className="space-y-1" aria-label={t("nav.mobile", "Mobile primary")}>
+        <div className="border-t border-[hsl(var(--mkt-border))] bg-[hsl(var(--mkt-surface))] p-4 lg:hidden">
+          <nav className="space-y-1" aria-label={t("nav.tablet_mobile", "Tablet and mobile primary")}>
             {primary.map((l) => (
               <Link
                 key={`${l.to}-${l.label}`}

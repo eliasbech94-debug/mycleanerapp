@@ -27,8 +27,8 @@ const BookingEntry = () => {
 
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container-narrow py-10 sm:py-14">
+    <div className="min-h-screen overflow-x-hidden bg-background">
+      <div className="container-narrow w-full max-w-full px-4 py-10 sm:px-6 sm:py-14">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-8 sm:mb-12">
             <Badge variant="secondary" className="mb-3">Book en cleaner</Badge>
