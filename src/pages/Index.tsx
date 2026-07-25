@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import EuropeBackdrop from "@/components/EuropeBackdrop";
+import MarketplaceLive from "@/components/MarketplaceLive";
 import {
   Search,
   MapPin,
