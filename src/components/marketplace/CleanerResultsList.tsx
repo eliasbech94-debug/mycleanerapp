@@ -4,6 +4,8 @@ import { Star, MapPin, Heart, ShieldCheck, User as UserIcon } from "lucide-react
 import { MarketplaceProvider } from "@/hooks/useMarketplaceProviders";
 import { useFavoriteProviders } from "@/hooks/useFavoriteProviders";
 import { isDemoProviderSlug } from "@/data/demoProviders";
+import { useActiveMarket } from "@/context/ActiveMarketContext";
+import { formatMoney } from "@/lib/markets";
 
 /**
  * Homepage top-rated cleaners — horizontal-row layout matching the
@@ -74,8 +76,16 @@ export function CleanerResultsList({
 
 function ProviderRow({ p, isFav, onToggleFav, pending }: { p: MarketplaceProvider; isFav: boolean; onToggleFav: () => void; pending: boolean }) {
   const { t } = useTranslation("marketplace");
+  const { market } = useActiveMarket();
   const distance = p.service_radius_km != null
     ? t("card.radius_km_away", { defaultValue: "{{km}} km away", km: p.service_radius_km })
+    : null;
+
+  const priceLabel = p.price_from != null
+    ? t("card.price_per_hour", {
+        defaultValue: "{{price}} / hour",
+        price: formatMoney(p.price_from, market),
+      })
     : null;
 
   const tags = (p.public_bio ?? "")
@@ -158,9 +168,20 @@ function ProviderRow({ p, isFav, onToggleFav, pending }: { p: MarketplaceProvide
           <div className="text-[11.5px] uppercase tracking-wider text-[hsl(var(--mkt-ink-soft))]">
             {t("card.from", "From")}
           </div>
-          <div className="text-[15px] font-semibold text-[hsl(var(--mkt-ink))]">
-            {t("card.price_note_short", "See profile")}
-          </div>
+          {priceLabel ? (
+            <>
+              <div className="text-[15px] font-semibold text-[hsl(var(--mkt-ink))]">
+                {formatMoney(p.price_from as number, market)}
+              </div>
+              <div className="text-[11px] text-[hsl(var(--mkt-ink-soft))]">
+                {t("card.per_hour", "per hour")}
+              </div>
+            </>
+          ) : (
+            <div className="text-[15px] font-semibold text-[hsl(var(--mkt-ink))]">
+              {t("card.price_note_short", "See profile")}
+            </div>
+          )}
         </div>
         {isDemoProviderSlug(p.provider_slug) ? (
           <span
