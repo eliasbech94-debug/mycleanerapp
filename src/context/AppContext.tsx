@@ -369,6 +369,21 @@ export function AppContextProvider({ children }: { children: ReactNode }) {
     return () => { cancelled = true; };
   }, [user]);
 
+  // ---------- Provider lock (session-scoped) ----------
+  const [providerLock, setProviderLockState] = useState<ProviderLock | null>(() => readProviderLock());
+  const setProviderLock = useCallback((v: ProviderLock | null) => {
+    setProviderLockState(v);
+    writeProviderLock(v);
+  }, []);
+  const hydrateProviderLockId = useCallback((slug: string, providerId: string) => {
+    setProviderLockState((prev) => {
+      if (!prev || prev.slug !== slug) return prev;
+      const next = { ...prev, providerId };
+      writeProviderLock(next);
+      return next;
+    });
+  }, []);
+
   // ---------- Feature flags — bound to current context ----------
   const hasFeatureFlag = useCallback(
     (key: string) =>
