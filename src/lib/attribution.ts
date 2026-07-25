@@ -22,7 +22,7 @@
 export const ACQUISITION_SOURCES = [
   "marketplace",
   "provider_direct_link",
-  "provider_qr_code",
+  "provider_qr",
   "provider_social_share",
   "provider_embedded_widget",
   "unknown",

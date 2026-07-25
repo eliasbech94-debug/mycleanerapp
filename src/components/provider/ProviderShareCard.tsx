@@ -31,13 +31,13 @@ function publicOrigin(): string {
   return o.replace(/\/$/, "");
 }
 
-export function providerShareUrl(slug: string, src: "provider_direct_link" | "provider_qr_code" = "provider_direct_link") {
+export function providerShareUrl(slug: string, src: "provider_direct_link" | "provider_qr" = "provider_direct_link") {
   return `${publicOrigin()}/p/${slug}?src=${src}`;
 }
 
 export default function ProviderShareCard({ slug, isPublic, onRenamed }: Props) {
   const shareUrl = useMemo(() => providerShareUrl(slug, "provider_direct_link"), [slug]);
-  const qrUrl = useMemo(() => providerShareUrl(slug, "provider_qr_code"), [slug]);
+  const qrUrl = useMemo(() => providerShareUrl(slug, "provider_qr"), [slug]);
 
   const [qrSvg, setQrSvg] = useState<string>("");
   const [copied, setCopied] = useState(false);
@@ -264,6 +264,26 @@ export default function ProviderShareCard({ slug, isPublic, onRenamed }: Props) 
                 </Button>
               </div>
             </div>
+          </div>
+        </div>
+
+        <div className="border-t pt-4 space-y-3">
+          <div className="inline-flex items-center gap-2 text-sm font-medium">
+            <ExternalLink className="h-4 w-4" />Forhåndsvisning
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Sådan ser din offentlige profil ud for kunder. Åbn den i en ny fane for at teste booking-flowet.
+          </p>
+          <div className="rounded-lg border bg-muted/30 p-4 flex items-center justify-between gap-4">
+            <div className="min-w-0">
+              <div className="text-sm font-medium truncate">mycleaner.dk/p/{slug}</div>
+              <div className="text-xs text-muted-foreground">Offentlig booking-side · attribution: provider_direct_link</div>
+            </div>
+            <Button type="button" size="sm" variant="outline" asChild>
+              <a href={shareUrl} target="_blank" rel="noopener noreferrer" aria-label="Åbn offentlig profil">
+                <ExternalLink className="mr-2 h-4 w-4" />Åbn offentlig profil
+              </a>
+            </Button>
           </div>
         </div>
       </CardContent>

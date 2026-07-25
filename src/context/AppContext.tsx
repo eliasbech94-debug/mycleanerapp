@@ -167,7 +167,7 @@ export type AcquisitionSource =
   | "marketplace"
   | "marketplace_pick"
   | "provider_direct_link"
-  | "provider_qr_code"
+  | "provider_qr"
   | "provider_social_share"
   | "provider_embedded_widget"
   | "unknown";
