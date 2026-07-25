@@ -5928,6 +5928,7 @@ export type Database = {
           lat: number
           lng: number
           provider_id: string
+          provider_slug: string
         }[]
       }
       get_public_provider_profile_v1: {
