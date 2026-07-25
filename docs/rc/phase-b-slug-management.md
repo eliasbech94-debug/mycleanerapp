@@ -22,7 +22,7 @@ Status: implemented on `develop`, migration applied to Lovable Cloud project.
 Renames append to `provider_slug_history` via `AFTER UPDATE` trigger. History rows never expire — old links keep resolving forever. If the same provider reclaims an old slug, the history row is auto-cleared (self-reclaim). Other providers can never claim a historical slug (blocks link hijacking).
 
 ## QR
-Encoded payload: `https://<origin>/p/<slug>?src=provider_qr_code` — attribution enum already exists. Error correction level `H`. Client-side generation via `qrcode@1.5.4`; SVG rendered inline, PNG rasterised at 1024 px.
+Encoded payload: `https://<origin>/p/<slug>?src=provider_qr` — attribution enum already exists. Error correction level `H`. Client-side generation via `qrcode@1.5.4`; SVG rendered inline, PNG rasterised at 1024 px.
 
 ## Tests
 - `src/lib/slug.test.ts` — 13 format cases.
