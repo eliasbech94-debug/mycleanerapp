@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Star, MapPin, Heart, ShieldCheck, User as UserIcon } from "lucide-react";
+import { Star, MapPin, Heart, ShieldCheck, User as UserIcon, Zap, CalendarCheck, Trophy } from "lucide-react";
 import { MarketplaceProvider } from "@/hooks/useMarketplaceProviders";
 import { useFavoriteProviders } from "@/hooks/useFavoriteProviders";
 import { isDemoProviderSlug } from "@/data/demoProviders";
