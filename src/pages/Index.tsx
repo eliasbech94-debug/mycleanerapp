@@ -6,6 +6,7 @@ import { ServiceCategoryGrid } from "@/components/marketplace/ServiceCategoryGri
 import { CleanerResultsList } from "@/components/marketplace/CleanerResultsList";
 import { BookingSidebar } from "@/components/marketplace/BookingSidebar";
 import { MarketplaceStats } from "@/components/marketplace/MarketplaceStats";
+import { DEMO_PROVIDERS } from "@/data/demoProviders";
 
 /**
  * MyCleaner — public homepage v2.1.
