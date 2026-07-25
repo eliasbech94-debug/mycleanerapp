@@ -105,8 +105,10 @@ jobs:
       - name: Verify seeded data (read-only)
         id: verify
         env:
-          PGCONN: ${{ secrets.STAGING_PG_CONN }}
+          STAGING_SUPABASE_PROJECT_REF: ${{ secrets.STAGING_SUPABASE_PROJECT_REF }}
+          STAGING_SUPABASE_DB_PASSWORD: ${{ secrets.STAGING_SUPABASE_DB_PASSWORD }}
         run: |
+          PGCONN="postgresql://postgres:${STAGING_SUPABASE_DB_PASSWORD}@db.${STAGING_SUPABASE_PROJECT_REF}.supabase.co:5432/postgres"
           mkdir -p artifact
           {
             echo "# Staging Seed Report"
