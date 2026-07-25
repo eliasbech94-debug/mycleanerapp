@@ -26,9 +26,16 @@ export function CleanerResultsList({
   return (
     <section className="mx-auto max-w-[1400px] px-5 pt-10 lg:px-8">
       <div className="mb-5 flex items-end justify-between gap-3">
-        <h2 className="text-[18px] font-semibold text-[hsl(var(--mkt-ink))]">
-          {t("results.heading", "Top rated cleaners near you")}
-        </h2>
+        <div className="flex items-center gap-2">
+          <h2 className="text-[18px] font-semibold text-[hsl(var(--mkt-ink))]">
+            {t("results.heading", "Top rated cleaners near you")}
+          </h2>
+          {isDemo && (
+            <span className="rounded-full border border-[hsl(var(--mkt-border))] bg-[hsl(var(--mkt-surface-muted))] px-2 py-0.5 text-[10.5px] font-semibold uppercase tracking-wider text-[hsl(var(--mkt-ink-muted))]">
+              {t("results.demo_badge", "Demo")}
+            </span>
+          )}
+        </div>
         <Link
           to="/marketplace"
           className="text-[13.5px] font-semibold text-[hsl(var(--mkt-brand))] hover:underline"
