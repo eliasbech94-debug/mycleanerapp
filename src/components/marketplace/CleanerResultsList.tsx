@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Star, MapPin, Heart, ShieldCheck, User as UserIcon } from "lucide-react";
+import { Star, MapPin, Heart, ShieldCheck, User as UserIcon, Zap, CalendarCheck, Trophy } from "lucide-react";
 import { MarketplaceProvider } from "@/hooks/useMarketplaceProviders";
 import { useFavoriteProviders } from "@/hooks/useFavoriteProviders";
 import { isDemoProviderSlug } from "@/data/demoProviders";
@@ -120,9 +120,23 @@ function ProviderRow({ p, isFav, onToggleFav, pending }: { p: MarketplaceProvide
     .filter(Boolean)
     .slice(0, 3);
 
+  const badges: { key: string; label: string; icon: JSX.Element; tone: "brand" | "gold" | "success" | "accent" }[] = [];
+  if (p.identity_verified_badge) {
+    badges.push({ key: "verified", label: t("card.badge_verified", "Verified"), icon: <ShieldCheck className="h-3 w-3" />, tone: "brand" });
+  }
+  if (p.average_rating >= 4.7 && p.total_reviews >= 10) {
+    badges.push({ key: "top", label: t("card.badge_top", "Top Rated"), icon: <Trophy className="h-3 w-3" />, tone: "gold" });
+  }
+  if (p.avg_response_minutes != null && p.avg_response_minutes <= 60) {
+    badges.push({ key: "fast", label: t("card.badge_fast", "Fast Response"), icon: <Zap className="h-3 w-3" />, tone: "accent" });
+  }
+  if (p.completed_bookings >= 5 && badges.length < 3) {
+    badges.push({ key: "today", label: t("card.badge_today", "Available Today"), icon: <CalendarCheck className="h-3 w-3" />, tone: "success" });
+  }
+
   return (
-    <article className="group relative flex flex-col gap-4 rounded-2xl border border-[hsl(var(--mkt-border))] bg-[hsl(var(--mkt-surface))] p-4 transition hover:border-[hsl(var(--mkt-brand))]/40 hover:shadow-[var(--mkt-shadow-lift)] sm:flex-row sm:items-center">
-      <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-full bg-[hsl(var(--mkt-surface-muted))] sm:h-20 sm:w-20">
+    <article className="group relative flex flex-col gap-4 rounded-2xl border border-[hsl(var(--mkt-border))] bg-[hsl(var(--mkt-surface))] p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-[hsl(var(--mkt-brand))]/40 hover:shadow-[var(--mkt-shadow-lift)] sm:flex-row sm:items-center">
+      <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-full bg-[hsl(var(--mkt-surface-muted))] ring-1 ring-[hsl(var(--mkt-border))] transition-transform duration-200 group-hover:scale-[1.03] sm:h-20 sm:w-20">
         {p.avatar_url ? (
           <img
             src={p.avatar_url}
@@ -140,20 +154,23 @@ function ProviderRow({ p, isFav, onToggleFav, pending }: { p: MarketplaceProvide
       </div>
 
       <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
           {isDemoProviderSlug(p.provider_slug) ? (
             <span className="text-[15.5px] font-semibold text-[hsl(var(--mkt-ink))]">{p.display_name}</span>
           ) : (
             <Link
               to={`/p/${p.provider_slug}?src=marketplace_pick`}
-              className="text-[15.5px] font-semibold text-[hsl(var(--mkt-ink))] hover:text-[hsl(var(--mkt-brand))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--mkt-brand))]"
+              className="text-[15.5px] font-semibold text-[hsl(var(--mkt-ink))] transition-colors hover:text-[hsl(var(--mkt-brand))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--mkt-brand))]"
             >
               {p.display_name}
             </Link>
           )}
-          {p.identity_verified_badge && (
-            <ShieldCheck className="h-4 w-4 text-[hsl(var(--mkt-brand))]" aria-label={t("card.verified", "Verified")} />
-          )}
+          {badges.map((b) => (
+            <StatusBadge key={b.key} tone={b.tone}>
+              {b.icon}
+              {b.label}
+            </StatusBadge>
+          ))}
         </div>
         <div className="mt-1 flex flex-wrap items-center gap-x-2 text-[12.5px] text-[hsl(var(--mkt-ink-soft))]">
           {p.average_rating > 0 && (
@@ -240,6 +257,20 @@ function ProviderRow({ p, isFav, onToggleFav, pending }: { p: MarketplaceProvide
         </button>
       )}
     </article>
+  );
+}
+
+function StatusBadge({ tone, children }: { tone: "brand" | "gold" | "success" | "accent"; children: React.ReactNode }) {
+  const toneClass = {
+    brand: "border-[hsl(var(--mkt-brand))]/25 bg-[hsl(var(--mkt-brand-soft))] text-[hsl(var(--mkt-brand))]",
+    gold: "border-[hsl(var(--mkt-star))]/35 bg-[hsl(var(--mkt-star))]/12 text-[hsl(38_85%_36%)]",
+    success: "border-[hsl(var(--mkt-success))]/30 bg-[hsl(var(--mkt-success))]/12 text-[hsl(var(--mkt-success))]",
+    accent: "border-[hsl(var(--mkt-accent))]/30 bg-[hsl(var(--mkt-accent))]/12 text-[hsl(24_85%_42%)]",
+  }[tone];
+  return (
+    <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10.5px] font-semibold uppercase tracking-wider ${toneClass}`}>
+      {children}
+    </span>
   );
 }
 
