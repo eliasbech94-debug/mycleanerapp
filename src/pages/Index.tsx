@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import europeMap from "@/assets/europe-map.jpg";
+import EuropeBackdrop from "@/components/EuropeBackdrop";
 import {
   Search,
   MapPin,
