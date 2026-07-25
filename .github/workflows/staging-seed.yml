@@ -85,8 +85,10 @@ jobs:
 
       - name: Run SQL seed — providers (idempotent)
         env:
-          PGCONN: ${{ secrets.STAGING_PG_CONN }}
+          STAGING_SUPABASE_PROJECT_REF: ${{ secrets.STAGING_SUPABASE_PROJECT_REF }}
+          STAGING_SUPABASE_DB_PASSWORD: ${{ secrets.STAGING_SUPABASE_DB_PASSWORD }}
         run: |
+          PGCONN="postgresql://postgres:${STAGING_SUPABASE_DB_PASSWORD}@db.${STAGING_SUPABASE_PROJECT_REF}.supabase.co:5432/postgres"
           psql "$PGCONN" -v ON_ERROR_STOP=1 -f staging-validation/seed/test-providers.sql
 
       - name: Run TS seed — test users (idempotent)
