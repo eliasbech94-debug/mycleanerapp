@@ -148,10 +148,7 @@ function classifyUser(isAuthenticated: boolean, roles: AppRole[]): UserType {
 
 export type BookingAddress = {
   id: string;
-  formatted_address: string | null;
-  address_line1: string | null;
-  postal_code: string | null;
-  city: string | null;
+  address: string;
   address_country_code: string | null;
   lat: number | null;
   lng: number | null;
@@ -297,7 +294,7 @@ export function AppContextProvider({ children }: { children: ReactNode }) {
       const [{ data: addr }, { data: favs }, { count }] = await Promise.all([
         supabase
           .from("customer_addresses")
-          .select("id,formatted_address,address_line1,postal_code,city,address_country_code,lat,lng,is_primary,updated_at")
+          .select("id,address,address_country_code,lat,lng,is_primary,updated_at")
           .eq("user_id", user.id)
           .order("is_primary", { ascending: false })
           .order("updated_at", { ascending: false })
@@ -310,10 +307,10 @@ export function AppContextProvider({ children }: { children: ReactNode }) {
         supabase
           .from("bookings")
           .select("id", { count: "exact", head: true })
-          .eq("customer_id", user.id),
+          .eq("customer_user_id", user.id),
       ]);
       if (cancelled) return;
-      setBookingAddress((addr as BookingAddress | null) ?? null);
+      setBookingAddress((addr as unknown as BookingAddress | null) ?? null);
       setFavouriteProviderIds(((favs ?? []) as { provider_id: string }[]).map((r) => r.provider_id));
       setReturning((count ?? 0) > 0);
     })();
