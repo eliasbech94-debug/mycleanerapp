@@ -13,10 +13,12 @@ export function CleanerResultsList({
   providers,
   loading,
   emptyLabel,
+  isDemo = false,
 }: {
   providers: MarketplaceProvider[] | null;
   loading: boolean;
   emptyLabel?: string;
+  isDemo?: boolean;
 }) {
   const { t } = useTranslation("marketplace");
   const fav = useFavoriteProviders();
