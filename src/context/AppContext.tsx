@@ -156,6 +156,53 @@ export type BookingAddress = {
 };
 
 /* -------------------------------------------------------------------------- */
+/* Provider lock — set when a visitor enters through a provider-specific link */
+/* (/p/:slug or /book?provider=…). Slug + attribution are the ONLY authorita- */
+/* tive fields. providerId is optional and only hydrated from a successful    */
+/* server-side slug resolution — the persisted booking row and locked pricing */
+/* quote remain the real source of truth for provider selection and payment.  */
+/* -------------------------------------------------------------------------- */
+
+export type AcquisitionSource =
+  | "marketplace"
+  | "provider_direct_link"
+  | "provider_qr_code"
+  | "provider_social_share"
+  | "provider_embedded_widget"
+  | "unknown";
+
+export type ProviderLock = {
+  slug: string;
+  source: AcquisitionSource;
+  ref: string | null;
+  campaign: string | null;
+  landingUrl: string;
+  firstSeenAt: string;
+  /** Optional. Only set after a successful server-side slug resolution. Never trusted for payment. */
+  providerId?: string | null;
+};
+
+const PROVIDER_LOCK_KEY = "mc.providerLock";
+
+function readProviderLock(): ProviderLock | null {
+  if (typeof sessionStorage === "undefined") return null;
+  try {
+    const raw = sessionStorage.getItem(PROVIDER_LOCK_KEY);
+    return raw ? (JSON.parse(raw) as ProviderLock) : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeProviderLock(v: ProviderLock | null) {
+  if (typeof sessionStorage === "undefined") return;
+  try {
+    if (v) sessionStorage.setItem(PROVIDER_LOCK_KEY, JSON.stringify(v));
+    else sessionStorage.removeItem(PROVIDER_LOCK_KEY);
+  } catch { /* ignore */ }
+}
+
+/* -------------------------------------------------------------------------- */
 /* Context value                                                              */
 /* -------------------------------------------------------------------------- */
 
@@ -201,6 +248,11 @@ export interface AppContextValue {
   // Customer relationship
   favouriteProviderIds: string[];
   isReturningCustomer: boolean;
+
+  // Provider lock (session-scoped; slug + attribution authoritative, providerId hint-only)
+  providerLock: ProviderLock | null;
+  setProviderLock: (v: ProviderLock | null) => void;
+  hydrateProviderLockId: (slug: string, providerId: string) => void;
 
   // Feature flags — async evaluator bound to current context.
   // Use for gated features that need country/user targeting.
@@ -317,6 +369,21 @@ export function AppContextProvider({ children }: { children: ReactNode }) {
     return () => { cancelled = true; };
   }, [user]);
 
+  // ---------- Provider lock (session-scoped) ----------
+  const [providerLock, setProviderLockState] = useState<ProviderLock | null>(() => readProviderLock());
+  const setProviderLock = useCallback((v: ProviderLock | null) => {
+    setProviderLockState(v);
+    writeProviderLock(v);
+  }, []);
+  const hydrateProviderLockId = useCallback((slug: string, providerId: string) => {
+    setProviderLockState((prev) => {
+      if (!prev || prev.slug !== slug) return prev;
+      const next = { ...prev, providerId };
+      writeProviderLock(next);
+      return next;
+    });
+  }, []);
+
   // ---------- Feature flags — bound to current context ----------
   const hasFeatureFlag = useCallback(
     (key: string) =>
@@ -361,6 +428,10 @@ export function AppContextProvider({ children }: { children: ReactNode }) {
 
     favouriteProviderIds,
     isReturningCustomer,
+
+    providerLock,
+    setProviderLock,
+    hydrateProviderLockId,
 
     hasFeatureFlag,
   };
