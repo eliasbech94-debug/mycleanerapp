@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import europeMap from "@/assets/europe-map.jpg";
+import EuropeBackdrop from "@/components/EuropeBackdrop";
 import {
   Search,
   MapPin,
@@ -256,12 +256,11 @@ function Hero({ market, setMarket }: { market: Market; setMarket: (m: Market) =>
 
   return (
     <section className="relative overflow-hidden">
-      {/* ambient background */}
-      <div aria-hidden className="pointer-events-none absolute inset-0">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_15%_10%,rgba(22,138,122,0.35),transparent_55%),radial-gradient(ellipse_at_90%_90%,rgba(255,107,53,0.14),transparent_55%)]" />
-      </div>
+      {/* ambient Europe backdrop — integrated into the hero, never dominant */}
+      <EuropeBackdrop />
 
-      <div className="relative mx-auto grid max-w-[1400px] gap-10 px-5 pb-14 pt-10 lg:grid-cols-[minmax(0,1fr)_540px] lg:gap-14 lg:px-8 lg:pt-12">
+      <div className="relative mx-auto grid max-w-[1400px] gap-10 px-5 pb-14 pt-10 lg:grid-cols-[minmax(0,1fr)_440px] lg:gap-14 lg:px-8 lg:pt-12">
+
         {/* LEFT — headline + search */}
         <div className="min-w-0 animate-fade-in">
           <div className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.04] px-3 py-1.5 text-[11.5px] font-medium uppercase tracking-[0.14em] text-white/75 backdrop-blur">
@@ -383,42 +382,9 @@ function Hero({ market, setMarket }: { market: Market; setMarket: (m: Market) =>
           </div>
         </div>
 
-        {/* RIGHT — map + stat cards */}
-        <div className="relative flex min-w-0 flex-col gap-4">
-          <div className="relative overflow-hidden rounded-2xl border border-white/[0.06] bg-[#04100f]">
-            <img
-              src={europeMap}
-              alt="MyCleaner active across Europe"
-              width={1280}
-              height={1024}
-              className="h-[380px] w-full object-cover opacity-90"
-            />
-            {/* provider pins */}
-            {[
-              { top: "36%", left: "42%", name: "Sofia" },
-              { top: "58%", left: "38%", name: "Maria" },
-              { top: "48%", left: "62%", name: "Anders" },
-              { top: "70%", left: "52%", name: "Luca" },
-            ].map((p) => (
-              <div
-                key={p.name}
-                className="absolute -translate-x-1/2 -translate-y-1/2"
-                style={{ top: p.top, left: p.left }}
-              >
-                <div className="grid h-9 w-9 place-items-center rounded-full border-2 border-[#ff6b35] bg-[#0a3d3a] text-[11px] font-bold text-white shadow-[0_0_0_4px_rgba(255,107,53,0.15),0_8px_20px_-4px_rgba(0,0,0,0.6)]">
-                  {p.name[0]}
-                </div>
-              </div>
-            ))}
-            <div className="absolute inset-x-4 bottom-4 flex items-center gap-3 rounded-xl border border-white/[0.08] bg-black/40 px-3 py-2 text-[12px] text-white/80 backdrop-blur">
-              <div className="flex -space-x-2">
-                {["S", "M", "A", "L"].map((c) => (
-                  <div key={c} className="grid h-7 w-7 place-items-center rounded-full border-2 border-[#04100f] bg-gradient-to-br from-[#168a7a] to-[#0a3d3a] text-[10.5px] font-bold text-white">{c}</div>
-                ))}
-              </div>
-              Trusted by <span className="font-semibold text-white">200,000+</span> customers across 12 European markets
-            </div>
-          </div>
+        {/* RIGHT — live stat cards (map is now the ambient hero backdrop) */}
+        <div className="relative flex min-w-0 flex-col gap-4 animate-fade-in">
+
 
           <div className="grid grid-cols-2 gap-3">
             <StatCard
