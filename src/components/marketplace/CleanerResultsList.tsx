@@ -260,6 +260,20 @@ function ProviderRow({ p, isFav, onToggleFav, pending }: { p: MarketplaceProvide
   );
 }
 
+function StatusBadge({ tone, children }: { tone: "brand" | "gold" | "success" | "accent"; children: React.ReactNode }) {
+  const toneClass = {
+    brand: "border-[hsl(var(--mkt-brand))]/25 bg-[hsl(var(--mkt-brand-soft))] text-[hsl(var(--mkt-brand))]",
+    gold: "border-[hsl(var(--mkt-star))]/35 bg-[hsl(var(--mkt-star))]/12 text-[hsl(38_85%_36%)]",
+    success: "border-[hsl(var(--mkt-success))]/30 bg-[hsl(var(--mkt-success))]/12 text-[hsl(var(--mkt-success))]",
+    accent: "border-[hsl(var(--mkt-accent))]/30 bg-[hsl(var(--mkt-accent))]/12 text-[hsl(24_85%_42%)]",
+  }[tone];
+  return (
+    <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10.5px] font-semibold uppercase tracking-wider ${toneClass}`}>
+      {children}
+    </span>
+  );
+}
+
 function SkeletonRow() {
   return (
     <div className="flex items-center gap-4 rounded-2xl border border-[hsl(var(--mkt-border))] bg-[hsl(var(--mkt-surface))] p-4">
