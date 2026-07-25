@@ -429,6 +429,10 @@ export function AppContextProvider({ children }: { children: ReactNode }) {
     favouriteProviderIds,
     isReturningCustomer,
 
+    providerLock,
+    setProviderLock,
+    hydrateProviderLockId,
+
     hasFeatureFlag,
   };
 
