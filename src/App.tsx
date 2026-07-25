@@ -59,6 +59,7 @@ import { installFrontendMonitoring, initSentry } from "@/lib/monitoring";
 import OAuthConsent from "./pages/OAuthConsent";
 import { CountryProvider } from "@/i18n/CountryContext";
 import { ActiveMarketProvider } from "@/context/ActiveMarketContext";
+import { AppContextProvider } from "@/context/AppContext";
 import IdentityVerificationPage from "./pages/identity/IdentityVerificationPage";
 import ProviderOnboarding from "./pages/provider/ProviderOnboarding";
 import ProviderProfilePage from "./pages/provider/ProviderProfile";
@@ -185,11 +186,13 @@ const App = () => (
         <BrowserRouter>
           <AuthProvider>
             <ActiveMarketProvider>
-              <ScrollToTop />
-              <RouteLoadingBar />
-              <Header />
-              <RootRouteSwitch />
-              <Footer />
+              <AppContextProvider>
+                <ScrollToTop />
+                <RouteLoadingBar />
+                <Header />
+                <RootRouteSwitch />
+                <Footer />
+              </AppContextProvider>
             </ActiveMarketProvider>
           </AuthProvider>
 
