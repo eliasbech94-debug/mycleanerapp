@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import EuropeBackdrop from "@/components/EuropeBackdrop";
+import MarketplaceLive from "@/components/MarketplaceLive";
 import {
   Search,
   MapPin,
@@ -110,7 +111,9 @@ export default function Index() {
       <Hero market={market} setMarket={setMarket} />
       <CountryStrip market={market} setMarket={setMarket} />
       <ProviderSection providers={providers} market={market} />
+      <MarketplaceLive market={market} />
       <StatsBand />
+
     </div>
   );
 }
