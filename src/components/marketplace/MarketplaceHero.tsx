@@ -17,18 +17,27 @@ export function MarketplaceHero() {
         <img
           src={livingroomAsset.url}
           alt={t("hero.image_alt", "Freshly cleaned home interior")}
-          className="absolute inset-0 h-full w-full object-cover"
+          className="absolute inset-0 h-full w-full scale-105 object-cover"
           loading="eager"
           width={1920}
           height={720}
         />
+        {/* Layered gradient overlays for premium contrast without washing the photo */}
         <div
-          className="absolute inset-0 bg-gradient-to-r from-[hsl(var(--mkt-bg))] via-[hsl(var(--mkt-bg))]/85 to-transparent"
+          className="absolute inset-0 bg-gradient-to-r from-[hsl(var(--mkt-bg))] via-[hsl(var(--mkt-bg))]/90 to-[hsl(var(--mkt-bg))]/10"
+          aria-hidden="true"
+        />
+        <div
+          className="absolute inset-0 bg-gradient-to-t from-[hsl(var(--mkt-bg))]/60 via-transparent to-transparent"
           aria-hidden="true"
         />
         <div className="relative mx-auto max-w-[1400px] px-5 pb-10 pt-14 lg:px-8 lg:pb-16 lg:pt-20">
           <div className="max-w-2xl">
-            <h1 className="font-sans font-bold whitespace-nowrap text-[34px] leading-[1.05] tracking-[-0.02em] text-[hsl(var(--mkt-ink))] sm:text-[46px] lg:text-[58px]">
+            <span className="inline-flex items-center gap-2 rounded-full border border-[hsl(var(--mkt-border))] bg-[hsl(var(--mkt-surface))]/80 px-3 py-1 text-[11.5px] font-semibold uppercase tracking-[0.14em] text-[hsl(var(--mkt-brand))] shadow-[var(--mkt-shadow-soft)] backdrop-blur">
+              <span className="h-1.5 w-1.5 rounded-full bg-[hsl(var(--mkt-brand))]" aria-hidden="true" />
+              {t("hero.eyebrow", "Europe's cleaning marketplace")}
+            </span>
+            <h1 className="mt-4 font-sans font-bold whitespace-nowrap text-[34px] leading-[1.05] tracking-[-0.02em] text-[hsl(var(--mkt-ink))] sm:text-[46px] lg:text-[58px]">
               {t("hero.title_prefix", "Book din")}{" "}
               <RotatingWord
                 words={t("hero.rotating_words", {
@@ -52,6 +61,9 @@ export function MarketplaceHero() {
               <TrustChip icon={<Lock className="h-4 w-4 text-[hsl(var(--mkt-success))]" />} label={t("hero.trust_payments", "Secure payments")} />
               <TrustChip icon={<Star className="h-4 w-4 text-[hsl(var(--mkt-success))]" />} label={t("hero.trust_reviews", "Real customer reviews")} />
             </div>
+            <p className="mt-4 text-[12px] font-medium uppercase tracking-[0.18em] text-[hsl(var(--mkt-ink-soft))]">
+              {t("hero.availability", "Available in Denmark · Sweden · Germany · Spain · United Kingdom")}
+            </p>
           </div>
         </div>
       </div>
