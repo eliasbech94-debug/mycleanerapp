@@ -1,9 +1,9 @@
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Home, Sparkles, Package, Briefcase, AppWindow, Shirt, Plus } from "lucide-react";
+import { Home, Sparkles, Package, Briefcase, Plus } from "lucide-react";
 
 /**
- * Popular services row — 7 cleaning-focused tiles matching the reference.
+ * Popular services row — cleaning-focused tiles matching the reference.
  * Each tile deep-links into /marketplace with `category=cleaning` plus a
  * non-authoritative `sub` hint (Marketplace only consumes `category`).
  */
@@ -13,8 +13,6 @@ const ITEMS: readonly Tile[] = [
   { key: "deep",     icon: Sparkles,  sub: "deep" },
   { key: "move",     icon: Package,   sub: "move" },
   { key: "office",   icon: Briefcase, sub: "office" },
-  { key: "windows",  icon: AppWindow, sub: "windows" },
-  { key: "ironing",  icon: Shirt,     sub: "ironing" },
   { key: "custom",   icon: Plus,      sub: "custom" },
 ];
 
@@ -33,7 +31,7 @@ export function ServiceCategoryGrid() {
           {t("categories.view_all", "View all")}
         </Link>
       </div>
-      <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-7">
+      <div className="grid grid-cols-3 gap-3 sm:grid-cols-5">
         {ITEMS.map(({ key, icon: Icon, sub, featured }) => (
           <Link
             key={key}
@@ -64,8 +62,6 @@ function defaultLabel(k: string) {
     case "deep":    return "Deep Cleaning";
     case "move":    return "Move In/Out";
     case "office":  return "Office Cleaning";
-    case "windows": return "Window Cleaning";
-    case "ironing": return "Ironing";
     case "custom":  return "Custom Service";
     default:        return k;
   }
