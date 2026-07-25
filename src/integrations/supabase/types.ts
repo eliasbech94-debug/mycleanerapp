@@ -6038,6 +6038,13 @@ export type Database = {
       }
       assert_ledger_writer_authorized: { Args: never; Returns: undefined }
       begin_ledger_write: { Args: never; Returns: undefined }
+      booking_interval_from_row: {
+        Args: { _b: Database["public"]["Tables"]["bookings"]["Row"] }
+        Returns: {
+          ends_at: string
+          starts_at: string
+        }[]
+      }
       booking_lock_blocked_range: {
         Args: { _ends_at: string; _starts_at: string }
         Returns: unknown
@@ -6060,6 +6067,7 @@ export type Database = {
           reason: string
         }[]
       }
+      claim_booking_offer_v1: { Args: { _offer_id: string }; Returns: Json }
       classify_booking_payment_flow_v1: {
         Args: {
           _booking_id: string
@@ -6081,6 +6089,7 @@ export type Database = {
         }
         Returns: string
       }
+      decline_booking_offer_v1: { Args: { _offer_id: string }; Returns: Json }
       evaluate_booking_release_eligibility_v1: {
         Args: {
           p_booking_id: string
