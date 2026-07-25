@@ -934,7 +934,10 @@ export default function FindCleaner() {
               <Button
                 size="sm"
                 className="flex-1"
-                onClick={() => navigate(`/provider/${selectedProvider.id}`)}
+                onClick={() => {
+                  if (selectedProvider.slug) navigate(`/p/${selectedProvider.slug}?src=marketplace_pick`);
+                  else navigate(`/provider/${selectedProvider.id}`);
+                }}
               >
                 Se profil
               </Button>
@@ -942,11 +945,15 @@ export default function FindCleaner() {
                 variant="outline"
                 size="sm"
                 className="flex-1"
-                onClick={() => navigate(`/book/${selectedProvider.id}`)}
+                onClick={() => {
+                  if (selectedProvider.slug) navigate(`/p/${selectedProvider.slug}?src=marketplace_pick`);
+                  else navigate(`/book/${selectedProvider.id}`);
+                }}
               >
                 Book nu
               </Button>
             </div>
+
           </div>
         </div>
       )}
