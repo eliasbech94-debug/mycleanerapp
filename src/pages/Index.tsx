@@ -114,14 +114,15 @@ export default function Index() {
 /* ------------------------------------------------------------------ */
 /* Hero                                                                */
 /* ------------------------------------------------------------------ */
-function Hero({ market, setMarket }: { market: Market; setMarket: (m: Market) => void }) {
+function Hero({ market, isNeutral, setMarket }: { market: Market; isNeutral: boolean; setMarket: (m: Market) => void }) {
   const [tab, setTab] = useState<"book" | "avail" | "again">("book");
   const [where, setWhere] = useState("");
 
   return (
     <section className="relative overflow-hidden">
-      {/* ambient Europe backdrop — integrated into the hero, never dominant */}
-      <EuropeBackdrop activeCodes={MARKETS.map((m) => m.code)} selectedCode={market.code} />
+      {/* ambient Europe backdrop — highlights active markets, spotlights current selection */}
+      <EuropeBackdrop activeCodes={MARKETS.map((m) => m.code)} selectedCode={isNeutral ? undefined : market.code} />
+
 
       <div className="relative mx-auto max-w-[1400px] px-5 pb-14 pt-10 lg:px-8 lg:pt-12">
         {/* Content occupies left half; the Europe backdrop naturally shows through on the right */}
