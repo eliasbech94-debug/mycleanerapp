@@ -256,12 +256,11 @@ function Hero({ market, setMarket }: { market: Market; setMarket: (m: Market) =>
 
   return (
     <section className="relative overflow-hidden">
-      {/* ambient background */}
-      <div aria-hidden className="pointer-events-none absolute inset-0">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_15%_10%,rgba(22,138,122,0.35),transparent_55%),radial-gradient(ellipse_at_90%_90%,rgba(255,107,53,0.14),transparent_55%)]" />
-      </div>
+      {/* ambient Europe backdrop — integrated into the hero, never dominant */}
+      <EuropeBackdrop />
 
-      <div className="relative mx-auto grid max-w-[1400px] gap-10 px-5 pb-14 pt-10 lg:grid-cols-[minmax(0,1fr)_540px] lg:gap-14 lg:px-8 lg:pt-12">
+      <div className="relative mx-auto grid max-w-[1400px] gap-10 px-5 pb-14 pt-10 lg:grid-cols-[minmax(0,1fr)_440px] lg:gap-14 lg:px-8 lg:pt-12">
+
         {/* LEFT — headline + search */}
         <div className="min-w-0 animate-fade-in">
           <div className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.04] px-3 py-1.5 text-[11.5px] font-medium uppercase tracking-[0.14em] text-white/75 backdrop-blur">
