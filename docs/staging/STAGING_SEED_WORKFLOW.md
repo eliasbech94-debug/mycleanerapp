@@ -85,6 +85,7 @@ Then dispatch the workflow again to reseed.
 
 ## ⚠️ Never use production credentials
 
-This workflow targets **staging only**. Using production `SUPABASE_URL`,
-service-role key, or Postgres connection would pollute production data and
-is explicitly blocked by the production-ref check.
+This workflow targets **staging only**. Using a production `SUPABASE_URL`,
+service-role key, project ref, or database password would pollute production
+data and is explicitly blocked by the production-ref check and the
+URL/project-ref match check.
