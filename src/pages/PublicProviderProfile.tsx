@@ -93,12 +93,19 @@ export default function PublicProviderProfile() {
   useEffect(() => {
     if (!slug) return;
     (async () => {
+      // Resolve slug first: active / redirect / not_found
+      const { data: resolved } = await rpc("resolve_slug_v1", { _slug: slug });
+      const r = Array.isArray(resolved) ? resolved[0] : resolved;
+      if (r?.status === "redirect" && r?.slug && r.slug !== slug) {
+        navigate(`/p/${r.slug}${location.search}`, { replace: true });
+        return;
+      }
+      if (r?.status === "not_found") { setProfile(null); return; }
+
       const { data, error } = await rpc("get_public_provider_profile_v1", { _slug: slug });
       if (error) { toast.error(error.message); setProfile(null); return; }
       const p = ((data as Profile[] | null) ?? [])[0] ?? null;
       setProfile(p);
-      // Server-side slug resolution succeeded — store the display name as a
-      // UI-only hint. Never a real provider UUID, never authoritative.
       if (p) setProviderHint(slug, p.display_name);
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
