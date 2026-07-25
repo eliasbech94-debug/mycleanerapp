@@ -237,6 +237,11 @@ function BookingFlowInner() {
               lat: addressLat,
               lng: addressLng,
               notes: notes || null,
+              // Attribution (contractual, retained on the booking row).
+              // Slug is authoritative; server re-derives provider from the locked quote and
+              // rejects the request if the slug doesn't match that provider.
+              acquisition_source: providerLock?.slug ? providerLock.source : "marketplace",
+              acquisition_provider_slug: providerLock?.slug ?? null,
             },
           });
           if (error || !data?.client_secret) {
