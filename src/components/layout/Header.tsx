@@ -13,6 +13,27 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import BackButton from "@/components/BackButton";
+import MarketplaceHeader from "@/components/layout/MarketplaceHeader";
+
+/**
+ * Public customer surfaces render the light "marketplace" navbar variant.
+ * All other routes (admin, provider back-office, etc.) keep the classic
+ * dark navbar below. The switch is presentation-only — auth, roles,
+ * and country/market logic are shared via the same hooks.
+ */
+const MARKETPLACE_ROUTES: RegExp[] = [
+  /^\/$/,
+  /^\/(dk|gb|se|es)(\/)?$/,
+  /^\/marketplace(\/|$)/,
+  /^\/find-cleaner(\/|$)/,
+  /^\/p\/[^/]+(\/|$)/,
+  /^\/c\/[^/]+(\/|$)/,
+  /^\/faq(\/|$)/,
+  /^\/regler(\/|$)/,
+];
+function isMarketplaceRoute(pathname: string): boolean {
+  return MARKETPLACE_ROUTES.some((re) => re.test(pathname));
+}
 
 type NavLinkItem = { to: string; label: string };
 
@@ -89,6 +110,7 @@ const Header = () => {
   const onAdminRoute = location.pathname.startsWith("/admin");
   const onEmployeeRoute = location.pathname.startsWith("/employee");
   if (onAdminRoute || onEmployeeRoute) return null;
+  if (isMarketplaceRoute(location.pathname)) return <MarketplaceHeader />;
 
   const handleSignOut = async () => {
     await signOut();
