@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { DashboardLayout } from "@/components/dashboard";
 import { StripeConnectStatusWidget } from "@/components/provider/StripeConnectStatusWidget";
 import { IdentityVerificationCard } from "@/components/identity/IdentityVerificationCard";
+import ProviderShareCard from "@/components/provider/ProviderShareCard";
 import { ProviderCompletionCard, CompletionRow } from "@/components/provider/ProviderCompletionCard";
 import { ProviderScorePreview } from "@/components/provider/ProviderScorePreview";
 import BackButton from "@/components/BackButton";
@@ -154,6 +155,11 @@ export default function ProviderDashboard() {
 
           <StripeConnectStatusWidget />
           <IdentityVerificationCard />
+          {pp?.provider_slug && (
+            <div className="mt-6">
+              <ProviderShareCard slug={pp.provider_slug} isPublic={!!pp.is_public} />
+            </div>
+          )}
 
 
 

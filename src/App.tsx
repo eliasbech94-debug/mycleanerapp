@@ -48,6 +48,7 @@ import { ProviderFinance, AdminFinance } from "./pages/finance/FinancePages";
 import AdminDisputes from "./pages/AdminDisputes";
 import ProviderDisputes from "./pages/ProviderDisputes";
 import { RoleGuard } from "@/components/RoleGuard";
+import { UuidGuard, LegacySlugRedirect } from "@/components/routing/UuidGuard";
 import ScrollToTop from "@/components/ScrollToTop";
 import RouteLoadingBar from "@/components/RouteLoadingBar";
 import PrivacyCenter from "./pages/PrivacyCenter";
@@ -58,6 +59,8 @@ import { StagingBanner } from "@/components/StagingBanner";
 import { installFrontendMonitoring, initSentry } from "@/lib/monitoring";
 import OAuthConsent from "./pages/OAuthConsent";
 import { CountryProvider } from "@/i18n/CountryContext";
+import { ActiveMarketProvider } from "@/context/ActiveMarketContext";
+import { AppContextProvider } from "@/context/AppContext";
 import IdentityVerificationPage from "./pages/identity/IdentityVerificationPage";
 import ProviderOnboarding from "./pages/provider/ProviderOnboarding";
 import ProviderProfilePage from "./pages/provider/ProviderProfile";
@@ -97,10 +100,13 @@ export function AppRoutes() {
       <Route path="/customer/profile" element={<RoleGuard allow={["customer"]}><Navigate to="/profil?tab=info" replace /></RoleGuard>} />
       <Route path="/customer/settings" element={<RoleGuard allow={["customer"]}><Navigate to="/profil?tab=notifications" replace /></RoleGuard>} />
       <Route path="/provider/register" element={<ProviderRegister />} />
-      <Route path="/provider/:id" element={<ProviderProfile />} />
+      {/* UUID-guarded internal provider route. Non-UUID falls through to NotFound. */}
+      <Route path="/provider/:id" element={<UuidGuard param="id"><ProviderProfile /></UuidGuard>} />
       <Route path="/find-cleaner" element={<FindCleaner />} />
       <Route path="/marketplace" element={<Marketplace />} />
-      <Route path="/c/:slug" element={<PublicProviderProfile />} />
+      {/* Canonical public provider URL. `/c/:slug` is kept as a legacy alias and client-redirects. */}
+      <Route path="/p/:slug" element={<PublicProviderProfile />} />
+      <Route path="/c/:slug" element={<LegacySlugRedirect />} />
       <Route path="/customer/register" element={<CustomerRegister />} />
       <Route path="/task/create" element={<CreateTask />} />
       <Route path="/task/offers" element={<MatchingOffers />} />
@@ -183,12 +189,17 @@ const App = () => (
         <CustomCursor />
         <BrowserRouter>
           <AuthProvider>
-            <ScrollToTop />
-            <RouteLoadingBar />
-            <Header />
-            <RootRouteSwitch />
-            <Footer />
+            <ActiveMarketProvider>
+              <AppContextProvider>
+                <ScrollToTop />
+                <RouteLoadingBar />
+                <Header />
+                <RootRouteSwitch />
+                <Footer />
+              </AppContextProvider>
+            </ActiveMarketProvider>
           </AuthProvider>
+
         </BrowserRouter>
       </TooltipProvider>
     </AppErrorBoundary>

@@ -53,14 +53,16 @@ describe("application route matching", () => {
     expect(screen.queryByTestId("not-found")).not.toBeInTheDocument();
   });
 
+  const TEST_UUID = "11111111-1111-4111-8111-111111111111";
+
   it("passes provider id to unprefixed provider profile", () => {
-    renderAt("/provider/p_001");
-    expect(screen.getByTestId("provider-profile")).toHaveTextContent("ProviderProfile:p_001");
+    renderAt(`/provider/${TEST_UUID}`);
+    expect(screen.getByTestId("provider-profile")).toHaveTextContent(`ProviderProfile:${TEST_UUID}`);
   });
 
   it("passes provider id to unprefixed booking calendar page", () => {
-    renderAt("/book/p_001?slot=10:00");
-    expect(screen.getByTestId("booking-flow")).toHaveTextContent("BookingFlow:p_001");
+    renderAt(`/book/${TEST_UUID}?slot=10:00`);
+    expect(screen.getByTestId("booking-flow")).toHaveTextContent(`BookingFlow:${TEST_UUID}`);
   });
 
   it("renders country-prefixed find cleaner", () => {
@@ -69,14 +71,21 @@ describe("application route matching", () => {
   });
 
   it("passes provider id to country-prefixed provider profile", () => {
-    renderAt("/dk/provider/p_001");
-    expect(screen.getByTestId("provider-profile")).toHaveTextContent("ProviderProfile:p_001");
+    renderAt(`/dk/provider/${TEST_UUID}`);
+    expect(screen.getByTestId("provider-profile")).toHaveTextContent(`ProviderProfile:${TEST_UUID}`);
   });
 
   it("passes provider id to country-prefixed booking calendar page", () => {
-    renderAt("/dk/book/p_001");
-    expect(screen.getByTestId("booking-flow")).toHaveTextContent("BookingFlow:p_001");
+    renderAt(`/dk/book/${TEST_UUID}`);
+    expect(screen.getByTestId("booking-flow")).toHaveTextContent(`BookingFlow:${TEST_UUID}`);
   });
+
+  it("rejects non-UUID /provider/:id with UuidGuard", () => {
+    renderAt("/provider/p_001");
+    expect(screen.getByTestId("not-found")).toBeInTheDocument();
+    expect(screen.queryByTestId("provider-profile")).not.toBeInTheDocument();
+  });
+
 
   it("does not interpret faq as a country prefix", () => {
     renderAt("/faq");

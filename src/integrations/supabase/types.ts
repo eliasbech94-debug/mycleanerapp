@@ -409,6 +409,8 @@ export type Database = {
       }
       bookings: {
         Row: {
+          acquisition_provider_id: string | null
+          acquisition_source: string
           address: string
           address_place_id: string | null
           authorization_expires_at: string | null
@@ -469,6 +471,8 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          acquisition_provider_id?: string | null
+          acquisition_source?: string
           address: string
           address_place_id?: string | null
           authorization_expires_at?: string | null
@@ -529,6 +533,8 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          acquisition_provider_id?: string | null
+          acquisition_source?: string
           address?: string
           address_place_id?: string | null
           authorization_expires_at?: string | null
@@ -4575,6 +4581,72 @@ export type Database = {
           },
         ]
       }
+      provider_slug_history: {
+        Row: {
+          changed_by: string | null
+          created_at: string
+          id: string
+          new_slug: string
+          old_slug: string
+          provider_user_id: string
+          reason: string
+        }
+        Insert: {
+          changed_by?: string | null
+          created_at?: string
+          id?: string
+          new_slug: string
+          old_slug: string
+          provider_user_id: string
+          reason?: string
+        }
+        Update: {
+          changed_by?: string | null
+          created_at?: string
+          id?: string
+          new_slug?: string
+          old_slug?: string
+          provider_user_id?: string
+          reason?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_slug_history_provider_user_id_fkey"
+            columns: ["provider_user_id"]
+            isOneToOne: false
+            referencedRelation: "provider_profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "provider_slug_history_provider_user_id_fkey"
+            columns: ["provider_user_id"]
+            isOneToOne: false
+            referencedRelation: "public_provider_marketplace"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      provider_slug_reservations: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          reason: string
+          slug: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          reason: string
+          slug: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          reason?: string
+          slug?: string
+        }
+        Relationships: []
+      }
       provider_tax_profiles: {
         Row: {
           business_address: string | null
@@ -5832,6 +5904,11 @@ export type Database = {
         }
         Returns: Json
       }
+      admin_release_slug_v1: { Args: { _slug: string }; Returns: undefined }
+      admin_reserve_slug_v1: {
+        Args: { _reason: string; _slug: string }
+        Returns: undefined
+      }
       assert_ledger_writer_authorized: { Args: never; Returns: undefined }
       begin_ledger_write: { Args: never; Returns: undefined }
       calc_provider_completion: { Args: { _uid: string }; Returns: Json }
@@ -5844,6 +5921,13 @@ export type Database = {
       check_provider_payout_readiness_v1: {
         Args: { p_provider_user_id: string }
         Returns: Json
+      }
+      check_slug_availability_v1: {
+        Args: { _slug: string }
+        Returns: {
+          available: boolean
+          reason: string
+        }[]
       }
       classify_booking_payment_flow_v1: {
         Args: {
@@ -5922,6 +6006,7 @@ export type Database = {
           lat: number
           lng: number
           provider_id: string
+          provider_slug: string
         }[]
       }
       get_public_provider_profile_v1: {
@@ -5936,6 +6021,7 @@ export type Database = {
           display_name: string
           equipment_badges: Json
           identity_verified_badge: boolean
+          insurance_valid: boolean
           languages: string[]
           marketplace_score: number
           price_from: number
@@ -6101,6 +6187,13 @@ export type Database = {
           added_at: string
           provider_id: string
           provider_slug: string
+        }[]
+      }
+      list_provider_bookable_slots_v1: {
+        Args: { _from: string; _slug: string; _to: string }
+        Returns: {
+          slot_date: string
+          slot_hour: number
         }[]
       }
       lock_pricing_quote: {
@@ -6306,6 +6399,14 @@ export type Database = {
         }
         Returns: undefined
       }
+      rename_provider_slug_v1: {
+        Args: { _new_slug: string }
+        Returns: {
+          new_slug: string
+          next_change_allowed_at: string
+          old_slug: string
+        }[]
+      }
       request_release_authorization_v1: {
         Args: {
           _booking_id: string
@@ -6352,6 +6453,13 @@ export type Database = {
           _region?: string
         }
         Returns: Json
+      }
+      resolve_slug_v1: {
+        Args: { _slug: string }
+        Returns: {
+          slug: string
+          status: string
+        }[]
       }
       resolve_system_alert: {
         Args: { _alert_key: string; _resolver?: string }
@@ -6589,6 +6697,10 @@ export type Database = {
       }
       user_owns_identity: { Args: { _identity_id: string }; Returns: boolean }
       user_owns_provider: { Args: { _provider_id: string }; Returns: boolean }
+      validate_provider_slug_format: {
+        Args: { _slug: string }
+        Returns: string
+      }
       visible_conversation_ids: {
         Args: { _user: string }
         Returns: {

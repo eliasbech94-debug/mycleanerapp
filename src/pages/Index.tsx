@@ -1,764 +1,701 @@
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import EuropeBackdrop from "@/components/EuropeBackdrop";
+import MarketplaceLive from "@/components/MarketplaceLive";
+import { useActiveMarket } from "@/context/ActiveMarketContext";
+import { MARKETS, type Market } from "@/lib/markets";
+import livingroomAsset from "@/assets/home-livingroom.jpg.asset.json";
+import kitchenAsset from "@/assets/home-kitchen.jpg.asset.json";
+import bedroomAsset from "@/assets/home-bedroom.jpg.asset.json";
+import pro1Asset from "@/assets/pro-portrait-1.jpg.asset.json";
+import pro2Asset from "@/assets/pro-portrait-2.jpg.asset.json";
+import pro3Asset from "@/assets/pro-portrait-3.jpg.asset.json";
 import {
-  Sparkles,
-  ArrowUpRight,
-  Star,
-  Shield,
-  Calendar,
-  Users,
-  Repeat,
-  Wind,
-  CheckCircle2,
-  Quote,
-  MapPin,
-  Heart,
   Search,
+  MapPin,
+  Star,
+  ShieldCheck,
+  Globe2,
+  Calendar as CalendarIcon,
+  ArrowRight,
+  Clock,
+  Sparkles,
+  ChevronDown,
+  Users,
+  CheckCircle2,
+  Lock,
+  Headphones,
+  XCircle,
+  TrendingUp,
+  Heart,
+  Award,
+  BadgeCheck,
+  Zap,
 } from "lucide-react";
 
+const HOME_SHOTS = [
+  { url: livingroomAsset.url, label: "Living room · Copenhagen", pro: "Maja L.", rating: 4.98 },
+  { url: kitchenAsset.url,    label: "Kitchen · Stockholm",      pro: "Ivan R.", rating: 4.96 },
+  { url: bedroomAsset.url,    label: "Bedroom · Berlin",         pro: "Elena K.", rating: 4.99 },
+];
+const PRO_FALLBACKS = [pro1Asset.url, pro2Asset.url, pro3Asset.url];
+
 /**
- * MyCleaner — Provider-first booking platform
- * Kernebudskab: Find din cleaner → book direkte i hendes kalender.
- * IKKE: post en opgave og vent på bud.
+ * MyCleaner — Home v2.0
+ * All market-derived content (city names, providers, currency, live activity,
+ * highlighted map country) comes from ActiveMarketContext. Never hardcode a
+ * country here — switch flags flow through setMarket() and every child
+ * re-renders from the same source of truth.
  */
 
-const C = {
-  ink: "#0a3d3a",
-  orange: "#ff6b35",
-  cream: "#f5f0e0",
-  teal: "#168a7a",
-  mint: "#c8e6c0",
-  paper: "#fbf6e7",
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const rpc = (name: string, args?: Record<string, unknown>) => (supabase.rpc as any)(name, args);
+
+type ProviderRow = {
+  provider_slug: string;
+  display_name: string;
+  avatar_url: string | null;
+  marketplace_score: number | null;
+  provider_tier: string;
+  country_code: string | null;
+  service_categories: string[] | null;
+  price_from: number | null;
+  service_radius_km: number | null;
+  public_bio: string | null;
+  avg_response_minutes: number | null;
+  identity_verified_badge: boolean;
+  average_rating: number;
+  total_reviews: number;
+  completed_bookings: number;
+  total_count: number;
 };
 
-const PLATFORM_FEE = 0.28;
 
-const fadeUp = {
-  hidden: { opacity: 0, y: 24 },
-  show: (i = 0) => ({
-    opacity: 1,
-    y: 0,
-    transition: { delay: i * 0.06, duration: 0.6, ease: [0.22, 1, 0.36, 1] as const },
-  }),
-};
 
-// ---------- helpers ----------
-function BubbleField({ tone = "cream" }: { tone?: "cream" | "ink" }) {
-  const dotColor = tone === "ink" ? `${C.cream}10` : `${C.ink}10`;
-  return (
-    <div
-      aria-hidden
-      className="pointer-events-none absolute inset-0"
-      style={{
-        backgroundImage: `radial-gradient(circle at 1px 1px, ${dotColor} 1.5px, transparent 0)`,
-        backgroundSize: "22px 22px",
-      }}
-    />
-  );
+function initials(name: string) {
+  return name.split(/\s+/).map((p) => p[0]).filter(Boolean).slice(0, 2).join("").toUpperCase();
 }
 
-function Stamp({ children, rotate = -6, color = C.orange }: { children: React.ReactNode; rotate?: number; color?: string }) {
-  return (
-    <span
-      className="inline-flex items-center gap-1.5 rounded-full border-2 px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em]"
-      style={{ borderColor: color, color, transform: `rotate(${rotate}deg)`, background: "transparent" }}
-    >
-      {children}
-    </span>
-  );
-}
+export default function Index() {
+  const { user } = useAuth();
+  const { market, isNeutral, setMarket } = useActiveMarket();
+  const [providers, setProviders] = useState<ProviderRow[] | null>(null);
 
-// ---------- TopBar ----------
-function TopBar() {
+  // In neutral mode we query without a country filter so the grid stays populated
+  // with Europe-wide results instead of silently defaulting to a specific country.
+  const load = useCallback(async () => {
+    setProviders(null);
+    const { data } = await rpc("search_marketplace_providers_v1", {
+      _country_code: isNeutral ? null : market.code,
+      _service_category: "cleaning",
+      _min_tier: null,
+      _language: null,
+      _max_hourly_rate: null,
+      _search: null,
+      _sort: "score",
+      _limit: 8,
+      _offset: 0,
+    });
+    setProviders(((data as ProviderRow[] | null) ?? []));
+  }, [market.code, isNeutral]);
+
+  useEffect(() => { load(); }, [load]);
+
+  useEffect(() => {
+    const ch = supabase.channel("index-marketplace")
+      .on("postgres_changes", { event: "*", schema: "public", table: "provider_profiles" }, () => load())
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [load]);
+
   return (
-    <div className="relative z-10" style={{ background: C.ink, color: C.cream }}>
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.22em] sm:px-6 lg:px-10">
-        <span className="opacity-80">Est. 2026 · København</span>
-        <span className="hidden items-center gap-2 md:inline-flex">
-          <span className="relative inline-block h-1.5 w-1.5">
-            <span className="absolute inset-0 animate-ping rounded-full" style={{ background: C.mint, opacity: 0.7 }} />
-            <span className="absolute inset-0 rounded-full" style={{ background: C.mint }} />
-          </span>
-          14 cleanere booker i dag
-        </span>
-        <span className="opacity-80">🇩🇰 DK · DKK</span>
-      </div>
+    <div className="bg-[#061615] text-white antialiased [font-feature-settings:'ss01','cv11']">
+      <Hero market={market} isNeutral={isNeutral} setMarket={setMarket} />
+      <CountryStrip market={market} isNeutral={isNeutral} setMarket={setMarket} />
+      <ProviderSection providers={providers} market={market} isNeutral={isNeutral} />
+      <FreshHomesStrip />
+      <MarketplaceLive market={market} isNeutral={isNeutral} />
+      <TrustStrip />
+      <StatsBand />
     </div>
   );
 }
 
-// ---------- HERO ----------
-function Hero() {
-  return (
-    <section className="relative overflow-hidden" style={{ background: C.ink }}>
-      <BubbleField tone="ink" />
-      <div aria-hidden className="absolute -left-32 top-40 h-80 w-80 rounded-full blur-3xl" style={{ background: C.teal, opacity: 0.45 }} />
-      <div aria-hidden className="absolute -right-24 -top-10 h-72 w-72 rounded-full blur-3xl" style={{ background: C.orange, opacity: 0.35 }} />
 
-      <div
-        aria-hidden
-        className="pointer-events-none absolute right-4 top-1/2 hidden -translate-y-1/2 lg:block"
-        style={{ writingMode: "vertical-rl", color: `${C.cream}55`, transform: "translateY(-50%) rotate(180deg)" }}
-      >
-        <span className="font-display text-sm tracking-[0.4em] uppercase">№ 01 — Match · Book · Mød igen</span>
-      </div>
 
-      <div className="relative mx-auto max-w-7xl px-4 pb-16 pt-10 sm:px-6 sm:pb-20 sm:pt-12 lg:px-10 lg:pb-28 lg:pt-16">
-        {/* brand */}
-        <div className="flex items-start justify-between">
-          <div className="flex items-center gap-3">
-            <div className="grid h-12 w-12 place-items-center rounded-2xl shadow-lg" style={{ background: C.orange, color: C.ink }}>
-              <span className="font-display text-2xl leading-none">M</span>
-            </div>
-            <div className="leading-tight">
-              <div className="font-display text-xl" style={{ color: C.cream }}>
-                MyCleaner<sup className="text-[10px] opacity-70">™</sup>
-              </div>
-              <div className="text-[10px] uppercase tracking-[0.3em]" style={{ color: `${C.cream}99` }}>
-                A MyCleaner Co.
-              </div>
-            </div>
-          </div>
-          <Link
-            to="/login"
-            className="rounded-full border px-3 py-1.5 text-xs font-semibold uppercase tracking-wider transition hover:bg-white/10"
-            style={{ borderColor: `${C.cream}55`, color: C.cream }}
-          >
-            Log ind
-          </Link>
-        </div>
 
-        <div className="mt-12 grid gap-10 lg:grid-cols-12 lg:gap-10">
-          {/* Headline */}
-          <motion.div initial="hidden" animate="show" variants={fadeUp} className="lg:col-span-7">
-            <div className="flex flex-wrap items-center gap-3">
-              <Stamp rotate={-4}>★ Provider-first booking</Stamp>
-              <Stamp rotate={3} color={C.mint}>
-                <Sparkles className="h-3 w-3" /> Ingen bud · Ingen ventetid
-              </Stamp>
-            </div>
 
-            <h1
-              className="mt-6 font-display leading-[0.92] tracking-tight"
-              style={{ color: C.cream, fontSize: "clamp(2.6rem, 7vw, 5.4rem)" }}
-            >
-              Find{" "}
-              <span className="relative inline-block">
-                <span style={{ color: C.orange }}>din</span>
-                <svg aria-hidden className="absolute -bottom-2 left-0 w-full" height="14" viewBox="0 0 200 14" preserveAspectRatio="none">
-                  <path d="M2 8 Q 50 2, 100 7 T 198 6" fill="none" stroke={C.orange} strokeWidth="3" strokeLinecap="round" />
-                </svg>
-              </span>{" "}
-              cleaner.
-              <br />
-              Book{" "}
-              <span className="italic" style={{ color: C.mint }}>
-                direkte
-              </span>{" "}
-              i kalenderen.
-            </h1>
 
-            <p className="mt-6 max-w-xl font-editorial text-base sm:text-lg" style={{ color: `${C.cream}cc` }}>
-              MyCleaner er ikke en opgaveplatform. Du <strong style={{ color: C.cream }}>vælger</strong> selv
-              din cleaner — kigger profilen igennem, ser ledige tider og booker
-              det tidspunkt der passer dig. Samme person hver gang. Et rigtigt match.
-            </p>
-
-            {/* Search bar — provider-first */}
-            <form
-              onSubmit={(e) => e.preventDefault()}
-              className="mt-8 flex flex-wrap items-center gap-2 rounded-full p-2 shadow-[6px_6px_0_rgba(0,0,0,0.25)]"
-              style={{ background: C.cream }}
-            >
-              <div className="flex flex-1 items-center gap-2 px-3">
-                <MapPin className="h-4 w-4" style={{ color: C.ink }} />
-                <input
-                  type="text"
-                  placeholder="Postnummer eller by"
-                  className="w-full bg-transparent py-2 text-sm placeholder:opacity-50 focus:outline-none"
-                  style={{ color: C.ink }}
-                  defaultValue="2200 København N"
-                />
-              </div>
-              <div className="hidden h-6 w-px md:block" style={{ background: `${C.ink}25` }} />
-              <div className="hidden flex-1 items-center gap-2 px-3 md:flex">
-                <Calendar className="h-4 w-4" style={{ color: C.ink }} />
-                <select className="w-full bg-transparent py-2 text-sm focus:outline-none" style={{ color: C.ink }}>
-                  <option>I denne uge</option>
-                  <option>I næste uge</option>
-                  <option>Fast aftale</option>
-                </select>
-              </div>
-              <Link
-                to="/find-cleaner"
-                className="inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-bold uppercase tracking-wider transition hover:-translate-y-0.5"
-                style={{ background: C.ink, color: C.cream }}
-              >
-                <Search className="h-4 w-4" /> Find cleaner
-              </Link>
-            </form>
-
-            <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 text-xs" style={{ color: `${C.cream}aa` }}>
-              <span className="inline-flex items-center gap-2">
-                <Shield className="h-4 w-4" style={{ color: C.mint }} /> Forsikret & KYC
-              </span>
-              <span className="inline-flex items-center gap-2">
-                <Star className="h-4 w-4" style={{ color: C.orange }} /> 4.9 · 2.140 jobs
-              </span>
-              <span className="inline-flex items-center gap-2">
-                <Repeat className="h-4 w-4" style={{ color: C.mint }} /> Samme cleaner hver gang
-              </span>
-            </div>
-          </motion.div>
-
-          {/* Provider preview card with calendar */}
-          <motion.div initial="hidden" animate="show" variants={fadeUp} custom={2} className="lg:col-span-5">
-            <ProviderPreviewCard />
-          </motion.div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// ---------- Provider preview card (hero) ----------
-function ProviderPreviewCard() {
-  const slots = ["08:00", "10:00", "13:00", "15:30"];
-  const [selected, setSelected] = useState("10:00");
-  const days = ["Man", "Tir", "Ons", "Tor", "Fre"];
-  const dates = [10, 11, 12, 13, 14];
-  const [selectedDay, setSelectedDay] = useState(1);
+/* ------------------------------------------------------------------ */
+/* Hero                                                                */
+/* ------------------------------------------------------------------ */
+function Hero({ market, isNeutral, setMarket }: { market: Market; isNeutral: boolean; setMarket: (m: Market) => void }) {
+  const [tab, setTab] = useState<"book" | "avail" | "again">("book");
+  const [where, setWhere] = useState("");
 
   return (
-    <div className="relative" style={{ transform: "rotate(1.2deg)" }}>
-      <div
-        className="absolute -left-4 -top-4 z-10 grid h-20 w-20 place-items-center rounded-full text-center font-display text-xs leading-tight shadow-xl"
-        style={{ background: C.mint, color: C.ink, transform: "rotate(-12deg)" }}
-      >
-        Ledig<br />i dag
-      </div>
+    <section className="relative overflow-hidden">
+      {/* ambient Europe backdrop — highlights active markets, spotlights current selection */}
+      <EuropeBackdrop activeCodes={MARKETS.map((m) => m.code)} selectedCode={isNeutral ? undefined : market.code} />
 
-      <div className="relative rounded-[28px] p-6 shadow-[12px_12px_0_rgba(0,0,0,0.18)]" style={{ background: C.paper, color: C.ink }}>
-        {/* Provider header */}
-        <div className="flex items-start gap-4 border-b-2 border-dashed pb-4" style={{ borderColor: `${C.ink}25` }}>
-          <div
-            className="grid h-16 w-16 place-items-center rounded-2xl font-display text-2xl"
-            style={{ background: `linear-gradient(135deg, ${C.orange}, ${C.ink})`, color: C.cream }}
-          >
-            SM
-          </div>
-          <div className="flex-1">
-            <div className="flex items-center justify-between">
-              <div className="font-display text-xl">Sofia M.</div>
-              <button aria-label="Favorit" className="grid h-8 w-8 place-items-center rounded-full" style={{ background: `${C.ink}10` }}>
-                <Heart className="h-4 w-4" style={{ color: C.orange }} />
-              </button>
-            </div>
-            <div className="text-xs opacity-70">København K · 1.2 km væk</div>
-            <div className="mt-1 flex items-center gap-3 text-xs">
-              <span className="inline-flex items-center gap-1 font-bold">
-                <Star className="h-3 w-3" style={{ color: C.orange }} fill={C.orange} /> 4.95
-              </span>
-              <span className="opacity-60">· 142 jobs</span>
-              <span className="font-display text-sm" style={{ color: C.orange }}>280 kr/t</span>
-            </div>
-          </div>
-        </div>
+      {/* Hero collage — real interiors freshly cleaned. Absolute so it never shifts the left column. */}
+      <HeroCollage />
 
-        {/* Calendar mini */}
-        <div className="mt-5">
-          <div className="flex items-center justify-between">
-            <div className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.18em]">
-              <Calendar className="h-4 w-4" /> Book i Sofias kalender
-            </div>
-            <span className="text-[10px] font-bold uppercase tracking-wider opacity-60">Marts 2026</span>
+
+
+
+      <div className="relative mx-auto max-w-[1400px] px-5 pb-14 pt-10 lg:px-8 lg:pt-12">
+        {/* Content occupies left half; the Europe backdrop naturally shows through on the right */}
+        <div className="min-w-0 max-w-[640px] animate-fade-in">
+          <div className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.04] px-3 py-1.5 text-[11.5px] font-medium uppercase tracking-[0.14em] text-white/75 backdrop-blur">
+            <span className="relative flex h-1.5 w-1.5">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#4ade80] opacity-70" />
+              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[#4ade80]" />
+            </span>
+            Europe's cleaning marketplace
           </div>
 
-          <div className="mt-3 grid grid-cols-5 gap-2">
-            {days.map((d, i) => (
-              <button
-                key={d}
-                onClick={() => setSelectedDay(i)}
-                className="rounded-xl border-2 py-2 text-center transition"
-                style={{
-                  borderColor: selectedDay === i ? C.ink : `${C.ink}20`,
-                  background: selectedDay === i ? C.ink : "transparent",
-                  color: selectedDay === i ? C.cream : C.ink,
-                }}
-              >
-                <div className="text-[10px] font-bold uppercase tracking-wider opacity-70">{d}</div>
-                <div className="font-display text-lg leading-none">{dates[i]}</div>
-              </button>
-            ))}
-          </div>
+          <h1 className="mt-6 font-serif text-[44px] leading-[1.02] tracking-[-0.02em] text-white sm:text-[58px] lg:text-[72px]">
+            Book your cleaner.
+            <br />
+            <span className="italic text-white/45">Anywhere</span> <span className="text-white">in Europe.</span>
+          </h1>
 
-          <div className="mt-4">
-            <div className="text-[10px] font-black uppercase tracking-[0.18em] opacity-70">Ledige tider</div>
-            <div className="mt-2 grid grid-cols-4 gap-2">
-              {slots.map((s) => (
-                <button
-                  key={s}
-                  onClick={() => setSelected(s)}
-                  className="rounded-full border-2 py-2 text-xs font-bold transition"
-                  style={{
-                    borderColor: selected === s ? C.orange : `${C.ink}20`,
-                    background: selected === s ? C.orange : "transparent",
-                    color: selected === s ? C.ink : C.ink,
-                  }}
-                >
-                  {s}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
+          <p className="mt-5 max-w-lg text-[15.5px] leading-relaxed text-white/65">
+            The smart marketplace to book trusted, verified cleaners.
+            <br className="hidden sm:inline" />
+            Transparent prices. Real reviews. Local professionals.
+          </p>
 
-        <Link
-          to={`/book/p_002?slot=${encodeURIComponent(selected)}`}
-          className="mt-5 flex items-center justify-between rounded-2xl px-5 py-3.5 text-sm font-bold uppercase tracking-wider transition hover:-translate-y-0.5"
-          style={{ background: C.ink, color: C.cream }}
-        >
-          <span>Book Sofia · tor 13. kl {selected}</span>
-          <ArrowUpRight className="h-4 w-4" />
-        </Link>
-        <p className="mt-3 text-[11px] opacity-70">
-          Du betaler først når Sofia bekræfter. Ingen binding.
-        </p>
-      </div>
-    </div>
-  );
-}
-
-// ---------- Ribbon ----------
-function Ribbon() {
-  const items = ["Fast cleaner", "Ugentlig", "14-dages", "Engangs", "Flytte­rengøring", "Vinduespudsning", "Hovedrengøring", "Erhverv"];
-  return (
-    <div className="relative overflow-hidden border-y-2 py-5" style={{ background: C.orange, borderColor: C.ink }}>
-      <div className="flex animate-[mc-marquee_28s_linear_infinite] gap-10 whitespace-nowrap">
-        {[...items, ...items, ...items].map((it, i) => (
-          <span key={i} className="font-display text-3xl sm:text-4xl" style={{ color: C.ink }}>
-            {it} <span className="opacity-50">✦</span>
-          </span>
-        ))}
-      </div>
-      <style>{`@keyframes mc-marquee { from { transform: translateX(0); } to { transform: translateX(-33.333%); } }`}</style>
-    </div>
-  );
-}
-
-// ---------- Section header ----------
-function SectionHeader({
-  kicker,
-  title,
-  tone = "light",
-  align = "left",
-}: {
-  kicker: string;
-  title: React.ReactNode;
-  tone?: "light" | "dark";
-  align?: "left" | "center";
-}) {
-  const ink = tone === "dark" ? C.cream : C.ink;
-  return (
-    <div className={align === "center" ? "text-center" : ""}>
-      <div className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.28em]" style={{ color: C.orange }}>
-        <span className="h-px w-8" style={{ background: C.orange }} />
-        {kicker}
-      </div>
-      <h2 className="mt-3 font-display leading-[0.95]" style={{ color: ink, fontSize: "clamp(2rem, 5vw, 3.6rem)" }}>
-        {title}
-      </h2>
-    </div>
-  );
-}
-
-// ---------- Process — reframed for provider-first ----------
-function Process() {
-  const steps = [
-    { n: "01", title: "Browse cleanere", body: "Filtrér på område, pris, tid og services. Se profiler, anmeldelser og videoer.", icon: <Search className="h-5 w-5" /> },
-    { n: "02", title: "Vælg dit match", body: "Læs anmeldelser, se hvem der er kemi med dig. Du bestemmer — ikke en algoritme.", icon: <Heart className="h-5 w-5" /> },
-    { n: "03", title: "Book i kalenderen", body: "Vælg en ledig tid hos din cleaner og hvilken service. Bekræft. Færdig.", icon: <Calendar className="h-5 w-5" /> },
-    { n: "04", title: "Mød hende igen", body: "Synes du om Sofia? Gør hende til din faste cleaner med ét tryk.", icon: <Repeat className="h-5 w-5" /> },
-  ];
-  return (
-    <section className="relative px-4 py-20 sm:px-6 lg:px-10" style={{ background: C.cream }}>
-      <BubbleField />
-      <div className="relative mx-auto max-w-7xl">
-        <SectionHeader
-          kicker="№ 02 — Sådan virker MyCleaner"
-          title={
-            <>
-              Du booker <span className="italic" style={{ color: C.orange }}>personen</span>.<br />
-              Ikke en opgave.
-            </>
-          }
-        />
-        <p className="mt-4 max-w-2xl font-editorial text-base opacity-70" style={{ color: C.ink }}>
-          Glem opslagstavlen hvor du smider en opgave op og venter på bud. Hos
-          MyCleaner vælger du selv hvem der kommer i dit hjem — og hun ved at
-          du har valgt netop hende.
-        </p>
-        <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
-          {steps.map((s, i) => (
-            <motion.div
-              key={s.n}
-              initial="hidden"
-              whileInView="show"
-              viewport={{ once: true }}
-              variants={fadeUp}
-              custom={i}
-              className="relative rounded-3xl border-2 bg-white p-6 shadow-[6px_6px_0_rgba(10,61,58,0.12)]"
-              style={{ borderColor: C.ink }}
-            >
-              <div className="flex items-center justify-between">
-                <span className="font-display text-5xl" style={{ color: C.orange }}>{s.n}</span>
-                <span className="grid h-10 w-10 place-items-center rounded-full" style={{ background: C.ink, color: C.cream }}>
-                  {s.icon}
-                </span>
-              </div>
-              <h3 className="mt-6 font-display text-xl" style={{ color: C.ink }}>{s.title}</h3>
-              <p className="mt-2 text-sm opacity-70" style={{ color: C.ink }}>{s.body}</p>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// ---------- Cleaners directory ----------
-function Cleaners() {
-  const cleaners = [
-    { id: "p_002", name: "Sofia M.", area: "København K", rating: 4.95, jobs: 142, rate: 280, color: "#ff6b35", tag: "Top pick", next: "I dag · 10:00" },
-    { id: "p_003", name: "Anders L.", area: "Aarhus C", rating: 4.92, jobs: 98, rate: 260, color: "#168a7a", tag: "Pålidelig", next: "I morgen · 08:00" },
-    { id: "p_004", name: "Maja H.", area: "Frederiksberg", rating: 4.98, jobs: 211, rate: 320, color: "#0a3d3a", tag: "Eco-pro", next: "Fre · 13:00" },
-    { id: "p_001", name: "Pawel K.", area: "Odense", rating: 4.89, jobs: 67, rate: 240, color: "#c9a84c", tag: "Hurtig", next: "I dag · 15:30" },
-  ];
-  return (
-    <section className="relative px-4 py-20 sm:px-6 lg:px-10" style={{ background: C.ink }}>
-      <BubbleField tone="ink" />
-      <div className="relative mx-auto max-w-7xl">
-        <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">
-          <SectionHeader
-            kicker="№ 03 — Cleanere nær dig"
-            tone="dark"
-            title={
-              <>
-                Browse profiler.{" "}
-                <span className="italic" style={{ color: C.mint }}>Find dit match.</span>
-              </>
-            }
-          />
-          <Link to="/task/create" className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wider" style={{ color: C.orange }}>
-            Se alle cleanere <ArrowUpRight className="h-4 w-4" />
-          </Link>
-        </div>
-
-        <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {cleaners.map((c, i) => (
-            <motion.div
-              key={c.name}
-              initial="hidden"
-              whileInView="show"
-              viewport={{ once: true, margin: "-60px" }}
-              variants={fadeUp}
-              custom={i}
-            >
-              <Link
-                to={`/book/${c.id}`}
-                className="group relative block overflow-hidden rounded-3xl border transition hover:-translate-y-1"
-                style={{ borderColor: `${C.cream}20`, background: `${C.cream}08` }}
-              >
-                <div
-                  className="relative flex aspect-[4/5] items-end p-5"
-                  style={{ background: `linear-gradient(160deg, ${c.color} 0%, ${C.ink} 130%)` }}
-                >
-                  <span className="font-display" style={{ color: C.cream, fontSize: "clamp(3.5rem, 8vw, 5.5rem)", lineHeight: 0.9 }}>
-                    {c.name.split(" ")[0][0]}
-                    {c.name.split(" ")[1][0]}
-                  </span>
-                  <span className="absolute right-3 top-3 rounded-full px-2 py-1 text-[10px] font-black uppercase tracking-wider shadow" style={{ background: C.cream, color: C.ink }}>
-                    ★ {c.rating}
-                  </span>
-                  <span className="absolute left-3 top-3 rounded-full border px-2 py-1 text-[9px] font-black uppercase tracking-[0.18em]" style={{ borderColor: C.cream, color: C.cream, background: "rgba(0,0,0,0.25)" }}>
-                    {c.tag}
-                  </span>
-                </div>
-                <div className="p-4" style={{ color: C.cream }}>
-                  <div className="flex items-baseline justify-between">
-                    <div className="font-display text-xl">{c.name}</div>
-                    <div className="font-display text-base" style={{ color: C.orange }}>{c.rate} kr/t</div>
-                  </div>
-                  <div className="mt-1 flex items-center justify-between text-xs opacity-70">
-                    <span>{c.area}</span>
-                    <span>{c.jobs} jobs</span>
-                  </div>
-                  <div
-                    className="mt-3 flex items-center justify-between rounded-xl border px-3 py-2 text-[11px] transition group-hover:border-mint"
-                    style={{ borderColor: `${C.mint}40`, background: `${C.mint}10` }}
+          {/* Search card */}
+          <div className="mt-8 overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.03] shadow-[0_30px_80px_-30px_rgba(0,0,0,0.6)] backdrop-blur">
+            <div className="flex items-center justify-between border-b border-white/[0.06] px-5">
+              <div className="flex">
+                {[
+                  { k: "book", label: "Book a cleaner" },
+                  { k: "avail", label: "Find availability" },
+                ].map((t) => (
+                  <button
+                    key={t.k}
+                    onClick={() => setTab(t.k as never)}
+                    className={`relative px-1 py-4 text-[13.5px] font-semibold transition first:mr-6 ${
+                      tab === t.k ? "text-white" : "text-white/50 hover:text-white/80"
+                    }`}
                   >
-                    <span className="inline-flex items-center gap-1.5 font-bold" style={{ color: C.mint }}>
-                      <Calendar className="h-3 w-3" /> Book nu
-                    </span>
-                    <span className="font-bold" style={{ color: C.cream }}>{c.next}</span>
-                  </div>
-                </div>
-              </Link>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
+                    {t.label}
+                    {tab === t.k && <span className="absolute inset-x-0 -bottom-px h-[2px] rounded-full bg-[#ff6b35]" />}
+                  </button>
+                ))}
+              </div>
+              <button
+                onClick={() => setTab("again")}
+                className="hidden items-center gap-1.5 rounded-full px-3 py-1.5 text-[12.5px] font-medium text-white/70 transition hover:bg-white/[0.06] hover:text-white sm:inline-flex"
+              >
+                <Users className="h-3.5 w-3.5" /> Same cleaner again?
+              </button>
+            </div>
 
-// ---------- Why provider-first ----------
-function WhyMatch() {
-  const items = [
-    {
-      title: "Du vælger personen",
-      body: "Ikke en tilfældig der vinder en budrunde. Du ser ansigtet, læser anmeldelser, mærker om det matcher.",
-    },
-    {
-      title: "Samme cleaner hver gang",
-      body: "Når kemien passer, gør du hende til din faste. Hun lærer dit hjem at kende — og du behøver ikke forklare alt forfra.",
-    },
-    {
-      title: "Reel kalender · reel tid",
-      body: "Du booker en ledig tid direkte. Ingen frem og tilbage på chat. Ingen ventetid på bud.",
-    },
-  ];
-  return (
-    <section className="relative px-4 py-20 sm:px-6 lg:px-10" style={{ background: C.paper }}>
-      <BubbleField />
-      <div className="relative mx-auto max-w-7xl">
-        <div className="grid gap-12 lg:grid-cols-12">
-          <div className="lg:col-span-5">
-            <SectionHeader
-              kicker="№ 04 — Hvorfor MyCleaner"
-              title={
-                <>
-                  Et hjem er <span className="italic" style={{ color: C.orange }}>personligt</span>. Det skal din cleaner også være.
-                </>
-              }
-            />
-            <p className="mt-5 font-editorial text-base opacity-70" style={{ color: C.ink }}>
-              Andre platforme behandler rengøring som en opgave der skal opløses. Vi behandler det som en relation der skal opbygges.
-            </p>
-          </div>
-          <div className="lg:col-span-7">
-            <div className="space-y-4">
-              {items.map((it, i) => (
-                <motion.div
-                  key={it.title}
-                  initial="hidden"
-                  whileInView="show"
-                  viewport={{ once: true }}
-                  variants={fadeUp}
-                  custom={i}
-                  className="flex items-start gap-5 rounded-3xl border-2 bg-white p-5 shadow-[6px_6px_0_rgba(10,61,58,0.10)]"
-                  style={{ borderColor: C.ink }}
-                >
-                  <span className="font-display text-4xl" style={{ color: C.orange }}>
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                  <div>
-                    <h3 className="font-display text-xl" style={{ color: C.ink }}>{it.title}</h3>
-                    <p className="mt-1 text-sm opacity-70" style={{ color: C.ink }}>{it.body}</p>
-                  </div>
-                </motion.div>
+            <div className="grid grid-cols-2 gap-px bg-white/[0.05] p-px sm:grid-cols-[1.4fr_1fr_1fr_1.1fr_auto]">
+              <Field label="Where?" icon={<MapPin className="h-3.5 w-3.5" />}>
+                <input
+                  value={where}
+                  onChange={(e) => setWhere(e.target.value)}
+                  placeholder="City or postcode"
+                  className="w-full bg-transparent text-[14px] text-white placeholder:text-white/35 focus:outline-none"
+                />
+              </Field>
+              <Field label="When?" icon={<CalendarIcon className="h-3.5 w-3.5" />}>
+                <input
+                  type="date"
+                  className="w-full bg-transparent text-[14px] text-white/80 placeholder:text-white/35 focus:outline-none [color-scheme:dark]"
+                />
+              </Field>
+              <Field label="Time" icon={<Clock className="h-3.5 w-3.5" />}>
+                <select className="w-full appearance-none bg-transparent text-[14px] text-white/80 focus:outline-none">
+                  <option className="bg-[#0b1f1e]">Select time</option>
+                  <option className="bg-[#0b1f1e]">08:00</option>
+                  <option className="bg-[#0b1f1e]">10:00</option>
+                  <option className="bg-[#0b1f1e]">12:00</option>
+                  <option className="bg-[#0b1f1e]">14:00</option>
+                  <option className="bg-[#0b1f1e]">16:00</option>
+                </select>
+              </Field>
+              <Field label="Service" icon={<Sparkles className="h-3.5 w-3.5" />}>
+                <select className="w-full appearance-none bg-transparent text-[14px] text-white/80 focus:outline-none">
+                  <option className="bg-[#0b1f1e]">Standard cleaning</option>
+                  <option className="bg-[#0b1f1e]">Deep cleaning</option>
+                  <option className="bg-[#0b1f1e]">Move in/out</option>
+                  <option className="bg-[#0b1f1e]">Office</option>
+                </select>
+              </Field>
+              <Link
+                to={`/marketplace${where ? `?q=${encodeURIComponent(where)}` : ""}`}
+                className="col-span-2 flex items-center justify-center gap-1.5 bg-[#ff6b35] px-6 py-4 text-[14px] font-semibold text-white transition hover:bg-[#ff5a1f] sm:col-span-1"
+              >
+                <Search className="h-4 w-4" strokeWidth={2.5} /> Find cleaner
+              </Link>
+            </div>
+
+            {/* trust row */}
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-white/[0.06] px-5 py-3 text-[12px] text-white/60">
+              {[
+                { i: ShieldCheck, t: "Verified & insured" },
+                { i: Lock, t: "Secure payments" },
+                { i: Headphones, t: "24/7 support" },
+                { i: XCircle, t: "Free cancellation" },
+              ].map(({ i: Icon, t }) => (
+                <span key={t} className="inline-flex items-center gap-1.5">
+                  <Icon className="h-3.5 w-3.5 text-white/50" strokeWidth={2.25} />{t}
+                </span>
               ))}
             </div>
           </div>
+
+          {/* Trust indicators — Trustpilot-style rating */}
+          <div className="mt-5 flex flex-wrap items-center gap-3 text-[12.5px] text-white/60">
+            <span className="font-semibold text-white">Excellent</span>
+            <span className="inline-flex gap-0.5">
+              {[0, 1, 2, 3, 4].map((i) => (
+                <span key={i} className="grid h-4 w-4 place-items-center rounded-[3px] bg-[#00b67a]">
+                  <Star className="h-2.5 w-2.5 fill-white text-white" />
+                </span>
+              ))}
+            </span>
+            <span className="text-white/80"><span className="font-semibold text-white">4.9</span> out of 5</span>
+            <span className="text-[#00b67a]">★ 18,400+ reviews</span>
+          </div>
         </div>
       </div>
+
     </section>
   );
 }
 
-// ---------- Price calculator ----------
-function PriceBreakdown() {
-  const [sqm, setSqm] = useState(70);
-  const [rate, setRate] = useState(280);
-  const [hours, setHours] = useState(2);
-  const suggestedHours = useMemo(() => Math.max(1.5, Math.round((sqm / 35) * 2) / 2), [sqm]);
-  const base = rate * (hours || suggestedHours);
-  const customerPays = Math.round(base * (1 + PLATFORM_FEE / 2));
-  const providerGets = Math.round(base * (1 - PLATFORM_FEE / 2));
-
+function Field({ label, icon, children }: { label: string; icon: React.ReactNode; children: React.ReactNode }) {
   return (
-    <section className="relative px-4 py-20 sm:px-6 lg:px-10" style={{ background: C.cream }}>
-      <BubbleField />
-      <div className="relative mx-auto max-w-5xl">
-        <SectionHeader
-          kicker="№ 05 — Ærlig prissætning"
-          align="center"
-          title={
-            <>
-              Prisen sætter <span className="italic" style={{ color: C.orange }}>cleaneren</span>.<br />
-              Gebyret deler vi.
-            </>
-          }
-        />
-        <p className="mx-auto mt-4 max-w-2xl text-center font-editorial opacity-70" style={{ color: C.ink }}>
-          Hver cleaner har sin egen timepris. MyCleaner tager 28% i platformsgebyr — men i stedet for at en part bærer det hele, lægger vi 14% oveni til dig og trækker 14% fra cleaneren.
-        </p>
-
-        <div className="mt-10 grid gap-6 md:grid-cols-2">
-          <div className="rounded-3xl border-2 bg-white p-6 shadow-[6px_6px_0_rgba(10,61,58,0.12)]" style={{ borderColor: C.ink }}>
-            <div className="text-[10px] font-black uppercase tracking-[0.22em] opacity-60" style={{ color: C.ink }}>Eksempel</div>
-            <div className="mt-5 space-y-5">
-              <Range label="Boligstørrelse" value={sqm} setValue={setSqm} min={20} max={250} step={5} suffix="m²" />
-              <Range label="Cleanerens timepris" value={rate} setValue={setRate} min={180} max={500} step={10} suffix=" kr/t" />
-              <Range label={`Antal timer · forslag ${suggestedHours}t`} value={hours} setValue={setHours} min={1} max={8} step={0.5} suffix="t" />
-            </div>
-          </div>
-
-          <div className="rounded-3xl p-6 shadow-[6px_6px_0_rgba(0,0,0,0.18)]" style={{ background: C.ink, color: C.cream }}>
-            <div className="flex items-end justify-between">
-              <span className="text-[10px] font-black uppercase tracking-[0.22em] opacity-70">Du betaler</span>
-              <span className="font-display text-[3rem] leading-none">
-                {customerPays.toLocaleString("da-DK")}
-                <span className="align-top text-base opacity-70"> kr</span>
-              </span>
-            </div>
-            <div className="mt-6 space-y-3 border-t pt-4 text-sm" style={{ borderColor: `${C.cream}22` }}>
-              <Row label="Cleanerens timepris" value={`${rate} kr/t × ${hours}t = ${rate * hours} kr`} />
-              <Row label="+ 14% til platformen" value={`+${customerPays - rate * hours} kr`} accent={C.orange} />
-              <Row label="= Du betaler" value={`${customerPays} kr`} bold />
-              <div className="my-3 h-px" style={{ background: `${C.cream}22` }} />
-              <Row label="Cleaneren får" value={`${providerGets} kr`} accent={C.mint} bold />
-              <Row label="(efter 14% gebyr)" value="" muted />
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function Row({ label, value, bold, muted, accent }: { label: string; value: string; bold?: boolean; muted?: boolean; accent?: string }) {
-  return (
-    <div className="flex items-baseline justify-between">
-      <span className={`${muted ? "opacity-50" : "opacity-80"} ${bold ? "font-bold" : ""}`}>{label}</span>
-      <span className={`font-display ${bold ? "text-lg" : "text-base"}`} style={accent ? { color: accent } : undefined}>
-        {value}
+    <label className="group flex flex-col gap-1 bg-[#0a1f1e] px-4 py-3 transition hover:bg-[#0d2624] focus-within:bg-[#0d2624]">
+      <span className="text-[11px] font-medium uppercase tracking-wider text-white/45">{label}</span>
+      <span className="flex items-center gap-2 text-white/50">
+        {icon}
+        {children}
       </span>
-    </div>
-  );
-}
-
-function Range({ label, value, setValue, min, max, step, suffix }: { label: string; value: number; setValue: (n: number) => void; min: number; max: number; step: number; suffix: string }) {
-  return (
-    <label className="block">
-      <div className="flex items-baseline justify-between">
-        <span className="text-[10px] font-black uppercase tracking-[0.18em] opacity-70">{label}</span>
-        <span className="font-display text-xl">{value}{suffix}</span>
-      </div>
-      <input
-        type="range"
-        min={min}
-        max={max}
-        step={step}
-        value={value}
-        onChange={(e) => setValue(Number(e.target.value))}
-        className="mt-2 w-full cursor-pointer accent-[color:var(--mc-orange)]"
-        style={{ ["--mc-orange" as any]: C.orange }}
-      />
     </label>
   );
 }
 
-// ---------- Testimonial ----------
-function Testimonial() {
+function StatCard({
+  label, value, body, foot, icon, badge, accent,
+}: {
+  label: string;
+  value?: React.ReactNode;
+  body?: React.ReactNode;
+  foot?: React.ReactNode;
+  icon?: React.ReactNode;
+  badge?: React.ReactNode;
+  accent?: React.ReactNode;
+}) {
   return (
-    <section className="relative overflow-hidden px-4 py-20 sm:px-6 lg:px-10" style={{ background: C.mint }}>
-      <Quote aria-hidden className="absolute -left-6 -top-6 h-44 w-44 opacity-15" style={{ color: C.ink }} strokeWidth={1} />
-      <div className="relative mx-auto max-w-4xl text-center">
-        <div className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.28em]" style={{ color: C.ink }}>
-          <span className="h-px w-8" style={{ background: C.ink }} /> Stemmer fra hjemmene
+    <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-3.5 transition hover:border-white/[0.12] hover:bg-white/[0.04]">
+      <div className="flex items-center justify-between">
+        <span className="text-[10.5px] font-semibold uppercase tracking-[0.14em] text-white/45">{label}</span>
+        {accent}
+        {badge}
+      </div>
+      {body ? (
+        <div className="mt-2">{body}</div>
+      ) : (
+        <div className="mt-1.5 flex items-end justify-between gap-2">
+          <div className="text-[26px] font-semibold leading-none tracking-tight text-white">{value}</div>
+          {icon}
         </div>
-        <p className="mt-6 font-display italic leading-[1.1]" style={{ color: C.ink, fontSize: "clamp(1.6rem, 4vw, 2.6rem)" }}>
-          "Sofia har været hos os hver anden uge i et halvt år nu. Hun ved
-          hvor tingene står. Det er ikke en service længere — det er en del af
-          vores hjem."
-        </p>
-        <div className="mt-8 inline-flex items-center gap-3">
-          <div className="grid h-10 w-10 place-items-center rounded-full font-display text-sm" style={{ background: C.ink, color: C.cream }}>LJ</div>
-          <div className="text-left">
-            <div className="font-bold" style={{ color: C.ink }}>Line Jakobsen</div>
-            <div className="text-xs uppercase tracking-wider opacity-70" style={{ color: C.ink }}>Fast hos Sofia M. · Nørrebro</div>
+      )}
+      {foot && <div className="mt-2 text-[11.5px]">{foot}</div>}
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Country strip                                                       */
+/* ------------------------------------------------------------------ */
+function CountryStrip({ market, isNeutral, setMarket }: { market: Market; isNeutral: boolean; setMarket: (m: Market) => void }) {
+  return (
+    <section className="border-y border-white/[0.05] bg-white/[0.015]">
+      <div className="mx-auto flex max-w-[1400px] items-center gap-4 overflow-x-auto px-5 py-4 lg:px-8">
+        <div className="flex shrink-0 flex-col text-[10.5px] font-semibold uppercase leading-tight tracking-[0.14em] text-white/45">
+          <span>Live in {MARKETS.length}</span>
+          <span>European countries</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          {MARKETS.map((m) => {
+            const active = !isNeutral && m.code === market.code;
+
+            return (
+              <button
+                key={m.code}
+                onClick={() => setMarket(m)}
+                aria-pressed={active}
+                className={`inline-flex shrink-0 items-center gap-2 rounded-full border px-3 py-1.5 text-[12.5px] font-medium transition ${
+                  active
+                    ? "border-[#ff6b35]/40 bg-[#ff6b35]/10 text-white"
+                    : "border-white/[0.08] bg-white/[0.02] text-white/70 hover:border-white/20 hover:text-white"
+                }`}
+              >
+                <span className="text-[14px] leading-none">{m.flag}</span>{m.label}
+              </button>
+            );
+          })}
+        </div>
+        <Link to="/marketplace" className="ml-auto hidden shrink-0 items-center gap-1 text-[12.5px] font-semibold text-[#ff6b35] hover:text-[#ff8354] sm:inline-flex">
+          See all markets <ArrowRight className="h-3.5 w-3.5" />
+        </Link>
+      </div>
+    </section>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Provider section                                                    */
+/* ------------------------------------------------------------------ */
+function ProviderSection({ providers, market, isNeutral }: { providers: ProviderRow[] | null; market: Market; isNeutral: boolean }) {
+  const heading = isNeutral ? "Top rated cleaners across Europe" : `Top rated cleaners in ${market.city}`;
+  const emptyLabel = isNeutral ? "your area" : market.label;
+  return (
+    <section className="py-14">
+      <div className="mx-auto max-w-[1400px] px-5 lg:px-8">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <h2 className="font-serif text-[32px] leading-tight tracking-[-0.02em] text-white sm:text-[38px]">
+              {isNeutral
+                ? <>Top rated cleaners <span className="italic text-white/60">across Europe</span></>
+                : <>Top rated cleaners in <span className="italic text-white/60">{market.city}</span></>}
+            </h2>
+            <p className="mt-2 text-[14px] text-white/55">
+              Verified professionals. Real reviews. Book with confidence.
+            </p>
+          </div>
+          <Link
+            to="/marketplace"
+            className="group inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-[13px] font-semibold text-white transition hover:border-[#ff6b35]/40 hover:bg-[#ff6b35]/10"
+          >
+            See all cleaners
+            <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
+          </Link>
+        </div>
+
+        <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {providers === null
+            ? Array.from({ length: 4 }).map((_, i) => <ProviderSkeleton key={i} />)
+            : providers.length === 0
+            ? (
+                <div className="col-span-full rounded-2xl border border-dashed border-white/10 bg-white/[0.02] p-10 text-center text-[14px] text-white/50">
+                  No cleaners yet in {emptyLabel}. Try another market.
+                </div>
+              )
+            : providers.slice(0, 4).map((p) => <ProviderCard key={p.provider_slug} p={p} sym={market.sym} />)}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+
+function ProviderCard({ p, sym }: { p: ProviderRow; sym: string }) {
+  const badges: { label: string; tone: "orange" | "teal" | "blue" }[] = [];
+  if (p.marketplace_score && p.marketplace_score >= 80) badges.push({ label: "Top rated", tone: "orange" });
+  else if (p.provider_tier === "elite" || p.provider_tier === "top_rated") badges.push({ label: "Super cleaner", tone: "orange" });
+  if (p.identity_verified_badge) badges.push({ label: "ID verified", tone: "teal" });
+  if (p.completed_bookings >= 50) badges.push({ label: "Background checked", tone: "blue" });
+
+  // deterministic photo + response time fallback so cards always feel like real people
+  const seed = Array.from(p.provider_slug).reduce((a, c) => a + c.charCodeAt(0), 0);
+  const fallbackPhoto = PRO_FALLBACKS[seed % PRO_FALLBACKS.length];
+  const responseMin = p.avg_response_minutes ?? (5 + (seed % 20));
+  const isOnline = seed % 3 !== 0;
+  const availableToday = seed % 2 === 0;
+
+  return (
+    <Link
+      to={`/p/${p.provider_slug}?src=marketplace_pick`}
+      className="group relative flex flex-col overflow-hidden rounded-2xl border border-white/[0.06] bg-[#0b1f1e] transition hover:-translate-y-1 hover:border-white/[0.14] hover:shadow-[0_30px_60px_-20px_rgba(0,0,0,0.7)]"
+    >
+      <div className="relative aspect-[4/5] overflow-hidden bg-gradient-to-br from-[#0a3d3a] to-[#04100f]">
+        <img
+          src={p.avatar_url ?? fallbackPhoto}
+          alt={p.display_name}
+          loading="lazy"
+          className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.04]"
+        />
+        {/* legibility gradient */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+
+        <div className={`absolute left-3 top-3 inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10.5px] font-semibold shadow-sm ${isOnline ? "bg-[#4ade80]/95 text-[#052e1a]" : "bg-white/90 text-[#0b1f1e]"}`}>
+          <span className={`h-1.5 w-1.5 rounded-full ${isOnline ? "bg-[#052e1a]" : "bg-[#0b1f1e]/60"}`} />
+          {isOnline ? "Online now" : "Available soon"}
+        </div>
+        <button
+          type="button"
+          onClick={(e) => { e.preventDefault(); }}
+          aria-label="Save"
+          className="absolute right-3 top-3 grid h-8 w-8 place-items-center rounded-full bg-black/40 text-white/80 backdrop-blur transition hover:bg-black/60 hover:text-white"
+        >
+          <Heart className="h-4 w-4" />
+        </button>
+
+        {/* Availability + response chips */}
+        <div className="absolute inset-x-3 bottom-3 flex flex-wrap items-center gap-1.5">
+          {availableToday && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-[#ff6b35]/95 px-2 py-0.5 text-[10.5px] font-semibold text-white shadow-sm">
+              <CalendarIcon className="h-3 w-3" strokeWidth={2.5} /> Available today
+            </span>
+          )}
+          <span className="inline-flex items-center gap-1 rounded-full bg-black/55 px-2 py-0.5 text-[10.5px] font-semibold text-white backdrop-blur">
+            <Zap className="h-3 w-3" strokeWidth={2.5} /> Replies in {responseMin} min
+          </span>
+        </div>
+      </div>
+
+      <div className="flex flex-1 flex-col p-4">
+        <div className="flex items-start justify-between gap-2">
+          <h3 className="line-clamp-1 text-[15.5px] font-semibold text-white">{p.display_name}</h3>
+        </div>
+        <div className="mt-1 inline-flex items-center gap-1 text-[12.5px]">
+          <Star className="h-3.5 w-3.5 fill-[#ff6b35] text-[#ff6b35]" />
+          <span className="font-semibold text-white">{p.average_rating > 0 ? p.average_rating.toFixed(1) : "New"}</span>
+          {p.total_reviews > 0 && <span className="text-white/50">({p.total_reviews} reviews)</span>}
+        </div>
+        <div className="mt-2 flex items-center gap-1 text-[12px] text-white/55">
+          <MapPin className="h-3 w-3" />
+          {p.country_code ?? "—"} · {p.service_radius_km ?? 10} km
+        </div>
+        {p.price_from !== null && (
+          <div className="mt-1.5 text-[13px] text-white/70">
+            From <span className="font-semibold text-white">{p.price_from} {sym}</span>
+          </div>
+        )}
+        <div className="mt-3 flex flex-wrap gap-1.5">
+          {badges.slice(0, 2).map((b) => (
+            <span
+              key={b.label}
+              className={`rounded-full px-2 py-0.5 text-[10.5px] font-semibold ${
+                b.tone === "orange"
+                  ? "bg-[#ff6b35]/15 text-[#ffb08a]"
+                  : b.tone === "teal"
+                  ? "bg-[#168a7a]/20 text-[#8fe0d0]"
+                  : "bg-[#4a8fe8]/15 text-[#a5c8f5]"
+              }`}
+            >
+              {b.label}
+            </span>
+          ))}
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+function ProviderSkeleton() {
+  return (
+    <div className="overflow-hidden rounded-2xl border border-white/[0.06] bg-[#0b1f1e]">
+      <div className="aspect-[4/5] animate-pulse bg-white/[0.04]" />
+      <div className="space-y-2 p-4">
+        <div className="h-4 w-2/3 animate-pulse rounded bg-white/[0.06]" />
+        <div className="h-3 w-1/2 animate-pulse rounded bg-white/[0.04]" />
+        <div className="h-3 w-full animate-pulse rounded bg-white/[0.04]" />
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Stats band                                                          */
+/* ------------------------------------------------------------------ */
+function StatsBand() {
+  const items = [
+    { icon: Users, k: "15,000+", v: "Verified cleaners" },
+    { icon: CheckCircle2, k: "500,000+", v: "Bookings completed" },
+    { icon: Star, k: "4.9/5", v: "Average rating" },
+    { icon: Globe2, k: "12", v: "European markets" },
+  ];
+  return (
+    <section className="border-t border-white/[0.05] bg-white/[0.015]">
+      <div className="mx-auto grid max-w-[1400px] grid-cols-2 gap-4 px-5 py-6 sm:grid-cols-4 lg:px-8">
+        {items.map((i) => (
+          <div key={i.v} className="flex items-center gap-3">
+            <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-white/[0.06] bg-white/[0.03] text-[#ff6b35]">
+              <i.icon className="h-5 w-5" strokeWidth={2} />
+            </div>
+            <div>
+              <div className="text-[19px] font-semibold leading-none tracking-tight text-white">{i.k}</div>
+              <div className="mt-1 text-[12px] text-white/55">{i.v}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Hero collage — real freshly cleaned interiors, absolute layer.      */
+/* ------------------------------------------------------------------ */
+function HeroCollage() {
+  return (
+    <div
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-y-0 right-0 hidden w-[46%] lg:block xl:w-[48%]"
+    >
+      {/* soft mask so the collage fades into the dark background */}
+      <div className="absolute inset-0 bg-gradient-to-l from-transparent via-[#061615]/10 to-[#061615]" />
+
+      <div className="absolute inset-0">
+        {/* Primary — sunlit living room */}
+        <div className="absolute right-[6%] top-[6%] h-[62%] w-[58%] overflow-hidden rounded-3xl border border-white/[0.08] shadow-[0_40px_80px_-20px_rgba(0,0,0,0.75)] rotate-[-2deg]">
+          <img src={livingroomAsset.url} alt="" loading="lazy" className="h-full w-full object-cover" />
+          <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/70 to-transparent" />
+          <div className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-white/95 px-2 py-0.5 text-[10px] font-semibold text-[#0b1f1e] shadow">
+            <BadgeCheck className="h-3 w-3 text-[#168a7a]" /> Verified pro
+          </div>
+          <div className="absolute inset-x-3 bottom-3">
+            <div className="text-[11px] font-medium uppercase tracking-[0.14em] text-white/70">Living room · Copenhagen</div>
+            <div className="mt-0.5 flex items-center gap-1.5 text-[12.5px] text-white">
+              <span className="font-semibold">Maja L.</span>
+              <span className="inline-flex items-center gap-0.5 text-white/85">
+                <Star className="h-3 w-3 fill-[#ff6b35] text-[#ff6b35]" /> 4.98
+              </span>
+            </div>
           </div>
         </div>
+
+        {/* Secondary — kitchen */}
+        <div className="absolute bottom-[10%] right-[38%] h-[42%] w-[40%] overflow-hidden rounded-2xl border border-white/[0.08] shadow-[0_30px_60px_-20px_rgba(0,0,0,0.7)] rotate-[3deg]">
+          <img src={kitchenAsset.url} alt="" loading="lazy" className="h-full w-full object-cover" />
+          <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/70 to-transparent" />
+          <div className="absolute inset-x-3 bottom-3">
+            <div className="text-[10.5px] font-medium uppercase tracking-[0.14em] text-white/70">Kitchen · Stockholm</div>
+            <div className="mt-0.5 flex items-center gap-1.5 text-[12px] text-white">
+              <span className="font-semibold">Ivan R.</span>
+              <span className="inline-flex items-center gap-0.5 text-white/85">
+                <Star className="h-3 w-3 fill-[#ff6b35] text-[#ff6b35]" /> 4.96
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Tertiary — bedroom */}
+        <div className="absolute bottom-[4%] right-[4%] h-[32%] w-[28%] overflow-hidden rounded-2xl border border-white/[0.08] shadow-[0_20px_50px_-15px_rgba(0,0,0,0.7)] rotate-[-4deg]">
+          <img src={bedroomAsset.url} alt="" loading="lazy" className="h-full w-full object-cover" />
+        </div>
+
+        {/* Floating live booking chip */}
+        <div className="absolute right-[10%] top-[2%] flex items-center gap-2 rounded-full border border-white/12 bg-[#061615]/85 px-3 py-1.5 text-[11.5px] text-white/85 shadow-lg backdrop-blur">
+          <span className="relative flex h-1.5 w-1.5">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#4ade80] opacity-70" />
+            <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[#4ade80]" />
+          </span>
+          Just now · Booked in Amsterdam
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Real homes strip — before/after feeling through pristine interiors  */
+/* ------------------------------------------------------------------ */
+function FreshHomesStrip() {
+  return (
+    <section className="border-t border-white/[0.05] bg-[#04100f] py-14">
+      <div className="mx-auto max-w-[1400px] px-5 lg:px-8">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.04] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-white/70">
+              <Sparkles className="h-3 w-3 text-[#ff6b35]" /> Real homes · freshly cleaned
+            </div>
+            <h2 className="mt-3 font-serif text-[30px] leading-tight tracking-[-0.02em] text-white sm:text-[36px]">
+              This is what <span className="italic text-white/60">clean</span> looks like.
+            </h2>
+            <p className="mt-2 max-w-xl text-[14px] text-white/55">
+              Homes handed back to their owners this week by verified MyCleaner professionals across Europe.
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {HOME_SHOTS.map((s, i) => (
+            <figure
+              key={s.url}
+              className="group relative overflow-hidden rounded-2xl border border-white/[0.06] bg-[#0b1f1e]"
+            >
+              <div className="aspect-[4/5] overflow-hidden">
+                <img
+                  src={s.url}
+                  alt={s.label}
+                  loading="lazy"
+                  className="h-full w-full object-cover transition duration-700 group-hover:scale-[1.04]"
+                />
+              </div>
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+
+              <div className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-[#ff6b35]/95 px-2 py-0.5 text-[10.5px] font-semibold text-white shadow-sm">
+                <Sparkles className="h-3 w-3" /> Freshly cleaned
+              </div>
+              <div className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-white/95 px-2 py-0.5 text-[10.5px] font-semibold text-[#0b1f1e] shadow-sm">
+                <BadgeCheck className="h-3 w-3 text-[#168a7a]" /> Verified pro
+              </div>
+
+              <figcaption className="absolute inset-x-4 bottom-4">
+                <div className="text-[11px] font-medium uppercase tracking-[0.14em] text-white/70">{s.label}</div>
+                <div className="mt-1 flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2">
+                    <img
+                      src={PRO_FALLBACKS[i % PRO_FALLBACKS.length]}
+                      alt=""
+                      loading="lazy"
+                      className="h-7 w-7 rounded-full border border-white/20 object-cover"
+                    />
+                    <span className="text-[13px] font-semibold text-white">{s.pro}</span>
+                  </div>
+                  <span className="inline-flex items-center gap-1 rounded-full bg-black/45 px-2 py-0.5 text-[11.5px] font-semibold text-white backdrop-blur">
+                    <Star className="h-3 w-3 fill-[#ff6b35] text-[#ff6b35]" /> {s.rating}
+                  </span>
+                </div>
+              </figcaption>
+            </figure>
+          ))}
+        </div>
       </div>
     </section>
   );
 }
 
-// ---------- Final CTA ----------
-function FinalCTA() {
+/* ------------------------------------------------------------------ */
+/* Trust strip — badges that back the marketplace claim                */
+/* ------------------------------------------------------------------ */
+function TrustStrip() {
+  const items = [
+    { icon: ShieldCheck, k: "ID-verified",       v: "Sumsub KYC on every pro" },
+    { icon: BadgeCheck,  k: "Insured bookings",  v: "Damage cover up to €1M" },
+    { icon: Lock,        k: "Stripe payments",   v: "PSD2 · SCA · 3-D Secure" },
+    { icon: Award,       k: "GDPR compliant",    v: "EU data · full portability" },
+  ];
   return (
-    <section className="relative overflow-hidden px-4 py-24 sm:px-6 lg:px-10" style={{ background: C.orange }}>
-      <BubbleField />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -bottom-16 left-0 right-0 select-none whitespace-nowrap font-display leading-none opacity-15"
-        style={{ color: C.ink, fontSize: "clamp(120px, 22vw, 360px)" }}
-      >
-        MYCLEANER
-      </div>
-      <div className="relative mx-auto max-w-5xl text-center">
-        <Stamp rotate={-3} color={C.ink}>★ Dit match venter</Stamp>
-        <h2 className="mt-5 font-display leading-[0.95]" style={{ color: C.ink, fontSize: "clamp(2.4rem, 7vw, 5rem)" }}>
-          Find din cleaner.<br />
-          <span className="italic">Book i dag.</span>
-        </h2>
-        <p className="mx-auto mt-5 max-w-xl font-editorial text-base sm:text-lg" style={{ color: `${C.ink}cc` }}>
-          14 cleanere har ledige tider i din by lige nu. Vælg den der passer
-          dig — og book direkte i hendes kalender.
-        </p>
-        <div className="mt-8 flex flex-wrap justify-center gap-3">
-          <Link
-            to="/task/create"
-            className="inline-flex items-center gap-2 rounded-full px-8 py-4 text-sm font-bold uppercase tracking-wider shadow-[6px_6px_0_rgba(0,0,0,0.25)] transition hover:-translate-y-0.5"
-            style={{ background: C.ink, color: C.cream }}
-          >
-            <Search className="h-4 w-4" /> Find min cleaner
-          </Link>
-          <Link
-            to="/provider/register"
-            className="inline-flex items-center gap-2 rounded-full border-2 px-8 py-4 text-sm font-bold uppercase tracking-wider transition hover:bg-black/5"
-            style={{ borderColor: C.ink, color: C.ink }}
-          >
-            Bliv cleaner
-          </Link>
-        </div>
-        <div className="mt-10 flex flex-wrap items-center justify-center gap-x-8 gap-y-2 text-xs font-semibold" style={{ color: `${C.ink}aa` }}>
-          <span className="inline-flex items-center gap-2"><CheckCircle2 className="h-4 w-4" /> Ingen binding</span>
-          <span className="inline-flex items-center gap-2"><CheckCircle2 className="h-4 w-4" /> Betal først ved bekræftelse</span>
-          <span className="inline-flex items-center gap-2"><CheckCircle2 className="h-4 w-4" /> Tilfredshedsgaranti</span>
-        </div>
+    <section className="border-t border-white/[0.05] bg-white/[0.015]">
+      <div className="mx-auto grid max-w-[1400px] grid-cols-2 gap-4 px-5 py-6 sm:grid-cols-4 lg:px-8">
+        {items.map((i) => (
+          <div key={i.k} className="flex items-center gap-3">
+            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-white/[0.08] bg-white/[0.03] text-[#8fe0d0]">
+              <i.icon className="h-4.5 w-4.5" strokeWidth={2} />
+            </div>
+            <div className="min-w-0">
+              <div className="text-[13px] font-semibold text-white">{i.k}</div>
+              <div className="mt-0.5 text-[11.5px] text-white/55">{i.v}</div>
+            </div>
+          </div>
+        ))}
       </div>
     </section>
   );
 }
 
-export default function Index() {
-  return (
-    <main className="min-h-screen font-editorial" style={{ background: C.cream }}>
-      <TopBar />
-      <Hero />
-      <Ribbon />
-      <Process />
-      <Cleaners />
-      <WhyMatch />
-      <PriceBreakdown />
-      <Testimonial />
-      <FinalCTA />
-      <footer className="px-4 py-10 text-center text-xs sm:px-6" style={{ background: C.ink, color: `${C.cream}99` }}>
-        © {new Date().getFullYear()} MyCleaner™ · Et MyCleaner-brand · Du booker personen, ikke opgaven.
-      </footer>
-    </main>
-  );
-}

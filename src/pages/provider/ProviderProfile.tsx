@@ -15,6 +15,7 @@ import { StripeConnectStatusWidget } from "@/components/provider/StripeConnectSt
 import { IdentityVerificationCard } from "@/components/identity/IdentityVerificationCard";
 import { ProviderScorePreview } from "@/components/provider/ProviderScorePreview";
 import { ProviderTaxProfileTab } from "@/components/profile/ProviderTaxProfileTab";
+import ProviderShareCard from "@/components/provider/ProviderShareCard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -148,7 +149,7 @@ export default function ProviderProfilePage() {
               {pp.provider_slug && pp.is_public && (
                 <>
                   <span>·</span>
-                  <Link to={`/c/${pp.provider_slug}`} className="inline-flex items-center gap-1 text-teal-700 hover:underline">
+                  <Link to={`/p/${pp.provider_slug}`} className="inline-flex items-center gap-1 text-teal-700 hover:underline">
                     Se offentlig profil <ExternalLink className="h-3 w-3" />
                   </Link>
                 </>
@@ -236,7 +237,7 @@ function BusinessTab({ pp, patch }: { pp: PP; patch: (k: OwnerCol, v: any) => vo
     <Section title="Virksomhedsprofil" desc="Offentlig bio vises på marketplace. Skatte-/CVR-oplysninger håndteres i Skat-fanen.">
       <div><Label>Offentlig bio</Label>
         <Textarea rows={4} value={pp.public_bio ?? ""} onChange={(e) => patch("public_bio", e.target.value)} maxLength={1500} />
-        <p className="mt-1 text-xs opacity-60">Vises på /c/{pp.provider_slug ?? "…"}</p></div>
+        <p className="mt-1 text-xs opacity-60">Vises på /p/{pp.provider_slug ?? "…"}</p></div>
       <div><Label>År med erfaring</Label>
         <Input type="number" min={0} max={60} className="w-32" value={pp.years_experience ?? ""}
           onChange={(e) => patch("years_experience", e.target.value === "" ? null : Number(e.target.value))} /></div>
@@ -510,6 +511,10 @@ function SettingsTab({ pp, patch, onReload }: { pp: PP; patch: (k: OwnerCol, v: 
 
   return (
     <div>
+      <Section title="Del din profil" desc="Dit personlige link og QR-kode til print eller sociale medier.">
+        <ProviderShareCard slug={pp.provider_slug} isPublic={!!pp.is_public} onRenamed={onReload} />
+      </Section>
+
       <Section title="Synlighed på marketplace">
         <label className="flex items-center justify-between">
           <span>
