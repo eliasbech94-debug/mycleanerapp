@@ -362,39 +362,45 @@ export type Database = {
       }
       booking_slot_locks: {
         Row: {
-          booking_date: string
+          booking_date: string | null
           booking_id: string
           created_at: string
-          hours: number
+          ends_at: string
+          hours: number | null
           id: string
           provider_user_id: string
           reason: string | null
           released_at: string | null
-          slot: string
+          slot: string | null
+          starts_at: string
           status: string
         }
         Insert: {
-          booking_date: string
+          booking_date?: string | null
           booking_id: string
           created_at?: string
-          hours: number
+          ends_at: string
+          hours?: number | null
           id?: string
           provider_user_id: string
           reason?: string | null
           released_at?: string | null
-          slot: string
+          slot?: string | null
+          starts_at: string
           status?: string
         }
         Update: {
-          booking_date?: string
+          booking_date?: string | null
           booking_id?: string
           created_at?: string
-          hours?: number
+          ends_at?: string
+          hours?: number | null
           id?: string
           provider_user_id?: string
           reason?: string | null
           released_at?: string | null
-          slot?: string
+          slot?: string | null
+          starts_at?: string
           status?: string
         }
         Relationships: [
@@ -6032,6 +6038,10 @@ export type Database = {
       }
       assert_ledger_writer_authorized: { Args: never; Returns: undefined }
       begin_ledger_write: { Args: never; Returns: undefined }
+      booking_lock_blocked_range: {
+        Args: { _ends_at: string; _starts_at: string }
+        Returns: unknown
+      }
       calc_provider_completion: { Args: { _uid: string }; Returns: Json }
       calc_provider_metrics: { Args: { _uid: string }; Returns: Json }
       calc_provider_score: { Args: { _uid: string }; Returns: Json }
@@ -6818,6 +6828,15 @@ export type Database = {
       }
       user_owns_identity: { Args: { _identity_id: string }; Returns: boolean }
       user_owns_provider: { Args: { _provider_id: string }; Returns: boolean }
+      validate_booking_interval: {
+        Args: {
+          _ends_at: string
+          _max_minutes?: number
+          _min_minutes?: number
+          _starts_at: string
+        }
+        Returns: undefined
+      }
       validate_provider_slug_format: {
         Args: { _slug: string }
         Returns: string
