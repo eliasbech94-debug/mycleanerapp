@@ -28,15 +28,14 @@ export function MarketplaceHero() {
         />
         <div className="relative mx-auto max-w-[1400px] px-5 pb-10 pt-14 lg:px-8 lg:pb-16 lg:pt-20">
           <div className="max-w-2xl">
-            <h1 className="font-serif text-[40px] leading-[1.02] tracking-[-0.02em] text-[hsl(var(--mkt-ink))] sm:text-[52px] lg:text-[60px]">
+            <h1 className="font-sans font-bold whitespace-nowrap text-[28px] leading-[1.05] tracking-[-0.02em] text-[hsl(var(--mkt-ink))] sm:text-[38px] lg:text-[46px]">
               {t("hero.title_prefix", "Book din")}{" "}
               <RotatingWord
                 words={t("hero.rotating_words", {
                   returnObjects: true,
                   defaultValue: ["verificerede", "lokale", "bedømte", "betroede"],
                 }) as string[]}
-              />
-              <br />
+              />{" "}
               <span className="text-[hsl(var(--mkt-brand))]">
                 {t("hero.title_suffix", "Cleaner")}
               </span>
