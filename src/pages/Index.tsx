@@ -6,6 +6,12 @@ import EuropeBackdrop from "@/components/EuropeBackdrop";
 import MarketplaceLive from "@/components/MarketplaceLive";
 import { useActiveMarket } from "@/context/ActiveMarketContext";
 import { MARKETS, type Market } from "@/lib/markets";
+import livingroomAsset from "@/assets/home-livingroom.jpg.asset.json";
+import kitchenAsset from "@/assets/home-kitchen.jpg.asset.json";
+import bedroomAsset from "@/assets/home-bedroom.jpg.asset.json";
+import pro1Asset from "@/assets/pro-portrait-1.jpg.asset.json";
+import pro2Asset from "@/assets/pro-portrait-2.jpg.asset.json";
+import pro3Asset from "@/assets/pro-portrait-3.jpg.asset.json";
 import {
   Search,
   MapPin,
@@ -25,7 +31,16 @@ import {
   TrendingUp,
   Heart,
   Award,
+  BadgeCheck,
+  Zap,
 } from "lucide-react";
+
+const HOME_SHOTS = [
+  { url: livingroomAsset.url, label: "Living room · Copenhagen", pro: "Maja L.", rating: 4.98 },
+  { url: kitchenAsset.url,    label: "Kitchen · Stockholm",      pro: "Ivan R.", rating: 4.96 },
+  { url: bedroomAsset.url,    label: "Bedroom · Berlin",         pro: "Elena K.", rating: 4.99 },
+];
+const PRO_FALLBACKS = [pro1Asset.url, pro2Asset.url, pro3Asset.url];
 
 /**
  * MyCleaner — Home v2.0
