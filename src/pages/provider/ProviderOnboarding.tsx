@@ -686,7 +686,7 @@ function StepIdentity({ pp, authUser }: { pp: ProviderProfile; authUser: any }) 
       <div className="grid gap-3">
         <StatusRow ok={emailOk} label="Email bekræftet" hint={emailOk ? authUser.email : "Åbn linket i din indbakke"} />
         <StatusRow
-          ok={pp.identity_status === "verified"}
+          ok={["approved", "verified"].includes(pp.identity_status)}
           label="Identitet verificeret"
           hint={`Status: ${pp.identity_status}`}
         />
@@ -838,7 +838,7 @@ export function computeStepCompletion(
     pp.insurance_expires_on &&
     pp.insurance_expires_on >= new Date().toISOString().slice(0, 10)
   );
-  const identity = pp.identity_status === "verified" && emailOk;
+  const identity = ["approved", "verified"].includes(pp.identity_status) && emailOk;
   const stripe = pp.stripe_charges_enabled && pp.stripe_payouts_enabled && !!pp.terms_accepted_at;
   const review = pp.status !== "draft" && pp.status !== "pending_identity" && pp.status !== "pending_stripe";
   return [account, basic, service, insurance, identity, stripe, review];
