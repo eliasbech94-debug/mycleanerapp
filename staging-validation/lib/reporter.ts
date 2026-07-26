@@ -138,7 +138,7 @@ export function logAssertion(scenario: string, name: string, ok: boolean, detail
   console.log(`${ok ? "PASS" : "FAIL"} [${scenario}] ${name}${detail ? ` — ${detail}` : ""}`);
   if (!standaloneHookInstalled) {
     standaloneHookInstalled = true;
-    process.on("exit", (code) => {
+    process.on("exit", (code: number) => {
       const failed = standaloneAssertions.filter((a) => !a.ok);
       console.log(
         `\n${standaloneAssertions.length - failed.length}/${standaloneAssertions.length} assertions passed`,
