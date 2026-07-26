@@ -44,6 +44,7 @@ jobs:
       STAGING_REF:                        ${{ secrets.STAGING_SUPABASE_PROJECT_REF }}
       STAGING_SUPABASE_URL:               ${{ secrets.STAGING_SUPABASE_URL }}
       STAGING_SUPABASE_SERVICE_ROLE_KEY:  ${{ secrets.STAGING_SUPABASE_SERVICE_ROLE_KEY }}
+      STAGING_PG_CONN:                    ${{ secrets.STAGING_PG_CONN }}
       EXPECTED_STAGING_REF: acxtqclnrvpyncmtptdd
       PROD_REF:             qfjgifubavuomwvroahy
       SUPABASE_CLI_VERSION: 2.60.0
