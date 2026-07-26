@@ -5183,6 +5183,42 @@ export type Database = {
         }
         Relationships: []
       }
+      service_duration_rules: {
+        Row: {
+          active: boolean
+          country_code: string | null
+          created_at: string
+          id: string
+          max_minutes: number
+          min_minutes: number
+          notes: string | null
+          service_key: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          country_code?: string | null
+          created_at?: string
+          id?: string
+          max_minutes?: number
+          min_minutes: number
+          notes?: string | null
+          service_key: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          country_code?: string | null
+          created_at?: string
+          id?: string
+          max_minutes?: number
+          min_minutes?: number
+          notes?: string | null
+          service_key?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       sms_verifications: {
         Row: {
           attempts: number
@@ -6593,6 +6629,14 @@ export type Database = {
           _region?: string
         }
         Returns: Json
+      }
+      resolve_service_duration_rule: {
+        Args: { _country_code: string; _service: string }
+        Returns: {
+          max_minutes: number
+          min_minutes: number
+          source: string
+        }[]
       }
       resolve_slug_v1: {
         Args: { _slug: string }
