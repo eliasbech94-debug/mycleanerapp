@@ -15,7 +15,7 @@
 -- already creates all 19 finance/ledger/stripe/payout tables, the 6 v7
 -- enums, the reject_ledger_mutation() safeguard and per-table triggers,
 -- the finance_accounts / finance_event_catalogue seed rows, the
--- country_configs augmentation, the funds_release.enabled feature flag,
+-- bookings v7 augmentation, the funds_release.enabled feature flag,
 -- and the deny-all RLS baseline on ledger/movement/allocation tables.
 --
 -- Re-executing that DDL on a fresh cluster fails with duplicate-type /
@@ -28,14 +28,16 @@
 -- On the remote database this migration has already been applied
 -- historically and its side effects are present. To make the chain
 -- reproducible from scratch while keeping the schema byte-identical to
--- the remote, this file is reduced to the FIVE effects that are unique
--- to the monolith and not covered by the modular chain:
+-- the remote, this file is reduced to the effects that are unique to
+-- the monolith and NOT covered by any other migration in this chain:
 --
 --   1. VIEW  public.v_source_transfer_capacity
 --   2. bookings.settled_reason              (text)
 --   3. bookings.fee_reconciliation_overdue  (boolean NOT NULL DEFAULT false)
 --   4. bookings.legacy_classification       (text)
 --   5. FUNCTION public.bookings_payment_flow_version_immutable() + TRIGGER
+--   6. country_configs augmentation (funds_release_enabled,
+--      require_bank_payout_ready, provider_liability_policy)
 --
 -- Every statement below is idempotent (CREATE OR REPLACE, ADD COLUMN
 -- IF NOT EXISTS, DROP TRIGGER IF EXISTS) so re-runs on the remote are
@@ -72,3 +74,11 @@ DROP TRIGGER IF EXISTS bookings_payment_flow_version_immutable_trg ON public.boo
 CREATE TRIGGER bookings_payment_flow_version_immutable_trg
   BEFORE UPDATE OF payment_flow_version ON public.bookings
   FOR EACH ROW EXECUTE FUNCTION public.bookings_payment_flow_version_immutable();
+
+-- 6. country_configs augmentation (originally in monolith lines 357-360).
+--    Not added by any other migration; retained here to keep fresh schema
+--    identical to remote.
+ALTER TABLE public.country_configs
+  ADD COLUMN IF NOT EXISTS funds_release_enabled     boolean NOT NULL DEFAULT false,
+  ADD COLUMN IF NOT EXISTS require_bank_payout_ready boolean NOT NULL DEFAULT false,
+  ADD COLUMN IF NOT EXISTS provider_liability_policy jsonb   NOT NULL DEFAULT '{}'::jsonb;
