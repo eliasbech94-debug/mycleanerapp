@@ -305,14 +305,20 @@ Deno.serve(monitored("stripe-webhook", async (req, _log) => {
       const { data: prof } = await admin.from("profiles")
         .select("id").eq("stripe_account_id", acct.id).maybeSingle();
       if (prof?.id) {
-        await admin.from("provider_profiles").update({
-          stripe_charges_enabled: !!acct.charges_enabled,
-          stripe_payouts_enabled: !!acct.payouts_enabled,
-          stripe_details_submitted: !!acct.details_submitted,
-          stripe_requirements_due: acct.requirements?.currently_due ?? [],
-          stripe_disabled_reason: acct.requirements?.disabled_reason ?? null,
-          updated_at: new Date().toISOString(),
-        }).eq("user_id", prof.id);
+        // Scoped write: stripe_sync scope only allows Stripe status columns.
+        const { error: syncErr } = await admin.rpc("provider_profile_service_update_v1", {
+          _user_id: prof.id,
+          _scope: "stripe_sync",
+          _patch: {
+            stripe_charges_enabled: !!acct.charges_enabled,
+            stripe_payouts_enabled: !!acct.payouts_enabled,
+            stripe_details_submitted: !!acct.details_submitted,
+            stripe_requirements_due: acct.requirements?.currently_due ?? [],
+            stripe_disabled_reason: acct.requirements?.disabled_reason ?? null,
+          },
+        });
+        if (syncErr) console.error("stripe_sync scoped update failed", syncErr.message);
+
         // Trusted reconciliation: never activates by itself.
         await reconcileProvider(admin, prof.id, "stripe_account_updated");
       }
