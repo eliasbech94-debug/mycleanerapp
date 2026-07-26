@@ -209,7 +209,7 @@ function OnboardingInner() {
         </header>
 
         {/* Step nav */}
-        <nav className="mb-6 grid grid-cols-6 gap-1">
+        <nav className="-mx-4 mb-6 flex snap-x gap-2 overflow-x-auto px-4 pb-2 sm:mx-0 sm:grid sm:grid-cols-6 sm:overflow-visible sm:px-0">
           {STEPS.map((s, i) => {
             const done = completion[i];
             const active = i === step;
@@ -217,17 +217,18 @@ function OnboardingInner() {
               <button
                 key={s.key}
                 onClick={() => setStep(i)}
-                className="flex flex-col items-center gap-1 rounded-lg p-2 text-[10px] font-bold uppercase tracking-wider transition"
+                className="flex min-w-[92px] snap-start flex-col items-center gap-1 rounded-xl border-2 p-2 text-[10px] font-bold uppercase tracking-wider transition sm:min-w-0"
                 style={{
                   background: active ? C.ink : "transparent",
                   color: active ? C.cream : C.ink,
                   opacity: !active && !done ? 0.55 : 1,
+                  borderColor: active ? C.ink : `${C.ink}22`,
                 }}
                 aria-current={active ? "step" : undefined}
                 aria-label={`Trin ${i + 1}: ${s.title}`}
               >
                 {done ? <CheckCircle2 className="h-4 w-4" /> : <Circle className="h-4 w-4" />}
-                <span className="hidden sm:block truncate">{s.title}</span>
+                <span className="max-w-full truncate">{i + 1}. {s.title}</span>
               </button>
             );
           })}
@@ -291,16 +292,19 @@ function StepAccount({ user, authProfile }: { user: any; authProfile: any }) {
     <div className="space-y-4">
       <h2 className="font-display text-2xl">Velkommen</h2>
       <p className="text-sm opacity-80">
-        Tak fordi du vil være cleaner hos MyCleaner. Onboarding tager typisk 15-30 minutter,
-        og du kan altid gemme og vende tilbage senere. Vi guider dig gennem 6 trin:
+        Tak fordi du vil være cleaner hos MyCleaner. Det tager typisk 15–30 minutter, og alt gemmes løbende. Vi kontrollerer providers grundigt, fordi du skal arbejde i kundernes hjem:
       </p>
       <ol className="ml-5 list-decimal space-y-1 text-sm">
-        <li>Grundprofil — navn, alder, adresse og foto</li>
-        <li>Serviceprofil — hvad du tilbyder og hvor</li>
+        <li>Grundprofil — navn, alder, adresse og profilfoto</li>
+        <li>Serviceprofil — rengøringstyper, erfaring, sprog og område</li>
         <li>Identitets- og kontaktverifikation</li>
-        <li>Udbetalingskonto (Stripe Connect) og skat</li>
-        <li>Gennemse og indsend til godkendelse</li>
+        <li>Stripe Connect — sikker modtagelse af udbetalinger</li>
+        <li>Provider-vilkår og ret til at arbejde</li>
+        <li>Gennemse og indsend til manuel godkendelse</li>
       </ol>
+      <div className="rounded-xl border-2 p-4 text-xs leading-relaxed" style={{ borderColor: C.ink }}>
+        <strong>Forsikring:</strong> Du skal have gyldig ansvarsforsikring, før profilen kan aktiveres. Policen og dokumentation tilføjes på din providerprofil og kontrolleres af MyCleaner.
+      </div>
       <div className="rounded-xl p-4 text-sm" style={{ background: C.cream }}>
         <div><strong>Logget ind som:</strong> {user.email}</div>
         <div className="text-xs opacity-70 mt-1">
@@ -563,23 +567,23 @@ function StepIdentity({ pp, authUser }: { pp: ProviderProfile; authUser: any }) 
   return (
     <div className="space-y-4">
       <h2 className="font-display text-2xl">Identitet & Verifikation</h2>
-      <p className="text-sm opacity-80">
-        Vi genbruger dine eksisterende bekræftelser. Ingen manuel dokument-upload.
+      <p className="text-sm leading-relaxed opacity-80">
+        Din identitet kontrolleres, fordi du skal arbejde i private hjem. Kontrollen gælder providers — almindelige kunder gennemgår ikke denne proces. Identitetsdokumenter håndteres sikkert af vores verifikationspartner og vises ikke offentligt.
       </p>
 
       <div className="grid gap-3">
         <StatusRow ok={emailOk} label="Email bekræftet" hint={emailOk ? authUser.email : "Åbn linket i din indbakke"} />
         <StatusRow
           ok={pp.identity_status === "verified"}
-          label="Identitet (Sumsub)"
+          label="Identitet verificeret"
           hint={`Status: ${pp.identity_status}`}
         />
       </div>
 
       <div className="pt-2"><IdentityVerificationCard /></div>
 
-      <div className="rounded-xl p-4 text-xs" style={{ background: C.cream }}>
-        SMS-verifikation håndteres fra <a className="underline" href="/profil?tab=info">din profil</a>.
+      <div className="rounded-xl p-4 text-xs leading-relaxed" style={{ background: C.cream }}>
+        Hvis dit telefonnummer endnu ikke er bekræftet, kan du gøre det under <a className="font-bold underline" href="/profil?tab=info">profil og kontaktoplysninger</a>. Du kan derefter vende tilbage hertil uden at miste noget.
       </div>
     </div>
   );
@@ -589,8 +593,8 @@ function StepStripe({ pp, patch }: { pp: ProviderProfile; patch: (u: Partial<Pro
   return (
     <div className="space-y-4">
       <h2 className="font-display text-2xl">Udbetaling & Skat</h2>
-      <p className="text-sm opacity-80">
-        Opret din Stripe Connect-konto for at kunne modtage udbetalinger.
+      <p className="text-sm leading-relaxed opacity-80">
+        Opret din personlige Stripe Connect-konto, så MyCleaner kan sende dine udbetalinger sikkert. MyCleaner ser ikke dine fulde bankoplysninger, og en godkendt Stripe-konto aktiverer ikke automatisk din profil.
       </p>
       <StripeConnectStatusWidget />
       <div className="mt-4 rounded-xl border-2 p-4" style={{ borderColor: `${C.ink}22` }}>
@@ -626,6 +630,9 @@ function StepReview({
   return (
     <div className="space-y-4">
       <h2 className="font-display text-2xl">Gennemse & Indsend</h2>
+      <p className="text-sm leading-relaxed opacity-75">
+        Når alle trin er grønne, kan du indsende profilen. MyCleaner kontrollerer derefter oplysninger, forsikring og dokumentation, før profilen bliver synlig for kunder.
+      </p>
 
       <ul className="space-y-2 text-sm">
         {STEPS.slice(0, 5).map((s, i) => (
@@ -644,7 +651,7 @@ function StepReview({
       {submitted ? (
         <div className="rounded-xl p-4 text-sm" style={{ background: C.mint, color: C.ink }}>
           <strong>Indsendt ✔</strong> — Status: {pp.status.replace(/_/g, " ")}.
-          Vi vender tilbage inden for 24-48 timer.
+          Vi vender normalt tilbage inden for 24–48 timer.
         </div>
       ) : (
         <button
