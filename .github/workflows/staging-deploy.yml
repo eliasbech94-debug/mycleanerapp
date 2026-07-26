@@ -66,12 +66,14 @@ jobs:
 
       - name: Refuse if required secrets missing
         run: |
+          set +x
           missing=0
           [ -n "$SUPABASE_ACCESS_TOKEN" ]             || { echo "::error::STAGING_SUPABASE_ACCESS_TOKEN is missing"; missing=1; }
           [ -n "$STAGING_REF" ]                       || { echo "::error::STAGING_SUPABASE_PROJECT_REF is missing"; missing=1; }
           [ -n "$SUPABASE_DB_PASSWORD" ]              || { echo "::error::STAGING_SUPABASE_DB_PASSWORD is missing"; missing=1; }
           [ -n "$STAGING_SUPABASE_URL" ]              || { echo "::error::STAGING_SUPABASE_URL is missing"; missing=1; }
           [ -n "$STAGING_SUPABASE_SERVICE_ROLE_KEY" ] || { echo "::error::STAGING_SUPABASE_SERVICE_ROLE_KEY is missing"; missing=1; }
+          [ -n "$STAGING_PG_CONN" ]                   || { echo "::error::STAGING_PG_CONN is missing"; missing=1; }
           [ "$missing" = "0" ] || exit 1
 
       - name: Refuse if project ref is production or unexpected
