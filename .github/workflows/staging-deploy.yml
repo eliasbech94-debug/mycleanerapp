@@ -44,6 +44,7 @@ jobs:
       STAGING_REF:                        ${{ secrets.STAGING_SUPABASE_PROJECT_REF }}
       STAGING_SUPABASE_URL:               ${{ secrets.STAGING_SUPABASE_URL }}
       STAGING_SUPABASE_SERVICE_ROLE_KEY:  ${{ secrets.STAGING_SUPABASE_SERVICE_ROLE_KEY }}
+      STAGING_PG_CONN:                    ${{ secrets.STAGING_PG_CONN }}
       EXPECTED_STAGING_REF: acxtqclnrvpyncmtptdd
       PROD_REF:             qfjgifubavuomwvroahy
       SUPABASE_CLI_VERSION: 2.60.0
@@ -65,12 +66,14 @@ jobs:
 
       - name: Refuse if required secrets missing
         run: |
+          set +x
           missing=0
           [ -n "$SUPABASE_ACCESS_TOKEN" ]             || { echo "::error::STAGING_SUPABASE_ACCESS_TOKEN is missing"; missing=1; }
           [ -n "$STAGING_REF" ]                       || { echo "::error::STAGING_SUPABASE_PROJECT_REF is missing"; missing=1; }
           [ -n "$SUPABASE_DB_PASSWORD" ]              || { echo "::error::STAGING_SUPABASE_DB_PASSWORD is missing"; missing=1; }
           [ -n "$STAGING_SUPABASE_URL" ]              || { echo "::error::STAGING_SUPABASE_URL is missing"; missing=1; }
           [ -n "$STAGING_SUPABASE_SERVICE_ROLE_KEY" ] || { echo "::error::STAGING_SUPABASE_SERVICE_ROLE_KEY is missing"; missing=1; }
+          [ -n "$STAGING_PG_CONN" ]                   || { echo "::error::STAGING_PG_CONN is missing"; missing=1; }
           [ "$missing" = "0" ] || exit 1
 
       - name: Refuse if project ref is production or unexpected
@@ -93,6 +96,30 @@ jobs:
             echo "::error::STAGING_SUPABASE_URL points at the production project. Aborting."
             exit 1
           fi
+
+      - name: Validate STAGING_PG_CONN (no value ever printed)
+        # Ensures the pooler connection string targets the expected staging
+        # project and a Supabase pooler host, without echoing the secret.
+        run: |
+          set +x
+          set -euo pipefail
+          conn="$STAGING_PG_CONN"
+          if ! printf '%s' "$conn" | grep -q "$EXPECTED_STAGING_REF"; then
+            echo "::error::STAGING_PG_CONN does not contain expected staging ref."
+            exit 1
+          fi
+          if printf '%s' "$conn" | grep -q "$PROD_REF"; then
+            echo "::error::STAGING_PG_CONN contains the production ref. Aborting."
+            exit 1
+          fi
+          # Supabase pooler hosts look like: aws-0-<region>.pooler.supabase.com
+          # (or *.pooler.supabase.co). Reject direct db.<ref>.supabase.co hosts
+          # which resolve IPv6-only on GitHub runners.
+          if ! printf '%s' "$conn" | grep -Eq 'pooler\.supabase\.(com|co)'; then
+            echo "::error::STAGING_PG_CONN must target a Supabase pooler host (*.pooler.supabase.com/co)."
+            exit 1
+          fi
+          echo "STAGING_PG_CONN validated (ref + pooler host)."
 
       - name: Refuse if all_functions scope without extra confirmation
         run: |
@@ -158,24 +185,24 @@ jobs:
           fi
           rm -f "$resp_file"
 
-      - name: Link staging project
+      - name: Dry-run migrations (pooler)
+        # Uses --db-url with the pooler connection string to avoid the
+        # IPv6-only db.<ref>.supabase.co host that fails on GitHub runners.
+        # `set +x` prevents the connection string from being traced.
         run: |
-          supabase link --project-ref "$STAGING_REF" \
-            --password "$SUPABASE_DB_PASSWORD"
-
-      - name: Dry-run migrations
-        run: |
+          set +x
           set -o pipefail
-          supabase db push --dry-run --password "$SUPABASE_DB_PASSWORD" 2>&1 | tee db-push-dryrun.log
+          supabase db push --dry-run --db-url "$STAGING_PG_CONN" 2>&1 | tee db-push-dryrun.log
           if [ "${PIPESTATUS[0]}" != "0" ]; then
             echo "::error::supabase db push --dry-run failed. See db-push-dryrun.log. Aborting before real push."
             exit 1
           fi
 
-      - name: Push database migrations
+      - name: Push database migrations (pooler)
         run: |
+          set +x
           set -o pipefail
-          supabase db push --password "$SUPABASE_DB_PASSWORD" 2>&1 | tee db-push.log
+          supabase db push --db-url "$STAGING_PG_CONN" 2>&1 | tee db-push.log
           if [ "${PIPESTATUS[0]}" != "0" ]; then
             echo "::error::supabase db push failed. See db-push.log."
             exit 1
