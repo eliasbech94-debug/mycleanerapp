@@ -97,6 +97,30 @@ jobs:
             exit 1
           fi
 
+      - name: Validate STAGING_PG_CONN (no value ever printed)
+        # Ensures the pooler connection string targets the expected staging
+        # project and a Supabase pooler host, without echoing the secret.
+        run: |
+          set +x
+          set -euo pipefail
+          conn="$STAGING_PG_CONN"
+          if ! printf '%s' "$conn" | grep -q "$EXPECTED_STAGING_REF"; then
+            echo "::error::STAGING_PG_CONN does not contain expected staging ref."
+            exit 1
+          fi
+          if printf '%s' "$conn" | grep -q "$PROD_REF"; then
+            echo "::error::STAGING_PG_CONN contains the production ref. Aborting."
+            exit 1
+          fi
+          # Supabase pooler hosts look like: aws-0-<region>.pooler.supabase.com
+          # (or *.pooler.supabase.co). Reject direct db.<ref>.supabase.co hosts
+          # which resolve IPv6-only on GitHub runners.
+          if ! printf '%s' "$conn" | grep -Eq 'pooler\.supabase\.(com|co)'; then
+            echo "::error::STAGING_PG_CONN must target a Supabase pooler host (*.pooler.supabase.com/co)."
+            exit 1
+          fi
+          echo "STAGING_PG_CONN validated (ref + pooler host)."
+
       - name: Refuse if all_functions scope without extra confirmation
         run: |
           scope='${{ github.event.inputs.deployment_scope }}'
