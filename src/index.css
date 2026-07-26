@@ -101,6 +101,32 @@
   }
 }
 
+  /* === Public marketplace surface (Phase 2A) ===
+   * Scoped light theme applied only where [data-surface="marketplace"]
+   * wraps content — homepage, marketplace search, find-cleaner, public
+   * provider profile and public booking flow. Does NOT modify :root, so
+   * provider/admin/internal dashboards keep their existing tokens.
+   */
+  [data-surface="marketplace"] {
+    --mkt-bg: 210 40% 98%;
+    --mkt-surface: 0 0% 100%;
+    --mkt-surface-muted: 214 32% 96%;
+    --mkt-ink: 222 47% 11%;
+    --mkt-ink-muted: 215 16% 40%;
+    --mkt-ink-soft: 215 14% 55%;
+    --mkt-border: 214 25% 90%;
+    --mkt-border-strong: 214 22% 82%;
+    --mkt-brand: 224 76% 48%;         /* royal blue */
+    --mkt-brand-hover: 224 76% 42%;
+    --mkt-brand-soft: 224 100% 96%;
+    --mkt-brand-on: 0 0% 100%;
+    --mkt-accent: 24 95% 55%;
+    --mkt-success: 152 62% 40%;
+    --mkt-star: 42 96% 52%;
+    --mkt-shadow-soft: 0 1px 2px hsl(222 47% 11% / 0.04), 0 8px 24px -12px hsl(222 47% 11% / 0.10);
+    --mkt-shadow-lift: 0 4px 12px -2px hsl(222 47% 11% / 0.08), 0 16px 40px -18px hsl(224 76% 48% / 0.18);
+  }
+
 @layer base {
   * {
     @apply border-border;
@@ -237,6 +263,14 @@
   @keyframes floaty {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-10px); }
+  }
+  @keyframes mktRotateWord {
+    0%   { opacity: 0; transform: translateY(0.4em); filter: blur(4px); }
+    60%  { opacity: 1; transform: translateY(0);      filter: blur(0);  }
+    100% { opacity: 1; transform: translateY(0);      filter: blur(0);  }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .animate-\[mktRotateWord_600ms_ease-out\] { animation: none !important; }
   }
 
   /* === Cert tile wow effects === */

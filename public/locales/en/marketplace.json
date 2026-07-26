@@ -1,0 +1,62 @@
+{
+  "hero": {
+    "eyebrow": "Europe's cleaning marketplace",
+    "title_line_1": "Book your cleaner.",
+    "title_line_2": "Trusted, verified, local.",
+    "subtitle": "Compare real reviews and transparent prices. Book directly in your cleaner's calendar — no bidding, no waiting.",
+    "availability": "Available in Denmark · Sweden · Germany · Spain · United Kingdom",
+    "price_note": "Price is calculated during booking based on your provider and service.",
+    "image_alt": "Freshly cleaned home interior"
+  },
+  "search": {
+    "aria": "Find cleaner",
+    "where": "Where",
+    "where_placeholder": "City or postcode",
+    "when": "When",
+    "service": "Service",
+    "submit": "Find cleaner"
+  },
+  "categories": {
+    "heading": "Popular services",
+    "cleaning": "Cleaning",
+    "handyman": "Handyman",
+    "garden": "Garden",
+    "moving": "Moving"
+  },
+  "results": {
+    "heading": "Top rated cleaners near you",
+    "subtitle": "Verified professionals. Real reviews. Book with confidence.",
+    "see_all": "See all cleaners",
+    "empty": "No cleaners yet in {{area}}. Try another area.",
+    "empty_area": "your area"
+  },
+  "card": {
+    "verified": "Verified",
+    "badge_verified": "Verified",
+    "badge_top": "Top Rated",
+    "badge_fast": "Fast Response",
+    "badge_today": "Available Today",
+    "add_fav": "Add to favorites",
+    "remove_fav": "Remove from favorites",
+    "avatar_alt": "{{name}} profile photo",
+    "radius": "within {{km}} km",
+    "completed": "{{n}} bookings",
+    "price_note": "Price calculated during booking",
+    "view": "View profile"
+  },
+  "trust": {
+    "heading": "Why customers choose MyCleaner",
+    "identity": { "title": "Verified identity", "body": "Every provider passes identity verification before they can accept bookings." },
+    "payments": { "title": "Secure payments", "body": "Payments are handled by Stripe. Your card details are never shared with the provider." },
+    "reviews":  { "title": "Real reviews", "body": "Only customers with completed bookings can leave a review." },
+    "support":  { "title": "Customer support", "body": "Something off? Message us and we'll work every case through with you." }
+  },
+  "summary": {
+    "heading": "Booking summary",
+    "service": "Service",
+    "when": "When",
+    "where": "Where",
+    "total": "Total",
+    "price_note": "Price is calculated during booking based on your provider and service."
+  }
+}

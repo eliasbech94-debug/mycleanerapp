@@ -1,0 +1,57 @@
+{
+  "hero": {
+    "eyebrow": "Europas städmarknad",
+    "title_line_1": "Boka din städare.",
+    "title_line_2": "Verifierad. Lokal. Trygg.",
+    "subtitle": "Jämför riktiga omdömen och tydliga priser. Boka direkt i städarens kalender — ingen budgivning, ingen väntan.",
+    "price_note": "Priset beräknas vid bokning utifrån din städare och tjänst.",
+    "image_alt": "Nystädat hem"
+  },
+  "search": {
+    "aria": "Hitta städare",
+    "where": "Var",
+    "where_placeholder": "Ort eller postnummer",
+    "when": "När",
+    "service": "Tjänst",
+    "submit": "Hitta städare"
+  },
+  "categories": {
+    "heading": "Populära tjänster",
+    "cleaning": "Städning",
+    "handyman": "Hantverkare",
+    "garden": "Trädgård",
+    "moving": "Flytt"
+  },
+  "results": {
+    "heading": "Högst rankade städare nära dig",
+    "subtitle": "Verifierade proffs. Riktiga omdömen. Boka tryggt.",
+    "see_all": "Se alla städare",
+    "empty": "Inga städare ännu i {{area}}. Prova ett annat område.",
+    "empty_area": "ditt område"
+  },
+  "card": {
+    "verified": "Verifierad",
+    "add_fav": "Lägg till favorit",
+    "remove_fav": "Ta bort favorit",
+    "avatar_alt": "{{name}} profilbild",
+    "radius": "inom {{km}} km",
+    "completed": "{{n}} bokningar",
+    "price_note": "Priset beräknas vid bokning",
+    "view": "Se profil"
+  },
+  "trust": {
+    "heading": "Därför väljer kunder MyCleaner",
+    "identity": { "title": "Verifierad identitet", "body": "Alla städare genomgår ID-verifiering innan de får ta emot bokningar." },
+    "payments": { "title": "Säkra betalningar", "body": "Betalningar hanteras via Stripe. Dina kortuppgifter delas aldrig med städaren." },
+    "reviews":  { "title": "Riktiga omdömen", "body": "Endast kunder med genomförda bokningar kan lämna omdömen." },
+    "support":  { "title": "Kundsupport", "body": "Skriv till oss om något känns fel — vi hjälper dig genom varje ärende." }
+  },
+  "summary": {
+    "heading": "Bokningsöversikt",
+    "service": "Tjänst",
+    "when": "När",
+    "where": "Var",
+    "total": "Totalt",
+    "price_note": "Priset beräknas vid bokning utifrån din städare och tjänst."
+  }
+}

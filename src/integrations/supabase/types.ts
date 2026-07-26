@@ -360,6 +360,59 @@ export type Database = {
           },
         ]
       }
+      booking_slot_locks: {
+        Row: {
+          booking_date: string | null
+          booking_id: string
+          created_at: string
+          ends_at: string
+          hours: number | null
+          id: string
+          provider_user_id: string
+          reason: string | null
+          released_at: string | null
+          slot: string | null
+          starts_at: string
+          status: string
+        }
+        Insert: {
+          booking_date?: string | null
+          booking_id: string
+          created_at?: string
+          ends_at: string
+          hours?: number | null
+          id?: string
+          provider_user_id: string
+          reason?: string | null
+          released_at?: string | null
+          slot?: string | null
+          starts_at: string
+          status?: string
+        }
+        Update: {
+          booking_date?: string | null
+          booking_id?: string
+          created_at?: string
+          ends_at?: string
+          hours?: number | null
+          id?: string
+          provider_user_id?: string
+          reason?: string | null
+          released_at?: string | null
+          slot?: string | null
+          starts_at?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "booking_slot_locks_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       booking_workers: {
         Row: {
           assigned_at: string
@@ -413,6 +466,10 @@ export type Database = {
           acquisition_source: string
           address: string
           address_place_id: string | null
+          assigned_at: string | null
+          assigned_provider_id: string | null
+          assignment_deadline_at: string | null
+          assignment_mode: Database["public"]["Enums"]["booking_assignment_mode"]
           authorization_expires_at: string | null
           booking_date: string
           booking_rules_snapshot: Json | null
@@ -429,6 +486,8 @@ export type Database = {
           customer_pays: number
           customer_user_id: string
           decided_at: string | null
+          dispatch_status: Database["public"]["Enums"]["booking_dispatch_status"]
+          dispatched_at: string | null
           dynamic_pricing_applied: boolean | null
           fee_reconciliation_overdue: boolean
           funds_release_at: string | null
@@ -437,6 +496,7 @@ export type Database = {
           lat: number | null
           legacy_classification: string | null
           lng: number | null
+          max_provider_cost_minor: number | null
           notes: string | null
           payment_flow_version:
             | Database["public"]["Enums"]["booking_payment_flow_version"]
@@ -462,6 +522,7 @@ export type Database = {
           refund_reason: string | null
           refunded_at: string | null
           refunds: Json
+          requested_provider_id: string | null
           service: string
           settled_reason: string | null
           slot: string
@@ -475,6 +536,10 @@ export type Database = {
           acquisition_source?: string
           address: string
           address_place_id?: string | null
+          assigned_at?: string | null
+          assigned_provider_id?: string | null
+          assignment_deadline_at?: string | null
+          assignment_mode?: Database["public"]["Enums"]["booking_assignment_mode"]
           authorization_expires_at?: string | null
           booking_date: string
           booking_rules_snapshot?: Json | null
@@ -491,6 +556,8 @@ export type Database = {
           customer_pays: number
           customer_user_id: string
           decided_at?: string | null
+          dispatch_status?: Database["public"]["Enums"]["booking_dispatch_status"]
+          dispatched_at?: string | null
           dynamic_pricing_applied?: boolean | null
           fee_reconciliation_overdue?: boolean
           funds_release_at?: string | null
@@ -499,6 +566,7 @@ export type Database = {
           lat?: number | null
           legacy_classification?: string | null
           lng?: number | null
+          max_provider_cost_minor?: number | null
           notes?: string | null
           payment_flow_version?:
             | Database["public"]["Enums"]["booking_payment_flow_version"]
@@ -524,6 +592,7 @@ export type Database = {
           refund_reason?: string | null
           refunded_at?: string | null
           refunds?: Json
+          requested_provider_id?: string | null
           service: string
           settled_reason?: string | null
           slot: string
@@ -537,6 +606,10 @@ export type Database = {
           acquisition_source?: string
           address?: string
           address_place_id?: string | null
+          assigned_at?: string | null
+          assigned_provider_id?: string | null
+          assignment_deadline_at?: string | null
+          assignment_mode?: Database["public"]["Enums"]["booking_assignment_mode"]
           authorization_expires_at?: string | null
           booking_date?: string
           booking_rules_snapshot?: Json | null
@@ -553,6 +626,8 @@ export type Database = {
           customer_pays?: number
           customer_user_id?: string
           decided_at?: string | null
+          dispatch_status?: Database["public"]["Enums"]["booking_dispatch_status"]
+          dispatched_at?: string | null
           dynamic_pricing_applied?: boolean | null
           fee_reconciliation_overdue?: boolean
           funds_release_at?: string | null
@@ -561,6 +636,7 @@ export type Database = {
           lat?: number | null
           legacy_classification?: string | null
           lng?: number | null
+          max_provider_cost_minor?: number | null
           notes?: string | null
           payment_flow_version?:
             | Database["public"]["Enums"]["booking_payment_flow_version"]
@@ -586,6 +662,7 @@ export type Database = {
           refund_reason?: string | null
           refunded_at?: string | null
           refunds?: Json
+          requested_provider_id?: string | null
           service?: string
           settled_reason?: string | null
           slot?: string
@@ -4070,6 +4147,56 @@ export type Database = {
           },
         ]
       }
+      provider_offers: {
+        Row: {
+          accepted_at: string | null
+          booking_id: string
+          created_at: string
+          declined_at: string | null
+          expired_at: string | null
+          id: string
+          offer_batch: number
+          offer_status: Database["public"]["Enums"]["offer_status"]
+          offered_at: string
+          provider_user_id: string
+          viewed_at: string | null
+        }
+        Insert: {
+          accepted_at?: string | null
+          booking_id: string
+          created_at?: string
+          declined_at?: string | null
+          expired_at?: string | null
+          id?: string
+          offer_batch?: number
+          offer_status?: Database["public"]["Enums"]["offer_status"]
+          offered_at?: string
+          provider_user_id: string
+          viewed_at?: string | null
+        }
+        Update: {
+          accepted_at?: string | null
+          booking_id?: string
+          created_at?: string
+          declined_at?: string | null
+          expired_at?: string | null
+          id?: string
+          offer_batch?: number
+          offer_status?: Database["public"]["Enums"]["offer_status"]
+          offered_at?: string
+          provider_user_id?: string
+          viewed_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_offers_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       provider_pricing_preferences: {
         Row: {
           city: string | null
@@ -5056,6 +5183,42 @@ export type Database = {
         }
         Relationships: []
       }
+      service_duration_rules: {
+        Row: {
+          active: boolean
+          country_code: string | null
+          created_at: string
+          id: string
+          max_minutes: number
+          min_minutes: number
+          notes: string | null
+          service_key: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          country_code?: string | null
+          created_at?: string
+          id?: string
+          max_minutes?: number
+          min_minutes: number
+          notes?: string | null
+          service_key: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          country_code?: string | null
+          created_at?: string
+          id?: string
+          max_minutes?: number
+          min_minutes?: number
+          notes?: string | null
+          service_key?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       sms_verifications: {
         Row: {
           attempts: number
@@ -5872,7 +6035,8 @@ export type Database = {
         }
         Returns: Json
       }
-      _pp_as_service: { Args: never; Returns: undefined }
+      _pp_scope_clear: { Args: never; Returns: undefined }
+      _pp_scope_set: { Args: { _scope: string }; Returns: undefined }
       admin_get_provider_trust: {
         Args: { _uid: string }
         Returns: {
@@ -5911,6 +6075,17 @@ export type Database = {
       }
       assert_ledger_writer_authorized: { Args: never; Returns: undefined }
       begin_ledger_write: { Args: never; Returns: undefined }
+      booking_interval_from_row: {
+        Args: { _b: Database["public"]["Tables"]["bookings"]["Row"] }
+        Returns: {
+          ends_at: string
+          starts_at: string
+        }[]
+      }
+      booking_lock_blocked_range: {
+        Args: { _ends_at: string; _starts_at: string }
+        Returns: unknown
+      }
       calc_provider_completion: { Args: { _uid: string }; Returns: Json }
       calc_provider_metrics: { Args: { _uid: string }; Returns: Json }
       calc_provider_score: { Args: { _uid: string }; Returns: Json }
@@ -5929,6 +6104,7 @@ export type Database = {
           reason: string
         }[]
       }
+      claim_booking_offer_v1: { Args: { _offer_id: string }; Returns: Json }
       classify_booking_payment_flow_v1: {
         Args: {
           _booking_id: string
@@ -5950,6 +6126,7 @@ export type Database = {
         }
         Returns: string
       }
+      decline_booking_offer_v1: { Args: { _offer_id: string }; Returns: Json }
       evaluate_booking_release_eligibility_v1: {
         Args: {
           p_booking_id: string
@@ -6069,6 +6246,7 @@ export type Database = {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"][]
       }
+      has_request_context: { Args: never; Returns: boolean }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -6297,6 +6475,16 @@ export type Database = {
         Args: { _uid: string }
         Returns: boolean
       }
+      provider_profile_protected_columns: { Args: never; Returns: string[] }
+      provider_profile_scope_allowlist: {
+        Args: { _scope: string }
+        Returns: string[]
+      }
+      provider_profile_service_update_v1: {
+        Args: { _patch: Json; _scope: string; _user_id: string }
+        Returns: undefined
+      }
+      provider_profile_write_scope: { Args: never; Returns: string }
       raise_system_alert: {
         Args: {
           _alert_key: string
@@ -6381,7 +6569,7 @@ export type Database = {
         }
       }
       refresh_provider_score_tier:
-        | { Args: { _reason?: string; _uid: string }; Returns: Json }
+        | { Args: { _reason: string; _uid: string }; Returns: Json }
         | {
             Args: { _event_id?: string; _reason?: string; _uid: string }
             Returns: Json
@@ -6453,6 +6641,14 @@ export type Database = {
           _region?: string
         }
         Returns: Json
+      }
+      resolve_service_duration_rule: {
+        Args: { _country_code: string; _service: string }
+        Returns: {
+          max_minutes: number
+          min_minutes: number
+          source: string
+        }[]
       }
       resolve_slug_v1: {
         Args: { _slug: string }
@@ -6697,6 +6893,15 @@ export type Database = {
       }
       user_owns_identity: { Args: { _identity_id: string }; Returns: boolean }
       user_owns_provider: { Args: { _provider_id: string }; Returns: boolean }
+      validate_booking_interval: {
+        Args: {
+          _ends_at: string
+          _max_minutes?: number
+          _min_minutes?: number
+          _starts_at: string
+        }
+        Returns: undefined
+      }
       validate_provider_slug_format: {
         Args: { _slug: string }
         Returns: string
@@ -6725,6 +6930,14 @@ export type Database = {
         | "customer"
         | "super_admin"
         | "support"
+      booking_assignment_mode: "direct_provider" | "quick_match"
+      booking_dispatch_status:
+        | "queued"
+        | "awaiting_provider"
+        | "dispatched"
+        | "assigned"
+        | "unfulfilled"
+        | "cancelled"
       booking_hold_status: "active" | "released" | "expired"
       booking_hold_type:
         | "complaint"
@@ -6791,6 +7004,13 @@ export type Database = {
         | "signature_invalid"
         | "unknown_type"
       ledger_entry_direction: "debit" | "credit"
+      offer_status:
+        | "pending"
+        | "viewed"
+        | "accepted"
+        | "declined"
+        | "expired"
+        | "superseded"
       payment_status:
         | "none"
         | "authorized"
@@ -6981,6 +7201,15 @@ export const Constants = {
         "super_admin",
         "support",
       ],
+      booking_assignment_mode: ["direct_provider", "quick_match"],
+      booking_dispatch_status: [
+        "queued",
+        "awaiting_provider",
+        "dispatched",
+        "assigned",
+        "unfulfilled",
+        "cancelled",
+      ],
       booking_hold_status: ["active", "released", "expired"],
       booking_hold_type: [
         "complaint",
@@ -7056,6 +7285,14 @@ export const Constants = {
         "unknown_type",
       ],
       ledger_entry_direction: ["debit", "credit"],
+      offer_status: [
+        "pending",
+        "viewed",
+        "accepted",
+        "declined",
+        "expired",
+        "superseded",
+      ],
       payment_status: [
         "none",
         "authorized",

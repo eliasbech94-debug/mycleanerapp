@@ -13,6 +13,27 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import BackButton from "@/components/BackButton";
+import MarketplaceHeader from "@/components/layout/MarketplaceHeader";
+
+/**
+ * Public customer surfaces render the light "marketplace" navbar variant.
+ * All other routes (admin, provider back-office, etc.) keep the classic
+ * dark navbar below. The switch is presentation-only — auth, roles,
+ * and country/market logic are shared via the same hooks.
+ */
+const MARKETPLACE_ROUTES: RegExp[] = [
+  /^\/$/,
+  /^\/(dk|gb|se|es)(\/)?$/,
+  /^\/marketplace(\/|$)/,
+  /^\/find-cleaner(\/|$)/,
+  /^\/p\/[^/]+(\/|$)/,
+  /^\/c\/[^/]+(\/|$)/,
+  /^\/faq(\/|$)/,
+  /^\/regler(\/|$)/,
+];
+function isMarketplaceRoute(pathname: string): boolean {
+  return MARKETPLACE_ROUTES.some((re) => re.test(pathname));
+}
 
 type NavLinkItem = { to: string; label: string };
 
@@ -89,6 +110,7 @@ const Header = () => {
   const onAdminRoute = location.pathname.startsWith("/admin");
   const onEmployeeRoute = location.pathname.startsWith("/employee");
   if (onAdminRoute || onEmployeeRoute) return null;
+  if (isMarketplaceRoute(location.pathname)) return <MarketplaceHeader />;
 
   const handleSignOut = async () => {
     await signOut();
@@ -110,7 +132,7 @@ const Header = () => {
           </Link>
         </div>
 
-        <nav className="hidden md:flex items-center gap-8">
+        <nav className="hidden lg:flex items-center gap-8">
           {primary.map((l) => (
             <Link
               key={`${l.to}-${l.label}`}
@@ -122,7 +144,7 @@ const Header = () => {
           ))}
         </nav>
 
-        <div className="hidden md:flex items-center gap-3">
+        <div className="hidden lg:flex items-center gap-3">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="sm" className="gap-2">
@@ -170,13 +192,13 @@ const Header = () => {
           )}
         </div>
 
-        <button className="md:hidden" onClick={() => setMobileOpen(!mobileOpen)}>
+        <button className="lg:hidden" aria-label="Toggle menu" aria-expanded={mobileOpen} onClick={() => setMobileOpen(!mobileOpen)}>
           {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </button>
       </div>
 
       {mobileOpen && (
-        <div className="md:hidden border-t border-border bg-background p-4 space-y-3 animate-fade-up">
+        <div className="lg:hidden border-t border-border bg-background p-4 space-y-3 animate-fade-up">
           {primary.map((l) => (
             <Link
               key={`${l.to}-${l.label}`}
