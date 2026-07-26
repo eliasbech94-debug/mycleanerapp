@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { Loader2, ArrowLeft, ArrowRight, Camera, CheckCircle2, Circle, ShieldCheck, Wallet, User, Sparkles, Send } from "lucide-react";
+import { Loader2, ArrowLeft, ArrowRight, Camera, CheckCircle2, Circle, FileCheck2, ShieldCheck, Wallet, User, Sparkles, Send } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { ProviderApplicantGuard } from "@/components/ProviderApplicantGuard";
@@ -16,6 +16,7 @@ const STEPS = [
   { key: "account", title: "Konto", Icon: User },
   { key: "basic", title: "Grundprofil", Icon: User },
   { key: "service", title: "Serviceprofil", Icon: Sparkles },
+  { key: "insurance", title: "Forsikring", Icon: FileCheck2 },
   { key: "identity", title: "Verifikation", Icon: ShieldCheck },
   { key: "stripe", title: "Udbetaling", Icon: Wallet },
   { key: "review", title: "Gennemse & Indsend", Icon: Send },
@@ -40,6 +41,9 @@ type ProviderProfile = {
   years_experience: number | null;
   hourly_rate: number | null;
   service_area_radius_km: number | null;
+  insurance_policy_number: string | null;
+  insurance_expires_on: string | null;
+  insurance_doc_path: string | null;
   identity_status: string;
   stripe_charges_enabled: boolean;
   stripe_payouts_enabled: boolean;
@@ -182,7 +186,7 @@ function OnboardingInner() {
     );
   }
 
-  const canSubmit = completion.slice(0, 5).every(Boolean);
+  const canSubmit = completion.slice(0, 6).every(Boolean);
   const currentComplete = completion[step];
 
   return (
@@ -209,7 +213,7 @@ function OnboardingInner() {
         </header>
 
         {/* Step nav */}
-        <nav className="-mx-4 mb-6 flex snap-x gap-2 overflow-x-auto px-4 pb-2 sm:mx-0 sm:grid sm:grid-cols-6 sm:overflow-visible sm:px-0">
+        <nav className="-mx-4 mb-6 flex snap-x gap-2 overflow-x-auto px-4 pb-2 sm:mx-0 sm:grid sm:grid-cols-7 sm:overflow-visible sm:px-0">
           {STEPS.map((s, i) => {
             const done = completion[i];
             const active = i === step;
@@ -248,9 +252,10 @@ function OnboardingInner() {
             />
           )}
           {step === 2 && <StepService pp={pp} patch={patch} />}
-          {step === 3 && <StepIdentity pp={pp} authUser={user} />}
-          {step === 4 && <StepStripe pp={pp} patch={patch} />}
-          {step === 5 && (
+          {step === 3 && <StepInsurance pp={pp} patch={patch} />}
+          {step === 4 && <StepIdentity pp={pp} authUser={user} />}
+          {step === 5 && <StepStripe pp={pp} patch={patch} />}
+          {step === 6 && (
             <StepReview
               pp={pp}
               canSubmit={canSubmit}
@@ -562,6 +567,113 @@ function StepService({ pp, patch }: { pp: ProviderProfile; patch: (u: Partial<Pr
   );
 }
 
+function StepInsurance({ pp, patch }: { pp: ProviderProfile; patch: (u: Partial<ProviderProfile>) => void }) {
+  const [uploading, setUploading] = useState(false);
+  const insuranceValid = !!(
+    pp.insurance_policy_number?.trim() &&
+    pp.insurance_doc_path?.trim() &&
+    pp.insurance_expires_on &&
+    pp.insurance_expires_on >= new Date().toISOString().slice(0, 10)
+  );
+
+  async function uploadInsurance(file: File) {
+    const allowed = ["application/pdf", "image/jpeg", "image/png", "image/webp"];
+    if (!allowed.includes(file.type)) {
+      toast.error("Vælg PDF, JPG, PNG eller WebP");
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("Dokumentet må højst fylde 10 MB");
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("provider-document-upload", {
+        body: { kind: "insurance", content_type: file.type },
+      });
+      if (error || !data?.signed_url || !data?.path) {
+        throw new Error(error?.message || "Kunne ikke forberede upload");
+      }
+      const response = await fetch(data.signed_url, {
+        method: "PUT",
+        headers: { "Content-Type": file.type },
+        body: file,
+      });
+      if (!response.ok) throw new Error(`Upload fejlede (${response.status})`);
+      patch({ insurance_doc_path: data.path });
+      toast.success("Forsikringsdokument uploadet");
+    } catch (error: any) {
+      toast.error(error?.message || "Dokumentet kunne ikke uploades");
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  return (
+    <div className="space-y-5">
+      <div>
+        <h2 className="font-display text-2xl">Ansvarsforsikring</h2>
+        <p className="mt-2 text-sm leading-relaxed opacity-75">
+          En gyldig ansvarsforsikring er obligatorisk, når du arbejder i kundernes hjem. Dokumentet opbevares privat og kontrolleres af MyCleaner.
+        </p>
+      </div>
+
+      <Field label="Policenummer">
+        <input
+          className="w-full rounded-lg border px-3 py-2"
+          value={pp.insurance_policy_number || ""}
+          onChange={(event) => patch({ insurance_policy_number: event.target.value })}
+          placeholder="Dit policenummer"
+        />
+      </Field>
+
+      <Field label="Forsikringen gælder til">
+        <input
+          type="date"
+          min={new Date().toISOString().slice(0, 10)}
+          className="w-full rounded-lg border px-3 py-2"
+          value={pp.insurance_expires_on || ""}
+          onChange={(event) => patch({ insurance_expires_on: event.target.value || null })}
+        />
+      </Field>
+
+      <Field label="Dokumentation">
+        <div className="rounded-2xl border-2 p-4" style={{ borderColor: insuranceValid ? C.teal : `${C.ink}33`, background: C.cream }}>
+          <div className="flex items-start gap-3">
+            {pp.insurance_doc_path ? <CheckCircle2 className="mt-0.5 h-5 w-5" style={{ color: C.teal }} /> : <FileCheck2 className="mt-0.5 h-5 w-5 opacity-55" />}
+            <div className="flex-1">
+              <p className="text-sm font-bold">{pp.insurance_doc_path ? "Dokument uploadet" : "Upload police eller forsikringsbevis"}</p>
+              <p className="mt-1 text-xs opacity-65">PDF, JPG, PNG eller WebP · maks. 10 MB</p>
+              <label className="mt-3 inline-flex cursor-pointer items-center gap-2 rounded-full border-2 px-4 py-2 text-[11px] font-black uppercase tracking-[0.14em]" style={{ borderColor: C.ink }}>
+                {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileCheck2 className="h-4 w-4" />}
+                {uploading ? "Uploader…" : pp.insurance_doc_path ? "Erstat dokument" : "Upload dokument"}
+                <input
+                  type="file"
+                  className="hidden"
+                  accept="application/pdf,image/jpeg,image/png,image/webp"
+                  disabled={uploading}
+                  onChange={(event) => {
+                    const file = event.target.files?.[0];
+                    if (file) void uploadInsurance(file);
+                    event.currentTarget.value = "";
+                  }}
+                />
+              </label>
+            </div>
+          </div>
+        </div>
+      </Field>
+
+      {!insuranceValid && (
+        <p className="rounded-xl border-2 p-3 text-xs font-semibold" style={{ borderColor: C.orange }}>
+          Policenummer, gyldig udløbsdato og dokumentation skal være udfyldt, før ansøgningen kan indsendes.
+        </p>
+      )}
+    </div>
+  );
+}
+
 function StepIdentity({ pp, authUser }: { pp: ProviderProfile; authUser: any }) {
   const emailOk = !!(authUser.email_confirmed_at || authUser.confirmed_at);
   return (
@@ -635,7 +747,7 @@ function StepReview({
       </p>
 
       <ul className="space-y-2 text-sm">
-        {STEPS.slice(0, 5).map((s, i) => (
+        {STEPS.slice(0, 6).map((s, i) => (
           <li key={s.key} className="flex items-center gap-2">
             {completion[i] ? (
               <CheckCircle2 className="h-4 w-4" style={{ color: C.teal }} />
@@ -666,7 +778,7 @@ function StepReview({
         </button>
       )}
       {!canSubmit && !submitted && (
-        <p className="text-xs opacity-70">Færdiggør alle 5 første trin for at kunne indsende.</p>
+        <p className="text-xs opacity-70">Færdiggør alle 6 første trin for at kunne indsende.</p>
       )}
     </div>
   );
@@ -720,8 +832,14 @@ export function computeStepCompletion(
     pp.hourly_rate &&
     pp.service_area_radius_km
   );
+  const insurance = !!(
+    pp.insurance_policy_number?.trim() &&
+    pp.insurance_doc_path?.trim() &&
+    pp.insurance_expires_on &&
+    pp.insurance_expires_on >= new Date().toISOString().slice(0, 10)
+  );
   const identity = pp.identity_status === "verified" && emailOk;
   const stripe = pp.stripe_charges_enabled && pp.stripe_payouts_enabled && !!pp.terms_accepted_at;
   const review = pp.status !== "draft" && pp.status !== "pending_identity" && pp.status !== "pending_stripe";
-  return [account, basic, service, identity, stripe, review];
+  return [account, basic, service, insurance, identity, stripe, review];
 }
