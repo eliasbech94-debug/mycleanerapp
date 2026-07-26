@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { Loader2, ArrowLeft, ArrowRight, CheckCircle2, Circle, ShieldCheck, Wallet, User, Sparkles, Send } from "lucide-react";
+import { Loader2, ArrowLeft, ArrowRight, Camera, CheckCircle2, Circle, ShieldCheck, Wallet, User, Sparkles, Send } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { ProviderApplicantGuard } from "@/components/ProviderApplicantGuard";
@@ -239,6 +239,7 @@ function OnboardingInner() {
             <StepBasic
               pp={pp}
               authProfile={authProfile}
+              userId={user.id}
               contactPhone={contactPhone}
               setContactPhone={setContactPhone}
               patch={patch}
@@ -312,17 +313,48 @@ function StepAccount({ user, authProfile }: { user: any; authProfile: any }) {
 }
 
 function StepBasic({
-  pp, authProfile, contactPhone, setContactPhone, patch, patchContact,
+  pp, authProfile, userId, contactPhone, setContactPhone, patch, patchContact,
 }: {
   pp: ProviderProfile;
   authProfile: any;
+  userId: string;
   contactPhone: string;
   setContactPhone: (v: string) => void;
   patch: (u: Partial<ProviderProfile>) => void;
   patchContact: (u: { full_name?: string; phone?: string }) => void;
 }) {
   const [name, setName] = useState(authProfile?.full_name || "");
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
   useEffect(() => setName(authProfile?.full_name || ""), [authProfile?.full_name]);
+
+  async function uploadPhoto(file: File) {
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+      toast.error("Vælg et JPG-, PNG- eller WebP-billede");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Billedet må højst fylde 5 MB");
+      return;
+    }
+
+    setUploadingPhoto(true);
+    try {
+      const extension = file.type === "image/png" ? "png" : file.type === "image/webp" ? "webp" : "jpg";
+      const objectPath = `${userId}/profile.${extension}`;
+      const { error } = await supabase.storage
+        .from("provider-photos")
+        .upload(objectPath, file, { cacheControl: "3600", contentType: file.type, upsert: true });
+      if (error) throw error;
+
+      const { data } = supabase.storage.from("provider-photos").getPublicUrl(objectPath);
+      patch({ photo_path: `${data.publicUrl}?v=${Date.now()}` });
+      toast.success("Profilfoto uploadet");
+    } catch (error: any) {
+      toast.error(error?.message || "Fotoet kunne ikke uploades");
+    } finally {
+      setUploadingPhoto(false);
+    }
+  }
 
   return (
     <div className="space-y-4">
@@ -383,13 +415,38 @@ function StepBasic({
         />
       </Field>
 
-      <Field label="Profilfoto (URL/sti — upload kommer senere)">
-        <input
-          className="w-full rounded-lg border px-3 py-2"
-          value={pp.photo_path || ""}
-          onChange={(e) => patch({ photo_path: e.target.value })}
-          placeholder="providers/photos/mig.jpg"
-        />
+      <Field label="Profilfoto">
+        <div className="flex flex-col gap-4 rounded-2xl border-2 p-4 sm:flex-row sm:items-center" style={{ borderColor: `${C.ink}33`, background: C.cream }}>
+          <div className="grid h-24 w-24 shrink-0 place-items-center overflow-hidden rounded-full border-2 bg-white" style={{ borderColor: C.ink }}>
+            {pp.photo_path ? (
+              <img src={pp.photo_path} alt="Forhåndsvisning af profilfoto" className="h-full w-full object-cover" />
+            ) : (
+              <Camera className="h-8 w-8 opacity-50" />
+            )}
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-bold">Vælg et tydeligt billede af dit ansigt</p>
+            <p className="mt-1 text-xs leading-relaxed opacity-65">
+              Brug et vellignende foto med rolig baggrund. Det skaber tryghed, når kunder sammenligner cleaners.
+            </p>
+            <label className="mt-3 inline-flex cursor-pointer items-center gap-2 rounded-full border-2 px-4 py-2 text-[11px] font-black uppercase tracking-[0.14em]" style={{ borderColor: C.ink }}>
+              {uploadingPhoto ? <Loader2 className="h-4 w-4 animate-spin" /> : <Camera className="h-4 w-4" />}
+              {uploadingPhoto ? "Uploader…" : pp.photo_path ? "Skift foto" : "Upload foto"}
+              <input
+                type="file"
+                className="hidden"
+                accept="image/jpeg,image/png,image/webp"
+                disabled={uploadingPhoto}
+                onChange={(event) => {
+                  const file = event.target.files?.[0];
+                  if (file) void uploadPhoto(file);
+                  event.currentTarget.value = "";
+                }}
+              />
+            </label>
+            <p className="mt-2 text-[10px] opacity-55">JPG, PNG eller WebP · maks. 5 MB</p>
+          </div>
+        </div>
       </Field>
     </div>
   );
