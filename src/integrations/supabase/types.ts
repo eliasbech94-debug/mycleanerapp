@@ -6245,6 +6245,7 @@ export type Database = {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"][]
       }
+      has_request_context: { Args: never; Returns: boolean }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -6473,6 +6474,16 @@ export type Database = {
         Args: { _uid: string }
         Returns: boolean
       }
+      provider_profile_protected_columns: { Args: never; Returns: string[] }
+      provider_profile_scope_allowlist: {
+        Args: { _scope: string }
+        Returns: string[]
+      }
+      provider_profile_service_update_v1: {
+        Args: { _patch: Json; _scope: string; _user_id: string }
+        Returns: undefined
+      }
+      provider_profile_write_scope: { Args: never; Returns: string }
       raise_system_alert: {
         Args: {
           _alert_key: string
