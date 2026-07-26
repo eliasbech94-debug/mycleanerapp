@@ -185,24 +185,24 @@ jobs:
           fi
           rm -f "$resp_file"
 
-      - name: Link staging project
+      - name: Dry-run migrations (pooler)
+        # Uses --db-url with the pooler connection string to avoid the
+        # IPv6-only db.<ref>.supabase.co host that fails on GitHub runners.
+        # `set +x` prevents the connection string from being traced.
         run: |
-          supabase link --project-ref "$STAGING_REF" \
-            --password "$SUPABASE_DB_PASSWORD"
-
-      - name: Dry-run migrations
-        run: |
+          set +x
           set -o pipefail
-          supabase db push --dry-run --password "$SUPABASE_DB_PASSWORD" 2>&1 | tee db-push-dryrun.log
+          supabase db push --dry-run --db-url "$STAGING_PG_CONN" 2>&1 | tee db-push-dryrun.log
           if [ "${PIPESTATUS[0]}" != "0" ]; then
             echo "::error::supabase db push --dry-run failed. See db-push-dryrun.log. Aborting before real push."
             exit 1
           fi
 
-      - name: Push database migrations
+      - name: Push database migrations (pooler)
         run: |
+          set +x
           set -o pipefail
-          supabase db push --password "$SUPABASE_DB_PASSWORD" 2>&1 | tee db-push.log
+          supabase db push --db-url "$STAGING_PG_CONN" 2>&1 | tee db-push.log
           if [ "${PIPESTATUS[0]}" != "0" ]; then
             echo "::error::supabase db push failed. See db-push.log."
             exit 1
