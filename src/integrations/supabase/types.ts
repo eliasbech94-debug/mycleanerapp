@@ -6035,7 +6035,8 @@ export type Database = {
         }
         Returns: Json
       }
-      _pp_as_service: { Args: never; Returns: undefined }
+      _pp_scope_clear: { Args: never; Returns: undefined }
+      _pp_scope_set: { Args: { _scope: string }; Returns: undefined }
       admin_get_provider_trust: {
         Args: { _uid: string }
         Returns: {
@@ -6568,7 +6569,7 @@ export type Database = {
         }
       }
       refresh_provider_score_tier:
-        | { Args: { _reason?: string; _uid: string }; Returns: Json }
+        | { Args: { _reason: string; _uid: string }; Returns: Json }
         | {
             Args: { _event_id?: string; _reason?: string; _uid: string }
             Returns: Json
