@@ -159,13 +159,19 @@ Deno.serve(monitored("payment-create-intent", async (req, _log) => {
     }
 
     // ---- 4. Provider Stripe Connect lookup -------------------------------
+    // A booking cannot be accepted unless the provider's Connect account can
+    // receive charges — otherwise funds would settle to the platform with no
+    // path to transfer them. Reject early.
     const { data: provProfile } = await admin
       .from("profiles")
       .select("id, stripe_account_id, stripe_charges_enabled, country_code")
       .eq("provider_id", quote.provider_id_text)
       .maybeSingle();
-    const providerAcct = provProfile?.stripe_charges_enabled ? provProfile.stripe_account_id : null;
-    const providerUserId = provProfile?.id ?? quote.provider_user_id ?? null;
+    if (!provProfile?.stripe_account_id || !provProfile?.stripe_charges_enabled) {
+      return json(409, { error: "provider_stripe_not_ready" });
+    }
+    const providerAcct = provProfile.stripe_account_id;
+    const providerUserId = provProfile.id ?? quote.provider_user_id ?? null;
 
     // ---- 5b. Attribution — validate slug against the quote's provider -----
     // Slug is the authoritative attribution key. If it does not resolve to the
