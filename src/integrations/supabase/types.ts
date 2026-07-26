@@ -6035,7 +6035,8 @@ export type Database = {
         }
         Returns: Json
       }
-      _pp_as_service: { Args: never; Returns: undefined }
+      _pp_scope_clear: { Args: never; Returns: undefined }
+      _pp_scope_set: { Args: { _scope: string }; Returns: undefined }
       admin_get_provider_trust: {
         Args: { _uid: string }
         Returns: {
@@ -6245,6 +6246,7 @@ export type Database = {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"][]
       }
+      has_request_context: { Args: never; Returns: boolean }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -6473,6 +6475,16 @@ export type Database = {
         Args: { _uid: string }
         Returns: boolean
       }
+      provider_profile_protected_columns: { Args: never; Returns: string[] }
+      provider_profile_scope_allowlist: {
+        Args: { _scope: string }
+        Returns: string[]
+      }
+      provider_profile_service_update_v1: {
+        Args: { _patch: Json; _scope: string; _user_id: string }
+        Returns: undefined
+      }
+      provider_profile_write_scope: { Args: never; Returns: string }
       raise_system_alert: {
         Args: {
           _alert_key: string
@@ -6557,7 +6569,7 @@ export type Database = {
         }
       }
       refresh_provider_score_tier:
-        | { Args: { _reason?: string; _uid: string }; Returns: Json }
+        | { Args: { _reason: string; _uid: string }; Returns: Json }
         | {
             Args: { _event_id?: string; _reason?: string; _uid: string }
             Returns: Json
