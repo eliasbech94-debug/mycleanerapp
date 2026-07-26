@@ -20,7 +20,6 @@ jobs:
           echo "github.ref=${{ github.ref }}"
           echo "github.ref_name=${{ github.ref_name }}"
           echo "github.sha=${{ github.sha }}"
-
           if [ "${{ github.ref_name }}" != "staging" ]; then
             echo "::error::This workflow may only run from the 'staging' branch. Got: ${{ github.ref_name }}"
             exit 1
@@ -39,7 +38,6 @@ jobs:
           STAGING_SUPABASE_DB_PASSWORD: ${{ secrets.STAGING_SUPABASE_DB_PASSWORD }}
         run: |
           missing=0
-
           for name in STAGING_SUPABASE_URL STAGING_SUPABASE_SERVICE_ROLE_KEY STAGING_SUPABASE_PROJECT_REF STAGING_SUPABASE_DB_PASSWORD; do
             if [ -z "${!name}" ]; then
               echo "::error::Missing required secret: $name"
@@ -48,30 +46,25 @@ jobs:
               echo "ok: $name is set"
             fi
           done
-
-          if [ "$missing" = "1" ]; then
-            exit 1
-          fi
+          if [ "$missing" = "1" ]; then exit 1; fi
 
       - name: Safe diagnostics (no secret values)
         env:
           STAGING_SUPABASE_URL: ${{ secrets.STAGING_SUPABASE_URL }}
           STAGING_SUPABASE_PROJECT_REF: ${{ secrets.STAGING_SUPABASE_PROJECT_REF }}
         run: |
+          # Extract project ref from https://<ref>.supabase.co — public identifier, not a secret.
           host="${STAGING_SUPABASE_URL#https://}"
           host="${host#http://}"
           url_project_ref="${host%%.*}"
-
           echo "ref=${{ github.ref }}"
           echo "ref_name=${{ github.ref_name }}"
           echo "sha=${{ github.sha }}"
           echo "supabase_project_ref=${url_project_ref}"
-
           if [[ "$url_project_ref" == "qfjgifubavuomwvroahy" ]] || [[ "$STAGING_SUPABASE_PROJECT_REF" == "qfjgifubavuomwvroahy" ]]; then
             echo "::error::Refusing to run — staging secrets point at the production project."
             exit 1
           fi
-
           if [[ "$url_project_ref" != "$STAGING_SUPABASE_PROJECT_REF" ]]; then
             echo "::error::STAGING_SUPABASE_URL project ref does not match STAGING_SUPABASE_PROJECT_REF."
             exit 1
@@ -92,16 +85,11 @@ jobs:
 
       - name: Run SQL seed — providers (idempotent)
         env:
-          PGHOST: aws-0-eu-west-1.pooler.supabase.com
-          PGPORT: "5432"
-          PGDATABASE: postgres
-          PGUSER: postgres.acxtqclnrvpyncmtptdd
-          PGPASSWORD: ${{ secrets.STAGING_SUPABASE_DB_PASSWORD }}
-          PGSSLMODE: require
+          STAGING_SUPABASE_PROJECT_REF: ${{ secrets.STAGING_SUPABASE_PROJECT_REF }}
+          STAGING_SUPABASE_DB_PASSWORD: ${{ secrets.STAGING_SUPABASE_DB_PASSWORD }}
         run: |
-          psql \
-            -v ON_ERROR_STOP=1 \
-            -f staging-validation/seed/test-providers.sql
+          PGCONN="postgresql://postgres:${STAGING_SUPABASE_DB_PASSWORD}@db.${STAGING_SUPABASE_PROJECT_REF}.supabase.co:5432/postgres"
+          psql "$PGCONN" -v ON_ERROR_STOP=1 -f staging-validation/seed/test-providers.sql
 
       - name: Run TS seed — test users (idempotent)
         env:
@@ -117,15 +105,11 @@ jobs:
       - name: Verify seeded data (read-only)
         id: verify
         env:
-          PGHOST: aws-0-eu-west-1.pooler.supabase.com
-          PGPORT: "5432"
-          PGDATABASE: postgres
-          PGUSER: postgres.acxtqclnrvpyncmtptdd
-          PGPASSWORD: ${{ secrets.STAGING_SUPABASE_DB_PASSWORD }}
-          PGSSLMODE: require
+          STAGING_SUPABASE_PROJECT_REF: ${{ secrets.STAGING_SUPABASE_PROJECT_REF }}
+          STAGING_SUPABASE_DB_PASSWORD: ${{ secrets.STAGING_SUPABASE_DB_PASSWORD }}
         run: |
+          PGCONN="postgresql://postgres:${STAGING_SUPABASE_DB_PASSWORD}@db.${STAGING_SUPABASE_PROJECT_REF}.supabase.co:5432/postgres"
           mkdir -p artifact
-
           {
             echo "# Staging Seed Report"
             echo "commit: ${{ github.sha }}"
@@ -134,50 +118,16 @@ jobs:
             echo "## Providers per country"
           } > artifact/seed-report.md
 
-          SLUGS="'mette-copenhagen','anders-aarhus','sofia-odense','jonas-aalborg','camilla-esbjerg',
-          'linnea-stockholm','erik-goteborg','astrid-malmo',
-          'lena-berlin','markus-munich','sabine-hamburg',
-          'carmen-madrid','pablo-barcelona','lucia-valencia',
-          'emma-london','daniel-manchester','olivia-edinburgh'"
-
-          psql \
-            -v ON_ERROR_STOP=1 \
-            -A \
-            -F'|' \
-            -t \
-            -c "SELECT base_country_code, count(*)
-                FROM public.provider_profiles
-                WHERE provider_slug IN ($SLUGS)
-                GROUP BY base_country_code
-                ORDER BY base_country_code;" \
+          psql "$PGCONN" -v ON_ERROR_STOP=1 -A -F'|' -t -c \
+            "select country_code, count(*) from public.provider_profiles where is_test_seed = true group by country_code order by country_code;" \
             > artifact/counts.txt
 
           echo '| country | count |' >> artifact/seed-report.md
           echo '|---------|-------|' >> artifact/seed-report.md
+          awk -F'|' '{printf "| %s | %s |\n",$1,$2}' artifact/counts.txt >> artifact/seed-report.md
 
-          awk -F'|' \
-            '{printf "| %s | %s |\n",$1,$2}' \
-            artifact/counts.txt \
-            >> artifact/seed-report.md
-
-          total=$(psql \
-            -v ON_ERROR_STOP=1 \
-            -A \
-            -t \
-            -c "SELECT count(*)
-                FROM public.provider_profiles
-                WHERE provider_slug IN ($SLUGS);")
-
-          mette=$(psql \
-            -v ON_ERROR_STOP=1 \
-            -A \
-            -t \
-            -c "SELECT count(*)
-                FROM public.provider_profiles
-                WHERE provider_slug = 'mette-copenhagen';")
-
-          total=$(echo "$total" | xargs)
-          mette=$(echo "$mette" | xargs)
+          total=$(psql "$PGCONN" -A -t -c "select count(*) from public.provider_profiles where is_test_seed = true;")
+          mette=$(psql "$PGCONN" -A -t -c "select count(*) from public.provider_profiles where slug = 'mette-copenhagen';")
 
           echo "" >> artifact/seed-report.md
           echo "total_seeded=$total" >> artifact/seed-report.md
@@ -188,38 +138,28 @@ jobs:
           echo "total=$total  mette=$mette"
 
           expect() {
-            local cc="$1"
-            local want="$2"
+            local cc="$1" want="$2"
             local got
-
             got=$(awk -F'|' -v c="$cc" '$1==c{print $2}' artifact/counts.txt)
-            got=$(echo "${got:-0}" | xargs)
-
+            got=${got:-0}
             if [ "$got" != "$want" ]; then
               echo "::error::Country $cc expected $want, got $got"
               return 1
             fi
           }
-
           fail=0
-
           expect DK 5 || fail=1
           expect SE 3 || fail=1
           expect DE 3 || fail=1
           expect ES 3 || fail=1
           expect GB 3 || fail=1
-
           if [ "$total" != "17" ]; then
-            echo "::error::Total expected 17, got $total"
-            fail=1
+            echo "::error::Total expected 17, got $total"; fail=1
           fi
-
           if [ "$mette" != "1" ]; then
-            echo "::error::Provider 'mette-copenhagen' missing"
-            fail=1
+            echo "::error::Provider 'mette-copenhagen' missing"; fail=1
           fi
-
-          exit "$fail"
+          exit $fail
 
       - name: Upload sanitized seed report
         if: always()

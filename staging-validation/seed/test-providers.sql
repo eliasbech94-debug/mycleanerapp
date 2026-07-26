@@ -1,61 +1,54 @@
 -- =============================================================================
--- MyCleaner — Staging test data seed (schema-corrected)
+-- MyCleaner — Staging test data seed (Phase 2A follow-up, schema-corrected)
 --
--- Seeds 17 realistic cleaner profiles across DK/SE/DE/ES/GB directly against
+-- Creates 17 realistic cleaner profiles across DK/SE/DE/ES/GB directly against
 -- the real staging schema of public.provider_profiles.
 --
 -- Key facts about the target schema (verified against staging):
---   • Primary key is user_id (uuid). There is NO "id" column.
+--   • Primary key is user_id (uuid), NOT an "id" column.
 --   • user_id is a FK to auth.users(id) — an auth user must exist first.
---   • provider_slug is UNIQUE (index provider_profiles_slug_uidx) → conflict key.
+--   • provider_slug is UNIQUE (index provider_profiles_slug_uidx).
 --   • Country lives in base_country_code (not country_code).
 --   • Hourly rate lives in hourly_rate (not base_hourly_rate).
 --   • Radius lives in service_area_radius_km (not service_radius_km).
---   • Avatar lives in photo_path (not avatar_url).
---   • Score lives in provider_score (not marketplace_score).
---   • provider_tier enum: new|verified|experienced|top_rated|elite|partner
---   • status enum: draft|pending_identity|pending_stripe|pending_review
---                  |active|paused|suspended|rejected|archived
+--   • provider_tier is an enum: new|verified|experienced|top_rated|elite|partner
+--   • status is an enum: draft|pending_*|active|paused|suspended|rejected|archived
 --   • These columns DO NOT exist and must not be referenced:
 --       id, owner_id, country_code, base_hourly_rate,
 --       average_rating, total_reviews,
 --       identity_verified, identity_verified_badge,
 --       service_radius_km, completed_bookings,
 --       avatar_url, marketplace_score, is_test_seed
---
--- Trigger handling:
---   • trg_provider_profiles_enforce_base_address wipes base_country_code when
---     base_address_place_id IS NULL and otherwise requires a fresh
---     public.place_validations row (<= 30 min old). Disabled inside this
---     transaction so base_country_code can be set deterministically for seed
---     rows without seeding Google-validated addresses.
---   • trg_provider_profiles_min_age would reject synthetic rows without a
---     valid date_of_birth. Disabled inside this transaction.
---   • The disables live inside BEGIN/COMMIT, so a ROLLBACK (any failure)
---     automatically restores the original enabled state. An explicit
---     re-ENABLE at the bottom guarantees the state on success.
---   • Privileged columns (status, visibility, provider_tier, provider_score,
---     identity_status) are set on INSERT and deliberately NOT rewritten in
---     the ON CONFLICT ... DO UPDATE clause, so the BEFORE UPDATE guard
---     trg_provider_profiles_block_privileged is never fired on re-runs.
+--   • The BEFORE INSERT/UPDATE trigger trg_provider_profiles_enforce_base_address
+--     wipes base_country_code when base_address_place_id IS NULL, and otherwise
+--     requires a fresh row in public.place_validations (<= 30 min old) for the
+--     same user + place_id. It is temporarily disabled for the seed so we can
+--     set base_country_code deterministically without seeding Google-validated
+--     addresses. trg_provider_profiles_min_age is also disabled because we
+--     don't populate date_of_birth for synthetic seed users.
 --
 -- USAGE (staging only — never run against production):
 --   psql "$STAGING_PG_CONN" -f staging-validation/seed/test-providers.sql
+--
+-- Idempotent: safe to re-run. Users are upserted by deterministic UUID derived
+-- from the provider_slug; profiles are upserted on the provider_slug unique
+-- index. Privileged columns (status, provider_tier, provider_score) are set on
+-- INSERT and NOT rewritten on conflict, so the BEFORE UPDATE privileged-write
+-- guard is not triggered on re-runs.
 -- =============================================================================
 
 BEGIN;
 
--- Safety net: refuse to run against anything but a Supabase-style postgres DB.
+-- Guard: refuse to run against production even if someone points STAGING_PG_CONN there.
 DO $$
 BEGIN
   IF current_database() <> 'postgres' THEN
-    RAISE EXCEPTION 'Refusing to seed: unexpected database %', current_database();
+    RAISE EXCEPTION 'Unexpected database: %', current_database();
   END IF;
 END$$;
 
 -- Temporarily silence triggers that require Google-validated addresses / DOB.
--- Inside this transaction only; ROLLBACK or the explicit ENABLE below restores
--- the original state. This does not modify the schema definition.
+-- These are re-enabled at the bottom of the transaction.
 ALTER TABLE public.provider_profiles DISABLE TRIGGER trg_provider_profiles_enforce_base_address;
 ALTER TABLE public.provider_profiles DISABLE TRIGGER trg_provider_profiles_min_age;
 
@@ -90,14 +83,12 @@ mapped AS (
     -- Deterministic v4-shaped UUID derived from the slug so re-runs upsert
     -- the same auth.users row and the same provider_profiles row.
     (
-      substr(md5('mycleaner-seed:'||s.slug),  1, 8) || '-' ||
-      substr(md5('mycleaner-seed:'||s.slug),  9, 4) || '-4' ||
-      substr(md5('mycleaner-seed:'||s.slug), 14, 3) || '-8' ||
-      substr(md5('mycleaner-seed:'||s.slug), 18, 3) || '-' ||
-      substr(md5('mycleaner-seed:'||s.slug), 21, 12)
-    )::uuid AS uid,
-    -- Deterministic pravatar URL keyed by slug for stable avatars across runs.
-    'https://i.pravatar.cc/240?u=' || s.slug AS avatar
+      substr(md5('mycleaner-seed:'||s.slug), 1, 8) || '-' ||
+      substr(md5('mycleaner-seed:'||s.slug), 9, 4) || '-4' ||
+      substr(md5('mycleaner-seed:'||s.slug),14, 3) || '-8' ||
+      substr(md5('mycleaner-seed:'||s.slug),18, 3) || '-' ||
+      substr(md5('mycleaner-seed:'||s.slug),21,12)
+    )::uuid AS uid
   FROM seed s
 ),
 ensure_users AS (
@@ -125,9 +116,7 @@ INSERT INTO public.provider_profiles AS pp (
   user_id,
   provider_slug,
   display_name,
-  bio,
   public_bio,
-  photo_path,
   base_country_code,
   service_categories,
   hourly_rate,
@@ -147,8 +136,6 @@ SELECT
   m.slug,
   m.name,
   m.bio,
-  m.bio,
-  m.avatar,
   m.country,
   ARRAY['cleaning']::text[],
   m.price_hour,
@@ -165,9 +152,7 @@ SELECT
 FROM mapped m
 ON CONFLICT (provider_slug) DO UPDATE
 SET display_name           = EXCLUDED.display_name,
-    bio                    = EXCLUDED.bio,
     public_bio             = EXCLUDED.public_bio,
-    photo_path             = EXCLUDED.photo_path,
     base_country_code      = EXCLUDED.base_country_code,
     service_categories     = EXCLUDED.service_categories,
     hourly_rate            = EXCLUDED.hourly_rate,
@@ -176,22 +161,19 @@ SET display_name           = EXCLUDED.display_name,
     is_public              = EXCLUDED.is_public,
     updated_at             = now();
 -- NOTE: status, visibility, provider_tier, provider_score, identity_status
--- are intentionally excluded from DO UPDATE. They are privileged columns
+-- are deliberately NOT included in DO UPDATE. They are privileged columns
 -- guarded by trg_provider_profiles_block_privileged; rewriting them from a
 -- non-service_role psql session would raise
--- 'provider_profiles_privileged_column_write_forbidden'. The guard only fires
--- on UPDATE, so first-run INSERTs set the intended values.
+-- 'provider_profiles_privileged_column_write_forbidden'. Because IS DISTINCT
+-- FROM is only checked on UPDATE, INSERT paths (first seed run) are unaffected.
 
--- Restore triggers explicitly on success. On any failure above, the implicit
--- ROLLBACK undoes these ALTER TABLE ... DISABLE TRIGGER statements as well,
--- so the table returns to its original trigger state.
+-- Re-enable the triggers we silenced above.
 ALTER TABLE public.provider_profiles ENABLE TRIGGER trg_provider_profiles_enforce_base_address;
 ALTER TABLE public.provider_profiles ENABLE TRIGGER trg_provider_profiles_min_age;
 
 COMMIT;
 
--- ── Verification ────────────────────────────────────────────────────────────
--- Per-country counts across the explicit 17 seeded slugs.
+-- Verification
 SELECT base_country_code AS country, count(*) AS providers
 FROM public.provider_profiles
 WHERE provider_slug IN (
@@ -203,17 +185,3 @@ WHERE provider_slug IN (
 )
 GROUP BY base_country_code
 ORDER BY base_country_code;
-
--- Full seeded row snapshot for auditing.
-SELECT provider_slug, display_name, base_country_code, hourly_rate,
-       service_area_radius_km, avg_response_minutes, provider_tier,
-       provider_score, status, visibility, is_public
-FROM public.provider_profiles
-WHERE provider_slug IN (
-  'mette-copenhagen','anders-aarhus','sofia-odense','jonas-aalborg','camilla-esbjerg',
-  'linnea-stockholm','erik-goteborg','astrid-malmo',
-  'lena-berlin','markus-munich','sabine-hamburg',
-  'carmen-madrid','pablo-barcelona','lucia-valencia',
-  'emma-london','daniel-manchester','olivia-edinburgh'
-)
-ORDER BY base_country_code, provider_slug;

@@ -8,6 +8,19 @@ name: Staging Deploy (Supabase)
         description: 'Type "deploy-staging" to confirm.'
         required: true
         default: ''
+      deployment_scope:
+        description: 'What to deploy.'
+        required: true
+        default: 'migrations_only'
+        type: choice
+        options:
+          - migrations_only
+          - changed_functions
+          - all_functions
+      confirm_all_functions:
+        description: 'Only for all_functions: type "deploy-all-functions".'
+        required: false
+        default: ''
 
 permissions:
   contents: read
@@ -18,16 +31,22 @@ concurrency:
 
 jobs:
   deploy:
-    name: Link + push migrations + deploy edge functions
+    name: Staging deploy (migrations + optional functions)
     runs-on: ubuntu-latest
+    environment: staging
     # Hard guard: this workflow only runs on the staging branch.
     if: ${{ github.ref == 'refs/heads/staging' }}
     timeout-minutes: 30
 
     env:
-      SUPABASE_ACCESS_TOKEN: ${{ secrets.STAGING_SUPABASE_ACCESS_TOKEN }}
-      SUPABASE_DB_PASSWORD:  ${{ secrets.STAGING_SUPABASE_DB_PASSWORD }}
-      STAGING_REF:           ${{ secrets.STAGING_SUPABASE_PROJECT_REF }}
+      SUPABASE_ACCESS_TOKEN:              ${{ secrets.STAGING_SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_DB_PASSWORD:               ${{ secrets.STAGING_SUPABASE_DB_PASSWORD }}
+      STAGING_REF:                        ${{ secrets.STAGING_SUPABASE_PROJECT_REF }}
+      STAGING_SUPABASE_URL:               ${{ secrets.STAGING_SUPABASE_URL }}
+      STAGING_SUPABASE_SERVICE_ROLE_KEY:  ${{ secrets.STAGING_SUPABASE_SERVICE_ROLE_KEY }}
+      EXPECTED_STAGING_REF: acxtqclnrvpyncmtptdd
+      PROD_REF:             qfjgifubavuomwvroahy
+      SUPABASE_CLI_VERSION: 2.60.0
 
     steps:
       - name: Confirm input
@@ -47,36 +66,111 @@ jobs:
       - name: Refuse if required secrets missing
         run: |
           missing=0
-          [ -n "$SUPABASE_ACCESS_TOKEN" ] || { echo "::error::STAGING_SUPABASE_ACCESS_TOKEN is missing"; missing=1; }
-          [ -n "$STAGING_REF" ] || { echo "::error::STAGING_SUPABASE_PROJECT_REF is missing"; missing=1; }
-          [ -n "$SUPABASE_DB_PASSWORD" ] || { echo "::error::STAGING_SUPABASE_DB_PASSWORD is missing"; missing=1; }
-          if [ "$missing" = "1" ]; then
+          [ -n "$SUPABASE_ACCESS_TOKEN" ]             || { echo "::error::STAGING_SUPABASE_ACCESS_TOKEN is missing"; missing=1; }
+          [ -n "$STAGING_REF" ]                       || { echo "::error::STAGING_SUPABASE_PROJECT_REF is missing"; missing=1; }
+          [ -n "$SUPABASE_DB_PASSWORD" ]              || { echo "::error::STAGING_SUPABASE_DB_PASSWORD is missing"; missing=1; }
+          [ -n "$STAGING_SUPABASE_URL" ]              || { echo "::error::STAGING_SUPABASE_URL is missing"; missing=1; }
+          [ -n "$STAGING_SUPABASE_SERVICE_ROLE_KEY" ] || { echo "::error::STAGING_SUPABASE_SERVICE_ROLE_KEY is missing"; missing=1; }
+          [ "$missing" = "0" ] || exit 1
+
+      - name: Refuse if project ref is production or unexpected
+        run: |
+          if [ "$STAGING_REF" = "$PROD_REF" ]; then
+            echo "::error::STAGING_SUPABASE_PROJECT_REF equals the production ref. Aborting."
+            exit 1
+          fi
+          if [ "$STAGING_REF" != "$EXPECTED_STAGING_REF" ]; then
+            echo "::error::STAGING_SUPABASE_PROJECT_REF does not match expected staging ref ($EXPECTED_STAGING_REF)."
+            exit 1
+          fi
+          # Extract ref host portion of STAGING_SUPABASE_URL: https://<ref>.supabase.co
+          url_host="$(printf '%s' "$STAGING_SUPABASE_URL" | sed -E 's#^https?://([^./]+)\..*#\1#')"
+          if [ "$url_host" != "$EXPECTED_STAGING_REF" ]; then
+            echo "::error::Project ref parsed from STAGING_SUPABASE_URL does not match expected staging ref."
+            exit 1
+          fi
+          if [ "$url_host" = "$PROD_REF" ]; then
+            echo "::error::STAGING_SUPABASE_URL points at the production project. Aborting."
             exit 1
           fi
 
-
-      - name: Refuse if project ref matches production
+      - name: Refuse if all_functions scope without extra confirmation
         run: |
-          PROD_REF="qfjgifubavuomwvroahy"
-          if [ "$STAGING_REF" = "$PROD_REF" ]; then
-            echo "::error::STAGING_SUPABASE_PROJECT_REF equals the production ref. Aborting."
+          scope='${{ github.event.inputs.deployment_scope }}'
+          extra='${{ github.event.inputs.confirm_all_functions }}'
+          if [ "$scope" = "all_functions" ] && [ "$extra" != "deploy-all-functions" ]; then
+            echo "::error::deployment_scope=all_functions requires confirm_all_functions=deploy-all-functions."
             exit 1
           fi
 
       - uses: actions/checkout@v4
 
-      - name: Install Supabase CLI
+      - name: Install Supabase CLI (pinned)
         uses: supabase/setup-cli@v1
         with:
-          version: latest
+          version: ${{ env.SUPABASE_CLI_VERSION }}
 
       - name: Show CLI version
         run: supabase --version
+
+      - name: Pre-migration flag check (funds_release.enabled)
+        # LENIENT variant: allow zero rows so pending migrations may create
+        # the flag. Fails on HTTP/JSON error, duplicate rows, or enabled=true.
+        # Service-role key is only used in headers; `set +x` disables tracing.
+        run: |
+          set +x
+          set -euo pipefail
+          resp_file="$(mktemp)"
+          http_code="$(
+            curl --silent --show-error \
+                 --output "$resp_file" \
+                 --write-out '%{http_code}' \
+                 -H "apikey: ${STAGING_SUPABASE_SERVICE_ROLE_KEY}" \
+                 -H "Authorization: Bearer ${STAGING_SUPABASE_SERVICE_ROLE_KEY}" \
+                 -H "Accept: application/json" \
+                 "${STAGING_SUPABASE_URL}/rest/v1/feature_flags?flag_key=eq.funds_release.enabled&scope=eq.global&select=enabled"
+          )" || {
+            echo "::error::curl failed contacting staging PostgREST (pre-migration)."
+            exit 1
+          }
+          if [ "$http_code" != "200" ]; then
+            echo "::error::PostgREST returned HTTP $http_code for feature_flags query (pre-migration)."
+            sed -e 's/[[:cntrl:]]//g' "$resp_file" | head -c 500
+            exit 1
+          fi
+          count="$(jq 'length' "$resp_file" 2>/dev/null || echo 'ERR')"
+          if [ "$count" = "ERR" ]; then
+            echo "::error::Response body was not valid JSON (pre-migration)."
+            exit 1
+          fi
+          if [ "$count" = "0" ]; then
+            echo "Pre-migration: funds_release.enabled flag not present yet. Allowed — pending migrations may create it."
+          elif [ "$count" = "1" ]; then
+            enabled="$(jq -r '.[0].enabled' "$resp_file")"
+            if [ "$enabled" != "false" ]; then
+              echo "::error::Pre-migration: funds_release.enabled is not false (got: $enabled). Aborting."
+              exit 1
+            fi
+            echo "Pre-migration: funds_release.enabled = false (verified)."
+          else
+            echo "::error::Pre-migration: expected 0 or 1 global funds_release.enabled row, got $count."
+            exit 1
+          fi
+          rm -f "$resp_file"
 
       - name: Link staging project
         run: |
           supabase link --project-ref "$STAGING_REF" \
             --password "$SUPABASE_DB_PASSWORD"
+
+      - name: Dry-run migrations
+        run: |
+          set -o pipefail
+          supabase db push --dry-run --password "$SUPABASE_DB_PASSWORD" 2>&1 | tee db-push-dryrun.log
+          if [ "${PIPESTATUS[0]}" != "0" ]; then
+            echo "::error::supabase db push --dry-run failed. See db-push-dryrun.log. Aborting before real push."
+            exit 1
+          fi
 
       - name: Push database migrations
         run: |
@@ -87,33 +181,97 @@ jobs:
             exit 1
           fi
 
-      - name: Deploy all edge functions
+      - name: Post-migration flag check (funds_release.enabled)
+        # STRICT variant: after migrations run, the flag MUST exist exactly once
+        # and MUST be false before any function deploys. Runs before any edge
+        # function deployment, regardless of deployment_scope.
         run: |
-          set -o pipefail
-          # Deploy every function found under supabase/functions/*
-          shopt -s nullglob
-          fns=()
-          for d in supabase/functions/*/; do
-            name="$(basename "$d")"
-            case "$name" in
-              # _shared/tests/node_modules: not deployable functions.
-              # mcp: auto-generated by the @lovable.dev/mcp-js Vite plugin at
-              # frontend build time; the committed bundle bakes in the
-              # PRODUCTION Supabase project ref as its OAuth issuer, so pushing
-              # it to staging would misconfigure auth. It is a Lovable-agent
-              # MCP server, not part of any customer flow or staging scenario,
-              # so it is intentionally skipped here.
-              _*|tests|node_modules|mcp) continue ;;
-            esac
-            fns+=("$name")
-          done
-          if [ "${#fns[@]}" = "0" ]; then
-            echo "::error::No edge functions found under supabase/functions/*."
+          set +x
+          set -euo pipefail
+          resp_file="$(mktemp)"
+          http_code="$(
+            curl --silent --show-error \
+                 --output "$resp_file" \
+                 --write-out '%{http_code}' \
+                 -H "apikey: ${STAGING_SUPABASE_SERVICE_ROLE_KEY}" \
+                 -H "Authorization: Bearer ${STAGING_SUPABASE_SERVICE_ROLE_KEY}" \
+                 -H "Accept: application/json" \
+                 "${STAGING_SUPABASE_URL}/rest/v1/feature_flags?flag_key=eq.funds_release.enabled&scope=eq.global&select=enabled"
+          )" || {
+            echo "::error::curl failed contacting staging PostgREST (post-migration)."
+            exit 1
+          }
+          if [ "$http_code" != "200" ]; then
+            echo "::error::PostgREST returned HTTP $http_code for feature_flags query (post-migration)."
+            sed -e 's/[[:cntrl:]]//g' "$resp_file" | head -c 500
             exit 1
           fi
-          echo "Deploying ${#fns[@]} functions..."
+          count="$(jq 'length' "$resp_file" 2>/dev/null || echo 'ERR')"
+          if [ "$count" = "ERR" ]; then
+            echo "::error::Response body was not valid JSON (post-migration)."
+            exit 1
+          fi
+          if [ "$count" != "1" ]; then
+            echo "::error::Post-migration: expected exactly 1 global funds_release.enabled row, got $count."
+            exit 1
+          fi
+          enabled="$(jq -r '.[0].enabled' "$resp_file")"
+          if [ "$enabled" != "false" ]; then
+            echo "::error::Post-migration: funds_release.enabled is not false (got: $enabled). Aborting before function deploy."
+            exit 1
+          fi
+          echo "Post-migration: funds_release.enabled = false (verified)."
+          rm -f "$resp_file"
+
+      - name: Deploy edge functions (scope-driven)
+        run: |
+          set -o pipefail
+          scope='${{ github.event.inputs.deployment_scope }}'
+          shopt -s nullglob
+          fns=()
+
+          case "$scope" in
+            migrations_only)
+              echo "Scope=migrations_only — skipping function deploy."
+              exit 0
+              ;;
+            changed_functions)
+              # Allowlist derived from merge e528b0e (semantic-merged Stripe functions).
+              fns=(payment-create-intent stripe-connect-onboard stripe-webhook stripe-webhook-v7)
+              ;;
+            all_functions)
+              for d in supabase/functions/*/; do
+                name="$(basename "$d")"
+                case "$name" in
+                  # _shared/tests/node_modules: not deployable functions.
+                  # mcp: auto-generated by @lovable.dev/mcp-js at frontend build
+                  # time; bundle bakes in the PRODUCTION Supabase project ref as
+                  # its OAuth issuer, so pushing it to staging would misconfigure
+                  # auth. Intentionally skipped.
+                  _*|tests|node_modules|mcp) continue ;;
+                esac
+                fns+=("$name")
+              done
+              ;;
+            *)
+              echo "::error::Unknown deployment_scope: $scope"
+              exit 1
+              ;;
+          esac
+
+          if [ "${#fns[@]}" = "0" ]; then
+            echo "::error::No functions selected for scope=$scope."
+            exit 1
+          fi
+
+          echo "Deploying ${#fns[@]} function(s): ${fns[*]}"
           failed=()
           for name in "${fns[@]}"; do
+            if [ ! -d "supabase/functions/$name" ]; then
+              echo "::error::Function directory missing: supabase/functions/$name"
+              failed+=("$name (missing)")
+              continue
+            fi
             echo "::group::deploy $name"
             if ! supabase functions deploy "$name" --project-ref "$STAGING_REF"; then
               failed+=("$name")
@@ -127,13 +285,16 @@ jobs:
           fi
 
       - name: List deployed functions (verification)
+        if: ${{ github.event.inputs.deployment_scope != 'migrations_only' }}
         run: supabase functions list --project-ref "$STAGING_REF"
 
-      - name: Upload deploy log
+      - name: Upload deploy logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: staging-deploy-log
-          path: db-push.log
+          path: |
+            db-push-dryrun.log
+            db-push.log
           if-no-files-found: ignore
           retention-days: 14
