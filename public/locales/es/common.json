@@ -44,5 +44,16 @@
     "deactivate": "Desactivar cuenta",
     "signOut": "Cerrar sesión",
     "signIn": "Iniciar sesión"
+  },
+  "mobilenav": {
+    "home": "Inicio",
+    "search": "Buscar",
+    "bookings": "Reservas",
+    "profile": "Perfil",
+    "login": "Iniciar sesión",
+    "more": "Más",
+    "dashboard": "Panel",
+    "messages": "Mensajes",
+    "label": "Navegación principal"
   }
 }

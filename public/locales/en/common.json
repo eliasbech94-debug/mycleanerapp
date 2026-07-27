@@ -78,5 +78,16 @@
     "deactivate": "Deactivate account",
     "signOut": "Sign out",
     "signIn": "Sign in"
+  },
+  "mobilenav": {
+    "home": "Home",
+    "search": "Search",
+    "bookings": "Bookings",
+    "profile": "Profile",
+    "login": "Log in",
+    "more": "More",
+    "dashboard": "Dashboard",
+    "messages": "Messages",
+    "label": "Primary navigation"
   }
 }
