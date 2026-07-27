@@ -26,8 +26,12 @@ export default function FoundingCleaner() {
   const ctaSecondary = t("foundingCleaner.ctaSecondary", "Se vilkårene");
   const startNote = t("foundingCleaner.startNote");
   const howHeading = t("foundingCleaner.how.heading", "Sådan fungerer det");
-  const steps = t("foundingCleaner.how.steps", { returnObjects: true }) as Step[];
-  const terms = t("foundingCleaner.terms", { returnObjects: true }) as Terms;
+  const stepsRaw = t("foundingCleaner.how.steps", { returnObjects: true, defaultValue: [] });
+  const steps: Step[] = Array.isArray(stepsRaw) ? (stepsRaw as Step[]) : [];
+  const termsRaw = t("foundingCleaner.terms", { returnObjects: true, defaultValue: {} });
+  const terms: Terms = (termsRaw && typeof termsRaw === "object" && !Array.isArray(termsRaw))
+    ? (termsRaw as Terms)
+    : ({ heading: "", lastUpdatedLabel: "", lastUpdated: "", items: [] } as Terms);
 
   React.useEffect(() => {
     const prev = document.title;
@@ -106,7 +110,7 @@ export default function FoundingCleaner() {
           </p>
         </div>
         <ul className="mt-4 space-y-3">
-          {(terms?.items ?? []).map((item, i) => (
+          {(Array.isArray(terms?.items) ? terms.items : []).map((item, i) => (
             <li key={i} className="flex gap-2.5 text-[13.5px] leading-relaxed text-[hsl(var(--mkt-ink))]">
               <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[hsl(var(--mkt-brand))]" aria-hidden />
               <span>{item}</span>
