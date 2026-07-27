@@ -141,7 +141,9 @@ const Header = () => {
 
   const onAdminRoute = location.pathname.startsWith("/admin");
   const onEmployeeRoute = location.pathname.startsWith("/employee");
+  const belowMd = useBelow768();
   if (onAdminRoute || onEmployeeRoute) return null;
+  if (belowMd && isMobileShellHiddenHeaderRoute(location.pathname)) return null;
   if (isMarketplaceRoute(location.pathname)) return <MarketplaceHeader />;
 
   const handleSignOut = async () => {
