@@ -59,11 +59,10 @@ import { installFrontendMonitoring, initSentry } from "@/lib/monitoring";
 import OAuthConsent from "./pages/OAuthConsent";
 import { CountryProvider } from "@/i18n/CountryContext";
 import IdentityVerificationPage from "./pages/identity/IdentityVerificationPage";
-import ProviderOnboarding from "./pages/provider/ProviderOnboarding";
+import ProviderQualificationGate from "./pages/provider/ProviderQualificationGate";
 import ProviderProfilePage from "./pages/provider/ProviderProfile";
 import ProviderPricing from "./pages/provider/ProviderPricing";
 import AdminPricing from "./pages/admin/AdminPricing";
-
 
 initSentry();
 installFrontendMonitoring();
@@ -71,12 +70,6 @@ installFrontendMonitoring();
 const queryClient = new QueryClient();
 const COUNTRY_ROUTE_PREFIXES = ["dk", "gb", "se", "es"] as const;
 
-/**
- * All application routes. Rendered once at "/*" and once under "/:country/*".
- * `path="/*"` in the parent route makes React Router match these against the
- * remainder path, so /dk/faq resolves to /faq inside this tree without
- * duplicating any route definition. Business algorithms untouched.
- */
 export function AppRoutes() {
   return (
     <Routes>
@@ -86,7 +79,7 @@ export function AppRoutes() {
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/profil" element={<Profile />} />
       <Route path="/verify-identity" element={<RoleGuard allow={["provider", "admin"]}><IdentityVerificationPage /></RoleGuard>} />
-      <Route path="/bliv-cleaner" element={<ProviderOnboarding />} />
+      <Route path="/bliv-cleaner" element={<ProviderQualificationGate />} />
       <Route path="/provider/profile" element={<RoleGuard allow={["provider", "admin"]}><ProviderProfilePage /></RoleGuard>} />
 
       <Route path="/customer" element={<RoleGuard allow={["customer"]}><CustomerDashboard /></RoleGuard>} />
@@ -136,10 +129,7 @@ export function AppRoutes() {
       <Route path="/admin/countries" element={<RoleGuard allow={["admin"]}><CountryConsole /></RoleGuard>} />
       <Route path="/faq" element={<FAQ />} />
       <Route path="/regler" element={<Regler />} />
-      <Route
-        path="/provider/bilag"
-        element={<RoleGuard allow={["provider", "admin", "super_admin"]}><ProviderReceipts /></RoleGuard>}
-      />
+      <Route path="/provider/bilag" element={<RoleGuard allow={["provider", "admin", "super_admin"]}><ProviderReceipts /></RoleGuard>} />
       <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
       <Route path="/not-found" element={<NotFound />} />
       <Route path="*" element={<NotFound />} />
@@ -151,24 +141,9 @@ export function RootRouteSwitch() {
   return (
     <Routes>
       {COUNTRY_ROUTE_PREFIXES.map((country) => (
-        <Route
-          key={country}
-          path={`/${country}/*`}
-          element={
-            <CountryProvider>
-              <AppRoutes />
-            </CountryProvider>
-          }
-        />
+        <Route key={country} path={`/${country}/*`} element={<CountryProvider><AppRoutes /></CountryProvider>} />
       ))}
-      <Route
-        path="/*"
-        element={
-          <CountryProvider>
-            <AppRoutes />
-          </CountryProvider>
-        }
-      />
+      <Route path="/*" element={<CountryProvider><AppRoutes /></CountryProvider>} />
     </Routes>
   );
 }
