@@ -1,8 +1,31 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import { matchesMobileAppRoute } from "@/hooks/useIsMobileApp";
 
+/**
+ * Global website footer. Hidden on mobile (<768px) when the current route
+ * renders inside `MobileAppShell` — MobileBottomNav is the sole permanent
+ * navigation on those surfaces. Tablet and desktop (>=768px) render the
+ * footer unchanged.
+ *
+ * Implementation notes:
+ *  - Uses `md:block hidden` scoped through `data-hide-mobile` so tailwind
+ *    can strip it at build time. `md:` breakpoint (768px) matches
+ *    `MOBILE_APP_BREAKPOINT` in `useIsMobileApp`.
+ *  - Only routes that appear in `matchesMobileAppRoute()` trigger the hide
+ *    — footer is never hidden globally on ad-hoc mobile routes that do not
+ *    use MobileAppShell.
+ */
 const Footer = () => {
+  const { pathname } = useLocation();
+  const hideOnMobile = matchesMobileAppRoute(pathname);
   return (
-    <footer className="border-t border-border bg-secondary/50">
+    <footer
+      data-hide-mobile={hideOnMobile ? "true" : undefined}
+      className={
+        "border-t border-border bg-secondary/50 " +
+        (hideOnMobile ? "hidden md:block" : "")
+      }
+    >
       <div className="container-wide section-padding">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           <div className="col-span-2 md:col-span-1">
