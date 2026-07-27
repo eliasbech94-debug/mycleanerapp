@@ -267,8 +267,21 @@ function FeaturedCleanersCarousel({ refreshNonce = 0 }: { refreshNonce?: number 
 
 function GuestHome() {
   const { t } = useTranslation("marketplace");
+  const [nonce, setNonce] = useState(0);
+  const { pullY, refreshing, thresholdReached } = usePullToRefresh({
+    enabled: true,
+    onRefresh: async () => {
+      // Bump nonce → FeaturedCleanersCarousel re-runs its existing refetch.
+      setNonce((n) => n + 1);
+      // Give the reused refetch a bounded window to settle so the indicator
+      // isn't hidden instantly. Presentation only; no new query issued.
+      await new Promise((r) => setTimeout(r, 650));
+      tryVibrate();
+    },
+  });
   return (
     <>
+      <PtrRow pullY={pullY} refreshing={refreshing} thresholdReached={thresholdReached} />
       <GreetingBar />
       <PrimaryBookingCard />
       <TrustChips />
@@ -276,11 +289,45 @@ function GuestHome() {
       <div className="pt-2">
         <ServiceCategoryGrid />
       </div>
-      <FeaturedCleanersCarousel />
+      <FeaturedCleanersCarousel refreshNonce={nonce} />
       <Suspense fallback={<div className="h-16" aria-hidden />}>
         <HomeSections slot="bottom" />
       </Suspense>
     </>
+  );
+}
+
+/* ---------------------------- shared PTR helpers ------------------------- */
+
+function tryVibrate() {
+  try {
+    if (typeof navigator !== "undefined" && typeof navigator.vibrate === "function") {
+      navigator.vibrate(8);
+    }
+  } catch {
+    /* noop */
+  }
+}
+
+function PtrRow({
+  pullY,
+  refreshing,
+  thresholdReached,
+}: {
+  pullY: number;
+  refreshing: boolean;
+  thresholdReached: boolean;
+}) {
+  const { t } = useTranslation("marketplace");
+  return (
+    <PullIndicator
+      pullY={pullY}
+      refreshing={refreshing}
+      thresholdReached={thresholdReached}
+      label={t("mobile.ptr.pull", "Træk for at opdatere")}
+      releaseLabel={t("mobile.ptr.release", "Slip for at opdatere")}
+      refreshingLabel={t("mobile.ptr.refreshing", "Opdaterer…")}
+    />
   );
 }
 
