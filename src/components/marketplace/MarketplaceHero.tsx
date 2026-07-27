@@ -88,16 +88,19 @@ export function MarketplaceHero() {
         className="relative hidden isolate overflow-hidden md:block"
         style={{ minHeight: "clamp(380px, 52vh, 560px)" }}
       >
-        <img
-          src={heroAsset.url}
-          alt={alt}
-          className="absolute inset-0 h-full w-full object-cover object-[65%_35%] lg:object-[60%_30%] xl:object-[55%_25%]"
-          loading="eager"
-          {...({ fetchpriority: "high" } as Record<string, string>)}
-          decoding="async"
-          width={1920}
-          height={1088}
-        />
+        <picture>
+          <source media="(min-width: 768px)" srcSet={heroAsset.url} />
+          <img
+            src={heroAsset.url}
+            alt={alt}
+            className="absolute inset-0 h-full w-full object-cover object-[65%_35%] lg:object-[60%_30%] xl:object-[55%_25%]"
+            loading="eager"
+            {...({ fetchpriority: "high" } as Record<string, string>)}
+            decoding="async"
+            width={1920}
+            height={1088}
+          />
+        </picture>
         {/* Left scrim: guarantees headline contrast without washing out the Europe map in the center */}
         <div
           className="absolute inset-0 bg-gradient-to-r from-[hsl(var(--mkt-bg))] from-0% via-[hsl(var(--mkt-bg))]/70 via-30% to-transparent to-55%"
