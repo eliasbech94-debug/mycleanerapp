@@ -37,6 +37,13 @@ vi.mock("@/hooks/useUserRoles", () => ({
 vi.mock("@/context/AuthGateContext", () => ({
   useAuthGate: () => ({ openLogin: () => {} }),
 }));
+vi.mock("@/context/ActiveMarketContext", () => ({
+  useActiveMarket: () => ({
+    market: { code: "DK", label: "Danmark", currency: "DKK" },
+    isNeutral: false,
+    setMarket: () => {},
+  }),
+}));
 
 function setViewport(width: number) {
   Object.defineProperty(window, "innerWidth", { configurable: true, value: width });
