@@ -168,10 +168,10 @@ function PrimaryBookingCard() {
 
 /* ------------------------------ featured carousel ------------------------ */
 
-function FeaturedCleanersCarousel() {
+function FeaturedCleanersCarousel({ refreshNonce = 0 }: { refreshNonce?: number }) {
   const { t } = useTranslation("marketplace");
   const { market, isNeutral } = useActiveMarket();
-  const { data, loading, error } = useMarketplaceProviders(
+  const { data, loading, error, refetch } = useMarketplaceProviders(
     {
       countryCode: isNeutral ? null : market.code,
       serviceCategory: "cleaning",
@@ -180,6 +180,13 @@ function FeaturedCleanersCarousel() {
     },
     { realtime: false },
   );
+  // Reuse existing refetch; no new query.
+  useEffect(() => {
+    if (refreshNonce > 0) {
+      void refetch();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [refreshNonce]);
 
   return (
     <Section
