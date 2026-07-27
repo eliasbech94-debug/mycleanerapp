@@ -26,8 +26,12 @@ export default function FoundingCleaner() {
   const ctaSecondary = t("foundingCleaner.ctaSecondary", "Se vilkårene");
   const startNote = t("foundingCleaner.startNote");
   const howHeading = t("foundingCleaner.how.heading", "Sådan fungerer det");
-  const steps = t("foundingCleaner.how.steps", { returnObjects: true }) as Step[];
-  const terms = t("foundingCleaner.terms", { returnObjects: true }) as Terms;
+  const stepsRaw = t("foundingCleaner.how.steps", { returnObjects: true, defaultValue: [] });
+  const steps: Step[] = Array.isArray(stepsRaw) ? (stepsRaw as Step[]) : [];
+  const termsRaw = t("foundingCleaner.terms", { returnObjects: true, defaultValue: {} });
+  const terms: Terms = (termsRaw && typeof termsRaw === "object" && !Array.isArray(termsRaw))
+    ? (termsRaw as Terms)
+    : ({ heading: "", lastUpdatedLabel: "", lastUpdated: "", items: [] } as Terms);
 
   React.useEffect(() => {
     const prev = document.title;
