@@ -6,6 +6,8 @@
       "reviews": "Real reviews"
     },
     "availability": "Available in 🇩🇰 Denmark · 🇸🇪 Sweden · 🇩🇪 Germany · 🇬🇧 United Kingdom · 🇪🇸 Spain",
+    "availability_label": "Available in",
+    "countries": { "dk": "Denmark", "se": "Sweden", "de": "Germany", "gb": "United Kingdom", "es": "Spain" },
     "image_alt": "Verified Cleaner in a European home",
     "variants": {
       "guest": {

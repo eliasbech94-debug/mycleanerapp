@@ -77,7 +77,8 @@ export function MarketplaceHero() {
   };
 
   const alt = t("hero.image_alt", { defaultValue: "MyCleaner" });
-  const availability = t("hero.availability", { defaultValue: "" });
+  const availabilityLabel = t("hero.availability_label", { defaultValue: "" });
+  const countryCodes = ["dk", "se", "de", "gb", "es"] as const;
 
   return (
     <section className="relative isolate" aria-labelledby="mkt-hero-title">
@@ -89,7 +90,7 @@ export function MarketplaceHero() {
         <img
           src={heroAsset.url}
           alt={alt}
-          className="absolute inset-0 h-full w-full object-cover object-[68%_18%] lg:object-[70%_20%] xl:object-[72%_22%]"
+          className="absolute inset-0 h-full w-full object-cover object-[68%_6%] lg:object-[70%_4%] xl:object-[72%_2%]"
           loading="eager"
           {...({ fetchpriority: "high" } as Record<string, string>)}
           decoding="async"
@@ -131,11 +132,12 @@ export function MarketplaceHero() {
             <CleanerSearchBar />
             <TrustRow t={t} />
             <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2">
-              {availability && (
-                <p className="text-[12px] font-medium uppercase tracking-[0.18em] text-[hsl(var(--mkt-ink-soft))]">
-                  {availability}
-                </p>
-              )}
+              <AvailabilityRow
+                label={availabilityLabel}
+                codes={countryCodes}
+                t={t}
+                className="text-[12px] font-medium uppercase tracking-[0.18em] text-[hsl(var(--mkt-ink-soft))]"
+              />
               <SecondaryCta label={variant.cta_secondary_label} href={variant.cta_secondary_href} />
             </div>
           </div>
@@ -173,7 +175,7 @@ export function MarketplaceHero() {
           <img
             src={heroAsset.url}
             alt={alt}
-            className="absolute inset-0 h-full w-full object-cover object-[58%_18%]"
+            className="absolute inset-0 h-full w-full object-cover object-[58%_6%]"
             loading="eager"
             decoding="async"
             width={1920}
@@ -189,11 +191,12 @@ export function MarketplaceHero() {
           <CleanerSearchBar />
           <TrustRow t={t} />
           <div className="mt-4 flex flex-col gap-2">
-            {availability && (
-              <p className="text-[11.5px] font-medium uppercase tracking-[0.16em] text-[hsl(var(--mkt-ink-soft))]">
-                {availability}
-              </p>
-            )}
+            <AvailabilityRow
+              label={availabilityLabel}
+              codes={countryCodes}
+              t={t}
+              className="text-[11.5px] font-medium uppercase tracking-[0.16em] text-[hsl(var(--mkt-ink-soft))]"
+            />
             <SecondaryCta label={variant.cta_secondary_label} href={variant.cta_secondary_href} />
           </div>
         </div>
@@ -238,6 +241,52 @@ function TrustChip({ icon, label }: { icon: React.ReactNode; label: string }) {
       {icon}
       {label}
     </li>
+  );
+}
+
+/**
+ * AvailabilityRow — renders "Available in" label followed by a row of
+ * country name + SVG flag pairs. SVG flags (via flagcdn) render identically
+ * across platforms unlike native emoji flags which fail on Windows Chrome.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function AvailabilityRow({
+  label,
+  codes,
+  t,
+  className,
+}: {
+  label: string;
+  codes: readonly string[];
+  t: any;
+  className?: string;
+}) {
+  if (!label || codes.length === 0) return null;
+  return (
+    <p className={className}>
+      <span>{label}</span>
+      <span className="ml-2 inline-flex flex-wrap items-center gap-x-3 gap-y-1 align-middle">
+        {codes.map((code, i) => {
+          const name = t(`hero.countries.${code}`, { defaultValue: "" });
+          if (!name) return null;
+          return (
+            <span key={code} className="inline-flex items-center gap-1.5 align-middle">
+              {i > 0 && <span aria-hidden="true" className="opacity-40">·</span>}
+              <img
+                src={`https://flagcdn.com/${code}.svg`}
+                alt=""
+                aria-hidden="true"
+                width={18}
+                height={13}
+                loading="lazy"
+                className="inline-block h-[13px] w-[18px] rounded-[2px] shadow-[0_0_0_1px_hsl(var(--mkt-border))] object-cover"
+              />
+              <span>{name}</span>
+            </span>
+          );
+        })}
+      </span>
+    </p>
   );
 }
 
