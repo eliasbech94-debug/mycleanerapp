@@ -166,20 +166,20 @@
   },
   "campaign": {
     "eyebrow": "FOUNDING CLEANER",
-    "title": "Start with 0 in MyCleaner platform fees",
-    "body": "The first 500 approved Cleaners who apply in 2026 pay 0 in MyCleaner platform fees for their first 3 months.",
-    "note": "The period only starts when your first job has been completed and paid.",
-    "cta": "Read about the campaign",
+    "title": "The Founding Cleaner program opens soon",
+    "body": "Planned benefit for the first 500 approved Cleaners who submit their provider application in 2026: 0 in provider platform fee for three calendar months.",
+    "note": "The program has not opened yet. Your application does not automatically reserve a spot.",
+    "cta": "Read about the program",
     "href": "/founding-cleaner",
     "badgePrimary": "FOUNDING CLEANER",
-    "badgeSecondary": "FIRST 500",
+    "badgeSecondary": "OPENS SOON",
     "edition": "2026 EDITION",
     "amount": "0",
-    "amountSuffix1": "in platform fees",
+    "amountSuffix1": "in provider platform fee",
     "amountSuffix2": "for 3 months",
-    "explain": "Apply in 2026 and get a strong start as one of MyCleaner's first approved Cleaners.",
-    "noteShort": "Starts with your first completed and paid job.",
-    "ctaShort": "See your benefit"
+    "explain": "Planned benefit for the first 500 approved Cleaners who submit their provider application in 2026.",
+    "noteShort": "The program has not opened yet. Your application does not automatically reserve a spot.",
+    "ctaShort": "Read about the program"
   },
   "app": {
     "eyebrow": "The MyCleaner app",
@@ -403,45 +403,51 @@
   },
   "foundingCleaner": {
     "eyebrow": "FOUNDING CLEANER",
-    "heading": "Get off to a strong start with 0 in platform fees",
-    "intro": "The campaign applies to provider applications submitted in 2026. Become one of the first 500 approved Founding Cleaners and pay 0 in MyCleaner platform fees for your first 3 months. You can still qualify if approval is completed later, but an application does not guarantee one of the 500 spots. The period only starts when your first job has been completed and paid.",
+    "heading": "The Founding Cleaner program",
+    "intro": "The Founding Cleaner program plans to give the first 500 approved Cleaners who submit their provider application in 2026 a benefit of 0 in provider platform fee for three calendar months. The program is not yet active, and an application does not automatically reserve a spot.",
+    "status": {
+      "title": "The program opens soon",
+      "body": "The Founding Cleaner program is not yet active. You can submit your Cleaner application, but the application does not reserve a campaign spot. If the program opens, qualifying applicants will be notified directly by MyCleaner."
+    },
+    "plannedBenefit": "The planned benefit is 0 in provider platform fee for three calendar months. The customer's separate platform fee, payment processing, tax, VAT, insurance and other third-party costs are not changed.",
     "ctaPrimary": "Apply as a Cleaner",
+    "ctaPrimaryNote": "The application is not a reservation of a campaign spot.",
     "ctaSecondary": "See the terms",
-    "startNote": "Your campaign period only starts when your first job has been completed and paid.",
+    "startNote": "If the program opens and you qualify, the three calendar months only start when your first qualifying job has been completed, paid and released under MyCleaner's existing release control.",
     "how": {
-      "heading": "How it works",
+      "heading": "How the program is planned",
       "steps": [
         {
-          "title": "Create your profile",
-          "body": "Fill in your Cleaner profile and complete the existing onboarding."
+          "title": "Submit your application",
+          "body": "Complete your Cleaner profile in 2026 and finish the existing onboarding. The application does not reserve a spot."
         },
         {
-          "title": "Get approved",
-          "body": "We check profile, identity and the required documentation."
+          "title": "Wait for approval",
+          "body": "MyCleaner reviews profile, identity and the required documentation. Approval may complete after 2026."
         },
         {
-          "title": "Start with no platform fee",
-          "body": "If you qualify for the campaign, your 3 months start with your first completed and paid job."
+          "title": "Get notified if the program opens",
+          "body": "If the program is activated and you are allocated one of up to 500 global spots, you will be notified directly by MyCleaner."
         }
       ]
     },
     "terms": {
-      "heading": "Terms",
+      "heading": "Planned terms",
       "lastUpdatedLabel": "Last updated",
       "lastUpdated": "2026-07-27",
       "items": [
-        "The campaign applies to applications submitted between 1 January and 31 December 2026 inclusive. It is the timestamp of the completed provider application — not the creation of a regular user account — that determines whether the time requirement is met.",
-        "The campaign applies to the first 500 Cleaners who meet the campaign requirements and become approved and activated.",
-        "A campaign spot is only finally allocated once MyCleaner has confirmed it. An application or profile creation does not automatically reserve a spot.",
-        "The campaign period lasts three consecutive calendar months from the first completed and paid booking.",
-        "MyCleaner's standard provider platform fee is 0 during the campaign period.",
-        "Payment processing fees, taxes, VAT, insurance and other third-party costs may still apply.",
-        "The campaign is valid once per person or business and must not be circumvented by creating multiple profiles.",
-        "The offer cannot be combined with other provider discounts or campaigns.",
-        "The Cleaner's account must continue to comply with MyCleaner's terms, quality requirements and safety requirements.",
-        "MyCleaner does not guarantee a specific number of bookings or specific earnings.",
-        "Abuse, fraud or a material breach of the terms may result in loss of the campaign benefit to the extent permitted by applicable law.",
-        "MyCleaner may change or end the campaign for future participants. An already confirmed campaign benefit must not be changed retroactively in violation of applicable law."
+        "The Founding Cleaner program is not yet active. Submitting an application does not automatically grant the benefit and does not reserve a campaign spot.",
+        "A maximum of 500 spots may be allocated globally across all markets.",
+        "Only completed provider applications submitted in the 2026 calendar year (from 1 January 2026 through 31 December 2026 inclusive) may be considered. The authoritative timestamp is provider_profiles.submitted_at on the server.",
+        "Approval may take place after 2026. A spot is only allocated server-side upon final approval and activation.",
+        "At most one campaign benefit is granted per verified natural person, even if that person controls multiple businesses. Duplicate profiles do not receive additional benefits.",
+        "The planned benefit is 0 in MyCleaner's provider platform fee for three calendar months. The customer's separate platform fee is not affected.",
+        "Payment processing costs, tax, VAT, insurance and other third-party costs are not automatically changed by the program.",
+        "The period lasts three calendar months via started_at + interval ‘3 months’ and is not measured in 90 days.",
+        "The period only starts when the first qualifying job has been completed, paid/captured, customer-confirmed or processed under the existing completion rule, and approved for release under MyCleaner's existing 24-hour hold and dispute control.",
+        "A full refund or open dispute before release does not start the period. A refund or chargeback after the start does not reset or extend the period.",
+        "MyCleaner notifies applicants directly if they are allocated a spot. No public countdown or remaining-spots counter is published.",
+        "Final campaign terms must be accepted when the program is activated. MyCleaner may change or end the planned program for future participants; an already confirmed campaign benefit will not be changed retroactively in violation of applicable law."
       ]
     },
     "appBarTitle": "Founding Cleaner"

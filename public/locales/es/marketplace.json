@@ -166,20 +166,20 @@
   },
   "campaign": {
     "eyebrow": "FOUNDING CLEANER",
-    "title": "Empieza con 0 en comisión de plataforma",
-    "body": "Los primeros 500 Cleaners aprobados que soliciten en 2026 pagan 0 en comisión de plataforma de MyCleaner durante sus primeros 3 meses.",
-    "note": "El periodo solo empieza cuando tu primer trabajo se haya completado y pagado.",
-    "cta": "Lee sobre la campaña",
+    "title": "El programa Founding Cleaner abre pronto",
+    "body": "Ventaja planeada para los primeros 500 Cleaners aprobados que envíen su solicitud de proveedor en 2026: 0 € en comisión de plataforma del proveedor durante tres meses naturales.",
+    "note": "El programa aún no ha abierto. Tu solicitud no reserva automáticamente una plaza.",
+    "cta": "Lee sobre el programa",
     "href": "/founding-cleaner",
     "badgePrimary": "FOUNDING CLEANER",
-    "badgeSecondary": "PRIMEROS 500",
+    "badgeSecondary": "ABRE PRONTO",
     "edition": "2026 EDITION",
     "amount": "0 €",
-    "amountSuffix1": "en comisión de plataforma",
+    "amountSuffix1": "en comisión de plataforma del proveedor",
     "amountSuffix2": "durante 3 meses",
-    "explain": "Solicita en 2026 y empieza con fuerza como uno de los primeros Cleaners aprobados de MyCleaner.",
-    "noteShort": "Empieza con tu primer trabajo completado y pagado.",
-    "ctaShort": "Descubre tu ventaja"
+    "explain": "Ventaja planeada para los primeros 500 Cleaners aprobados que envíen su solicitud de proveedor en 2026.",
+    "noteShort": "El programa aún no ha abierto. Tu solicitud no reserva automáticamente una plaza.",
+    "ctaShort": "Lee sobre el programa"
   },
   "app": {
     "eyebrow": "La app MyCleaner",
@@ -403,45 +403,51 @@
   },
   "foundingCleaner": {
     "eyebrow": "FOUNDING CLEANER",
-    "heading": "Empieza con fuerza con 0 en comisión de plataforma",
-    "intro": "La campaña se aplica a las solicitudes de proveedor enviadas en 2026. Conviértete en uno de los primeros 500 Founding Cleaners aprobados y paga 0 en comisión de plataforma de MyCleaner durante tus primeros 3 meses. Puedes seguir cumpliendo los requisitos si la aprobación se completa más tarde, pero una solicitud no garantiza una de las 500 plazas. El periodo solo empieza cuando tu primer trabajo se haya completado y pagado.",
+    "heading": "Programa Founding Cleaner",
+    "intro": "El programa Founding Cleaner tiene previsto ofrecer a los primeros 500 Cleaners aprobados que envíen su solicitud de proveedor en 2026 una ventaja de 0 € en comisión de plataforma del proveedor durante tres meses naturales. El programa aún no está activo y una solicitud no reserva automáticamente una plaza.",
+    "status": {
+      "title": "El programa abre pronto",
+      "body": "El programa Founding Cleaner aún no está activo. Puedes enviar tu solicitud de Cleaner, pero la solicitud no reserva una plaza de la campaña. Si el programa abre, MyCleaner avisará directamente a las personas solicitantes que cumplan los requisitos."
+    },
+    "plannedBenefit": "La ventaja planeada es de 0 € en comisión de plataforma del proveedor durante tres meses naturales. La comisión de plataforma independiente del cliente, el procesamiento de pagos, los impuestos, el IVA, el seguro y otros costes de terceros no cambian.",
     "ctaPrimary": "Solicitar como Cleaner",
+    "ctaPrimaryNote": "La solicitud no es una reserva de una plaza de la campaña.",
     "ctaSecondary": "Ver los términos",
-    "startNote": "Tu periodo de campaña solo empieza cuando tu primer trabajo se haya completado y pagado.",
+    "startNote": "Si el programa abre y cumples los requisitos, los tres meses naturales solo empiezan cuando tu primer trabajo cualificado se haya completado, pagado y liberado según el control de liberación existente de MyCleaner.",
     "how": {
-      "heading": "Cómo funciona",
+      "heading": "Cómo se ha planeado el programa",
       "steps": [
         {
-          "title": "Crea tu perfil",
-          "body": "Rellena tu perfil de Cleaner y completa el onboarding existente."
+          "title": "Envía tu solicitud",
+          "body": "Completa tu perfil de Cleaner en 2026 y finaliza el onboarding existente. La solicitud no reserva una plaza."
         },
         {
-          "title": "Sé aprobado",
-          "body": "Comprobamos el perfil, la identidad y la documentación requerida."
+          "title": "Espera la aprobación",
+          "body": "MyCleaner revisa el perfil, la identidad y la documentación requerida. La aprobación puede completarse después de 2026."
         },
         {
-          "title": "Empieza sin comisión de plataforma",
-          "body": "Si cumples los requisitos de la campaña, tus 3 meses empiezan con tu primer trabajo completado y pagado."
+          "title": "Recibe aviso si el programa abre",
+          "body": "Si el programa se activa y se te asigna una de hasta 500 plazas globales, MyCleaner te avisará directamente."
         }
       ]
     },
     "terms": {
-      "heading": "Términos",
+      "heading": "Términos previstos",
       "lastUpdatedLabel": "Última actualización",
       "lastUpdated": "2026-07-27",
       "items": [
-        "La campaña se aplica a las solicitudes enviadas entre el 1 de enero y el 31 de diciembre de 2026 inclusive. Es la fecha de la solicitud de proveedor completada — no la creación de una cuenta de usuario normal — la que determina si se cumple el requisito temporal.",
-        "La campaña se aplica a los primeros 500 Cleaners que cumplan los requisitos de la campaña y sean aprobados y activados.",
-        "Una plaza de campaña se asigna definitivamente solo cuando MyCleaner lo haya confirmado. Una solicitud o la creación de un perfil no reserva automáticamente una plaza.",
-        "El periodo de campaña dura tres meses naturales consecutivos desde la primera reserva completada y pagada.",
-        "La comisión estándar de plataforma para proveedores de MyCleaner es 0 durante el periodo de campaña.",
-        "Las tarifas de procesamiento de pagos, impuestos, IVA, seguro y otros costes de terceros pueden seguir aplicándose.",
-        "La campaña es válida una vez por persona o empresa y no debe eludirse creando varios perfiles.",
-        "La oferta no puede combinarse con otros descuentos o campañas para proveedores.",
-        "La cuenta del Cleaner debe seguir cumpliendo los términos, requisitos de calidad y requisitos de seguridad de MyCleaner.",
-        "MyCleaner no garantiza un número específico de reservas ni unos ingresos específicos.",
-        "El uso indebido, el fraude o un incumplimiento sustancial de los términos pueden dar lugar a la pérdida del beneficio de la campaña en la medida permitida por la ley aplicable.",
-        "MyCleaner puede modificar o finalizar la campaña para futuros participantes. Un beneficio de campaña ya confirmado no debe modificarse retroactivamente en contra de la ley aplicable."
+        "El programa Founding Cleaner aún no está activo. Enviar una solicitud no otorga automáticamente la ventaja y no reserva una plaza de la campaña.",
+        "Se pueden asignar como máximo 500 plazas globalmente en todos los mercados.",
+        "Solo se pueden considerar las solicitudes de proveedor completadas y enviadas en el año natural 2026 (del 1 de enero de 2026 al 31 de diciembre de 2026 incluidos). La marca de tiempo autoritativa es provider_profiles.submitted_at en el servidor.",
+        "La aprobación puede producirse después de 2026. Una plaza solo se asigna en el servidor tras la aprobación y activación finales.",
+        "Se concede como máximo una ventaja de campaña por persona física verificada, aunque esa persona controle varias empresas. Los perfiles duplicados no reciben ventajas adicionales.",
+        "La ventaja planeada es de 0 € en la comisión de plataforma del proveedor de MyCleaner durante tres meses naturales. La comisión de plataforma independiente del cliente no se ve afectada.",
+        "Los costes de procesamiento de pagos, impuestos, IVA, seguros y otros costes de terceros no se modifican automáticamente por el programa.",
+        "El periodo dura tres meses naturales mediante started_at + interval ‘3 months’ y no se mide en 90 días.",
+        "El periodo solo empieza cuando el primer trabajo cualificado se ha completado, pagado/capturado, confirmado por el cliente o gestionado según la regla de completion existente y aprobado para su liberación según el hold existente de 24 horas y el control de disputas de MyCleaner.",
+        "Un reembolso total o una disputa abierta antes de la liberación no inicia el periodo. Un reembolso o contracargo posterior al inicio no reinicia ni amplía el periodo.",
+        "MyCleaner avisa directamente a las personas solicitantes si se les asigna una plaza. No se publica ninguna cuenta atrás pública ni contador de plazas restantes.",
+        "Los términos definitivos de la campaña deberán aceptarse cuando el programa se active. MyCleaner puede modificar o finalizar el programa previsto para futuros participantes; una ventaja de campaña ya confirmada no se modificará retroactivamente en contra de la ley aplicable."
       ]
     },
     "appBarTitle": "Founding Cleaner"
