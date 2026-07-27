@@ -163,11 +163,12 @@
     ]
   },
   "campaign": {
-    "eyebrow": "Campaign",
-    "title": "Become a Founding Cleaner",
-    "body": "We're launching across Europe — the first 500 Cleaners get a lifetime discount on the platform fee.",
-    "cta": "Apply now",
-    "href": "/provider/register"
+    "eyebrow": "FOUNDING CLEANER",
+    "title": "Start with 0 in MyCleaner platform fees",
+    "body": "The first 500 approved Cleaners pay 0 in MyCleaner platform fees for their first 3 months.",
+    "note": "The period only starts when your first job has been completed and paid.",
+    "cta": "Read about the campaign",
+    "href": "/founding-cleaner"
   },
   "app": {
     "eyebrow": "The MyCleaner app",
@@ -387,6 +388,49 @@
       "title": "Couldn't load bookings",
       "body": "Please try again in a moment.",
       "retry": "Try again"
+    }
+  },
+  "foundingCleaner": {
+    "eyebrow": "FOUNDING CLEANER",
+    "heading": "Get off to a strong start with 0 in platform fees",
+    "intro": "Become one of the first 500 approved Founding Cleaners and pay 0 in MyCleaner platform fees for your first 3 months. The period only starts once your first job has been completed and paid.",
+    "ctaPrimary": "Apply as a Cleaner",
+    "ctaSecondary": "See the terms",
+    "startNote": "Your campaign period only starts when your first job has been completed and paid.",
+    "how": {
+      "heading": "How it works",
+      "steps": [
+        {
+          "title": "Create your profile",
+          "body": "Fill in your Cleaner profile and complete the existing onboarding."
+        },
+        {
+          "title": "Get approved",
+          "body": "We check profile, identity and the required documentation."
+        },
+        {
+          "title": "Start with no platform fee",
+          "body": "If you qualify for the campaign, your 3 months start with your first completed and paid job."
+        }
+      ]
+    },
+    "terms": {
+      "heading": "Terms",
+      "lastUpdatedLabel": "Last updated",
+      "lastUpdated": "2026-07-27",
+      "items": [
+        "The campaign applies to the first 500 Cleaners who meet the campaign requirements and become approved and activated.",
+        "A campaign spot is only finally allocated once MyCleaner has confirmed it. An application or profile creation does not automatically reserve a spot.",
+        "The campaign period lasts three consecutive calendar months from the first completed and paid booking.",
+        "MyCleaner's standard provider platform fee is 0 during the campaign period.",
+        "Payment processing fees, taxes, VAT, insurance and other third-party costs may still apply.",
+        "The campaign is valid once per person or business and must not be circumvented by creating multiple profiles.",
+        "The offer cannot be combined with other provider discounts or campaigns.",
+        "The Cleaner's account must continue to comply with MyCleaner's terms, quality requirements and safety requirements.",
+        "MyCleaner does not guarantee a specific number of bookings or specific earnings.",
+        "Abuse, fraud or a material breach of the terms may result in loss of the campaign benefit to the extent permitted by applicable law.",
+        "MyCleaner may change or end the campaign for future participants. An already confirmed campaign benefit must not be changed retroactively in violation of applicable law."
+      ]
     }
   }
 }

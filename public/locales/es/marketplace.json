@@ -163,11 +163,12 @@
     ]
   },
   "campaign": {
-    "eyebrow": "Campaña",
-    "title": "Conviértete en Founding Cleaner",
-    "body": "Estamos lanzando en toda Europa — los primeros 500 Cleaners obtienen descuento vitalicio en la comisión.",
-    "cta": "Aplicar ahora",
-    "href": "/provider/register"
+    "eyebrow": "FOUNDING CLEANER",
+    "title": "Empieza con 0 en comisión de plataforma",
+    "body": "Los primeros 500 Cleaners aprobados pagan 0 en comisión de plataforma de MyCleaner durante sus primeros 3 meses.",
+    "note": "El periodo solo empieza cuando tu primer trabajo se haya completado y pagado.",
+    "cta": "Lee sobre la campaña",
+    "href": "/founding-cleaner"
   },
   "app": {
     "eyebrow": "La app MyCleaner",
@@ -387,6 +388,49 @@
       "title": "No se pudieron cargar las reservas",
       "body": "Inténtalo de nuevo en un momento.",
       "retry": "Reintentar"
+    }
+  },
+  "foundingCleaner": {
+    "eyebrow": "FOUNDING CLEANER",
+    "heading": "Empieza con fuerza con 0 en comisión de plataforma",
+    "intro": "Conviértete en uno de los primeros 500 Founding Cleaners aprobados y paga 0 en comisión de plataforma de MyCleaner durante tus primeros 3 meses. El periodo solo empieza cuando tu primer trabajo se haya completado y pagado.",
+    "ctaPrimary": "Solicitar como Cleaner",
+    "ctaSecondary": "Ver los términos",
+    "startNote": "Tu periodo de campaña solo empieza cuando tu primer trabajo se haya completado y pagado.",
+    "how": {
+      "heading": "Cómo funciona",
+      "steps": [
+        {
+          "title": "Crea tu perfil",
+          "body": "Rellena tu perfil de Cleaner y completa el onboarding existente."
+        },
+        {
+          "title": "Sé aprobado",
+          "body": "Comprobamos el perfil, la identidad y la documentación requerida."
+        },
+        {
+          "title": "Empieza sin comisión de plataforma",
+          "body": "Si cumples los requisitos de la campaña, tus 3 meses empiezan con tu primer trabajo completado y pagado."
+        }
+      ]
+    },
+    "terms": {
+      "heading": "Términos",
+      "lastUpdatedLabel": "Última actualización",
+      "lastUpdated": "2026-07-27",
+      "items": [
+        "La campaña se aplica a los primeros 500 Cleaners que cumplan los requisitos de la campaña y sean aprobados y activados.",
+        "Una plaza de campaña se asigna definitivamente solo cuando MyCleaner lo haya confirmado. Una solicitud o la creación de un perfil no reserva automáticamente una plaza.",
+        "El periodo de campaña dura tres meses naturales consecutivos desde la primera reserva completada y pagada.",
+        "La comisión estándar de plataforma para proveedores de MyCleaner es 0 durante el periodo de campaña.",
+        "Las tarifas de procesamiento de pagos, impuestos, IVA, seguro y otros costes de terceros pueden seguir aplicándose.",
+        "La campaña es válida una vez por persona o empresa y no debe eludirse creando varios perfiles.",
+        "La oferta no puede combinarse con otros descuentos o campañas para proveedores.",
+        "La cuenta del Cleaner debe seguir cumpliendo los términos, requisitos de calidad y requisitos de seguridad de MyCleaner.",
+        "MyCleaner no garantiza un número específico de reservas ni unos ingresos específicos.",
+        "El uso indebido, el fraude o un incumplimiento sustancial de los términos pueden dar lugar a la pérdida del beneficio de la campaña en la medida permitida por la ley aplicable.",
+        "MyCleaner puede modificar o finalizar la campaña para futuros participantes. Un beneficio de campaña ya confirmado no debe modificarse retroactivamente en contra de la ley aplicable."
+      ]
     }
   }
 }

@@ -163,11 +163,12 @@
     ]
   },
   "campaign": {
-    "eyebrow": "Kampanj",
-    "title": "Bli en Founding Cleaner",
-    "body": "Vi lanserar i hela Europa — de första 500 Cleaners får livstidsrabatt på plattformsavgiften.",
-    "cta": "Ansök nu",
-    "href": "/provider/register"
+    "eyebrow": "FOUNDING CLEANER",
+    "title": "Starta med 0 kr i plattformsavgift",
+    "body": "De första 500 godkända Cleaners betalar 0 kr i MyCleaner-plattformsavgift under sina första 3 månader.",
+    "note": "Perioden startar först när ditt första uppdrag har genomförts och betalats.",
+    "cta": "Läs om kampanjen",
+    "href": "/founding-cleaner"
   },
   "app": {
     "eyebrow": "MyCleaner-appen",
@@ -387,6 +388,49 @@
       "title": "Kunde inte hämta bokningar",
       "body": "Försök igen om ett ögonblick.",
       "retry": "Försök igen"
+    }
+  },
+  "foundingCleaner": {
+    "eyebrow": "FOUNDING CLEANER",
+    "heading": "Kom igång med 0 kr i plattformsavgift",
+    "intro": "Bli en av de första 500 godkända Founding Cleaners och betala 0 kr i MyCleaner-plattformsavgift under dina första 3 månader. Perioden startar först när ditt första uppdrag har genomförts och betalats.",
+    "ctaPrimary": "Ansök som Cleaner",
+    "ctaSecondary": "Se villkoren",
+    "startNote": "Din kampanjperiod startar först när ditt första uppdrag har genomförts och betalats.",
+    "how": {
+      "heading": "Så fungerar det",
+      "steps": [
+        {
+          "title": "Skapa din profil",
+          "body": "Fyll i din Cleaner-profil och slutför den befintliga onboardingen."
+        },
+        {
+          "title": "Bli godkänd",
+          "body": "Vi kontrollerar profil, identitet och nödvändig dokumentation."
+        },
+        {
+          "title": "Börja utan plattformsavgift",
+          "body": "Om du kvalificerar dig för kampanjen startar dina 3 månader vid ditt första genomförda och betalda uppdrag."
+        }
+      ]
+    },
+    "terms": {
+      "heading": "Villkor",
+      "lastUpdatedLabel": "Senast uppdaterad",
+      "lastUpdated": "2026-07-27",
+      "items": [
+        "Kampanjen gäller de första 500 Cleaners som uppfyller kampanjens krav och blir godkända och aktiverade.",
+        "En kampanjplats tilldelas slutgiltigt först när MyCleaner har bekräftat det. Ansökan eller profilskapande reserverar inte automatiskt en plats.",
+        "Kampanjperioden varar i tre sammanhängande kalendermånader från den första genomförda och betalda bokningen.",
+        "MyCleaners normala plattformsavgift för leverantörer är 0 kr under kampanjperioden.",
+        "Avgifter för betalhantering, skatter, moms, försäkring och andra tredjepartskostnader kan fortfarande gälla.",
+        "Kampanjen gäller en gång per person eller företag och får inte kringgås genom att skapa flera profiler.",
+        "Erbjudandet kan inte kombineras med andra leverantörsrabatter eller kampanjer.",
+        "Cleanerns konto måste fortsatt följa MyCleaners villkor, kvalitetskrav och säkerhetskrav.",
+        "MyCleaner garanterar inte ett visst antal bokningar eller en viss intjäning.",
+        "Missbruk, bedrägeri eller väsentligt brott mot villkoren kan leda till att kampanjförmånen bortfaller i den utsträckning tillämplig lag tillåter.",
+        "MyCleaner kan ändra eller avsluta kampanjen för framtida deltagare. En redan bekräftad kampanjförmån får inte ändras retroaktivt i strid med tillämplig lag."
+      ]
     }
   }
 }
