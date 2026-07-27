@@ -48,9 +48,9 @@ const SORTS = [
   { v: "response", key: "sort.response" },
 ] as const;
 
-// Cleaning subcategories only — MyCleaner is a cleaning marketplace.
-// Mirrors CleanerSearchBar's SUBCATEGORIES contract but scoped to search chips.
-const CHIP_CATEGORIES = ["all", "cleaning", "handyman", "garden", "moving"] as const;
+// MyCleaner is a cleaning-only marketplace. Only "all" and "cleaning" chips
+// are exposed here; non-cleaning categories are intentionally omitted.
+const CHIP_CATEGORIES = ["all", "cleaning"] as const;
 
 type ChipCategory = (typeof CHIP_CATEGORIES)[number];
 

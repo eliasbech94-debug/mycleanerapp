@@ -306,10 +306,7 @@
     "chips": {
       "aria": "Filter category",
       "all": "All",
-      "cleaning": "Cleaning",
-      "handyman": "Handyman",
-      "garden": "Garden",
-      "moving": "Moving"
+      "cleaning": "Cleaning"
     },
     "filters": {
       "label": "Filters",

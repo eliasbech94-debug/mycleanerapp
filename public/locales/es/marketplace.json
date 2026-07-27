@@ -306,10 +306,7 @@
     "chips": {
       "aria": "Filtrar categoría",
       "all": "Todos",
-      "cleaning": "Limpieza",
-      "handyman": "Manitas",
-      "garden": "Jardín",
-      "moving": "Mudanza"
+      "cleaning": "Limpieza"
     },
     "filters": {
       "label": "Filtros",

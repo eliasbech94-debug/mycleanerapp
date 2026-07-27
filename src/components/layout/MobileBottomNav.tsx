@@ -12,6 +12,7 @@ import { Home, Search, CalendarCheck, User as UserIcon, LayoutDashboard, Message
 import { useAuth } from "@/hooks/useAuth";
 import { useUserRoles } from "@/hooks/useUserRoles";
 import { useAuthGate } from "@/context/AuthGateContext";
+import { normalizePath } from "@/hooks/useIsMobileApp";
 
 type Tab = {
   key: string;
@@ -22,24 +23,30 @@ type Tab = {
   match?: (path: string) => boolean;
 };
 
-// Routes where the mobile app-nav should appear. Keep in sync with the
-// marketplace surface — omit admin/employee/provider dashboards which
-// have their own chrome.
+// Routes where the mobile app-nav should appear. Country-prefixed variants
+// (/dk, /gb, /se, /es) are supported via normalizePath. Keep in sync with the
+// marketplace surface — omit admin/employee dashboards which have their own chrome.
 const MOBILE_NAV_ROUTES: RegExp[] = [
   /^\/$/,
   /^\/find-cleaner(\/|$)/,
+  /^\/marketplace(\/|$)/,
   /^\/book(\/|$)/,
   /^\/mine-bookinger(\/|$)/,
+  /^\/customer\/bookings(\/|$)/,
   /^\/profil(\/|$)/,
   /^\/faq(\/|$)/,
   /^\/regler(\/|$)/,
+  /^\/p\/[^/]+(\/|$)/,
   /^\/c\/[^/]+(\/|$)/,
   /^\/inbox(\/|$)/,
 ];
 
-function shouldShow(pathname: string) {
-  return MOBILE_NAV_ROUTES.some((re) => re.test(pathname));
+export function shouldShowMobileNav(pathname: string): boolean {
+  const p = normalizePath(pathname);
+  return MOBILE_NAV_ROUTES.some((re) => re.test(p));
 }
+// Back-compat internal alias (previously named `shouldShow`).
+const shouldShow = shouldShowMobileNav;
 
 /**
  * Pure role→tab mapping. Extracted so it can be unit-tested without
