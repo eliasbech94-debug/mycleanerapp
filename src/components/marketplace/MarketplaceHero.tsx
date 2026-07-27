@@ -6,7 +6,6 @@ import { ShieldCheck, Lock, Star, ArrowRight } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useHomeAudience, type HomeAudience } from "./home/useHomeAudience";
 import heroAsset from "@/assets/hero-europe-v7.jpg.asset.json";
-import heroMobileAsset from "@/assets/hero-europe-mobile-v1.jpg.asset.json";
 
 /**
  * MarketplaceHero — responsive premium editorial layout.
