@@ -294,5 +294,93 @@
       "calendar": "Calendar",
       "payouts": "Payouts"
     }
+  },
+  "mobileSearch": {
+    "appBarTitle": "Find a Cleaner",
+    "placeholder": "Search by name, city or postcode",
+    "aria": "Search for Cleaners",
+    "clear": "Clear search",
+    "loading_count": "Loading…",
+    "count": "{{n}} Cleaners found",
+    "price_from": "from {{price}} /h",
+    "chips": {
+      "aria": "Filter category",
+      "all": "All",
+      "cleaning": "Cleaning",
+      "handyman": "Handyman",
+      "garden": "Garden",
+      "moving": "Moving"
+    },
+    "filters": {
+      "label": "Filters",
+      "open": "Open filters",
+      "title": "Filters and sort",
+      "description": "Tune your search",
+      "sortHeading": "Sort",
+      "maxRate": "Max hourly rate",
+      "maxRatePlaceholder": "No limit",
+      "reset": "Reset",
+      "apply": "Show results"
+    },
+    "sort": {
+      "score": "Best match",
+      "price_asc": "Price (low → high)",
+      "price_desc": "Price (high → low)",
+      "rating": "Top rated",
+      "response": "Fastest reply"
+    },
+    "empty": {
+      "title": "No Cleaners match your filters",
+      "body": "Try resetting filters or widening your area.",
+      "reset": "Reset filters"
+    },
+    "error": {
+      "title": "Search is temporarily unavailable",
+      "body": "Please try again in a moment.",
+      "retry": "Try again"
+    },
+    "pagination": {
+      "prev": "Previous",
+      "next": "Next",
+      "pageOf": "Page {{page}} of {{pages}}"
+    }
+  },
+  "mobileBookings": {
+    "appBarTitle": "My bookings",
+    "provider": "Cleaner",
+    "total": "You pay",
+    "tabs": {
+      "aria": "Bookings",
+      "upcoming": "Upcoming",
+      "previous": "Previous"
+    },
+    "status": {
+      "pending": "Pending",
+      "accepted": "Accepted",
+      "declined": "Declined",
+      "cancelled": "Cancelled",
+      "completed": "Completed"
+    },
+    "empty": {
+      "cta": "Find a Cleaner",
+      "upcoming": {
+        "title": "No upcoming bookings",
+        "body": "Find a Cleaner and book directly in their calendar."
+      },
+      "previous": {
+        "title": "No previous bookings",
+        "body": "Your completed bookings will appear here."
+      },
+      "signed_out": {
+        "title": "Sign in to see your bookings",
+        "body": "Bookings are only visible when signed in.",
+        "cta": "Sign in"
+      }
+    },
+    "error": {
+      "title": "Couldn't load bookings",
+      "body": "Please try again in a moment.",
+      "retry": "Try again"
+    }
   }
 }

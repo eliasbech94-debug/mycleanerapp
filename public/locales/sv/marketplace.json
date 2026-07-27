@@ -294,5 +294,93 @@
       "calendar": "Kalender",
       "payouts": "Utbetalningar"
     }
+  },
+  "mobileSearch": {
+    "appBarTitle": "Hitta en Cleaner",
+    "placeholder": "Sök på namn, stad eller postnummer",
+    "aria": "Sök efter Cleaners",
+    "clear": "Rensa sökning",
+    "loading_count": "Laddar…",
+    "count": "{{n}} Cleaners hittade",
+    "price_from": "från {{price}} kr/t",
+    "chips": {
+      "aria": "Filtrera kategori",
+      "all": "Alla",
+      "cleaning": "Städning",
+      "handyman": "Handyman",
+      "garden": "Trädgård",
+      "moving": "Flytt"
+    },
+    "filters": {
+      "label": "Filter",
+      "open": "Öppna filter",
+      "title": "Filter och sortering",
+      "description": "Anpassa din sökning",
+      "sortHeading": "Sortering",
+      "maxRate": "Max timpris",
+      "maxRatePlaceholder": "Ingen gräns",
+      "reset": "Återställ",
+      "apply": "Visa resultat"
+    },
+    "sort": {
+      "score": "Bästa matchning",
+      "price_asc": "Pris (låg → hög)",
+      "price_desc": "Pris (hög → låg)",
+      "rating": "Högst betyg",
+      "response": "Snabbast svar"
+    },
+    "empty": {
+      "title": "Inga Cleaners matchar dina filter",
+      "body": "Prova att återställa filter eller utöka området.",
+      "reset": "Återställ filter"
+    },
+    "error": {
+      "title": "Sökningen är tillfälligt otillgänglig",
+      "body": "Försök igen om ett ögonblick.",
+      "retry": "Försök igen"
+    },
+    "pagination": {
+      "prev": "Föregående",
+      "next": "Nästa",
+      "pageOf": "Sida {{page}} av {{pages}}"
+    }
+  },
+  "mobileBookings": {
+    "appBarTitle": "Mina bokningar",
+    "provider": "Cleaner",
+    "total": "Du betalar",
+    "tabs": {
+      "aria": "Bokningar",
+      "upcoming": "Kommande",
+      "previous": "Tidigare"
+    },
+    "status": {
+      "pending": "Väntar",
+      "accepted": "Accepterad",
+      "declined": "Avvisad",
+      "cancelled": "Avbokad",
+      "completed": "Slutförd"
+    },
+    "empty": {
+      "cta": "Hitta en Cleaner",
+      "upcoming": {
+        "title": "Inga kommande bokningar",
+        "body": "Hitta en Cleaner och boka direkt i kalendern."
+      },
+      "previous": {
+        "title": "Inga tidigare bokningar",
+        "body": "Dina slutförda bokningar visas här."
+      },
+      "signed_out": {
+        "title": "Logga in för att se dina bokningar",
+        "body": "Bokningar syns endast när du är inloggad.",
+        "cta": "Logga in"
+      }
+    },
+    "error": {
+      "title": "Kunde inte hämta bokningar",
+      "body": "Försök igen om ett ögonblick.",
+      "retry": "Försök igen"
+    }
   }
 }

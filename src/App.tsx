@@ -10,6 +10,8 @@ import CustomCursor from "@/components/CustomCursor";
 import { AuthProvider } from "@/hooks/useAuth";
 import Index from "./pages/Index";
 import MobileHomeGate from "./pages/mobile/MobileHomeGate";
+import MobileMarketplaceGate from "./pages/mobile/MobileMarketplaceGate";
+import MobileBookingsGate from "./pages/mobile/MobileBookingsGate";
 import Login from "./pages/Login";
 import AuthCallback from "./pages/AuthCallback";
 import ResetPassword from "./pages/ResetPassword";
@@ -100,7 +102,7 @@ export function AppRoutes() {
       <Route path="/provider/profile" element={<RoleGuard allow={["provider", "admin"]}><ProviderProfilePage /></RoleGuard>} />
 
       <Route path="/customer" element={<RoleGuard allow={["customer"]}><CustomerDashboard /></RoleGuard>} />
-      <Route path="/customer/bookings" element={<RoleGuard allow={["customer"]}><MyBookings /></RoleGuard>} />
+      <Route path="/customer/bookings" element={<RoleGuard allow={["customer"]}><MobileBookingsGate /></RoleGuard>} />
       <Route path="/customer/notifications" element={<RoleGuard allow={["customer"]}><Navigate to="/profil?tab=inbox" replace /></RoleGuard>} />
       <Route path="/customer/invoices" element={<RoleGuard allow={["customer"]}><Navigate to="/profil?tab=invoices" replace /></RoleGuard>} />
       <Route path="/customer/addresses" element={<RoleGuard allow={["customer"]}><Navigate to="/profil?tab=addresses" replace /></RoleGuard>} />
@@ -110,7 +112,7 @@ export function AppRoutes() {
       {/* UUID-guarded internal provider route. Non-UUID falls through to NotFound. */}
       <Route path="/provider/:id" element={<UuidGuard param="id"><ProviderProfile /></UuidGuard>} />
       <Route path="/find-cleaner" element={<FindCleaner />} />
-      <Route path="/marketplace" element={<Marketplace />} />
+      <Route path="/marketplace" element={<MobileMarketplaceGate />} />
       {/* Canonical public provider URL. `/c/:slug` is kept as a legacy alias and client-redirects. */}
       <Route path="/p/:slug" element={<PublicProviderProfile />} />
       <Route path="/c/:slug" element={<LegacySlugRedirect />} />
@@ -134,7 +136,7 @@ export function AppRoutes() {
       <Route path="/support/bookings" element={<RoleGuard allow={["support", "admin"]}><SupportBookings /></RoleGuard>} />
       <Route path="/book" element={<BookingEntry />} />
       <Route path="/book/:id" element={<BookingFlow />} />
-      <Route path="/mine-bookinger" element={<MyBookings />} />
+      <Route path="/mine-bookinger" element={<MobileBookingsGate />} />
       <Route path="/booking/:id/plan" element={<BookingPlan />} />
       <Route path="/provider-dashboard" element={<RoleGuard allow={["provider", "admin"]}><ProviderDashboard /></RoleGuard>} />
       <Route path="/provider/pricing" element={<RoleGuard allow={["provider", "admin"]}><ProviderPricing /></RoleGuard>} />
