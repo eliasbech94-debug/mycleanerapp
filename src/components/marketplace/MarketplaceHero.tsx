@@ -177,7 +177,7 @@ export function MarketplaceHero() {
           <img
             src={heroAsset.url}
             alt={alt}
-            className="absolute inset-0 h-full w-full object-cover object-[58%_6%]"
+            className="absolute inset-0 h-full w-full object-cover object-center"
             loading="eager"
             decoding="async"
             width={1920}
