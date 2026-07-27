@@ -5,7 +5,7 @@
       "payments": "Säkra betalningar",
       "reviews": "Äkta omdömen"
     },
-    "availability": "Tillgänglig i Danmark · Sverige · Tyskland · Storbritannien · Spanien",
+    "availability": "Tillgänglig i 🇩🇰 Danmark · 🇸🇪 Sverige · 🇩🇪 Tyskland · 🇬🇧 Storbritannien · 🇪🇸 Spanien",
     "image_alt": "Verifierad Cleaner i ett europeiskt hem",
     "variants": {
       "guest": {
@@ -81,10 +81,22 @@
   },
   "trust": {
     "heading": "Därför väljer kunder MyCleaner",
-    "identity": { "title": "Verifierad identitet", "body": "Alla Cleaners genomgår ID-verifiering innan de får ta emot bokningar." },
-    "payments": { "title": "Säkra betalningar", "body": "Betalningar hanteras via Stripe. Dina kortuppgifter delas aldrig med din Cleaner." },
-    "reviews":  { "title": "Äkta omdömen", "body": "Endast kunder med genomförda bokningar kan lämna omdömen." },
-    "support":  { "title": "Kundsupport", "body": "Skriv till oss om något känns fel — vi hjälper dig genom varje ärende." }
+    "identity": {
+      "title": "Verifierad identitet",
+      "body": "Alla Cleaners genomgår ID-verifiering innan de får ta emot bokningar."
+    },
+    "payments": {
+      "title": "Säkra betalningar",
+      "body": "Betalningar hanteras via Stripe. Dina kortuppgifter delas aldrig med din Cleaner."
+    },
+    "reviews": {
+      "title": "Äkta omdömen",
+      "body": "Endast kunder med genomförda bokningar kan lämna omdömen."
+    },
+    "support": {
+      "title": "Kundsupport",
+      "body": "Skriv till oss om något känns fel — vi hjälper dig genom varje ärende."
+    }
   },
   "summary": {
     "heading": "Bokningsöversikt",
@@ -103,18 +115,42 @@
     "eyebrow": "Så fungerar det",
     "heading": "Tre steg till ett rent hem",
     "steps": {
-      "search": { "title": "Hitta en Cleaner", "body": "Sök lokalt, jämför priser och äkta omdömen." },
-      "book": { "title": "Boka i kalendern", "body": "Välj tid direkt hos din Cleaner — ingen väntan, ingen budgivning." },
-      "enjoy": { "title": "Njut av ett rent hem", "body": "Betalningen hålls tryggt tills jobbet är godkänt." }
+      "search": {
+        "title": "Hitta en Cleaner",
+        "body": "Sök lokalt, jämför priser och äkta omdömen."
+      },
+      "book": {
+        "title": "Boka i kalendern",
+        "body": "Välj tid direkt hos din Cleaner — ingen väntan, ingen budgivning."
+      },
+      "enjoy": {
+        "title": "Njut av ett rent hem",
+        "body": "Betalningen hålls tryggt tills jobbet är godkänt."
+      }
     }
   },
   "reviews": {
     "eyebrow": "Från våra kunder",
     "heading": "Älskade i hela Europa",
     "items": [
-      { "quote": "Otroligt enkelt att boka och min Cleaner var fantastisk. Kommer definitivt använda igen.", "name": "Sofie L.", "city": "Köpenhamn", "rating": 5 },
-      { "quote": "Priserna är tydliga och jag visste exakt vad jag betalade för. Varmt rekommenderat.", "name": "Marcus B.", "city": "Malmö", "rating": 5 },
-      { "quote": "Äntligen en plattform där min Cleaner får ordentlig betalning och jag får kvalitet.", "name": "Ana R.", "city": "Madrid", "rating": 5 }
+      {
+        "quote": "Otroligt enkelt att boka och min Cleaner var fantastisk. Kommer definitivt använda igen.",
+        "name": "Sofie L.",
+        "city": "Köpenhamn",
+        "rating": 5
+      },
+      {
+        "quote": "Priserna är tydliga och jag visste exakt vad jag betalade för. Varmt rekommenderat.",
+        "name": "Marcus B.",
+        "city": "Malmö",
+        "rating": 5
+      },
+      {
+        "quote": "Äntligen en plattform där min Cleaner får ordentlig betalning och jag får kvalitet.",
+        "name": "Ana R.",
+        "city": "Madrid",
+        "rating": 5
+      }
     ]
   },
   "campaign": {
@@ -137,11 +173,26 @@
     "eyebrow": "FAQ",
     "heading": "Vanliga frågor",
     "items": [
-      { "q": "Hur sätts priserna?", "a": "Cleaners sätter sina egna priser inom lokala minimisatser. Du ser hela priset innan du bokar — inga dolda avgifter." },
-      { "q": "Är alla Cleaners verifierade?", "a": "Ja. Alla Cleaners genomgår ID- och identitetsverifiering innan de får ta emot bokningar." },
-      { "q": "När dras betalningen?", "a": "Vi reserverar beloppet vid bokning och släpper det till din Cleaner när jobbet är utfört och godkänt." },
-      { "q": "Kan jag avboka?", "a": "Ja — avbokning är gratis upp till 24 timmar innan. Se hela avbokningspolicyn i FAQ." },
-      { "q": "Vilka länder är live?", "a": "Danmark, Sverige, Tyskland, Storbritannien och Spanien. Fler länder rullas ut löpande." }
+      {
+        "q": "Hur sätts priserna?",
+        "a": "Cleaners sätter sina egna priser inom lokala minimisatser. Du ser hela priset innan du bokar — inga dolda avgifter."
+      },
+      {
+        "q": "Är alla Cleaners verifierade?",
+        "a": "Ja. Alla Cleaners genomgår ID- och identitetsverifiering innan de får ta emot bokningar."
+      },
+      {
+        "q": "När dras betalningen?",
+        "a": "Vi reserverar beloppet vid bokning och släpper det till din Cleaner när jobbet är utfört och godkänt."
+      },
+      {
+        "q": "Kan jag avboka?",
+        "a": "Ja — avbokning är gratis upp till 24 timmar innan. Se hela avbokningspolicyn i FAQ."
+      },
+      {
+        "q": "Vilka länder är live?",
+        "a": "Danmark, Sverige, Tyskland, Storbritannien och Spanien. Fler länder rullas ut löpande."
+      }
     ]
   },
   "welcome_back": {
@@ -149,19 +200,40 @@
     "heading": "Fortsätt där du slutade",
     "heading_named": "Hej {{name}} — fortsätt där du slutade",
     "tiles": {
-      "upcoming": { "title": "Kommande bokningar", "body": "Se och hantera dina planerade bokningar." },
-      "favorites": { "title": "Favorit-Cleaners", "body": "Gå direkt till de Cleaners du sparat." },
-      "book_again": { "title": "Boka igen", "body": "Omboka en Cleaner du använt tidigare." }
+      "upcoming": {
+        "title": "Kommande bokningar",
+        "body": "Se och hantera dina planerade bokningar."
+      },
+      "favorites": {
+        "title": "Favorit-Cleaners",
+        "body": "Gå direkt till de Cleaners du sparat."
+      },
+      "book_again": {
+        "title": "Boka igen",
+        "body": "Omboka en Cleaner du använt tidigare."
+      }
     }
   },
   "provider_home": {
     "eyebrow": "Din dag",
     "heading": "Översikt och genvägar",
     "tiles": {
-      "today": { "title": "Dagens bokningar", "body": "Vem, var och när idag." },
-      "performance": { "title": "Prestanda", "body": "Betyg, svarstid och genomförande." },
-      "earnings": { "title": "Intäkter", "body": "Veckans och månadens utbetalningar." },
-      "pricing": { "title": "Dynamisk prissättning", "body": "Optimera priser efter efterfrågan." }
+      "today": {
+        "title": "Dagens bokningar",
+        "body": "Vem, var och när idag."
+      },
+      "performance": {
+        "title": "Prestanda",
+        "body": "Betyg, svarstid och genomförande."
+      },
+      "earnings": {
+        "title": "Intäkter",
+        "body": "Veckans och månadens utbetalningar."
+      },
+      "pricing": {
+        "title": "Dynamisk prissättning",
+        "body": "Optimera priser efter efterfrågan."
+      }
     }
   }
 }

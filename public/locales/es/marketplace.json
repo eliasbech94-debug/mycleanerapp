@@ -5,7 +5,7 @@
       "payments": "Pagos seguros",
       "reviews": "Reseñas reales"
     },
-    "availability": "Disponible en Dinamarca · Suecia · Alemania · Reino Unido · España",
+    "availability": "Disponible en 🇩🇰 Dinamarca · 🇸🇪 Suecia · 🇩🇪 Alemania · 🇬🇧 Reino Unido · 🇪🇸 España",
     "image_alt": "Cleaner verificado en un hogar europeo",
     "variants": {
       "guest": {
@@ -81,10 +81,22 @@
   },
   "trust": {
     "heading": "Por qué los clientes eligen MyCleaner",
-    "identity": { "title": "Identidad verificada", "body": "Todos los Cleaners pasan por verificación de identidad antes de aceptar reservas." },
-    "payments": { "title": "Pagos seguros", "body": "Los pagos se procesan mediante Stripe. Tus datos de tarjeta nunca se comparten con tu Cleaner." },
-    "reviews":  { "title": "Reseñas reales", "body": "Solo los clientes con reservas completadas pueden dejar una reseña." },
-    "support":  { "title": "Atención al cliente", "body": "¿Algo no cuadra? Escríbenos y te acompañamos en cada caso." }
+    "identity": {
+      "title": "Identidad verificada",
+      "body": "Todos los Cleaners pasan por verificación de identidad antes de aceptar reservas."
+    },
+    "payments": {
+      "title": "Pagos seguros",
+      "body": "Los pagos se procesan mediante Stripe. Tus datos de tarjeta nunca se comparten con tu Cleaner."
+    },
+    "reviews": {
+      "title": "Reseñas reales",
+      "body": "Solo los clientes con reservas completadas pueden dejar una reseña."
+    },
+    "support": {
+      "title": "Atención al cliente",
+      "body": "¿Algo no cuadra? Escríbenos y te acompañamos en cada caso."
+    }
   },
   "summary": {
     "heading": "Resumen de la reserva",
@@ -103,18 +115,42 @@
     "eyebrow": "Cómo funciona",
     "heading": "Tres pasos hacia un hogar limpio",
     "steps": {
-      "search": { "title": "Encuentra un Cleaner", "body": "Busca localmente, compara precios y reseñas reales." },
-      "book": { "title": "Reserva en el calendario", "body": "Elige una hora directamente con tu Cleaner — sin esperas, sin pujas." },
-      "enjoy": { "title": "Disfruta de un hogar limpio", "body": "El pago se retiene de forma segura hasta que se aprueba el trabajo." }
+      "search": {
+        "title": "Encuentra un Cleaner",
+        "body": "Busca localmente, compara precios y reseñas reales."
+      },
+      "book": {
+        "title": "Reserva en el calendario",
+        "body": "Elige una hora directamente con tu Cleaner — sin esperas, sin pujas."
+      },
+      "enjoy": {
+        "title": "Disfruta de un hogar limpio",
+        "body": "El pago se retiene de forma segura hasta que se aprueba el trabajo."
+      }
     }
   },
   "reviews": {
     "eyebrow": "De nuestros clientes",
     "heading": "Querido en toda Europa",
     "items": [
-      { "quote": "Increíblemente fácil de reservar y mi Cleaner fue fantástico. Volveré a usarlo sin duda.", "name": "Sofie L.", "city": "Copenhague", "rating": 5 },
-      { "quote": "Los precios son transparentes y sabía exactamente qué pagaba. Muy recomendable.", "name": "Marcus B.", "city": "Malmö", "rating": 5 },
-      { "quote": "Por fin una plataforma donde mi Cleaner cobra como es debido y yo recibo calidad.", "name": "Ana R.", "city": "Madrid", "rating": 5 }
+      {
+        "quote": "Increíblemente fácil de reservar y mi Cleaner fue fantástico. Volveré a usarlo sin duda.",
+        "name": "Sofie L.",
+        "city": "Copenhague",
+        "rating": 5
+      },
+      {
+        "quote": "Los precios son transparentes y sabía exactamente qué pagaba. Muy recomendable.",
+        "name": "Marcus B.",
+        "city": "Malmö",
+        "rating": 5
+      },
+      {
+        "quote": "Por fin una plataforma donde mi Cleaner cobra como es debido y yo recibo calidad.",
+        "name": "Ana R.",
+        "city": "Madrid",
+        "rating": 5
+      }
     ]
   },
   "campaign": {
@@ -137,11 +173,26 @@
     "eyebrow": "FAQ",
     "heading": "Preguntas frecuentes",
     "items": [
-      { "q": "¿Cómo se fijan los precios?", "a": "Los Cleaners fijan sus propios precios dentro de las tarifas mínimas locales. Ves el precio total antes de reservar — sin cargos ocultos." },
-      { "q": "¿Están todos los Cleaners verificados?", "a": "Sí. Cada Cleaner pasa por verificación de identidad antes de aceptar reservas." },
-      { "q": "¿Cuándo se cobra?", "a": "Reservamos el importe al reservar y lo liberamos a tu Cleaner cuando el trabajo se completa y se aprueba." },
-      { "q": "¿Puedo cancelar?", "a": "Sí — la cancelación es gratuita hasta 24 horas antes. Consulta la política completa en las FAQ." },
-      { "q": "¿En qué países está activo?", "a": "Dinamarca, Suecia, Alemania, Reino Unido y España. Más países en camino." }
+      {
+        "q": "¿Cómo se fijan los precios?",
+        "a": "Los Cleaners fijan sus propios precios dentro de las tarifas mínimas locales. Ves el precio total antes de reservar — sin cargos ocultos."
+      },
+      {
+        "q": "¿Están todos los Cleaners verificados?",
+        "a": "Sí. Cada Cleaner pasa por verificación de identidad antes de aceptar reservas."
+      },
+      {
+        "q": "¿Cuándo se cobra?",
+        "a": "Reservamos el importe al reservar y lo liberamos a tu Cleaner cuando el trabajo se completa y se aprueba."
+      },
+      {
+        "q": "¿Puedo cancelar?",
+        "a": "Sí — la cancelación es gratuita hasta 24 horas antes. Consulta la política completa en las FAQ."
+      },
+      {
+        "q": "¿En qué países está activo?",
+        "a": "Dinamarca, Suecia, Alemania, Reino Unido y España. Más países en camino."
+      }
     ]
   },
   "welcome_back": {
@@ -149,19 +200,40 @@
     "heading": "Continúa donde lo dejaste",
     "heading_named": "Hola {{name}} — continúa donde lo dejaste",
     "tiles": {
-      "upcoming": { "title": "Próximas reservas", "body": "Consulta y gestiona tus reservas programadas." },
-      "favorites": { "title": "Cleaners favoritos", "body": "Ve directo a los Cleaners que has guardado." },
-      "book_again": { "title": "Reservar de nuevo", "body": "Vuelve a reservar con un Cleaner que ya has usado." }
+      "upcoming": {
+        "title": "Próximas reservas",
+        "body": "Consulta y gestiona tus reservas programadas."
+      },
+      "favorites": {
+        "title": "Cleaners favoritos",
+        "body": "Ve directo a los Cleaners que has guardado."
+      },
+      "book_again": {
+        "title": "Reservar de nuevo",
+        "body": "Vuelve a reservar con un Cleaner que ya has usado."
+      }
     }
   },
   "provider_home": {
     "eyebrow": "Tu día",
     "heading": "Vista general y accesos rápidos",
     "tiles": {
-      "today": { "title": "Reservas de hoy", "body": "Quién, dónde y cuándo hoy." },
-      "performance": { "title": "Rendimiento", "body": "Valoración, tiempo de respuesta y finalización." },
-      "earnings": { "title": "Ingresos", "body": "Pagos de esta semana y del mes." },
-      "pricing": { "title": "Precios dinámicos", "body": "Optimiza precios según la demanda." }
+      "today": {
+        "title": "Reservas de hoy",
+        "body": "Quién, dónde y cuándo hoy."
+      },
+      "performance": {
+        "title": "Rendimiento",
+        "body": "Valoración, tiempo de respuesta y finalización."
+      },
+      "earnings": {
+        "title": "Ingresos",
+        "body": "Pagos de esta semana y del mes."
+      },
+      "pricing": {
+        "title": "Precios dinámicos",
+        "body": "Optimiza precios según la demanda."
+      }
     }
   }
 }
