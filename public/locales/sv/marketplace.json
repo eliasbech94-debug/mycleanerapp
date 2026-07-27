@@ -432,6 +432,7 @@
         "Missbruk, bedrägeri eller väsentligt brott mot villkoren kan leda till att kampanjförmånen bortfaller i den utsträckning tillämplig lag tillåter.",
         "MyCleaner kan ändra eller avsluta kampanjen för framtida deltagare. En redan bekräftad kampanjförmån får inte ändras retroaktivt i strid med tillämplig lag."
       ]
-    }
+    },
+    "appBarTitle": "Founding Cleaner"
   }
 }

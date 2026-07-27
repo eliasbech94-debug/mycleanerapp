@@ -37,6 +37,7 @@ export const MOBILE_APP_ROUTE_WHITELIST: RegExp[] = [
   /^\/profil(\/|$)/,
   /^\/inbox(\/|$)/,
   /^\/p\/[^/]+(\/|$)/,
+  /^\/founding-cleaner(\/|$)/,
 ];
 
 export function normalizePath(pathname: string): string {
