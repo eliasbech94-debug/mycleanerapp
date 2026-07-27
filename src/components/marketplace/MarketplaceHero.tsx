@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { CleanerSearchBar } from "./CleanerSearchBar";
 import { ShieldCheck, Lock, Star } from "lucide-react";
-import heroAsset from "@/assets/hero-europe.jpg.asset.json";
+import heroAsset from "@/assets/hero-europe-v2.jpg.asset.json";
 
 /**
  * MarketplaceHero — premium editorial layout.
@@ -17,7 +17,7 @@ export function MarketplaceHero() {
   const { t } = useTranslation("marketplace");
   return (
     <section className="relative" aria-labelledby="mkt-hero-title">
-      <div className="relative min-h-[520px] overflow-hidden sm:min-h-[600px] lg:min-h-[680px]">
+      <div className="relative min-h-[420px] overflow-hidden sm:min-h-[460px] lg:min-h-[520px]">
         <img
           src={heroAsset.url}
           alt={t("hero.image_alt", "Verified cleaner in a European home")}
@@ -39,7 +39,7 @@ export function MarketplaceHero() {
           className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[hsl(var(--mkt-bg))] to-transparent"
           aria-hidden="true"
         />
-        <div className="relative mx-auto max-w-[1400px] px-5 pb-12 pt-14 lg:px-8 lg:pb-24 lg:pt-24">
+        <div className="relative mx-auto max-w-[1400px] px-5 pb-8 pt-10 lg:px-8 lg:pb-14 lg:pt-16">
           <div className="max-w-2xl">
             <span className="inline-flex items-center gap-2 rounded-full border border-[hsl(var(--mkt-border))] bg-[hsl(var(--mkt-surface))]/85 px-3 py-1 text-[11.5px] font-semibold uppercase tracking-[0.14em] text-[hsl(var(--mkt-brand))] shadow-[var(--mkt-shadow-soft)] backdrop-blur">
               <span className="h-1.5 w-1.5 rounded-full bg-[hsl(var(--mkt-brand))]" aria-hidden="true" />

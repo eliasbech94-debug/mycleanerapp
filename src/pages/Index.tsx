@@ -49,7 +49,7 @@ export default function Index() {
 
       <HomeSections slot="top" />
 
-      <div className="mx-auto grid max-w-[1400px] grid-cols-1 gap-8 px-5 pb-16 lg:grid-cols-[1fr_360px] lg:gap-10 lg:px-8">
+      <div className="mx-auto grid max-w-[1400px] grid-cols-1 gap-6 px-5 pb-10 pt-6 lg:grid-cols-[1fr_360px] lg:gap-8 lg:px-8 lg:pt-8">
         <div className="min-w-0">
           <ServiceCategoryGrid />
           <CleanerResultsList
@@ -61,7 +61,7 @@ export default function Index() {
             emptyLabel={isNeutral ? undefined : market.label}
           />
         </div>
-        <div className="lg:sticky lg:top-24 lg:self-start lg:pt-10">
+        <div className="lg:sticky lg:top-24 lg:self-start">
           <BookingSidebar />
         </div>
       </div>
