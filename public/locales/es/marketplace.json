@@ -3,7 +3,9 @@
     "trust": {
       "verified": "Cleaners verificados",
       "payments": "Pagos seguros",
-      "reviews": "Reseñas reales"
+      "reviews": "Reseñas reales",
+      "fixed_price": "Precio fijo, sin sorpresas",
+      "rowLabel": "Ventajas"
     },
     "availability": "Disponible en 🇩🇰 Dinamarca · 🇸🇪 Suecia · 🇩🇪 Alemania · 🇬🇧 Reino Unido · 🇪🇸 España",
     "availability_label": "Disponible en",

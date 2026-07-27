@@ -3,7 +3,9 @@
     "trust": {
       "verified": "Verified Cleaners",
       "payments": "Secure payments",
-      "reviews": "Real reviews"
+      "reviews": "Real reviews",
+      "fixed_price": "Fixed price, no surprises",
+      "rowLabel": "Highlights"
     },
     "availability": "Available in 🇩🇰 Denmark · 🇸🇪 Sweden · 🇩🇪 Germany · 🇬🇧 United Kingdom · 🇪🇸 Spain",
     "availability_label": "Available in",
