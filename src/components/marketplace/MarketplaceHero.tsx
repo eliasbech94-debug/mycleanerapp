@@ -189,21 +189,60 @@ export function MarketplaceHero() {
           </div>
         </div>
 
-        {/* 3. Trust + flags — condensed native micro-rows, no illustration here. */}
-        <div className="px-5 pt-3 pb-2">
-          <TrustRow t={t} />
-          <div className="mt-2.5 flex flex-col gap-1.5">
-            <AvailabilityRow
-              label={availabilityLabel}
-              codes={countryCodes}
-              t={t}
-              className="text-[11px] font-medium uppercase tracking-[0.14em] text-[hsl(var(--mkt-ink-soft))]"
-            />
-            <SecondaryCta label={variant.cta_secondary_label} href={variant.cta_secondary_href} />
-          </div>
+        {/* 3. Trust chips row — tight, native micro-row (horizontal scroll if needed). */}
+        <div className="px-4 pt-3">
+          <ul className="flex flex-wrap items-center gap-2 text-[12.5px] text-[hsl(var(--mkt-ink-muted))]">
+            <MobileTrustChip icon={<ShieldCheck className="h-3.5 w-3.5 text-[hsl(var(--mkt-success))]" aria-hidden />} label={t("hero.trust.verified", { defaultValue: "" })} />
+            <MobileTrustChip icon={<Lock className="h-3.5 w-3.5 text-[hsl(var(--mkt-success))]" aria-hidden />} label={t("hero.trust.payments", { defaultValue: "" })} />
+            <MobileTrustChip icon={<Star className="h-3.5 w-3.5 text-[hsl(var(--mkt-success))]" aria-hidden />} label={t("hero.trust.reviews", { defaultValue: "" })} />
+          </ul>
+        </div>
+
+        {/* 4. Country availability — clean chip row, no dot separators (which wrap awkwardly on narrow screens). */}
+        <div className="px-4 pt-3">
+          {availabilityLabel && (
+            <p className="mb-1.5 text-[10.5px] font-semibold uppercase tracking-[0.16em] text-[hsl(var(--mkt-ink-soft))]">
+              {availabilityLabel}
+            </p>
+          )}
+          <ul className="flex flex-wrap gap-1.5">
+            {countryCodes.map((code) => {
+              const name = t(`hero.countries.${code}`, { defaultValue: "" });
+              if (!name) return null;
+              return (
+                <li key={code} className="inline-flex items-center gap-1.5 rounded-full border border-[hsl(var(--mkt-border))] bg-[hsl(var(--mkt-surface))] px-2.5 py-1 text-[11.5px] font-medium text-[hsl(var(--mkt-ink))]">
+                  <img
+                    src={`https://flagcdn.com/${code}.svg`}
+                    alt=""
+                    aria-hidden="true"
+                    width={16}
+                    height={12}
+                    loading="lazy"
+                    className="inline-block h-3 w-4 rounded-[2px] object-cover"
+                  />
+                  {name}
+                </li>
+              );
+            })}
+          </ul>
+          {variant.cta_secondary_label && variant.cta_secondary_href && (
+            <div className="mt-3">
+              <SecondaryCta label={variant.cta_secondary_label} href={variant.cta_secondary_href} />
+            </div>
+          )}
         </div>
       </div>
     </section>
+  );
+}
+
+function MobileTrustChip({ icon, label }: { icon: React.ReactNode; label: string }) {
+  if (!label) return null;
+  return (
+    <li className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-[hsl(var(--mkt-surface))] px-3 py-1.5 shadow-[0_1px_2px_rgba(6,22,21,0.06)] ring-1 ring-[hsl(var(--mkt-border))]">
+      {icon}
+      <span className="whitespace-nowrap">{label}</span>
+    </li>
   );
 }
 
