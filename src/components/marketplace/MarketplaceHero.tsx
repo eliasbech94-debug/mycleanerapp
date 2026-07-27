@@ -151,33 +151,35 @@ export function MarketplaceHero() {
         </div>
       </div>
 
-      {/* ================= <md : stacked mobile layout ================= */}
-      <div className="md:hidden">
-        <div className="px-5 pt-4 pb-3">
+      {/* ================= <md : native app-style mobile layout ================= */}
+      <div className="md:hidden bg-[hsl(var(--mkt-bg))]">
+        {/* Compact intro block — tight, app-like */}
+        <div className="px-5 pt-3 pb-2">
           {variant.eyebrow && <Eyebrow label={variant.eyebrow} />}
           <h1
             id="mkt-hero-title-mobile"
-            className="mt-3 font-sans font-bold leading-[1.08] tracking-[-0.02em] text-[hsl(var(--mkt-ink))]"
-            style={{ fontSize: "clamp(1.75rem, 7.5vw, 2.25rem)" }}
+            className="mt-2.5 max-w-[20ch] font-sans font-bold leading-[1.1] tracking-[-0.02em] text-[hsl(var(--mkt-ink))]"
+            style={{ fontSize: "clamp(1.4rem, 5.6vw, 1.7rem)" }}
           >
             <BrandLine text={variant.title_line_1} />
             {variant.title_line_2 && (
               <>
-                <br />
+                {" "}
                 <BrandLine text={variant.title_line_2} />
               </>
             )}
           </h1>
           {variant.subtitle && (
-            <p className="mt-3 text-[14.5px] leading-relaxed text-[hsl(var(--mkt-ink-muted))]">
+            <p className="mt-2 max-w-[36ch] text-[13.5px] leading-snug text-[hsl(var(--mkt-ink-muted))]">
               {variant.subtitle}
             </p>
           )}
         </div>
 
+        {/* Hero illustration — floating card, supports content, never dominates */}
         <div
-          className="relative isolate mx-5 mt-1 overflow-hidden rounded-3xl border border-[hsl(var(--mkt-border))] shadow-[var(--mkt-shadow-soft)]"
-          style={{ height: "clamp(300px, 50vh, 440px)" }}
+          className="relative isolate mx-5 mt-2 overflow-hidden rounded-[22px] shadow-[0_18px_40px_-18px_rgba(6,22,21,0.55)] ring-1 ring-[hsl(var(--mkt-border))]"
+          style={{ height: "clamp(200px, 30vh, 240px)" }}
         >
           <picture>
             <source media="(max-width: 767px)" srcSet={heroMobileAsset.url} />
@@ -185,7 +187,7 @@ export function MarketplaceHero() {
             <img
               src="data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA="
               alt={alt}
-              className="absolute inset-0 h-full w-full object-cover object-[50%_22%]"
+              className="absolute inset-0 h-full w-full object-cover object-[50%_20%]"
               loading="eager"
               {...({ fetchpriority: "high" } as Record<string, string>)}
               decoding="async"
@@ -193,21 +195,24 @@ export function MarketplaceHero() {
               height={1024}
             />
           </picture>
-          <div
-            className="absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-[hsl(var(--mkt-bg))]/50 to-transparent"
-            aria-hidden="true"
-          />
         </div>
 
-        <div className="px-5 pt-4 pb-5">
-          <CleanerSearchBar />
+        {/* Booking card — the real focal point. White floating app card. */}
+        <div className="px-4 pt-4">
+          <div className="rounded-[22px] bg-white p-3 shadow-[0_20px_50px_-20px_rgba(6,22,21,0.35)] ring-1 ring-black/5">
+            <CleanerSearchBar compact />
+          </div>
+        </div>
+
+        {/* Trust + countries — condensed micro-row */}
+        <div className="px-5 pt-3 pb-4">
           <TrustRow t={t} />
-          <div className="mt-4 flex flex-col gap-2">
+          <div className="mt-3 flex flex-col gap-1.5">
             <AvailabilityRow
               label={availabilityLabel}
               codes={countryCodes}
               t={t}
-              className="text-[11.5px] font-medium uppercase tracking-[0.16em] text-[hsl(var(--mkt-ink-soft))]"
+              className="text-[11px] font-medium uppercase tracking-[0.14em] text-[hsl(var(--mkt-ink-soft))]"
             />
             <SecondaryCta label={variant.cta_secondary_label} href={variant.cta_secondary_href} />
           </div>
@@ -216,6 +221,7 @@ export function MarketplaceHero() {
     </section>
   );
 }
+
 
 function Eyebrow({ label }: { label: string }) {
   return (
