@@ -87,18 +87,18 @@ export function ProviderAvailabilityEditor() {
       { data: connections, error: connectionsError },
     ] =
       await Promise.all([
-        (supabase.from("provider_availability_rules") as any)
+        (supabase as any).from("provider_availability_rules")
           .select("weekday,starts_at,ends_at")
           .eq("provider_user_id", user.id)
           .eq("is_active", true)
           .order("weekday"),
-        (supabase.from("provider_calendar_blocks") as any)
+        (supabase as any).from("provider_calendar_blocks")
           .select("id,starts_at,ends_at")
           .eq("provider_user_id", user.id)
           .eq("source", "time_off")
           .gte("ends_at", new Date().toISOString())
           .order("starts_at"),
-        (supabase.from("provider_calendar_connections") as any)
+        (supabase as any).from("provider_calendar_connections")
           .select("id,status,last_synced_at,last_error_code")
           .eq("provider_user_id", user.id)
           .eq("connection_type", "ical")
