@@ -21,6 +21,7 @@ import Profile from "./pages/Profile";
 import MobileProfileGate from "./pages/mobile/MobileProfileGate";
 import MobileInboxGate from "./pages/mobile/MobileInboxGate";
 import ProviderRegister from "./pages/ProviderRegister";
+import FoundingCleaner from "./pages/FoundingCleaner";
 import ProviderProfile from "./pages/ProviderProfile";
 import CustomerRegister from "./pages/CustomerRegister";
 import CreateTask from "./pages/CreateTask";
