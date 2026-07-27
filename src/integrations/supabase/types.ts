@@ -1043,6 +1043,9 @@ export type Database = {
           email: string
           id: string
           last_error: string | null
+          last_error_code: string | null
+          locale: string | null
+          next_attempt_at: string | null
           payload: Json
           scheduled_for: string
           sent_at: string | null
@@ -1059,6 +1062,9 @@ export type Database = {
           email: string
           id?: string
           last_error?: string | null
+          last_error_code?: string | null
+          locale?: string | null
+          next_attempt_at?: string | null
           payload?: Json
           scheduled_for?: string
           sent_at?: string | null
@@ -1075,6 +1081,9 @@ export type Database = {
           email?: string
           id?: string
           last_error?: string | null
+          last_error_code?: string | null
+          locale?: string | null
+          next_attempt_at?: string | null
           payload?: Json
           scheduled_for?: string
           sent_at?: string | null
@@ -6796,6 +6805,73 @@ export type Database = {
         }
         Relationships: []
       }
+      campaign_email_outbox_status: {
+        Row: {
+          application_id: string | null
+          attempts: number | null
+          campaign_id: string | null
+          created_at: string | null
+          id: string | null
+          last_error_code: string | null
+          next_attempt_at: string | null
+          scheduled_for: string | null
+          sent_at: string | null
+          status: string | null
+          template: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          application_id?: string | null
+          attempts?: number | null
+          campaign_id?: string | null
+          created_at?: string | null
+          id?: string | null
+          last_error_code?: string | null
+          next_attempt_at?: string | null
+          scheduled_for?: string | null
+          sent_at?: string | null
+          status?: string | null
+          template?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          application_id?: string | null
+          attempts?: number | null
+          campaign_id?: string | null
+          created_at?: string | null
+          id?: string | null
+          last_error_code?: string | null
+          next_attempt_at?: string | null
+          scheduled_for?: string | null
+          sent_at?: string | null
+          status?: string | null
+          template?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_email_outbox_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_applications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaign_email_outbox_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_counters"
+            referencedColumns: ["campaign_id"]
+          },
+          {
+            foreignKeyName: "campaign_email_outbox_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       country_configs_public: {
         Row: {
           active: boolean | null
@@ -7002,6 +7078,13 @@ export type Database = {
       calc_provider_tier: {
         Args: { _metrics?: Json; _uid: string }
         Returns: Database["public"]["Enums"]["provider_tier"]
+      }
+      campaign_email_outbox_cleanup: {
+        Args: never
+        Returns: {
+          deleted_failed: number
+          deleted_sent: number
+        }[]
       }
       check_provider_payout_readiness_v1: {
         Args: { p_provider_user_id: string }
