@@ -1,5 +1,14 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { CalendarOff, Loader2, Plus, Save, Trash2 } from "lucide-react";
+import {
+  CalendarOff,
+  Link2,
+  Loader2,
+  Plus,
+  RefreshCw,
+  Save,
+  Trash2,
+  Unplug,
+} from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -19,6 +28,13 @@ type TimeOff = {
   id: string;
   starts_at: string;
   ends_at: string;
+};
+
+type CalendarConnection = {
+  id: string;
+  status: "active" | "paused" | "error" | "disconnected";
+  last_synced_at: string | null;
+  last_error_code: string | null;
 };
 
 const DAYS = [
@@ -58,11 +74,18 @@ export function ProviderAvailabilityEditor() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [adding, setAdding] = useState(false);
+  const [connection, setConnection] = useState<CalendarConnection | null>(null);
+  const [icalUrl, setIcalUrl] = useState("");
+  const [calendarBusy, setCalendarBusy] = useState(false);
 
   const load = useCallback(async () => {
     if (!user) return;
     setLoading(true);
-    const [{ data: storedRules, error: rulesError }, { data: blocks, error: blocksError }] =
+    const [
+      { data: storedRules, error: rulesError },
+      { data: blocks, error: blocksError },
+      { data: connections, error: connectionsError },
+    ] =
       await Promise.all([
         (supabase.from("provider_availability_rules") as any)
           .select("weekday,starts_at,ends_at")
@@ -75,9 +98,16 @@ export function ProviderAvailabilityEditor() {
           .eq("source", "time_off")
           .gte("ends_at", new Date().toISOString())
           .order("starts_at"),
+        (supabase.from("provider_calendar_connections") as any)
+          .select("id,status,last_synced_at,last_error_code")
+          .eq("provider_user_id", user.id)
+          .eq("connection_type", "ical")
+          .neq("status", "disconnected")
+          .order("created_at", { ascending: false })
+          .limit(1),
       ]);
 
-    if (rulesError || blocksError) {
+    if (rulesError || blocksError || connectionsError) {
       toast.error("Kalenderen kunne ikke hentes");
     } else {
       if (storedRules?.length) {
@@ -95,6 +125,7 @@ export function ProviderAvailabilityEditor() {
         setRules(next);
       }
       setTimeOff((blocks ?? []) as TimeOff[]);
+      setConnection((connections?.[0] as CalendarConnection | undefined) ?? null);
     }
     setLoading(false);
   }, [user]);
@@ -164,6 +195,56 @@ export function ProviderAvailabilityEditor() {
     }
     setTimeOff((current) => current.filter((item) => item.id !== id));
     toast.success("Fravær fjernet");
+  }
+
+  async function connectCalendar() {
+    if (!icalUrl.trim().startsWith("https://")) {
+      toast.error("Indsæt et gyldigt privat iCal-link, der starter med https://");
+      return;
+    }
+    setCalendarBusy(true);
+    const { data, error } = await supabase.functions.invoke("provider-calendar-sync", {
+      body: { action: "connect", ical_url: icalUrl.trim() },
+    });
+    setCalendarBusy(false);
+    if (error || data?.error) {
+      toast.error("Kalenderen kunne ikke forbindes. Kontrollér dit private iCal-link.");
+      return;
+    }
+    setIcalUrl("");
+    toast.success(`Kalender forbundet · ${data?.imported ?? 0} optagede tider synkroniseret`);
+    load();
+  }
+
+  async function syncCalendar() {
+    if (!connection) return;
+    setCalendarBusy(true);
+    const { data, error } = await supabase.functions.invoke("provider-calendar-sync", {
+      body: { action: "sync", connection_id: connection.id },
+    });
+    setCalendarBusy(false);
+    if (error || data?.error) {
+      toast.error("Kalenderen kunne ikke synkroniseres lige nu");
+      load();
+      return;
+    }
+    toast.success(`${data?.imported ?? 0} optagede tider synkroniseret`);
+    load();
+  }
+
+  async function disconnectCalendar() {
+    if (!connection) return;
+    setCalendarBusy(true);
+    const { data, error } = await supabase.functions.invoke("provider-calendar-sync", {
+      body: { action: "disconnect", connection_id: connection.id },
+    });
+    setCalendarBusy(false);
+    if (error || data?.error) {
+      toast.error("Kalenderen kunne ikke afbrydes");
+      return;
+    }
+    setConnection(null);
+    toast.success("Kalenderen er afbrudt og de importerede blokeringer er slettet");
   }
 
   if (loading) {
@@ -298,11 +379,86 @@ export function ProviderAvailabilityEditor() {
         </div>
       </div>
 
+      <div className="border-t pt-6">
+        <h3 className="font-semibold">Privat kalender</h3>
+        <p className="text-xs opacity-60">
+          Forbind Apple, Google, Outlook eller en anden kalender med et privat iCal-link.
+          Optagede tider blokeres automatisk i MyCleaner.
+        </p>
+
+        {connection ? (
+          <div className="mt-3 rounded-xl border p-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <div className="flex items-center gap-2 font-medium">
+                  <span
+                    className={`h-2.5 w-2.5 rounded-full ${
+                      connection.status === "active" ? "bg-emerald-500" : "bg-amber-500"
+                    }`}
+                  />
+                  {connection.status === "active"
+                    ? "Kalender forbundet"
+                    : "Kalender kræver ny synkronisering"}
+                </div>
+                <p className="mt-1 text-xs opacity-60">
+                  {connection.last_synced_at
+                    ? `Senest synkroniseret ${new Date(connection.last_synced_at).toLocaleString("da-DK")}`
+                    : "Afventer første synkronisering"}
+                </p>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  onClick={syncCalendar}
+                  disabled={calendarBusy}
+                  size="sm"
+                  variant="outline"
+                >
+                  {calendarBusy
+                    ? <Loader2 className="h-4 w-4 animate-spin" />
+                    : <RefreshCw className="h-4 w-4" />}
+                  Synkronisér
+                </Button>
+                <Button
+                  onClick={disconnectCalendar}
+                  disabled={calendarBusy}
+                  size="sm"
+                  variant="ghost"
+                >
+                  <Unplug className="h-4 w-4" />
+                  Afbryd
+                </Button>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="mt-3 grid gap-3 sm:grid-cols-[1fr_auto] sm:items-end">
+            <div>
+              <Label htmlFor="ical-url">Privat iCal-link</Label>
+              <Input
+                id="ical-url"
+                type="url"
+                inputMode="url"
+                autoComplete="off"
+                placeholder="https://…"
+                value={icalUrl}
+                onChange={(event) => setIcalUrl(event.target.value)}
+              />
+            </div>
+            <Button onClick={connectCalendar} disabled={calendarBusy || !icalUrl.trim()}>
+              {calendarBusy
+                ? <Loader2 className="h-4 w-4 animate-spin" />
+                : <Link2 className="h-4 w-4" />}
+              Forbind kalender
+            </Button>
+          </div>
+        )}
+      </div>
+
       <div className="rounded-xl bg-teal-50 p-4 text-sm text-teal-950">
-        Eksterne kalendere kobles på i næste fase. MyCleaner gemmer kun optaget/ledig
-        og aldrig titler, deltagere, adresser eller noter fra din private kalender.
+        Privatliv: MyCleaner gemmer kun, hvornår du er optaget. Vi gemmer aldrig
+        titler, deltagere, adresser eller noter fra din private kalender. Dit private
+        iCal-link opbevares krypteret og vises aldrig igen.
       </div>
     </div>
   );
 }
-
