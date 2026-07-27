@@ -11,8 +11,12 @@
  * super_admin and support keep the standard desktop Index at all viewports.
  */
 import { lazy, Suspense, useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { LogIn, User as UserIcon } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserRoles } from "@/hooks/useUserRoles";
+import { useAuthGate } from "@/context/AuthGateContext";
 import { MobileAppShell } from "@/components/layout/MobileAppShell";
 import Index from "@/pages/Index";
 
