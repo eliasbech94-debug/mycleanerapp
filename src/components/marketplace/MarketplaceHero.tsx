@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { CleanerSearchBar } from "./CleanerSearchBar";
 import { ShieldCheck, Lock, Star } from "lucide-react";
-import heroAsset from "@/assets/hero-europe-v2.jpg.asset.json";
+import heroAsset from "@/assets/hero-europe-v3.png.asset.json";
 
 /**
  * MarketplaceHero — premium editorial layout.
