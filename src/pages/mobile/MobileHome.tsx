@@ -35,7 +35,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useHomeAudience } from "@/components/marketplace/home/useHomeAudience";
 import { useActiveMarket } from "@/context/ActiveMarketContext";
 import { useMarketplaceProviders } from "@/hooks/useMarketplaceProviders";
-import { ServiceCategoryGrid } from "@/components/marketplace/ServiceCategoryGrid";
+
 import { CountryConfirmDialog } from "@/components/marketplace/CountryConfirmDialog";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { PullIndicator } from "@/components/mobile/PullIndicator";
