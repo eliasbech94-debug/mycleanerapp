@@ -110,7 +110,7 @@ export default function FoundingCleaner() {
           </p>
         </div>
         <ul className="mt-4 space-y-3">
-          {(terms?.items ?? []).map((item, i) => (
+          {(Array.isArray(terms?.items) ? terms.items : []).map((item, i) => (
             <li key={i} className="flex gap-2.5 text-[13.5px] leading-relaxed text-[hsl(var(--mkt-ink))]">
               <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[hsl(var(--mkt-brand))]" aria-hidden />
               <span>{item}</span>
