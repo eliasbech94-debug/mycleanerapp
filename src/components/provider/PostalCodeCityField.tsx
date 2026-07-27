@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { CheckCircle2, Loader2, MapPin } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
-type Lookup = { postal_code: string; city: string; country_code: string; lat?: number | null; lng?: number | null };
+type Lookup = { place_id: string; postal_code: string; city: string; country_code: string; lat?: number | null; lng?: number | null };
 
 export function PostalCodeCityField({
   countryCode,
