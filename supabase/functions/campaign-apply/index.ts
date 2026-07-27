@@ -204,45 +204,31 @@ Deno.serve(async (req) => {
 
   if (existing) {
     await recordAttempt(admin, campaign!.id, clientIp, email, "duplicate", "existing_application");
-    // If not verified yet, quietly re-issue a fresh verification token so
-    // the user isn't blocked by a lost first email. Existence still not
-    // revealed to the caller.
+    // If not verified yet, re-enqueue a tokenless outbox row so the delivery
+    // worker will mint a fresh single-use token when it sends. The raw token
+    // never touches this function or the outbox payload.
     if (!existing.email_verified_at) {
-      const rawToken = randomToken(32);
-      const tokenHash = await sha256(rawToken);
-      const expiresAt = new Date(now + VERIFICATION_TTL_MS).toISOString();
-      const { error: updErr } = await admin
-        .from("campaign_applications")
-        .update({
-          email_verification_token: tokenHash,
-          email_verification_expires_at: expiresAt,
-          email_verification_sent_at: new Date().toISOString(),
-        })
-        .eq("id", existing.id)
-        .is("email_verified_at", null);
-      if (!updErr) {
-        try {
-          await enqueueVerificationEmail(admin, {
-            campaignId: campaign!.id,
-            applicationId: existing.id,
-            email,
-            rawToken,
-            expiresAt,
-          });
-        } catch (e) {
-          // Never log raw token; only surface error class.
-          console.error("campaign_verification_enqueue_failed", (e as Error).message);
-        }
+      try {
+        await enqueueVerificationEmail(admin, {
+          campaignId: campaign!.id,
+          applicationId: existing.id,
+          email,
+          countryCode: country,
+          locale: body.locale ?? null,
+        });
+      } catch (e) {
+        // Structured, operator-observable — never contains PII beyond error class.
+        console.error(JSON.stringify({
+          evt: "campaign_verification_enqueue_failed",
+          code: (e as { code?: string }).code ?? "unknown",
+          application_id: existing.id,
+        }));
       }
     }
     return json(202, GENERIC_OK);
   }
 
-  // ---- Fresh application ----
-  const rawToken = randomToken(32);
-  const tokenHash = await sha256(rawToken);
-  const expiresAt = new Date(now + VERIFICATION_TTL_MS).toISOString();
-
+  // ---- Fresh application (NO token generated here) ----
   const { data: inserted, error: insErr } = await admin
     .from("campaign_applications")
     .insert({
@@ -266,9 +252,8 @@ Deno.serve(async (req) => {
       heard_about: body.heard_about?.trim() || null,
       accepted_terms_at: new Date().toISOString(),
       accepted_privacy_at: new Date().toISOString(),
-      email_verification_token: tokenHash,
-      email_verification_expires_at: expiresAt,
-      email_verification_sent_at: new Date().toISOString(),
+      // email_verification_token/expires_at intentionally left null; the
+      // delivery worker sets them when it mints the token just-in-time.
       ip: clientIp,
       user_agent: fp(req).ua,
     })
@@ -276,16 +261,20 @@ Deno.serve(async (req) => {
     .single();
 
   if (insErr || !inserted) {
-    // Log a code, not the payload; the payload could contain the email.
-    console.error("campaign_apply_insert_failed", insErr?.code ?? "unknown");
+    // Structured operational error (no email, no payload).
+    console.error(JSON.stringify({
+      evt: "campaign_apply_insert_failed",
+      code: insErr?.code ?? "unknown",
+      campaign_id: campaign!.id,
+    }));
     await recordAttempt(admin, campaign!.id, clientIp, email, "rejected", insErr?.code ?? "insert_failed");
+    // Return generic to caller but the structured log above ensures the
+    // failure is observable and reconcilable by operations.
     return json(202, GENERIC_OK);
   }
 
   await recordAttempt(admin, campaign!.id, clientIp, email, "accepted");
 
-  // Emit the standard analytics event — payload is intentionally minimal.
-  // Never include the raw token, verification URL, or the email.
   await emitEvent(admin, req, {
     campaign_id: campaign!.id,
     application_id: inserted.id,
@@ -304,12 +293,17 @@ Deno.serve(async (req) => {
       campaignId: campaign!.id,
       applicationId: inserted.id,
       email,
-      rawToken,
-      expiresAt,
+      countryCode: country,
+      locale: body.locale ?? null,
     });
   } catch (e) {
-    console.error("campaign_verification_enqueue_failed", (e as Error).message);
+    console.error(JSON.stringify({
+      evt: "campaign_verification_enqueue_failed",
+      code: (e as { code?: string }).code ?? "unknown",
+      application_id: inserted.id,
+    }));
   }
 
   return json(202, GENERIC_OK);
 });
+
