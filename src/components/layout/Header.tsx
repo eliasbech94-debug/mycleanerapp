@@ -31,6 +31,7 @@ const MOBILE_SHELL_HIDE_ROUTES: RegExp[] = [
   /^\/mine-bookinger(\/|$)/,
   /^\/customer\/bookings(\/|$)/,
   /^\/inbox(\/|$)/,
+  /^\/founding-cleaner(\/|$)/,
 ];
 export function isMobileShellHiddenHeaderRoute(pathname: string): boolean {
   const p = normalizePath(pathname);
