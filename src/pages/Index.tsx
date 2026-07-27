@@ -53,6 +53,7 @@ export default function Index() {
       <div className="mx-auto grid max-w-[1400px] grid-cols-1 gap-6 px-5 pb-8 pt-4 lg:grid-cols-[1fr_360px] lg:gap-8 lg:px-8 lg:pt-6">
         <div className="min-w-0">
           <ServiceCategoryGrid />
+          <MobileBrandArtwork />
           <CleanerResultsList
             providers={providers}
             loading={loading}
