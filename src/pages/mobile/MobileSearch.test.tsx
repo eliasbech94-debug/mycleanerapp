@@ -147,9 +147,10 @@ describe("MobileSearch", () => {
 
   it("reset button clears filter chips back to 'Alle'", async () => {
     await renderPage();
-    fireEvent.click(screen.getByRole("button", { name: "cleaning" }));
+    const cleaningTab = screen.getByRole("tab", { name: "cleaning" });
+    fireEvent.click(cleaningTab);
+    expect(cleaningTab.getAttribute("aria-selected")).toBe("true");
     fireEvent.click(screen.getByRole("button", { name: "Nulstil filtre" }));
-    // After reset, the "Alle" chip button exists again (renders in the empty state as CTA won't collide)
-    expect(screen.getByRole("button", { name: "Alle" })).toBeTruthy();
+    expect(screen.getByRole("tab", { name: "Alle" }).getAttribute("aria-selected")).toBe("true");
   });
 });
