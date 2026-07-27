@@ -48,6 +48,10 @@ import { ProviderFinance, AdminFinance } from "./pages/finance/FinancePages";
 import AdminDisputes from "./pages/AdminDisputes";
 import ProviderDisputes from "./pages/ProviderDisputes";
 import { RoleGuard } from "@/components/RoleGuard";
+import CampaignPage from "./pages/campaigns/CampaignPage";
+import CampaignVerify from "./pages/campaigns/CampaignVerify";
+import AdminCampaigns from "./pages/admin/AdminCampaigns";
+import AdminDesignSystem from "./pages/admin/AdminDesignSystem";
 import { UuidGuard, LegacySlugRedirect } from "@/components/routing/UuidGuard";
 import ScrollToTop from "@/components/ScrollToTop";
 import RouteLoadingBar from "@/components/RouteLoadingBar";
@@ -148,6 +152,10 @@ export function AppRoutes() {
         element={<RoleGuard allow={["provider", "admin", "super_admin"]}><ProviderReceipts /></RoleGuard>}
       />
       <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
+      <Route path="/campaigns/verify" element={<CampaignVerify />} />
+      <Route path="/campaigns/:slug" element={<CampaignPage />} />
+      <Route path="/admin/campaigns" element={<RoleGuard allow={["admin"]}><AdminCampaigns /></RoleGuard>} />
+      <Route path="/admin/design-system" element={<RoleGuard allow={["admin"]}><AdminDesignSystem /></RoleGuard>} />
       <Route path="/not-found" element={<NotFound />} />
       <Route path="*" element={<NotFound />} />
     </Routes>

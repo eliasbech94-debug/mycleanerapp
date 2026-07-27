@@ -1,17 +1,18 @@
-// Public endpoint. Receives a campaign application, verifies Turnstile,
-// enforces per-IP + per-email rate limiting, inserts the application (the
-// `campaign_application_classify` trigger handles pending vs waiting_list),
-// and dispatches a hashed single-use email verification token.
+// Public endpoint. Receives a campaign application.
 //
-// Behaviour:
-// - Feature-flag gated on `campaigns.enabled` (returns 503 when off).
-// - Idempotent per (campaign, email): re-submitting the same email returns
-//   the existing application status instead of creating a duplicate.
-// - Raw token appears once in the response `verification_url`. Only its
-//   SHA-256 hash is persisted.
+// M3 SECURITY CORRECTION:
+// - Returns a generic response ONLY. Never reveals whether an application
+//   was newly created, was a duplicate, or matched an existing email.
+// - Never returns the raw verification token or verification URL.
+// - Never logs the raw token; only its SHA-256 hash is persisted.
+// - Raw token exists transiently on `campaign_email_outbox.payload` while
+//   the delivery worker composes the message; the worker MUST clear it.
+// - All classification (pending / waiting_list) is done server-side via the
+//   `campaign_application_classify` trigger.
 //
-// This function never trusts client-side status classification. The DB
-// trigger owns pending / waiting_list / rejected transitions.
+// Rate-limit durability: see docs/product/CAMPAIGN_RATE_LIMITING.md. All
+// counters live in `public.campaign_apply_attempts`, which is shared across
+// every edge-function instance and survives cold starts.
 
 import { createClient } from "npm:@supabase/supabase-js@2";
 import {
@@ -29,6 +30,15 @@ import {
 } from "../_shared/campaign.ts";
 
 const VERIFICATION_TTL_MS = 24 * 60 * 60_000;
+
+// Generic response used for every non-validation outcome. Never varies by
+// whether the email exists, is duplicate, is rate-limited by email, etc.
+// (Rate-limits by IP still return 429 so browsers can back off; that reveals
+// only IP-level information the caller already has.)
+const GENERIC_OK = {
+  ok: true,
+  message: "If the application can be processed, verification instructions will be sent.",
+};
 
 interface ApplyBody {
   campaign_slug?: string;
@@ -59,6 +69,35 @@ function bad(status: number, code: string, extra: Record<string, unknown> = {}) 
   return json(status, { error: code, ...extra });
 }
 
+async function enqueueVerificationEmail(
+  admin: ReturnType<typeof createClient>,
+  args: {
+    campaignId: string;
+    applicationId: string;
+    email: string;
+    rawToken: string;
+    expiresAt: string;
+  },
+) {
+  // The raw token lives transiently on this row's `payload` until the worker
+  // sends the message and clears the payload. Admin-read only, service-role
+  // write only (see migration 20260727 for RLS).
+  await admin.from("campaign_email_outbox").insert({
+    campaign_id: args.campaignId,
+    application_id: args.applicationId,
+    email: args.email,
+    template: "verification",
+    payload: {
+      // The worker composes: `${PUBLIC_APP_URL}/campaigns/verify?token=…&aid=…`.
+      // Nothing here is ever returned to the browser or written to logs.
+      token: args.rawToken,
+      application_id: args.applicationId,
+      expires_at: args.expiresAt,
+    },
+    dedupe_key: `${args.applicationId}:${args.expiresAt}`,
+  });
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   if (req.method !== "POST") return bad(405, "method_not_allowed");
@@ -78,7 +117,8 @@ Deno.serve(async (req) => {
     return bad(400, "invalid_json");
   }
 
-  // ---- Validation ----
+  // ---- Validation (only truly malformed input returns a specific error;
+  // everything else collapses into the generic response) ----
   const slug = (body.campaign_slug ?? "").trim().toLowerCase();
   const country = (body.country_code ?? "").trim().toUpperCase();
   const email = (body.email ?? "").trim().toLowerCase();
@@ -100,71 +140,105 @@ Deno.serve(async (req) => {
   const cap = await verifyTurnstile(body.turnstile_token, req);
   if (!cap.ok) {
     await recordAttempt(admin, null, fp(req).ip, email, "rejected", cap.reason);
-    return bad(400, "captcha_failed", { reason: cap.reason });
+    return bad(400, "captcha_failed");
   }
 
-  // ---- Resolve campaign ----
-  const { data: campaign, error: campErr } = await admin
+  // ---- Resolve campaign (existence is not enumerable — we still return the
+  // generic response even if the campaign is missing, so probing slugs
+  // doesn't reveal internal state. 404 would leak whether a slug exists.) ----
+  const { data: campaign } = await admin
     .from("campaigns")
     .select("id, lifecycle, starts_at, ends_at, deleted_at, enable_waiting_list")
     .eq("slug", slug)
     .maybeSingle();
-  if (campErr) return bad(500, "campaign_lookup_failed");
-  if (!campaign || campaign.deleted_at) return bad(404, "campaign_not_found");
+
+  const clientIp = fp(req).ip;
 
   const acceptedLifecycles = new Set(["active", "pre_launch", "preview"]);
-  if (!acceptedLifecycles.has(campaign.lifecycle)) return bad(409, "campaign_not_accepting");
-
   const now = Date.now();
-  if (campaign.starts_at && new Date(campaign.starts_at).getTime() > now) {
-    return bad(409, "campaign_not_started");
-  }
-  if (campaign.ends_at && new Date(campaign.ends_at).getTime() < now) {
-    return bad(409, "campaign_ended");
+  const campaignAccepting =
+    !!campaign &&
+    !campaign.deleted_at &&
+    acceptedLifecycles.has(campaign.lifecycle) &&
+    !(campaign.starts_at && new Date(campaign.starts_at).getTime() > now) &&
+    !(campaign.ends_at && new Date(campaign.ends_at).getTime() < now);
+
+  if (!campaignAccepting) {
+    await recordAttempt(admin, campaign?.id ?? null, clientIp, email, "rejected", "campaign_not_accepting");
+    return json(202, GENERIC_OK);
   }
 
   // ---- Country enabled ----
   const { data: cs } = await admin
     .from("campaign_country_settings")
     .select("enabled")
-    .eq("campaign_id", campaign.id)
+    .eq("campaign_id", campaign!.id)
     .eq("country_code", country)
     .maybeSingle();
-  if (!cs?.enabled) return bad(409, "country_not_enabled");
+  if (!cs?.enabled) {
+    await recordAttempt(admin, campaign!.id, clientIp, email, "rejected", "country_not_enabled");
+    return json(202, GENERIC_OK);
+  }
 
-  const clientIp = fp(req).ip;
-
-  // ---- Rate limit ----
-  const rl = await checkApplyRateLimit(admin, campaign.id, clientIp, email, APPLY_LIMITS);
+  // ---- Rate limit (per-IP returns 429 with retry hint; per-email collapses
+  // into the generic response so an attacker cannot use rate-limit signals to
+  // enumerate emails) ----
+  const rl = await checkApplyRateLimit(admin, campaign!.id, clientIp, email, APPLY_LIMITS);
   if (!rl.ok) {
-    await recordAttempt(admin, campaign.id, clientIp, email, "rate_limited", rl.reason);
-    return bad(429, rl.reason ?? "rate_limited", { retry_after_sec: rl.retry_after_sec });
+    await recordAttempt(admin, campaign!.id, clientIp, email, "rate_limited", rl.reason);
+    if (rl.reason === "rate_limited_ip") {
+      return bad(429, "rate_limited", { retry_after_sec: rl.retry_after_sec });
+    }
+    // Silent for per-email limit — do NOT reveal.
+    return json(202, GENERIC_OK);
   }
 
   // ---- Idempotency: existing application for (campaign, email)? ----
   const { data: existing } = await admin
     .from("campaign_applications")
-    .select("id, status, email_verified_at, assigned_number, waiting_list_position")
-    .eq("campaign_id", campaign.id)
+    .select("id, email_verified_at, deleted_at")
+    .eq("campaign_id", campaign!.id)
     .eq("email", email)
     .is("deleted_at", null)
     .maybeSingle();
 
   if (existing) {
-    await recordAttempt(admin, campaign.id, clientIp, email, "duplicate", "existing_application");
-    return json(200, {
-      status: "duplicate",
-      application: {
-        id: existing.id,
-        status: existing.status,
-        email_verified: !!existing.email_verified_at,
-        assigned_number: existing.assigned_number,
-        waiting_list_position: existing.waiting_list_position,
-      },
-    });
+    await recordAttempt(admin, campaign!.id, clientIp, email, "duplicate", "existing_application");
+    // If not verified yet, quietly re-issue a fresh verification token so
+    // the user isn't blocked by a lost first email. Existence still not
+    // revealed to the caller.
+    if (!existing.email_verified_at) {
+      const rawToken = randomToken(32);
+      const tokenHash = await sha256(rawToken);
+      const expiresAt = new Date(now + VERIFICATION_TTL_MS).toISOString();
+      const { error: updErr } = await admin
+        .from("campaign_applications")
+        .update({
+          email_verification_token: tokenHash,
+          email_verification_expires_at: expiresAt,
+          email_verification_sent_at: new Date().toISOString(),
+        })
+        .eq("id", existing.id)
+        .is("email_verified_at", null);
+      if (!updErr) {
+        try {
+          await enqueueVerificationEmail(admin, {
+            campaignId: campaign!.id,
+            applicationId: existing.id,
+            email,
+            rawToken,
+            expiresAt,
+          });
+        } catch (e) {
+          // Never log raw token; only surface error class.
+          console.error("campaign_verification_enqueue_failed", (e as Error).message);
+        }
+      }
+    }
+    return json(202, GENERIC_OK);
   }
 
-  // ---- Generate verification token ----
+  // ---- Fresh application ----
   const rawToken = randomToken(32);
   const tokenHash = await sha256(rawToken);
   const expiresAt = new Date(now + VERIFICATION_TTL_MS).toISOString();
@@ -172,7 +246,7 @@ Deno.serve(async (req) => {
   const { data: inserted, error: insErr } = await admin
     .from("campaign_applications")
     .insert({
-      campaign_id: campaign.id,
+      campaign_id: campaign!.id,
       country_code: country,
       full_name: fullName,
       company_name: body.company_name?.trim() || null,
@@ -197,20 +271,23 @@ Deno.serve(async (req) => {
       email_verification_sent_at: new Date().toISOString(),
       ip: clientIp,
       user_agent: fp(req).ua,
-      // status is set by classify trigger
     })
-    .select("id, status, waiting_list_position, assigned_number")
+    .select("id")
     .single();
 
   if (insErr || !inserted) {
-    console.error("campaign_apply_insert_failed", insErr);
-    await recordAttempt(admin, campaign.id, clientIp, email, "rejected", insErr?.message);
-    return bad(500, "insert_failed");
+    // Log a code, not the payload; the payload could contain the email.
+    console.error("campaign_apply_insert_failed", insErr?.code ?? "unknown");
+    await recordAttempt(admin, campaign!.id, clientIp, email, "rejected", insErr?.code ?? "insert_failed");
+    return json(202, GENERIC_OK);
   }
 
-  await recordAttempt(admin, campaign.id, clientIp, email, "accepted");
+  await recordAttempt(admin, campaign!.id, clientIp, email, "accepted");
+
+  // Emit the standard analytics event — payload is intentionally minimal.
+  // Never include the raw token, verification URL, or the email.
   await emitEvent(admin, req, {
-    campaign_id: campaign.id,
+    campaign_id: campaign!.id,
     application_id: inserted.id,
     event_type: "application_submitted",
     country_code: country,
@@ -222,34 +299,17 @@ Deno.serve(async (req) => {
     },
   });
 
-  const publicBase = Deno.env.get("PUBLIC_APP_URL") ?? "";
-  const verificationUrl = publicBase
-    ? `${publicBase.replace(/\/$/, "")}/campaigns/verify?token=${rawToken}&aid=${inserted.id}`
-    : null;
+  try {
+    await enqueueVerificationEmail(admin, {
+      campaignId: campaign!.id,
+      applicationId: inserted.id,
+      email,
+      rawToken,
+      expiresAt,
+    });
+  } catch (e) {
+    console.error("campaign_verification_enqueue_failed", (e as Error).message);
+  }
 
-  // Delivery is stubbed for M2 — the raw URL is logged and returned to the
-  // caller so the frontend (Milestone 3) or a follow-up email worker can send
-  // it. TODO(M3): enqueue via notification_outbox once the campaigns email
-  // template is scaffolded.
-  console.log(
-    "campaign_verification_email_pending",
-    JSON.stringify({ application_id: inserted.id, email, verificationUrl }),
-  );
-
-  return json(201, {
-    status: "created",
-    application: {
-      id: inserted.id,
-      status: inserted.status,
-      waiting_list_position: inserted.waiting_list_position,
-      assigned_number: inserted.assigned_number,
-    },
-    verification: {
-      required: true,
-      expires_at: expiresAt,
-      // The raw URL is returned so the frontend or delivery worker can send
-      // it; the server never stores the raw token.
-      url: verificationUrl,
-    },
-  });
+  return json(202, GENERIC_OK);
 });
