@@ -168,7 +168,16 @@
     "body": "De första 500 godkända Cleaners som ansöker under 2026 betalar 0 kr i MyCleaner-plattformsavgift under sina första 3 månader.",
     "note": "Perioden startar först när ditt första uppdrag har genomförts och betalats.",
     "cta": "Läs om kampanjen",
-    "href": "/founding-cleaner"
+    "href": "/founding-cleaner",
+    "badgePrimary": "FOUNDING CLEANER",
+    "badgeSecondary": "FÖRSTA 500",
+    "edition": "2026 EDITION",
+    "amount": "0 KR.",
+    "amountSuffix1": "i plattformsavgift",
+    "amountSuffix2": "i 3 månader",
+    "explain": "Ansök under 2026 och få en stark start som en av MyCleaners första godkända Cleaners.",
+    "noteShort": "Startar vid ditt första genomförda och betalda uppdrag.",
+    "ctaShort": "Se din fördel"
   },
   "app": {
     "eyebrow": "MyCleaner-appen",

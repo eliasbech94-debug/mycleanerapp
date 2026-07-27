@@ -168,7 +168,16 @@
     "body": "The first 500 approved Cleaners who apply in 2026 pay 0 in MyCleaner platform fees for their first 3 months.",
     "note": "The period only starts when your first job has been completed and paid.",
     "cta": "Read about the campaign",
-    "href": "/founding-cleaner"
+    "href": "/founding-cleaner",
+    "badgePrimary": "FOUNDING CLEANER",
+    "badgeSecondary": "FIRST 500",
+    "edition": "2026 EDITION",
+    "amount": "0",
+    "amountSuffix1": "in platform fees",
+    "amountSuffix2": "for 3 months",
+    "explain": "Apply in 2026 and get a strong start as one of MyCleaner's first approved Cleaners.",
+    "noteShort": "Starts with your first completed and paid job.",
+    "ctaShort": "See your benefit"
   },
   "app": {
     "eyebrow": "The MyCleaner app",
