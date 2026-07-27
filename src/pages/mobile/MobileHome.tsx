@@ -39,6 +39,9 @@ import { ServiceCategoryGrid } from "@/components/marketplace/ServiceCategoryGri
 import { CountryConfirmDialog } from "@/components/marketplace/CountryConfirmDialog";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { PullIndicator } from "@/components/mobile/PullIndicator";
+import { MobileServicesCarousel } from "@/components/mobile/MobileServicesCarousel";
+import { MobileHowItWorksCard } from "@/components/mobile/MobileHowItWorksCard";
+import { CampaignSection } from "@/components/marketplace/home/CampaignSection";
 
 const HomeSections = lazy(() =>
   import("@/components/marketplace/home/HomeSections").then((m) => ({ default: m.HomeSections })),
