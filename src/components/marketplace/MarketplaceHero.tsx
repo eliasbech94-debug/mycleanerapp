@@ -90,8 +90,9 @@ export function MarketplaceHero() {
       >
         <picture>
           <source media="(min-width: 768px)" srcSet={heroAsset.url} />
+          {/* Mobile fallback = 1x1 transparent gif so mobile browsers never download the desktop hero */}
           <img
-            src={heroAsset.url}
+            src="data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA="
             alt={alt}
             className="absolute inset-0 h-full w-full object-cover object-[65%_35%] lg:object-[60%_30%] xl:object-[55%_25%]"
             loading="eager"
