@@ -35,10 +35,14 @@ export default function FoundingCleaner() {
       data-surface="marketplace"
       className="mx-auto max-w-[900px] px-4 pb-24 pt-8 md:pb-32 md:pt-14"
     >
-      <Helmet>
-        <title>{`${heading} · MyCleaner`}</title>
-        <meta name="description" content={intro} />
-      </Helmet>
+      {(() => {
+        React.useEffect(() => {
+          const prev = document.title;
+          document.title = `${heading} · MyCleaner`;
+          return () => { document.title = prev; };
+        }, [heading]);
+        return null;
+      })()}
 
       {/* Hero */}
       <section aria-labelledby="fc-hero-heading" className="relative overflow-hidden rounded-3xl border border-[hsl(var(--mkt-border))] bg-[hsl(var(--mkt-brand))] text-[hsl(var(--mkt-brand-on))] p-6 sm:p-10 shadow-[var(--mkt-shadow-lift)]">
