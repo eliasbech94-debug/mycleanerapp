@@ -199,11 +199,13 @@ export function usePullToRefresh({
     };
 
     const onTouchEnd = () => {
-      if (!tracking && !refreshingRef.current) return;
+      // Only participate if THIS gesture was ever tracked. Refresh-in-flight
+      // gestures never set `tracking`, so they never re-enter finish().
+      if (!tracking) return;
       void finish();
     };
     const onTouchCancel = () => {
-      if (refreshingRef.current) return;
+      if (!tracking) return;
       reset();
     };
 
