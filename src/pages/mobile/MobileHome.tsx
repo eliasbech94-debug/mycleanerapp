@@ -556,9 +556,10 @@ function ProviderHome({ firstName }: { firstName: string | null }) {
   const { pullY, refreshing, thresholdReached } = usePullToRefresh({
     enabled: true,
     onRefresh: async () => {
-      await Promise.all([refetchJobs(), refetchOnboarding()]);
-      tryVibrate();
+      const [ok] = await Promise.all([refetchJobs(), refetchOnboarding()]);
+      if (ok) tryVibrate();
     },
+
   });
 
   // Onboarding progress — count filled required fields already validated
