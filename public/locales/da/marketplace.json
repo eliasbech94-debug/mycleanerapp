@@ -1,45 +1,73 @@
 {
   "hero": {
-    "eyebrow": "Europas cleaning marketplace",
-    "title_prefix": "Book din",
-    "title_suffix": "Cleaner",
-    "rotating_words": ["verificerede", "lokale", "bedømte", "betroede"],
-    "title_line_1": "Book din cleaner.",
-    "title_line_2": "Verificeret. Lokal. Tryg.",
-    "subtitle": "Sammenlign rigtige anmeldelser og gennemsigtige priser. Book direkte i cleanerens kalender — ingen budkrig, ingen ventetid.",
-    "availability": "Tilgængelig i Danmark · Sverige · Tyskland · Spanien · Storbritannien",
-    "price_note": "Prisen beregnes ved booking baseret på din cleaner og service.",
-    "image_alt": "Verificeret cleaner i et europæisk hjem",
-    "trust_verified": "Verificerede cleaners",
-    "trust_payments": "Sikre betalinger",
-    "trust_reviews": "Rigtige anmeldelser"
+    "trust": {
+      "verified": "Verificerede Cleaners",
+      "payments": "Sikre betalinger",
+      "reviews": "Ægte anmeldelser"
+    },
+    "availability": "Tilgængelig i Danmark · Sverige · Tyskland · Storbritannien · Spanien",
+    "image_alt": "Verificeret Cleaner i et europæisk hjem",
+    "variants": {
+      "guest": {
+        "eyebrow": "🇪🇺 Europas rengøringsmarkedsplads",
+        "title_line_1": "Find den perfekte Cleaner",
+        "title_line_2": "– når og hvor det passer dig.",
+        "subtitle": "Book verificerede Cleaners til hjemmet eller virksomheden. Hurtigt, sikkert og nemt – med gennemsigtige priser og ægte anmeldelser.",
+        "cta_secondary_label": "Bliv Cleaner",
+        "cta_secondary_href": "/bliv-cleaner"
+      },
+      "customer": {
+        "eyebrow": "Velkommen tilbage",
+        "title_line_1": "Velkommen tilbage, {{name}}.",
+        "title_line_2": "Book din næste Cleaner på få sekunder.",
+        "subtitle": "Gentag en tidligere booking eller find en ny Cleaner i dit område.",
+        "cta_secondary_label": "Se mine bookinger",
+        "cta_secondary_href": "/my-bookings"
+      },
+      "provider": {
+        "eyebrow": "Din dag",
+        "title_line_1": "Velkommen tilbage.",
+        "title_line_2": "Se dine bookinger og nye opgaver.",
+        "subtitle": "Hold styr på dagens jobs, svartid og indtjening – alt samlet ét sted.",
+        "cta_secondary_label": "Åbn dashboard",
+        "cta_secondary_href": "/provider-dashboard"
+      }
+    }
   },
   "search": {
-    "aria": "Find cleaner",
+    "aria": "Find en Cleaner",
     "where": "Hvor",
     "where_placeholder": "By eller postnummer",
     "when": "Hvornår",
     "service": "Service",
-    "submit": "Find cleaner"
+    "submit": "Find en Cleaner"
   },
   "categories": {
-    "heading": "Populære services",
+    "heading": "Populære ydelser",
     "cleaning": "Rengøring",
     "handyman": "Handyman",
     "garden": "Have",
-    "moving": "Flytning"
+    "moving": "Flytning",
+    "tiles": {
+      "regular": "Almindelig rengøring",
+      "deep": "Hovedrengøring",
+      "move": "Flytterengøring",
+      "office": "Kontorrengøring",
+      "custom": "Særlig opgave"
+    }
   },
   "results": {
-    "heading": "Bedst bedømte cleaners nær dig",
-    "subtitle": "Verificerede professionelle. Rigtige anmeldelser. Book med ro i sindet.",
-    "see_all": "Se alle cleaners",
-    "empty": "Ingen cleaners endnu i {{area}}. Prøv et andet område.",
-    "empty_area": "dit område"
+    "heading": "Fremhævede Cleaners nær dig",
+    "subtitle": "Verificerede professionelle. Ægte anmeldelser. Book med ro i sindet.",
+    "see_all": "Se alle Cleaners",
+    "empty": "Ingen Cleaners endnu i {{area}}. Prøv et andet område.",
+    "empty_area": "dit område",
+    "error_title": "Vi kunne ikke hente ledige Cleaners lige nu."
   },
   "card": {
     "verified": "Verificeret",
     "badge_verified": "Verificeret",
-    "badge_top": "Top bedømt",
+    "badge_top": "Topbedømt",
     "badge_fast": "Hurtigt svar",
     "badge_today": "Ledig i dag",
     "add_fav": "Tilføj til favoritter",
@@ -48,52 +76,58 @@
     "radius": "inden for {{km}} km",
     "completed": "{{n}} bookinger",
     "price_note": "Prisen beregnes ved booking",
-    "view": "Se profil"
+    "view": "Se profil",
+    "demo_hint": "Demoprofil — log ind for at browse ægte Cleaners"
   },
   "trust": {
     "heading": "Derfor vælger kunder MyCleaner",
-    "identity": { "title": "Verificeret identitet", "body": "Alle providere gennemgår ID-verifikation, før de kan modtage bookinger." },
-    "payments": { "title": "Sikre betalinger", "body": "Betalinger håndteres via Stripe. Dine kortdata deles aldrig med provideren." },
-    "reviews":  { "title": "Rigtige anmeldelser", "body": "Kun kunder med gennemførte bookinger kan skrive anmeldelser." },
+    "identity": { "title": "Verificeret identitet", "body": "Alle Cleaners gennemgår ID-verifikation, før de kan modtage bookinger." },
+    "payments": { "title": "Sikre betalinger", "body": "Betalinger håndteres via Stripe. Dine kortdata deles aldrig med din Cleaner." },
+    "reviews":  { "title": "Ægte anmeldelser", "body": "Kun kunder med gennemførte bookinger kan skrive anmeldelser." },
     "support":  { "title": "Kundesupport", "body": "Skriv til os hvis noget går galt — vi hjælper hver enkelt sag igennem." }
   },
   "summary": {
-    "heading": "Booking oversigt",
+    "heading": "Bookingoversigt",
     "service": "Service",
     "when": "Hvornår",
     "where": "Hvor",
     "total": "Total",
-    "price_note": "Prisen beregnes ved booking baseret på din cleaner og service."
+    "price_note": "Prisen beregnes ved booking baseret på din Cleaner og service."
+  },
+  "sidebar": {
+    "price_note": "Prisen beregnes ved booking baseret på din Cleaner og service.",
+    "why_heading": "Derfor vælger kunder MyCleaner",
+    "why_verified": "ID-verificerede Cleaners"
   },
   "how": {
     "eyebrow": "Sådan virker det",
     "heading": "Tre trin til et rent hjem",
     "steps": {
-      "search": { "title": "Find en cleaner", "body": "Søg lokalt, sammenlign priser og rigtige anmeldelser." },
-      "book": { "title": "Book i kalenderen", "body": "Vælg tidspunkt direkte hos cleaneren — ingen ventetid, ingen bud." },
-      "enjoy": { "title": "Nyd et rent hjem", "body": "Betaling holdes sikkert indtil jobbet er godkendt." }
+      "search": { "title": "Find en Cleaner", "body": "Søg lokalt, sammenlign priser og ægte anmeldelser." },
+      "book": { "title": "Book i kalenderen", "body": "Vælg tidspunkt direkte hos din Cleaner — ingen ventetid, ingen bud." },
+      "enjoy": { "title": "Nyd et rent hjem", "body": "Betalingen holdes sikkert, indtil jobbet er godkendt." }
     }
   },
   "reviews": {
     "eyebrow": "Fra vores kunder",
     "heading": "Elsket i hele Europa",
     "items": [
-      { "quote": "Utrolig nem booking og min cleaner var fantastisk. Kommer helt sikkert til at bruge det igen.", "name": "Sofie L.", "city": "København", "rating": 5 },
-      { "quote": "Priserne er gennemsigtige og jeg vidste præcis hvad jeg betalte for. Anbefales varmt.", "name": "Marcus B.", "city": "Malmö", "rating": 5 },
-      { "quote": "Endelig en platform hvor cleaneren får ordentlig betaling og jeg får kvalitet.", "name": "Ana R.", "city": "Madrid", "rating": 5 }
+      { "quote": "Utrolig nem booking, og min Cleaner var fantastisk. Bruger det helt sikkert igen.", "name": "Sofie L.", "city": "København", "rating": 5 },
+      { "quote": "Priserne er gennemsigtige, og jeg vidste præcis hvad jeg betalte for. Kan varmt anbefales.", "name": "Marcus B.", "city": "Malmö", "rating": 5 },
+      { "quote": "Endelig en platform, hvor min Cleaner får ordentlig betaling, og jeg får kvalitet.", "name": "Ana R.", "city": "Madrid", "rating": 5 }
     ]
   },
   "campaign": {
     "eyebrow": "Kampagne",
-    "title": "Bliv en Founding Provider",
-    "body": "Vi lancerer i hele Europa — de første 500 providere får livstidsrabat på platformsgebyret.",
+    "title": "Bliv Founding Cleaner",
+    "body": "Vi lancerer i hele Europa — de første 500 Cleaners får livstidsrabat på platformsgebyret.",
     "cta": "Ansøg nu",
     "href": "/provider/register"
   },
   "app": {
     "eyebrow": "MyCleaner-appen",
     "heading": "Book og genbook fra lommen",
-    "body": "Følg din booking, chat med din cleaner og betal sikkert — alt i én app.",
+    "body": "Følg din booking, chat med din Cleaner og betal sikkert — alt i én app.",
     "ios": "App Store",
     "android": "Google Play",
     "ios_href": "",
@@ -103,11 +137,11 @@
     "eyebrow": "FAQ",
     "heading": "Ofte stillede spørgsmål",
     "items": [
-      { "q": "Hvordan er priserne fastsat?", "a": "Cleanere sætter deres egne priser inden for lokale minimumssatser. Du ser den fulde pris før du booker — ingen skjulte gebyrer." },
-      { "q": "Er alle cleaners verificerede?", "a": "Ja. Alle providere gennemgår ID- og identitetsverifikation før de kan modtage bookinger." },
-      { "q": "Hvornår trækkes betalingen?", "a": "Vi reserverer beløbet ved bookingen og frigiver det til cleaneren, når jobbet er udført og godkendt." },
+      { "q": "Hvordan er priserne fastsat?", "a": "Cleaners sætter deres egne priser inden for lokale minimumssatser. Du ser den fulde pris før du booker — ingen skjulte gebyrer." },
+      { "q": "Er alle Cleaners verificerede?", "a": "Ja. Alle Cleaners gennemgår ID- og identitetsverifikation, før de kan modtage bookinger." },
+      { "q": "Hvornår trækkes betalingen?", "a": "Vi reserverer beløbet ved bookingen og frigiver det til din Cleaner, når jobbet er udført og godkendt." },
       { "q": "Kan jeg aflyse?", "a": "Ja — aflysning er gratis op til 24 timer før. Se vores fulde aflysningspolitik i FAQ." },
-      { "q": "Hvilke lande er live?", "a": "Danmark, Sverige, Tyskland, Spanien og Storbritannien. Flere lande kommer løbende." }
+      { "q": "Hvilke lande er live?", "a": "Danmark, Sverige, Tyskland, Storbritannien og Spanien. Flere lande kommer løbende." }
     ]
   },
   "welcome_back": {
@@ -116,8 +150,8 @@
     "heading_named": "Hej {{name}} — fortsæt hvor du slap",
     "tiles": {
       "upcoming": { "title": "Kommende bookinger", "body": "Se og administrer dine planlagte bookinger." },
-      "favorites": { "title": "Favorit-cleaners", "body": "Gå direkte til de cleaners du har gemt." },
-      "book_again": { "title": "Book igen", "body": "Genbestil hos en cleaner du har brugt før." }
+      "favorites": { "title": "Favorit-Cleaners", "body": "Gå direkte til de Cleaners du har gemt." },
+      "book_again": { "title": "Book igen", "body": "Genbestil hos en Cleaner du har brugt før." }
     }
   },
   "provider_home": {
