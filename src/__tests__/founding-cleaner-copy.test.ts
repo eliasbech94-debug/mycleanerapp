@@ -47,14 +47,14 @@ describe("Founding Cleaner — locale guards", () => {
       });
 
       it("campaign block points at /founding-cleaner", () => {
-        // @ts-expect-error runtime JSON access
+  
         expect(dict.campaign.href).toBe("/founding-cleaner");
-        // @ts-expect-error runtime JSON access
+  
         expect(String(dict.campaign.eyebrow)).toMatch(/FOUNDING CLEANER/);
       });
 
       it("has required foundingCleaner keys", () => {
-        // @ts-expect-error runtime JSON access
+  
         const fc = dict.foundingCleaner;
         expect(fc).toBeTruthy();
         expect(fc.heading).toBeTruthy();
@@ -70,7 +70,7 @@ describe("Founding Cleaner — locale guards", () => {
       });
 
       it("campaign body mentions 0 platform fee framing", () => {
-        // @ts-expect-error runtime JSON access
+  
         const body = String(dict.campaign.body).toLowerCase();
         // Every locale references "0" and either "platform" or "plattform" wording.
         expect(body).toMatch(/0/);
