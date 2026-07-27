@@ -20,7 +20,6 @@ import { Navigate } from "react-router-dom";
 import Profile from "./pages/Profile";
 import MobileProfileGate from "./pages/mobile/MobileProfileGate";
 import MobileInboxGate from "./pages/mobile/MobileInboxGate";
-import ProviderRegister from "./pages/ProviderRegister";
 import ProviderProfile from "./pages/ProviderProfile";
 import CustomerRegister from "./pages/CustomerRegister";
 import CreateTask from "./pages/CreateTask";
@@ -112,7 +111,7 @@ export function AppRoutes() {
       <Route path="/customer/addresses" element={<RoleGuard allow={["customer"]}><Navigate to="/profil?tab=addresses" replace /></RoleGuard>} />
       <Route path="/customer/profile" element={<RoleGuard allow={["customer"]}><Navigate to="/profil?tab=info" replace /></RoleGuard>} />
       <Route path="/customer/settings" element={<RoleGuard allow={["customer"]}><Navigate to="/profil?tab=notifications" replace /></RoleGuard>} />
-      <Route path="/provider/register" element={<ProviderRegister />} />
+      <Route path="/provider/register" element={<Navigate to="/bliv-cleaner" replace />} />
       {/* UUID-guarded internal provider route. Non-UUID falls through to NotFound. */}
       <Route path="/provider/:id" element={<UuidGuard param="id"><ProviderProfile /></UuidGuard>} />
       <Route path="/find-cleaner" element={<FindCleaner />} />
