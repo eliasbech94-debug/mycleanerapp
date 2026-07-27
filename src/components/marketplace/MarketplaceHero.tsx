@@ -162,6 +162,11 @@ function Eyebrow({ label }: { label: string }) {
 }
 
 function TrustRow({ t }: { t: (k: string, d?: string) => string }) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const tt = t as any;
+  return _TrustRow(tt);
+}
+function _TrustRow(t: (k: string, d?: string) => string) {
   return (
     <ul className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2 text-[13px] text-[hsl(var(--mkt-ink-muted))]">
       <TrustChip
