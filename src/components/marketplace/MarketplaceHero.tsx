@@ -6,6 +6,7 @@ import { ShieldCheck, Lock, Star, ArrowRight } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useHomeAudience, type HomeAudience } from "./home/useHomeAudience";
 import heroAsset from "@/assets/hero-europe-v7.jpg.asset.json";
+import heroMobileAsset from "@/assets/hero-europe-mobile-v1.jpg.asset.json";
 
 /**
  * MarketplaceHero — responsive premium editorial layout.
@@ -87,16 +88,20 @@ export function MarketplaceHero() {
         className="relative hidden isolate overflow-hidden md:block"
         style={{ minHeight: "clamp(380px, 52vh, 560px)" }}
       >
-        <img
-          src={heroAsset.url}
-          alt={alt}
-          className="absolute inset-0 h-full w-full object-cover object-[65%_35%] lg:object-[60%_30%] xl:object-[55%_25%]"
-          loading="eager"
-          {...({ fetchpriority: "high" } as Record<string, string>)}
-          decoding="async"
-          width={1920}
-          height={1088}
-        />
+        <picture>
+          <source media="(min-width: 768px)" srcSet={heroAsset.url} />
+          {/* Mobile fallback = 1x1 transparent gif so mobile browsers never download the desktop hero */}
+          <img
+            src="data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA="
+            alt={alt}
+            className="absolute inset-0 h-full w-full object-cover object-[65%_35%] lg:object-[60%_30%] xl:object-[55%_25%]"
+            loading="eager"
+            {...({ fetchpriority: "high" } as Record<string, string>)}
+            decoding="async"
+            width={1920}
+            height={1088}
+          />
+        </picture>
         {/* Left scrim: guarantees headline contrast without washing out the Europe map in the center */}
         <div
           className="absolute inset-0 bg-gradient-to-r from-[hsl(var(--mkt-bg))] from-0% via-[hsl(var(--mkt-bg))]/70 via-30% to-transparent to-55%"
@@ -148,7 +153,7 @@ export function MarketplaceHero() {
 
       {/* ================= <md : stacked mobile layout ================= */}
       <div className="md:hidden">
-        <div className="px-5 pt-6 pb-4">
+        <div className="px-5 pt-4 pb-3">
           {variant.eyebrow && <Eyebrow label={variant.eyebrow} />}
           <h1
             id="mkt-hero-title-mobile"
@@ -171,25 +176,30 @@ export function MarketplaceHero() {
         </div>
 
         <div
-          className="relative isolate mx-5 overflow-hidden rounded-2xl border border-[hsl(var(--mkt-border))] shadow-[var(--mkt-shadow-soft)]"
-          style={{ aspectRatio: "16 / 10" }}
+          className="relative isolate mx-5 mt-1 overflow-hidden rounded-3xl border border-[hsl(var(--mkt-border))] shadow-[var(--mkt-shadow-soft)]"
+          style={{ height: "clamp(300px, 50vh, 440px)" }}
         >
-          <img
-            src={heroAsset.url}
-            alt={alt}
-            className="absolute inset-0 h-full w-full object-cover object-center"
-            loading="eager"
-            decoding="async"
-            width={1920}
-            height={1088}
-          />
+          <picture>
+            <source media="(max-width: 767px)" srcSet={heroMobileAsset.url} />
+            {/* Desktop fallback = 1x1 transparent gif so desktop browsers never download the mobile hero */}
+            <img
+              src="data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA="
+              alt={alt}
+              className="absolute inset-0 h-full w-full object-cover object-[50%_22%]"
+              loading="eager"
+              {...({ fetchpriority: "high" } as Record<string, string>)}
+              decoding="async"
+              width={768}
+              height={1024}
+            />
+          </picture>
           <div
-            className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-[hsl(var(--mkt-bg))]/60 to-transparent"
+            className="absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-[hsl(var(--mkt-bg))]/50 to-transparent"
             aria-hidden="true"
           />
         </div>
 
-        <div className="px-5 pt-5 pb-6">
+        <div className="px-5 pt-4 pb-5">
           <CleanerSearchBar />
           <TrustRow t={t} />
           <div className="mt-4 flex flex-col gap-2">
