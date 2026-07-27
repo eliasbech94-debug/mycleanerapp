@@ -350,8 +350,8 @@ function useNearestCustomerBooking() {
   const [state, setState] = useState<"loading" | "ready" | "error">("loading");
   const [nearest, setNearest] = useState<CustomerBooking | null>(null);
 
-  const load = useCallback(async (): Promise<void> => {
-    if (!user) return;
+  const load = useCallback(async (): Promise<boolean> => {
+    if (!user) return false;
     const { data, error } = await supabase
       .from("bookings")
       .select("id,provider_name,service,booking_date,slot,address,status")
@@ -359,7 +359,7 @@ function useNearestCustomerBooking() {
       .order("booking_date", { ascending: true });
     if (error) {
       setState("error");
-      return;
+      return false;
     }
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -368,7 +368,9 @@ function useNearestCustomerBooking() {
     );
     setNearest(upcoming[0] ?? null);
     setState("ready");
+    return true;
   }, [user]);
+
 
   useEffect(() => {
     if (!user) return;
