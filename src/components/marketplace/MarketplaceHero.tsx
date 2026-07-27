@@ -191,11 +191,12 @@ export function MarketplaceHero() {
           <CleanerSearchBar />
           <TrustRow t={t} />
           <div className="mt-4 flex flex-col gap-2">
-            {availability && (
-              <p className="text-[11.5px] font-medium uppercase tracking-[0.16em] text-[hsl(var(--mkt-ink-soft))]">
-                {availability}
-              </p>
-            )}
+            <AvailabilityRow
+              label={availabilityLabel}
+              codes={countryCodes}
+              t={t}
+              className="text-[11.5px] font-medium uppercase tracking-[0.16em] text-[hsl(var(--mkt-ink-soft))]"
+            />
             <SecondaryCta label={variant.cta_secondary_label} href={variant.cta_secondary_href} />
           </div>
         </div>
