@@ -140,7 +140,7 @@ BEGIN
 
   SELECT provider_user_id INTO v_provider_user_id
   FROM public.provider_calendar_connections
-  WHERE id = _connection_id AND status = 'active'
+  WHERE id = _connection_id AND status IN ('active', 'error')
   FOR UPDATE;
 
   IF v_provider_user_id IS NULL THEN
