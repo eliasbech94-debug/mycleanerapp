@@ -7,7 +7,13 @@
     },
     "availability": "Tilgængelig i 🇩🇰 Danmark · 🇸🇪 Sverige · 🇩🇪 Tyskland · 🇬🇧 Storbritannien · 🇪🇸 Spanien",
     "availability_label": "Tilgængelig i",
-    "countries": { "dk": "Danmark", "se": "Sverige", "de": "Tyskland", "gb": "Storbritannien", "es": "Spanien" },
+    "countries": {
+      "dk": "Danmark",
+      "se": "Sverige",
+      "de": "Tyskland",
+      "gb": "Storbritannien",
+      "es": "Spanien"
+    },
     "image_alt": "Verificeret Cleaner i et europæisk hjem",
     "variants": {
       "guest": {
@@ -249,7 +255,9 @@
       "title": "Find en tid der passer",
       "subtitle": "Vælg område, tid og book direkte."
     },
-    "services": { "title": "Populære services" },
+    "services": {
+      "title": "Populære services"
+    },
     "featured": {
       "title": "Anbefalede Cleaners",
       "viewAll": "Se alle",
@@ -285,6 +293,94 @@
       "continueOnboarding": "Fortsæt",
       "calendar": "Kalender",
       "payouts": "Udbetalinger"
+    }
+  },
+  "mobileSearch": {
+    "appBarTitle": "Find en Cleaner",
+    "placeholder": "Søg efter navn, by eller postnummer",
+    "aria": "Søg efter Cleaners",
+    "clear": "Ryd søgning",
+    "loading_count": "Henter…",
+    "count": "{{n}} Cleaners fundet",
+    "price_from": "fra {{price}} kr/t",
+    "chips": {
+      "aria": "Filtrer kategori",
+      "all": "Alle",
+      "cleaning": "Rengøring",
+      "handyman": "Handyman",
+      "garden": "Have",
+      "moving": "Flytning"
+    },
+    "filters": {
+      "label": "Filtre",
+      "open": "Åbn filtre",
+      "title": "Filtre og sortering",
+      "description": "Tilpas søgningen",
+      "sortHeading": "Sortering",
+      "maxRate": "Maks. timepris",
+      "maxRatePlaceholder": "Ingen grænse",
+      "reset": "Nulstil",
+      "apply": "Vis resultater"
+    },
+    "sort": {
+      "score": "Bedste match",
+      "price_asc": "Pris (lav → høj)",
+      "price_desc": "Pris (høj → lav)",
+      "rating": "Højeste rating",
+      "response": "Hurtigst svar"
+    },
+    "empty": {
+      "title": "Ingen Cleaners matcher dine filtre",
+      "body": "Prøv at nulstille filtrene eller udvid dit søgeområde.",
+      "reset": "Nulstil filtre"
+    },
+    "error": {
+      "title": "Søgning er midlertidigt utilgængelig",
+      "body": "Prøv igen om et øjeblik.",
+      "retry": "Prøv igen"
+    },
+    "pagination": {
+      "prev": "Forrige",
+      "next": "Næste",
+      "pageOf": "Side {{page}} af {{pages}}"
+    }
+  },
+  "mobileBookings": {
+    "appBarTitle": "Mine bookinger",
+    "provider": "Cleaner",
+    "total": "Du betaler",
+    "tabs": {
+      "aria": "Bookinger",
+      "upcoming": "Kommende",
+      "previous": "Tidligere"
+    },
+    "status": {
+      "pending": "Afventer",
+      "accepted": "Accepteret",
+      "declined": "Afvist",
+      "cancelled": "Annulleret",
+      "completed": "Udført"
+    },
+    "empty": {
+      "cta": "Find en Cleaner",
+      "upcoming": {
+        "title": "Ingen kommende bookinger",
+        "body": "Find en Cleaner og book direkte i kalenderen."
+      },
+      "previous": {
+        "title": "Ingen tidligere bookinger",
+        "body": "Dine gennemførte bookinger vises her."
+      },
+      "signed_out": {
+        "title": "Log ind for at se dine bookinger",
+        "body": "Bookinger er kun synlige når du er logget ind.",
+        "cta": "Log ind"
+      }
+    },
+    "error": {
+      "title": "Kunne ikke hente bookinger",
+      "body": "Prøv igen om et øjeblik.",
+      "retry": "Prøv igen"
     }
   }
 }

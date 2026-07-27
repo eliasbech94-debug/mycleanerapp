@@ -294,5 +294,93 @@
       "calendar": "Calendario",
       "payouts": "Pagos"
     }
+  },
+  "mobileSearch": {
+    "appBarTitle": "Encuentra un Cleaner",
+    "placeholder": "Busca por nombre, ciudad o código postal",
+    "aria": "Buscar Cleaners",
+    "clear": "Borrar búsqueda",
+    "loading_count": "Cargando…",
+    "count": "{{n}} Cleaners encontrados",
+    "price_from": "desde {{price}} /h",
+    "chips": {
+      "aria": "Filtrar categoría",
+      "all": "Todos",
+      "cleaning": "Limpieza",
+      "handyman": "Manitas",
+      "garden": "Jardín",
+      "moving": "Mudanza"
+    },
+    "filters": {
+      "label": "Filtros",
+      "open": "Abrir filtros",
+      "title": "Filtros y orden",
+      "description": "Ajusta tu búsqueda",
+      "sortHeading": "Orden",
+      "maxRate": "Tarifa máx. por hora",
+      "maxRatePlaceholder": "Sin límite",
+      "reset": "Restablecer",
+      "apply": "Ver resultados"
+    },
+    "sort": {
+      "score": "Mejor coincidencia",
+      "price_asc": "Precio (bajo → alto)",
+      "price_desc": "Precio (alto → bajo)",
+      "rating": "Mejor valoración",
+      "response": "Respuesta más rápida"
+    },
+    "empty": {
+      "title": "Ningún Cleaner coincide con tus filtros",
+      "body": "Prueba a restablecer los filtros o ampliar el área.",
+      "reset": "Restablecer filtros"
+    },
+    "error": {
+      "title": "La búsqueda no está disponible",
+      "body": "Inténtalo de nuevo en un momento.",
+      "retry": "Reintentar"
+    },
+    "pagination": {
+      "prev": "Anterior",
+      "next": "Siguiente",
+      "pageOf": "Página {{page}} de {{pages}}"
+    }
+  },
+  "mobileBookings": {
+    "appBarTitle": "Mis reservas",
+    "provider": "Cleaner",
+    "total": "Tú pagas",
+    "tabs": {
+      "aria": "Reservas",
+      "upcoming": "Próximas",
+      "previous": "Anteriores"
+    },
+    "status": {
+      "pending": "Pendiente",
+      "accepted": "Aceptada",
+      "declined": "Rechazada",
+      "cancelled": "Cancelada",
+      "completed": "Completada"
+    },
+    "empty": {
+      "cta": "Encuentra un Cleaner",
+      "upcoming": {
+        "title": "Sin reservas próximas",
+        "body": "Encuentra un Cleaner y reserva directamente en su calendario."
+      },
+      "previous": {
+        "title": "Sin reservas anteriores",
+        "body": "Tus reservas completadas aparecerán aquí."
+      },
+      "signed_out": {
+        "title": "Inicia sesión para ver tus reservas",
+        "body": "Las reservas solo son visibles al iniciar sesión.",
+        "cta": "Iniciar sesión"
+      }
+    },
+    "error": {
+      "title": "No se pudieron cargar las reservas",
+      "body": "Inténtalo de nuevo en un momento.",
+      "retry": "Reintentar"
+    }
   }
 }
