@@ -483,15 +483,15 @@ function useProviderTodayAndNext() {
   const [state, setState] = useState<"loading" | "ready" | "error">("loading");
   const [todayCount, setTodayCount] = useState(0);
   const [nextJob, setNextJob] = useState<ProviderJob | null>(null);
-  const load = useCallback(async (): Promise<void> => {
-    if (!user) return;
+  const load = useCallback(async (): Promise<boolean> => {
+    if (!user) return false;
     const { data, error } = await supabase
       .from("bookings")
       .select("id,service,booking_date,slot,address,status")
       .order("booking_date", { ascending: true });
     if (error) {
       setState("error");
-      return;
+      return false;
     }
     const now = new Date();
     const todayISO = now.toISOString().slice(0, 10);
@@ -504,7 +504,9 @@ function useProviderTodayAndNext() {
       .sort((a, b) => a.booking_date.localeCompare(b.booking_date));
     setNextJob(upcoming[0] ?? null);
     setState("ready");
+    return true;
   }, [user]);
+
   useEffect(() => {
     if (!user) return;
     let cancelled = false;
