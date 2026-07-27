@@ -37,35 +37,35 @@ describe("MobileProfile", () => {
     mockUser = null;
     mockRoles = { isCustomer: false, isProvider: false, isAdmin: false, isEmployee: false, isSupport: false };
     wrap();
-    expect(screen.getByText("Sign in")).toBeTruthy();
-    expect(screen.queryByText("Personal information")).toBeNull();
-    expect(screen.queryByText("Cards & payments")).toBeNull();
-    expect(screen.queryByText("Payouts")).toBeNull();
+    expect(screen.getByText("Log ind")).toBeTruthy();
+    expect(screen.queryByText("Mine oplysninger")).toBeNull();
+    expect(screen.queryByText("Kort & betalinger")).toBeNull();
+    expect(screen.queryByText("Udbetalinger")).toBeNull();
   });
 
   it("customer sees cards but not payouts", () => {
     mockUser = { id: "u1", email: "u@e" };
     mockRoles = { isCustomer: true, isProvider: false };
     wrap();
-    expect(screen.getByText("Cards & payments")).toBeTruthy();
-    expect(screen.queryByText("Payouts")).toBeNull();
-    expect(screen.getByText("Sign out")).toBeTruthy();
+    expect(screen.getByText("Kort & betalinger")).toBeTruthy();
+    expect(screen.queryByText("Udbetalinger")).toBeNull();
+    expect(screen.getByText("Log ud")).toBeTruthy();
   });
 
   it("provider sees payouts but not customer cards", () => {
     mockUser = { id: "u2", email: "p@e" };
     mockRoles = { isCustomer: false, isProvider: true };
     wrap();
-    expect(screen.getByText("Payouts")).toBeTruthy();
-    expect(screen.queryByText("Cards & payments")).toBeNull();
+    expect(screen.getByText("Udbetalinger")).toBeTruthy();
+    expect(screen.queryByText("Kort & betalinger")).toBeNull();
   });
 
   it("language and country appear as separate rows", () => {
     mockUser = { id: "u1", email: "u@e" };
     mockRoles = { isCustomer: true };
     wrap();
-    expect(screen.getByText("Language")).toBeTruthy();
-    expect(screen.getByText("Country")).toBeTruthy();
+    expect(screen.getByText("Sprog")).toBeTruthy();
+    expect(screen.getByText("Land")).toBeTruthy();
   });
 });
 
