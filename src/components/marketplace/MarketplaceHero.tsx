@@ -90,7 +90,7 @@ export function MarketplaceHero() {
         <img
           src={heroAsset.url}
           alt={alt}
-          className="absolute inset-0 h-full w-full object-cover object-[68%_18%] lg:object-[70%_20%] xl:object-[72%_22%]"
+          className="absolute inset-0 h-full w-full object-cover object-[68%_6%] lg:object-[70%_4%] xl:object-[72%_2%]"
           loading="eager"
           {...({ fetchpriority: "high" } as Record<string, string>)}
           decoding="async"
