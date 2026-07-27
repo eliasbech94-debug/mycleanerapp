@@ -18,6 +18,11 @@ import { MemoryRouter, Route, Routes, useNavigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useEffect } from "react";
 
+// jsdom lacks scrollIntoView; MobileConversationView calls it on layout effects.
+if (!(Element.prototype as any).scrollIntoView) {
+  (Element.prototype as any).scrollIntoView = function () {};
+}
+
 // ---------- Scriptable supabase double ----------
 type FakeChannel = {
   name: string;
