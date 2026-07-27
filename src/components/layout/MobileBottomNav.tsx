@@ -91,7 +91,7 @@ export default function MobileBottomNav() {
             const Icon = tab.icon;
             const active = tab.match ? tab.match(pathname) : false;
             const cls =
-              "relative flex h-14 flex-col items-center justify-center gap-0.5 rounded-2xl text-[10.5px] font-medium transition-colors " +
+              "tap-target relative flex h-14 flex-col items-center justify-center gap-0.5 rounded-2xl text-[10.5px] font-medium transition-colors " +
               (active
                 ? "text-[hsl(var(--mkt-brand))]"
                 : "text-[hsl(var(--mkt-ink-muted))] active:text-[hsl(var(--mkt-ink))]");
