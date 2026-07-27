@@ -12,3 +12,9 @@ ALTER TABLE public.provider_profiles
     OR
     (length(trim(base_postal_code)) >= 3 AND length(trim(base_city)) >= 1)
   );
+
+ALTER TABLE public.place_validations DROP CONSTRAINT IF EXISTS place_validations_source_chk;
+ALTER TABLE public.place_validations
+  ADD CONSTRAINT place_validations_source_chk CHECK (source IN ('google','dawa','postal'));
+
+GRANT UPDATE (base_postal_code, base_city) ON public.provider_profiles TO authenticated;
