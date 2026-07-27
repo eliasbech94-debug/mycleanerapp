@@ -392,9 +392,10 @@ function CustomerHome({ firstName }: { firstName: string | null }) {
   const { pullY, refreshing, thresholdReached } = usePullToRefresh({
     enabled: true,
     onRefresh: async () => {
-      await refetch();
-      tryVibrate();
+      const ok = await refetch();
+      if (ok) tryVibrate();
     },
+
   });
 
   return (
