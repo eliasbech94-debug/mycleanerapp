@@ -252,8 +252,16 @@
     "subtitle_customer": "Book your next Cleaner in seconds.",
     "bookingCard": {
       "eyebrow": "Book a Cleaner",
-      "title": "Find a time that fits",
-      "subtitle": "Pick an area, time and book directly."
+      "title": "Find your Cleaner",
+      "subtitle": "Compare profiles, prices and open time slots.",
+      "trust": "Verified profiles · Secure payments",
+      "cta": "Find a Cleaner",
+      "ariaLabel": "Find a Cleaner"
+    },
+    "howItWorks": {
+      "cta": "Find a Cleaner",
+      "step_of": "Step {{n}} of {{total}}",
+      "progress": "Step indicator"
     },
     "services": {
       "title": "Popular services"
