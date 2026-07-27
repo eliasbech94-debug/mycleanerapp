@@ -16,6 +16,7 @@ import { IdentityVerificationCard } from "@/components/identity/IdentityVerifica
 import { ProviderScorePreview } from "@/components/provider/ProviderScorePreview";
 import { ProviderTaxProfileTab } from "@/components/profile/ProviderTaxProfileTab";
 import ProviderShareCard from "@/components/provider/ProviderShareCard";
+import { ProviderAvailabilityEditor } from "@/components/provider/ProviderAvailabilityEditor";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -291,9 +292,7 @@ function PricingTab({ pp, patch }: { pp: PP; patch: (k: OwnerCol, v: any) => voi
 function AvailabilityTab() {
   return (
     <Section title="Tilgængelighed" desc="Ugeskema, pauser og bookingvinduer.">
-      <div className="rounded-xl border-2 border-dashed p-6 text-center text-sm opacity-70">
-        Kalender-editor kommer snart. Tag i mellemtiden kontakt til support for at justere dine åbningstider.
-      </div>
+      <ProviderAvailabilityEditor />
     </Section>
   );
 }
