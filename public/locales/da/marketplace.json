@@ -306,10 +306,7 @@
     "chips": {
       "aria": "Filtrer kategori",
       "all": "Alle",
-      "cleaning": "Rengøring",
-      "handyman": "Handyman",
-      "garden": "Have",
-      "moving": "Flytning"
+      "cleaning": "Rengøring"
     },
     "filters": {
       "label": "Filtre",
