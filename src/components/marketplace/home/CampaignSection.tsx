@@ -34,6 +34,7 @@ export function CampaignSection() {
               {title}
             </h2>
             {body && <p className="mt-3 max-w-xl text-[14.5px] leading-relaxed opacity-90">{body}</p>}
+            {note && <p className="mt-2 max-w-xl text-[12.5px] leading-relaxed opacity-80">{note}</p>}
           </div>
           <Link
             to={href}
