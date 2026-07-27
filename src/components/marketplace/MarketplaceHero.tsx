@@ -244,6 +244,52 @@ function TrustChip({ icon, label }: { icon: React.ReactNode; label: string }) {
   );
 }
 
+/**
+ * AvailabilityRow — renders "Available in" label followed by a row of
+ * country name + SVG flag pairs. SVG flags (via flagcdn) render identically
+ * across platforms unlike native emoji flags which fail on Windows Chrome.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function AvailabilityRow({
+  label,
+  codes,
+  t,
+  className,
+}: {
+  label: string;
+  codes: readonly string[];
+  t: any;
+  className?: string;
+}) {
+  if (!label || codes.length === 0) return null;
+  return (
+    <p className={className}>
+      <span>{label}</span>
+      <span className="ml-2 inline-flex flex-wrap items-center gap-x-3 gap-y-1 align-middle">
+        {codes.map((code, i) => {
+          const name = t(`hero.countries.${code}`, { defaultValue: "" });
+          if (!name) return null;
+          return (
+            <span key={code} className="inline-flex items-center gap-1.5 align-middle">
+              {i > 0 && <span aria-hidden="true" className="opacity-40">·</span>}
+              <img
+                src={`https://flagcdn.com/${code}.svg`}
+                alt=""
+                aria-hidden="true"
+                width={18}
+                height={13}
+                loading="lazy"
+                className="inline-block h-[13px] w-[18px] rounded-[2px] shadow-[0_0_0_1px_hsl(var(--mkt-border))] object-cover"
+              />
+              <span>{name}</span>
+            </span>
+          );
+        })}
+      </span>
+    </p>
+  );
+}
+
 function SecondaryCta({ label, href }: { label?: string; href?: string }) {
   if (!label || !href) return null;
   return (
