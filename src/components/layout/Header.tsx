@@ -27,10 +27,25 @@ const MOBILE_SHELL_HIDE_ROUTES: RegExp[] = [
   /^\/marketplace(\/|$)/,
   /^\/mine-bookinger(\/|$)/,
   /^\/customer\/bookings(\/|$)/,
+  /^\/inbox(\/|$)/,
 ];
 export function isMobileShellHiddenHeaderRoute(pathname: string): boolean {
   const p = normalizePath(pathname);
   return MOBILE_SHELL_HIDE_ROUTES.some((re) => re.test(p));
+}
+/**
+ * `/profil` renders the existing dense Profile page when a `?tab=` is set,
+ * but the mobile landing (no tab) uses MobileProfile with its own
+ * MobileAppBar. Only the landing variant should suppress the global Header.
+ */
+export function shouldHideHeaderForMobileProfile(
+  pathname: string,
+  search: string,
+): boolean {
+  const p = normalizePath(pathname);
+  if (!/^\/profil(\/|$)/.test(p)) return false;
+  const params = new URLSearchParams(search);
+  return !params.has("tab");
 }
 function useBelow768(): boolean {
   const [below, setBelow] = useState<boolean>(() =>
@@ -144,6 +159,7 @@ const Header = () => {
   const belowMd = useBelow768();
   if (onAdminRoute || onEmployeeRoute) return null;
   if (belowMd && isMobileShellHiddenHeaderRoute(location.pathname)) return null;
+  if (belowMd && shouldHideHeaderForMobileProfile(location.pathname, location.search)) return null;
   if (isMarketplaceRoute(location.pathname)) return <MarketplaceHeader />;
 
   const handleSignOut = async () => {

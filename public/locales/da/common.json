@@ -11,6 +11,9 @@
     "close": "Luk",
     "loading": "Indlæser…"
   },
+  "common": {
+    "loading": "Indlæser…"
+  },
   "nav": {
     "home": "Forside",
     "bookings": "Bookinger",
@@ -31,5 +34,49 @@
     "GB": "Storbritannien",
     "SE": "Sverige",
     "ES": "Spanien"
+  },
+  "mobileMessages": {
+    "title": "Beskeder",
+    "defaultTitle": "Samtale",
+    "supportTitle": "Support",
+    "empty": "Ingen samtaler endnu. Book en Cleaner for at komme i gang.",
+    "error": "Kunne ikke hente beskeder.",
+    "retry": "Prøv igen",
+    "signedOut": "Log ind for at se dine beskeder.",
+    "signIn": "Log ind",
+    "tapToOpen": "Tryk for at åbne",
+    "statusClosed": "Afsluttet",
+    "composerLabel": "Skriv en besked",
+    "placeholder": "Skriv en besked…",
+    "send": "Send",
+    "sendFailed": "Kunne ikke sende besked",
+    "failed": "Kunne ikke sendes"
+  },
+  "mobileProfile": {
+    "title": "Profil",
+    "roleGuest": "Gæst",
+    "roleCustomer": "Kunde",
+    "roleProvider": "Cleaner",
+    "roleMember": "Medlem",
+    "groupAccount": "Konto",
+    "groupPrefs": "Præferencer",
+    "groupHelp": "Hjælp",
+    "groupSession": "Session",
+    "info": "Mine oplysninger",
+    "addresses": "Adresser",
+    "notifications": "Notifikationer",
+    "cards": "Kort & betalinger",
+    "invoices": "Fakturaer",
+    "payout": "Udbetalinger",
+    "receipts": "Bilag",
+    "sms": "SMS",
+    "tax": "Skatteoplysninger",
+    "language": "Sprog",
+    "country": "Land",
+    "faq": "Hjælp & FAQ",
+    "rules": "Regler",
+    "deactivate": "Deaktivér konto",
+    "signOut": "Log ud",
+    "signIn": "Log ind"
   }
 }
