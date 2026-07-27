@@ -23,18 +23,12 @@ import {
   emitEvent,
   fp,
   json,
-  randomToken,
   recordAttempt,
-  sha256,
   verifyTurnstile,
 } from "../_shared/campaign.ts";
 
-const VERIFICATION_TTL_MS = 24 * 60 * 60_000;
-
 // Generic response used for every non-validation outcome. Never varies by
 // whether the email exists, is duplicate, is rate-limited by email, etc.
-// (Rate-limits by IP still return 429 so browsers can back off; that reveals
-// only IP-level information the caller already has.)
 const GENERIC_OK = {
   ok: true,
   message: "If the application can be processed, verification instructions will be sent.",
@@ -63,40 +57,46 @@ interface ApplyBody {
   accepted_privacy?: boolean;
   turnstile_token?: string;
   session_id?: string | null;
+  locale?: string | null;
 }
 
 function bad(status: number, code: string, extra: Record<string, unknown> = {}) {
   return json(status, { error: code, ...extra });
 }
 
+/**
+ * Enqueue a verification email with ROUTING METADATA ONLY.
+ * The delivery worker mints a fresh single-use token immediately before
+ * sending and persists only its SHA-256 hash on campaign_applications.
+ * The raw token never appears in this row, in logs, or in any admin surface.
+ */
 async function enqueueVerificationEmail(
   admin: ReturnType<typeof createClient>,
   args: {
     campaignId: string;
     applicationId: string;
     email: string;
-    rawToken: string;
-    expiresAt: string;
+    countryCode: string;
+    locale: string | null;
   },
 ) {
-  // The raw token lives transiently on this row's `payload` until the worker
-  // sends the message and clears the payload. Admin-read only, service-role
-  // write only (see migration 20260727 for RLS).
+  // dedupe_key rotates hourly so lost mails can be re-requested without
+  // spamming, while still collapsing accidental double-submits inside a
+  // single hour window.
+  const window = Math.floor(Date.now() / 3_600_000);
   await admin.from("campaign_email_outbox").insert({
     campaign_id: args.campaignId,
     application_id: args.applicationId,
     email: args.email,
     template: "verification",
-    payload: {
-      // The worker composes: `${PUBLIC_APP_URL}/campaigns/verify?token=…&aid=…`.
-      // Nothing here is ever returned to the browser or written to logs.
-      token: args.rawToken,
-      application_id: args.applicationId,
-      expires_at: args.expiresAt,
-    },
-    dedupe_key: `${args.applicationId}:${args.expiresAt}`,
+    locale: args.locale,
+    // Payload holds ONLY non-sensitive template variables. A CHECK
+    // constraint on the table rejects any attempt to write a token here.
+    payload: { country_code: args.countryCode },
+    dedupe_key: `verification:${args.applicationId}:${window}`,
   });
 }
+
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
