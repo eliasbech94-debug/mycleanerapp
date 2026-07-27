@@ -5,7 +5,7 @@ import { CleanerSearchBar } from "./CleanerSearchBar";
 import { ShieldCheck, Lock, Star, ArrowRight } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useHomeAudience, type HomeAudience } from "./home/useHomeAudience";
-import heroAsset from "@/assets/hero-europe-v5.jpg.asset.json";
+import heroAsset from "@/assets/hero-europe-v6.jpg.asset.json";
 
 /**
  * MarketplaceHero — responsive premium editorial layout.
