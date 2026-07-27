@@ -153,7 +153,7 @@ export function MarketplaceHero() {
 
       {/* ================= <md : stacked mobile layout ================= */}
       <div className="md:hidden">
-        <div className="px-5 pt-6 pb-4">
+        <div className="px-5 pt-4 pb-3">
           {variant.eyebrow && <Eyebrow label={variant.eyebrow} />}
           <h1
             id="mkt-hero-title-mobile"
