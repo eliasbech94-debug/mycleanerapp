@@ -191,7 +191,7 @@ export function MarketplaceHero() {
 
         {/* 3. Trust chips row — tight, native micro-row (horizontal scroll if needed). */}
         <div className="px-4 pt-3">
-          <ul className="flex items-center gap-2 overflow-x-auto no-scrollbar text-[12.5px] text-[hsl(var(--mkt-ink-muted))]">
+          <ul className="flex items-center gap-2 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden text-[12.5px] text-[hsl(var(--mkt-ink-muted))]">
             <MobileTrustChip icon={<ShieldCheck className="h-3.5 w-3.5 text-[hsl(var(--mkt-success))]" aria-hidden />} label={t("hero.trust.verified", { defaultValue: "" })} />
             <MobileTrustChip icon={<Lock className="h-3.5 w-3.5 text-[hsl(var(--mkt-success))]" aria-hidden />} label={t("hero.trust.payments", { defaultValue: "" })} />
             <MobileTrustChip icon={<Star className="h-3.5 w-3.5 text-[hsl(var(--mkt-success))]" aria-hidden />} label={t("hero.trust.reviews", { defaultValue: "" })} />
