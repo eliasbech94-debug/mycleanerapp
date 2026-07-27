@@ -176,20 +176,25 @@ export function MarketplaceHero() {
         </div>
 
         <div
-          className="relative isolate mx-5 overflow-hidden rounded-2xl border border-[hsl(var(--mkt-border))] shadow-[var(--mkt-shadow-soft)]"
-          style={{ aspectRatio: "16 / 10" }}
+          className="relative isolate mx-5 mt-1 overflow-hidden rounded-3xl border border-[hsl(var(--mkt-border))] shadow-[var(--mkt-shadow-soft)]"
+          style={{ height: "clamp(300px, 50vh, 440px)" }}
         >
-          <img
-            src={heroAsset.url}
-            alt={alt}
-            className="absolute inset-0 h-full w-full object-cover object-center"
-            loading="eager"
-            decoding="async"
-            width={1920}
-            height={1088}
-          />
+          <picture>
+            <source media="(max-width: 767px)" srcSet={heroMobileAsset.url} />
+            {/* Desktop fallback = 1x1 transparent gif so desktop browsers never download the mobile hero */}
+            <img
+              src="data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA="
+              alt={alt}
+              className="absolute inset-0 h-full w-full object-cover object-[50%_22%]"
+              loading="eager"
+              {...({ fetchpriority: "high" } as Record<string, string>)}
+              decoding="async"
+              width={768}
+              height={1024}
+            />
+          </picture>
           <div
-            className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-[hsl(var(--mkt-bg))]/60 to-transparent"
+            className="absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-[hsl(var(--mkt-bg))]/50 to-transparent"
             aria-hidden="true"
           />
         </div>
