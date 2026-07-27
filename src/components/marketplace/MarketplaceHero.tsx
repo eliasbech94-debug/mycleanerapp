@@ -199,7 +199,7 @@ export function MarketplaceHero() {
           />
         </div>
 
-        <div className="px-5 pt-5 pb-6">
+        <div className="px-5 pt-4 pb-5">
           <CleanerSearchBar />
           <TrustRow t={t} />
           <div className="mt-4 flex flex-col gap-2">
