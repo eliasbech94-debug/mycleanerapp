@@ -237,5 +237,54 @@
         "body": "Optimer priser efter efterspørgsel."
       }
     }
+  },
+  "mobileHome": {
+    "greeting_guest": "Find den perfekte Cleaner",
+    "greeting_named": "Hej {{name}}",
+    "greeting_fallback_name": "der",
+    "subtitle_guest": "Verificerede Cleaners – hurtigt, sikkert og nemt.",
+    "subtitle_customer": "Book din næste Cleaner på få sekunder.",
+    "bookingCard": {
+      "eyebrow": "Book en Cleaner",
+      "title": "Find en tid der passer",
+      "subtitle": "Vælg område, tid og book direkte."
+    },
+    "services": { "title": "Populære services" },
+    "featured": {
+      "title": "Anbefalede Cleaners",
+      "viewAll": "Se alle",
+      "empty": "Ingen Cleaners at vise lige nu."
+    },
+    "quickActions": {
+      "title": "Hurtige handlinger",
+      "book_again": "Book igen",
+      "find_cleaner": "Find cleaner",
+      "messages": "Beskeder"
+    },
+    "customer": {
+      "upcoming": "Kommende booking",
+      "loading": "Henter…",
+      "error": "Kunne ikke hente bookinger.",
+      "empty": "Du har ingen kommende bookinger. Book din næste Cleaner nu.",
+      "provider": "Cleaner"
+    },
+    "provider": {
+      "today": "I dag",
+      "todayJobs_one": "aktiv opgave i dag",
+      "todayJobs_other": "aktive opgaver i dag",
+      "openDashboard": "Åbn dashboard",
+      "nextJob": "Næste opgave",
+      "job": "Opgave",
+      "noJobs": "Ingen kommende opgaver.",
+      "error": "Kunne ikke hente jobs.",
+      "earnings": "Månedens indtjening",
+      "earningsUnavailable": "Se din opdaterede indtjening i Finans.",
+      "openFinance": "Åbn Finans",
+      "onboarding": "Kom i gang",
+      "onboardingProgress": "{{done}} af {{total}} trin gennemført",
+      "continueOnboarding": "Fortsæt",
+      "calendar": "Kalender",
+      "payouts": "Udbetalinger"
+    }
   }
 }

@@ -7,7 +7,13 @@
     },
     "availability": "Disponible en 🇩🇰 Dinamarca · 🇸🇪 Suecia · 🇩🇪 Alemania · 🇬🇧 Reino Unido · 🇪🇸 España",
     "availability_label": "Disponible en",
-    "countries": { "dk": "Dinamarca", "se": "Suecia", "de": "Alemania", "gb": "Reino Unido", "es": "España" },
+    "countries": {
+      "dk": "Dinamarca",
+      "se": "Suecia",
+      "de": "Alemania",
+      "gb": "Reino Unido",
+      "es": "España"
+    },
     "image_alt": "Cleaner verificado en un hogar europeo",
     "variants": {
       "guest": {
@@ -236,6 +242,57 @@
         "title": "Precios dinámicos",
         "body": "Optimiza precios según la demanda."
       }
+    }
+  },
+  "mobileHome": {
+    "greeting_guest": "Encuentra tu Cleaner ideal",
+    "greeting_named": "Hola {{name}}",
+    "greeting_fallback_name": "de nuevo",
+    "subtitle_guest": "Cleaners verificados: rápido, seguro y fácil.",
+    "subtitle_customer": "Reserva tu próximo Cleaner en segundos.",
+    "bookingCard": {
+      "eyebrow": "Reserva un Cleaner",
+      "title": "Encuentra una hora que te venga bien",
+      "subtitle": "Elige zona, hora y reserva directamente."
+    },
+    "services": {
+      "title": "Servicios populares"
+    },
+    "featured": {
+      "title": "Cleaners destacados",
+      "viewAll": "Ver todos",
+      "empty": "No hay Cleaners para mostrar ahora mismo."
+    },
+    "quickActions": {
+      "title": "Acciones rápidas",
+      "book_again": "Reservar de nuevo",
+      "find_cleaner": "Buscar cleaner",
+      "messages": "Mensajes"
+    },
+    "customer": {
+      "upcoming": "Próxima reserva",
+      "loading": "Cargando…",
+      "error": "No se han podido cargar las reservas.",
+      "empty": "No tienes reservas próximas. Reserva tu próximo Cleaner ahora.",
+      "provider": "Cleaner"
+    },
+    "provider": {
+      "today": "Hoy",
+      "todayJobs_one": "trabajo activo hoy",
+      "todayJobs_other": "trabajos activos hoy",
+      "openDashboard": "Abrir panel",
+      "nextJob": "Próximo trabajo",
+      "job": "Trabajo",
+      "noJobs": "Sin trabajos próximos.",
+      "error": "No se han podido cargar los trabajos.",
+      "earnings": "Ingresos del mes",
+      "earningsUnavailable": "Consulta tus ingresos actualizados en Finanzas.",
+      "openFinance": "Abrir Finanzas",
+      "onboarding": "Empezar",
+      "onboardingProgress": "{{done}} de {{total}} pasos completados",
+      "continueOnboarding": "Continuar",
+      "calendar": "Calendario",
+      "payouts": "Pagos"
     }
   }
 }

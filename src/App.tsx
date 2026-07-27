@@ -9,6 +9,7 @@ import Footer from "@/components/layout/Footer";
 import CustomCursor from "@/components/CustomCursor";
 import { AuthProvider } from "@/hooks/useAuth";
 import Index from "./pages/Index";
+import MobileHomeGate from "./pages/mobile/MobileHomeGate";
 import Login from "./pages/Login";
 import AuthCallback from "./pages/AuthCallback";
 import ResetPassword from "./pages/ResetPassword";
@@ -89,7 +90,7 @@ const COUNTRY_ROUTE_PREFIXES = ["dk", "gb", "se", "es"] as const;
 export function AppRoutes() {
   return (
     <Routes>
-      <Route path="/" element={<Index />} />
+      <Route path="/" element={<MobileHomeGate />} />
       <Route path="/login" element={<Login />} />
       <Route path="/auth/callback" element={<AuthCallback />} />
       <Route path="/reset-password" element={<ResetPassword />} />
