@@ -66,11 +66,11 @@ export function CampaignSection() {
         <div className="relative flex flex-col gap-4 p-7 text-white">
           {/* Top row: badges */}
           <div className="flex items-center justify-between gap-3">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-2.5 py-1 text-[10.5px] font-semibold uppercase tracking-[0.16em] backdrop-blur">
+            <span className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-white/20 bg-white/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] backdrop-blur">
               <Sparkles className="h-3 w-3" aria-hidden="true" />
               {badgePrimary}
             </span>
-            <span className="inline-flex items-center rounded-full bg-white px-2.5 py-1 text-[10.5px] font-bold uppercase tracking-[0.14em] text-[#0b1e4a] shadow-sm">
+            <span className="inline-flex items-center whitespace-nowrap rounded-full bg-white px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-[#0b1e4a] shadow-sm">
               {badgeSecondary}
             </span>
           </div>
