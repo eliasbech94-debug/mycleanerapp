@@ -187,10 +187,10 @@ export function MarketplaceHero() {
           </div>
         </div>
 
-        {/* 3. Small supporting Europe illustration — 140–180px, elegant, below booking */}
+        {/* 3. Supporting Europe illustration — 180–220px premium artwork card. */}
         <div
-          className="relative isolate mx-5 mt-4 overflow-hidden rounded-[20px] shadow-[0_14px_32px_-16px_rgba(6,22,21,0.45)] ring-1 ring-[hsl(var(--mkt-border))]"
-          style={{ height: "clamp(140px, 22vh, 180px)" }}
+          className="relative isolate mx-5 mt-4 overflow-hidden rounded-[22px] shadow-[0_18px_40px_-20px_rgba(6,22,21,0.5)] ring-1 ring-[hsl(var(--mkt-border))]"
+          style={{ height: "clamp(180px, 26vh, 220px)" }}
           aria-hidden="true"
         >
           <picture>
@@ -198,7 +198,7 @@ export function MarketplaceHero() {
             <img
               src="data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA="
               alt=""
-              className="absolute inset-0 h-full w-full object-cover object-[50%_30%]"
+              className="absolute inset-0 h-full w-full object-cover object-[50%_28%]"
               loading="lazy"
               decoding="async"
               width={768}
