@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Turnstile } from "@/components/Turnstile";
+import Turnstile from "@/components/Turnstile";
 import { submitCampaignApplication, trackCampaignEvent } from "@/lib/campaigns/api";
 import { Loader2 } from "lucide-react";
 
