@@ -1,12 +1,18 @@
 {
   "hero": {
     "eyebrow": "Europas cleaning marketplace",
+    "title_prefix": "Book din",
+    "title_suffix": "Cleaner",
+    "rotating_words": ["verificerede", "lokale", "bedømte", "betroede"],
     "title_line_1": "Book din cleaner.",
     "title_line_2": "Verificeret. Lokal. Tryg.",
     "subtitle": "Sammenlign rigtige anmeldelser og gennemsigtige priser. Book direkte i cleanerens kalender — ingen budkrig, ingen ventetid.",
     "availability": "Tilgængelig i Danmark · Sverige · Tyskland · Spanien · Storbritannien",
     "price_note": "Prisen beregnes ved booking baseret på din cleaner og service.",
-    "image_alt": "Nyrengjort hjem"
+    "image_alt": "Verificeret cleaner i et europæisk hjem",
+    "trust_verified": "Verificerede cleaners",
+    "trust_payments": "Sikre betalinger",
+    "trust_reviews": "Rigtige anmeldelser"
   },
   "search": {
     "aria": "Find cleaner",
@@ -58,5 +64,70 @@
     "where": "Hvor",
     "total": "Total",
     "price_note": "Prisen beregnes ved booking baseret på din cleaner og service."
+  },
+  "how": {
+    "eyebrow": "Sådan virker det",
+    "heading": "Tre trin til et rent hjem",
+    "steps": {
+      "search": { "title": "Find en cleaner", "body": "Søg lokalt, sammenlign priser og rigtige anmeldelser." },
+      "book": { "title": "Book i kalenderen", "body": "Vælg tidspunkt direkte hos cleaneren — ingen ventetid, ingen bud." },
+      "enjoy": { "title": "Nyd et rent hjem", "body": "Betaling holdes sikkert indtil jobbet er godkendt." }
+    }
+  },
+  "reviews": {
+    "eyebrow": "Fra vores kunder",
+    "heading": "Elsket i hele Europa",
+    "items": [
+      { "quote": "Utrolig nem booking og min cleaner var fantastisk. Kommer helt sikkert til at bruge det igen.", "name": "Sofie L.", "city": "København", "rating": 5 },
+      { "quote": "Priserne er gennemsigtige og jeg vidste præcis hvad jeg betalte for. Anbefales varmt.", "name": "Marcus B.", "city": "Malmö", "rating": 5 },
+      { "quote": "Endelig en platform hvor cleaneren får ordentlig betaling og jeg får kvalitet.", "name": "Ana R.", "city": "Madrid", "rating": 5 }
+    ]
+  },
+  "campaign": {
+    "eyebrow": "Kampagne",
+    "title": "Bliv en Founding Provider",
+    "body": "Vi lancerer i hele Europa — de første 500 providere får livstidsrabat på platformsgebyret.",
+    "cta": "Ansøg nu",
+    "href": "/provider/register"
+  },
+  "app": {
+    "eyebrow": "MyCleaner-appen",
+    "heading": "Book og genbook fra lommen",
+    "body": "Følg din booking, chat med din cleaner og betal sikkert — alt i én app.",
+    "ios": "App Store",
+    "android": "Google Play",
+    "ios_href": "",
+    "android_href": ""
+  },
+  "faq": {
+    "eyebrow": "FAQ",
+    "heading": "Ofte stillede spørgsmål",
+    "items": [
+      { "q": "Hvordan er priserne fastsat?", "a": "Cleanere sætter deres egne priser inden for lokale minimumssatser. Du ser den fulde pris før du booker — ingen skjulte gebyrer." },
+      { "q": "Er alle cleaners verificerede?", "a": "Ja. Alle providere gennemgår ID- og identitetsverifikation før de kan modtage bookinger." },
+      { "q": "Hvornår trækkes betalingen?", "a": "Vi reserverer beløbet ved bookingen og frigiver det til cleaneren, når jobbet er udført og godkendt." },
+      { "q": "Kan jeg aflyse?", "a": "Ja — aflysning er gratis op til 24 timer før. Se vores fulde aflysningspolitik i FAQ." },
+      { "q": "Hvilke lande er live?", "a": "Danmark, Sverige, Tyskland, Spanien og Storbritannien. Flere lande kommer løbende." }
+    ]
+  },
+  "welcome_back": {
+    "eyebrow": "Velkommen tilbage",
+    "heading": "Fortsæt hvor du slap",
+    "heading_named": "Hej {{name}} — fortsæt hvor du slap",
+    "tiles": {
+      "upcoming": { "title": "Kommende bookinger", "body": "Se og administrer dine planlagte bookinger." },
+      "favorites": { "title": "Favorit-cleaners", "body": "Gå direkte til de cleaners du har gemt." },
+      "book_again": { "title": "Book igen", "body": "Genbestil hos en cleaner du har brugt før." }
+    }
+  },
+  "provider_home": {
+    "eyebrow": "Din dag",
+    "heading": "Overblik og genveje",
+    "tiles": {
+      "today": { "title": "Dagens bookinger", "body": "Hvem, hvor og hvornår i dag." },
+      "performance": { "title": "Performance", "body": "Rating, svartid og gennemførelse." },
+      "earnings": { "title": "Indtjening", "body": "Denne uges og månedens payout." },
+      "pricing": { "title": "Dynamisk prissætning", "body": "Optimer priser efter efterspørgsel." }
+    }
   }
 }
