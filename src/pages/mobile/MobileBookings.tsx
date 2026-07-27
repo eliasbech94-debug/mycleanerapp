@@ -18,12 +18,14 @@
  *  - No count badges when only a partial list is loaded — we render counts
  *    only from the same rows we display so the number is always trustworthy.
  */
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Calendar, Clock, MapPin, Sparkles, ChevronRight, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { usePullToRefresh } from "@/hooks/usePullToRefresh";
+import { PullIndicator } from "@/components/mobile/PullIndicator";
 
 type Booking = {
   id: string;
