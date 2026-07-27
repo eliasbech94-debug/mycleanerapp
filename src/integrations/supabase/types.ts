@@ -693,6 +693,8 @@ export type Database = {
           company_name: string | null
           country_code: string
           created_at: string
+          deleted_at: string | null
+          deleted_by: string | null
           email: string
           email_verification_token: string | null
           email_verified_at: string | null
@@ -732,6 +734,8 @@ export type Database = {
           company_name?: string | null
           country_code: string
           created_at?: string
+          deleted_at?: string | null
+          deleted_by?: string | null
           email: string
           email_verification_token?: string | null
           email_verified_at?: string | null
@@ -771,6 +775,8 @@ export type Database = {
           company_name?: string | null
           country_code?: string
           created_at?: string
+          deleted_at?: string | null
+          deleted_by?: string | null
           email?: string
           email_verification_token?: string | null
           email_verified_at?: string | null
@@ -1414,6 +1420,8 @@ export type Database = {
           created_at: string
           created_by: string | null
           default_locale: string
+          deleted_at: string | null
+          deleted_by: string | null
           enable_badges: boolean
           enable_countdown: boolean
           enable_live_counter: boolean
@@ -1429,12 +1437,15 @@ export type Database = {
           slug: string
           starts_at: string | null
           updated_at: string
+          version: number
         }
         Insert: {
           ai_config?: Json
           created_at?: string
           created_by?: string | null
           default_locale?: string
+          deleted_at?: string | null
+          deleted_by?: string | null
           enable_badges?: boolean
           enable_countdown?: boolean
           enable_live_counter?: boolean
@@ -1450,12 +1461,15 @@ export type Database = {
           slug: string
           starts_at?: string | null
           updated_at?: string
+          version?: number
         }
         Update: {
           ai_config?: Json
           created_at?: string
           created_by?: string | null
           default_locale?: string
+          deleted_at?: string | null
+          deleted_by?: string | null
           enable_badges?: boolean
           enable_countdown?: boolean
           enable_live_counter?: boolean
@@ -1471,6 +1485,7 @@ export type Database = {
           slug?: string
           starts_at?: string | null
           updated_at?: string
+          version?: number
         }
         Relationships: []
       }
