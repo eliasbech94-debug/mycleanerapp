@@ -347,38 +347,55 @@ function useNearestCustomerBooking() {
   const { user } = useAuth();
   const [state, setState] = useState<"loading" | "ready" | "error">("loading");
   const [nearest, setNearest] = useState<CustomerBooking | null>(null);
+
+  const load = useCallback(async (): Promise<void> => {
+    if (!user) return;
+    const { data, error } = await supabase
+      .from("bookings")
+      .select("id,provider_name,service,booking_date,slot,address,status")
+      .eq("customer_user_id", user.id)
+      .order("booking_date", { ascending: true });
+    if (error) {
+      setState("error");
+      return;
+    }
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const upcoming = ((data ?? []) as CustomerBooking[]).filter(
+      (b) => new Date(b.booking_date) >= today && b.status !== "cancelled" && b.status !== "declined",
+    );
+    setNearest(upcoming[0] ?? null);
+    setState("ready");
+  }, [user]);
+
   useEffect(() => {
     if (!user) return;
     let cancelled = false;
     (async () => {
-      const { data, error } = await supabase
-        .from("bookings")
-        .select("id,provider_name,service,booking_date,slot,address,status")
-        .eq("customer_user_id", user.id)
-        .order("booking_date", { ascending: true });
+      await load();
       if (cancelled) return;
-      if (error) {
-        setState("error");
-        return;
-      }
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const upcoming = ((data ?? []) as CustomerBooking[]).filter(
-        (b) => new Date(b.booking_date) >= today && b.status !== "cancelled" && b.status !== "declined",
-      );
-      setNearest(upcoming[0] ?? null);
-      setState("ready");
     })();
-  }, [user]);
-  return { state, nearest };
+    return () => {
+      cancelled = true;
+    };
+  }, [user, load]);
+  return { state, nearest, refetch: load };
 }
 
 function CustomerHome({ firstName }: { firstName: string | null }) {
   const { t } = useTranslation("marketplace");
-  const { state, nearest } = useNearestCustomerBooking();
+  const { state, nearest, refetch } = useNearestCustomerBooking();
+  const { pullY, refreshing, thresholdReached } = usePullToRefresh({
+    enabled: true,
+    onRefresh: async () => {
+      await refetch();
+      tryVibrate();
+    },
+  });
 
   return (
     <>
+      <PtrRow pullY={pullY} refreshing={refreshing} thresholdReached={thresholdReached} />
       <GreetingBar name={firstName ?? t("mobileHome.greeting_fallback_name", "der")} />
 
       <Section title={t("mobileHome.customer.upcoming", "Kommende booking")}>
