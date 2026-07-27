@@ -571,6 +571,7 @@ function ProviderHome({ firstName }: { firstName: string | null }) {
 
   return (
     <>
+      <PtrRow pullY={pullY} refreshing={refreshing} thresholdReached={thresholdReached} />
       <GreetingBar name={firstName ?? t("mobileHome.greeting_fallback_name", "der")} />
 
       {/* Today overview */}
