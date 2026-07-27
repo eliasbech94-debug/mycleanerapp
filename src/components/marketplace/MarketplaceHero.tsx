@@ -47,7 +47,7 @@ export function MarketplaceHero() {
             </span>
             <h1
               id="mkt-hero-title"
-              className="mt-4 font-sans font-bold text-[34px] leading-[1.05] tracking-[-0.02em] text-[hsl(var(--mkt-ink))] sm:text-[46px] lg:text-[60px]"
+              className="mt-4 font-sans font-bold text-[30px] leading-[1.05] tracking-[-0.02em] text-[hsl(var(--mkt-ink))] sm:text-[40px] lg:text-[52px]"
             >
               {t("hero.title_prefix", "Book din")}{" "}
               <RotatingWord
