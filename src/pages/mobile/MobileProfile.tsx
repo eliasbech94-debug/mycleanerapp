@@ -72,7 +72,7 @@ export default function MobileProfile() {
   const { t, i18n } = useTranslation("common");
   const { user, profile } = useAuth();
   const roles = useUserRoles();
-  const { activeMarket } = useActiveMarket();
+  const { market } = useActiveMarket();
   const navigate = useNavigate();
 
   const roleLabel = !user
@@ -123,7 +123,7 @@ export default function MobileProfile() {
   }
 
   // Preferences
-  const marketLabel = activeMarket?.country_code ?? "—";
+  const marketLabel = market?.country_code ?? "—";
   const langMap: Record<string, string> = {
     da: t("language.da", "Dansk"),
     en: t("language.en", "English"),
