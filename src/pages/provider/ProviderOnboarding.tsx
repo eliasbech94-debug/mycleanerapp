@@ -5,7 +5,9 @@ import { Loader2, ArrowLeft, ArrowRight, Camera, CheckCircle2, Circle, FileCheck
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { ProviderApplicantGuard } from "@/components/ProviderApplicantGuard";
-import AddressAutocomplete from "@/components/AddressAutocomplete";
+import { InternationalPhoneInput } from "@/components/provider/InternationalPhoneInput";
+import { PostalCodeCityField } from "@/components/provider/PostalCodeCityField";
+import { ProviderServicePricing } from "@/components/provider/ProviderServicePricing";
 import { StripeConnectStatusWidget } from "@/components/provider/StripeConnectStatusWidget";
 import { IdentityVerificationCard } from "@/components/identity/IdentityVerificationCard";
 import BackButton from "@/components/BackButton";
@@ -31,6 +33,9 @@ type ProviderProfile = {
   photo_path: string | null;
   base_address_formatted: string | null;
   base_address_place_id: string | null;
+  base_postal_code: string | null;
+  base_city: string | null;
+  base_validation_source: string | null;
   base_country_code: string | null;
   base_lat: number | null;
   base_lng: number | null;
@@ -396,29 +401,30 @@ function StepBasic({
           />
         </Field>
         <Field label="Telefon">
-          <input
-            className="w-full rounded-lg border px-3 py-2"
+          <InternationalPhoneInput
+            countryCode={(pp.base_country_code || authProfile?.country_code || "DK").toUpperCase()}
             value={contactPhone}
-            onChange={(e) => setContactPhone(e.target.value)}
+            onChange={setContactPhone}
             onBlur={() => contactPhone !== authProfile?.phone && patchContact({ phone: contactPhone })}
-            placeholder="+45…"
           />
         </Field>
       </div>
 
-      <Field label="Adresse">
-        <AddressAutocomplete
-          value={pp.base_address_formatted || ""}
-          onChange={(v) => patch({ base_address_formatted: v })}
-          countries={[(pp.base_country_code || authProfile?.country_code || "dk").toLowerCase()]}
-          onSelect={(p) =>
+      <Field label="Dit arbejdsområde">
+        <PostalCodeCityField
+          countryCode={(pp.base_country_code || authProfile?.country_code || "DK").toUpperCase()}
+          postalCode={pp.base_postal_code || ""}
+          city={pp.base_city || ""}
+          onResolved={(place) =>
             patch({
-              base_address_formatted: p.address,
-              base_address_place_id: p.placeId,
-              base_lat: p.lat ?? null,
-              base_lng: p.lng ?? null,
-              base_country_code: (pp.base_country_code || authProfile?.country_code || "DK").toUpperCase(),
-              base_validation_source: "onboarding" as any,
+              base_address_formatted: `${place.postal_code} ${place.city}`,
+              base_address_place_id: place.place_id,
+              base_country_code: place.country_code,
+              base_lat: place.lat ?? null,
+              base_lng: place.lng ?? null,
+              base_postal_code: place.postal_code,
+              base_city: place.city,
+              base_validation_source: "postal_lookup",
             } as any)
           }
         />
@@ -491,6 +497,8 @@ function StepService({ pp, patch }: { pp: ProviderProfile; patch: (u: Partial<Pr
         </div>
       </Field>
 
+      <ProviderServicePricing countryCode={(pp.base_country_code || "DK").toUpperCase()} />
+
       <Field label="Overskrift">
         <input
           className="w-full rounded-lg border px-3 py-2"
@@ -509,7 +517,7 @@ function StepService({ pp, patch }: { pp: ProviderProfile; patch: (u: Partial<Pr
         />
       </Field>
 
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2">
         <Field label="Års erfaring">
           <input
             type="number"
@@ -517,15 +525,6 @@ function StepService({ pp, patch }: { pp: ProviderProfile; patch: (u: Partial<Pr
             className="w-full rounded-lg border px-3 py-2"
             value={pp.years_experience ?? ""}
             onChange={(e) => patch({ years_experience: e.target.value ? Number(e.target.value) : null })}
-          />
-        </Field>
-        <Field label="Timepris (DKK)">
-          <input
-            type="number"
-            min={0}
-            className="w-full rounded-lg border px-3 py-2"
-            value={pp.hourly_rate ?? ""}
-            onChange={(e) => patch({ hourly_rate: e.target.value ? Number(e.target.value) : null })}
           />
         </Field>
         <Field label="Radius (km)">
@@ -853,7 +852,6 @@ export function computeStepCompletionByKey(
     pp.service_categories.length > 0 &&
     (pp.bio || "").trim().length >= 20 &&
     pp.languages.length > 0 &&
-    pp.hourly_rate &&
     pp.service_area_radius_km
   );
   const insurance = !!(
