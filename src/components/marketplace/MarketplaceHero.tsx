@@ -60,12 +60,12 @@ export function MarketplaceHero() {
                 {t("hero.title_suffix", "Cleaner")}
               </span>
             </h1>
-            <p className="mt-5 max-w-md text-[15.5px] leading-relaxed text-[hsl(var(--mkt-ink-muted))]">
+            <p className="mt-3 max-w-md text-[14.5px] leading-relaxed text-[hsl(var(--mkt-ink-muted))]">
               {t("hero.subtitle", "Sammenlign rigtige anmeldelser og gennemsigtige priser. Book direkte i cleanerens kalender.")}
             </p>
           </div>
 
-          <div className="mt-8 max-w-4xl">
+          <div className="mt-5 max-w-4xl">
             <CleanerSearchBar />
             <ul className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2 text-[13px] text-[hsl(var(--mkt-ink-muted))]">
               <TrustChip icon={<ShieldCheck className="h-4 w-4 text-[hsl(var(--mkt-success))]" aria-hidden="true" />} label={t("hero.trust_verified", "Verificerede cleaners")} />
