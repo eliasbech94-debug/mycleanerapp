@@ -42,7 +42,6 @@ const completeService = {
   service_categories: ["cleaning"],
   bio: "Erfaren cleaner med fokus på kvalitet.",
   languages: ["da"],
-  hourly_rate: 300,
   service_area_radius_km: 20,
 };
 const completeInsurance = {
@@ -132,7 +131,7 @@ describe("computeStepCompletionByKey — per-step completion", () => {
     expect(missingPhone.basic).toBe(false);
   });
 
-  it("service completes only when categories, bio(>=20), languages, rate and radius are set", () => {
+  it("service completes when categories, bio(>=20), languages and radius are set; prices are server validated", () => {
     const c = computeStepCompletionByKey(
       { ...basePp, ...completeService },
       {},
