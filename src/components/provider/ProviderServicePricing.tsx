@@ -29,6 +29,8 @@ export function ProviderServicePricing({ countryCode }: { countryCode: string })
 
   useEffect(() => {
     if (!user) return;
+    // Generated Supabase types are refreshed after the migration is applied.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (supabase as any)
       .from("provider_service_prices")
       .select("service_code, amount_minor, currency, active")
@@ -48,6 +50,8 @@ export function ProviderServicePricing({ countryCode }: { countryCode: string })
       return;
     }
     setSaving(serviceCode);
+    // Generated Supabase types are refreshed after the migration is applied.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { error } = await (supabase as any).from("provider_service_prices").upsert({
       user_id: user.id,
       service_code: serviceCode,
