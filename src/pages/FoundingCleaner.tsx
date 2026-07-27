@@ -23,8 +23,12 @@ export default function FoundingCleaner() {
   const heading = t("foundingCleaner.heading");
   const intro = t("foundingCleaner.intro");
   const ctaPrimary = t("foundingCleaner.ctaPrimary", "Ansøg som Cleaner");
+  const ctaPrimaryNote = t("foundingCleaner.ctaPrimaryNote", "");
   const ctaSecondary = t("foundingCleaner.ctaSecondary", "Se vilkårene");
   const startNote = t("foundingCleaner.startNote");
+  const plannedBenefit = t("foundingCleaner.plannedBenefit", "");
+  const statusTitle = t("foundingCleaner.status.title", "");
+  const statusBody = t("foundingCleaner.status.body", "");
   const howHeading = t("foundingCleaner.how.heading", "Sådan fungerer det");
   const stepsRaw = t("foundingCleaner.how.steps", { returnObjects: true, defaultValue: [] });
   const steps: Step[] = Array.isArray(stepsRaw) ? (stepsRaw as Step[]) : [];
@@ -57,6 +61,9 @@ export default function FoundingCleaner() {
           {heading}
         </h1>
         <p className="mt-4 max-w-2xl text-[15px] leading-relaxed opacity-95 sm:text-[16.5px]">{intro}</p>
+        {plannedBenefit && (
+          <p className="mt-3 max-w-2xl text-[13.5px] leading-relaxed opacity-90">{plannedBenefit}</p>
+        )}
         <p className="mt-3 max-w-2xl text-[13px] leading-relaxed opacity-85">{startNote}</p>
         <div className="mt-6 flex flex-wrap gap-3">
           <Link
@@ -75,7 +82,36 @@ export default function FoundingCleaner() {
             {ctaSecondary}
           </a>
         </div>
+        {ctaPrimaryNote && (
+          <p data-testid="fc-cta-primary-note" className="mt-3 text-[12px] leading-snug opacity-80">
+            {ctaPrimaryNote}
+          </p>
+        )}
       </section>
+
+      {/* Status box — "opens soon" */}
+      {(statusTitle || statusBody) && (
+        <section
+          aria-labelledby="fc-status-heading"
+          data-testid="fc-status-box"
+          className="mt-6 rounded-2xl border border-[hsl(var(--mkt-border))] bg-[hsl(var(--mkt-brand-soft))]/40 p-5 sm:p-6"
+        >
+          <div className="flex items-start gap-3">
+            <span
+              aria-hidden
+              className="mt-0.5 inline-flex h-2.5 w-2.5 shrink-0 rounded-full bg-[hsl(var(--mkt-brand))]"
+            />
+            <div>
+              <h2 id="fc-status-heading" className="text-[15px] font-semibold text-[hsl(var(--mkt-ink))]">
+                {statusTitle}
+              </h2>
+              <p className="mt-1.5 text-[13.5px] leading-relaxed text-[hsl(var(--mkt-ink-muted))]">
+                {statusBody}
+              </p>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* How it works */}
       <section aria-labelledby="fc-how-heading" className="mt-12">
