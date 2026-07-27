@@ -159,6 +159,7 @@ const Header = () => {
   const belowMd = useBelow768();
   if (onAdminRoute || onEmployeeRoute) return null;
   if (belowMd && isMobileShellHiddenHeaderRoute(location.pathname)) return null;
+  if (belowMd && shouldHideHeaderForMobileProfile(location.pathname, location.search)) return null;
   if (isMarketplaceRoute(location.pathname)) return <MarketplaceHeader />;
 
   const handleSignOut = async () => {
