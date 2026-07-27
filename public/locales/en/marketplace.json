@@ -1,12 +1,18 @@
 {
   "hero": {
     "eyebrow": "Europe's cleaning marketplace",
+    "title_prefix": "Book your",
+    "title_suffix": "Cleaner",
+    "rotating_words": ["verified", "local", "top-rated", "trusted"],
     "title_line_1": "Book your cleaner.",
     "title_line_2": "Trusted, verified, local.",
     "subtitle": "Compare real reviews and transparent prices. Book directly in your cleaner's calendar — no bidding, no waiting.",
     "availability": "Available in Denmark · Sweden · Germany · Spain · United Kingdom",
     "price_note": "Price is calculated during booking based on your provider and service.",
-    "image_alt": "Freshly cleaned home interior"
+    "image_alt": "Verified cleaner in a European home",
+    "trust_verified": "Verified cleaners",
+    "trust_payments": "Secure payments",
+    "trust_reviews": "Real reviews"
   },
   "search": {
     "aria": "Find cleaner",
@@ -58,5 +64,70 @@
     "where": "Where",
     "total": "Total",
     "price_note": "Price is calculated during booking based on your provider and service."
+  },
+  "how": {
+    "eyebrow": "How it works",
+    "heading": "Three steps to a clean home",
+    "steps": {
+      "search": { "title": "Find a cleaner", "body": "Search locally, compare prices and real reviews." },
+      "book": { "title": "Book in the calendar", "body": "Pick a time directly with the cleaner — no waiting, no bidding." },
+      "enjoy": { "title": "Enjoy a clean home", "body": "Payment is held securely until the job is approved." }
+    }
+  },
+  "reviews": {
+    "eyebrow": "From our customers",
+    "heading": "Loved across Europe",
+    "items": [
+      { "quote": "Incredibly easy to book and my cleaner was fantastic. I'll definitely use it again.", "name": "Sofie L.", "city": "Copenhagen", "rating": 5 },
+      { "quote": "Prices are transparent and I knew exactly what I was paying for. Highly recommend.", "name": "Marcus B.", "city": "Malmö", "rating": 5 },
+      { "quote": "Finally a platform where cleaners get paid properly and I get quality.", "name": "Ana R.", "city": "Madrid", "rating": 5 }
+    ]
+  },
+  "campaign": {
+    "eyebrow": "Campaign",
+    "title": "Become a Founding Provider",
+    "body": "We're launching across Europe — the first 500 providers get a lifetime discount on the platform fee.",
+    "cta": "Apply now",
+    "href": "/provider/register"
+  },
+  "app": {
+    "eyebrow": "The MyCleaner app",
+    "heading": "Book and rebook from your pocket",
+    "body": "Track your booking, chat with your cleaner and pay securely — all in one app.",
+    "ios": "App Store",
+    "android": "Google Play",
+    "ios_href": "",
+    "android_href": ""
+  },
+  "faq": {
+    "eyebrow": "FAQ",
+    "heading": "Frequently asked questions",
+    "items": [
+      { "q": "How are prices set?", "a": "Cleaners set their own prices within local minimum rates. You see the full price before booking — no hidden fees." },
+      { "q": "Are all cleaners verified?", "a": "Yes. Every provider passes ID and identity verification before they can accept bookings." },
+      { "q": "When is payment charged?", "a": "We reserve the amount at booking and release it to the cleaner once the job is completed and approved." },
+      { "q": "Can I cancel?", "a": "Yes — cancellation is free up to 24 hours before. See our full cancellation policy in the FAQ." },
+      { "q": "Which countries are live?", "a": "Denmark, Sweden, Germany, Spain and the United Kingdom. More countries are rolling out." }
+    ]
+  },
+  "welcome_back": {
+    "eyebrow": "Welcome back",
+    "heading": "Pick up where you left off",
+    "heading_named": "Hi {{name}} — pick up where you left off",
+    "tiles": {
+      "upcoming": { "title": "Upcoming bookings", "body": "View and manage your scheduled bookings." },
+      "favorites": { "title": "Favorite cleaners", "body": "Jump straight to the cleaners you've saved." },
+      "book_again": { "title": "Book again", "body": "Rebook a cleaner you've used before." }
+    }
+  },
+  "provider_home": {
+    "eyebrow": "Your day",
+    "heading": "Overview and shortcuts",
+    "tiles": {
+      "today": { "title": "Today's bookings", "body": "Who, where and when today." },
+      "performance": { "title": "Performance", "body": "Rating, response time and completion." },
+      "earnings": { "title": "Earnings", "body": "This week's and month's payouts." },
+      "pricing": { "title": "Dynamic pricing", "body": "Optimise prices to demand." }
+    }
   }
 }

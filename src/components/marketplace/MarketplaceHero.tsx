@@ -2,42 +2,53 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { CleanerSearchBar } from "./CleanerSearchBar";
 import { ShieldCheck, Lock, Star } from "lucide-react";
-import livingroomAsset from "@/assets/home-livingroom.jpg.asset.json";
+import heroAsset from "@/assets/hero-europe.jpg.asset.json";
 
 /**
- * MarketplaceHero — reference-matched layout:
- *   full-width interior photo, headline overlaid on left,
- *   horizontal search bar underneath, trust chips below the bar.
+ * MarketplaceHero — premium editorial layout.
+ *
+ * Full-bleed hero photo (professional cleaner + subtly integrated Europe
+ * map on the wall highlighting DK · SE · DE · UK · ES) with the left third
+ * intentionally reserved as an empty area for CMS/localization-driven text.
+ * The image itself contains NO text, logos, flags or country labels — every
+ * label is rendered by the Localization Engine via `react-i18next`.
  */
 export function MarketplaceHero() {
   const { t } = useTranslation("marketplace");
   return (
-    <section className="relative">
-      <div className="relative overflow-hidden">
+    <section className="relative" aria-labelledby="mkt-hero-title">
+      <div className="relative min-h-[520px] overflow-hidden sm:min-h-[600px] lg:min-h-[680px]">
         <img
-          src={livingroomAsset.url}
-          alt={t("hero.image_alt", "Freshly cleaned home interior")}
-          className="absolute inset-0 h-full w-full scale-105 object-cover"
+          src={heroAsset.url}
+          alt={t("hero.image_alt", "Verified cleaner in a European home")}
+          className="absolute inset-0 h-full w-full object-cover object-[70%_center]"
           loading="eager"
+          {...({ fetchpriority: "high" } as Record<string, string>)}
+          decoding="async"
           width={1920}
-          height={720}
+          height={1088}
         />
-        {/* Layered gradient overlays for premium contrast without washing the photo */}
+        {/* Layered gradient overlays: keep the empty left area readable
+            without washing the photograph on the right. Stronger on mobile
+            where the text overlays the cleaner more directly. */}
         <div
-          className="absolute inset-0 bg-gradient-to-r from-[hsl(var(--mkt-bg))] via-[hsl(var(--mkt-bg))]/90 to-[hsl(var(--mkt-bg))]/10"
+          className="absolute inset-0 bg-gradient-to-r from-[hsl(var(--mkt-bg))] via-[hsl(var(--mkt-bg))]/90 to-[hsl(var(--mkt-bg))]/10 lg:to-transparent"
           aria-hidden="true"
         />
         <div
-          className="absolute inset-0 bg-gradient-to-t from-[hsl(var(--mkt-bg))]/60 via-transparent to-transparent"
+          className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[hsl(var(--mkt-bg))] to-transparent"
           aria-hidden="true"
         />
-        <div className="relative mx-auto max-w-[1400px] px-5 pb-10 pt-14 lg:px-8 lg:pb-16 lg:pt-20">
+        <div className="relative mx-auto max-w-[1400px] px-5 pb-12 pt-14 lg:px-8 lg:pb-24 lg:pt-24">
           <div className="max-w-2xl">
-            <span className="inline-flex items-center gap-2 rounded-full border border-[hsl(var(--mkt-border))] bg-[hsl(var(--mkt-surface))]/80 px-3 py-1 text-[11.5px] font-semibold uppercase tracking-[0.14em] text-[hsl(var(--mkt-brand))] shadow-[var(--mkt-shadow-soft)] backdrop-blur">
+            <span className="inline-flex items-center gap-2 rounded-full border border-[hsl(var(--mkt-border))] bg-[hsl(var(--mkt-surface))]/85 px-3 py-1 text-[11.5px] font-semibold uppercase tracking-[0.14em] text-[hsl(var(--mkt-brand))] shadow-[var(--mkt-shadow-soft)] backdrop-blur">
               <span className="h-1.5 w-1.5 rounded-full bg-[hsl(var(--mkt-brand))]" aria-hidden="true" />
-              {t("hero.eyebrow", "Europe's cleaning marketplace")}
+              {t("hero.eyebrow", "Europas cleaning marketplace")}
             </span>
-            <h1 className="mt-4 font-sans font-bold whitespace-nowrap text-[34px] leading-[1.05] tracking-[-0.02em] text-[hsl(var(--mkt-ink))] sm:text-[46px] lg:text-[58px]">
+            <h1
+              id="mkt-hero-title"
+              className="mt-4 font-sans font-bold text-[34px] leading-[1.05] tracking-[-0.02em] text-[hsl(var(--mkt-ink))] sm:text-[46px] lg:text-[60px]"
+            >
               {t("hero.title_prefix", "Book din")}{" "}
               <RotatingWord
                 words={t("hero.rotating_words", {
@@ -50,19 +61,19 @@ export function MarketplaceHero() {
               </span>
             </h1>
             <p className="mt-5 max-w-md text-[15.5px] leading-relaxed text-[hsl(var(--mkt-ink-muted))]">
-              {t("hero.subtitle", "Connect with verified cleaners near you. Book online, pay securely, and enjoy a spotless home.")}
+              {t("hero.subtitle", "Sammenlign rigtige anmeldelser og gennemsigtige priser. Book direkte i cleanerens kalender.")}
             </p>
           </div>
 
           <div className="mt-8 max-w-4xl">
             <CleanerSearchBar />
-            <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2 text-[13px] text-[hsl(var(--mkt-ink-muted))]">
-              <TrustChip icon={<ShieldCheck className="h-4 w-4 text-[hsl(var(--mkt-success))]" />} label={t("hero.trust_verified", "Trusted & verified cleaners")} />
-              <TrustChip icon={<Lock className="h-4 w-4 text-[hsl(var(--mkt-success))]" />} label={t("hero.trust_payments", "Secure payments")} />
-              <TrustChip icon={<Star className="h-4 w-4 text-[hsl(var(--mkt-success))]" />} label={t("hero.trust_reviews", "Real customer reviews")} />
-            </div>
+            <ul className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2 text-[13px] text-[hsl(var(--mkt-ink-muted))]">
+              <TrustChip icon={<ShieldCheck className="h-4 w-4 text-[hsl(var(--mkt-success))]" aria-hidden="true" />} label={t("hero.trust_verified", "Verificerede cleaners")} />
+              <TrustChip icon={<Lock className="h-4 w-4 text-[hsl(var(--mkt-success))]" aria-hidden="true" />} label={t("hero.trust_payments", "Sikre betalinger")} />
+              <TrustChip icon={<Star className="h-4 w-4 text-[hsl(var(--mkt-success))]" aria-hidden="true" />} label={t("hero.trust_reviews", "Rigtige anmeldelser")} />
+            </ul>
             <p className="mt-4 text-[12px] font-medium uppercase tracking-[0.18em] text-[hsl(var(--mkt-ink-soft))]">
-              {t("hero.availability", "Available in Denmark · Sweden · Germany · Spain · United Kingdom")}
+              {t("hero.availability", "Tilgængelig i Danmark · Sverige · Tyskland · Spanien · Storbritannien")}
             </p>
           </div>
         </div>
@@ -72,9 +83,9 @@ export function MarketplaceHero() {
 }
 
 /**
- * RotatingWord — cycles a short list of adjectives inside the H1.
- * Presentation-only; respects prefers-reduced-motion by disabling the
- * animation and pausing rotation for accessibility.
+ * RotatingWord — cycles a short list of adjectives inside the H1. Presentation
+ * only; honors `prefers-reduced-motion` by pausing rotation and removing the
+ * transform animation. Reserves width of the longest word to avoid layout shift.
  */
 function RotatingWord({ words, intervalMs = 2200 }: { words: string[]; intervalMs?: number }) {
   const safeWords = words && words.length > 0 ? words : ["verificerede"];
@@ -96,19 +107,15 @@ function RotatingWord({ words, intervalMs = 2200 }: { words: string[]; intervalM
     return () => window.clearInterval(id);
   }, [reduced, safeWords.length, intervalMs]);
 
-  // Reserve width using the longest word so the following <br/> line doesn't jump.
   const longest = safeWords.reduce((a, b) => (b.length > a.length ? b : a), "");
   const current = safeWords[i];
 
   return (
-    <span
-      className="relative inline-grid align-baseline text-[hsl(var(--mkt-brand))]"
-      aria-live="polite"
-    >
+    <span className="relative inline-grid align-baseline text-[hsl(var(--mkt-brand))]" aria-live="polite">
       <span className="invisible col-start-1 row-start-1 whitespace-nowrap italic">{longest}</span>
       <span
         key={current}
-        className="col-start-1 row-start-1 whitespace-nowrap italic animate-[mktRotateWord_600ms_ease-out]"
+        className="col-start-1 row-start-1 whitespace-nowrap italic motion-safe:animate-[mktRotateWord_600ms_ease-out]"
       >
         {current}
       </span>
@@ -118,9 +125,9 @@ function RotatingWord({ words, intervalMs = 2200 }: { words: string[]; intervalM
 
 function TrustChip({ icon, label }: { icon: React.ReactNode; label: string }) {
   return (
-    <span className="inline-flex items-center gap-1.5">
+    <li className="inline-flex items-center gap-1.5">
       {icon}
       {label}
-    </span>
+    </li>
   );
 }
