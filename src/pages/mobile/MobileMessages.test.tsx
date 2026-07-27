@@ -10,10 +10,13 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 // ---- Mocks ----
 const invoke = vi.fn();
+const chan: any = {};
+chan.on = () => chan;
+chan.subscribe = () => chan;
 vi.mock("@/integrations/supabase/client", () => ({
   supabase: {
     functions: { invoke: (...a: unknown[]) => invoke(...(a as [any, any])) },
-    channel: () => ({ on: () => ({ on: () => ({ on: () => ({ subscribe: () => ({}) }) }) }), subscribe: () => ({}) }),
+    channel: () => chan,
     removeChannel: () => {},
     auth: { signOut: async () => ({ error: null }) },
   },
