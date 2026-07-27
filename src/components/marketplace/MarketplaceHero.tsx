@@ -17,7 +17,7 @@ export function MarketplaceHero() {
   const { t } = useTranslation("marketplace");
   return (
     <section className="relative" aria-labelledby="mkt-hero-title">
-      <div className="relative min-h-[420px] overflow-hidden sm:min-h-[460px] lg:min-h-[520px]">
+      <div className="relative min-h-[360px] overflow-hidden sm:min-h-[400px] lg:min-h-[460px]">
         <img
           src={heroAsset.url}
           alt={t("hero.image_alt", "Verified cleaner in a European home")}
@@ -32,14 +32,14 @@ export function MarketplaceHero() {
             without washing the photograph on the right. Stronger on mobile
             where the text overlays the cleaner more directly. */}
         <div
-          className="absolute inset-0 bg-gradient-to-r from-[hsl(var(--mkt-bg))] via-[hsl(var(--mkt-bg))]/90 to-[hsl(var(--mkt-bg))]/10 lg:to-transparent"
+          className="absolute inset-0 bg-gradient-to-r from-[hsl(var(--mkt-bg))] via-[hsl(var(--mkt-bg))]/85 to-[hsl(var(--mkt-bg))]/10 lg:to-transparent"
           aria-hidden="true"
         />
         <div
-          className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[hsl(var(--mkt-bg))] to-transparent"
+          className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[hsl(var(--mkt-bg))] to-transparent"
           aria-hidden="true"
         />
-        <div className="relative mx-auto max-w-[1400px] px-5 pb-8 pt-10 lg:px-8 lg:pb-14 lg:pt-16">
+        <div className="relative mx-auto max-w-[1400px] px-5 pb-6 pt-8 lg:px-8 lg:pb-10 lg:pt-12">
           <div className="max-w-2xl">
             <span className="inline-flex items-center gap-2 rounded-full border border-[hsl(var(--mkt-border))] bg-[hsl(var(--mkt-surface))]/85 px-3 py-1 text-[11.5px] font-semibold uppercase tracking-[0.14em] text-[hsl(var(--mkt-brand))] shadow-[var(--mkt-shadow-soft)] backdrop-blur">
               <span className="h-1.5 w-1.5 rounded-full bg-[hsl(var(--mkt-brand))]" aria-hidden="true" />
