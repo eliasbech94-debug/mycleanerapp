@@ -6,7 +6,6 @@ import { ShieldCheck, Lock, Star, ArrowRight } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useHomeAudience, type HomeAudience } from "./home/useHomeAudience";
 import heroAsset from "@/assets/hero-europe-v7.jpg.asset.json";
-import heroMobileAsset from "@/assets/hero-europe-mobile-v1.jpg.asset.json";
 
 /**
  * MarketplaceHero — responsive premium editorial layout.
@@ -152,18 +151,19 @@ export function MarketplaceHero() {
       </div>
 
       {/* ================= <md : native app-style mobile layout =================
-          Booking-first hierarchy. The Booking Card IS the hero. The Europe
-          illustration is small supporting artwork placed BELOW the booking
-          card. Popular Services appears within the first viewport on modern
-          phones (iPhone 15 / Pixel 8 / S24). */}
+          Booking-first hierarchy per Mobile UX spec:
+            nav → headline → BOOKING CARD (hero) → trust → flags
+          Popular Services (ServiceCategoryGrid) and the Europe illustration
+          are rendered by Index.tsx AFTER this hero, keeping the illustration
+          as branding artwork rather than a dominant hero. */}
       <div className="md:hidden bg-[hsl(var(--mkt-bg))]">
-        {/* 1. Greeting block — tight, max 2 headline lines + 1 subtitle */}
-        <div className="px-5 pt-2 pb-1">
+        {/* 1. Compact greeting — tight, native-app rhythm. */}
+        <div className="px-5 pt-3 pb-1">
           {variant.eyebrow && <Eyebrow label={variant.eyebrow} />}
           <h1
             id="mkt-hero-title-mobile"
-            className="mt-2 max-w-[20ch] font-sans font-bold leading-[1.1] tracking-[-0.02em] text-[hsl(var(--mkt-ink))]"
-            style={{ fontSize: "clamp(1.25rem, 5.2vw, 1.55rem)" }}
+            className="mt-2 max-w-[18ch] font-sans font-bold leading-[1.08] tracking-[-0.025em] text-[hsl(var(--mkt-ink))]"
+            style={{ fontSize: "clamp(1.5rem, 6.5vw, 1.9rem)" }}
           >
             <BrandLine text={variant.title_line_1} />
             {variant.title_line_2 && (
@@ -174,43 +174,25 @@ export function MarketplaceHero() {
             )}
           </h1>
           {variant.subtitle && (
-            <p className="mt-1.5 max-w-[34ch] text-[13px] leading-snug text-[hsl(var(--mkt-ink-muted))] line-clamp-2">
+            <p className="mt-2 max-w-[32ch] text-[14px] leading-snug text-[hsl(var(--mkt-ink-muted))] line-clamp-2">
               {variant.subtitle}
             </p>
           )}
         </div>
 
-        {/* 2. Booking card — THE HERO. Large radius, premium spacing, deep shadow. */}
+        {/* 2. Booking card — THE HERO. Airbnb-style: large radius, generous
+            padding, deep shadow. Sits directly under the greeting so the CTA
+            is inside the first viewport on every modern phone. */}
         <div className="px-4 pt-3">
-          <div className="rounded-[24px] bg-white p-3.5 shadow-[0_24px_60px_-24px_rgba(6,22,21,0.4)] ring-1 ring-black/5">
+          <div className="rounded-[24px] bg-white p-4 shadow-[0_24px_60px_-22px_rgba(6,22,21,0.42)] ring-1 ring-black/5">
             <CleanerSearchBar compact />
           </div>
         </div>
 
-        {/* 3. Supporting Europe illustration — 180–220px premium artwork card. */}
-        <div
-          className="relative isolate mx-5 mt-4 overflow-hidden rounded-[22px] shadow-[0_18px_40px_-20px_rgba(6,22,21,0.5)] ring-1 ring-[hsl(var(--mkt-border))]"
-          style={{ height: "clamp(180px, 26vh, 220px)" }}
-          aria-hidden="true"
-        >
-          <picture>
-            <source media="(max-width: 767px)" srcSet={heroMobileAsset.url} />
-            <img
-              src="data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA="
-              alt=""
-              className="absolute inset-0 h-full w-full object-cover object-[50%_28%]"
-              loading="lazy"
-              decoding="async"
-              width={768}
-              height={1024}
-            />
-          </picture>
-        </div>
-
-        {/* 4. Trust + countries + secondary CTA — condensed micro-row */}
-        <div className="px-5 pt-3 pb-4">
+        {/* 3. Trust + flags — condensed native micro-rows, no illustration here. */}
+        <div className="px-5 pt-3 pb-2">
           <TrustRow t={t} />
-          <div className="mt-3 flex flex-col gap-1.5">
+          <div className="mt-2.5 flex flex-col gap-1.5">
             <AvailabilityRow
               label={availabilityLabel}
               codes={countryCodes}
