@@ -1,16 +1,14 @@
 /**
  * MobileHowItWorksCard — 3-step swipeable "How it works" card.
  *
- * Presentation only. Uses the existing `how.*` translations that the
- * desktop `HowItWorksSection` also relies on. Swipe via native horizontal
- * scroll-snap so the interaction feels native and needs no gesture lib.
- * Dots reflect the active card via IntersectionObserver on each slide.
- * Reduced-motion disables the snap animation via CSS defaults.
+ * One step fully visible at a time inside a single rounded container.
+ * Native horizontal scroll-snap for swipe; buttons + dots as fallback.
+ * IntersectionObserver tracks the active step.
  */
 import * as React from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Search, CalendarCheck, Sparkles, ChevronRight } from "lucide-react";
+import { Search, CalendarCheck, Sparkles, ChevronRight, ChevronLeft } from "lucide-react";
 
 const STEPS = [
   { key: "search", Icon: Search },
@@ -37,90 +35,135 @@ export function MobileHowItWorksCard() {
           setActive(idx);
         }
       },
-      { root: el, threshold: [0.5, 0.75, 1] },
+      { root: el, threshold: [0.6, 0.8, 1] },
     );
     slides.forEach((s) => io.observe(s));
     return () => io.disconnect();
   }, []);
 
+  const goto = (idx: number) => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    const slide = el.querySelector<HTMLElement>(`[data-slide="${idx}"]`);
+    if (slide) el.scrollTo({ left: slide.offsetLeft - el.offsetLeft, behavior: "smooth" });
+  };
+
   return (
-    <section
-      aria-labelledby="mobile-how-heading"
-      className="pt-8"
-    >
-      <div className="mb-3 px-4">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[hsl(var(--mkt-brand))]">
-          {t("how.eyebrow", "Sådan virker det")}
-        </p>
-        <h2
-          id="mobile-how-heading"
-          className="mt-1 font-heading text-[22px] leading-tight tracking-[-0.01em] text-[hsl(var(--mkt-ink))]"
-        >
-          {t("how.heading", "Tre trin til et rent hjem")}
-        </h2>
-      </div>
-      <div
-        ref={scrollerRef}
-        role="list"
-        aria-roledescription="carousel"
-        className="flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 momentum-scroll"
-      >
-        {STEPS.map(({ key, Icon }, idx) => (
-          <article
-            key={key}
-            data-slide={idx}
-            role="listitem"
-            aria-label={t("mobileHome.howItWorks.step_of", "Trin {{n}} af {{total}}", {
-              n: idx + 1,
+    <section aria-labelledby="mobile-how-heading" className="px-4 pt-8">
+      <div className="rounded-3xl border border-[hsl(var(--mkt-border))] bg-[hsl(var(--mkt-brand-soft))]/60 p-4 shadow-[var(--mkt-shadow-soft)]">
+        <div className="mb-3 flex items-end justify-between gap-3">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[hsl(var(--mkt-brand))]">
+              {t("how.eyebrow", "Sådan virker det")}
+            </p>
+            <h2
+              id="mobile-how-heading"
+              className="mt-1 font-heading text-[20px] leading-tight tracking-[-0.01em] text-[hsl(var(--mkt-ink))]"
+            >
+              {t("how.heading", "Tre trin til et rent hjem")}
+            </h2>
+          </div>
+          <span
+            aria-live="polite"
+            className="text-[12px] font-semibold text-[hsl(var(--mkt-ink-muted))]"
+          >
+            {t("mobileHome.howItWorks.counter", "{{n}} af {{total}}", {
+              n: active + 1,
               total: STEPS.length,
             })}
-            className="snap-center shrink-0 w-[calc(100vw-48px)] max-w-[380px] rounded-3xl border border-[hsl(var(--mkt-border))] bg-[hsl(var(--mkt-surface))] p-5 shadow-[var(--mkt-shadow-soft)]"
-          >
-            <div className="flex items-center gap-3">
-              <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-[hsl(var(--mkt-brand-soft))] text-[hsl(var(--mkt-brand))]">
-                <Icon className="h-5 w-5" strokeWidth={2.25} aria-hidden />
-              </span>
-              <span
-                className="text-[12px] font-semibold uppercase tracking-[0.14em] text-[hsl(var(--mkt-ink-muted))]"
-                aria-hidden
-              >
-                0{idx + 1}
-              </span>
-            </div>
-            <h3 className="mt-4 text-[18px] font-semibold text-[hsl(var(--mkt-ink))]">
-              {t(`how.steps.${key}.title`, key)}
-            </h3>
-            <p className="mt-2 text-[14.5px] leading-relaxed text-[hsl(var(--mkt-ink-muted))]">
-              {t(`how.steps.${key}.body`, "")}
-            </p>
-          </article>
-        ))}
-      </div>
-      {/* Progress dots */}
-      <div
-        className="mt-2 flex items-center justify-center gap-1.5"
-        role="tablist"
-        aria-label={t("mobileHome.howItWorks.progress", "Trin-indikator")}
-      >
-        {STEPS.map((_, idx) => (
-          <span
-            key={idx}
-            aria-hidden
-            className={`h-1.5 rounded-full transition-all ${
-              active === idx ? "w-5 bg-[hsl(var(--mkt-brand))]" : "w-1.5 bg-[hsl(var(--mkt-border))]"
-            }`}
-          />
-        ))}
-      </div>
-      <div className="mt-4 px-4">
-        <Link
-          to="/find-cleaner"
-          className="tap-target inline-flex w-full items-center justify-center gap-1.5 rounded-2xl bg-[hsl(var(--mkt-brand))] px-4 py-3 text-[14px] font-semibold text-white shadow-sm active:scale-[0.99] transition-transform motion-reduce:transition-none motion-reduce:active:scale-100"
-          style={{ WebkitTapHighlightColor: "var(--app-tap-highlight)" }}
+          </span>
+        </div>
+
+        <div
+          ref={scrollerRef}
+          role="list"
+          aria-roledescription="carousel"
+          className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-1 momentum-scroll [-ms-overflow-style:none] [scrollbar-width:none]"
         >
-          {t("mobileHome.howItWorks.cta", "Find en Cleaner")}
-          <ChevronRight className="h-4 w-4" aria-hidden />
-        </Link>
+          {STEPS.map(({ key, Icon }, idx) => (
+            <article
+              key={key}
+              data-slide={idx}
+              role="listitem"
+              aria-label={t("mobileHome.howItWorks.step_of", "Trin {{n}} af {{total}}", {
+                n: idx + 1,
+                total: STEPS.length,
+              })}
+              className="snap-center shrink-0 w-[calc(100vw-64px)] max-w-[360px] rounded-2xl border border-[hsl(var(--mkt-border))] bg-[hsl(var(--mkt-surface))] p-4 min-h-[168px]"
+            >
+              <div className="flex items-center gap-3">
+                <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-[hsl(var(--mkt-brand-soft))] text-[hsl(var(--mkt-brand))]">
+                  <Icon className="h-5 w-5" strokeWidth={2.25} aria-hidden />
+                </span>
+                <span
+                  className="text-[12px] font-semibold uppercase tracking-[0.14em] text-[hsl(var(--mkt-ink-muted))]"
+                  aria-hidden
+                >
+                  0{idx + 1}
+                </span>
+              </div>
+              <h3 className="mt-3 text-[17px] font-semibold text-[hsl(var(--mkt-ink))]">
+                {t(`how.steps.${key}.title`, key)}
+              </h3>
+              <p className="mt-1.5 text-[13.5px] leading-relaxed text-[hsl(var(--mkt-ink-muted))]">
+                {t(`how.steps.${key}.body`, "")}
+              </p>
+            </article>
+          ))}
+        </div>
+
+        <div className="mt-3 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => goto(Math.max(0, active - 1))}
+              disabled={active === 0}
+              aria-label={t("mobileHome.howItWorks.prev", "Forrige trin")}
+              className="tap-target inline-flex h-11 w-11 items-center justify-center rounded-full bg-[hsl(var(--mkt-surface))] text-[hsl(var(--mkt-ink))] border border-[hsl(var(--mkt-border))] disabled:opacity-40"
+              style={{ WebkitTapHighlightColor: "var(--app-tap-highlight)" }}
+            >
+              <ChevronLeft className="h-4 w-4" aria-hidden />
+            </button>
+            <button
+              type="button"
+              onClick={() => goto(Math.min(STEPS.length - 1, active + 1))}
+              disabled={active === STEPS.length - 1}
+              aria-label={t("mobileHome.howItWorks.next", "Næste trin")}
+              className="tap-target inline-flex h-11 w-11 items-center justify-center rounded-full bg-[hsl(var(--mkt-surface))] text-[hsl(var(--mkt-ink))] border border-[hsl(var(--mkt-border))] disabled:opacity-40"
+              style={{ WebkitTapHighlightColor: "var(--app-tap-highlight)" }}
+            >
+              <ChevronRight className="h-4 w-4" aria-hidden />
+            </button>
+          </div>
+          <div
+            className="flex items-center gap-1.5"
+            role="tablist"
+            aria-label={t("mobileHome.howItWorks.progress", "Trin-indikator")}
+          >
+            {STEPS.map((_, idx) => (
+              <span
+                key={idx}
+                aria-hidden
+                className={`h-1.5 rounded-full transition-all ${
+                  active === idx
+                    ? "w-5 bg-[hsl(var(--mkt-brand))]"
+                    : "w-1.5 bg-[hsl(var(--mkt-border-strong))]"
+                }`}
+              />
+            ))}
+          </div>
+        </div>
+
+        {active === STEPS.length - 1 ? (
+          <Link
+            to="/find-cleaner"
+            className="tap-target mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-2xl bg-[hsl(var(--mkt-brand))] px-4 py-3 text-[14px] font-semibold text-white shadow-sm active:scale-[0.99] transition-transform motion-reduce:transition-none motion-reduce:active:scale-100"
+            style={{ WebkitTapHighlightColor: "var(--app-tap-highlight)" }}
+          >
+            {t("mobileHome.howItWorks.cta", "Find din Cleaner")}
+            <ChevronRight className="h-4 w-4" aria-hidden />
+          </Link>
+        ) : null}
       </div>
     </section>
   );

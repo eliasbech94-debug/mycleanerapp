@@ -98,8 +98,8 @@ function TrustChips() {
   const { t } = useTranslation("marketplace");
   const chips = [
     { icon: ShieldCheck, label: t("hero.trust.verified", "Verificerede Cleaners") },
-    { icon: Wallet, label: t("hero.trust.payments", "Sikre betalinger") },
-    { icon: Star, label: t("hero.trust.reviews", "Ægte anmeldelser") },
+    { icon: Wallet, label: t("hero.trust.payments", "Sikker betaling") },
+    { icon: Star, label: t("hero.trust.fixed_price", "Fast pris uden overraskelser") },
   ];
   return (
     <div className="flex flex-wrap gap-1.5 px-4 pt-3">
@@ -308,9 +308,7 @@ function GuestHome() {
       {/* "Sådan virker" — single swipe card (mobile-only presentation). */}
       <MobileHowItWorksCard />
       {/* Campaign section (renders nothing if no active headline). */}
-      <div className="px-1 pt-4">
-        <CampaignSection />
-      </div>
+      <CampaignSection />
     </>
   );
 }

@@ -55,5 +55,17 @@
     "dashboard": "Panel",
     "messages": "Mensajes",
     "label": "Navegación principal"
+  },
+  "auth": {
+    "welcome_back": "Bienvenido de nuevo",
+    "subtitle": "Inicia sesión para continuar",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "sign_in": "Iniciar sesión",
+    "forgot": "¿Olvidaste tu contraseña?",
+    "no_account": "Crear un perfil",
+    "captcha_required": "Completa el desafío captcha primero",
+    "captcha_failed": "Verificación captcha fallida — inténtalo de nuevo",
+    "invalid_credentials": "Correo o contraseña no válidos"
   }
 }

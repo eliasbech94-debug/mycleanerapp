@@ -89,5 +89,17 @@
     "dashboard": "Dashboard",
     "messages": "Messages",
     "label": "Primary navigation"
+  },
+  "auth": {
+    "welcome_back": "Welcome back",
+    "subtitle": "Log in to continue",
+    "email": "Email",
+    "password": "Password",
+    "sign_in": "Log in",
+    "forgot": "Forgot password?",
+    "no_account": "Create a profile",
+    "captcha_required": "Please complete the captcha challenge first",
+    "captcha_failed": "Captcha verification failed — please try again",
+    "invalid_credentials": "Invalid email or password"
   }
 }

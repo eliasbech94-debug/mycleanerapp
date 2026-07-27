@@ -56,6 +56,7 @@ export function MobileAppShell({
   return (
     <div
       data-testid="mobile-app-shell"
+      data-surface="marketplace"
       className={cn(
         "flex min-h-[100dvh] flex-col bg-[hsl(var(--mkt-bg))] text-[hsl(var(--mkt-ink))]",
         className,

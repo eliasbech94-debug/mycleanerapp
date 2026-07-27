@@ -89,5 +89,17 @@
     "dashboard": "Dashboard",
     "messages": "Beskeder",
     "label": "Primær navigation"
+  },
+  "auth": {
+    "welcome_back": "Velkommen tilbage",
+    "subtitle": "Log ind for at fortsætte",
+    "email": "E-mail",
+    "password": "Adgangskode",
+    "sign_in": "Log ind",
+    "forgot": "Glemt adgangskode?",
+    "no_account": "Opret profil",
+    "captcha_required": "Gennemfør captcha-udfordringen først",
+    "captcha_failed": "Captcha-verifikation mislykkedes — prøv igen",
+    "invalid_credentials": "Ugyldig e-mail eller adgangskode"
   }
 }
