@@ -11,7 +11,7 @@ function digits(value: string) {
   return value.replace(/\D/g, "");
 }
 
-export function toE164(countryCode: string, localValue: string): string {
+function toE164(countryCode: string, localValue: string): string {
   const selected = CALLING_CODES[countryCode] ?? CALLING_CODES.DK;
   const raw = localValue.trim();
   if (raw.startsWith("+")) return `+${digits(raw)}`;
