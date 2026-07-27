@@ -5,7 +5,7 @@ import { CleanerSearchBar } from "./CleanerSearchBar";
 import { ShieldCheck, Lock, Star, ArrowRight } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useHomeAudience, type HomeAudience } from "./home/useHomeAudience";
-import heroAsset from "@/assets/hero-europe-v5.jpg.asset.json";
+import heroAsset from "@/assets/hero-europe-v7.jpg.asset.json";
 
 /**
  * MarketplaceHero — responsive premium editorial layout.
@@ -90,19 +90,21 @@ export function MarketplaceHero() {
         <img
           src={heroAsset.url}
           alt={alt}
-          className="absolute inset-0 h-full w-full object-cover object-[68%_6%] lg:object-[70%_4%] xl:object-[72%_2%]"
+          className="absolute inset-0 h-full w-full object-cover object-[65%_35%] lg:object-[60%_30%] xl:object-[55%_25%]"
           loading="eager"
           {...({ fetchpriority: "high" } as Record<string, string>)}
           decoding="async"
           width={1920}
           height={1088}
         />
+        {/* Left scrim: guarantees headline contrast without washing out the Europe map in the center */}
         <div
-          className="absolute inset-0 bg-gradient-to-r from-[hsl(var(--mkt-bg))] via-[hsl(var(--mkt-bg))]/85 to-[hsl(var(--mkt-bg))]/10 lg:to-transparent"
+          className="absolute inset-0 bg-gradient-to-r from-[hsl(var(--mkt-bg))] from-0% via-[hsl(var(--mkt-bg))]/70 via-30% to-transparent to-55%"
           aria-hidden="true"
         />
+        {/* Bottom fade into page background */}
         <div
-          className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[hsl(var(--mkt-bg))] to-transparent"
+          className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[hsl(var(--mkt-bg))] to-transparent"
           aria-hidden="true"
         />
         <div className="relative mx-auto flex min-h-[inherit] max-w-[1400px] flex-col justify-center gap-5 px-6 py-8 md:py-10 lg:px-8 lg:py-12">
@@ -175,7 +177,7 @@ export function MarketplaceHero() {
           <img
             src={heroAsset.url}
             alt={alt}
-            className="absolute inset-0 h-full w-full object-cover object-[58%_6%]"
+            className="absolute inset-0 h-full w-full object-cover object-center"
             loading="eager"
             decoding="async"
             width={1920}
