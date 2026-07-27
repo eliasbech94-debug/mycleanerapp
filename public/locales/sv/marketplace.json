@@ -3,7 +3,9 @@
     "trust": {
       "verified": "Verifierade Cleaners",
       "payments": "Säkra betalningar",
-      "reviews": "Äkta omdömen"
+      "reviews": "Äkta omdömen",
+      "fixed_price": "Fast pris utan överraskningar",
+      "rowLabel": "Fördelar"
     },
     "availability": "Tillgänglig i 🇩🇰 Danmark · 🇸🇪 Sverige · 🇩🇪 Tyskland · 🇬🇧 Storbritannien · 🇪🇸 Spanien",
     "availability_label": "Tillgänglig i",

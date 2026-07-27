@@ -98,15 +98,21 @@ function TrustChips() {
   const { t } = useTranslation("marketplace");
   const chips = [
     { icon: ShieldCheck, label: t("hero.trust.verified", "Verificerede Cleaners") },
-    { icon: Wallet, label: t("hero.trust.payments", "Sikker betaling") },
+    { icon: Wallet, label: t("hero.trust.payments", "Sikre betalinger") },
     { icon: Star, label: t("hero.trust.fixed_price", "Fast pris uden overraskelser") },
   ];
   return (
-    <div className="flex flex-wrap gap-1.5 px-4 pt-3">
+    <div
+      data-testid="mobile-trust-chips"
+      role="list"
+      aria-label={t("hero.trust.rowLabel", "Fordele")}
+      className="no-scrollbar mt-3 flex snap-x snap-mandatory flex-nowrap gap-2 overflow-x-auto overflow-y-hidden px-4 pb-1 [scroll-padding-inline:1rem]"
+    >
       {chips.map(({ icon: Icon, label }) => (
         <span
+          role="listitem"
           key={label}
-          className="inline-flex items-center gap-1.5 rounded-full border border-[hsl(var(--mkt-border))] bg-[hsl(var(--mkt-surface))] px-2.5 py-1 text-[11.5px] font-medium text-[hsl(var(--mkt-ink))]"
+          className="inline-flex shrink-0 snap-start items-center gap-1.5 whitespace-nowrap rounded-full border border-[hsl(var(--mkt-border))] bg-[hsl(var(--mkt-surface))] px-3 py-1.5 text-[12px] font-medium text-[hsl(var(--mkt-ink))]"
         >
           <Icon className="h-3.5 w-3.5 text-[hsl(var(--mkt-brand))]" aria-hidden />
           {label}
@@ -115,6 +121,7 @@ function TrustChips() {
     </div>
   );
 }
+
 
 /* ------------------------------ hero cards ------------------------------- */
 

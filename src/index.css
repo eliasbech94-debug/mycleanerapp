@@ -492,3 +492,9 @@
   }
 }
 
+
+/* Utility: hide scrollbar while preserving native scroll (used by mobile chip rows). */
+@layer utilities {
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+}
