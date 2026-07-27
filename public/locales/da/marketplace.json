@@ -6,6 +6,8 @@
       "reviews": "Ægte anmeldelser"
     },
     "availability": "Tilgængelig i 🇩🇰 Danmark · 🇸🇪 Sverige · 🇩🇪 Tyskland · 🇬🇧 Storbritannien · 🇪🇸 Spanien",
+    "availability_label": "Tilgængelig i",
+    "countries": { "dk": "Danmark", "se": "Sverige", "de": "Tyskland", "gb": "Storbritannien", "es": "Spanien" },
     "image_alt": "Verificeret Cleaner i et europæisk hjem",
     "variants": {
       "guest": {
