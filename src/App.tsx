@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import Header from "@/components/layout/Header";
+import MobileBottomNav from "@/components/layout/MobileBottomNav";
 import Footer from "@/components/layout/Footer";
 import CustomCursor from "@/components/CustomCursor";
 import { AuthProvider } from "@/hooks/useAuth";
@@ -206,6 +207,7 @@ const App = () => (
                   <Header />
                   <RootRouteSwitch />
                   <Footer />
+                  <MobileBottomNav />
                 </AuthGateProvider>
               </AppContextProvider>
             </ActiveMarketProvider>
