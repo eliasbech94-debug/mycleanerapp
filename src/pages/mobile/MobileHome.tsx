@@ -263,13 +263,10 @@ function GuestHome() {
       <GreetingBar />
       <PrimaryBookingCard />
       <TrustChips />
-      <Section title={t("mobileHome.services.title", "Populære services")}>
-        <div className="-mx-4">
-          <div className="px-1">
-            <ServiceCategoryGrid />
-          </div>
-        </div>
-      </Section>
+      {/* ServiceCategoryGrid provides its own heading — no wrapping Section. */}
+      <div className="pt-2">
+        <ServiceCategoryGrid />
+      </div>
       <FeaturedCleanersCarousel />
       <Suspense fallback={<div className="h-16" aria-hidden />}>
         <HomeSections slot="bottom" />
