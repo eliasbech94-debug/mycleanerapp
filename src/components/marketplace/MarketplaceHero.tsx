@@ -1,46 +1,83 @@
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 import { CleanerSearchBar } from "./CleanerSearchBar";
-import { ShieldCheck, Lock, Star } from "lucide-react";
+import { ShieldCheck, Lock, Star, ArrowRight } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { useHomeAudience, type HomeAudience } from "./home/useHomeAudience";
 import heroAsset from "@/assets/hero-europe-v5.jpg.asset.json";
 
 /**
  * MarketplaceHero — responsive premium editorial layout.
  *
- * Design is untouched. Only the responsive behaviour was rebuilt so the
- * hero adapts to every viewport size and aspect ratio without cropping the
- * cleaner, European map or country markers, and without any horizontal
- * overflow. Two layout variants live in the same section:
+ * ─────────────────────────────────────────────────────────────────────────
+ * Experience Engine + Localization Engine (config-driven copy)
+ * ─────────────────────────────────────────────────────────────────────────
+ * The Hero contains NO hardcoded marketing text. Every string (eyebrow,
+ * headline, subtitle, secondary CTA, trust chips, availability, image alt)
+ * is resolved through the i18n JSON under `marketplace.hero.*` and can be
+ * swapped per language, country, campaign or user segment without touching
+ * this component.
  *
- *   • md+ (tablet landscape / laptop / desktop): full-bleed image with the
- *     copy + search overlaid on the left. Height uses clamp() so the hero
- *     scales with the viewport instead of a fixed desktop dimension. Image
- *     `object-position` is retuned per breakpoint so the map + cleaner
- *     stay in-frame from tablet through large desktop.
+ * Variant resolution (audience → variant key):
+ *   guest        → hero.variants.guest
+ *   customer     → hero.variants.customer   (returning customer, {{name}})
+ *   provider     → hero.variants.provider
  *
- *   • <md (mobile portrait/landscape): a deliberately mobile layout that
- *     stacks in the required order — eyebrow → headline → description →
- *     hero visual → search → trust → availability. The image renders as a
- *     bounded block so it can never overlap the "Popular services" section.
+ * A CMS/Campaign layer can later override the variant key by writing into
+ * the same `hero.variants.<key>` namespace or by injecting a
+ * `hero.variants.campaign` block and switching the resolver — no component
+ * change required.
+ *
+ * "Cleaner" is a protected MyCleaner brand term. It is never translated in
+ * any locale; wherever it appears in the resolved title lines it is auto-
+ * highlighted with the brand accent color.
+ *
+ * The visual layout is intentionally unchanged from the approved responsive
+ * hero (dual md-split layout, clamp() height, per-breakpoint object-position,
+ * stacked mobile order). Only the copy pipeline is dynamic.
  */
+
+type Variant = {
+  eyebrow: string;
+  title_line_1: string;
+  title_line_2?: string;
+  subtitle: string;
+  cta_secondary_label?: string;
+  cta_secondary_href?: string;
+};
+
+function variantKeyFor(audience: HomeAudience, hasName: boolean): "guest" | "customer" | "provider" {
+  if (audience === "provider") return "provider";
+  if (audience === "customer" && hasName) return "customer";
+  return "guest";
+}
+
 export function MarketplaceHero() {
   const { t } = useTranslation("marketplace");
-  const alt = t("hero.image_alt", "Verified cleaner in a European home");
-  const eyebrow = t("hero.eyebrow", "Europas cleaning marketplace");
-  const titlePrefix = t("hero.title_prefix", "Book din");
-  const titleSuffix = t("hero.title_suffix", "Cleaner");
-  const subtitle = t(
-    "hero.subtitle",
-    "Sammenlign rigtige anmeldelser og gennemsigtige priser. Book direkte i cleanerens kalender.",
-  );
-  const availability = t(
-    "hero.availability",
-    "Tilgængelig i Danmark · Sverige · Tyskland · Spanien · Storbritannien",
-  );
-  const rotatingWords = t("hero.rotating_words", {
-    returnObjects: true,
-    defaultValue: ["verificerede", "lokale", "bedømte", "betroede"],
-  }) as string[];
+  const { user } = useAuth();
+  const { audience } = useHomeAudience();
+
+  const name = useMemo(() => {
+    const meta = (user?.user_metadata ?? {}) as Record<string, unknown>;
+    const first = typeof meta.first_name === "string" ? meta.first_name : undefined;
+    return first || user?.email?.split("@")[0] || "";
+  }, [user]);
+
+  const vKey = variantKeyFor(audience, Boolean(name));
+  const base = `hero.variants.${vKey}`;
+
+  const variant: Variant = {
+    eyebrow: t(`${base}.eyebrow`, { defaultValue: "" }),
+    title_line_1: t(`${base}.title_line_1`, { name, defaultValue: "" }),
+    title_line_2: t(`${base}.title_line_2`, { name, defaultValue: "" }),
+    subtitle: t(`${base}.subtitle`, { name, defaultValue: "" }),
+    cta_secondary_label: t(`${base}.cta_secondary_label`, { defaultValue: "" }),
+    cta_secondary_href: t(`${base}.cta_secondary_href`, { defaultValue: "" }),
+  };
+
+  const alt = t("hero.image_alt", { defaultValue: "MyCleaner" });
+  const availability = t("hero.availability", { defaultValue: "" });
 
   return (
     <section className="relative isolate" aria-labelledby="mkt-hero-title">
@@ -52,11 +89,6 @@ export function MarketplaceHero() {
         <img
           src={heroAsset.url}
           alt={alt}
-          /**
-           * Responsive positioning — no single background-position for all
-           * screens. Tablet keeps the cleaner slightly more centered; large
-           * desktop shifts right so the map fills the left half behind the copy.
-           */
           className="absolute inset-0 h-full w-full object-cover object-[68%_center] lg:object-[70%_center] xl:object-[72%_center]"
           loading="eager"
           {...({ fetchpriority: "high" } as Record<string, string>)}
@@ -74,27 +106,38 @@ export function MarketplaceHero() {
         />
         <div className="relative mx-auto flex min-h-[inherit] max-w-[1400px] flex-col justify-center gap-5 px-6 py-8 md:py-10 lg:px-8 lg:py-12">
           <div className="max-w-2xl">
-            <Eyebrow label={eyebrow} />
+            {variant.eyebrow && <Eyebrow label={variant.eyebrow} />}
             <h1
               id="mkt-hero-title"
               className="mt-4 font-sans font-bold leading-[1.05] tracking-[-0.02em] text-[hsl(var(--mkt-ink))]"
               style={{ fontSize: "clamp(1.9rem, 3.4vw + 0.5rem, 3.25rem)" }}
             >
-              {titlePrefix}{" "}
-              <RotatingWord words={rotatingWords} />{" "}
-              <span className="text-[hsl(var(--mkt-brand))]">{titleSuffix}</span>
+              <BrandLine text={variant.title_line_1} />
+              {variant.title_line_2 && (
+                <>
+                  <br />
+                  <BrandLine text={variant.title_line_2} />
+                </>
+              )}
             </h1>
-            <p className="mt-3 max-w-md text-[14.5px] leading-relaxed text-[hsl(var(--mkt-ink-muted))]">
-              {subtitle}
-            </p>
+            {variant.subtitle && (
+              <p className="mt-3 max-w-md text-[14.5px] leading-relaxed text-[hsl(var(--mkt-ink-muted))]">
+                {variant.subtitle}
+              </p>
+            )}
           </div>
 
           <div className="max-w-4xl">
             <CleanerSearchBar />
             <TrustRow t={t} />
-            <p className="mt-4 text-[12px] font-medium uppercase tracking-[0.18em] text-[hsl(var(--mkt-ink-soft))]">
-              {availability}
-            </p>
+            <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2">
+              {availability && (
+                <p className="text-[12px] font-medium uppercase tracking-[0.18em] text-[hsl(var(--mkt-ink-soft))]">
+                  {availability}
+                </p>
+              )}
+              <SecondaryCta label={variant.cta_secondary_label} href={variant.cta_secondary_href} />
+            </div>
           </div>
         </div>
       </div>
@@ -102,19 +145,25 @@ export function MarketplaceHero() {
       {/* ================= <md : stacked mobile layout ================= */}
       <div className="md:hidden">
         <div className="px-5 pt-6 pb-4">
-          <Eyebrow label={eyebrow} />
+          {variant.eyebrow && <Eyebrow label={variant.eyebrow} />}
           <h1
             id="mkt-hero-title-mobile"
             className="mt-3 font-sans font-bold leading-[1.08] tracking-[-0.02em] text-[hsl(var(--mkt-ink))]"
             style={{ fontSize: "clamp(1.75rem, 7.5vw, 2.25rem)" }}
           >
-            {titlePrefix}{" "}
-            <RotatingWord words={rotatingWords} />{" "}
-            <span className="text-[hsl(var(--mkt-brand))]">{titleSuffix}</span>
+            <BrandLine text={variant.title_line_1} />
+            {variant.title_line_2 && (
+              <>
+                <br />
+                <BrandLine text={variant.title_line_2} />
+              </>
+            )}
           </h1>
-          <p className="mt-3 text-[14.5px] leading-relaxed text-[hsl(var(--mkt-ink-muted))]">
-            {subtitle}
-          </p>
+          {variant.subtitle && (
+            <p className="mt-3 text-[14.5px] leading-relaxed text-[hsl(var(--mkt-ink-muted))]">
+              {variant.subtitle}
+            </p>
+          )}
         </div>
 
         <div
@@ -124,10 +173,6 @@ export function MarketplaceHero() {
           <img
             src={heroAsset.url}
             alt={alt}
-            /**
-             * Mobile crop: center-biased so the cleaner and map both stay
-             * within the frame at portrait aspect ratios (375 → 430 wide).
-             */
             className="absolute inset-0 h-full w-full object-cover object-[58%_center]"
             loading="eager"
             decoding="async"
@@ -143,9 +188,14 @@ export function MarketplaceHero() {
         <div className="px-5 pt-5 pb-6">
           <CleanerSearchBar />
           <TrustRow t={t} />
-          <p className="mt-4 text-[11.5px] font-medium uppercase tracking-[0.16em] text-[hsl(var(--mkt-ink-soft))]">
-            {availability}
-          </p>
+          <div className="mt-4 flex flex-col gap-2">
+            {availability && (
+              <p className="text-[11.5px] font-medium uppercase tracking-[0.16em] text-[hsl(var(--mkt-ink-soft))]">
+                {availability}
+              </p>
+            )}
+            <SecondaryCta label={variant.cta_secondary_label} href={variant.cta_secondary_href} />
+          </div>
         </div>
       </div>
     </section>
@@ -167,66 +217,62 @@ function TrustRow({ t }: { t: any }) {
     <ul className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2 text-[13px] text-[hsl(var(--mkt-ink-muted))]">
       <TrustChip
         icon={<ShieldCheck className="h-4 w-4 text-[hsl(var(--mkt-success))]" aria-hidden="true" />}
-        label={t("hero.trust_verified", "Verificerede cleaners")}
+        label={t("hero.trust.verified", { defaultValue: "" })}
       />
       <TrustChip
         icon={<Lock className="h-4 w-4 text-[hsl(var(--mkt-success))]" aria-hidden="true" />}
-        label={t("hero.trust_payments", "Sikre betalinger")}
+        label={t("hero.trust.payments", { defaultValue: "" })}
       />
       <TrustChip
         icon={<Star className="h-4 w-4 text-[hsl(var(--mkt-success))]" aria-hidden="true" />}
-        label={t("hero.trust_reviews", "Rigtige anmeldelser")}
+        label={t("hero.trust.reviews", { defaultValue: "" })}
       />
     </ul>
   );
 }
 
-/**
- * RotatingWord — cycles a short list of adjectives inside the H1. Presentation
- * only; honors `prefers-reduced-motion` by pausing rotation and removing the
- * transform animation. Reserves width of the longest word to avoid layout shift.
- */
-function RotatingWord({ words, intervalMs = 2200 }: { words: string[]; intervalMs?: number }) {
-  const safeWords = words && words.length > 0 ? words : ["verificerede"];
-  const [i, setI] = useState(0);
-  const [reduced, setReduced] = useState(false);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const update = () => setReduced(mq.matches);
-    update();
-    mq.addEventListener?.("change", update);
-    return () => mq.removeEventListener?.("change", update);
-  }, []);
-
-  useEffect(() => {
-    if (reduced || safeWords.length < 2) return;
-    const id = window.setInterval(() => setI((v) => (v + 1) % safeWords.length), intervalMs);
-    return () => window.clearInterval(id);
-  }, [reduced, safeWords.length, intervalMs]);
-
-  const longest = safeWords.reduce((a, b) => (b.length > a.length ? b : a), "");
-  const current = safeWords[i];
-
-  return (
-    <span className="relative inline-grid align-baseline text-[hsl(var(--mkt-brand))]" aria-live="polite">
-      <span className="invisible col-start-1 row-start-1 whitespace-nowrap italic">{longest}</span>
-      <span
-        key={current}
-        className="col-start-1 row-start-1 whitespace-nowrap italic motion-safe:animate-[mktRotateWord_600ms_ease-out]"
-      >
-        {current}
-      </span>
-    </span>
-  );
-}
-
 function TrustChip({ icon, label }: { icon: React.ReactNode; label: string }) {
+  if (!label) return null;
   return (
     <li className="inline-flex items-center gap-1.5">
       {icon}
       {label}
     </li>
+  );
+}
+
+function SecondaryCta({ label, href }: { label?: string; href?: string }) {
+  if (!label || !href) return null;
+  return (
+    <Link
+      to={href}
+      className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-[hsl(var(--mkt-brand))] transition-colors hover:text-[hsl(var(--mkt-brand-hover))] focus-visible:outline-none focus-visible:underline"
+    >
+      {label}
+      <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+    </Link>
+  );
+}
+
+/**
+ * BrandLine — renders a title line and auto-highlights the protected
+ * "Cleaner" / "Cleaners" brand term with the marketplace accent color. The
+ * brand word itself is never translated.
+ */
+function BrandLine({ text }: { text: string }) {
+  if (!text) return null;
+  const parts = text.split(/(Cleaners?)/g);
+  return (
+    <>
+      {parts.map((part, i) =>
+        /^Cleaners?$/.test(part) ? (
+          <span key={i} className="text-[hsl(var(--mkt-brand))]">
+            {part}
+          </span>
+        ) : (
+          <span key={i}>{part}</span>
+        ),
+      )}
+    </>
   );
 }
