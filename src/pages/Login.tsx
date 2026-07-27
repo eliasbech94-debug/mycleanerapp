@@ -22,7 +22,10 @@ export default function Login() {
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const navigate = useNavigate();
   const [params] = useSearchParams();
-  const explicitRedirect = params.get("redirect") || params.get("next");
+  const requestedRedirect = params.get("redirect") || params.get("next");
+  const explicitRedirect = requestedRedirect?.startsWith("/") && !requestedRedirect.startsWith("//")
+    ? requestedRedirect
+    : null;
 
   useEffect(() => {
     if (mode !== "signup") return;
@@ -162,7 +165,7 @@ export default function Login() {
         <div className="mt-6 rounded-3xl border-2 bg-white p-7 shadow-[8px_8px_0_rgba(10,61,58,0.15)]" style={{ borderColor: C.ink }}>
           <h1 className="font-display text-3xl">{title}</h1>
           <p className="mt-1 text-sm opacity-70">
-            {mode === "signin" && "Log ind for at booke og se din profil."}
+            {mode === "signin" && (explicitRedirect?.includes("bliv-cleaner") ? "Log ind og fortsæt din provider-ansøgning." : "Log ind for at booke og se din profil.")}
             {mode === "signup" && "Få adgang til hurtigere booking næste gang."}
             {mode === "forgot" && "Vi sender et gendannelseslink til din email."}
           </p>
@@ -228,7 +231,7 @@ export default function Login() {
                     className="mt-1 w-full rounded-xl border-2 bg-white px-3 py-2.5 text-base focus:outline-none"
                     style={{ borderColor: `${C.ink}33` }}>
                     <option value="DK">Danmark</option>
-                    <option value="GB">United Kingdom</option>
+                    <option value="UK">United Kingdom</option>
                     <option value="SE">Sverige</option>
                     <option value="ES">Spanien</option>
                   </select>
