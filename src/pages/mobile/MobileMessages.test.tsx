@@ -9,7 +9,7 @@ import { MemoryRouter } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 // ---- Mocks ----
-const invoke = vi.fn();
+const { invoke } = vi.hoisted(() => ({ invoke: vi.fn() }));
 vi.mock("@/integrations/supabase/client", () => {
   const chan: any = {};
   chan.on = () => chan;
