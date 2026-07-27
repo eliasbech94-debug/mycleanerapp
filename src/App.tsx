@@ -18,6 +18,8 @@ import ResetPassword from "./pages/ResetPassword";
 import CustomerDashboard from "./pages/CustomerDashboard";
 import { Navigate } from "react-router-dom";
 import Profile from "./pages/Profile";
+import MobileProfileGate from "./pages/mobile/MobileProfileGate";
+import MobileInboxGate from "./pages/mobile/MobileInboxGate";
 import ProviderRegister from "./pages/ProviderRegister";
 import ProviderProfile from "./pages/ProviderProfile";
 import CustomerRegister from "./pages/CustomerRegister";
@@ -96,7 +98,9 @@ export function AppRoutes() {
       <Route path="/login" element={<Login />} />
       <Route path="/auth/callback" element={<AuthCallback />} />
       <Route path="/reset-password" element={<ResetPassword />} />
-      <Route path="/profil" element={<Profile />} />
+      <Route path="/profil" element={<MobileProfileGate />} />
+      <Route path="/inbox" element={<MobileInboxGate />} />
+      <Route path="/inbox/:id" element={<MobileInboxGate />} />
       <Route path="/verify-identity" element={<RoleGuard allow={["provider", "admin"]}><IdentityVerificationPage /></RoleGuard>} />
       <Route path="/bliv-cleaner" element={<ProviderOnboarding />} />
       <Route path="/provider/profile" element={<RoleGuard allow={["provider", "admin"]}><ProviderProfilePage /></RoleGuard>} />
