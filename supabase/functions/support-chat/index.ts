@@ -3,27 +3,29 @@ import { convertToModelMessages, streamText, tool, stepCountIs, type UIMessage }
 import { z } from "npm:zod";
 import { createLovableAiGatewayProvider } from "../_shared/ai-gateway.ts";
 import { runHealthCheck, upsertNotifications } from "../_shared/notifications.ts";
+import { buildMyCleanerVoicePrompt } from "../_shared/mycleaner-voice.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const SYSTEM_PROMPT = `Du er MyCleaner support-assistent. Svar altid på dansk i en venlig, kort og professionel tone.
+const SUPPORT_PROMPT = `Du er MyCleaner support-assistent.
 
 Du hjælper kunder med spørgsmål om:
-- Bookinger, ændringer, afbestillinger
-- Betaling, fakturaer, refunderinger
-- Adgang, kæledyr, og andre praktiske detaljer
+- Bookinger, ændringer og afbestillinger
+- Betaling, fakturaer og refunderinger
+- Adgang, kæledyr og andre praktiske detaljer
 - Klager over rengøring eller cleaner
 
 Retningslinjer:
-- Hold svar korte (maks 3-4 linjer) medmindre brugeren beder om detaljer.
-- Brug markdown for at gøre svar overskuelige (lister, fed skrift hvor det giver mening).
-- Hvis sagen er en klage, et refunderingsspørgsmål, en tvist, eller noget du ikke kan løse, så brug værktøjet "escalate_to_human" og fortæl brugeren at en medarbejder tager over.
-- Hvis du opdager problemer med brugerens opsætning (manglende telefon, ugyldig email, manglende adgangsinfo, glemt svar til cleaner), kør "run_account_check" først.
-- Brug "notify_customer" til at sende en proaktiv besked til brugerens indbakke når du selv finder noget de bør reagere på (fx "Du har glemt at svare cleaner X", "Dit telefonnummer mangler et ciffer", "Email kom retur — opdater den"). Send maks én notifikation pr. emne.
-- Spørg ikke efter personlige oplysninger ud over hvad der allerede er i samtalen.`;
+- Hold svar korte (maks. 3-4 linjer), medmindre brugeren beder om detaljer.
+- Brug markdown, når det gør svaret lettere at læse.
+- Hvis sagen er en klage, et refunderingsspørgsmål, en tvist eller noget, du ikke kan løse, skal du bruge værktøjet "escalate_to_human" og forklare roligt, at en medarbejder tager over.
+- Hvis du opdager problemer med brugerens opsætning, skal du køre "run_account_check" først.
+- Brug "notify_customer" til én relevant, handlingsorienteret besked, når brugeren bør reagere.
+- Spørg ikke efter personlige oplysninger ud over det, der allerede findes i samtalen.
+- Sig aldrig, at du er ChatGPT eller en sprogmodel. Du er MyCleaners digitale supportassistent.`;
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
@@ -57,7 +59,6 @@ Deno.serve(async (req) => {
       return new Response("Bad request", { status: 400, headers: corsHeaders });
     }
 
-    // Verify thread ownership
     const { data: thread } = await supabase
       .from("support_threads")
       .select("id, user_id, status, topic, subject")
@@ -67,7 +68,6 @@ Deno.serve(async (req) => {
       return new Response("Forbidden", { status: 403, headers: corsHeaders });
     }
 
-    // Persist the latest user message
     const lastUser = [...messages].reverse().find((m) => m.role === "user");
     if (lastUser) {
       const text = (lastUser.parts ?? [])
@@ -80,7 +80,6 @@ Deno.serve(async (req) => {
         content: text,
         parts: lastUser.parts ?? null,
       });
-      // Auto-subject from first user message
       if (thread.subject === "Ny henvendelse" && text) {
         await supabase
           .from("support_threads")
@@ -97,7 +96,7 @@ Deno.serve(async (req) => {
     const gateway = createLovableAiGatewayProvider(apiKey);
     const model = gateway("google/gemini-3-flash-preview");
 
-    const system = `${SYSTEM_PROMPT}\n\nKontekst: Emne = ${topic === "complaint" ? "Klage" : "Support"}. Bruger-email: ${user.email ?? "ukendt"}.`;
+    const system = `${buildMyCleanerVoicePrompt(topic === "complaint" ? "empathetic" : "standard")}\n\n${SUPPORT_PROMPT}\n\nKontekst: Emne = ${topic === "complaint" ? "Klage" : "Support"}. Bruger-email: ${user.email ?? "ukendt"}.`;
 
     const result = streamText({
       model,
@@ -107,9 +106,9 @@ Deno.serve(async (req) => {
       tools: {
         escalate_to_human: tool({
           description:
-            "Eskaler sagen til et menneskeligt supportteam. Brug når brugeren har en klage, et refunderingskrav, en tvist, eller når du ikke kan løse problemet selv.",
+            "Eskaler sagen til et menneskeligt supportteam. Brug ved klager, refunderingskrav, tvister eller problemer, du ikke kan løse sikkert.",
           inputSchema: z.object({
-            reason: z.string().describe("Kort begrundelse for eskalering (dansk)."),
+            reason: z.string().describe("Kort, neutral begrundelse for eskalering på dansk."),
           }),
           execute: async ({ reason }) => {
             await supabase
@@ -118,13 +117,13 @@ Deno.serve(async (req) => {
               .eq("id", threadId);
             return {
               ok: true,
-              message: `Sagen er sendt videre til vores supportteam. Begrundelse: ${reason}. Du hører fra os inden for 24 timer på hverdage.`,
+              message: `Sagen er sendt videre til vores supportteam. Begrundelse: ${reason}. En medarbejder følger op inden for 24 timer på hverdage.`,
             };
           },
         }),
         run_account_check: tool({
           description:
-            "Scan brugerens konto for opsætningsproblemer (manglende telefon, ugyldig email, manglende adgangsinfo, kommende bookinger, glemte svar). Opretter notifikationer i indbakken automatisk. Brug uden parametre.",
+            "Scan brugerens konto for opsætningsproblemer som manglende telefon, ugyldig e-mail, adgangsinfo, kommende bookinger eller glemte svar. Opretter relevante notifikationer.",
           inputSchema: z.object({}),
           execute: async () => {
             const drafts = await runHealthCheck(supabase, user.id, user.email ?? null);
@@ -139,15 +138,15 @@ Deno.serve(async (req) => {
         }),
         notify_customer: tool({
           description:
-            "Send en proaktiv notifikation til brugerens indbakke. Brug når du opdager noget brugeren skal handle på (fx manglende telefon-ciffer, email-bounces, ubesvaret cleaner-besked, eller anden hjælp). Sender også besked om at AI vurderer brugeren har brug for hjælp.",
+            "Send en kort, relevant notifikation til brugerens indbakke, når brugeren bør handle. Brug MyCleaner-stilen og send højst én notifikation pr. emne.",
           inputSchema: z.object({
-            title: z.string().describe("Kort overskrift på dansk (maks 60 tegn)."),
-            body: z.string().describe("Forklarende tekst på dansk (1-2 sætninger)."),
+            title: z.string().describe("Kort overskrift på dansk, maks. 60 tegn."),
+            body: z.string().describe("Kort og hjælpsom tekst på dansk, 1-2 sætninger."),
             kind: z.enum(["setup", "reminder", "cleaner_message", "tip", "alert"]).describe("Type."),
             severity: z.enum(["info", "warning", "error", "success"]).default("info"),
-            action_label: z.string().optional().describe("Knaptekst, fx 'Ret telefon'."),
+            action_label: z.string().optional().describe("Tydelig knaptekst, fx 'Ret telefonnummer'."),
             action_url: z.string().optional().describe("Intern app-sti, fx '/profil?tab=info'."),
-            dedupe_key: z.string().describe("Unik nøgle der forhindrer dubletter, fx 'ai:phone-typo'."),
+            dedupe_key: z.string().describe("Unik nøgle, der forhindrer dubletter, fx 'ai:phone-typo'."),
           }),
           execute: async (input) => {
             const created = await upsertNotifications(supabase, user.id, [
