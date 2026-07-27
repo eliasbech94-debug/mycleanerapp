@@ -20,10 +20,13 @@ import { normalizePath } from "@/hooks/useIsMobileApp";
  * Routes that render inside MobileAppShell below 768px and already show a
  * MobileAppBar. Hiding the global Header on these routes prevents duplicate
  * headers on mobile without touching desktop/tablet (>=768px) layout.
- * `/` intentionally excluded — Phase 3 MobileHomeGate uses `appBar={false}`,
- * so the global Header remains the sole header on `/`.
+ *
+ * Phase-A polish: `/` is now included because MobileHomeGate mounts its own
+ * MobileAppBar for the mobile home surface. Desktop/tablet (>=768px) still
+ * see the global Header because the caller gates on `useBelow768()` first.
  */
 const MOBILE_SHELL_HIDE_ROUTES: RegExp[] = [
+  /^\/$/,
   /^\/marketplace(\/|$)/,
   /^\/mine-bookinger(\/|$)/,
   /^\/customer\/bookings(\/|$)/,
