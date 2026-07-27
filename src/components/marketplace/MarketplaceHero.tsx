@@ -97,12 +97,14 @@ export function MarketplaceHero() {
           width={1920}
           height={1088}
         />
+        {/* Left scrim: guarantees headline contrast without washing out the Europe map in the center */}
         <div
-          className="absolute inset-0 bg-gradient-to-r from-[hsl(var(--mkt-bg))] via-[hsl(var(--mkt-bg))]/85 to-[hsl(var(--mkt-bg))]/10 lg:to-transparent"
+          className="absolute inset-0 bg-gradient-to-r from-[hsl(var(--mkt-bg))] from-0% via-[hsl(var(--mkt-bg))]/70 via-30% to-transparent to-55%"
           aria-hidden="true"
         />
+        {/* Bottom fade into page background */}
         <div
-          className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[hsl(var(--mkt-bg))] to-transparent"
+          className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[hsl(var(--mkt-bg))] to-transparent"
           aria-hidden="true"
         />
         <div className="relative mx-auto flex min-h-[inherit] max-w-[1400px] flex-col justify-center gap-5 px-6 py-8 md:py-10 lg:px-8 lg:py-12">
