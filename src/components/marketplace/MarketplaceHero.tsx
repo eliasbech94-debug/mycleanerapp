@@ -77,7 +77,8 @@ export function MarketplaceHero() {
   };
 
   const alt = t("hero.image_alt", { defaultValue: "MyCleaner" });
-  const availability = t("hero.availability", { defaultValue: "" });
+  const availabilityLabel = t("hero.availability_label", { defaultValue: "" });
+  const countryCodes = ["dk", "se", "de", "gb", "es"] as const;
 
   return (
     <section className="relative isolate" aria-labelledby="mkt-hero-title">
