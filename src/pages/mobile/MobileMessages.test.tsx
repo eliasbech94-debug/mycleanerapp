@@ -97,7 +97,7 @@ describe("MobileMessages", () => {
   it("shows error state with retry", async () => {
     invoke.mockRejectedValueOnce(new Error("boom"));
     wrap(<MobileMessages />);
-    const retry = await screen.findByRole("button", { name: /Try again/i });
+    const retry = await screen.findByRole("button", { name: /Prøv igen/i });
     invoke.mockResolvedValueOnce({ data: { conversations: [] }, error: null });
     fireEvent.click(retry);
     await waitFor(() => expect(screen.getByTestId("mobile-messages-empty")).toBeTruthy());
