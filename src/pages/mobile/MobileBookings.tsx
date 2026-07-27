@@ -18,12 +18,14 @@
  *  - No count badges when only a partial list is loaded — we render counts
  *    only from the same rows we display so the number is always trustworthy.
  */
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Calendar, Clock, MapPin, Sparkles, ChevronRight, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { usePullToRefresh } from "@/hooks/usePullToRefresh";
+import { PullIndicator } from "@/components/mobile/PullIndicator";
 
 type Booking = {
   id: string;
@@ -69,6 +71,28 @@ export default function MobileBookings() {
   const [state, setState] = useState<ViewState>("loading");
   const [bookings, setBookings] = useState<Booking[]>([]);
 
+  // Extracted so both the mount effect and pull-to-refresh call the exact
+  // same existing booking fetch (no duplicate query, no new endpoint).
+  const load = useCallback(
+    async (opts?: { silent?: boolean }): Promise<void> => {
+      if (!user) return;
+      if (!opts?.silent) setState("loading");
+      const { data, error } = await supabase
+        .from("bookings")
+        .select(
+          "id,provider_id,provider_name,service,hours,booking_date,slot,address,customer_pays,currency,status,created_at",
+        )
+        .order("booking_date", { ascending: false });
+      if (error) {
+        setState("error");
+        return;
+      }
+      setBookings((data ?? []) as Booking[]);
+      setState("ready");
+    },
+    [user],
+  );
+
   useEffect(() => {
     if (authLoading) return;
     // Clear previous user's rows immediately on any auth change so a
@@ -81,24 +105,31 @@ export default function MobileBookings() {
     let cancelled = false;
     setState("loading");
     (async () => {
-      const { data, error } = await supabase
-        .from("bookings")
-        .select(
-          "id,provider_id,provider_name,service,hours,booking_date,slot,address,customer_pays,currency,status,created_at",
-        )
-        .order("booking_date", { ascending: false });
+      await load({ silent: true });
       if (cancelled) return;
-      if (error) {
-        setState("error");
-        return;
-      }
-      setBookings((data ?? []) as Booking[]);
-      setState("ready");
     })();
     return () => {
       cancelled = true;
     };
-  }, [user, authLoading]);
+  }, [user, authLoading, load]);
+
+  // Pull-to-refresh — reuses `load()` above. Selected tab / filters live in
+  // component state and are untouched by refresh.
+  const { pullY, refreshing, thresholdReached } = usePullToRefresh({
+    enabled: Boolean(user),
+    onRefresh: async () => {
+      await load({ silent: true });
+      // Optional confirm vibration (Android/Chromium only). Feature must work
+      // identically without vibration — this is opt-in and best-effort.
+      try {
+        if (typeof navigator !== "undefined" && typeof navigator.vibrate === "function") {
+          navigator.vibrate(8);
+        }
+      } catch {
+        /* noop */
+      }
+    },
+  });
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -112,8 +143,17 @@ export default function MobileBookings() {
 
   return (
     <div className="pb-6">
+      <PullIndicator
+        pullY={pullY}
+        refreshing={refreshing}
+        thresholdReached={thresholdReached}
+        label={t("mobile.ptr.pull", "Træk for at opdatere")}
+        releaseLabel={t("mobile.ptr.release", "Slip for at opdatere")}
+        refreshingLabel={t("mobile.ptr.refreshing", "Opdaterer…")}
+      />
       {/* Segmented control */}
       <div className="px-4 pt-4">
+
         <div
           role="tablist"
           aria-label={t("mobileBookings.tabs.aria", "Bookinger")}

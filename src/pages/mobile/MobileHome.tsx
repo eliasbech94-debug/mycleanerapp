@@ -14,7 +14,7 @@
  * NO fabrication: earnings are NOT computed client-side. If a provider has no
  * trusted earnings source we render an honest unavailable state.
  */
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
@@ -37,6 +37,8 @@ import { useActiveMarket } from "@/context/ActiveMarketContext";
 import { useMarketplaceProviders } from "@/hooks/useMarketplaceProviders";
 import { ServiceCategoryGrid } from "@/components/marketplace/ServiceCategoryGrid";
 import { CountryConfirmDialog } from "@/components/marketplace/CountryConfirmDialog";
+import { usePullToRefresh } from "@/hooks/usePullToRefresh";
+import { PullIndicator } from "@/components/mobile/PullIndicator";
 
 const HomeSections = lazy(() =>
   import("@/components/marketplace/home/HomeSections").then((m) => ({ default: m.HomeSections })),
@@ -166,10 +168,10 @@ function PrimaryBookingCard() {
 
 /* ------------------------------ featured carousel ------------------------ */
 
-function FeaturedCleanersCarousel() {
+function FeaturedCleanersCarousel({ refreshNonce = 0 }: { refreshNonce?: number }) {
   const { t } = useTranslation("marketplace");
   const { market, isNeutral } = useActiveMarket();
-  const { data, loading, error } = useMarketplaceProviders(
+  const { data, loading, error, refetch } = useMarketplaceProviders(
     {
       countryCode: isNeutral ? null : market.code,
       serviceCategory: "cleaning",
@@ -178,6 +180,13 @@ function FeaturedCleanersCarousel() {
     },
     { realtime: false },
   );
+  // Reuse existing refetch; no new query.
+  useEffect(() => {
+    if (refreshNonce > 0) {
+      void refetch();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [refreshNonce]);
 
   return (
     <Section
@@ -258,8 +267,21 @@ function FeaturedCleanersCarousel() {
 
 function GuestHome() {
   const { t } = useTranslation("marketplace");
+  const [nonce, setNonce] = useState(0);
+  const { pullY, refreshing, thresholdReached } = usePullToRefresh({
+    enabled: true,
+    onRefresh: async () => {
+      // Bump nonce → FeaturedCleanersCarousel re-runs its existing refetch.
+      setNonce((n) => n + 1);
+      // Give the reused refetch a bounded window to settle so the indicator
+      // isn't hidden instantly. Presentation only; no new query issued.
+      await new Promise((r) => setTimeout(r, 650));
+      tryVibrate();
+    },
+  });
   return (
     <>
+      <PtrRow pullY={pullY} refreshing={refreshing} thresholdReached={thresholdReached} />
       <GreetingBar />
       <PrimaryBookingCard />
       <TrustChips />
@@ -267,11 +289,45 @@ function GuestHome() {
       <div className="pt-2">
         <ServiceCategoryGrid />
       </div>
-      <FeaturedCleanersCarousel />
+      <FeaturedCleanersCarousel refreshNonce={nonce} />
       <Suspense fallback={<div className="h-16" aria-hidden />}>
         <HomeSections slot="bottom" />
       </Suspense>
     </>
+  );
+}
+
+/* ---------------------------- shared PTR helpers ------------------------- */
+
+function tryVibrate() {
+  try {
+    if (typeof navigator !== "undefined" && typeof navigator.vibrate === "function") {
+      navigator.vibrate(8);
+    }
+  } catch {
+    /* noop */
+  }
+}
+
+function PtrRow({
+  pullY,
+  refreshing,
+  thresholdReached,
+}: {
+  pullY: number;
+  refreshing: boolean;
+  thresholdReached: boolean;
+}) {
+  const { t } = useTranslation("marketplace");
+  return (
+    <PullIndicator
+      pullY={pullY}
+      refreshing={refreshing}
+      thresholdReached={thresholdReached}
+      label={t("mobile.ptr.pull", "Træk for at opdatere")}
+      releaseLabel={t("mobile.ptr.release", "Slip for at opdatere")}
+      refreshingLabel={t("mobile.ptr.refreshing", "Opdaterer…")}
+    />
   );
 }
 
@@ -291,38 +347,55 @@ function useNearestCustomerBooking() {
   const { user } = useAuth();
   const [state, setState] = useState<"loading" | "ready" | "error">("loading");
   const [nearest, setNearest] = useState<CustomerBooking | null>(null);
+
+  const load = useCallback(async (): Promise<void> => {
+    if (!user) return;
+    const { data, error } = await supabase
+      .from("bookings")
+      .select("id,provider_name,service,booking_date,slot,address,status")
+      .eq("customer_user_id", user.id)
+      .order("booking_date", { ascending: true });
+    if (error) {
+      setState("error");
+      return;
+    }
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const upcoming = ((data ?? []) as CustomerBooking[]).filter(
+      (b) => new Date(b.booking_date) >= today && b.status !== "cancelled" && b.status !== "declined",
+    );
+    setNearest(upcoming[0] ?? null);
+    setState("ready");
+  }, [user]);
+
   useEffect(() => {
     if (!user) return;
     let cancelled = false;
     (async () => {
-      const { data, error } = await supabase
-        .from("bookings")
-        .select("id,provider_name,service,booking_date,slot,address,status")
-        .eq("customer_user_id", user.id)
-        .order("booking_date", { ascending: true });
+      await load();
       if (cancelled) return;
-      if (error) {
-        setState("error");
-        return;
-      }
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const upcoming = ((data ?? []) as CustomerBooking[]).filter(
-        (b) => new Date(b.booking_date) >= today && b.status !== "cancelled" && b.status !== "declined",
-      );
-      setNearest(upcoming[0] ?? null);
-      setState("ready");
     })();
-  }, [user]);
-  return { state, nearest };
+    return () => {
+      cancelled = true;
+    };
+  }, [user, load]);
+  return { state, nearest, refetch: load };
 }
 
 function CustomerHome({ firstName }: { firstName: string | null }) {
   const { t } = useTranslation("marketplace");
-  const { state, nearest } = useNearestCustomerBooking();
+  const { state, nearest, refetch } = useNearestCustomerBooking();
+  const { pullY, refreshing, thresholdReached } = usePullToRefresh({
+    enabled: true,
+    onRefresh: async () => {
+      await refetch();
+      tryVibrate();
+    },
+  });
 
   return (
     <>
+      <PtrRow pullY={pullY} refreshing={refreshing} thresholdReached={thresholdReached} />
       <GreetingBar name={firstName ?? t("mobileHome.greeting_fallback_name", "der")} />
 
       <Section title={t("mobileHome.customer.upcoming", "Kommende booking")}>
@@ -405,61 +478,81 @@ function useProviderTodayAndNext() {
   const [state, setState] = useState<"loading" | "ready" | "error">("loading");
   const [todayCount, setTodayCount] = useState(0);
   const [nextJob, setNextJob] = useState<ProviderJob | null>(null);
+  const load = useCallback(async (): Promise<void> => {
+    if (!user) return;
+    const { data, error } = await supabase
+      .from("bookings")
+      .select("id,service,booking_date,slot,address,status")
+      .order("booking_date", { ascending: true });
+    if (error) {
+      setState("error");
+      return;
+    }
+    const now = new Date();
+    const todayISO = now.toISOString().slice(0, 10);
+    const active = ((data ?? []) as ProviderJob[]).filter(
+      (b) => b.status === "accepted" || b.status === "pending",
+    );
+    setTodayCount(active.filter((b) => b.booking_date?.slice(0, 10) === todayISO).length);
+    const upcoming = active
+      .filter((b) => new Date(b.booking_date) >= new Date(todayISO))
+      .sort((a, b) => a.booking_date.localeCompare(b.booking_date));
+    setNextJob(upcoming[0] ?? null);
+    setState("ready");
+  }, [user]);
   useEffect(() => {
     if (!user) return;
     let cancelled = false;
     (async () => {
-      const { data, error } = await supabase
-        .from("bookings")
-        .select("id,service,booking_date,slot,address,status")
-        .order("booking_date", { ascending: true });
+      await load();
       if (cancelled) return;
-      if (error) {
-        setState("error");
-        return;
-      }
-      const now = new Date();
-      const todayISO = now.toISOString().slice(0, 10);
-      const active = ((data ?? []) as ProviderJob[]).filter(
-        (b) => b.status === "accepted" || b.status === "pending",
-      );
-      setTodayCount(active.filter((b) => b.booking_date?.slice(0, 10) === todayISO).length);
-      const upcoming = active
-        .filter((b) => new Date(b.booking_date) >= new Date(todayISO))
-        .sort((a, b) => a.booking_date.localeCompare(b.booking_date));
-      setNextJob(upcoming[0] ?? null);
-      setState("ready");
     })();
-  }, [user]);
-  return { state, todayCount, nextJob };
+    return () => {
+      cancelled = true;
+    };
+  }, [user, load]);
+  return { state, todayCount, nextJob, refetch: load };
 }
 
 function useProviderOnboarding() {
   const { user } = useAuth();
   const [pp, setPp] = useState<any>(null);
   const [loaded, setLoaded] = useState(false);
+  const load = useCallback(async (): Promise<void> => {
+    if (!user) return;
+    const { data } = await supabase
+      .from("provider_profiles")
+      .select("*")
+      .eq("user_id", user.id)
+      .maybeSingle();
+    setPp(data);
+    setLoaded(true);
+  }, [user]);
   useEffect(() => {
     if (!user) return;
     let cancelled = false;
     (async () => {
-      const { data } = await supabase
-        .from("provider_profiles")
-        .select("*")
-        .eq("user_id", user.id)
-        .maybeSingle();
-      if (!cancelled) {
-        setPp(data);
-        setLoaded(true);
-      }
+      await load();
+      if (cancelled) return;
     })();
-  }, [user]);
-  return { pp, loaded };
+    return () => {
+      cancelled = true;
+    };
+  }, [user, load]);
+  return { pp, loaded, refetch: load };
 }
 
 function ProviderHome({ firstName }: { firstName: string | null }) {
   const { t } = useTranslation("marketplace");
-  const { state, todayCount, nextJob } = useProviderTodayAndNext();
-  const { pp, loaded } = useProviderOnboarding();
+  const { state, todayCount, nextJob, refetch: refetchJobs } = useProviderTodayAndNext();
+  const { pp, loaded, refetch: refetchOnboarding } = useProviderOnboarding();
+  const { pullY, refreshing, thresholdReached } = usePullToRefresh({
+    enabled: true,
+    onRefresh: async () => {
+      await Promise.all([refetchJobs(), refetchOnboarding()]);
+      tryVibrate();
+    },
+  });
 
   // Onboarding progress — count filled required fields already validated
   // by /provider-dashboard's OnboardingChecklist. Presentation-only summary.
@@ -478,6 +571,7 @@ function ProviderHome({ firstName }: { firstName: string | null }) {
 
   return (
     <>
+      <PtrRow pullY={pullY} refreshing={refreshing} thresholdReached={thresholdReached} />
       <GreetingBar name={firstName ?? t("mobileHome.greeting_fallback_name", "der")} />
 
       {/* Today overview */}
