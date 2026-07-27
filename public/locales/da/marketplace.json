@@ -166,20 +166,20 @@
   },
   "campaign": {
     "eyebrow": "FOUNDING CLEANER",
-    "title": "Start med 0 kr. i platformsgebyr",
-    "body": "De første 500 godkendte Cleaners, der ansøger i 2026, betaler 0 kr. i MyCleaner-platformsgebyr i deres første 3 måneder.",
-    "note": "Perioden starter ved din første gennemførte og betalte opgave.",
-    "cta": "Læs om kampagnen",
+    "title": "Founding Cleaner-programmet åbner snart",
+    "body": "Planlagt fordel for de første 500 godkendte Cleaners, der indsender deres provideransøgning i 2026: 0 kr. i provider-platformsgebyr i tre kalendermåneder.",
+    "note": "Programmet er endnu ikke åbnet. Din ansøgning reserverer ikke automatisk en plads.",
+    "cta": "Læs om programmet",
     "href": "/founding-cleaner",
     "badgePrimary": "FOUNDING CLEANER",
-    "badgeSecondary": "FØRSTE 500",
+    "badgeSecondary": "ÅBNER SNART",
     "edition": "2026 EDITION",
     "amount": "0 KR.",
-    "amountSuffix1": "i platformsgebyr",
+    "amountSuffix1": "i provider-platformsgebyr",
     "amountSuffix2": "i 3 måneder",
-    "explain": "Ansøg i 2026, og kom godt fra start som en af MyCleaners første godkendte Cleaners.",
-    "noteShort": "Starter ved din første gennemførte og betalte opgave.",
-    "ctaShort": "Se din fordel"
+    "explain": "Planlagt fordel for de første 500 godkendte Cleaners, der indsender deres provideransøgning i 2026.",
+    "noteShort": "Programmet er endnu ikke åbnet. Din ansøgning reserverer ikke automatisk en plads.",
+    "ctaShort": "Læs om programmet"
   },
   "app": {
     "eyebrow": "MyCleaner-appen",
@@ -403,45 +403,51 @@
   },
   "foundingCleaner": {
     "eyebrow": "FOUNDING CLEANER",
-    "heading": "Kom godt fra start med 0 kr. i platformsgebyr",
-    "intro": "Kampagnen gælder provideransøgninger, der indsendes i 2026. Bliv en af de første 500 godkendte Founding Cleaners, og betal 0 kr. i MyCleaner-platformsgebyr i dine første 3 måneder. Du kan fortsat kvalificere dig, hvis godkendelsen afsluttes senere, men en ansøgning er ikke en garanti for en af de 500 pladser. Perioden starter først, når din første opgave er gennemført og betalt.",
+    "heading": "Founding Cleaner-programmet",
+    "intro": "Founding Cleaner-programmet planlægger at give de første 500 godkendte Cleaners, der indsender deres provideransøgning i 2026, 0 kr. i provider-platformsgebyr i tre kalendermåneder. Programmet er endnu ikke aktiveret, og en ansøgning reserverer ikke automatisk en plads.",
+    "status": {
+      "title": "Programmet åbner snart",
+      "body": "Founding Cleaner-programmet er endnu ikke aktiveret. Du kan indsende din Cleaner-ansøgning, men ansøgningen reserverer ikke en kampagneplads. Hvis programmet åbner, får kvalificerede ansøgere besked direkte fra MyCleaner."
+    },
+    "plannedBenefit": "Den planlagte fordel er 0 kr. i provider-platformsgebyr i tre kalendermåneder. Kundens separate platformsgebyr, betalingsbehandling, skat, moms, forsikring og andre tredjepartsomkostninger ændres ikke.",
     "ctaPrimary": "Ansøg som Cleaner",
+    "ctaPrimaryNote": "Ansøgningen er ikke en reservation af en kampagneplads.",
     "ctaSecondary": "Se vilkårene",
-    "startNote": "Din kampagneperiode starter først, når din første opgave er gennemført og betalt.",
+    "startNote": "Hvis programmet åbnes og du kvalificeres, starter de tre kalendermåneder først, når din første kvalificerende opgave er gennemført, betalt og frigivet efter MyCleaners eksisterende releasekontrol.",
     "how": {
-      "heading": "Sådan fungerer det",
+      "heading": "Sådan er programmet tænkt",
       "steps": [
         {
-          "title": "Opret din profil",
-          "body": "Udfyld din Cleaner-profil og gennemfør den eksisterende onboarding."
+          "title": "Indsend din ansøgning",
+          "body": "Udfyld din Cleaner-profil i 2026 og gennemfør den eksisterende onboarding. Ansøgningen reserverer ikke en plads."
         },
         {
-          "title": "Bliv godkendt",
-          "body": "Vi kontrollerer profil, identitet og den nødvendige dokumentation."
+          "title": "Vent på godkendelse",
+          "body": "MyCleaner gennemgår profil, identitet og den nødvendige dokumentation. Godkendelse må gerne ske efter 2026."
         },
         {
-          "title": "Start uden platformsgebyr",
-          "body": "Hvis du kvalificerer dig til kampagnen, starter dine 3 måneder ved din første gennemførte og betalte opgave."
+          "title": "Modtag besked, hvis programmet åbner",
+          "body": "Hvis programmet aktiveres og du tildeles en af de op til 500 globale pladser, får du direkte besked fra MyCleaner."
         }
       ]
     },
     "terms": {
-      "heading": "Vilkår",
+      "heading": "Planlagte vilkår",
       "lastUpdatedLabel": "Sidst opdateret",
       "lastUpdated": "2026-07-27",
       "items": [
-        "Kampagnen gælder ansøgninger indsendt fra 1. januar til og med 31. december 2026. Det er tidspunktet for den færdiggjorte provideransøgning – ikke oprettelsen af en almindelig brugerkonto – der afgør, om tidskravet er opfyldt.",
-        "Kampagnen gælder de første 500 Cleaners, som opfylder kampagnens krav og bliver godkendt og aktiveret.",
-        "Kampagnepladsen er først endeligt tildelt, når MyCleaner har bekræftet det. Ansøgning eller profiloprettelse reserverer ikke automatisk en plads.",
-        "Kampagneperioden varer tre sammenhængende kalendermåneder fra den første gennemførte og betalte booking.",
-        "MyCleaners normale provider-platformsgebyr er 0 kr. i kampagneperioden.",
-        "Betalingsbehandlingsgebyrer, skatter, moms, forsikring og andre tredjepartsomkostninger kan fortsat gælde.",
-        "Kampagnen gælder én gang pr. person eller virksomhed og må ikke omgås ved at oprette flere profiler.",
-        "Tilbuddet kan ikke kombineres med andre provider-rabatter eller kampagner.",
-        "Cleanerens konto skal fortsat overholde MyCleaners vilkår, kvalitetskrav og sikkerhedskrav.",
-        "MyCleaner garanterer ikke et bestemt antal bookinger eller en bestemt indtjening.",
-        "Misbrug, svig eller væsentlig overtrædelse af vilkårene kan medføre bortfald af kampagnefordelen i det omfang, gældende lov tillader det.",
-        "MyCleaner kan ændre eller afslutte kampagnen for fremtidige deltagere. En allerede bekræftet kampagnefordel må ikke ændres med tilbagevirkende kraft i strid med gældende lov."
+        "Founding Cleaner-programmet er endnu ikke aktiveret. Indsendelse af en ansøgning giver ikke automatisk ret til fordelen og reserverer ikke en kampagneplads.",
+        "Der kan maksimalt tildeles 500 pladser globalt på tværs af alle markeder.",
+        "Kun færdiggjorte provideransøgninger indsendt i kalenderåret 2026 (fra 1. januar 2026 til og med 31. december 2026) kan komme i betragtning. Autoritativt tidspunkt er provider_profiles.submitted_at på serveren.",
+        "Godkendelse må gerne ske efter 2026. En plads tildeles først server-side ved endelig godkendelse og aktivering.",
+        "Der tildeles maksimalt én kampagnefordel pr. verificeret fysisk person, også hvis personen kontrollerer flere virksomheder. Duplikerede profiler medfører ikke flere fordele.",
+        "Den planlagte fordel er 0 kr. i MyCleaners provider-platformsgebyr i tre kalendermåneder. Kundens separate platformsgebyr påvirkes ikke.",
+        "Betalingsbehandlingsomkostninger, skat, moms, forsikring og andre tredjepartsomkostninger ændres ikke automatisk af kampagnen.",
+        "Perioden varer tre kalendermåneder fra started_at + interval ‘3 months’ og opgøres ikke i 90 dage.",
+        "Perioden starter først, når den første kvalificerende opgave er gennemført, betalt/captured, kundebekræftet eller behandlet efter eksisterende completionregel og godkendt til release efter MyCleaners eksisterende 24-timers hold og dispute-kontrol.",
+        "En fuld refundering eller åben dispute før release starter ikke perioden. En refundering eller chargeback efter start nulstiller eller forlænger ikke perioden.",
+        "MyCleaner giver direkte besked, hvis en ansøger tildeles en plads. Der offentliggøres ingen countdown eller restpladstæller.",
+        "Endelige kampagnevilkår skal accepteres, når programmet aktiveres. MyCleaner kan ændre eller afslutte det planlagte program for fremtidige deltagere; en allerede bekræftet kampagnefordel ændres ikke med tilbagevirkende kraft i strid med gældende lov."
       ]
     },
     "appBarTitle": "Founding Cleaner"
