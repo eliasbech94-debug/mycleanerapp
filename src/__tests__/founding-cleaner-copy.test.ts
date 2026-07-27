@@ -60,8 +60,13 @@ describe("Founding Cleaner — locale guards", () => {
         expect(fc.heading).toBeTruthy();
         expect(fc.intro).toBeTruthy();
         expect(fc.ctaPrimary).toBeTruthy();
+        expect(fc.ctaPrimaryNote).toBeTruthy();
         expect(fc.ctaSecondary).toBeTruthy();
         expect(fc.startNote).toBeTruthy();
+        expect(fc.plannedBenefit).toBeTruthy();
+        expect(fc.status).toBeTruthy();
+        expect(fc.status.title).toBeTruthy();
+        expect(fc.status.body).toBeTruthy();
         expect(Array.isArray(fc.how.steps)).toBe(true);
         expect(fc.how.steps.length).toBe(3);
         expect(Array.isArray(fc.terms.items)).toBe(true);
@@ -74,14 +79,47 @@ describe("Founding Cleaner — locale guards", () => {
         expect(String(dict.foundingCleaner.intro)).toMatch(/2026/);
         const termsBlob = (dict.foundingCleaner.terms.items as string[]).join("\n");
         expect(termsBlob).toMatch(/2026/);
+        // Global 500-seat cap must appear in the terms body
+        expect(termsBlob).toMatch(/500/);
       });
 
-      it("campaign body mentions 0 platform fee framing", () => {
-  
+      it("campaign body mentions 0 platform fee framing scoped to the PROVIDER fee", () => {
         const body = String(dict.campaign.body).toLowerCase();
-        // Every locale references "0" and either "platform" or "plattform" wording.
         expect(body).toMatch(/0/);
         expect(body).toMatch(/plattform|platform|plataforma/);
+        // Fee scope must be the provider's platform fee, not a combined/all fees claim
+        expect(body).toMatch(/provider|leverantör|proveedor/);
+      });
+
+      it("communicates 'opens soon' status and 'does not reserve a spot' safety copy", () => {
+        const openSoon: Record<string, RegExp> = {
+          da: /åbner snart/i,
+          en: /opens soon/i,
+          sv: /öppnar snart/i,
+          es: /abre pronto/i,
+        };
+        const noReserve: Record<string, RegExp> = {
+          da: /reserverer ikke/i,
+          en: /does not (?:automatically )?reserve/i,
+          sv: /reserverar (?:inte|ingen)/i,
+          es: /no reserva/i,
+        };
+        expect(String(dict.campaign.title)).toMatch(openSoon[lang]);
+        expect(String(dict.foundingCleaner.status.title)).toMatch(openSoon[lang]);
+        expect(String(dict.campaign.note)).toMatch(noReserve[lang]);
+        expect(String(dict.foundingCleaner.status.body)).toMatch(noReserve[lang]);
+      });
+
+      it("uses three calendar months wording, not 90 days", () => {
+        const blob2 = JSON.stringify(dict.foundingCleaner).toLowerCase();
+        const calMonths: Record<string, RegExp> = {
+          da: /tre kalendermåneder/i,
+          en: /three calendar months/i,
+          sv: /tre kalendermånader/i,
+          es: /tres meses naturales/i,
+        };
+        expect(blob2).toMatch(calMonths[lang]);
+        expect(blob2).not.toMatch(/90 (?:dage|days|dagar|días)/i);
       });
     });
   }
