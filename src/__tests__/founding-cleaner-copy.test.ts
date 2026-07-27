@@ -74,7 +74,7 @@ describe("Founding Cleaner — locale guards", () => {
         const body = String(dict.campaign.body).toLowerCase();
         // Every locale references "0" and either "platform" or "plattform" wording.
         expect(body).toMatch(/0/);
-        expect(body).toMatch(/plattform|platform/);
+        expect(body).toMatch(/plattform|platform|plataforma/);
       });
     });
   }
