@@ -415,7 +415,7 @@ function StepBasic({
           onResolved={(place) =>
             patch({
               base_address_formatted: `${place.postal_code} ${place.city}`,
-              base_address_place_id: `postal:${place.country_code}:${place.postal_code}`,
+              base_address_place_id: place.place_id,
               base_country_code: place.country_code,
               base_lat: place.lat ?? null,
               base_lng: place.lng ?? null,
