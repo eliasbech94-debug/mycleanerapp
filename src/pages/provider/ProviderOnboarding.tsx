@@ -811,11 +811,35 @@ function StatusRow({ ok, label, hint }: { ok: boolean; label: string; hint?: str
 
 /* ─────────── Server-mirrored completion ─────────── */
 
-export function computeStepCompletion(
+export type OnboardingStepKey =
+  | "account"
+  | "basic"
+  | "service"
+  | "insurance"
+  | "identity"
+  | "stripe"
+  | "review";
+
+export const ONBOARDING_STEP_KEYS: readonly OnboardingStepKey[] = [
+  "account",
+  "basic",
+  "service",
+  "insurance",
+  "identity",
+  "stripe",
+  "review",
+] as const;
+
+// Statuses that mean the applicant has successfully submitted and is
+// awaiting/passed review. `rejected` and `suspended` MUST NOT count as
+// review-complete: they are terminal negative states.
+const REVIEW_COMPLETE_STATUSES = new Set(["pending_review", "active"]);
+
+export function computeStepCompletionByKey(
   pp: ProviderProfile,
   authProfile: any,
   user: any,
-): boolean[] {
+): Record<OnboardingStepKey, boolean> {
   const emailOk = !!(user?.email_confirmed_at || user?.confirmed_at);
   const account = !!user;
   const basic = !!(
@@ -838,8 +862,23 @@ export function computeStepCompletion(
     pp.insurance_expires_on &&
     pp.insurance_expires_on >= new Date().toISOString().slice(0, 10)
   );
-  const identity = ["approved", "verified"].includes(pp.identity_status) && emailOk;
-  const stripe = pp.stripe_charges_enabled && pp.stripe_payouts_enabled && !!pp.terms_accepted_at;
-  const review = pp.status !== "draft" && pp.status !== "pending_identity" && pp.status !== "pending_stripe";
-  return [account, basic, service, insurance, identity, stripe, review];
+  const identity =
+    ["approved", "verified"].includes(pp.identity_status) && emailOk;
+  const stripe =
+    !!pp.stripe_charges_enabled &&
+    !!pp.stripe_payouts_enabled &&
+    !!pp.terms_accepted_at;
+  // Fail closed: only recognised submitted/approved statuses count.
+  const review = REVIEW_COMPLETE_STATUSES.has(pp.status);
+  return { account, basic, service, insurance, identity, stripe, review };
 }
+
+export function computeStepCompletion(
+  pp: ProviderProfile,
+  authProfile: any,
+  user: any,
+): boolean[] {
+  const byKey = computeStepCompletionByKey(pp, authProfile, user);
+  return ONBOARDING_STEP_KEYS.map((k) => byKey[k]);
+}
+
