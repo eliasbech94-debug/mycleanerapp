@@ -16,8 +16,8 @@ import heroAsset from "@/assets/hero-europe-v3.png.asset.json";
 export function MarketplaceHero() {
   const { t } = useTranslation("marketplace");
   return (
-    <section className="relative" aria-labelledby="mkt-hero-title">
-      <div className="relative min-h-[360px] overflow-hidden sm:min-h-[400px] lg:min-h-[460px]">
+    <section className="relative isolate overflow-hidden" aria-labelledby="mkt-hero-title">
+      <div className="relative isolate overflow-hidden min-h-[360px] sm:min-h-[400px] lg:min-h-[440px]">
         <img
           src={heroAsset.url}
           alt={t("hero.image_alt", "Verified cleaner in a European home")}
