@@ -11,6 +11,9 @@
     "close": "Close",
     "loading": "Loading…"
   },
+  "common": {
+    "loading": "Loading…"
+  },
   "nav": {
     "home": "Home",
     "bookings": "Bookings",
@@ -31,5 +34,49 @@
     "GB": "United Kingdom",
     "SE": "Sweden",
     "ES": "Spain"
+  },
+  "mobileMessages": {
+    "title": "Messages",
+    "defaultTitle": "Conversation",
+    "supportTitle": "Support",
+    "empty": "No conversations yet. Book a Cleaner to get started.",
+    "error": "Couldn't load messages.",
+    "retry": "Try again",
+    "signedOut": "Sign in to see your messages.",
+    "signIn": "Sign in",
+    "tapToOpen": "Tap to open",
+    "statusClosed": "Closed",
+    "composerLabel": "Write a message",
+    "placeholder": "Write a message…",
+    "send": "Send",
+    "sendFailed": "Couldn't send message",
+    "failed": "Failed to send"
+  },
+  "mobileProfile": {
+    "title": "Profile",
+    "roleGuest": "Guest",
+    "roleCustomer": "Customer",
+    "roleProvider": "Cleaner",
+    "roleMember": "Member",
+    "groupAccount": "Account",
+    "groupPrefs": "Preferences",
+    "groupHelp": "Help",
+    "groupSession": "Session",
+    "info": "Personal information",
+    "addresses": "Addresses",
+    "notifications": "Notifications",
+    "cards": "Cards & payments",
+    "invoices": "Invoices",
+    "payout": "Payouts",
+    "receipts": "Receipts",
+    "sms": "SMS",
+    "tax": "Tax information",
+    "language": "Language",
+    "country": "Country",
+    "faq": "Help & FAQ",
+    "rules": "Rules",
+    "deactivate": "Deactivate account",
+    "signOut": "Sign out",
+    "signIn": "Sign in"
   }
 }
