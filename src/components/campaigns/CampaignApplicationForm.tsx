@@ -132,7 +132,7 @@ export function CampaignApplicationForm({ campaignSlug, defaultCountry, allowedC
           onCheckedChange={(v) => setValues({ ...values, accepted_privacy: v === true })} />
         <span>Jeg accepterer <a className="underline" href="/privatliv" target="_blank" rel="noreferrer">privatlivspolitikken</a>.</span>
       </label>
-      <Turnstile onVerify={setTurnstile} />
+      <Turnstile onToken={setTurnstile} />
       {error && (
         <Alert variant="destructive">
           <AlertDescription role="alert">{error}</AlertDescription>
