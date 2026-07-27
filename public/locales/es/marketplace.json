@@ -252,8 +252,16 @@
     "subtitle_customer": "Reserva tu próximo Cleaner en segundos.",
     "bookingCard": {
       "eyebrow": "Reserva un Cleaner",
-      "title": "Encuentra una hora que te venga bien",
-      "subtitle": "Elige zona, hora y reserva directamente."
+      "title": "Encuentra tu Cleaner",
+      "subtitle": "Compara perfiles, precios y horarios disponibles.",
+      "trust": "Perfiles verificados · Pagos seguros",
+      "cta": "Encuentra un Cleaner",
+      "ariaLabel": "Encuentra un Cleaner"
+    },
+    "howItWorks": {
+      "cta": "Encuentra un Cleaner",
+      "step_of": "Paso {{n}} de {{total}}",
+      "progress": "Indicador de pasos"
     },
     "services": {
       "title": "Servicios populares"
