@@ -123,7 +123,7 @@ export default function MobileProfile() {
   }
 
   // Preferences
-  const marketLabel = market?.country_code ?? "—";
+  const marketLabel = market?.code ?? "—";
   const langMap: Record<string, string> = {
     da: t("language.da", "Dansk"),
     en: t("language.en", "English"),
