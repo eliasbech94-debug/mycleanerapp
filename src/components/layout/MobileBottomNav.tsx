@@ -39,6 +39,7 @@ const MOBILE_NAV_ROUTES: RegExp[] = [
   /^\/p\/[^/]+(\/|$)/,
   /^\/c\/[^/]+(\/|$)/,
   /^\/inbox(\/|$)/,
+  /^\/founding-cleaner(\/|$)/,
 ];
 
 export function shouldShowMobileNav(pathname: string): boolean {
