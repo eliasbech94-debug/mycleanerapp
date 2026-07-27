@@ -14,7 +14,7 @@
  * NO fabrication: earnings are NOT computed client-side. If a provider has no
  * trusted earnings source we render an honest unavailable state.
  */
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
@@ -37,6 +37,8 @@ import { useActiveMarket } from "@/context/ActiveMarketContext";
 import { useMarketplaceProviders } from "@/hooks/useMarketplaceProviders";
 import { ServiceCategoryGrid } from "@/components/marketplace/ServiceCategoryGrid";
 import { CountryConfirmDialog } from "@/components/marketplace/CountryConfirmDialog";
+import { usePullToRefresh } from "@/hooks/usePullToRefresh";
+import { PullIndicator } from "@/components/mobile/PullIndicator";
 
 const HomeSections = lazy(() =>
   import("@/components/marketplace/home/HomeSections").then((m) => ({ default: m.HomeSections })),
