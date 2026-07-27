@@ -298,16 +298,19 @@ function GuestHome() {
     <>
       <PtrRow pullY={pullY} refreshing={refreshing} thresholdReached={thresholdReached} />
       <GreetingBar />
+      {/* Primary booking CTA — sidens visuelt stærkeste element. */}
       <PrimaryBookingCard />
       <TrustChips />
-      {/* ServiceCategoryGrid provides its own heading — no wrapping Section. */}
-      <div className="pt-2">
-        <ServiceCategoryGrid />
-      </div>
+      {/* Mobile: horizontal swipe carousel replaces the desktop grid. */}
+      <MobileServicesCarousel />
+      {/* Featured Cleaners (existing carousel, uses useMarketplaceProviders). */}
       <FeaturedCleanersCarousel refreshNonce={nonce} />
-      <Suspense fallback={<div className="h-16" aria-hidden />}>
-        <HomeSections slot="bottom" />
-      </Suspense>
+      {/* "Sådan virker" — single swipe card (mobile-only presentation). */}
+      <MobileHowItWorksCard />
+      {/* Campaign section (renders nothing if no active headline). */}
+      <div className="px-1 pt-4">
+        <CampaignSection />
+      </div>
     </>
   );
 }
