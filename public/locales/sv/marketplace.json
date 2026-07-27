@@ -52,6 +52,7 @@
   },
   "categories": {
     "heading": "Populära tjänster",
+    "view_all": "Se alla",
     "cleaning": "Städning",
     "handyman": "Hantverkare",
     "garden": "Trädgård",
@@ -252,8 +253,16 @@
     "subtitle_customer": "Boka din nästa Cleaner på sekunder.",
     "bookingCard": {
       "eyebrow": "Boka en Cleaner",
-      "title": "Hitta en tid som passar",
-      "subtitle": "Välj område, tid och boka direkt."
+      "title": "Hitta din Cleaner",
+      "subtitle": "Jämför profiler, priser och lediga tider.",
+      "trust": "Verifierade profiler · Säkra betalningar",
+      "cta": "Hitta en Cleaner",
+      "ariaLabel": "Hitta en Cleaner"
+    },
+    "howItWorks": {
+      "cta": "Hitta en Cleaner",
+      "step_of": "Steg {{n}} av {{total}}",
+      "progress": "Steg-indikator"
     },
     "services": {
       "title": "Populära tjänster"
