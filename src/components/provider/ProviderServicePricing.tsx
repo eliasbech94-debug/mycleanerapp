@@ -14,11 +14,11 @@ const SERVICES = [
 
 type PriceRow = { service_code: string; amount_minor: number; currency: string; active: boolean };
 
-const CURRENCY: Record<string, { code: string; symbol: string; factor: number }> = {
-  DK: { code: "DKK", symbol: "kr.", factor: 100 },
-  SE: { code: "SEK", symbol: "kr.", factor: 100 },
-  ES: { code: "EUR", symbol: "€", factor: 100 },
-  UK: { code: "GBP", symbol: "£", factor: 100 },
+const CURRENCY: Record<string, { code: string; symbol: string; factor: number; min: number }> = {
+  DK: { code: "DKK", symbol: "kr.", factor: 100, min: 140 },
+  SE: { code: "SEK", symbol: "kr.", factor: 100, min: 135 },
+  ES: { code: "EUR", symbol: "€", factor: 100, min: 8 },
+  UK: { code: "GBP", symbol: "£", factor: 100, min: 11 },
 };
 
 export function ProviderServicePricing({ countryCode }: { countryCode: string }) {
@@ -43,8 +43,8 @@ export function ProviderServicePricing({ countryCode }: { countryCode: string })
   const save = useCallback(async (serviceCode: string) => {
     if (!user) return;
     const row = rows[serviceCode];
-    if (!row?.active || row.amount_minor <= 0) {
-      toast.error("Vælg servicen og indtast en gyldig pris");
+    if (!row?.active || row.amount_minor < currency.min * currency.factor) {
+      toast.error(`Prisen skal være mindst ${currency.min} ${currency.symbol} pr. time`);
       return;
     }
     setSaving(serviceCode);
@@ -65,7 +65,7 @@ export function ProviderServicePricing({ countryCode }: { countryCode: string })
     <div className="space-y-3">
       <div>
         <div className="text-[11px] font-bold uppercase tracking-wider opacity-70">Services og individuelle priser</div>
-        <p className="mt-1 text-xs opacity-65">Hver service har sin egen timepris. Du kan ændre priserne senere.</p>
+        <p className="mt-1 text-xs opacity-65">Hver service har sin egen timepris. Minimum i dit marked er {currency.min} {currency.symbol}/t.</p>
       </div>
       {SERVICES.map((service) => {
         const row = rows[service.id] ?? { service_code: service.id, amount_minor: 0, currency: currency.code, active: false };
@@ -85,7 +85,7 @@ export function ProviderServicePricing({ countryCode }: { countryCode: string })
             <label className="flex min-h-11 items-center overflow-hidden rounded-lg border bg-white">
               <input
                 type="number"
-                min="1"
+                min={currency.min}
                 step="1"
                 disabled={!row.active}
                 value={row.amount_minor ? row.amount_minor / currency.factor : ""}
