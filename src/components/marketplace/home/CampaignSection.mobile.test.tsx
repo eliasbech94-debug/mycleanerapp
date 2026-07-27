@@ -45,13 +45,18 @@ function setup(lang: "da" | "en" | "sv" | "es") {
 }
 
 describe("CampaignSection — mobile Founding Cleaner card", () => {
-  it("renders headline copy (DA): 0 KR., 3 måneder, FØRSTE 500, 2026 explain", () => {
+  it("renders headline copy (DA): 0 KR., 3 måneder, ÅBNER SNART, opens-soon safety copy", () => {
     const { getByTestId, getAllByText, container } = setup("da");
     const card = getByTestId("founding-cleaner-card-mobile");
     const scoped = within(card);
     expect(scoped.getByText("0 KR.")).toBeInTheDocument();
     expect(scoped.getByText(/3 måneder/i)).toBeInTheDocument();
-    expect(scoped.getByText(/FØRSTE 500/i)).toBeInTheDocument();
+    expect(scoped.getByText(/ÅBNER SNART/i)).toBeInTheDocument();
+    // Fee scope is limited to the PROVIDER platform fee
+    expect(scoped.getByText(/provider-platformsgebyr/i)).toBeInTheDocument();
+    // Safety copy: not opened yet + application does not reserve a spot
+    expect(scoped.getByText(/reserverer ikke automatisk en plads/i)).toBeInTheDocument();
+    // 2026 eligibility framing lives in the explain line
     expect(getAllByText(/2026/).length).toBeGreaterThan(0);
     // Ensure no horizontal-scroll-inducing overflow classes are present at root
     expect(container.querySelector("[data-testid=founding-cleaner-card-mobile]")).toHaveClass("overflow-hidden");
@@ -75,7 +80,7 @@ describe("CampaignSection — mobile Founding Cleaner card", () => {
     expect(hidden.length).toBeGreaterThan(0);
   });
 
-  it("does not render forbidden claims or countdown / remaining-seats copy", () => {
+  it("does not render forbidden claims, countdown / remaining-seats copy, or 'already granted' assertions", () => {
     for (const lang of ["da", "en", "sv", "es"] as const) {
       const { getByTestId, unmount } = setup(lang);
       const text = getByTestId("founding-cleaner-card-mobile").textContent?.toLowerCase() ?? "";
@@ -95,8 +100,30 @@ describe("CampaignSection — mobile Founding Cleaner card", () => {
         "plazas restantes",
         "platser kvar",
         "countdown",
+        // "already have / already granted" claims
+        "du har allerede",
+        "you already have",
+        "ya tienes",
+        "du har redan",
       ]) {
         expect(text, `forbidden phrase "${bad}" found in ${lang}`).not.toContain(bad);
+      }
+      unmount();
+    }
+  });
+
+  it("each locale communicates 'opens soon' and 'does not reserve a spot'", () => {
+    const expectations: Record<"da" | "en" | "sv" | "es", RegExp[]> = {
+      da: [/åbner snart/i, /reserverer ikke/i, /provider-platformsgebyr/i],
+      en: [/opens soon/i, /does not (?:automatically )?reserve/i, /provider platform fee/i],
+      sv: [/öppnar snart/i, /reserverar (?:inte|ingen)/i, /plattformsavgift/i],
+      es: [/abre pronto/i, /no reserva/i, /comisión de plataforma/i],
+    };
+    for (const lang of ["da", "en", "sv", "es"] as const) {
+      const { getByTestId, unmount } = setup(lang);
+      const text = getByTestId("founding-cleaner-card-mobile").textContent ?? "";
+      for (const rx of expectations[lang]) {
+        expect(text, `${lang} missing ${rx}`).toMatch(rx);
       }
       unmount();
     }
