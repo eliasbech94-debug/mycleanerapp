@@ -4,10 +4,10 @@
  * remaining-spots counter. Server-authoritative activation is a separate
  * implementation.
  */
+import * as React from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Sparkles, ArrowRight, CheckCircle2 } from "lucide-react";
-import { Helmet } from "react-helmet-async";
 
 type Step = { title: string; body: string };
 type Terms = {
