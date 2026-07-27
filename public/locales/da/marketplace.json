@@ -168,7 +168,16 @@
     "body": "De første 500 godkendte Cleaners, der ansøger i 2026, betaler 0 kr. i MyCleaner-platformsgebyr i deres første 3 måneder.",
     "note": "Perioden starter ved din første gennemførte og betalte opgave.",
     "cta": "Læs om kampagnen",
-    "href": "/founding-cleaner"
+    "href": "/founding-cleaner",
+    "badgePrimary": "FOUNDING CLEANER",
+    "badgeSecondary": "FØRSTE 500",
+    "edition": "2026 EDITION",
+    "amount": "0 KR.",
+    "amountSuffix1": "i platformsgebyr",
+    "amountSuffix2": "i 3 måneder",
+    "explain": "Ansøg i 2026, og kom godt fra start som en af MyCleaners første godkendte Cleaners.",
+    "noteShort": "Starter ved din første gennemførte og betalte opgave.",
+    "ctaShort": "Se din fordel"
   },
   "app": {
     "eyebrow": "MyCleaner-appen",

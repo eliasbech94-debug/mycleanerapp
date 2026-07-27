@@ -168,7 +168,16 @@
     "body": "Los primeros 500 Cleaners aprobados que soliciten en 2026 pagan 0 en comisión de plataforma de MyCleaner durante sus primeros 3 meses.",
     "note": "El periodo solo empieza cuando tu primer trabajo se haya completado y pagado.",
     "cta": "Lee sobre la campaña",
-    "href": "/founding-cleaner"
+    "href": "/founding-cleaner",
+    "badgePrimary": "FOUNDING CLEANER",
+    "badgeSecondary": "PRIMEROS 500",
+    "edition": "2026 EDITION",
+    "amount": "0 €",
+    "amountSuffix1": "en comisión de plataforma",
+    "amountSuffix2": "durante 3 meses",
+    "explain": "Solicita en 2026 y empieza con fuerza como uno de los primeros Cleaners aprobados de MyCleaner.",
+    "noteShort": "Empieza con tu primer trabajo completado y pagado.",
+    "ctaShort": "Descubre tu ventaja"
   },
   "app": {
     "eyebrow": "La app MyCleaner",
