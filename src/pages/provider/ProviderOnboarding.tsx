@@ -159,7 +159,7 @@ function OnboardingInner() {
   );
 
   const completion = useMemo(
-    () => (pp ? computeStepCompletion(pp, authProfile, user) : [false, false, false, false, false, false]),
+    () => (pp ? computeStepCompletion(pp, authProfile, user) : STEPS.map(() => false)),
     [pp, authProfile, user],
   );
   const overallPct = pp?.completion_pct ?? Math.round((completion.filter(Boolean).length / STEPS.length) * 100);
