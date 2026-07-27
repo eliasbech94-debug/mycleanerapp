@@ -33,7 +33,7 @@ export function ProviderServicePricing({ countryCode }: { countryCode: string })
       .from("provider_service_prices")
       .select("service_code, amount_minor, currency, active")
       .eq("user_id", user.id)
-      .then(({ data }) => {
+      .then(({ data }: { data: PriceRow[] | null }) => {
         const next: Record<string, PriceRow> = {};
         for (const row of (data ?? []) as PriceRow[]) next[row.service_code] = row;
         setRows(next);
@@ -59,7 +59,7 @@ export function ProviderServicePricing({ countryCode }: { countryCode: string })
     setSaving(null);
     if (error) toast.error(`Prisen kunne ikke gemmes: ${error.message}`);
     else toast.success("Serviceprisen er gemt");
-  }, [rows, user, currency.code]);
+  }, [rows, user, currency]);
 
   return (
     <div className="space-y-3">
