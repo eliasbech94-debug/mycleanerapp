@@ -17,19 +17,19 @@ export function CampaignSection() {
   const href = t("campaign.href", { defaultValue: "/provider/register" });
 
   return (
-    <section className="mx-auto max-w-[1400px] px-5 py-14 lg:px-8" aria-labelledby="campaign-title">
-      <div className="relative overflow-hidden rounded-[28px] border border-[hsl(var(--mkt-border))] bg-[hsl(var(--mkt-brand))] text-[hsl(var(--mkt-brand-on))] shadow-[var(--mkt-shadow-lift)]">
+    <section className="mx-auto max-w-[1400px] px-4 py-6 md:px-5 md:py-14 lg:px-8" aria-labelledby="campaign-title">
+      <div className="relative overflow-hidden rounded-3xl border border-[hsl(var(--mkt-border))] bg-[hsl(var(--mkt-brand))] text-[hsl(var(--mkt-brand-on))] shadow-[var(--mkt-shadow-lift)] md:rounded-[28px]">
         <div
           className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-[hsl(var(--mkt-accent))]/40 blur-3xl"
           aria-hidden="true"
         />
-        <div className="relative flex flex-col gap-6 p-8 sm:p-10 md:flex-row md:items-center md:justify-between">
+        <div className="relative flex flex-col gap-4 p-6 sm:p-10 md:flex-row md:items-center md:justify-between md:gap-6">
           <div className="max-w-2xl">
             <span className="inline-flex items-center gap-2 rounded-full bg-[hsl(var(--mkt-brand-on))]/15 px-3 py-1 text-[11.5px] font-semibold uppercase tracking-[0.14em]">
               <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
               {t("campaign.eyebrow", "Kampagne")}
             </span>
-            <h2 id="campaign-title" className="mt-3 font-serif text-[26px] leading-tight tracking-[-0.02em] sm:text-[34px]">
+            <h2 id="campaign-title" className="mt-3 font-serif text-[20px] leading-tight tracking-[-0.02em] sm:text-[34px]">
               {title}
             </h2>
             {body && <p className="mt-3 max-w-xl text-[14.5px] leading-relaxed opacity-90">{body}</p>}
