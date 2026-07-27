@@ -78,37 +78,40 @@ export default function MobileBottomNav() {
       <div
         aria-hidden
         className="md:hidden"
-        style={{ height: "calc(64px + env(safe-area-inset-bottom, 0px))" }}
+        style={{ height: "calc(68px + env(safe-area-inset-bottom, 0px))" }}
       />
       <nav
         data-surface="marketplace"
         aria-label={t("mobilenav.label", "Primær navigation")}
-        className="fixed bottom-0 left-0 right-0 z-50 border-t border-[hsl(var(--mkt-border))] bg-[hsl(var(--mkt-surface))]/95 backdrop-blur md:hidden"
+        className="fixed bottom-0 left-0 right-0 z-50 border-t border-[hsl(var(--mkt-border))] bg-[hsl(var(--mkt-surface))]/95 shadow-[0_-8px_24px_-12px_rgba(6,22,21,0.18)] backdrop-blur md:hidden"
         style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
       >
-        <ul className="mx-auto grid max-w-[520px] grid-cols-4">
+        <ul className="mx-auto grid max-w-[520px] grid-cols-4 px-1 pt-1.5 pb-1">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             const active = tab.match ? tab.match(pathname) : false;
             const cls =
-              "flex h-16 flex-col items-center justify-center gap-1 text-[11px] font-medium transition-colors " +
+              "relative flex h-14 flex-col items-center justify-center gap-0.5 rounded-2xl text-[10.5px] font-medium transition-colors " +
               (active
                 ? "text-[hsl(var(--mkt-brand))]"
                 : "text-[hsl(var(--mkt-ink-muted))] active:text-[hsl(var(--mkt-ink))]");
             const content = (
               <>
-                <Icon className={"h-5 w-5 " + (active ? "stroke-[2.4]" : "")} aria-hidden />
+                <span
+                  className={
+                    "flex h-8 w-14 items-center justify-center rounded-full transition-colors " +
+                    (active ? "bg-[hsl(var(--mkt-brand))]/12" : "")
+                  }
+                >
+                  <Icon className={"h-[22px] w-[22px] " + (active ? "stroke-[2.4]" : "stroke-[2]")} aria-hidden />
+                </span>
                 <span className="leading-none">{tab.label}</span>
               </>
             );
             return (
               <li key={tab.key} className="contents">
                 {tab.to ? (
-                  <Link
-                    to={tab.to}
-                    className={cls}
-                    aria-current={active ? "page" : undefined}
-                  >
+                  <Link to={tab.to} className={cls} aria-current={active ? "page" : undefined}>
                     {content}
                   </Link>
                 ) : (
