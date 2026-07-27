@@ -7,7 +7,13 @@
     },
     "availability": "Available in 🇩🇰 Denmark · 🇸🇪 Sweden · 🇩🇪 Germany · 🇬🇧 United Kingdom · 🇪🇸 Spain",
     "availability_label": "Available in",
-    "countries": { "dk": "Denmark", "se": "Sweden", "de": "Germany", "gb": "United Kingdom", "es": "Spain" },
+    "countries": {
+      "dk": "Denmark",
+      "se": "Sweden",
+      "de": "Germany",
+      "gb": "United Kingdom",
+      "es": "Spain"
+    },
     "image_alt": "Verified Cleaner in a European home",
     "variants": {
       "guest": {
@@ -236,6 +242,57 @@
         "title": "Dynamic pricing",
         "body": "Optimise prices to demand."
       }
+    }
+  },
+  "mobileHome": {
+    "greeting_guest": "Find your perfect Cleaner",
+    "greeting_named": "Hi {{name}}",
+    "greeting_fallback_name": "there",
+    "subtitle_guest": "Verified Cleaners — fast, safe and easy.",
+    "subtitle_customer": "Book your next Cleaner in seconds.",
+    "bookingCard": {
+      "eyebrow": "Book a Cleaner",
+      "title": "Find a time that fits",
+      "subtitle": "Pick an area, time and book directly."
+    },
+    "services": {
+      "title": "Popular services"
+    },
+    "featured": {
+      "title": "Featured Cleaners",
+      "viewAll": "View all",
+      "empty": "No Cleaners to show right now."
+    },
+    "quickActions": {
+      "title": "Quick actions",
+      "book_again": "Book again",
+      "find_cleaner": "Find cleaner",
+      "messages": "Messages"
+    },
+    "customer": {
+      "upcoming": "Upcoming booking",
+      "loading": "Loading…",
+      "error": "Could not load bookings.",
+      "empty": "No upcoming bookings. Book your next Cleaner now.",
+      "provider": "Cleaner"
+    },
+    "provider": {
+      "today": "Today",
+      "todayJobs_one": "active job today",
+      "todayJobs_other": "active jobs today",
+      "openDashboard": "Open dashboard",
+      "nextJob": "Next job",
+      "job": "Job",
+      "noJobs": "No upcoming jobs.",
+      "error": "Could not load jobs.",
+      "earnings": "This month's earnings",
+      "earningsUnavailable": "See your up-to-date earnings in Finance.",
+      "openFinance": "Open Finance",
+      "onboarding": "Get started",
+      "onboardingProgress": "{{done}} of {{total}} steps done",
+      "continueOnboarding": "Continue",
+      "calendar": "Calendar",
+      "payouts": "Payouts"
     }
   }
 }

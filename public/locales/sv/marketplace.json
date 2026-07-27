@@ -7,7 +7,13 @@
     },
     "availability": "Tillgänglig i 🇩🇰 Danmark · 🇸🇪 Sverige · 🇩🇪 Tyskland · 🇬🇧 Storbritannien · 🇪🇸 Spanien",
     "availability_label": "Tillgänglig i",
-    "countries": { "dk": "Danmark", "se": "Sverige", "de": "Tyskland", "gb": "Storbritannien", "es": "Spanien" },
+    "countries": {
+      "dk": "Danmark",
+      "se": "Sverige",
+      "de": "Tyskland",
+      "gb": "Storbritannien",
+      "es": "Spanien"
+    },
     "image_alt": "Verifierad Cleaner i ett europeiskt hem",
     "variants": {
       "guest": {
@@ -236,6 +242,57 @@
         "title": "Dynamisk prissättning",
         "body": "Optimera priser efter efterfrågan."
       }
+    }
+  },
+  "mobileHome": {
+    "greeting_guest": "Hitta den perfekta Cleaner",
+    "greeting_named": "Hej {{name}}",
+    "greeting_fallback_name": "där",
+    "subtitle_guest": "Verifierade Cleaners — snabbt, säkert och enkelt.",
+    "subtitle_customer": "Boka din nästa Cleaner på sekunder.",
+    "bookingCard": {
+      "eyebrow": "Boka en Cleaner",
+      "title": "Hitta en tid som passar",
+      "subtitle": "Välj område, tid och boka direkt."
+    },
+    "services": {
+      "title": "Populära tjänster"
+    },
+    "featured": {
+      "title": "Rekommenderade Cleaners",
+      "viewAll": "Visa alla",
+      "empty": "Inga Cleaners att visa just nu."
+    },
+    "quickActions": {
+      "title": "Snabbåtgärder",
+      "book_again": "Boka igen",
+      "find_cleaner": "Hitta cleaner",
+      "messages": "Meddelanden"
+    },
+    "customer": {
+      "upcoming": "Kommande bokning",
+      "loading": "Laddar…",
+      "error": "Kunde inte hämta bokningar.",
+      "empty": "Inga kommande bokningar. Boka din nästa Cleaner nu.",
+      "provider": "Cleaner"
+    },
+    "provider": {
+      "today": "Idag",
+      "todayJobs_one": "aktivt jobb idag",
+      "todayJobs_other": "aktiva jobb idag",
+      "openDashboard": "Öppna dashboard",
+      "nextJob": "Nästa jobb",
+      "job": "Jobb",
+      "noJobs": "Inga kommande jobb.",
+      "error": "Kunde inte hämta jobb.",
+      "earnings": "Månadens intäkter",
+      "earningsUnavailable": "Se dina uppdaterade intäkter i Ekonomi.",
+      "openFinance": "Öppna Ekonomi",
+      "onboarding": "Kom igång",
+      "onboardingProgress": "{{done}} av {{total}} steg klara",
+      "continueOnboarding": "Fortsätt",
+      "calendar": "Kalender",
+      "payouts": "Utbetalningar"
     }
   }
 }
