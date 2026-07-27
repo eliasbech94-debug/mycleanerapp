@@ -64,13 +64,7 @@ async function importPage() {
   return (await import("./MobileSearch")).default;
 }
 
-function setup() {
-  return render(
-    <MemoryRouter>
-      <div>{/* @ts-expect-error async component */}</div>
-    </MemoryRouter>,
-  );
-}
+
 
 beforeEach(() => {
   vi.resetModules();
