@@ -165,7 +165,7 @@
   "campaign": {
     "eyebrow": "FOUNDING CLEANER",
     "title": "Start with 0 in MyCleaner platform fees",
-    "body": "The first 500 approved Cleaners pay 0 in MyCleaner platform fees for their first 3 months.",
+    "body": "The first 500 approved Cleaners who apply in 2026 pay 0 in MyCleaner platform fees for their first 3 months.",
     "note": "The period only starts when your first job has been completed and paid.",
     "cta": "Read about the campaign",
     "href": "/founding-cleaner"
@@ -393,7 +393,7 @@
   "foundingCleaner": {
     "eyebrow": "FOUNDING CLEANER",
     "heading": "Get off to a strong start with 0 in platform fees",
-    "intro": "Become one of the first 500 approved Founding Cleaners and pay 0 in MyCleaner platform fees for your first 3 months. The period only starts once your first job has been completed and paid.",
+    "intro": "The campaign applies to provider applications submitted in 2026. Become one of the first 500 approved Founding Cleaners and pay 0 in MyCleaner platform fees for your first 3 months. You can still qualify if approval is completed later, but an application does not guarantee one of the 500 spots. The period only starts when your first job has been completed and paid.",
     "ctaPrimary": "Apply as a Cleaner",
     "ctaSecondary": "See the terms",
     "startNote": "Your campaign period only starts when your first job has been completed and paid.",
@@ -419,6 +419,7 @@
       "lastUpdatedLabel": "Last updated",
       "lastUpdated": "2026-07-27",
       "items": [
+        "The campaign applies to applications submitted between 1 January and 31 December 2026 inclusive. It is the timestamp of the completed provider application — not the creation of a regular user account — that determines whether the time requirement is met.",
         "The campaign applies to the first 500 Cleaners who meet the campaign requirements and become approved and activated.",
         "A campaign spot is only finally allocated once MyCleaner has confirmed it. An application or profile creation does not automatically reserve a spot.",
         "The campaign period lasts three consecutive calendar months from the first completed and paid booking.",

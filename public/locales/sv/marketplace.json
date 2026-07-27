@@ -165,7 +165,7 @@
   "campaign": {
     "eyebrow": "FOUNDING CLEANER",
     "title": "Starta med 0 kr i plattformsavgift",
-    "body": "De första 500 godkända Cleaners betalar 0 kr i MyCleaner-plattformsavgift under sina första 3 månader.",
+    "body": "De första 500 godkända Cleaners som ansöker under 2026 betalar 0 kr i MyCleaner-plattformsavgift under sina första 3 månader.",
     "note": "Perioden startar först när ditt första uppdrag har genomförts och betalats.",
     "cta": "Läs om kampanjen",
     "href": "/founding-cleaner"
@@ -393,7 +393,7 @@
   "foundingCleaner": {
     "eyebrow": "FOUNDING CLEANER",
     "heading": "Kom igång med 0 kr i plattformsavgift",
-    "intro": "Bli en av de första 500 godkända Founding Cleaners och betala 0 kr i MyCleaner-plattformsavgift under dina första 3 månader. Perioden startar först när ditt första uppdrag har genomförts och betalats.",
+    "intro": "Kampanjen gäller leverantörsansökningar som skickas in under 2026. Bli en av de första 500 godkända Founding Cleaners och betala 0 kr i MyCleaner-plattformsavgift under dina första 3 månader. Du kan fortfarande kvalificera dig om godkännandet slutförs senare, men en ansökan är ingen garanti för en av de 500 platserna. Perioden startar först när ditt första uppdrag har genomförts och betalats.",
     "ctaPrimary": "Ansök som Cleaner",
     "ctaSecondary": "Se villkoren",
     "startNote": "Din kampanjperiod startar först när ditt första uppdrag har genomförts och betalats.",
@@ -419,6 +419,7 @@
       "lastUpdatedLabel": "Senast uppdaterad",
       "lastUpdated": "2026-07-27",
       "items": [
+        "Kampanjen gäller ansökningar som skickas in mellan 1 januari och 31 december 2026. Det är tidpunkten för den slutförda leverantörsansökan – inte skapandet av ett vanligt användarkonto – som avgör om tidskravet är uppfyllt.",
         "Kampanjen gäller de första 500 Cleaners som uppfyller kampanjens krav och blir godkända och aktiverade.",
         "En kampanjplats tilldelas slutgiltigt först när MyCleaner har bekräftat det. Ansökan eller profilskapande reserverar inte automatiskt en plats.",
         "Kampanjperioden varar i tre sammanhängande kalendermånader från den första genomförda och betalda bokningen.",

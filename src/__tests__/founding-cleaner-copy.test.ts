@@ -69,6 +69,13 @@ describe("Founding Cleaner — locale guards", () => {
         expect(fc.terms.lastUpdated).toMatch(/^\d{4}-\d{2}-\d{2}$/);
       });
 
+      it("mentions 2026 eligibility window in campaign body, intro and terms", () => {
+        expect(String(dict.campaign.body)).toMatch(/2026/);
+        expect(String(dict.foundingCleaner.intro)).toMatch(/2026/);
+        const termsBlob = (dict.foundingCleaner.terms.items as string[]).join("\n");
+        expect(termsBlob).toMatch(/2026/);
+      });
+
       it("campaign body mentions 0 platform fee framing", () => {
   
         const body = String(dict.campaign.body).toLowerCase();
