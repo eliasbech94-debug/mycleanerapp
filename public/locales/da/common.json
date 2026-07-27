@@ -78,5 +78,16 @@
     "deactivate": "Deaktivér konto",
     "signOut": "Log ud",
     "signIn": "Log ind"
+  },
+  "mobilenav": {
+    "home": "Hjem",
+    "search": "Søg",
+    "bookings": "Bookinger",
+    "profile": "Profil",
+    "login": "Log ind",
+    "more": "Mere",
+    "dashboard": "Dashboard",
+    "messages": "Beskeder",
+    "label": "Primær navigation"
   }
 }

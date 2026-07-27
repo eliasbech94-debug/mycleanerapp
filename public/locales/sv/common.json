@@ -44,5 +44,16 @@
     "deactivate": "Avaktivera konto",
     "signOut": "Logga ut",
     "signIn": "Logga in"
+  },
+  "mobilenav": {
+    "home": "Hem",
+    "search": "Sök",
+    "bookings": "Bokningar",
+    "profile": "Profil",
+    "login": "Logga in",
+    "more": "Mer",
+    "dashboard": "Dashboard",
+    "messages": "Meddelanden",
+    "label": "Primär navigering"
   }
 }
