@@ -252,8 +252,16 @@
     "subtitle_customer": "Book din næste Cleaner på få sekunder.",
     "bookingCard": {
       "eyebrow": "Book en Cleaner",
-      "title": "Find en tid der passer",
-      "subtitle": "Vælg område, tid og book direkte."
+      "title": "Find din Cleaner",
+      "subtitle": "Sammenlign profiler, priser og ledige tider.",
+      "trust": "Verificerede profiler · Sikker betaling",
+      "cta": "Find en Cleaner",
+      "ariaLabel": "Find en Cleaner"
+    },
+    "howItWorks": {
+      "cta": "Find en Cleaner",
+      "step_of": "Trin {{n}} af {{total}}",
+      "progress": "Trin-indikator"
     },
     "services": {
       "title": "Populære services"
