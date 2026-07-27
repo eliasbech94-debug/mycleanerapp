@@ -13,9 +13,20 @@ import { useLocation } from "react-router-dom";
 
 const MOBILE_APP_BREAKPOINT = 768;
 
-// Explicit whitelist — mirrors the marketplace/profile surface that the
-// mobile bottom nav already covers. Country-prefixed variants
-// (/dk, /gb, /se, /es) are normalized before matching.
+/**
+ * Market prefixes are mirrored from `COUNTRY_ROUTE_PREFIXES` in `src/App.tsx`.
+ * Keep both in sync. The router only mounts these four country prefixes today;
+ * `/de` and `/uk` are NOT existing routes and must not be added here without a
+ * corresponding router change. Language selection is handled separately by
+ * i18next and is not encoded in the URL path, so no language prefix is stripped.
+ */
+export const MARKET_PREFIXES = ["dk", "gb", "se", "es"] as const;
+const COUNTRY_PREFIX = new RegExp(`^/(${MARKET_PREFIXES.join("|")})(?=/|$)`, "i");
+
+// Explicit whitelist — mirrors the marketplace/customer surface where a
+// mobile-app shell is desired. Static informational pages (/faq, /regler)
+// are intentionally excluded: they have no authenticated app flow and read
+// better in the standard document layout.
 export const MOBILE_APP_ROUTE_WHITELIST: RegExp[] = [
   /^\/$/,
   /^\/find-cleaner(\/|$)/,
@@ -24,13 +35,9 @@ export const MOBILE_APP_ROUTE_WHITELIST: RegExp[] = [
   /^\/mine-bookinger(\/|$)/,
   /^\/customer(\/|$)/,
   /^\/profil(\/|$)/,
-  /^\/faq(\/|$)/,
-  /^\/regler(\/|$)/,
   /^\/inbox(\/|$)/,
   /^\/p\/[^/]+(\/|$)/,
 ];
-
-const COUNTRY_PREFIX = /^\/(dk|gb|se|es)(?=\/|$)/i;
 
 export function normalizePath(pathname: string): string {
   const stripped = pathname.replace(COUNTRY_PREFIX, "");
