@@ -10,17 +10,19 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 // ---- Mocks ----
 const invoke = vi.fn();
-const chan: any = {};
-chan.on = () => chan;
-chan.subscribe = () => chan;
-vi.mock("@/integrations/supabase/client", () => ({
-  supabase: {
-    functions: { invoke: (...a: unknown[]) => invoke(...(a as [any, any])) },
-    channel: () => chan,
-    removeChannel: () => {},
-    auth: { signOut: async () => ({ error: null }) },
-  },
-}));
+vi.mock("@/integrations/supabase/client", () => {
+  const chan: any = {};
+  chan.on = () => chan;
+  chan.subscribe = () => chan;
+  return {
+    supabase: {
+      functions: { invoke: (...a: unknown[]) => invoke(...(a as [any, any])) },
+      channel: () => chan,
+      removeChannel: () => {},
+      auth: { signOut: async () => ({ error: null }) },
+    },
+  };
+});
 
 let mockUser: { id: string; email: string } | null = { id: "user-1", email: "u@example.com" };
 vi.mock("@/hooks/useAuth", () => ({
