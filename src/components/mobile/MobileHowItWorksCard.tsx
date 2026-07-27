@@ -89,7 +89,7 @@ export function MobileHowItWorksCard() {
                 n: idx + 1,
                 total: STEPS.length,
               })}
-              className="snap-center shrink-0 w-[calc(100vw-64px)] max-w-[360px] rounded-2xl border border-[hsl(var(--mkt-border))] bg-[hsl(var(--mkt-surface))] p-4 min-h-[168px]"
+              className="snap-start shrink-0 w-[calc(100vw-60px)] max-w-[360px] rounded-2xl border border-[hsl(var(--mkt-border))] bg-[hsl(var(--mkt-surface))] p-4 min-h-[168px]"
             >
               <div className="flex items-center gap-3">
                 <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-[hsl(var(--mkt-brand-soft))] text-[hsl(var(--mkt-brand))]">
