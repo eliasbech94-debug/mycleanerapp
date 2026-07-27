@@ -272,11 +272,12 @@ function GuestHome() {
     enabled: true,
     onRefresh: async () => {
       // Bump nonce → FeaturedCleanersCarousel re-runs its existing refetch.
+      // The nested carousel does not expose a completion promise, so we
+      // hold the indicator for a short bounded window and then release it
+      // neutrally. No success haptic — actual refetch completion is
+      // unknown to this scope. Presentation-only; no new query issued.
       setNonce((n) => n + 1);
-      // Give the reused refetch a bounded window to settle so the indicator
-      // isn't hidden instantly. Presentation only; no new query issued.
       await new Promise((r) => setTimeout(r, 650));
-      tryVibrate();
     },
   });
   return (
@@ -296,6 +297,7 @@ function GuestHome() {
     </>
   );
 }
+
 
 /* ---------------------------- shared PTR helpers ------------------------- */
 
@@ -348,8 +350,8 @@ function useNearestCustomerBooking() {
   const [state, setState] = useState<"loading" | "ready" | "error">("loading");
   const [nearest, setNearest] = useState<CustomerBooking | null>(null);
 
-  const load = useCallback(async (): Promise<void> => {
-    if (!user) return;
+  const load = useCallback(async (): Promise<boolean> => {
+    if (!user) return false;
     const { data, error } = await supabase
       .from("bookings")
       .select("id,provider_name,service,booking_date,slot,address,status")
@@ -357,7 +359,7 @@ function useNearestCustomerBooking() {
       .order("booking_date", { ascending: true });
     if (error) {
       setState("error");
-      return;
+      return false;
     }
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -366,7 +368,9 @@ function useNearestCustomerBooking() {
     );
     setNearest(upcoming[0] ?? null);
     setState("ready");
+    return true;
   }, [user]);
+
 
   useEffect(() => {
     if (!user) return;
@@ -388,9 +392,10 @@ function CustomerHome({ firstName }: { firstName: string | null }) {
   const { pullY, refreshing, thresholdReached } = usePullToRefresh({
     enabled: true,
     onRefresh: async () => {
-      await refetch();
-      tryVibrate();
+      const ok = await refetch();
+      if (ok) tryVibrate();
     },
+
   });
 
   return (
@@ -478,15 +483,15 @@ function useProviderTodayAndNext() {
   const [state, setState] = useState<"loading" | "ready" | "error">("loading");
   const [todayCount, setTodayCount] = useState(0);
   const [nextJob, setNextJob] = useState<ProviderJob | null>(null);
-  const load = useCallback(async (): Promise<void> => {
-    if (!user) return;
+  const load = useCallback(async (): Promise<boolean> => {
+    if (!user) return false;
     const { data, error } = await supabase
       .from("bookings")
       .select("id,service,booking_date,slot,address,status")
       .order("booking_date", { ascending: true });
     if (error) {
       setState("error");
-      return;
+      return false;
     }
     const now = new Date();
     const todayISO = now.toISOString().slice(0, 10);
@@ -499,7 +504,9 @@ function useProviderTodayAndNext() {
       .sort((a, b) => a.booking_date.localeCompare(b.booking_date));
     setNextJob(upcoming[0] ?? null);
     setState("ready");
+    return true;
   }, [user]);
+
   useEffect(() => {
     if (!user) return;
     let cancelled = false;
@@ -549,9 +556,10 @@ function ProviderHome({ firstName }: { firstName: string | null }) {
   const { pullY, refreshing, thresholdReached } = usePullToRefresh({
     enabled: true,
     onRefresh: async () => {
-      await Promise.all([refetchJobs(), refetchOnboarding()]);
-      tryVibrate();
+      const [ok] = await Promise.all([refetchJobs(), refetchOnboarding()]);
+      if (ok) tryVibrate();
     },
+
   });
 
   // Onboarding progress — count filled required fields already validated
