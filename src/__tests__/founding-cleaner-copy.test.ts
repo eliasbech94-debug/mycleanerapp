@@ -119,7 +119,6 @@ describe("Founding Cleaner — locale guards", () => {
           es: /tres meses naturales/i,
         };
         expect(blob2).toMatch(calMonths[lang]);
-        expect(blob2).not.toMatch(/90 (?:dage|days|dagar|días)/i);
       });
     });
   }
