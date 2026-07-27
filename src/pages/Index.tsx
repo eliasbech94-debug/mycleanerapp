@@ -63,7 +63,7 @@ export default function Index() {
             emptyLabel={isNeutral ? undefined : market.label}
           />
         </div>
-        <div className="lg:sticky lg:top-24 lg:self-start">
+        <div className="hidden lg:block lg:sticky lg:top-24 lg:self-start">
           <BookingSidebar />
         </div>
       </div>
