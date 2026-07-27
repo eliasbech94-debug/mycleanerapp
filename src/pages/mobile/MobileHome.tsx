@@ -272,11 +272,12 @@ function GuestHome() {
     enabled: true,
     onRefresh: async () => {
       // Bump nonce → FeaturedCleanersCarousel re-runs its existing refetch.
+      // The nested carousel does not expose a completion promise, so we
+      // hold the indicator for a short bounded window and then release it
+      // neutrally. No success haptic — actual refetch completion is
+      // unknown to this scope. Presentation-only; no new query issued.
       setNonce((n) => n + 1);
-      // Give the reused refetch a bounded window to settle so the indicator
-      // isn't hidden instantly. Presentation only; no new query issued.
       await new Promise((r) => setTimeout(r, 650));
-      tryVibrate();
     },
   });
   return (
@@ -296,6 +297,7 @@ function GuestHome() {
     </>
   );
 }
+
 
 /* ---------------------------- shared PTR helpers ------------------------- */
 
