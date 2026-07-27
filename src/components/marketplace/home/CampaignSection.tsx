@@ -13,8 +13,9 @@ export function CampaignSection() {
   const title = t("campaign.title", { defaultValue: "" });
   if (!title) return null;
   const body = t("campaign.body", { defaultValue: "" });
+  const note = t("campaign.note", { defaultValue: "" });
   const cta = t("campaign.cta", { defaultValue: "Læs mere" });
-  const href = t("campaign.href", { defaultValue: "/provider/register" });
+  const href = t("campaign.href", { defaultValue: "/founding-cleaner" });
 
   return (
     <section className="mx-auto max-w-[1400px] px-4 pt-6 pb-0 md:px-5 md:py-14 lg:px-8" aria-labelledby="campaign-title">
