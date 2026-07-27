@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X, Globe, ChevronDown, User as UserIcon, LogOut } from "lucide-react";
@@ -14,6 +14,57 @@ import {
 } from "@/components/ui/dropdown-menu";
 import BackButton from "@/components/BackButton";
 import MarketplaceHeader from "@/components/layout/MarketplaceHeader";
+import { normalizePath } from "@/hooks/useIsMobileApp";
+
+/**
+ * Routes that render inside MobileAppShell below 768px and already show a
+ * MobileAppBar. Hiding the global Header on these routes prevents duplicate
+ * headers on mobile without touching desktop/tablet (>=768px) layout.
+ *
+ * Phase-A polish: `/` is now included because MobileHomeGate mounts its own
+ * MobileAppBar for the mobile home surface. Desktop/tablet (>=768px) still
+ * see the global Header because the caller gates on `useBelow768()` first.
+ */
+const MOBILE_SHELL_HIDE_ROUTES: RegExp[] = [
+  /^\/$/,
+  /^\/marketplace(\/|$)/,
+  /^\/mine-bookinger(\/|$)/,
+  /^\/customer\/bookings(\/|$)/,
+  /^\/inbox(\/|$)/,
+  /^\/founding-cleaner(\/|$)/,
+];
+export function isMobileShellHiddenHeaderRoute(pathname: string): boolean {
+  const p = normalizePath(pathname);
+  return MOBILE_SHELL_HIDE_ROUTES.some((re) => re.test(p));
+}
+/**
+ * `/profil` renders the existing dense Profile page when a `?tab=` is set,
+ * but the mobile landing (no tab) uses MobileProfile with its own
+ * MobileAppBar. Only the landing variant should suppress the global Header.
+ */
+export function shouldHideHeaderForMobileProfile(
+  pathname: string,
+  search: string,
+): boolean {
+  const p = normalizePath(pathname);
+  if (!/^\/profil(\/|$)/.test(p)) return false;
+  const params = new URLSearchParams(search);
+  return !params.has("tab");
+}
+function useBelow768(): boolean {
+  const [below, setBelow] = useState<boolean>(() =>
+    typeof window === "undefined" ? false : window.innerWidth < 768,
+  );
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mql = window.matchMedia("(max-width: 767px)");
+    const onChange = () => setBelow(window.innerWidth < 768);
+    mql.addEventListener("change", onChange);
+    onChange();
+    return () => mql.removeEventListener("change", onChange);
+  }, []);
+  return below;
+}
 
 /**
  * Public customer surfaces render the light "marketplace" navbar variant.
@@ -109,7 +160,10 @@ const Header = () => {
 
   const onAdminRoute = location.pathname.startsWith("/admin");
   const onEmployeeRoute = location.pathname.startsWith("/employee");
+  const belowMd = useBelow768();
   if (onAdminRoute || onEmployeeRoute) return null;
+  if (belowMd && isMobileShellHiddenHeaderRoute(location.pathname)) return null;
+  if (belowMd && shouldHideHeaderForMobileProfile(location.pathname, location.search)) return null;
   if (isMarketplaceRoute(location.pathname)) return <MarketplaceHeader />;
 
   const handleSignOut = async () => {

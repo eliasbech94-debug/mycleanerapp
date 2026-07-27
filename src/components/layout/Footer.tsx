@@ -1,6 +1,26 @@
 import { Link } from "react-router-dom";
+import { useIsMobileApp } from "@/hooks/useIsMobileApp";
 
+/**
+ * Global website footer.
+ *
+ * Footer contract (central):
+ *  - On any route that renders inside `MobileAppShell` AND at viewports
+ *    <768px (see `useIsMobileApp`), the footer is NOT rendered — the node
+ *    is completely removed from the DOM so no space is reserved and
+ *    `MobileBottomNav` is the sole permanent bottom navigation.
+ *  - On >=768px (tablet/desktop) the footer always renders, including on
+ *    mobile-app-whitelisted routes, so the desktop layout is unchanged.
+ *  - Public/document routes that are NOT in the mobile-app whitelist keep
+ *    the footer on all viewports.
+ *
+ * This is the single source of truth for footer visibility. Do NOT add
+ * per-page `hidden md:block` overrides or route-specific CSS hacks —
+ * extend `MOBILE_APP_ROUTE_WHITELIST` in `useIsMobileApp` instead.
+ */
 const Footer = () => {
+  const isMobileApp = useIsMobileApp();
+  if (isMobileApp) return null;
   return (
     <footer className="border-t border-border bg-secondary/50">
       <div className="container-wide section-padding">

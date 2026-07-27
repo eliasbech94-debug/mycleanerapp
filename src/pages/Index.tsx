@@ -3,23 +3,28 @@ import { useMarketplaceProviders } from "@/hooks/useMarketplaceProviders";
 import { MarketplaceSurface } from "@/components/marketplace/MarketplaceSurface";
 import { MarketplaceHero } from "@/components/marketplace/MarketplaceHero";
 import { ServiceCategoryGrid } from "@/components/marketplace/ServiceCategoryGrid";
+
 import { CleanerResultsList } from "@/components/marketplace/CleanerResultsList";
 import { BookingSidebar } from "@/components/marketplace/BookingSidebar";
 import { MarketplaceStats } from "@/components/marketplace/MarketplaceStats";
 import { CountryConfirmDialog } from "@/components/marketplace/CountryConfirmDialog";
+import { HomeSections } from "@/components/marketplace/home/HomeSections";
 import { DEMO_PROVIDERS, isDemoProvidersEnabled } from "@/data/demoProviders";
 
 /**
- * MyCleaner — public homepage v2.1.
+ * MyCleaner — public homepage v2.2 (Premium Polish sprint).
  *
- * Reference-matched layout: full-bleed hero + horizontal search, then a
- * two-column body with Popular services + Top-rated cleaners on the left
- * and a sticky "Your booking" / "Why choose" sidebar on the right.
- *
- * Provider results come from the authoritative `search_marketplace_providers_v1`
- * RPC. Demo providers are shown ONLY when demo mode is enabled (dev builds or
- * `VITE_ENABLE_DEMO_PROVIDERS=true`). In staging and production, an RPC failure
- * shows an error state with a retry button — never invented cleaners.
+ * Layout:
+ *   1. Premium editorial hero (Europe-marketplace image, DK/SE/DE/UK/ES
+ *      subtly integrated). Text is fully dynamic via the Localization
+ *      Engine, never baked into the image.
+ *   2. Optional Experience-Engine welcome slot (returning customer /
+ *      provider). Renders nothing for guests.
+ *   3. Two-column body: Popular services + Top-rated cleaners (real RPC
+ *      data) + sticky booking sidebar.
+ *   4. Lazy-loaded below-the-fold sections: How it works, Reviews,
+ *      Campaign, Download App, FAQ. Each section is a reusable atom
+ *      whose visibility is controlled by the Experience Engine.
  */
 export default function Index() {
   const { market, isNeutral } = useActiveMarket();
@@ -35,9 +40,6 @@ export default function Index() {
 
   const demoEnabled = isDemoProvidersEnabled();
   const hasReal = !loading && !error && data && data.length > 0;
-  // In demo mode only, backfill the row when there are no real results yet so
-  // designers can review the layout. Otherwise pass real data (or null on error)
-  // straight through and let CleanerResultsList render empty/error states.
   const providers = hasReal
     ? data
     : (demoEnabled ? DEMO_PROVIDERS : (data ?? null));
@@ -46,7 +48,9 @@ export default function Index() {
     <MarketplaceSurface>
       <MarketplaceHero />
 
-      <div className="mx-auto grid max-w-[1400px] grid-cols-1 gap-8 px-5 pb-16 lg:grid-cols-[1fr_360px] lg:gap-10 lg:px-8">
+      <HomeSections slot="top" />
+
+      <div className="mx-auto grid max-w-[1400px] grid-cols-1 gap-6 px-5 pb-8 pt-4 lg:grid-cols-[1fr_360px] lg:gap-8 lg:px-8 lg:pt-6">
         <div className="min-w-0">
           <ServiceCategoryGrid />
           <CleanerResultsList
@@ -58,12 +62,14 @@ export default function Index() {
             emptyLabel={isNeutral ? undefined : market.label}
           />
         </div>
-        <div className="lg:sticky lg:top-24 lg:self-start lg:pt-10">
+        <div className="hidden lg:block lg:sticky lg:top-24 lg:self-start">
           <BookingSidebar />
         </div>
       </div>
 
       <MarketplaceStats />
+      <HomeSections slot="bottom" />
+
       <CountryConfirmDialog />
     </MarketplaceSurface>
   );

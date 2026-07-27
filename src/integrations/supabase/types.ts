@@ -681,6 +681,911 @@ export type Database = {
           },
         ]
       }
+      campaign_applications: {
+        Row: {
+          accepted_privacy_at: string | null
+          accepted_terms_at: string | null
+          approval_idempotency_key: string | null
+          assigned_number: number | null
+          campaign_id: string
+          categories: string[]
+          city: string | null
+          company_logo_path: string | null
+          company_name: string | null
+          country_code: string
+          created_at: string
+          deleted_at: string | null
+          deleted_by: string | null
+          email: string
+          email_verification_expires_at: string | null
+          email_verification_sent_at: string | null
+          email_verification_token: string | null
+          email_verification_used_at: string | null
+          email_verified_at: string | null
+          experience_years: number | null
+          full_name: string
+          heard_about: string | null
+          hourly_rate_minor: number | null
+          id: string
+          invite_source: string | null
+          ip: string | null
+          languages: string[]
+          phone: string | null
+          postal_codes: string[]
+          profile_photo_path: string | null
+          provider_user_id: string | null
+          referral_code: string | null
+          referred_by: string | null
+          rejection_reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: Database["public"]["Enums"]["campaign_application_status"]
+          updated_at: string
+          user_agent: string | null
+          user_id: string | null
+          utm_campaign: string | null
+          utm_medium: string | null
+          utm_source: string | null
+          waiting_list_position: number | null
+        }
+        Insert: {
+          accepted_privacy_at?: string | null
+          accepted_terms_at?: string | null
+          approval_idempotency_key?: string | null
+          assigned_number?: number | null
+          campaign_id: string
+          categories?: string[]
+          city?: string | null
+          company_logo_path?: string | null
+          company_name?: string | null
+          country_code: string
+          created_at?: string
+          deleted_at?: string | null
+          deleted_by?: string | null
+          email: string
+          email_verification_expires_at?: string | null
+          email_verification_sent_at?: string | null
+          email_verification_token?: string | null
+          email_verification_used_at?: string | null
+          email_verified_at?: string | null
+          experience_years?: number | null
+          full_name: string
+          heard_about?: string | null
+          hourly_rate_minor?: number | null
+          id?: string
+          invite_source?: string | null
+          ip?: string | null
+          languages?: string[]
+          phone?: string | null
+          postal_codes?: string[]
+          profile_photo_path?: string | null
+          provider_user_id?: string | null
+          referral_code?: string | null
+          referred_by?: string | null
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["campaign_application_status"]
+          updated_at?: string
+          user_agent?: string | null
+          user_id?: string | null
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          waiting_list_position?: number | null
+        }
+        Update: {
+          accepted_privacy_at?: string | null
+          accepted_terms_at?: string | null
+          approval_idempotency_key?: string | null
+          assigned_number?: number | null
+          campaign_id?: string
+          categories?: string[]
+          city?: string | null
+          company_logo_path?: string | null
+          company_name?: string | null
+          country_code?: string
+          created_at?: string
+          deleted_at?: string | null
+          deleted_by?: string | null
+          email?: string
+          email_verification_expires_at?: string | null
+          email_verification_sent_at?: string | null
+          email_verification_token?: string | null
+          email_verification_used_at?: string | null
+          email_verified_at?: string | null
+          experience_years?: number | null
+          full_name?: string
+          heard_about?: string | null
+          hourly_rate_minor?: number | null
+          id?: string
+          invite_source?: string | null
+          ip?: string | null
+          languages?: string[]
+          phone?: string | null
+          postal_codes?: string[]
+          profile_photo_path?: string | null
+          provider_user_id?: string | null
+          referral_code?: string | null
+          referred_by?: string | null
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["campaign_application_status"]
+          updated_at?: string
+          user_agent?: string | null
+          user_id?: string | null
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          waiting_list_position?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_applications_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_counters"
+            referencedColumns: ["campaign_id"]
+          },
+          {
+            foreignKeyName: "campaign_applications_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaign_applications_referred_by_fkey"
+            columns: ["referred_by"]
+            isOneToOne: false
+            referencedRelation: "campaign_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaign_apply_attempts: {
+        Row: {
+          campaign_id: string | null
+          created_at: string
+          email: string | null
+          id: number
+          ip: string | null
+          outcome: string
+          reason: string | null
+        }
+        Insert: {
+          campaign_id?: string | null
+          created_at?: string
+          email?: string | null
+          id?: number
+          ip?: string | null
+          outcome: string
+          reason?: string | null
+        }
+        Update: {
+          campaign_id?: string | null
+          created_at?: string
+          email?: string | null
+          id?: number
+          ip?: string | null
+          outcome?: string
+          reason?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_apply_attempts_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_counters"
+            referencedColumns: ["campaign_id"]
+          },
+          {
+            foreignKeyName: "campaign_apply_attempts_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaign_benefits: {
+        Row: {
+          campaign_id: string
+          country_code: string | null
+          created_at: string
+          description: string | null
+          enabled: boolean
+          icon: string | null
+          id: string
+          sort_order: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          campaign_id: string
+          country_code?: string | null
+          created_at?: string
+          description?: string | null
+          enabled?: boolean
+          icon?: string | null
+          id?: string
+          sort_order?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          campaign_id?: string
+          country_code?: string | null
+          created_at?: string
+          description?: string | null
+          enabled?: boolean
+          icon?: string | null
+          id?: string
+          sort_order?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_benefits_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_counters"
+            referencedColumns: ["campaign_id"]
+          },
+          {
+            foreignKeyName: "campaign_benefits_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaign_country_settings: {
+        Row: {
+          ai_config: Json
+          badge_emoji: string | null
+          badge_label: string | null
+          badge_template: string | null
+          campaign_id: string
+          countdown_enabled: boolean
+          countdown_target_at: string | null
+          country_code: string
+          created_at: string
+          cta_primary_label: string | null
+          cta_secondary_label: string | null
+          currency: string | null
+          enabled: boolean
+          hero_headline: string | null
+          hero_subheadline: string | null
+          max_applicants: number | null
+          seo_description: string | null
+          seo_og_image_url: string | null
+          seo_title: string | null
+          title: string | null
+          updated_at: string
+          waiting_list_enabled: boolean
+        }
+        Insert: {
+          ai_config?: Json
+          badge_emoji?: string | null
+          badge_label?: string | null
+          badge_template?: string | null
+          campaign_id: string
+          countdown_enabled?: boolean
+          countdown_target_at?: string | null
+          country_code: string
+          created_at?: string
+          cta_primary_label?: string | null
+          cta_secondary_label?: string | null
+          currency?: string | null
+          enabled?: boolean
+          hero_headline?: string | null
+          hero_subheadline?: string | null
+          max_applicants?: number | null
+          seo_description?: string | null
+          seo_og_image_url?: string | null
+          seo_title?: string | null
+          title?: string | null
+          updated_at?: string
+          waiting_list_enabled?: boolean
+        }
+        Update: {
+          ai_config?: Json
+          badge_emoji?: string | null
+          badge_label?: string | null
+          badge_template?: string | null
+          campaign_id?: string
+          countdown_enabled?: boolean
+          countdown_target_at?: string | null
+          country_code?: string
+          created_at?: string
+          cta_primary_label?: string | null
+          cta_secondary_label?: string | null
+          currency?: string | null
+          enabled?: boolean
+          hero_headline?: string | null
+          hero_subheadline?: string | null
+          max_applicants?: number | null
+          seo_description?: string | null
+          seo_og_image_url?: string | null
+          seo_title?: string | null
+          title?: string | null
+          updated_at?: string
+          waiting_list_enabled?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_country_settings_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_counters"
+            referencedColumns: ["campaign_id"]
+          },
+          {
+            foreignKeyName: "campaign_country_settings_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaign_email_outbox: {
+        Row: {
+          application_id: string | null
+          attempts: number
+          campaign_id: string
+          created_at: string
+          dedupe_key: string
+          email: string
+          id: string
+          last_error: string | null
+          last_error_code: string | null
+          locale: string | null
+          next_attempt_at: string | null
+          payload: Json
+          scheduled_for: string
+          sent_at: string | null
+          status: string
+          template: string
+          updated_at: string
+        }
+        Insert: {
+          application_id?: string | null
+          attempts?: number
+          campaign_id: string
+          created_at?: string
+          dedupe_key: string
+          email: string
+          id?: string
+          last_error?: string | null
+          last_error_code?: string | null
+          locale?: string | null
+          next_attempt_at?: string | null
+          payload?: Json
+          scheduled_for?: string
+          sent_at?: string | null
+          status?: string
+          template: string
+          updated_at?: string
+        }
+        Update: {
+          application_id?: string | null
+          attempts?: number
+          campaign_id?: string
+          created_at?: string
+          dedupe_key?: string
+          email?: string
+          id?: string
+          last_error?: string | null
+          last_error_code?: string | null
+          locale?: string | null
+          next_attempt_at?: string | null
+          payload?: Json
+          scheduled_for?: string
+          sent_at?: string | null
+          status?: string
+          template?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_email_outbox_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_applications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaign_email_outbox_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_counters"
+            referencedColumns: ["campaign_id"]
+          },
+          {
+            foreignKeyName: "campaign_email_outbox_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaign_events: {
+        Row: {
+          application_id: string | null
+          campaign_id: string
+          country_code: string | null
+          created_at: string
+          event_type: Database["public"]["Enums"]["campaign_event_type"]
+          id: number
+          ip: string | null
+          payload: Json
+          session_id: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          application_id?: string | null
+          campaign_id: string
+          country_code?: string | null
+          created_at?: string
+          event_type: Database["public"]["Enums"]["campaign_event_type"]
+          id?: number
+          ip?: string | null
+          payload?: Json
+          session_id?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          application_id?: string | null
+          campaign_id?: string
+          country_code?: string | null
+          created_at?: string
+          event_type?: Database["public"]["Enums"]["campaign_event_type"]
+          id?: number
+          ip?: string | null
+          payload?: Json
+          session_id?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_events_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_applications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaign_events_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_counters"
+            referencedColumns: ["campaign_id"]
+          },
+          {
+            foreignKeyName: "campaign_events_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaign_faq: {
+        Row: {
+          answer: string
+          campaign_id: string
+          country_code: string | null
+          created_at: string
+          enabled: boolean
+          id: string
+          question: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          answer: string
+          campaign_id: string
+          country_code?: string | null
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          question: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          answer?: string
+          campaign_id?: string
+          country_code?: string | null
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          question?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_faq_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_counters"
+            referencedColumns: ["campaign_id"]
+          },
+          {
+            foreignKeyName: "campaign_faq_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaign_number_counters: {
+        Row: {
+          campaign_id: string
+          last_number: number
+        }
+        Insert: {
+          campaign_id: string
+          last_number?: number
+        }
+        Update: {
+          campaign_id?: string
+          last_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_number_counters_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: true
+            referencedRelation: "campaign_counters"
+            referencedColumns: ["campaign_id"]
+          },
+          {
+            foreignKeyName: "campaign_number_counters_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: true
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaign_page_blocks: {
+        Row: {
+          ai_config: Json
+          block_type: Database["public"]["Enums"]["campaign_block_type"]
+          campaign_id: string
+          country_code: string | null
+          created_at: string
+          enabled: boolean
+          id: string
+          payload: Json
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          ai_config?: Json
+          block_type: Database["public"]["Enums"]["campaign_block_type"]
+          campaign_id: string
+          country_code?: string | null
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          payload?: Json
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          ai_config?: Json
+          block_type?: Database["public"]["Enums"]["campaign_block_type"]
+          campaign_id?: string
+          country_code?: string | null
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          payload?: Json
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_page_blocks_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_counters"
+            referencedColumns: ["campaign_id"]
+          },
+          {
+            foreignKeyName: "campaign_page_blocks_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaign_reward_grants: {
+        Row: {
+          application_id: string
+          campaign_id: string
+          consumed_minor: number
+          created_at: string
+          expires_at: string | null
+          granted_at: string
+          id: string
+          metadata: Json
+          remaining_minor: number | null
+          reward_id: string
+          status: Database["public"]["Enums"]["campaign_reward_grant_status"]
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          application_id: string
+          campaign_id: string
+          consumed_minor?: number
+          created_at?: string
+          expires_at?: string | null
+          granted_at?: string
+          id?: string
+          metadata?: Json
+          remaining_minor?: number | null
+          reward_id: string
+          status?: Database["public"]["Enums"]["campaign_reward_grant_status"]
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          application_id?: string
+          campaign_id?: string
+          consumed_minor?: number
+          created_at?: string
+          expires_at?: string | null
+          granted_at?: string
+          id?: string
+          metadata?: Json
+          remaining_minor?: number | null
+          reward_id?: string
+          status?: Database["public"]["Enums"]["campaign_reward_grant_status"]
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_reward_grants_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_applications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaign_reward_grants_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_counters"
+            referencedColumns: ["campaign_id"]
+          },
+          {
+            foreignKeyName: "campaign_reward_grants_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaign_reward_grants_reward_id_fkey"
+            columns: ["reward_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_rewards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaign_rewards: {
+        Row: {
+          campaign_id: string
+          cap_minor: number | null
+          country_code: string | null
+          created_at: string
+          currency: string | null
+          description: string | null
+          duration_days: number | null
+          enabled: boolean
+          id: string
+          reward_type: Database["public"]["Enums"]["campaign_reward_type"]
+          updated_at: string
+          value_minor: number | null
+          value_percent: number | null
+        }
+        Insert: {
+          campaign_id: string
+          cap_minor?: number | null
+          country_code?: string | null
+          created_at?: string
+          currency?: string | null
+          description?: string | null
+          duration_days?: number | null
+          enabled?: boolean
+          id?: string
+          reward_type: Database["public"]["Enums"]["campaign_reward_type"]
+          updated_at?: string
+          value_minor?: number | null
+          value_percent?: number | null
+        }
+        Update: {
+          campaign_id?: string
+          cap_minor?: number | null
+          country_code?: string | null
+          created_at?: string
+          currency?: string | null
+          description?: string | null
+          duration_days?: number | null
+          enabled?: boolean
+          id?: string
+          reward_type?: Database["public"]["Enums"]["campaign_reward_type"]
+          updated_at?: string
+          value_minor?: number | null
+          value_percent?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_rewards_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_counters"
+            referencedColumns: ["campaign_id"]
+          },
+          {
+            foreignKeyName: "campaign_rewards_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaign_testimonials: {
+        Row: {
+          author: string
+          avatar_url: string | null
+          campaign_id: string
+          country_code: string | null
+          created_at: string
+          enabled: boolean
+          id: string
+          quote: string
+          role_label: string | null
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          author: string
+          avatar_url?: string | null
+          campaign_id: string
+          country_code?: string | null
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          quote: string
+          role_label?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          author?: string
+          avatar_url?: string | null
+          campaign_id?: string
+          country_code?: string | null
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          quote?: string
+          role_label?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_testimonials_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_counters"
+            referencedColumns: ["campaign_id"]
+          },
+          {
+            foreignKeyName: "campaign_testimonials_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaigns: {
+        Row: {
+          ai_config: Json
+          created_at: string
+          created_by: string | null
+          default_locale: string
+          deleted_at: string | null
+          deleted_by: string | null
+          enable_badges: boolean
+          enable_countdown: boolean
+          enable_live_counter: boolean
+          enable_referrals: boolean
+          enable_rewards: boolean
+          enable_testimonials: boolean
+          enable_waiting_list: boolean
+          ends_at: string | null
+          id: string
+          kind: Database["public"]["Enums"]["campaign_kind"]
+          lifecycle: Database["public"]["Enums"]["campaign_lifecycle"]
+          owner_role: string
+          slug: string
+          starts_at: string | null
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          ai_config?: Json
+          created_at?: string
+          created_by?: string | null
+          default_locale?: string
+          deleted_at?: string | null
+          deleted_by?: string | null
+          enable_badges?: boolean
+          enable_countdown?: boolean
+          enable_live_counter?: boolean
+          enable_referrals?: boolean
+          enable_rewards?: boolean
+          enable_testimonials?: boolean
+          enable_waiting_list?: boolean
+          ends_at?: string | null
+          id?: string
+          kind: Database["public"]["Enums"]["campaign_kind"]
+          lifecycle?: Database["public"]["Enums"]["campaign_lifecycle"]
+          owner_role?: string
+          slug: string
+          starts_at?: string | null
+          updated_at?: string
+          version?: number
+        }
+        Update: {
+          ai_config?: Json
+          created_at?: string
+          created_by?: string | null
+          default_locale?: string
+          deleted_at?: string | null
+          deleted_by?: string | null
+          enable_badges?: boolean
+          enable_countdown?: boolean
+          enable_live_counter?: boolean
+          enable_referrals?: boolean
+          enable_rewards?: boolean
+          enable_testimonials?: boolean
+          enable_waiting_list?: boolean
+          ends_at?: string | null
+          id?: string
+          kind?: Database["public"]["Enums"]["campaign_kind"]
+          lifecycle?: Database["public"]["Enums"]["campaign_lifecycle"]
+          owner_role?: string
+          slug?: string
+          starts_at?: string | null
+          updated_at?: string
+          version?: number
+        }
+        Relationships: []
+      }
       cleaning_plans: {
         Row: {
           address_id: string | null
@@ -5886,6 +6791,87 @@ export type Database = {
       }
     }
     Views: {
+      campaign_counters: {
+        Row: {
+          approved_count: number | null
+          campaign_id: string | null
+          country_code: string | null
+          is_full: boolean | null
+          max_applicants: number | null
+          pending_count: number | null
+          remaining: number | null
+          total_count: number | null
+          waiting_list_count: number | null
+        }
+        Relationships: []
+      }
+      campaign_email_outbox_status: {
+        Row: {
+          application_id: string | null
+          attempts: number | null
+          campaign_id: string | null
+          created_at: string | null
+          id: string | null
+          last_error_code: string | null
+          next_attempt_at: string | null
+          scheduled_for: string | null
+          sent_at: string | null
+          status: string | null
+          template: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          application_id?: string | null
+          attempts?: number | null
+          campaign_id?: string | null
+          created_at?: string | null
+          id?: string | null
+          last_error_code?: string | null
+          next_attempt_at?: string | null
+          scheduled_for?: string | null
+          sent_at?: string | null
+          status?: string | null
+          template?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          application_id?: string | null
+          attempts?: number | null
+          campaign_id?: string | null
+          created_at?: string | null
+          id?: string | null
+          last_error_code?: string | null
+          next_attempt_at?: string | null
+          scheduled_for?: string | null
+          sent_at?: string | null
+          status?: string | null
+          template?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_email_outbox_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_applications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaign_email_outbox_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_counters"
+            referencedColumns: ["campaign_id"]
+          },
+          {
+            foreignKeyName: "campaign_email_outbox_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       country_configs_public: {
         Row: {
           active: boolean | null
@@ -6092,6 +7078,13 @@ export type Database = {
       calc_provider_tier: {
         Args: { _metrics?: Json; _uid: string }
         Returns: Database["public"]["Enums"]["provider_tier"]
+      }
+      campaign_email_outbox_cleanup: {
+        Args: never
+        Returns: {
+          deleted_failed: number
+          deleted_sent: number
+        }[]
       }
       check_provider_payout_readiness_v1: {
         Args: { p_provider_user_id: string }
@@ -6343,6 +7336,10 @@ export type Database = {
         Returns: undefined
       }
       is_admin_only: { Args: { _uid: string }; Returns: boolean }
+      is_campaign_public: {
+        Args: { _lc: Database["public"]["Enums"]["campaign_lifecycle"] }
+        Returns: boolean
+      }
       is_conversation_participant: {
         Args: { _conversation_id: string; _user_id: string }
         Returns: boolean
@@ -6967,6 +7964,66 @@ export type Database = {
         | "declined"
         | "cancelled"
         | "completed"
+      campaign_application_status:
+        | "pending"
+        | "approved"
+        | "rejected"
+        | "waiting_list"
+        | "withdrawn"
+      campaign_block_type:
+        | "hero"
+        | "text"
+        | "image"
+        | "cards"
+        | "benefits"
+        | "testimonials"
+        | "faq"
+        | "cta"
+        | "countdown"
+        | "counter"
+        | "richtext"
+      campaign_event_type:
+        | "landing_viewed"
+        | "cta_clicked"
+        | "application_started"
+        | "application_submitted"
+        | "application_approved"
+        | "application_rejected"
+        | "email_verified"
+        | "stripe_connected"
+        | "identity_verified"
+        | "first_booking"
+        | "first_completed_job"
+        | "first_payout"
+        | "campaign_completed"
+      campaign_kind:
+        | "provider_recruitment"
+        | "customer_promo"
+        | "referral"
+        | "seasonal"
+        | "launch"
+      campaign_lifecycle:
+        | "draft"
+        | "scheduled"
+        | "pre_launch"
+        | "preview"
+        | "active"
+        | "paused"
+        | "ended"
+        | "archived"
+      campaign_reward_grant_status:
+        | "active"
+        | "expired"
+        | "exhausted"
+        | "revoked"
+      campaign_reward_type:
+        | "commission_discount"
+        | "voucher"
+        | "cash_bonus"
+        | "free_months"
+        | "credits"
+        | "points"
+        | "campaign_badge"
       country_lifecycle_state:
         | "development"
         | "beta"
@@ -7242,6 +8299,73 @@ export const Constants = {
         "declined",
         "cancelled",
         "completed",
+      ],
+      campaign_application_status: [
+        "pending",
+        "approved",
+        "rejected",
+        "waiting_list",
+        "withdrawn",
+      ],
+      campaign_block_type: [
+        "hero",
+        "text",
+        "image",
+        "cards",
+        "benefits",
+        "testimonials",
+        "faq",
+        "cta",
+        "countdown",
+        "counter",
+        "richtext",
+      ],
+      campaign_event_type: [
+        "landing_viewed",
+        "cta_clicked",
+        "application_started",
+        "application_submitted",
+        "application_approved",
+        "application_rejected",
+        "email_verified",
+        "stripe_connected",
+        "identity_verified",
+        "first_booking",
+        "first_completed_job",
+        "first_payout",
+        "campaign_completed",
+      ],
+      campaign_kind: [
+        "provider_recruitment",
+        "customer_promo",
+        "referral",
+        "seasonal",
+        "launch",
+      ],
+      campaign_lifecycle: [
+        "draft",
+        "scheduled",
+        "pre_launch",
+        "preview",
+        "active",
+        "paused",
+        "ended",
+        "archived",
+      ],
+      campaign_reward_grant_status: [
+        "active",
+        "expired",
+        "exhausted",
+        "revoked",
+      ],
+      campaign_reward_type: [
+        "commission_discount",
+        "voucher",
+        "cash_bonus",
+        "free_months",
+        "credits",
+        "points",
+        "campaign_badge",
       ],
       country_lifecycle_state: [
         "development",
