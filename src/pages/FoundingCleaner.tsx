@@ -29,20 +29,18 @@ export default function FoundingCleaner() {
   const steps = t("foundingCleaner.how.steps", { returnObjects: true }) as Step[];
   const terms = t("foundingCleaner.terms", { returnObjects: true }) as Terms;
 
+  React.useEffect(() => {
+    const prev = document.title;
+    document.title = `${heading} · MyCleaner`;
+    return () => { document.title = prev; };
+  }, [heading]);
+
   return (
     <main
       data-testid="founding-cleaner-page"
       data-surface="marketplace"
       className="mx-auto max-w-[900px] px-4 pb-24 pt-8 md:pb-32 md:pt-14"
     >
-      {(() => {
-        React.useEffect(() => {
-          const prev = document.title;
-          document.title = `${heading} · MyCleaner`;
-          return () => { document.title = prev; };
-        }, [heading]);
-        return null;
-      })()}
 
       {/* Hero */}
       <section aria-labelledby="fc-hero-heading" className="relative overflow-hidden rounded-3xl border border-[hsl(var(--mkt-border))] bg-[hsl(var(--mkt-brand))] text-[hsl(var(--mkt-brand-on))] p-6 sm:p-10 shadow-[var(--mkt-shadow-lift)]">
