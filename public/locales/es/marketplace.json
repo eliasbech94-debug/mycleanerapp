@@ -6,6 +6,8 @@
       "reviews": "Reseñas reales"
     },
     "availability": "Disponible en 🇩🇰 Dinamarca · 🇸🇪 Suecia · 🇩🇪 Alemania · 🇬🇧 Reino Unido · 🇪🇸 España",
+    "availability_label": "Disponible en",
+    "countries": { "dk": "Dinamarca", "se": "Suecia", "de": "Alemania", "gb": "Reino Unido", "es": "España" },
     "image_alt": "Cleaner verificado en un hogar europeo",
     "variants": {
       "guest": {
