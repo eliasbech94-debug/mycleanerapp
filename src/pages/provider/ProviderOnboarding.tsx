@@ -33,6 +33,9 @@ type ProviderProfile = {
   photo_path: string | null;
   base_address_formatted: string | null;
   base_address_place_id: string | null;
+  base_postal_code: string | null;
+  base_city: string | null;
+  base_validation_source: string | null;
   base_country_code: string | null;
   base_lat: number | null;
   base_lng: number | null;
@@ -410,8 +413,8 @@ function StepBasic({
       <Field label="Dit arbejdsområde">
         <PostalCodeCityField
           countryCode={(pp.base_country_code || authProfile?.country_code || "DK").toUpperCase()}
-          postalCode={(pp as any).base_postal_code || ""}
-          city={(pp as any).base_city || ""}
+          postalCode={pp.base_postal_code || ""}
+          city={pp.base_city || ""}
           onResolved={(place) =>
             patch({
               base_address_formatted: `${place.postal_code} ${place.city}`,
