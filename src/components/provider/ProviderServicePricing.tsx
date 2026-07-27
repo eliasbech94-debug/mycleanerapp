@@ -29,7 +29,7 @@ export function ProviderServicePricing({ countryCode }: { countryCode: string })
 
   useEffect(() => {
     if (!user) return;
-    supabase
+    (supabase as any)
       .from("provider_service_prices")
       .select("service_code, amount_minor, currency, active")
       .eq("user_id", user.id)
@@ -48,7 +48,7 @@ export function ProviderServicePricing({ countryCode }: { countryCode: string })
       return;
     }
     setSaving(serviceCode);
-    const { error } = await supabase.from("provider_service_prices").upsert({
+    const { error } = await (supabase as any).from("provider_service_prices").upsert({
       user_id: user.id,
       service_code: serviceCode,
       pricing_unit: "hour",
