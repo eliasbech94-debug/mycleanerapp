@@ -76,7 +76,7 @@ export function shouldUseMobileHome(roles: {
  * No notification bell — this surface has no vetted mobile counter feed
  * today, so surfacing an unread count would misrepresent reality.
  */
-function MobileHomeAppBar({ hasUser }: { hasUser: boolean }) {
+function useMobileHomeAppBar({ hasUser }: { hasUser: boolean }) {
   const { t } = useTranslation("common");
   const { openLogin } = useAuthGate();
   const navigate = useNavigate();
@@ -125,11 +125,11 @@ export default function MobileHomeGate() {
   const below = useIsMobileViewport();
   const { user, loading: authLoading } = useAuth();
   const roles = useUserRoles();
+  // Hooks must run unconditionally — resolve app-bar slots even on desktop.
+  const appBarProps = useMobileHomeAppBar({ hasUser: Boolean(user) });
 
   // Desktop path — untouched Index.
   if (!below) return <Index />;
-
-  const appBarProps = MobileHomeAppBar({ hasUser: Boolean(user) });
 
   // Auth/roles still resolving — render shell with skeleton to hold layout.
   if (authLoading || roles.loading) {
