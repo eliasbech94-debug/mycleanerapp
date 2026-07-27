@@ -78,7 +78,7 @@ export function MobileServicesCarousel() {
             >
               <Icon className="h-5 w-5" strokeWidth={2} aria-hidden />
             </span>
-            <span className="text-[13px] font-semibold leading-tight text-[hsl(var(--mkt-ink))]">
+            <span className="line-clamp-2 text-[13px] font-semibold leading-tight text-[hsl(var(--mkt-ink))] break-words hyphens-auto">
               {t(`categories.tiles.${key}`, defaultLabel(key))}
             </span>
           </Link>
