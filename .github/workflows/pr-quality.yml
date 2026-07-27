@@ -40,3 +40,5 @@ jobs:
 
       - name: Production build
         run: bun run build
+
+# This workflow intentionally contains no deployment steps.
