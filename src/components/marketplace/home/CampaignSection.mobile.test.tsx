@@ -16,10 +16,10 @@ import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 import { CampaignSection } from "@/components/marketplace/home/CampaignSection";
 
-import da from "../../../public/locales/da/marketplace.json";
-import en from "../../../public/locales/en/marketplace.json";
-import sv from "../../../public/locales/sv/marketplace.json";
-import es from "../../../public/locales/es/marketplace.json";
+import da from "../../../../public/locales/da/marketplace.json";
+import en from "../../../../public/locales/en/marketplace.json";
+import sv from "../../../../public/locales/sv/marketplace.json";
+import es from "../../../../public/locales/es/marketplace.json";
 
 function setup(lang: "da" | "en" | "sv" | "es") {
   if (!i18n.isInitialized) {
