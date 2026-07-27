@@ -3,6 +3,7 @@ import { useMarketplaceProviders } from "@/hooks/useMarketplaceProviders";
 import { MarketplaceSurface } from "@/components/marketplace/MarketplaceSurface";
 import { MarketplaceHero } from "@/components/marketplace/MarketplaceHero";
 import { ServiceCategoryGrid } from "@/components/marketplace/ServiceCategoryGrid";
+import { MobileBrandArtwork } from "@/components/marketplace/MobileBrandArtwork";
 import { CleanerResultsList } from "@/components/marketplace/CleanerResultsList";
 import { BookingSidebar } from "@/components/marketplace/BookingSidebar";
 import { MarketplaceStats } from "@/components/marketplace/MarketplaceStats";
