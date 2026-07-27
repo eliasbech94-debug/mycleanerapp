@@ -62,7 +62,7 @@ export function MobileServicesCarousel() {
             key={key}
             role="listitem"
             to={`/marketplace?category=cleaning&sub=${sub}`}
-            className={`tap-target snap-start shrink-0 w-[42vw] max-w-[168px] flex flex-col items-start gap-2.5 rounded-2xl border p-3.5 text-left transition active:scale-[0.98] motion-reduce:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--mkt-brand))] focus-visible:ring-offset-2 ${
+            className={`tap-target snap-start shrink-0 w-[calc((100vw-56px)/2.15)] max-w-[160px] flex flex-col items-start gap-2.5 rounded-2xl border p-3.5 text-left transition active:scale-[0.98] motion-reduce:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--mkt-brand))] focus-visible:ring-offset-2 ${
               featured
                 ? "border-[hsl(var(--mkt-brand))]/40 bg-[hsl(var(--mkt-brand-soft))]"
                 : "border-[hsl(var(--mkt-border))] bg-[hsl(var(--mkt-surface))]"
@@ -78,7 +78,7 @@ export function MobileServicesCarousel() {
             >
               <Icon className="h-5 w-5" strokeWidth={2} aria-hidden />
             </span>
-            <span className="text-[13px] font-semibold leading-tight text-[hsl(var(--mkt-ink))]">
+            <span className="line-clamp-2 text-[13px] font-semibold leading-tight text-[hsl(var(--mkt-ink))] break-words hyphens-auto">
               {t(`categories.tiles.${key}`, defaultLabel(key))}
             </span>
           </Link>

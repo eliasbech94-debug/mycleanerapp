@@ -17,7 +17,7 @@ export function CampaignSection() {
   const href = t("campaign.href", { defaultValue: "/provider/register" });
 
   return (
-    <section className="mx-auto max-w-[1400px] px-4 py-6 md:px-5 md:py-14 lg:px-8" aria-labelledby="campaign-title">
+    <section className="mx-auto max-w-[1400px] px-4 pt-6 pb-0 md:px-5 md:py-14 lg:px-8" aria-labelledby="campaign-title">
       <div className="relative overflow-hidden rounded-3xl border border-[hsl(var(--mkt-border))] bg-[hsl(var(--mkt-brand))] text-[hsl(var(--mkt-brand-on))] shadow-[var(--mkt-shadow-lift)] md:rounded-[28px]">
         <div
           className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-[hsl(var(--mkt-accent))]/40 blur-3xl"
