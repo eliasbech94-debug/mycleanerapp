@@ -41,6 +41,26 @@ function shouldShow(pathname: string) {
   return MOBILE_NAV_ROUTES.some((re) => re.test(pathname));
 }
 
+/**
+ * Pure role→tab mapping. Extracted so it can be unit-tested without
+ * mounting router + auth providers. Existing runtime logic unchanged.
+ */
+export type MobileNavRole = "guest" | "customer" | "provider";
+
+export function resolveMobileNavRole(input: {
+  user: unknown;
+  isProvider: boolean;
+}): MobileNavRole {
+  if (!input.user) return "guest";
+  return input.isProvider ? "provider" : "customer";
+}
+
+export function getMobileNavTabKeys(role: MobileNavRole): string[] {
+  if (role === "provider") return ["home", "dashboard", "messages", "profile"];
+  if (role === "customer") return ["home", "search", "bookings", "profile"];
+  return ["home", "search", "login", "menu"];
+}
+
 export default function MobileBottomNav() {
   const { pathname } = useLocation();
   const { t } = useTranslation("common");
@@ -51,26 +71,29 @@ export default function MobileBottomNav() {
   if (!shouldShow(pathname)) return null;
   if (isAdmin || isEmployee) return null;
 
-  const tabs: Tab[] = user
-    ? isProvider
+  const role = resolveMobileNavRole({ user, isProvider });
+
+  const tabs: Tab[] =
+    role === "provider"
       ? [
           { key: "home", label: t("mobilenav.home", "Hjem"), icon: Home, to: "/", match: (p) => p === "/" },
           { key: "dashboard", label: t("mobilenav.dashboard", "Dashboard"), icon: LayoutDashboard, to: "/provider-dashboard", match: (p) => p.startsWith("/provider-dashboard") },
           { key: "messages", label: t("mobilenav.messages", "Beskeder"), icon: MessageCircle, to: "/inbox", match: (p) => p.startsWith("/inbox") },
           { key: "profile", label: t("mobilenav.profile", "Profil"), icon: UserIcon, to: "/profil", match: (p) => p.startsWith("/profil") },
         ]
-      : [
+      : role === "customer"
+      ? [
           { key: "home", label: t("mobilenav.home", "Hjem"), icon: Home, to: "/", match: (p) => p === "/" },
           { key: "search", label: t("mobilenav.search", "Søg"), icon: Search, to: "/find-cleaner", match: (p) => p.startsWith("/find-cleaner") },
           { key: "bookings", label: t("mobilenav.bookings", "Bookinger"), icon: CalendarCheck, to: "/mine-bookinger", match: (p) => p.startsWith("/mine-bookinger") },
           { key: "profile", label: t("mobilenav.profile", "Profil"), icon: UserIcon, to: "/profil", match: (p) => p.startsWith("/profil") },
         ]
-    : [
-        { key: "home", label: t("mobilenav.home", "Hjem"), icon: Home, to: "/", match: (p) => p === "/" },
-        { key: "search", label: t("mobilenav.search", "Søg"), icon: Search, to: "/find-cleaner", match: (p) => p.startsWith("/find-cleaner") },
-        { key: "login", label: t("mobilenav.login", "Log ind"), icon: LogIn, onClick: () => openLogin({ reason: "mobile_bottom_nav" }) },
-        { key: "menu", label: t("mobilenav.more", "Mere"), icon: Menu, to: "/faq", match: (p) => p.startsWith("/faq") },
-      ];
+      : [
+          { key: "home", label: t("mobilenav.home", "Hjem"), icon: Home, to: "/", match: (p) => p === "/" },
+          { key: "search", label: t("mobilenav.search", "Søg"), icon: Search, to: "/find-cleaner", match: (p) => p.startsWith("/find-cleaner") },
+          { key: "login", label: t("mobilenav.login", "Log ind"), icon: LogIn, onClick: () => openLogin({ reason: "mobile_bottom_nav" }) },
+          { key: "menu", label: t("mobilenav.more", "Mere"), icon: Menu, to: "/faq", match: (p) => p.startsWith("/faq") },
+        ];
 
   return (
     <>
