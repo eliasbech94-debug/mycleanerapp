@@ -40,14 +40,14 @@ Deno.serve(async (req) => {
       { auth: { persistSession: false } },
     );
 
-    const { data: staffRole } = await adminClient
+    const { data: staffRoles } = await adminClient
       .from("user_roles")
       .select("role")
       .eq("user_id", user.id)
-      .in("role", ["admin", "support"])
-      .maybeSingle();
+      .in("role", ["super_admin", "admin", "support"])
+      .limit(1);
 
-    if (!staffRole) return new Response("Forbidden", { status: 403, headers: corsHeaders });
+    if (!staffRoles?.length) return new Response("Forbidden", { status: 403, headers: corsHeaders });
 
     const body = await req.json();
     const text = typeof body.text === "string" ? body.text.trim() : "";
