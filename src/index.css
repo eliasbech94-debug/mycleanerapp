@@ -404,3 +404,55 @@
     }
   }
 }
+
+/* =========================================================================
+ * Phase 2 — Mobile App tokens & utilities
+ * Applied only inside mobile-app shell contexts (mobile.css scope class or
+ * <768px media query). Desktop/tablet visuals unchanged.
+ * ========================================================================= */
+:root {
+  --app-radius: 20px;
+  --app-shadow-card: 0 12px 32px -18px rgba(6, 22, 21, 0.35),
+                     0 2px 8px -4px rgba(6, 22, 21, 0.18);
+  --app-tap-highlight: rgba(22, 138, 122, 0.14);
+  --bs-radius: 24px;
+  --bs-shadow: 0 -20px 48px -20px rgba(6, 22, 21, 0.35);
+  --bs-overlay: rgba(6, 22, 21, 0.55);
+}
+
+@layer utilities {
+  .safe-top   { padding-top: env(safe-area-inset-top, 0px); }
+  .safe-bot   { padding-bottom: env(safe-area-inset-bottom, 0px); }
+  .safe-left  { padding-left: env(safe-area-inset-left, 0px); }
+  .safe-right { padding-right: env(safe-area-inset-right, 0px); }
+
+  .momentum-scroll {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+  }
+
+  /* Ensures the WCAG 44x44 minimum tap target */
+  .tap-target {
+    min-height: 44px;
+    min-width: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Compact mobile-only typography — scoped to <768px so desktop stays put. */
+  @media (max-width: 767px) {
+    .type-mobile-title    { font-size: 17px; line-height: 22px; font-weight: 600; letter-spacing: -0.01em; }
+    .type-mobile-headline { font-size: 24px; line-height: 30px; font-weight: 700; letter-spacing: -0.02em; }
+    .type-mobile-body     { font-size: 15px; line-height: 22px; }
+    .type-mobile-caption  { font-size: 12px; line-height: 16px; color: hsl(var(--mkt-ink-muted)); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-testid="bottom-sheet"],
+    [data-testid="mobile-app-shell"] * {
+      transition-duration: 0ms !important;
+      animation-duration: 0ms !important;
+    }
+  }
+}
