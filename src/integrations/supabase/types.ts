@@ -1033,6 +1033,79 @@ export type Database = {
           },
         ]
       }
+      campaign_email_outbox: {
+        Row: {
+          application_id: string | null
+          attempts: number
+          campaign_id: string
+          created_at: string
+          dedupe_key: string
+          email: string
+          id: string
+          last_error: string | null
+          payload: Json
+          scheduled_for: string
+          sent_at: string | null
+          status: string
+          template: string
+          updated_at: string
+        }
+        Insert: {
+          application_id?: string | null
+          attempts?: number
+          campaign_id: string
+          created_at?: string
+          dedupe_key: string
+          email: string
+          id?: string
+          last_error?: string | null
+          payload?: Json
+          scheduled_for?: string
+          sent_at?: string | null
+          status?: string
+          template: string
+          updated_at?: string
+        }
+        Update: {
+          application_id?: string | null
+          attempts?: number
+          campaign_id?: string
+          created_at?: string
+          dedupe_key?: string
+          email?: string
+          id?: string
+          last_error?: string | null
+          payload?: Json
+          scheduled_for?: string
+          sent_at?: string | null
+          status?: string
+          template?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_email_outbox_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_applications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaign_email_outbox_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_counters"
+            referencedColumns: ["campaign_id"]
+          },
+          {
+            foreignKeyName: "campaign_email_outbox_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       campaign_events: {
         Row: {
           application_id: string | null
