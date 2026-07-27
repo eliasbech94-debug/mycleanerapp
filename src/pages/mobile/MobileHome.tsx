@@ -145,23 +145,34 @@ function PrimaryBookingCard() {
     <div className="px-4 pt-4">
       <Link
         to="/find-cleaner"
-        className="tap-target block rounded-3xl bg-gradient-to-br from-[hsl(var(--mkt-brand))] to-[hsl(var(--mkt-brand))]/85 p-5 text-white shadow-[var(--app-shadow-card,0_8px_24px_-12px_rgba(6,22,21,0.28))] active:scale-[0.99] transition-transform motion-reduce:transition-none motion-reduce:active:scale-100"
+        className="tap-target block rounded-3xl bg-[hsl(var(--mkt-brand))] p-5 text-white shadow-[0_18px_36px_-16px_hsl(var(--mkt-brand)/0.55)] active:scale-[0.99] transition-transform motion-reduce:transition-none motion-reduce:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[hsl(var(--mkt-brand))]"
         style={{ WebkitTapHighlightColor: "var(--app-tap-highlight)" }}
+        aria-label={t("mobileHome.bookingCard.ariaLabel", "Find en Cleaner")}
       >
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.18em] opacity-90">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/85">
               {t("mobileHome.bookingCard.eyebrow", "Book en Cleaner")}
             </div>
-            <div className="mt-1 text-[19px] font-semibold leading-tight">
-              {t("mobileHome.bookingCard.title", "Find en tid der passer")}
+            <div className="mt-1.5 text-[22px] font-semibold leading-tight text-white">
+              {t("mobileHome.bookingCard.title", "Find din Cleaner")}
             </div>
-            <div className="mt-1 text-[13px] opacity-90">
-              {t("mobileHome.bookingCard.subtitle", "Vælg område, tid og book direkte.")}
+            <div className="mt-1.5 text-[13.5px] leading-snug text-white/90">
+              {t("mobileHome.bookingCard.subtitle", "Sammenlign profiler, priser og ledige tider.")}
             </div>
           </div>
-          <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white/15">
+          <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/18">
             <Search className="h-5 w-5" aria-hidden />
+          </span>
+        </div>
+        <div className="mt-4 flex items-center justify-between gap-3 border-t border-white/15 pt-3">
+          <span className="inline-flex items-center gap-1.5 text-[12px] font-medium text-white/90">
+            <ShieldCheck className="h-3.5 w-3.5" aria-hidden />
+            {t("mobileHome.bookingCard.trust", "Verificerede profiler · Sikker betaling")}
+          </span>
+          <span className="inline-flex items-center gap-1 rounded-full bg-white/15 px-2.5 py-1 text-[12px] font-semibold text-white">
+            {t("mobileHome.bookingCard.cta", "Find en Cleaner")}
+            <ChevronRight className="h-3.5 w-3.5" aria-hidden />
           </span>
         </div>
       </Link>
