@@ -685,6 +685,7 @@ export type Database = {
         Row: {
           accepted_privacy_at: string | null
           accepted_terms_at: string | null
+          approval_idempotency_key: string | null
           assigned_number: number | null
           campaign_id: string
           categories: string[]
@@ -696,7 +697,10 @@ export type Database = {
           deleted_at: string | null
           deleted_by: string | null
           email: string
+          email_verification_expires_at: string | null
+          email_verification_sent_at: string | null
           email_verification_token: string | null
+          email_verification_used_at: string | null
           email_verified_at: string | null
           experience_years: number | null
           full_name: string
@@ -709,6 +713,7 @@ export type Database = {
           phone: string | null
           postal_codes: string[]
           profile_photo_path: string | null
+          provider_user_id: string | null
           referral_code: string | null
           referred_by: string | null
           rejection_reason: string | null
@@ -726,6 +731,7 @@ export type Database = {
         Insert: {
           accepted_privacy_at?: string | null
           accepted_terms_at?: string | null
+          approval_idempotency_key?: string | null
           assigned_number?: number | null
           campaign_id: string
           categories?: string[]
@@ -737,7 +743,10 @@ export type Database = {
           deleted_at?: string | null
           deleted_by?: string | null
           email: string
+          email_verification_expires_at?: string | null
+          email_verification_sent_at?: string | null
           email_verification_token?: string | null
+          email_verification_used_at?: string | null
           email_verified_at?: string | null
           experience_years?: number | null
           full_name: string
@@ -750,6 +759,7 @@ export type Database = {
           phone?: string | null
           postal_codes?: string[]
           profile_photo_path?: string | null
+          provider_user_id?: string | null
           referral_code?: string | null
           referred_by?: string | null
           rejection_reason?: string | null
@@ -767,6 +777,7 @@ export type Database = {
         Update: {
           accepted_privacy_at?: string | null
           accepted_terms_at?: string | null
+          approval_idempotency_key?: string | null
           assigned_number?: number | null
           campaign_id?: string
           categories?: string[]
@@ -778,7 +789,10 @@ export type Database = {
           deleted_at?: string | null
           deleted_by?: string | null
           email?: string
+          email_verification_expires_at?: string | null
+          email_verification_sent_at?: string | null
           email_verification_token?: string | null
+          email_verification_used_at?: string | null
           email_verified_at?: string | null
           experience_years?: number | null
           full_name?: string
@@ -791,6 +805,7 @@ export type Database = {
           phone?: string | null
           postal_codes?: string[]
           profile_photo_path?: string | null
+          provider_user_id?: string | null
           referral_code?: string | null
           referred_by?: string | null
           rejection_reason?: string | null
