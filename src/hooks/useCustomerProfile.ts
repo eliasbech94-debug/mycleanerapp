@@ -46,7 +46,7 @@ export interface CustomerProfileData {
   completion: number;
 }
 
-export interface CustomerProfileResult {
+export type CustomerProfileResult = CustomerProfileData & {
   data: CustomerProfileData;
   loading: boolean;
   isLoading: boolean;
@@ -59,7 +59,7 @@ export interface CustomerProfileResult {
   refetch: () => Promise<void>;
   /** Legacy alias for {@link refetch}. */
   reload: () => Promise<void>;
-}
+};
 
 const EMPTY_DATA: CustomerProfileData = {
   profile: null,
@@ -177,6 +177,7 @@ export function useCustomerProfile(): CustomerProfileResult {
   ]);
 
   return {
+    ...data,
     data,
     loading: isLoading,
     isLoading,
@@ -185,4 +186,5 @@ export function useCustomerProfile(): CustomerProfileResult {
     refetch: load,
     reload: load,
   };
+
 }
