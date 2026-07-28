@@ -159,7 +159,7 @@ export function useProviderDashboard(): ProviderDashboardData {
       if (cancelled) return;
 
       const pp = (ppRes.data ?? null) as ProviderProfileRow | null;
-      const bookings = ((bookingsRes.data ?? []) as ProviderBooking[]) ?? [];
+      const bookings = (bookingsRes.data ?? []) as ProviderBooking[];
       const offers = (offersRes.data ?? []) as Array<{
         offer_status: string;
         offered_at: string | null;
