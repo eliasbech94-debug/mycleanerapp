@@ -42,7 +42,7 @@ type WorkHistory = {
   ended_on: string | null;
   currently_employed: boolean;
   description: string | null;
-  verification_status: "self_reported" | "pending" | "verified" | "rejected" | "expired";
+  verification_status: "self_reported" | "pending" | "under_review" | "more_information_required" | "verified" | "rejected" | "expired";
 };
 
 const emptyJob = {
