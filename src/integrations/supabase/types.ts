@@ -1586,6 +1586,202 @@ export type Database = {
         }
         Relationships: []
       }
+      cleaner_career_profiles: {
+        Row: {
+          average_rating: number | null
+          cancellation_rate: number
+          career_score: number
+          career_summary: string | null
+          created_at: string
+          id: string
+          identity_verified: boolean
+          mycleaner_id: string
+          no_show_rate: number
+          professional_headline: string | null
+          punctuality_score: number
+          reliability_score: number
+          repeat_customer_rate: number
+          searchable_by_id: boolean
+          searchable_by_name: boolean
+          share_slug: string | null
+          total_completed_jobs: number
+          total_verified_hours: number
+          updated_at: string
+          user_id: string
+          visibility: string
+        }
+        Insert: {
+          average_rating?: number | null
+          cancellation_rate?: number
+          career_score?: number
+          career_summary?: string | null
+          created_at?: string
+          id?: string
+          identity_verified?: boolean
+          mycleaner_id: string
+          no_show_rate?: number
+          professional_headline?: string | null
+          punctuality_score?: number
+          reliability_score?: number
+          repeat_customer_rate?: number
+          searchable_by_id?: boolean
+          searchable_by_name?: boolean
+          share_slug?: string | null
+          total_completed_jobs?: number
+          total_verified_hours?: number
+          updated_at?: string
+          user_id: string
+          visibility?: string
+        }
+        Update: {
+          average_rating?: number | null
+          cancellation_rate?: number
+          career_score?: number
+          career_summary?: string | null
+          created_at?: string
+          id?: string
+          identity_verified?: boolean
+          mycleaner_id?: string
+          no_show_rate?: number
+          professional_headline?: string | null
+          punctuality_score?: number
+          reliability_score?: number
+          repeat_customer_rate?: number
+          searchable_by_id?: boolean
+          searchable_by_name?: boolean
+          share_slug?: string | null
+          total_completed_jobs?: number
+          total_verified_hours?: number
+          updated_at?: string
+          user_id?: string
+          visibility?: string
+        }
+        Relationships: []
+      }
+      cleaner_certifications: {
+        Row: {
+          career_profile_id: string
+          certificate_name: string
+          created_at: string
+          evidence_storage_path: string | null
+          expires_on: string | null
+          id: string
+          issued_on: string | null
+          issuer: string | null
+          updated_at: string
+          verification_status: string
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          career_profile_id: string
+          certificate_name: string
+          created_at?: string
+          evidence_storage_path?: string | null
+          expires_on?: string | null
+          id?: string
+          issued_on?: string | null
+          issuer?: string | null
+          updated_at?: string
+          verification_status?: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          career_profile_id?: string
+          certificate_name?: string
+          created_at?: string
+          evidence_storage_path?: string | null
+          expires_on?: string | null
+          id?: string
+          issued_on?: string | null
+          issuer?: string | null
+          updated_at?: string
+          verification_status?: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cleaner_certifications_career_profile_id_fkey"
+            columns: ["career_profile_id"]
+            isOneToOne: false
+            referencedRelation: "cleaner_career_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cleaner_work_history: {
+        Row: {
+          career_profile_id: string
+          city: string | null
+          company_name: string
+          country_code: string | null
+          created_at: string
+          currently_employed: boolean
+          description: string | null
+          ended_on: string | null
+          evidence_review_note: string | null
+          evidence_storage_path: string | null
+          id: string
+          role_title: string | null
+          started_on: string
+          updated_at: string
+          verification_method: string | null
+          verification_status: string
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          career_profile_id: string
+          city?: string | null
+          company_name: string
+          country_code?: string | null
+          created_at?: string
+          currently_employed?: boolean
+          description?: string | null
+          ended_on?: string | null
+          evidence_review_note?: string | null
+          evidence_storage_path?: string | null
+          id?: string
+          role_title?: string | null
+          started_on: string
+          updated_at?: string
+          verification_method?: string | null
+          verification_status?: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          career_profile_id?: string
+          city?: string | null
+          company_name?: string
+          country_code?: string | null
+          created_at?: string
+          currently_employed?: boolean
+          description?: string | null
+          ended_on?: string | null
+          evidence_review_note?: string | null
+          evidence_storage_path?: string | null
+          id?: string
+          role_title?: string | null
+          started_on?: string
+          updated_at?: string
+          verification_method?: string | null
+          verification_status?: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cleaner_work_history_career_profile_id_fkey"
+            columns: ["career_profile_id"]
+            isOneToOne: false
+            referencedRelation: "cleaner_career_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cleaning_plans: {
         Row: {
           address_id: string | null
@@ -7640,6 +7836,30 @@ export type Database = {
         }
         Relationships: []
       }
+      public_cleaner_career_profiles: {
+        Row: {
+          average_rating: number | null
+          career_score: number | null
+          career_summary: string | null
+          company_name: string | null
+          created_at: string | null
+          currently_employed: boolean | null
+          ended_on: string | null
+          identity_verified: boolean | null
+          mycleaner_id: string | null
+          professional_headline: string | null
+          punctuality_score: number | null
+          reliability_score: number | null
+          repeat_customer_rate: number | null
+          role_title: string | null
+          share_slug: string | null
+          started_on: string | null
+          total_completed_jobs: number | null
+          total_verified_hours: number | null
+          verification_status: string | null
+        }
+        Relationships: []
+      }
       public_provider_marketplace: {
         Row: {
           approx_lat: number | null
@@ -7890,6 +8110,38 @@ export type Database = {
         Returns: string
       }
       decline_booking_offer_v1: { Args: { _offer_id: string }; Returns: Json }
+      ensure_cleaner_career_profile: {
+        Args: { p_country_code?: string }
+        Returns: {
+          average_rating: number | null
+          cancellation_rate: number
+          career_score: number
+          career_summary: string | null
+          created_at: string
+          id: string
+          identity_verified: boolean
+          mycleaner_id: string
+          no_show_rate: number
+          professional_headline: string | null
+          punctuality_score: number
+          reliability_score: number
+          repeat_customer_rate: number
+          searchable_by_id: boolean
+          searchable_by_name: boolean
+          share_slug: string | null
+          total_completed_jobs: number
+          total_verified_hours: number
+          updated_at: string
+          user_id: string
+          visibility: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "cleaner_career_profiles"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       evaluate_booking_release_eligibility_v1: {
         Args: {
           p_booking_id: string
@@ -7917,6 +8169,10 @@ export type Database = {
       funds_release_worker_tick_v1: { Args: { _limit?: number }; Returns: Json }
       gen_provider_slug: {
         Args: { _display_name: string; _user_id: string }
+        Returns: string
+      }
+      generate_mycleaner_id: {
+        Args: { country_code?: string }
         Returns: string
       }
       get_booking_captured_gross_minor_v1: {

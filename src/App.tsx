@@ -76,9 +76,11 @@ import { AppContextProvider } from "@/context/AppContext";
 import { AuthGateProvider } from "@/context/AuthGateContext";
 import IdentityVerificationPage from "./pages/identity/IdentityVerificationPage";
 import ProviderOnboarding from "./pages/provider/ProviderOnboarding";
+import CareerIdentity from "./pages/provider/CareerIdentity";
 import ProviderPricing from "./pages/provider/ProviderPricing";
 import AdminPricing from "./pages/admin/AdminPricing";
 import AdminKnowledge from "./pages/admin/AdminKnowledge";
+import AdminCareerVerification from "./pages/admin/AdminCareerVerification";
 
 
 initSentry();
@@ -106,6 +108,7 @@ export function AppRoutes() {
       <Route path="/verify-identity" element={<RoleGuard allow={["provider", "admin"]}><IdentityVerificationPage /></RoleGuard>} />
       <Route path="/bliv-cleaner" element={<ProviderOnboarding />} />
       <Route path="/provider/profile" element={<RoleGuard allow={["provider", "admin"]}><ProviderProfileV2 /></RoleGuard>} />
+      <Route path="/provider/career" element={<RoleGuard allow={["provider", "admin"]}><CareerIdentity /></RoleGuard>} />
 
       <Route path="/customer" element={<RoleGuard allow={["customer"]}><CustomerDashboardV2 /></RoleGuard>} />
       <Route path="/customer/bookings" element={<RoleGuard allow={["customer"]}><MobileBookingsGate /></RoleGuard>} />
@@ -168,6 +171,7 @@ export function AppRoutes() {
       <Route path="/campaigns/:slug" element={<CampaignPage />} />
       <Route path="/admin/campaigns" element={<RoleGuard allow={["admin"]}><AdminCampaigns /></RoleGuard>} />
       <Route path="/admin/knowledge" element={<RoleGuard allow={["admin"]}><AdminKnowledge /></RoleGuard>} />
+      <Route path="/admin/career-verification" element={<RoleGuard allow={["admin"]}><AdminCareerVerification /></RoleGuard>} />
       <Route path="/admin/design-system" element={<RoleGuard allow={["admin"]}><AdminDesignSystem /></RoleGuard>} />
       <Route path="/not-found" element={<NotFound />} />
       <Route path="*" element={<NotFound />} />
