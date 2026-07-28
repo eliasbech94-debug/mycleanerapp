@@ -61,17 +61,57 @@ function at(path: string) {
   );
 }
 
-describe("customer routes", () => {
-  it("/customer renders customer dashboard", () => {
+vi.mock("./pages/mobile/MobileBookingsGate", () => ({
+  default: () => <main data-testid="mobile-bookings">MobileBookings</main>,
+}));
+
+describe("customer routes (v2 gates)", () => {
+  it("/customer renders v2 dashboard by default", () => {
     at("/customer");
     expect(screen.getByTestId("customer-dashboard")).toBeInTheDocument();
   });
-  it("/dk/customer renders customer dashboard", () => {
+  it("/customer?legacy=1 falls back to legacy dashboard", () => {
+    at("/customer?legacy=1");
+    expect(screen.getByTestId("customer-dashboard-legacy")).toBeInTheDocument();
+  });
+  it("/dk/customer renders v2 dashboard", () => {
     at("/dk/customer");
     expect(screen.getByTestId("customer-dashboard")).toBeInTheDocument();
   });
-  it("/customer/bookings reuses MyBookings", () => {
+  it("/customer/bookings routes to MobileBookingsGate", () => {
     at("/customer/bookings");
-    expect(screen.getByTestId("my-bookings")).toBeInTheDocument();
+    expect(screen.getByTestId("mobile-bookings")).toBeInTheDocument();
+  });
+  it("/customer/profile renders v2 profile by default", () => {
+    at("/customer/profile");
+    expect(screen.getByTestId("customer-profile-v2")).toBeInTheDocument();
+  });
+  it("/customer/profile?legacy=1 falls back to legacy profile", () => {
+    at("/customer/profile?legacy=1");
+    expect(screen.getByTestId("customer-profile-legacy")).toBeInTheDocument();
   });
 });
+
+describe("provider routes (v2 gates)", () => {
+  it("/provider renders v2 dashboard by default", () => {
+    at("/provider");
+    expect(screen.getByTestId("provider-dashboard-v2")).toBeInTheDocument();
+  });
+  it("/provider-dashboard renders v2 dashboard by default", () => {
+    at("/provider-dashboard");
+    expect(screen.getByTestId("provider-dashboard-v2")).toBeInTheDocument();
+  });
+  it("/provider?legacy=1 falls back to legacy dashboard", () => {
+    at("/provider?legacy=1");
+    expect(screen.getByTestId("provider-dashboard-legacy")).toBeInTheDocument();
+  });
+  it("/provider/profile renders v2 profile by default", () => {
+    at("/provider/profile");
+    expect(screen.getByTestId("provider-profile-v2")).toBeInTheDocument();
+  });
+  it("/provider/profile?legacy=1 falls back to legacy editor", () => {
+    at("/provider/profile?legacy=1");
+    expect(screen.getByTestId("provider-profile-legacy")).toBeInTheDocument();
+  });
+});
+
