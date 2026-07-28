@@ -62,6 +62,14 @@ export default function CustomerDashboardV2() {
         description="Overblik over dine bookinger, notifikationer og konto."
       >
         <div className="grid gap-5 lg:gap-6">
+          {data.error && (
+            <SectionErrorState
+              message={data.error}
+              onRetry={data.refetch}
+              compact
+            />
+          )}
+
           <AppErrorBoundary>
             <WelcomeHeader
               greeting="Velkommen tilbage"
