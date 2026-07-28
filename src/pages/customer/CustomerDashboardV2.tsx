@@ -21,6 +21,7 @@ import {
   EmptyState,
   QuickActionCard,
   SectionCard,
+  SectionErrorState,
   StatCard,
   WelcomeHeader,
 } from "@/components/dashboard/primitives";
