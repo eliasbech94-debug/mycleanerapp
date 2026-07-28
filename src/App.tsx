@@ -15,11 +15,9 @@ import MobileBookingsGate from "./pages/mobile/MobileBookingsGate";
 import Login from "./pages/Login";
 import AuthCallback from "./pages/AuthCallback";
 import ResetPassword from "./pages/ResetPassword";
-import CustomerDashboard from "./pages/CustomerDashboard";
-import CustomerDashboardGate from "./pages/customer/CustomerDashboardGate";
-import CustomerProfileGate from "./pages/customer/CustomerProfileGate";
+import CustomerDashboardV2 from "./pages/customer/CustomerDashboardV2";
+import CustomerProfileV2 from "./pages/customer/CustomerProfileV2";
 import { Navigate } from "react-router-dom";
-import Profile from "./pages/Profile";
 import MobileProfileGate from "./pages/mobile/MobileProfileGate";
 import MobileInboxGate from "./pages/mobile/MobileInboxGate";
 import FoundingCleaner from "./pages/FoundingCleaner";
@@ -45,7 +43,8 @@ import {
   SupportCustomers, SupportProviders, SupportBookings,
 } from "./pages/support/SupportShell";
 
-import ProviderDashboard from "./pages/ProviderDashboard";
+import ProviderDashboardV2 from "./pages/provider/ProviderDashboardV2";
+import ProviderProfileV2 from "./pages/provider/ProviderProfileV2";
 import ProviderReceipts from "./pages/ProviderReceipts";
 import NotFound from "./pages/NotFound";
 import FAQ from "./pages/FAQ";
@@ -77,8 +76,6 @@ import { AppContextProvider } from "@/context/AppContext";
 import { AuthGateProvider } from "@/context/AuthGateContext";
 import IdentityVerificationPage from "./pages/identity/IdentityVerificationPage";
 import ProviderOnboarding from "./pages/provider/ProviderOnboarding";
-import ProviderDashboardGate from "./pages/provider/ProviderDashboardGate";
-import ProviderProfileGate from "./pages/provider/ProviderProfileGate";
 import ProviderPricing from "./pages/provider/ProviderPricing";
 import AdminPricing from "./pages/admin/AdminPricing";
 import AdminKnowledge from "./pages/admin/AdminKnowledge";
@@ -108,14 +105,14 @@ export function AppRoutes() {
       <Route path="/inbox/:id" element={<MobileInboxGate />} />
       <Route path="/verify-identity" element={<RoleGuard allow={["provider", "admin"]}><IdentityVerificationPage /></RoleGuard>} />
       <Route path="/bliv-cleaner" element={<ProviderOnboarding />} />
-      <Route path="/provider/profile" element={<RoleGuard allow={["provider", "admin"]}><ProviderProfileGate /></RoleGuard>} />
+      <Route path="/provider/profile" element={<RoleGuard allow={["provider", "admin"]}><ProviderProfileV2 /></RoleGuard>} />
 
-      <Route path="/customer" element={<RoleGuard allow={["customer"]}><CustomerDashboardGate /></RoleGuard>} />
+      <Route path="/customer" element={<RoleGuard allow={["customer"]}><CustomerDashboardV2 /></RoleGuard>} />
       <Route path="/customer/bookings" element={<RoleGuard allow={["customer"]}><MobileBookingsGate /></RoleGuard>} />
       <Route path="/customer/notifications" element={<RoleGuard allow={["customer"]}><Navigate to="/profil?tab=inbox" replace /></RoleGuard>} />
       <Route path="/customer/invoices" element={<RoleGuard allow={["customer"]}><Navigate to="/profil?tab=invoices" replace /></RoleGuard>} />
       <Route path="/customer/addresses" element={<RoleGuard allow={["customer"]}><Navigate to="/profil?tab=addresses" replace /></RoleGuard>} />
-      <Route path="/customer/profile" element={<RoleGuard allow={["customer"]}><CustomerProfileGate /></RoleGuard>} />
+      <Route path="/customer/profile" element={<RoleGuard allow={["customer"]}><CustomerProfileV2 /></RoleGuard>} />
       <Route path="/customer/settings" element={<RoleGuard allow={["customer"]}><Navigate to="/profil?tab=notifications" replace /></RoleGuard>} />
       <Route path="/provider/register" element={<Navigate to="/bliv-cleaner" replace />} />
       <Route path="/founding-cleaner" element={<MobileFoundingCleanerGate />} />
@@ -148,8 +145,8 @@ export function AppRoutes() {
       <Route path="/book/:id" element={<BookingFlow />} />
       <Route path="/mine-bookinger" element={<MobileBookingsGate />} />
       <Route path="/booking/:id/plan" element={<BookingPlan />} />
-      <Route path="/provider-dashboard" element={<RoleGuard allow={["provider", "admin"]}><ProviderDashboardGate /></RoleGuard>} />
-      <Route path="/provider" element={<RoleGuard allow={["provider", "admin"]}><ProviderDashboardGate /></RoleGuard>} />
+      <Route path="/provider-dashboard" element={<RoleGuard allow={["provider", "admin"]}><ProviderDashboardV2 /></RoleGuard>} />
+      <Route path="/provider" element={<RoleGuard allow={["provider", "admin"]}><ProviderDashboardV2 /></RoleGuard>} />
       <Route path="/provider/pricing" element={<RoleGuard allow={["provider", "admin"]}><ProviderPricing /></RoleGuard>} />
       <Route path="/admin/pricing" element={<RoleGuard allow={["admin"]}><AdminPricing /></RoleGuard>} />
       <Route path="/provider/finance" element={<RoleGuard allow={["provider", "admin"]}><ProviderFinance /></RoleGuard>} />
