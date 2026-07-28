@@ -1,0 +1,24 @@
+-- STAGING_REQUIRED — DO NOT REGISTER against the shared backend.
+--
+-- Register only after:
+--   1. incident-evidence-orphan-worker is deployed to staging.
+--   2. dry-run output has been reviewed for at least one full retention cycle.
+--   3. legal has signed off on the retention windows defined in the worker.
+--   4. EVIDENCE_WORKER_CRON_SECRET is provisioned as a project secret.
+--   5. EVIDENCE_WORKER_KILL kill-switch is wired to the feature-flag console.
+
+-- select
+--   cron.schedule(
+--     'incident-evidence-orphan-worker',
+--     '17 * * * *',  -- hourly at :17 to avoid contention with other workers
+--     $$
+--     select net.http_post(
+--       url:='https://<project-ref>.supabase.co/functions/v1/incident-evidence-orphan-worker',
+--       headers:=jsonb_build_object(
+--         'Content-Type','application/json',
+--         'x-cron-secret', current_setting('app.evidence_worker_cron_secret', true)
+--       ),
+--       body:=jsonb_build_object('dry_run', true)  -- FLIP TO false ONLY AFTER SIGN-OFF
+--     );
+--     $$
+--   );
