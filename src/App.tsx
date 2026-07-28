@@ -77,7 +77,7 @@ import { AuthGateProvider } from "@/context/AuthGateContext";
 import IdentityVerificationPage from "./pages/identity/IdentityVerificationPage";
 import ProviderOnboarding from "./pages/provider/ProviderOnboarding";
 import ProviderDashboardGate from "./pages/provider/ProviderDashboardGate";
-import ProviderProfilePage from "./pages/provider/ProviderProfile";
+import ProviderProfileGate from "./pages/provider/ProviderProfileGate";
 import ProviderPricing from "./pages/provider/ProviderPricing";
 import AdminPricing from "./pages/admin/AdminPricing";
 import AdminKnowledge from "./pages/admin/AdminKnowledge";
@@ -107,7 +107,7 @@ export function AppRoutes() {
       <Route path="/inbox/:id" element={<MobileInboxGate />} />
       <Route path="/verify-identity" element={<RoleGuard allow={["provider", "admin"]}><IdentityVerificationPage /></RoleGuard>} />
       <Route path="/bliv-cleaner" element={<ProviderOnboarding />} />
-      <Route path="/provider/profile" element={<RoleGuard allow={["provider", "admin"]}><ProviderProfilePage /></RoleGuard>} />
+      <Route path="/provider/profile" element={<RoleGuard allow={["provider", "admin"]}><ProviderProfileGate /></RoleGuard>} />
 
       <Route path="/customer" element={<RoleGuard allow={["customer"]}><CustomerDashboardGate /></RoleGuard>} />
       <Route path="/customer/bookings" element={<RoleGuard allow={["customer"]}><MobileBookingsGate /></RoleGuard>} />
