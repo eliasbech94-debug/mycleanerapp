@@ -123,14 +123,18 @@ tax, deactivate). New sections wired to real backend:
 Coming-soon cards: Family members, Pets, Access instructions, Cleaning
 preferences, Favourite products.
 
-## Phase 4 — Provider Profile v2 (private edit page)
+## Phase 3 — Provider Profile v2 (COMPLETE)
 
-Rebuild `src/pages/provider/ProviderProfile.tsx`: profile photo, about,
-languages, experience, services + prices (existing `ProviderServicePricing`),
-working areas + travel radius, availability (existing
-`ProviderAvailabilityEditor`), certificates upload, verification badges
-(existing `provider_trust`), provider score card, response time + jobs
-completed derived from bookings. Cover photo + gallery = coming-soon.
+- `useProviderProfile` hook aggregates `provider_profiles`,
+  `provider_service_prices`, and completed-booking count (real data only).
+- `ProviderProfileV2` renders premium section cards: identity, about,
+  languages, experience + equipment, services + per-service pricing,
+  service area/radius, availability, verification, insurance, documents,
+  performance, public-profile share/preview. Reviews = "Kommer snart".
+- Every section deep-links into the legacy 16-tab editor via
+  `?legacy=1&tab=<id>` so both views share one data source.
+- `ProviderProfileGate` at `/provider/profile` — v2 default, `?legacy=1`
+  falls back to the classic editor.
 
 ## Phase 5 — Cross-cutting polish
 
