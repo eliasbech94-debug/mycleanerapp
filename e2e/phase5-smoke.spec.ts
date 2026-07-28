@@ -46,13 +46,13 @@ test.describe("smoke: unauthenticated", () => {
   });
 
   test("customer dashboard redirects to login", async ({ page }) => {
-    await page.goto(`${BASE}/customer/dashboard`, { waitUntil: "domcontentloaded" });
+    await page.goto(`${BASE}/customer`, { waitUntil: "domcontentloaded" });
     await page.waitForURL(/\/(login|auth)/, { timeout: 10_000 }).catch(() => {});
     expect(page.url()).toMatch(/\/(login|auth)/);
   });
 
   test("provider dashboard redirects to login", async ({ page }) => {
-    await page.goto(`${BASE}/provider/dashboard`, { waitUntil: "domcontentloaded" });
+    await page.goto(`${BASE}/provider`, { waitUntil: "domcontentloaded" });
     await page.waitForURL(/\/(login|auth)/, { timeout: 10_000 }).catch(() => {});
     expect(page.url()).toMatch(/\/(login|auth)/);
   });
