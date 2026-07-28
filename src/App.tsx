@@ -61,6 +61,7 @@ import { CountryProvider } from "@/i18n/CountryContext";
 import IdentityVerificationPage from "./pages/identity/IdentityVerificationPage";
 import ProviderOnboarding from "./pages/provider/ProviderOnboarding";
 import ProviderProfilePage from "./pages/provider/ProviderProfile";
+import CareerIdentity from "./pages/provider/CareerIdentity";
 import ProviderPricing from "./pages/provider/ProviderPricing";
 import AdminPricing from "./pages/admin/AdminPricing";
 
@@ -88,6 +89,7 @@ export function AppRoutes() {
       <Route path="/verify-identity" element={<RoleGuard allow={["provider", "admin"]}><IdentityVerificationPage /></RoleGuard>} />
       <Route path="/bliv-cleaner" element={<ProviderOnboarding />} />
       <Route path="/provider/profile" element={<RoleGuard allow={["provider", "admin"]}><ProviderProfilePage /></RoleGuard>} />
+      <Route path="/provider/career" element={<RoleGuard allow={["provider", "admin"]}><CareerIdentity /></RoleGuard>} />
 
       <Route path="/customer" element={<RoleGuard allow={["customer"]}><CustomerDashboard /></RoleGuard>} />
       <Route path="/customer/bookings" element={<RoleGuard allow={["customer"]}><MyBookings /></RoleGuard>} />
