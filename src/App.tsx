@@ -107,6 +107,7 @@ export function AppRoutes() {
       <Route path="/verify-identity" element={<RoleGuard allow={["provider", "admin"]}><IdentityVerificationPage /></RoleGuard>} />
       <Route path="/bliv-cleaner" element={<ProviderOnboarding />} />
       <Route path="/provider/profile" element={<RoleGuard allow={["provider", "admin"]}><ProviderProfileV2 /></RoleGuard>} />
+      <Route path="/provider/career" element={<RoleGuard allow={["provider", "admin"]}><CareerIdentity /></RoleGuard>} />
 
       <Route path="/customer" element={<RoleGuard allow={["customer"]}><CustomerDashboardV2 /></RoleGuard>} />
       <Route path="/customer/bookings" element={<RoleGuard allow={["customer"]}><MobileBookingsGate /></RoleGuard>} />
