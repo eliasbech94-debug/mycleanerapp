@@ -356,8 +356,15 @@ export default function CustomerProfileV2() {
           <QuickActionCard title="Fakturaer" description="Kvitteringer og bilag" icon={FileText} to="/customer/invoices" />
           <QuickActionCard title="Support" description="Få hjælp" icon={LifeBuoy} to="/faq" />
           <button type="button" onClick={() => setOpenEditor("tax")}
-            className="text-left focus:outline-none">
-            <QuickActionCard title="Skatteoplysninger" description="Servicefradrag" icon={Receipt} />
+            className="group flex min-h-[88px] items-center gap-4 rounded-2xl border border-border bg-card p-4 text-left transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:p-5">
+            <span aria-hidden
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+              <Receipt className="h-5 w-5" />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-semibold text-foreground">Skatteoplysninger</p>
+              <p className="mt-0.5 truncate text-xs text-muted-foreground">Servicefradrag</p>
+            </div>
           </button>
         </div>
       </SectionCard>
