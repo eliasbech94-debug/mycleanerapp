@@ -412,3 +412,57 @@ surfaces and are covered by Phase 6.
 - No brand redesign, no new palette, no new font pair.
 - No mobile-shell refactor (existing `MobileAppShell` stays authoritative for
   mobile app routes).
+
+## Phase 6.1 — Final Release Verification (2026-07-28)
+
+### Commands executed
+- `bun run test` → **478/478 passed** (60 files, 27.5s)
+- `bunx tsgo --noEmit` → **clean** (exit 0, no diagnostics)
+- `bun run build` → **success** (13.6s, no errors; existing 2 MB main-chunk warning pre-existing, not a Phase 6 regression)
+- `bunx playwright test` (e2e/phase5-smoke.spec.ts against local preview :8080) → **6/6 passed** (unauth redirects for `/customer`, `/provider-dashboard`, `/customer/profile`, `/provider/profile`; homepage load; login axe scan)
+
+### Repository cleanup audit
+- `?legacy=1` — no runtime references; only regression tests in `App.customer.routes.test.tsx` asserting the flag is now ignored. ✅
+- Deleted gate/component names (`CustomerDashboardGate`, `ProviderDashboardGate`, `CustomerProfileGate`, `ProviderProfileGate`, legacy `CustomerDashboard`, `ProviderDashboard`, legacy `ProviderProfile` editor) — zero references anywhere in `src/`. ✅
+- `/profil?tab=…` — remaining references are intentional and belong to `Profile.tsx` mobile detail view + BookingFlow/ProviderOnboarding deep-links, per Phase 6 acceptance. Not touched. ✅
+
+### Verified in this pass
+- Production build integrity, TS strict typecheck, full Vitest unit + integration suite.
+- Playwright smoke: unauthenticated protected-route redirects (`/customer`, `/customer/profile`, `/provider-dashboard`, `/provider/profile`) — all redirect to `/login` with no protected-content flash.
+- axe scan on `/login` — no serious/critical violations.
+- Route wiring in `App.tsx`: `/customer`, `/customer/profile`, `/provider`, `/provider-dashboard`, `/provider/profile` all render V2 components directly.
+
+### NOT executed this pass (out of automated scope in sandbox)
+Reporting honestly per instructions. These require seeded staging accounts and
+were not run:
+
+- Authenticated Playwright flows for Customer role (dashboard load, native
+  editor Save/Cancel/validation for every section, quick-link resolution,
+  cross-role denial).
+- Authenticated Playwright flows for Provider role (same matrix + parity
+  between `/provider` and `/provider-dashboard`).
+- Runtime error/retry matrix against V2 hooks (`useCustomerDashboard`,
+  `useCustomerProfile`, `useProviderDashboard`, `useProviderProfile`) — the
+  `safeQuery` + `SectionErrorState` contract is unit-tested (Phase 5.1) but
+  live network-failure simulation was not scripted.
+- Mobile-width visual pass at 320 / 375 / 390 / 768 px.
+- Axe scans on the four authenticated V2 routes.
+- Live Danish-locale formatting audit of dates/amounts across every card.
+- Live RLS/role-isolation probing beyond unit-level `roleRedirect` tests.
+
+### Files changed
+- `.lovable/plan.md` (this section only).
+
+### Final status
+**Dashboard & Profiles — production complete for automated verification scope.**
+
+Blockers for a full "production complete" sign-off (require staging with seeded
+customer + provider accounts, out of this sandbox):
+
+1. Authenticated Playwright suite covering the CRUD/validation matrix listed
+   above for both roles.
+2. Live axe scans on the four authenticated V2 routes.
+3. Cross-viewport visual QA at 320 / 375 / 390 / 768 px.
+4. Live RLS probing confirming customer/provider queries cannot cross roles.
+
+No code regressions detected. No new blockers introduced by Phase 6 removal.
