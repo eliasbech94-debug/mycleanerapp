@@ -78,6 +78,7 @@ import ProviderOnboarding from "./pages/provider/ProviderOnboarding";
 import ProviderProfilePage from "./pages/provider/ProviderProfile";
 import ProviderPricing from "./pages/provider/ProviderPricing";
 import AdminPricing from "./pages/admin/AdminPricing";
+import AdminKnowledge from "./pages/admin/AdminKnowledge";
 
 
 initSentry();
