@@ -18,7 +18,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   ComingSoonCard, EmptyState, QuickActionCard, SectionCard,
-  StatCard, WelcomeHeader,
+  SectionErrorState, StatCard, WelcomeHeader,
 } from "@/components/dashboard/primitives";
 import {
   ACCESS_METHOD_LABEL, PLACE_TYPE_LABEL, type CustomerAddress,
@@ -120,6 +120,13 @@ export default function CustomerProfileV2() {
 
   return (
     <div className="mx-auto max-w-5xl space-y-5 p-4 sm:p-6">
+      {data.error && (
+        <SectionErrorState
+          message={data.error}
+          onRetry={data.refetch}
+          compact
+        />
+      )}
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <BackButton />

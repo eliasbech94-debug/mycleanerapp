@@ -1,13 +1,14 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { safeQuery, aggregateError } from "@/hooks/lib/safeQuery";
 
 /**
  * Customer dashboard aggregator hook.
  *
- * All queries hit real tables that already exist in Lovable Cloud
- * (`profiles`, `bookings`). No mock data, no fabricated numbers.
- * Runs queries in parallel and exposes typed slices + loading flag.
+ * All queries hit real tables (`profiles`, `bookings`). Errors from any
+ * slice are captured per-section so a single failed query never removes
+ * data returned by the others. No mock data, no fabricated numbers.
  */
 
 export type CustomerBooking = {
@@ -24,7 +25,6 @@ export type CustomerBooking = {
 };
 
 export interface CustomerDashboardData {
-  loading: boolean;
   firstName: string | null;
   profileCompletion: number | null;
   upcoming: CustomerBooking[];
@@ -37,8 +37,17 @@ export interface CustomerDashboardData {
   };
 }
 
-const EMPTY: CustomerDashboardData = {
-  loading: true,
+export type CustomerDashboardResult = CustomerDashboardData & {
+  /** Aggregated data slice (also spread flat above for legacy consumers). */
+  data: CustomerDashboardData;
+  loading: boolean;
+  isLoading: boolean;
+  error: string | null;
+  sliceErrors: { profile: string | null; bookings: string | null };
+  refetch: () => Promise<void>;
+};
+
+const EMPTY_DATA: CustomerDashboardData = {
   firstName: null,
   profileCompletion: null,
   upcoming: [],
@@ -46,21 +55,33 @@ const EMPTY: CustomerDashboardData = {
   stats: { completed: 0, upcoming: 0, totalSpentMinor: 0, currency: null },
 };
 
-export function useCustomerDashboard(): CustomerDashboardData {
+export function useCustomerDashboard(): CustomerDashboardResult {
   const { user } = useAuth();
-  const [data, setData] = useState<CustomerDashboardData>(EMPTY);
+  const [data, setData] = useState<CustomerDashboardData>(EMPTY_DATA);
+  const [isLoading, setLoading] = useState(true);
+  const [sliceErrors, setSliceErrors] = useState<{
+    profile: string | null;
+    bookings: string | null;
+  }>({ profile: null, bookings: null });
 
-  useEffect(() => {
-    if (!user) return;
-    let cancelled = false;
+  const load = useCallback(async () => {
+    if (!user) {
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
 
-    (async () => {
-      const [profileRes, bookingsRes] = await Promise.all([
+    const [profileRes, bookingsRes] = await Promise.all([
+      safeQuery(
+        "customer.profile",
         supabase
           .from("profiles")
           .select("full_name,phone,address,country_code")
           .eq("id", user.id)
           .maybeSingle(),
+      ),
+      safeQuery(
+        "customer.bookings",
         supabase
           .from("bookings")
           .select(
@@ -69,59 +90,82 @@ export function useCustomerDashboard(): CustomerDashboardData {
           .eq("customer_user_id", user.id)
           .order("booking_date", { ascending: false })
           .limit(50),
-      ]);
+      ),
+    ]);
 
+    const profile = profileRes.data as {
+      full_name: string | null;
+      phone: string | null;
+      address: string | null;
+      country_code: string | null;
+    } | null;
+
+    const fields = profile
+      ? [profile.full_name, profile.phone, profile.address, profile.country_code]
+      : [];
+    const filled = fields.filter(Boolean).length;
+    const completion = fields.length ? Math.round((filled / fields.length) * 100) : null;
+    const firstName = profile?.full_name?.split(" ")[0] ?? null;
+
+    const bookings = (bookingsRes.data ?? []) as CustomerBooking[];
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const upcoming = bookings
+      .filter(
+        (b) =>
+          new Date(b.booking_date) >= today &&
+          b.status !== "cancelled" &&
+          b.status !== "declined",
+      )
+      .sort((a, b) => a.booking_date.localeCompare(b.booking_date));
+    const history = bookings.filter(
+      (b) => new Date(b.booking_date) < today || b.status === "completed",
+    );
+
+    const completed = bookings.filter((b) => b.status === "completed");
+    const totalSpentMinor = completed.reduce(
+      (sum, b) => sum + (typeof b.customer_pays === "number" ? b.customer_pays : 0),
+      0,
+    );
+    const currency = completed.find((b) => b.currency)?.currency ?? null;
+
+    setData({
+      firstName,
+      profileCompletion: completion,
+      upcoming,
+      history,
+      stats: {
+        completed: completed.length,
+        upcoming: upcoming.length,
+        totalSpentMinor,
+        currency,
+      },
+    });
+    setSliceErrors({ profile: profileRes.error, bookings: bookingsRes.error });
+    setLoading(false);
+  }, [user]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      await load();
       if (cancelled) return;
-
-      const profile = profileRes.data;
-      const fields = profile
-        ? [profile.full_name, profile.phone, profile.address, profile.country_code]
-        : [];
-      const filled = fields.filter(Boolean).length;
-      const completion = fields.length ? Math.round((filled / fields.length) * 100) : null;
-      const firstName = profile?.full_name?.split(" ")[0] ?? null;
-
-      const bookings = (bookingsRes.data ?? []) as CustomerBooking[];
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const upcoming = bookings
-        .filter(
-          (b) =>
-            new Date(b.booking_date) >= today &&
-            b.status !== "cancelled" &&
-            b.status !== "declined",
-        )
-        .sort((a, b) => a.booking_date.localeCompare(b.booking_date));
-      const history = bookings.filter(
-        (b) => new Date(b.booking_date) < today || b.status === "completed",
-      );
-
-      const completed = bookings.filter((b) => b.status === "completed");
-      const totalSpentMinor = completed.reduce(
-        (sum, b) => sum + (typeof b.customer_pays === "number" ? b.customer_pays : 0),
-        0,
-      );
-      const currency = completed.find((b) => b.currency)?.currency ?? null;
-
-      setData({
-        loading: false,
-        firstName,
-        profileCompletion: completion,
-        upcoming,
-        history,
-        stats: {
-          completed: completed.length,
-          upcoming: upcoming.length,
-          totalSpentMinor,
-          currency,
-        },
-      });
     })();
-
     return () => {
       cancelled = true;
     };
-  }, [user]);
+  }, [load]);
 
-  return data;
+  const error = aggregateError([sliceErrors.profile, sliceErrors.bookings]);
+
+  return {
+    ...data,
+    data,
+    loading: isLoading,
+    isLoading,
+    error,
+    sliceErrors,
+    refetch: load,
+  };
+
 }
