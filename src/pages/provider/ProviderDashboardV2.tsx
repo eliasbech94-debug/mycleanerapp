@@ -27,6 +27,7 @@ import {
   EmptyState,
   QuickActionCard,
   SectionCard,
+  SectionErrorState,
   StatCard,
   WelcomeHeader,
 } from "@/components/dashboard/primitives";
@@ -78,6 +79,14 @@ export default function ProviderDashboardV2() {
         description="Overblik over dine jobs, indtjening og profilstatus."
       >
         <div className="grid gap-5 lg:gap-6">
+          {data.error && (
+            <SectionErrorState
+              message={data.error}
+              onRetry={data.refetch}
+              compact
+            />
+          )}
+
           <AppErrorBoundary>
             <WelcomeHeader
               greeting="Cleaner-dashboard"
