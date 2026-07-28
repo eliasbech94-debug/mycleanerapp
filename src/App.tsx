@@ -108,7 +108,7 @@ export function AppRoutes() {
       <Route path="/bliv-cleaner" element={<ProviderOnboarding />} />
       <Route path="/provider/profile" element={<RoleGuard allow={["provider", "admin"]}><ProviderProfilePage /></RoleGuard>} />
 
-      <Route path="/customer" element={<RoleGuard allow={["customer"]}><CustomerDashboard /></RoleGuard>} />
+      <Route path="/customer" element={<RoleGuard allow={["customer"]}><CustomerDashboardGate /></RoleGuard>} />
       <Route path="/customer/bookings" element={<RoleGuard allow={["customer"]}><MobileBookingsGate /></RoleGuard>} />
       <Route path="/customer/notifications" element={<RoleGuard allow={["customer"]}><Navigate to="/profil?tab=inbox" replace /></RoleGuard>} />
       <Route path="/customer/invoices" element={<RoleGuard allow={["customer"]}><Navigate to="/profil?tab=invoices" replace /></RoleGuard>} />
