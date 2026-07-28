@@ -243,16 +243,127 @@ Gates (delete when legacy pages go):
 4. One sprint (7 days) of `?legacy=1` availability with zero rollback
    requests logged.
 
-## Phase 6 — Legacy removal
+## Phase 5.2 — Native V2 Profile Editors (COMPLETE)
 
-Blocked on Phase 5 criteria above. When cleared, delete files listed in
-"Legacy inventory" and simplify `src/App.tsx` routes to render V2
+Goal: every "Redigér" on `/customer/profile` and `/provider/profile` opens
+a native V2 editor. No `?legacy=1` and no `/profil?tab=...` deep-links in
+the normal edit path. Reuse existing engines — no duplicate business logic.
+
+### Files created
+
+- `src/components/dashboard/primitives/SectionEditDialog.tsx` — shared
+  inline-edit modal wrapper. Save/Cancel/Dirty tracking, discard
+  confirmation via AlertDialog, `showFooter={false}` for self-saving
+  child editors (Notifications, Tax, Deactivate, AddressBook, Sumsub,
+  Stripe, Availability, Documents). WCAG-safe DialogDescription always
+  provided.
+- `src/components/dashboard/primitives/SectionEditDialog.test.tsx` — 7
+  tests (title/desc/body render, Save invoked, plain Cancel closes,
+  dirty Cancel shows discard confirm, footer hidden mode, disabled
+  Save state, disabled while saving). All green.
+- `src/hooks/useProviderProfileEditor.ts` — owns pp/dirty/save/reset/
+  reload for the provider. Enforces the same `OWNER_EDITABLE_COLUMNS`
+  whitelist as legacy so the DB trigger
+  `provider_profiles_block_privileged_update` never rejects a save.
+- `src/components/profile/provider-editors/index.tsx` — 10 native
+  section forms (Personal, Business, Services, Pricing, Area,
+  Languages, Equipment, Insurance, Documents, Settings) + re-exports
+  the already-standalone editors (Availability, Identity/Sumsub,
+  Stripe status widget, Tax). Zero logic duplication.
+- `src/components/profile/customer-editors/index.tsx` — native
+  Personal, Contact, CleaningPreferences, AccessInstructions forms
+  (zod-validated, write to `profiles` / `customer_addresses`), plus
+  re-exports of `AddressBook`, `NotificationsTab`, `TaxTab`,
+  `DeactivateTab` for self-saving editors.
+
+### Files modified
+
+- `src/pages/customer/CustomerProfileV2.tsx` — every "Redigér" now
+  opens `SectionEditDialog`. No `/profil?tab=…` navigations, no
+  `?legacy=1` footer link. Quick-actions repointed to real routes
+  (`/customer/notifications`, `/customer/invoices`, etc.).
+  Skatteoplysninger tile opens the tax dialog inline.
+- `src/pages/provider/ProviderProfileV2.tsx` — every "Redigér" opens
+  `SectionEditDialog` with a native editor (12 sections). Reset-on-
+  cancel via `useProviderProfileEditor.reset()`. Legacy footer link
+  removed.
+- `src/components/dashboard/primitives/index.ts` — exports
+  `SectionEditDialog`.
+
+### Acceptance
+
+- Customer Profile is fully editable without the legacy page.
+- Provider Profile is fully editable without the legacy page.
+- Every "Redigér" opens a native V2 editor (no `/profil?tab=`, no
+  `?legacy=1`) in normal user flow.
+- Zod validation + inline errors on customer Personal/Contact.
+- Trigger-safe payloads on provider save (whitelist enforced).
+- `bun run test`: **478 passed / 0 failed** (+7 new). Typecheck clean.
+
+### Legacy audit (post-Phase 5.2)
+
+The customer / provider profile-editing surfaces no longer depend on
+legacy pages. Remaining legacy references are outside the two profile
+surfaces and are covered by Phase 6.
+
+**Pages still referencing `/profil?tab=…` (non-profile surfaces):**
+- `src/App.tsx` — 4 shim redirects (`/customer/notifications`,
+  `/customer/invoices`, `/customer/addresses`, `/customer/settings`)
+  point at `/profil?tab=…`. Should be pointed at dedicated V2 routes
+  or the corresponding V2 dialogs when they land.
+- `src/pages/mobile/MobileHome.tsx`, `MobileMessages.tsx`,
+  `MobileInboxGate.tsx` — mobile inbox falls back to `/profil?tab=inbox`
+  above 768px. Requires a V2 inbox page.
+- `src/pages/BookingFlow.tsx` — "Gem denne adresse" link goes to
+  `/profil?tab=addresses` (customer path). Should open V2 Addresses
+  dialog or route.
+- `src/pages/ProviderDashboard.tsx` (legacy) — internal link.
+- `src/pages/provider/ProviderOnboarding.tsx` — help text link to
+  `/profil?tab=info` (phone verification). Repoint to
+  `/customer/profile` once mobile phone edit lands as V2.
+- `src/pages/customer/CustomerDashboardV2.tsx:229` — one remaining
+  `/profil?tab=invoices` link (invoices tile). Repoint to
+  `/customer/invoices` shim.
+
+**Legacy pages that must remain until Phase 6:**
+- `src/pages/Profile.tsx` — still receives `/profil?tab=…` traffic
+  from the surfaces above and from the customer profile safety-net
+  `/customer/profile?legacy=1`.
+- `src/pages/provider/ProviderProfile.tsx` — still the safety-net at
+  `/provider/profile?legacy=1`. Not linked from V2.
+- Gates: `CustomerProfileGate`, `ProviderProfileGate`,
+  `CustomerDashboardGate`, `ProviderDashboardGate` — remove together
+  with the legacy pages in Phase 6.
+
+**Confirmed not referenced from V2 profile surfaces:**
+- `?legacy=1` — 0 uses in V2 profile / editor code.
+- `/profil?tab=…` — 0 uses in V2 profile / editor code.
+
+## Phase 6 — Legacy removal (updated)
+
+Blocked on:
+1. **Non-profile deep-links repointed** — the 4 App.tsx shim redirects,
+   the BookingFlow "Gem adresse" link, ProviderOnboarding help link,
+   the mobile inbox fallback, and the one remaining
+   CustomerDashboardV2 invoices tile.
+2. **7-day zero-rollback window** on `?legacy=1` for both profile
+   surfaces (unchanged from Phase 5 criteria).
+
+When cleared, delete:
+- `src/pages/Profile.tsx`
+- `src/pages/provider/ProviderProfile.tsx`
+- `src/pages/customer/CustomerProfileGate.tsx`
+- `src/pages/customer/CustomerDashboardGate.tsx`
+- `src/pages/provider/ProviderProfileGate.tsx`
+- `src/pages/provider/ProviderDashboardGate.tsx`
+
+And simplify the corresponding routes in `src/App.tsx` to render V2
 components directly.
 
 
 ## Non-goals
 
-- No backend schema changes in phases 1–5.
+- No backend schema changes in phases 1–5.2.
 - No brand redesign, no new palette, no new font pair.
 - No mobile-shell refactor (existing `MobileAppShell` stays authoritative for
   mobile app routes).

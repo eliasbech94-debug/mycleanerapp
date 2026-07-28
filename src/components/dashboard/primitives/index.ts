@@ -5,3 +5,5 @@ export { EmptyState } from "./EmptyState";
 export { ComingSoonCard } from "./ComingSoonCard";
 export { WelcomeHeader } from "./WelcomeHeader";
 export { SectionErrorState } from "./SectionErrorState";
+export { SectionEditDialog } from "./SectionEditDialog";
+export type { SectionEditDialogProps } from "./SectionEditDialog";
