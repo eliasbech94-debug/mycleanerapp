@@ -93,7 +93,7 @@ export function useProviderProfile(): ProviderProfileData {
     setState({
       loading: false,
       profile: (profileRes.data as ProviderProfileRow | null) ?? null,
-      prices: ((pricesRes.data ?? []) as ServicePrice[]) ?? [],
+      prices: (pricesRes.data ?? []) as ServicePrice[],
       completedJobs: completedRes.count ?? 0,
     });
   }, [user]);
