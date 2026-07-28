@@ -114,7 +114,7 @@ export function AppRoutes() {
       <Route path="/customer/notifications" element={<RoleGuard allow={["customer"]}><Navigate to="/profil?tab=inbox" replace /></RoleGuard>} />
       <Route path="/customer/invoices" element={<RoleGuard allow={["customer"]}><Navigate to="/profil?tab=invoices" replace /></RoleGuard>} />
       <Route path="/customer/addresses" element={<RoleGuard allow={["customer"]}><Navigate to="/profil?tab=addresses" replace /></RoleGuard>} />
-      <Route path="/customer/profile" element={<RoleGuard allow={["customer"]}><Navigate to="/profil?tab=info" replace /></RoleGuard>} />
+      <Route path="/customer/profile" element={<RoleGuard allow={["customer"]}><CustomerProfileGate /></RoleGuard>} />
       <Route path="/customer/settings" element={<RoleGuard allow={["customer"]}><Navigate to="/profil?tab=notifications" replace /></RoleGuard>} />
       <Route path="/provider/register" element={<Navigate to="/bliv-cleaner" replace />} />
       <Route path="/founding-cleaner" element={<MobileFoundingCleanerGate />} />
