@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-  StatCard, SectionCard, EmptyState, ComingSoonCard, WelcomeHeader,
+  StatCard, SectionCard, EmptyState, ComingSoonCard, WelcomeHeader, SectionErrorState,
 } from "@/components/dashboard/primitives";
 
 const CATEGORY_LABEL: Record<string, string> = {
@@ -47,7 +47,7 @@ const formatMoney = (minor: number, currency: string) => {
 export default function ProviderProfileV2() {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
-  const { loading, profile, prices, completedJobs, reload } = useProviderProfile();
+  const { loading, profile, prices, completedJobs, reload, error, refetch } = useProviderProfile();
 
   const greeting = useMemo(() => {
     const h = new Date().getHours();
@@ -94,6 +94,9 @@ export default function ProviderProfileV2() {
 
   return (
     <div className="mx-auto max-w-5xl space-y-5 p-4 sm:p-6">
+      {error && (
+        <SectionErrorState message={error} onRetry={refetch} compact />
+      )}
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <BackButton />
