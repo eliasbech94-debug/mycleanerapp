@@ -159,6 +159,7 @@ export function useCustomerDashboard(): CustomerDashboardResult {
   const error = aggregateError([sliceErrors.profile, sliceErrors.bookings]);
 
   return {
+    ...data,
     data,
     loading: isLoading,
     isLoading,
@@ -166,4 +167,5 @@ export function useCustomerDashboard(): CustomerDashboardResult {
     sliceErrors,
     refetch: load,
   };
+
 }
