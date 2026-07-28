@@ -264,7 +264,7 @@ jobs:
               ;;
             changed_functions)
               # Allowlist derived from merge e528b0e (semantic-merged Stripe functions).
-              fns=(payment-create-intent stripe-connect-onboard stripe-webhook stripe-webhook-v7)
+              fns=(payment-create-intent stripe-connect-onboard stripe-webhook stripe-webhook-v7 incident-evidence-upload incident-evidence-url incident-evidence-orphan-worker)
               ;;
             all_functions)
               for d in supabase/functions/*/; do
