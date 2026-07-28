@@ -466,3 +466,129 @@ customer + provider accounts, out of this sandbox):
 4. Live RLS probing confirming customer/provider queries cannot cross roles.
 
 No code regressions detected. No new blockers introduced by Phase 6 removal.
+
+**Phase 6.1 status: complete for automated local verification scope.**
+
+## Phase 6.2 — Staging Sign-off Checklist (pending execution)
+
+This phase is **not executable in the current sandbox**. It defines the exact
+scope, evidence artifacts, and pass criteria for the final production sign-off.
+Execution requires an isolated staging environment with seeded test accounts —
+production accounts must never be used.
+
+### Access & environment requirements (currently missing)
+
+To run Phase 6.2, the following must be provisioned and provided:
+
+1. **Isolated staging Supabase project** (non-production ref, non-production
+   URL) with the current `main` schema applied.
+2. **Seeded staging test accounts** created via
+   `staging-validation/seed/create-test-users.ts` against the staging project:
+   - Customer: `test.customer@mycleaner.dev` / `TestPass!2026`
+   - Provider: `test.provider@mycleaner.dev` / `TestPass!2026` (linked to
+     `mette-copenhagen` provider profile from `test-providers.sql`)
+   - Admin:    `test.admin@mycleaner.dev`    / `TestPass!2026`
+3. **Staging app URL** (Lovable preview or dedicated staging domain — never
+   `mycleaner.dk` or `mycleanerapp.lovable.app`).
+4. **Staging env file** (`staging-validation/.env`) populated per
+   `staging-validation/.env.example`, including
+   `STAGING_SUPABASE_URL`, `STAGING_SUPABASE_ANON_KEY`,
+   `STAGING_SUPABASE_SERVICE_ROLE_KEY`, `STAGING_APP_URL`,
+   `TEST_EMAIL_DOMAIN=mycleaner.dev`, `TEST_PASSWORD=TestPass!2026`,
+   `RC2_ALLOW_DESTRUCTIVE_STAGING_TESTS=true`.
+
+**Current status: none of the above are available inside this sandbox.**
+The preview shares the production Supabase project, so authenticated CRUD,
+live axe on protected routes, and RLS isolation probes cannot be executed
+here without violating the "never touch production" rule.
+
+### Routes under test (protected V2 surfaces only)
+
+- `/customer` — CustomerDashboardV2
+- `/customer/profile` — CustomerProfileV2
+- `/provider` — ProviderDashboardV2 (canonical)
+- `/provider-dashboard` — ProviderDashboardV2 (alias; must render identically)
+- `/provider/profile` — ProviderProfileV2
+
+### Checks to execute on staging
+
+1. **Authenticated Customer CRUD + validation**
+   - Sign in as customer, load `/customer` and `/customer/profile`.
+   - For every native editor section (contact, address, cleaning preferences,
+     notification prefs, tax info, SMS, deactivate): open dialog, edit, verify
+     dirty-state banner, cancel with discard confirmation, save, reload page,
+     assert persistence.
+   - Validation matrix: invalid email, invalid phone, out-of-country address
+     (must be rejected by `place-validate`), oversized text.
+   - Evidence: Playwright trace + screenshots per section, saved under
+     `staging-validation/evidence/<RUN_ID>/customer/`.
+
+2. **Authenticated Provider CRUD + validation**
+   - Same matrix against `/provider`, `/provider-dashboard`, `/provider/profile`.
+   - Confirm the `OWNER_EDITABLE_COLUMNS` whitelist is enforced: attempts to
+     update trigger-protected columns (status, tier, score, verified flags,
+     stripe_*) via the client must be rejected.
+   - Confirm `/provider` and `/provider-dashboard` render the same V2 tree.
+   - Evidence: Playwright trace + screenshots, saved under
+     `staging-validation/evidence/<RUN_ID>/provider/`.
+
+3. **Authenticated axe scans**
+   - Run `@axe-core/playwright` (WCAG 2.1 AA) against all five routes above
+     while signed in as the appropriate role.
+   - Pass criterion: zero serious/critical violations. Moderate violations
+     documented with a decision (fix now / accept / backlog).
+   - Evidence: JSON reports under `evidence/<RUN_ID>/axe/`.
+
+4. **Viewport verification** at **320, 375, 390, and 768 px**
+   - Screenshot each of the five routes at each width, signed in per role.
+   - Pass criteria: no horizontal scroll, no clipped controls, 44×44 tap
+     targets on interactive elements, sticky headers behave, dialogs fit.
+   - Evidence: PNGs under `evidence/<RUN_ID>/viewports/<route>/<width>.png`.
+
+5. **Live RLS isolation checks**
+   - Extend `scripts/rls-regression.sql` execution against staging: for each
+     table backing the V2 surfaces (`profiles`, `customer_addresses`,
+     `customer_preferences`, `customer_notifications`, `customer_favorites`,
+     `bookings`, `provider_profiles`, `provider_pricing_settings`,
+     `provider_pricing_preferences`, `user_roles`), attempt cross-role
+     read/write using the seeded customer and provider JWTs.
+   - Pass criterion: every cross-role read returns 0 rows or a permission
+     error; every cross-role write is rejected.
+   - Evidence: SQL log + JSON matrix under `evidence/<RUN_ID>/rls/`.
+
+### Evidence to record in this document after execution
+
+Fill in only after Phase 6.2 has actually been run against staging:
+
+- Staging Supabase project ref used: _(pending)_
+- Staging app URL used: _(pending)_
+- RUN_ID: _(pending)_
+- Playwright results (customer): _(pending)_
+- Playwright results (provider): _(pending)_
+- Axe results per route: _(pending)_
+- Viewport screenshots index: _(pending)_
+- RLS matrix result: _(pending)_
+- Verified failures fixed (list, or "none"): _(pending)_
+
+### Final release recommendation
+
+- If every check above passes with recorded evidence:
+  **Dashboard & Profiles — fully production signed off.**
+- If any check fails, list the exact blocker(s) here and keep the current
+  "production complete for automated verification scope" status until fixed.
+
+### Current Phase 6.2 status
+
+**Blocked — staging access not available in this sandbox.**
+
+Missing to proceed:
+
+- Isolated staging Supabase project (URL + anon key + service-role key).
+- Confirmation that `staging-validation/seed/create-test-users.ts` has been
+  executed against that staging project.
+- Staging app URL for Playwright to target.
+- Populated `staging-validation/.env` on the machine that will run the suite.
+
+No results have been simulated. No production accounts were used. Awaiting
+the access above before Phase 6.2 can be executed and this section filled in.
+
