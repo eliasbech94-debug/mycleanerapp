@@ -80,21 +80,32 @@ Acceptance
 - Mobile (<640px), tablet, desktop layouts verified.
 - `bun run test` still green; typecheck clean.
 
-## Phase 2 — Provider Dashboard v1
+## Phase 2 — Provider Dashboard v1  (COMPLETE)
 
-Files: `src/pages/provider/ProviderDashboardV2.tsx`,
-`src/hooks/useProviderDashboard.ts`, `src/components/provider/dashboard/*`
-(TodayScheduleCard, BookingRequestsCard, EarningsSummaryCard,
-PerformanceScoreCard, DocumentsCard, MessagesCard).
+Files created
 
-Real sources: `bookings`, `worker_earnings`, `finance_payouts`,
-`provider_profiles`, `provider_score_history`, `provider_trust`,
-`identity_verification_attempts`, existing `StripeConnectStatusWidget`,
-`useSupportConversations`.
+- `src/hooks/useProviderDashboard.ts` — parallel queries against real tables
+  (`provider_profiles`, `bookings`, `provider_offers`, `finance_payouts`,
+  `booking_cancellations`). Derives acceptance rate, cancellation rate, avg
+  response time, earnings, completed count. Ratings left as `null` (no source).
+- `src/pages/provider/ProviderDashboardV2.tsx` — Welcome header, verification
+  banner, stats strip, Today's schedule, Open requests, Upcoming, Reviews
+  (`ComingSoonCard`), quick actions, key metrics, payout status. Realtime
+  subscription on `bookings`, `provider_offers`, `provider_profiles`.
+- `src/pages/provider/ProviderDashboardGate.tsx` — default = V2,
+  `?legacy=1` = old `ProviderDashboard`.
 
-Deferred stubs: AI Assistant card, Learning Center card, Calendar sync card.
+Files modified
 
-Legacy flag: `/provider-dashboard?legacy=1`.
+- `src/App.tsx` — `/provider-dashboard` and new `/provider` route render the
+  gate.
+
+Deferred (rendered as honest "Kommer snart" cards, not fake data):
+- Rating & written reviews (no review table yet).
+- AI Assistant, Learning Center, Calendar sync (unchanged from plan).
+
+Acceptance: typecheck clean; only real backend data; empty states everywhere
+a metric has no source; legacy fallback intact.
 
 ## Phase 3 — Customer Profile v2
 

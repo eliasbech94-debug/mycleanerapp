@@ -76,6 +76,7 @@ import { AppContextProvider } from "@/context/AppContext";
 import { AuthGateProvider } from "@/context/AuthGateContext";
 import IdentityVerificationPage from "./pages/identity/IdentityVerificationPage";
 import ProviderOnboarding from "./pages/provider/ProviderOnboarding";
+import ProviderDashboardGate from "./pages/provider/ProviderDashboardGate";
 import ProviderProfilePage from "./pages/provider/ProviderProfile";
 import ProviderPricing from "./pages/provider/ProviderPricing";
 import AdminPricing from "./pages/admin/AdminPricing";
@@ -146,7 +147,8 @@ export function AppRoutes() {
       <Route path="/book/:id" element={<BookingFlow />} />
       <Route path="/mine-bookinger" element={<MobileBookingsGate />} />
       <Route path="/booking/:id/plan" element={<BookingPlan />} />
-      <Route path="/provider-dashboard" element={<RoleGuard allow={["provider", "admin"]}><ProviderDashboard /></RoleGuard>} />
+      <Route path="/provider-dashboard" element={<RoleGuard allow={["provider", "admin"]}><ProviderDashboardGate /></RoleGuard>} />
+      <Route path="/provider" element={<RoleGuard allow={["provider", "admin"]}><ProviderDashboardGate /></RoleGuard>} />
       <Route path="/provider/pricing" element={<RoleGuard allow={["provider", "admin"]}><ProviderPricing /></RoleGuard>} />
       <Route path="/admin/pricing" element={<RoleGuard allow={["admin"]}><AdminPricing /></RoleGuard>} />
       <Route path="/provider/finance" element={<RoleGuard allow={["provider", "admin"]}><ProviderFinance /></RoleGuard>} />
