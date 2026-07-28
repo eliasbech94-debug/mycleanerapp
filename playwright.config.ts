@@ -9,6 +9,9 @@ export default defineConfig({
     baseURL: "http://localhost:8080",
     trace: "retain-on-failure",
     viewport: { width: 1280, height: 800 },
+    launchOptions: {
+      executablePath: "/bin/chromium",
+    },
   },
   projects: [{ name: "chromium", use: { browserName: "chromium" } }],
 });
