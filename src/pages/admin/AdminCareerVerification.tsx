@@ -1,19 +1,26 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { BadgeCheck, Loader2, ShieldAlert, ShieldCheck, XCircle } from "lucide-react";
+import { BadgeCheck, Eye, Loader2, ShieldAlert, ShieldCheck, XCircle } from "lucide-react";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
 import BackButton from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+import { careerDb } from "@/features/career/careerClient";
 
-// Types are minimal — the migration was just applied and generated types
-// arrive on the next codegen pass. Untyped access keeps the page shippable.
-const db = supabase as any;
+const db = careerDb;
 
 type PendingKind = "work_history" | "certification";
+
+type EvidenceDoc = {
+  id: string;
+  original_filename: string | null;
+  mime_type: string;
+  size_bytes: number;
+  status: string;
+  uploaded_at: string;
+};
 
 type WorkRow = {
   id: string;
@@ -27,9 +34,9 @@ type WorkRow = {
   currently_employed: boolean;
   verification_status: string;
   verification_method: string | null;
-  evidence_storage_path: string | null;
   evidence_review_note: string | null;
   cleaner_career_profiles?: { mycleaner_id: string; user_id: string } | null;
+  documents?: EvidenceDoc[];
 };
 
 type CertRow = {
@@ -40,22 +47,40 @@ type CertRow = {
   issued_on: string | null;
   expires_on: string | null;
   verification_status: string;
-  evidence_storage_path: string | null;
   cleaner_career_profiles?: { mycleaner_id: string; user_id: string } | null;
+  documents?: EvidenceDoc[];
 };
 
-const PENDING_STATUSES = ["self_reported", "pending"] as const;
+const PENDING_STATUSES = [
+  "self_reported",
+  "pending",
+  "under_review",
+  "more_information_required",
+] as const;
 
 function StatusBadge({ status }: { status: string }) {
   const map: Record<string, { label: string; className: string }> = {
     self_reported: { label: "Selv-rapporteret", className: "bg-slate-200 text-slate-900" },
-    pending: { label: "Under review", className: "bg-amber-100 text-amber-900" },
+    pending: { label: "Afventer", className: "bg-amber-100 text-amber-900" },
+    under_review: { label: "Under review", className: "bg-blue-100 text-blue-900" },
+    more_information_required: { label: "Mere info", className: "bg-orange-100 text-orange-900" },
     verified: { label: "Verificeret", className: "bg-emerald-100 text-emerald-900" },
     rejected: { label: "Afvist", className: "bg-red-100 text-red-900" },
     expired: { label: "Udløbet", className: "bg-slate-200 text-slate-900" },
   };
   const m = map[status] ?? map.self_reported;
   return <Badge className={m.className}>{m.label}</Badge>;
+}
+
+async function openDocument(document_id: string) {
+  const { data, error } = await db.functions.invoke("career-evidence-url", {
+    body: { document_id },
+  });
+  if (error || !data?.url) {
+    toast.error("Kunne ikke åbne dokument", { description: error?.message });
+    return;
+  }
+  window.open(data.url, "_blank", "noopener,noreferrer");
 }
 
 export default function AdminCareerVerification() {
@@ -72,7 +97,7 @@ export default function AdminCareerVerification() {
       db
         .from("cleaner_work_history")
         .select(
-          "id,career_profile_id,company_name,role_title,city,country_code,started_on,ended_on,currently_employed,verification_status,verification_method,evidence_storage_path,evidence_review_note,cleaner_career_profiles(mycleaner_id,user_id)",
+          "id,career_profile_id,company_name,role_title,city,country_code,started_on,ended_on,currently_employed,verification_status,verification_method,evidence_review_note,cleaner_career_profiles(mycleaner_id,user_id)",
         )
         .in("verification_status", PENDING_STATUSES as unknown as string[])
         .order("created_at", { ascending: false })
@@ -80,14 +105,49 @@ export default function AdminCareerVerification() {
       db
         .from("cleaner_certifications")
         .select(
-          "id,career_profile_id,certificate_name,issuer,issued_on,expires_on,verification_status,evidence_storage_path,cleaner_career_profiles(mycleaner_id,user_id)",
+          "id,career_profile_id,certificate_name,issuer,issued_on,expires_on,verification_status,cleaner_career_profiles(mycleaner_id,user_id)",
         )
         .in("verification_status", PENDING_STATUSES as unknown as string[])
         .order("created_at", { ascending: false })
         .limit(200),
     ]);
-    setWork((wh as WorkRow[]) ?? []);
-    setCerts((c as CertRow[]) ?? []);
+
+    const workRows = (wh as WorkRow[]) ?? [];
+    const certRows = (c as CertRow[]) ?? [];
+
+    // Fetch document metadata for each set in a single query
+    const workIds = workRows.map((r) => r.id);
+    const certIds = certRows.map((r) => r.id);
+    const [{ data: workDocs }, { data: certDocs }] = await Promise.all([
+      workIds.length
+        ? db
+            .from("career_evidence_documents")
+            .select("id,work_history_id,certification_id,original_filename,mime_type,size_bytes,status,uploaded_at")
+            .in("work_history_id", workIds)
+        : Promise.resolve({ data: [] }),
+      certIds.length
+        ? db
+            .from("career_evidence_documents")
+            .select("id,work_history_id,certification_id,original_filename,mime_type,size_bytes,status,uploaded_at")
+            .in("certification_id", certIds)
+        : Promise.resolve({ data: [] }),
+    ]);
+
+    const workDocMap = new Map<string, EvidenceDoc[]>();
+    for (const d of (workDocs ?? []) as any[]) {
+      const arr = workDocMap.get(d.work_history_id) ?? [];
+      arr.push(d as EvidenceDoc);
+      workDocMap.set(d.work_history_id, arr);
+    }
+    const certDocMap = new Map<string, EvidenceDoc[]>();
+    for (const d of (certDocs ?? []) as any[]) {
+      const arr = certDocMap.get(d.certification_id) ?? [];
+      arr.push(d as EvidenceDoc);
+      certDocMap.set(d.certification_id, arr);
+    }
+
+    setWork(workRows.map((r) => ({ ...r, documents: workDocMap.get(r.id) ?? [] })));
+    setCerts(certRows.map((r) => ({ ...r, documents: certDocMap.get(r.id) ?? [] })));
     setLoading(false);
   }, []);
 
@@ -98,30 +158,81 @@ export default function AdminCareerVerification() {
   async function decide(
     kind: PendingKind,
     id: string,
-    decision: "verified" | "rejected",
+    decision: "verified" | "rejected" | "more_information_required" | "under_review",
+    documentIds: string[],
   ) {
     setSavingId(id);
-    const table =
-      kind === "work_history" ? "cleaner_work_history" : "cleaner_certifications";
-    const payload: Record<string, unknown> = {
-      verification_status: decision,
-      verified_at: decision === "verified" ? new Date().toISOString() : null,
-    };
-    if (kind === "work_history") {
-      payload.evidence_review_note = notes[id] ?? null;
-      payload.verification_method = decision === "verified" ? "manual_review" : null;
-    }
-    const { error } = await db.from(table).update(payload).eq("id", id);
+    const { error } = await db.functions.invoke("career-verification-decide", {
+      body: {
+        kind,
+        record_id: id,
+        decision,
+        note: notes[id] ?? undefined,
+        reason: decision === "rejected" ? notes[id] ?? undefined : undefined,
+        document_ids: documentIds,
+      },
+    });
     setSavingId(null);
     if (error) {
       toast.error("Kunne ikke gemme afgørelse", { description: error.message });
       return;
     }
-    toast.success(decision === "verified" ? "Verificeret" : "Afvist");
+    toast.success("Afgørelse gemt");
     await load();
   }
 
   const totalPending = useMemo(() => work.length + certs.length, [work, certs]);
+
+  const DocsList = ({ docs }: { docs?: EvidenceDoc[] }) =>
+    !docs || docs.length === 0 ? (
+      <div className="text-xs text-amber-700 flex items-center gap-1">
+        <ShieldAlert className="h-3.5 w-3.5" /> Ingen dokumenter uploadet
+      </div>
+    ) : (
+      <div className="space-y-1.5">
+        {docs.map((d) => (
+          <div key={d.id} className="flex items-center justify-between rounded border bg-muted/40 px-2 py-1.5 text-xs">
+            <div className="min-w-0">
+              <p className="truncate font-medium">{d.original_filename ?? "Dokument"}</p>
+              <p className="text-muted-foreground">
+                {d.mime_type} · {(d.size_bytes / 1024).toFixed(0)} KB · {d.status}
+              </p>
+            </div>
+            <Button size="sm" variant="outline" onClick={() => openDocument(d.id)}>
+              <Eye className="mr-1 h-3.5 w-3.5" /> Åbn
+            </Button>
+          </div>
+        ))}
+      </div>
+    );
+
+  const ActionRow = ({ kind, id, docs }: { kind: PendingKind; id: string; docs?: EvidenceDoc[] }) => {
+    const docIds = (docs ?? []).map((d) => d.id);
+    return (
+      <div className="flex flex-wrap gap-2 justify-end">
+        <Button
+          variant="outline"
+          onClick={() => decide(kind, id, "more_information_required", docIds)}
+          disabled={savingId === id}
+        >
+          Bed om mere info
+        </Button>
+        <Button
+          variant="outline"
+          onClick={() => decide(kind, id, "rejected", docIds)}
+          disabled={savingId === id}
+        >
+          <XCircle className="h-4 w-4 mr-1" /> Afvis
+        </Button>
+        <Button
+          onClick={() => decide(kind, id, "verified", docIds)}
+          disabled={savingId === id}
+        >
+          <BadgeCheck className="h-4 w-4 mr-1" /> Verificér
+        </Button>
+      </div>
+    );
+  };
 
   return (
     <div className="container mx-auto max-w-6xl p-4 md:p-8 space-y-6">
@@ -143,12 +254,8 @@ export default function AdminCareerVerification() {
 
       <Tabs value={tab} onValueChange={(v) => setTab(v as PendingKind)}>
         <TabsList>
-          <TabsTrigger value="work_history">
-            Arbejdshistorik ({work.length})
-          </TabsTrigger>
-          <TabsTrigger value="certification">
-            Certifikater ({certs.length})
-          </TabsTrigger>
+          <TabsTrigger value="work_history">Arbejdshistorik ({work.length})</TabsTrigger>
+          <TabsTrigger value="certification">Certifikater ({certs.length})</TabsTrigger>
         </TabsList>
 
         <TabsContent value="work_history" className="space-y-4">
@@ -170,10 +277,7 @@ export default function AdminCareerVerification() {
                     <CardTitle className="text-lg">
                       {row.company_name}
                       {row.role_title ? (
-                        <span className="text-muted-foreground font-normal">
-                          {" "}
-                          — {row.role_title}
-                        </span>
+                        <span className="text-muted-foreground font-normal"> — {row.role_title}</span>
                       ) : null}
                     </CardTitle>
                     <div className="flex items-center gap-2">
@@ -192,11 +296,7 @@ export default function AdminCareerVerification() {
                     </div>
                     <div>
                       <div className="text-muted-foreground">Til</div>
-                      <div>
-                        {row.currently_employed
-                          ? "Nuværende"
-                          : row.ended_on ?? "—"}
-                      </div>
+                      <div>{row.currently_employed ? "Nuværende" : row.ended_on ?? "—"}</div>
                     </div>
                     <div>
                       <div className="text-muted-foreground">By</div>
@@ -208,43 +308,16 @@ export default function AdminCareerVerification() {
                     </div>
                   </div>
                   <div>
-                    <div className="text-muted-foreground text-xs mb-1">
-                      Beviser
-                    </div>
-                    {row.evidence_storage_path ? (
-                      <code className="text-xs bg-muted p-1 rounded">
-                        {row.evidence_storage_path}
-                      </code>
-                    ) : (
-                      <div className="text-xs text-amber-700 flex items-center gap-1">
-                        <ShieldAlert className="h-3.5 w-3.5" /> Ingen dokumenter
-                        uploadet
-                      </div>
-                    )}
+                    <div className="text-muted-foreground text-xs mb-1">Dokumenter</div>
+                    <DocsList docs={row.documents} />
                   </div>
                   <Textarea
-                    placeholder="Reviewernote (valgfri, gemmes med afgørelsen)"
+                    placeholder="Intern note (gemmes med afgørelsen)"
                     value={notes[row.id] ?? ""}
-                    onChange={(e) =>
-                      setNotes((n) => ({ ...n, [row.id]: e.target.value }))
-                    }
+                    onChange={(e) => setNotes((n) => ({ ...n, [row.id]: e.target.value }))}
                     className="min-h-[70px]"
                   />
-                  <div className="flex gap-2 justify-end">
-                    <Button
-                      variant="outline"
-                      onClick={() => decide("work_history", row.id, "rejected")}
-                      disabled={savingId === row.id}
-                    >
-                      <XCircle className="h-4 w-4 mr-1" /> Afvis
-                    </Button>
-                    <Button
-                      onClick={() => decide("work_history", row.id, "verified")}
-                      disabled={savingId === row.id}
-                    >
-                      <BadgeCheck className="h-4 w-4 mr-1" /> Verificér
-                    </Button>
-                  </div>
+                  <ActionRow kind="work_history" id={row.id} docs={row.documents} />
                 </CardContent>
               </Card>
             ))
@@ -270,10 +343,7 @@ export default function AdminCareerVerification() {
                     <CardTitle className="text-lg">
                       {row.certificate_name}
                       {row.issuer ? (
-                        <span className="text-muted-foreground font-normal">
-                          {" "}
-                          — {row.issuer}
-                        </span>
+                        <span className="text-muted-foreground font-normal"> — {row.issuer}</span>
                       ) : null}
                     </CardTitle>
                     <div className="flex items-center gap-2">
@@ -296,39 +366,10 @@ export default function AdminCareerVerification() {
                     </div>
                   </div>
                   <div>
-                    <div className="text-muted-foreground text-xs mb-1">
-                      Beviser
-                    </div>
-                    {row.evidence_storage_path ? (
-                      <code className="text-xs bg-muted p-1 rounded">
-                        {row.evidence_storage_path}
-                      </code>
-                    ) : (
-                      <div className="text-xs text-amber-700 flex items-center gap-1">
-                        <ShieldAlert className="h-3.5 w-3.5" /> Ingen dokumenter
-                        uploadet
-                      </div>
-                    )}
+                    <div className="text-muted-foreground text-xs mb-1">Dokumenter</div>
+                    <DocsList docs={row.documents} />
                   </div>
-                  <div className="flex gap-2 justify-end">
-                    <Button
-                      variant="outline"
-                      onClick={() =>
-                        decide("certification", row.id, "rejected")
-                      }
-                      disabled={savingId === row.id}
-                    >
-                      <XCircle className="h-4 w-4 mr-1" /> Afvis
-                    </Button>
-                    <Button
-                      onClick={() =>
-                        decide("certification", row.id, "verified")
-                      }
-                      disabled={savingId === row.id}
-                    >
-                      <BadgeCheck className="h-4 w-4 mr-1" /> Verificér
-                    </Button>
-                  </div>
+                  <ActionRow kind="certification" id={row.id} docs={row.documents} />
                 </CardContent>
               </Card>
             ))
