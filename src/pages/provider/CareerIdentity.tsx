@@ -2,7 +2,6 @@ import { useCallback, useEffect, useState } from "react";
 import { BadgeCheck, BriefcaseBusiness, Copy, Loader2, Plus, ShieldCheck, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
-import { supabase } from "@/integrations/supabase/client";
 import BackButton from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,8 +9,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import EvidenceUploadPanel from "@/features/career/EvidenceUploadPanel";
+import { careerDb } from "@/features/career/careerClient";
 
-const db = supabase as any;
+const db = careerDb;
 
 type CareerProfile = {
   id: string;
