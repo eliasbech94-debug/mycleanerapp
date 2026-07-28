@@ -1,0 +1,156 @@
+name: Staging Validate (DB only)
+
+# Manual database validation against an isolated staging Supabase project.
+# Never runs on push. Never targets production. Never deploys code or functions.
+"on":
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type "deploy-staging" to confirm.'
+        required: true
+        default: ''
+      allow_db_reset:
+        description: 'DESTRUCTIVE. Type "reset-staging-db" to allow `supabase db reset --linked`. Leave empty for safe `migration up`.'
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+
+concurrency:
+  group: staging-validate
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    name: Staging DB validation (lint + migrations + RLS regression + tests)
+    runs-on: ubuntu-latest
+    environment: staging
+    # Hard guard: only run on the staging branch.
+    if: ${{ github.ref == 'refs/heads/staging' }}
+    timeout-minutes: 30
+
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_DB_PASSWORD:  ${{ secrets.STAGING_DB_PASSWORD }}
+      STAGING_PROJECT_REF:   ${{ secrets.STAGING_PROJECT_REF }}
+      STAGING_DB_URL:        ${{ secrets.STAGING_DB_URL }}
+      PROD_REF:              qfjgifubavuomwvroahy
+      SUPABASE_CLI_VERSION:  2.60.0
+
+    steps:
+      - name: Guard - confirmation input
+        run: |
+          if [ "${{ github.event.inputs.confirm }}" != "deploy-staging" ]; then
+            echo "::error::Confirmation input must be exactly 'deploy-staging'."
+            exit 1
+          fi
+
+      - name: Guard - required secrets present
+        run: |
+          missing=0
+          for name in SUPABASE_ACCESS_TOKEN STAGING_PROJECT_REF STAGING_DB_PASSWORD STAGING_DB_URL; do
+            val="$(printenv "$name" || true)"
+            if [ -z "$val" ]; then
+              echo "::error::Required GitHub secret missing: $name"
+              missing=1
+            fi
+          done
+          if [ "$missing" -ne 0 ]; then
+            echo "::error::Add the missing secrets under repo Settings -> Secrets and variables -> Actions (environment: staging). Refusing to fall back to production credentials."
+            exit 1
+          fi
+
+      - name: Guard - refuse production project ref
+        run: |
+          if [ "$STAGING_PROJECT_REF" = "$PROD_REF" ]; then
+            echo "::error::STAGING_PROJECT_REF equals the production project ref ($PROD_REF). Aborting to protect production."
+            exit 1
+          fi
+          case "$STAGING_DB_URL" in
+            *"$PROD_REF"*)
+              echo "::error::STAGING_DB_URL points at the production project ref ($PROD_REF). Aborting."
+              exit 1
+              ;;
+          esac
+          echo "Staging project ref verified as non-production."
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: ${{ env.SUPABASE_CLI_VERSION }}
+
+      - name: Install psql client
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y --no-install-recommends postgresql-client
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Prepare artifacts dir
+        run: mkdir -p artifacts
+
+      - name: Link Supabase CLI to staging project
+        run: |
+          supabase link --project-ref "$STAGING_PROJECT_REF" --password "$SUPABASE_DB_PASSWORD" \
+            | tee artifacts/00-link.log
+
+      - name: Database lint
+        run: |
+          set -o pipefail
+          supabase db lint --linked 2>&1 | tee artifacts/10-db-lint.log || {
+            echo "::error::supabase db lint failed. See artifacts/10-db-lint.log."
+            exit 1
+          }
+
+      - name: Apply pending migrations
+        run: |
+          set -o pipefail
+          if [ "${{ github.event.inputs.allow_db_reset }}" = "reset-staging-db" ]; then
+            echo "DESTRUCTIVE: running 'supabase db reset --linked' as explicitly confirmed."
+            supabase db reset --linked 2>&1 | tee artifacts/20-db-reset.log || {
+              echo "::error::supabase db reset --linked failed. See artifacts/20-db-reset.log."
+              exit 1
+            }
+          else
+            supabase migration up --linked 2>&1 | tee artifacts/20-migration-up.log || {
+              echo "::error::supabase migration up --linked failed. See artifacts/20-migration-up.log."
+              exit 1
+            }
+          fi
+
+      - name: Run RLS regression (knowledge / incident evidence)
+        run: |
+          set -o pipefail
+          psql "$STAGING_DB_URL" -v ON_ERROR_STOP=1 \
+            -f scripts/knowledge-incident-evidence-rls-regression.sql \
+            2>&1 | tee artifacts/30-rls-regression.log || {
+            echo "::error::RLS regression failed. See artifacts/30-rls-regression.log."
+            exit 1
+          }
+
+      - name: Install project dependencies
+        run: bun install --frozen-lockfile 2>&1 | tee artifacts/40-bun-install.log
+
+      - name: Run full test suite
+        run: |
+          set -o pipefail
+          bun run test 2>&1 | tee artifacts/50-tests.log || {
+            echo "::error::Automated test suite failed. See artifacts/50-tests.log."
+            exit 1
+          }
+
+      - name: Upload validation evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: staging-validate-${{ github.run_id }}
+          path: artifacts/
+          if-no-files-found: warn
+          retention-days: 14
