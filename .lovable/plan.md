@@ -107,21 +107,25 @@ Deferred (rendered as honest "Kommer snart" cards, not fake data):
 Acceptance: typecheck clean; only real backend data; empty states everywhere
 a metric has no source; legacy fallback intact.
 
-## Phase 3 — Customer Profile v2
+## Phase 4 — Customer Profile v2 (COMPLETE)
 
-Rebuild `src/pages/Profile.tsx` for customer role into a sectioned layout
-using existing tabs (info, addresses, notifications, cards, invoices, sms,
-tax, deactivate). New sections wired to real backend:
+- `useCustomerProfile` hook aggregates `profiles`, `customer_addresses`
+  and `bookings` in parallel (real data only). Computes profile-completion
+  from 5 real signals and derives member-since from `profiles.created_at`
+  (falls back to `auth.users.created_at`).
+- `CustomerProfileV2` renders premium section cards: personal info + avatar
+  initials, contact (email/phone/SMS with verification badge), saved
+  addresses w/ place-type & access method, cleaning preferences from the
+  primary address (pets/children/supplies/parking), access instructions,
+  notification-channel summary, privacy center link, account status
+  (active / deactivated), booking summary stats, and quick links to
+  bookings, inbox, cards, invoices, support and tax.
+- Honest empty states everywhere. Coming-soon cards for Familiemedlemmer
+  and Foretrukne produkter — no fabricated pets, family or payment data.
+- `CustomerProfileGate` at `/customer/profile` — v2 default, `?legacy=1`
+  renders the classic tabbed `Profile.tsx`. Every "Redigér" deep-links to
+  `/profil?tab=<id>` so both views share the same data source.
 
-- Personal information (profiles)
-- Addresses (customer_addresses)
-- Saved payment methods (Stripe SetupIntent flow already exists)
-- Preferred language (profiles / i18n)
-- Notification settings (existing table if present, else stub)
-- Privacy settings + delete account (existing `account_deletion_requests`)
-
-Coming-soon cards: Family members, Pets, Access instructions, Cleaning
-preferences, Favourite products.
 
 ## Phase 3 — Provider Profile v2 (COMPLETE)
 
