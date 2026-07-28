@@ -77,9 +77,9 @@ export function SectionEditDialog({
         <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-2xl">
           <DialogHeader>
             <DialogTitle className="font-display text-xl">{title}</DialogTitle>
-            {description && (
-              <DialogDescription>{description}</DialogDescription>
-            )}
+            <DialogDescription>
+              {description ?? "Redigér denne sektion. Ændringer gemmes til din profil."}
+            </DialogDescription>
           </DialogHeader>
           <div className="py-2">{children}</div>
           {showFooter && (
