@@ -80,6 +80,7 @@ import CareerIdentity from "./pages/provider/CareerIdentity";
 import ProviderPricing from "./pages/provider/ProviderPricing";
 import AdminPricing from "./pages/admin/AdminPricing";
 import AdminKnowledge from "./pages/admin/AdminKnowledge";
+import AdminCareerVerification from "./pages/admin/AdminCareerVerification";
 
 
 initSentry();
