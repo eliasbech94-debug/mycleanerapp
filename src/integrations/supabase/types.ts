@@ -1586,6 +1586,117 @@ export type Database = {
         }
         Relationships: []
       }
+      career_audit_log: {
+        Row: {
+          action: string
+          actor_user_id: string | null
+          created_at: string
+          entity_id: string | null
+          entity_type: string
+          id: string
+          new_value: Json | null
+          previous_value: Json | null
+          reason: string | null
+          request_id: string | null
+        }
+        Insert: {
+          action: string
+          actor_user_id?: string | null
+          created_at?: string
+          entity_id?: string | null
+          entity_type: string
+          id?: string
+          new_value?: Json | null
+          previous_value?: Json | null
+          reason?: string | null
+          request_id?: string | null
+        }
+        Update: {
+          action?: string
+          actor_user_id?: string | null
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string
+          id?: string
+          new_value?: Json | null
+          previous_value?: Json | null
+          reason?: string | null
+          request_id?: string | null
+        }
+        Relationships: []
+      }
+      career_evidence_documents: {
+        Row: {
+          certification_id: string | null
+          created_at: string
+          evidence_type: string
+          id: string
+          mime_type: string
+          original_filename: string | null
+          rejection_reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          size_bytes: number
+          status: string
+          storage_path: string
+          updated_at: string
+          uploaded_at: string
+          user_id: string
+          work_history_id: string | null
+        }
+        Insert: {
+          certification_id?: string | null
+          created_at?: string
+          evidence_type: string
+          id?: string
+          mime_type: string
+          original_filename?: string | null
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          size_bytes: number
+          status?: string
+          storage_path: string
+          updated_at?: string
+          uploaded_at?: string
+          user_id: string
+          work_history_id?: string | null
+        }
+        Update: {
+          certification_id?: string | null
+          created_at?: string
+          evidence_type?: string
+          id?: string
+          mime_type?: string
+          original_filename?: string | null
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          size_bytes?: number
+          status?: string
+          storage_path?: string
+          updated_at?: string
+          uploaded_at?: string
+          user_id?: string
+          work_history_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "career_evidence_documents_certification_id_fkey"
+            columns: ["certification_id"]
+            isOneToOne: false
+            referencedRelation: "cleaner_certifications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "career_evidence_documents_work_history_id_fkey"
+            columns: ["work_history_id"]
+            isOneToOne: false
+            referencedRelation: "cleaner_work_history"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cleaner_career_profiles: {
         Row: {
           average_rating: number | null
