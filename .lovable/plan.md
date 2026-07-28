@@ -339,31 +339,76 @@ surfaces and are covered by Phase 6.
 - `?legacy=1` — 0 uses in V2 profile / editor code.
 - `/profil?tab=…` — 0 uses in V2 profile / editor code.
 
-## Phase 6 — Legacy removal (updated)
+## Phase 6 — Legacy removal (COMPLETE)
 
-Blocked on:
-1. **Non-profile deep-links repointed** — the 4 App.tsx shim redirects,
-   the BookingFlow "Gem adresse" link, ProviderOnboarding help link,
-   the mobile inbox fallback, and the one remaining
-   CustomerDashboardV2 invoices tile.
-2. **7-day zero-rollback window** on `?legacy=1` for both profile
-   surfaces (unchanged from Phase 5 criteria).
-
-When cleared, delete:
-- `src/pages/Profile.tsx`
-- `src/pages/provider/ProviderProfile.tsx`
-- `src/pages/customer/CustomerProfileGate.tsx`
+### Files deleted
+- `src/pages/CustomerDashboard.tsx`
+- `src/pages/ProviderDashboard.tsx`
+- `src/pages/provider/ProviderProfile.tsx` (legacy 16-tab editor)
 - `src/pages/customer/CustomerDashboardGate.tsx`
-- `src/pages/provider/ProviderProfileGate.tsx`
+- `src/pages/customer/CustomerProfileGate.tsx`
 - `src/pages/provider/ProviderDashboardGate.tsx`
+- `src/pages/provider/ProviderProfileGate.tsx`
 
-And simplify the corresponding routes in `src/App.tsx` to render V2
-components directly.
+### Files modified
+- `src/App.tsx` — imports V2 components directly; `/customer`,
+  `/customer/profile`, `/provider`, `/provider-dashboard`,
+  `/provider/profile` now render V2 with no gate. Unused `Profile`
+  import removed. `?legacy=1` is silently ignored (V2 renders).
+- `src/pages/customer/CustomerDashboardV2.tsx` — invoices tile now
+  points at `/customer/invoices` shim instead of `/profil?tab=invoices`.
+- `src/pages/provider/ProviderDashboardV2.tsx` — removed the
+  "Klassisk visning" `?legacy=1` link from Open Requests section.
+- `src/pages/provider/ProviderProfileV2.tsx` — legacy safety-net
+  comment removed.
+- `src/App.customer.routes.test.tsx` — regression tests now assert
+  V2 renders even when `?legacy=1` is present (gate removed).
+- `src/pages/provider/ProviderProfile.test.ts` — retargeted to
+  `OWNER_EDITABLE_COLUMNS` in `useProviderProfileEditor.ts`; still
+  guards the same trigger-safe whitelist.
+
+### Routes (final)
+- `/customer` → `CustomerDashboardV2`
+- `/customer/profile` → `CustomerProfileV2`
+- `/provider` → `ProviderDashboardV2`
+- `/provider-dashboard` → `ProviderDashboardV2`
+- `/provider/profile` → `ProviderProfileV2`
+- Unknown paths → existing `NotFound` (unchanged).
+- Existing `/customer/notifications|invoices|addresses|settings`
+  shims still `Navigate` to `/profil?tab=…` for the mobile Profile
+  page (intentional — `/profil` is the mobile profile detail view,
+  not legacy).
+
+### Legacy references remaining (intentional)
+- `src/pages/Profile.tsx` is preserved because `MobileProfileGate`
+  renders it as the mobile profile detail view; mobile tabs
+  (`/profil?tab=info|addresses|notifications|…`) are the app-shell
+  UX, not a legacy fallback. The 4 customer shim redirects and
+  mobile inbox/profile links target this surface deliberately.
+- `BookingFlow` "Gem denne adresse" and `ProviderOnboarding` phone
+  help link still point at `/profil?tab=…` — same rationale (mobile
+  profile is the addresses/phone edit surface until a dedicated V2
+  page exists). Tracked separately, not a Phase 6 blocker.
+
+### Validation
+- Repo scan (`rg`) for `CustomerDashboardGate|ProviderDashboardGate|
+  CustomerProfileGate|ProviderProfileGate` → 0 hits.
+- `?legacy=1` references outside of test assertions → 0 hits.
+- `bunx tsgo --noEmit` → clean.
+- `bunx vitest run` → **478 passed / 0 failed**.
+
+### Unresolved risks
+- None for dashboard/profile flows. The mobile `/profil?tab=…`
+  surface is unchanged and continues to work; migrating it into a
+  fully native mobile V2 profile is a separate future initiative.
+
+**Final recommendation: legacy removal complete.**
 
 
 ## Non-goals
 
-- No backend schema changes in phases 1–5.2.
+- No backend schema changes in phases 1–6.
+
 - No brand redesign, no new palette, no new font pair.
 - No mobile-shell refactor (existing `MobileAppShell` stays authoritative for
   mobile app routes).
