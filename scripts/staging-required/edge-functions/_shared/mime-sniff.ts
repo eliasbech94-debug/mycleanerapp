@@ -64,7 +64,7 @@ export function sniffMime(bytes: Uint8Array): SniffResult {
 }
 
 export async function sha256Hex(bytes: Uint8Array): Promise<string> {
-  const h = await crypto.subtle.digest("SHA-256", bytes);
+  const h = await crypto.subtle.digest("SHA-256", bytes as unknown as ArrayBuffer);
   return Array.from(new Uint8Array(h))
     .map((b) => b.toString(16).padStart(2, "0"))
     .join("");
