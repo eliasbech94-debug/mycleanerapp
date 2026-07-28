@@ -1,17 +1,16 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { safeQuery, aggregateError } from "@/hooks/lib/safeQuery";
 
 /**
  * Provider dashboard aggregator hook.
  *
- * All queries hit real tables that already exist in Lovable Cloud
- * (`provider_profiles`, `bookings`, `provider_offers`, `finance_payouts`,
- * `booking_cancellations`). No mock data, no fabricated numbers.
- *
- * Metrics that cannot be derived from existing backend data (e.g. star
- * ratings, written reviews) are exposed as `null` so the UI can render an
- * honest empty state / "Kommer snart" card.
+ * All queries hit real tables (`provider_profiles`, `bookings`,
+ * `provider_offers`, `finance_payouts`, `booking_cancellations`).
+ * Per-slice errors are captured so a single failure doesn't wipe the
+ * dashboard. Metrics without a real source are exposed as `null` for
+ * honest empty states.
  */
 
 export type ProviderBooking = {
@@ -56,7 +55,6 @@ export interface ProviderProfileRow {
 }
 
 export interface ProviderDashboardData {
-  loading: boolean;
   firstName: string | null;
   profile: ProviderProfileRow | null;
   todaysSchedule: ProviderBooking[];
@@ -66,18 +64,32 @@ export interface ProviderDashboardData {
   payouts: ProviderPayout[];
   stats: {
     completed: number;
-    acceptanceRate: number | null; // 0..100
-    cancellationRate: number | null; // 0..100 (provider-caused only)
+    acceptanceRate: number | null;
+    cancellationRate: number | null;
     avgResponseSeconds: number | null;
     earningsMinor: number;
     currency: string | null;
-    ratingAvg: number | null; // not tracked yet
+    ratingAvg: number | null;
     ratingCount: number | null;
   };
 }
 
+export type ProviderDashboardResult = ProviderDashboardData & {
+  data: ProviderDashboardData;
+  loading: boolean;
+  isLoading: boolean;
+  error: string | null;
+  sliceErrors: {
+    profile: string | null;
+    bookings: string | null;
+    offers: string | null;
+    payouts: string | null;
+    cancellations: string | null;
+  };
+  refetch: () => Promise<void>;
+};
+
 const EMPTY: ProviderDashboardData = {
-  loading: true,
   firstName: null,
   profile: null,
   todaysSchedule: [],
@@ -103,18 +115,30 @@ function todayISO(): string {
   return d.toISOString().slice(0, 10);
 }
 
-export function useProviderDashboard(): ProviderDashboardData {
+export function useProviderDashboard(): ProviderDashboardResult {
   const { user, profile: authProfile } = useAuth();
   const [data, setData] = useState<ProviderDashboardData>(EMPTY);
+  const [isLoading, setLoading] = useState(true);
+  const [sliceErrors, setSliceErrors] = useState({
+    profile: null as string | null,
+    bookings: null as string | null,
+    offers: null as string | null,
+    payouts: null as string | null,
+    cancellations: null as string | null,
+  });
 
-  useEffect(() => {
-    if (!user) return;
-    let cancelled = false;
+  const providerIdText = authProfile?.provider_id ?? null;
 
-    async function load() {
-      const providerIdText = authProfile?.provider_id ?? null;
+  const load = useCallback(async () => {
+    if (!user) {
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
 
-      const [ppRes, bookingsRes, offersRes, payoutsRes, cancelRes] = await Promise.all([
+    const [ppRes, bookingsRes, offersRes, payoutsRes] = await Promise.all([
+      safeQuery(
+        "provider.profile",
         supabase
           .from("provider_profiles")
           .select(
@@ -122,176 +146,211 @@ export function useProviderDashboard(): ProviderDashboardData {
           )
           .eq("user_id", user.id)
           .maybeSingle(),
-        providerIdText
-          ? supabase
+      ),
+      providerIdText
+        ? safeQuery(
+            "provider.bookings",
+            supabase
               .from("bookings")
               .select(
                 "id,provider_id,service,hours,booking_date,slot,address,status,dispatch_status,customer_pays,provider_gets,currency,payout_status,created_at",
               )
               .eq("provider_id", providerIdText)
               .order("booking_date", { ascending: false })
-              .limit(200)
-          : Promise.resolve({ data: [] as ProviderBooking[] }),
+              .limit(200),
+          )
+        : Promise.resolve({ data: [] as ProviderBooking[], error: null }),
+      safeQuery(
+        "provider.offers",
         supabase
           .from("provider_offers")
           .select("offer_status,offered_at,viewed_at,accepted_at,declined_at,expired_at")
           .eq("provider_user_id", user.id)
           .order("offered_at", { ascending: false })
           .limit(200),
+      ),
+      safeQuery(
+        "provider.payouts",
         supabase
           .from("finance_payouts")
           .select("id,status,net_amount,currency,arrival_date,created_at")
           .eq("provider_user_id", user.id)
           .order("created_at", { ascending: false })
           .limit(10),
-        providerIdText
-          ? supabase
-              .from("booking_cancellations")
-              .select("actor_role,booking_id,created_at")
-              .in(
-                "booking_id",
-                // We'll filter client-side after bookings load
-                ["00000000-0000-0000-0000-000000000000"],
-              )
-          : Promise.resolve({ data: [] as any[] }),
-      ]);
+      ),
+    ]);
 
-      if (cancelled) return;
+    const pp = (ppRes.data ?? null) as ProviderProfileRow | null;
+    const bookings = (bookingsRes.data ?? []) as ProviderBooking[];
+    const offers = (offersRes.data ?? []) as Array<{
+      offer_status: string;
+      offered_at: string | null;
+      accepted_at: string | null;
+      declined_at: string | null;
+      expired_at: string | null;
+    }>;
+    const payouts = (payoutsRes.data ?? []) as ProviderPayout[];
 
-      const pp = (ppRes.data ?? null) as ProviderProfileRow | null;
-      const bookings = (bookingsRes.data ?? []) as ProviderBooking[];
-      const offers = (offersRes.data ?? []) as Array<{
-        offer_status: string;
-        offered_at: string | null;
-        accepted_at: string | null;
-        declined_at: string | null;
-        expired_at: string | null;
-      }>;
-      const payouts = (payoutsRes.data ?? []) as ProviderPayout[];
-
-      // Second pass for cancellations now that we have booking ids
-      let cancelledByProvider = 0;
-      if (bookings.length) {
-        const ids = bookings.map((b) => b.id);
-        const { data: cancels } = await supabase
+    let cancelledByProvider = 0;
+    let cancellationsError: string | null = null;
+    if (bookings.length) {
+      const ids = bookings.map((b) => b.id);
+      const cancelRes = await safeQuery(
+        "provider.cancellations",
+        supabase
           .from("booking_cancellations")
           .select("actor_role,booking_id")
-          .in("booking_id", ids);
-        cancelledByProvider = (cancels ?? []).filter(
-          (c: any) => c.actor_role === "provider",
-        ).length;
-      }
-      void cancelRes; // placeholder request, discarded
-
-      const today = todayISO();
-      const now = new Date();
-
-      const todaysSchedule = bookings.filter(
-        (b) => b.booking_date === today && (b.status === "accepted" || b.status === "pending"),
+          .in("booking_id", ids),
       );
-      const openRequests = bookings.filter(
-        (b) =>
-          b.status === "pending" ||
-          b.dispatch_status === "awaiting_provider" ||
-          b.dispatch_status === "dispatched",
-      );
-      const upcoming = bookings
-        .filter(
-          (b) =>
-            new Date(b.booking_date) >= new Date(today) &&
-            b.status === "accepted",
-        )
-        .sort((a, b) => a.booking_date.localeCompare(b.booking_date));
-      const recent = bookings
-        .filter((b) => b.status === "completed" || new Date(b.booking_date) < now)
-        .slice(0, 6);
-
-      const completed = bookings.filter((b) => b.status === "completed");
-      const earningsMinor = completed.reduce(
-        (s, b) => s + (typeof b.provider_gets === "number" ? b.provider_gets : 0),
-        0,
-      );
-      const currency = completed.find((b) => b.currency)?.currency ?? null;
-
-      // Acceptance rate — from provider_offers where a decision was made.
-      const decidedOffers = offers.filter(
-        (o) => o.offer_status === "accepted" || o.offer_status === "declined" || o.offer_status === "expired",
-      );
-      const acceptedCount = offers.filter((o) => o.offer_status === "accepted").length;
-      const acceptanceRate = decidedOffers.length
-        ? Math.round((acceptedCount / decidedOffers.length) * 100)
-        : null;
-
-      // Response time — avg seconds from offered_at to accepted_at or declined_at.
-      const responded = offers
-        .map((o) => {
-          if (!o.offered_at) return null;
-          const decidedAt = o.accepted_at || o.declined_at;
-          if (!decidedAt) return null;
-          const diff =
-            (new Date(decidedAt).getTime() - new Date(o.offered_at).getTime()) / 1000;
-          return diff > 0 ? diff : null;
-        })
-        .filter((n): n is number => typeof n === "number");
-      const avgResponseSeconds = responded.length
-        ? Math.round(responded.reduce((s, n) => s + n, 0) / responded.length)
-        : null;
-
-      // Cancellation rate — provider-caused / total bookings.
-      const cancellationRate = bookings.length
-        ? Math.round((cancelledByProvider / bookings.length) * 100)
-        : null;
-
-      const firstName = pp?.display_name?.split(" ")[0] ?? null;
-
-      setData({
-        loading: false,
-        firstName,
-        profile: pp,
-        todaysSchedule,
-        openRequests,
-        upcoming,
-        recent,
-        payouts,
-        stats: {
-          completed: completed.length,
-          acceptanceRate,
-          cancellationRate,
-          avgResponseSeconds,
-          earningsMinor,
-          currency,
-          ratingAvg: null,
-          ratingCount: null,
-        },
-      });
+      cancellationsError = cancelRes.error;
+      cancelledByProvider = ((cancelRes.data ?? []) as Array<{ actor_role: string }>).filter(
+        (c) => c.actor_role === "provider",
+      ).length;
     }
 
-    load();
+    const today = todayISO();
+    const now = new Date();
+
+    const todaysSchedule = bookings.filter(
+      (b) => b.booking_date === today && (b.status === "accepted" || b.status === "pending"),
+    );
+    const openRequests = bookings.filter(
+      (b) =>
+        b.status === "pending" ||
+        b.dispatch_status === "awaiting_provider" ||
+        b.dispatch_status === "dispatched",
+    );
+    const upcoming = bookings
+      .filter(
+        (b) =>
+          new Date(b.booking_date) >= new Date(today) &&
+          b.status === "accepted",
+      )
+      .sort((a, b) => a.booking_date.localeCompare(b.booking_date));
+    const recent = bookings
+      .filter((b) => b.status === "completed" || new Date(b.booking_date) < now)
+      .slice(0, 6);
+
+    const completed = bookings.filter((b) => b.status === "completed");
+    const earningsMinor = completed.reduce(
+      (s, b) => s + (typeof b.provider_gets === "number" ? b.provider_gets : 0),
+      0,
+    );
+    const currency = completed.find((b) => b.currency)?.currency ?? null;
+
+    const decidedOffers = offers.filter(
+      (o) =>
+        o.offer_status === "accepted" ||
+        o.offer_status === "declined" ||
+        o.offer_status === "expired",
+    );
+    const acceptedCount = offers.filter((o) => o.offer_status === "accepted").length;
+    const acceptanceRate = decidedOffers.length
+      ? Math.round((acceptedCount / decidedOffers.length) * 100)
+      : null;
+
+    const responded = offers
+      .map((o) => {
+        if (!o.offered_at) return null;
+        const decidedAt = o.accepted_at || o.declined_at;
+        if (!decidedAt) return null;
+        const diff =
+          (new Date(decidedAt).getTime() - new Date(o.offered_at).getTime()) / 1000;
+        return diff > 0 ? diff : null;
+      })
+      .filter((n): n is number => typeof n === "number");
+    const avgResponseSeconds = responded.length
+      ? Math.round(responded.reduce((s, n) => s + n, 0) / responded.length)
+      : null;
+
+    const cancellationRate = bookings.length
+      ? Math.round((cancelledByProvider / bookings.length) * 100)
+      : null;
+
+    const firstName = pp?.display_name?.split(" ")[0] ?? null;
+
+    setData({
+      firstName,
+      profile: pp,
+      todaysSchedule,
+      openRequests,
+      upcoming,
+      recent,
+      payouts,
+      stats: {
+        completed: completed.length,
+        acceptanceRate,
+        cancellationRate,
+        avgResponseSeconds,
+        earningsMinor,
+        currency,
+        ratingAvg: null,
+        ratingCount: null,
+      },
+    });
+    setSliceErrors({
+      profile: ppRes.error,
+      bookings: (bookingsRes as any).error ?? null,
+      offers: offersRes.error,
+      payouts: payoutsRes.error,
+      cancellations: cancellationsError,
+    });
+    setLoading(false);
+  }, [user, providerIdText]);
+
+  useEffect(() => {
+    void load();
+    if (!user) return;
 
     const ch = supabase
       .channel(`provider-dash-${user.id}`)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "bookings" },
-        load,
+        () => void load(),
       )
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "provider_offers", filter: `provider_user_id=eq.${user.id}` },
-        load,
+        {
+          event: "*",
+          schema: "public",
+          table: "provider_offers",
+          filter: `provider_user_id=eq.${user.id}`,
+        },
+        () => void load(),
       )
       .on(
         "postgres_changes",
-        { event: "UPDATE", schema: "public", table: "provider_profiles", filter: `user_id=eq.${user.id}` },
-        load,
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "provider_profiles",
+          filter: `user_id=eq.${user.id}`,
+        },
+        () => void load(),
       )
       .subscribe();
 
     return () => {
-      cancelled = true;
       supabase.removeChannel(ch);
     };
-  }, [user, authProfile?.provider_id]);
+  }, [load, user]);
 
-  return data;
+  const error = aggregateError([
+    sliceErrors.profile,
+    sliceErrors.bookings,
+    sliceErrors.offers,
+    sliceErrors.payouts,
+    sliceErrors.cancellations,
+  ]);
+
+  return {
+    ...data,
+    data,
+    loading: isLoading,
+    isLoading,
+    error,
+    sliceErrors,
+    refetch: load,
+  };
 }
