@@ -37,15 +37,15 @@ export interface CustomerDashboardData {
   };
 }
 
-export interface CustomerDashboardResult {
+export type CustomerDashboardResult = CustomerDashboardData & {
+  /** Aggregated data slice (also spread flat above for legacy consumers). */
   data: CustomerDashboardData;
-  /** Legacy alias for `isLoading`; retained so callers don't break. */
   loading: boolean;
   isLoading: boolean;
   error: string | null;
   sliceErrors: { profile: string | null; bookings: string | null };
   refetch: () => Promise<void>;
-}
+};
 
 const EMPTY_DATA: CustomerDashboardData = {
   firstName: null,
