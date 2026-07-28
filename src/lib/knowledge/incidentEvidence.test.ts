@@ -22,8 +22,13 @@ import {
 const INCIDENT = "11111111-1111-1111-1111-111111111111";
 
 function makeFile(name: string, type: string, size: number): File {
-  const blob = new Blob([new Uint8Array(size)], { type });
-  return new File([blob], name, { type });
+  const bytes = new Uint8Array(size);
+  const file = new File([bytes], name, { type });
+  // jsdom's File lacks arrayBuffer(); polyfill for the sha256 helper.
+  if (typeof (file as any).arrayBuffer !== "function") {
+    (file as any).arrayBuffer = async () => bytes.buffer;
+  }
+  return file;
 }
 
 beforeEach(() => {
