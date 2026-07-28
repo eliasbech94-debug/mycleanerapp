@@ -17,6 +17,7 @@ import AuthCallback from "./pages/AuthCallback";
 import ResetPassword from "./pages/ResetPassword";
 import CustomerDashboard from "./pages/CustomerDashboard";
 import CustomerDashboardGate from "./pages/customer/CustomerDashboardGate";
+import CustomerProfileGate from "./pages/customer/CustomerProfileGate";
 import { Navigate } from "react-router-dom";
 import Profile from "./pages/Profile";
 import MobileProfileGate from "./pages/mobile/MobileProfileGate";
