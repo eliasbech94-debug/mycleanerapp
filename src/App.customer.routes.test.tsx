@@ -16,7 +16,28 @@ vi.mock("@/components/RoleGuard", () => ({
   RoleGuard: ({ children }: { children: ReactNode }) => <>{children}</>,
 }));
 vi.mock("./pages/CustomerDashboard", () => ({
-  default: () => <main data-testid="customer-dashboard">CustomerDashboard</main>,
+  default: () => <main data-testid="customer-dashboard-legacy">CustomerDashboardLegacy</main>,
+}));
+vi.mock("@/pages/customer/CustomerDashboardV2", () => ({
+  default: () => <main data-testid="customer-dashboard">CustomerDashboardV2</main>,
+}));
+vi.mock("@/pages/customer/CustomerProfileV2", () => ({
+  default: () => <main data-testid="customer-profile-v2">CustomerProfileV2</main>,
+}));
+vi.mock("./pages/Profile", () => ({
+  default: () => <main data-testid="customer-profile-legacy">ProfileLegacy</main>,
+}));
+vi.mock("@/pages/provider/ProviderDashboardV2", () => ({
+  default: () => <main data-testid="provider-dashboard-v2">ProviderDashboardV2</main>,
+}));
+vi.mock("./pages/ProviderDashboard", () => ({
+  default: () => <main data-testid="provider-dashboard-legacy">ProviderDashboardLegacy</main>,
+}));
+vi.mock("@/pages/provider/ProviderProfileV2", () => ({
+  default: () => <main data-testid="provider-profile-v2">ProviderProfileV2</main>,
+}));
+vi.mock("@/pages/provider/ProviderProfile", () => ({
+  default: () => <main data-testid="provider-profile-legacy">ProviderProfileLegacy</main>,
 }));
 vi.mock("./pages/MyBookings", () => ({
   default: () => <main data-testid="my-bookings">MyBookings</main>,
