@@ -253,19 +253,26 @@ export default function CareerIdentity() {
         <div className="mt-5 space-y-3">
           {jobs.length === 0 && <div className="rounded-xl border border-dashed p-5 text-sm text-muted-foreground">Ingen erfaring tilføjet endnu.</div>}
           {jobs.map((item) => (
-            <article key={item.id} className="flex flex-wrap items-start justify-between gap-4 rounded-xl border p-4">
-              <div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <h3 className="font-semibold">{item.company_name}</h3>
-                  <VerificationBadge status={item.verification_status} />
+            <article key={item.id} className="rounded-xl border p-4">
+              <div className="flex flex-wrap items-start justify-between gap-4">
+                <div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h3 className="font-semibold">{item.company_name}</h3>
+                    <VerificationBadge status={item.verification_status} />
+                  </div>
+                  <p className="text-sm text-muted-foreground">{item.role_title || "Cleaner"} · {formatPeriod(item)}</p>
+                  {(item.city || item.country_code) && <p className="mt-1 text-xs text-muted-foreground">{[item.city, item.country_code].filter(Boolean).join(", ")}</p>}
+                  {item.description && <p className="mt-2 max-w-2xl text-sm">{item.description}</p>}
                 </div>
-                <p className="text-sm text-muted-foreground">{item.role_title || "Cleaner"} · {formatPeriod(item)}</p>
-                {(item.city || item.country_code) && <p className="mt-1 text-xs text-muted-foreground">{[item.city, item.country_code].filter(Boolean).join(", ")}</p>}
-                {item.description && <p className="mt-2 max-w-2xl text-sm">{item.description}</p>}
+                {item.verification_status !== "verified" && (
+                  <Button variant="ghost" size="icon" aria-label="Slet erfaring" onClick={() => removeJob(item.id)}><Trash2 className="h-4 w-4" /></Button>
+                )}
               </div>
-              {item.verification_status !== "verified" && (
-                <Button variant="ghost" size="icon" aria-label="Slet erfaring" onClick={() => removeJob(item.id)}><Trash2 className="h-4 w-4" /></Button>
-              )}
+              <EvidenceUploadPanel
+                evidenceType="work_history"
+                recordId={item.id}
+                recordVerified={item.verification_status === "verified"}
+              />
             </article>
           ))}
         </div>
