@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
+import { SectionErrorState } from "./SectionErrorState";
 
 interface Props {
   title: string;
@@ -9,14 +10,17 @@ interface Props {
   loading?: boolean;
   empty?: boolean;
   emptyState?: ReactNode;
+  error?: string | null;
+  onRetry?: () => void | Promise<void>;
   children?: ReactNode;
   className?: string;
   bodyClassName?: string;
 }
 
 /**
- * SectionCard — titled card wrapper. Handles `loading` skeleton and
- * `empty` state fallback so page-level components stay declarative.
+ * SectionCard — titled card wrapper. Handles `loading` skeleton,
+ * `error` state with retry, and `empty` fallback so page-level
+ * components stay declarative.
  */
 export const SectionCard = ({
   title,
@@ -25,6 +29,8 @@ export const SectionCard = ({
   loading,
   empty,
   emptyState,
+  error,
+  onRetry,
   children,
   className,
   bodyClassName,
@@ -51,6 +57,8 @@ export const SectionCard = ({
           <Skeleton className="h-14 w-full" />
           <Skeleton className="h-14 w-2/3" />
         </div>
+      ) : error ? (
+        <SectionErrorState message={error} onRetry={onRetry} />
       ) : empty ? (
         emptyState
       ) : (
@@ -59,3 +67,4 @@ export const SectionCard = ({
     </div>
   </section>
 );
+
