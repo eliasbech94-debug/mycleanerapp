@@ -3262,31 +3262,40 @@ export type Database = {
       incident_evidence: {
         Row: {
           caption: string | null
+          checksum_algo: string
           created_at: string
+          file_hash: string | null
           file_size: number | null
           id: string
           incident_id: string
           mime_type: string | null
+          original_filename: string | null
           storage_path: string
           uploaded_by: string
         }
         Insert: {
           caption?: string | null
+          checksum_algo?: string
           created_at?: string
+          file_hash?: string | null
           file_size?: number | null
           id?: string
           incident_id: string
           mime_type?: string | null
+          original_filename?: string | null
           storage_path: string
           uploaded_by: string
         }
         Update: {
           caption?: string | null
+          checksum_algo?: string
           created_at?: string
+          file_hash?: string | null
           file_size?: number | null
           id?: string
           incident_id?: string
           mime_type?: string | null
+          original_filename?: string | null
           storage_path?: string
           uploaded_by?: string
         }

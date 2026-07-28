@@ -78,6 +78,7 @@ import ProviderOnboarding from "./pages/provider/ProviderOnboarding";
 import ProviderProfilePage from "./pages/provider/ProviderProfile";
 import ProviderPricing from "./pages/provider/ProviderPricing";
 import AdminPricing from "./pages/admin/AdminPricing";
+import AdminKnowledge from "./pages/admin/AdminKnowledge";
 
 
 initSentry();
@@ -165,6 +166,7 @@ export function AppRoutes() {
       <Route path="/campaigns/verify" element={<CampaignVerify />} />
       <Route path="/campaigns/:slug" element={<CampaignPage />} />
       <Route path="/admin/campaigns" element={<RoleGuard allow={["admin"]}><AdminCampaigns /></RoleGuard>} />
+      <Route path="/admin/knowledge" element={<RoleGuard allow={["admin"]}><AdminKnowledge /></RoleGuard>} />
       <Route path="/admin/design-system" element={<RoleGuard allow={["admin"]}><AdminDesignSystem /></RoleGuard>} />
       <Route path="/not-found" element={<NotFound />} />
       <Route path="*" element={<NotFound />} />
