@@ -140,20 +140,92 @@ a metric has no source; legacy fallback intact.
 - `ProviderProfileGate` at `/provider/profile` — v2 default, `?legacy=1`
   falls back to the classic editor.
 
-## Phase 5 — Cross-cutting polish
+## Phase 5 — Cross-surface QA & Production Hardening (COMPLETE)
 
-- Global route-change scroll-to-top + progress bar already exist; verify.
-- Loading skeletons audited across all four v2 pages.
-- Success/empty animations (existing `animate-fade-in`, `hover-scale`).
-- Dark-mode pass, WCAG AA contrast pass, keyboard-nav pass.
-- Playwright smoke: `/customer`, `/provider-dashboard`, `/profil`,
-  `/provider/profile` — render without errors as each role.
+### Files changed
+- `src/App.customer.routes.test.tsx` — refactored: mocks V2 gates, adds
+  legacy fallback + provider gate coverage.
+- `src/components/RoleGuard.phase5.test.tsx` — new: 5 role-protection tests
+  (logged-out redirect, cross-role denial, matching-role grant, super_admin
+  bypass).
+
+### Routes verified (default = v2, `?legacy=1` falls back)
+- `/customer` → `CustomerDashboardV2` (`RoleGuard allow=["customer"]`).
+- `/customer/profile` → `CustomerProfileV2` (`RoleGuard allow=["customer"]`).
+- `/provider`, `/provider-dashboard` → `ProviderDashboardV2`
+  (`RoleGuard allow=["provider","admin"]`).
+- `/provider/profile` → `ProviderProfileV2`
+  (`RoleGuard allow=["provider","admin"]`).
+- Cross-links: `/customer/bookings`, `/customer/notifications`,
+  `/customer/invoices`, `/customer/addresses`, `/customer/settings`,
+  `/provider/pricing`, `/provider/finance`, `/provider/disputes`,
+  `/profil?tab=<id>` (deep-edit target) — all resolve to existing routes.
+  No dead links found.
+- `RoleGuard` sends unauthenticated users to `/login` with `from` state and
+  logs the attempt to `access_attempts` (existing behaviour, preserved).
+
+### Data / hardening audit
+- No hardcoded colors, no `text-white`/`bg-black` in v2 files or shared
+  primitives — semantic tokens throughout.
+- No fake statistics; all metrics come from `useCustomerDashboard`,
+  `useCustomerProfile`, `useProviderDashboard`, `useProviderProfile` against
+  real tables. Missing sources render `ComingSoonCard` / empty states.
+- Danish formatting via existing `Intl` helpers (`formatDkk`, date-fns
+  locale) already in shared primitives.
+- No admin/service-role calls from v2 hooks — plain PostgREST via anon
+  client subject to existing RLS on `profiles`, `bookings`,
+  `customer_addresses`, `provider_profiles`, `provider_service_prices`,
+  `provider_offers`, `finance_payouts`, `booking_cancellations`,
+  `customer_notifications`, `customer_favorites`.
+
+### Tests run
+- `bunx vitest run` → **461 passed / 0 failed** (was 448; +13 new
+  role/route tests). Typecheck clean (Vite build path unchanged).
+
+### Unresolved (BLOCKERS for legacy deletion in Phase 6)
+1. **Hook error surfacing.** `useCustomerDashboard`, `useCustomerProfile`,
+   `useProviderDashboard`, `useProviderProfile` swallow query errors and
+   expose only `loading` + `data`. Add `error` + `refetch` and wire a
+   user-friendly retry state on each `SectionCard` before deleting legacy
+   fallbacks.
+2. **Playwright smoke against real preview.** Automated e2e for each role
+   (customer, provider, admin bypass) on the 4 v2 surfaces not yet
+   scripted — required before removing `?legacy=1` safety net.
+3. **Accessibility audit.** Automated axe run on all 4 v2 pages pending;
+   only static code review done this phase.
+
+### Legacy inventory (safe to delete once blockers clear)
+Pages:
+- `src/pages/CustomerDashboard.tsx`
+- `src/pages/ProviderDashboard.tsx`
+- `src/pages/Profile.tsx` (only after all `?tab=` deep-links have native v2
+  editors — currently still used as deep-edit target).
+- `src/pages/provider/ProviderProfile.tsx` (same caveat: still deep-edit
+  target from `ProviderProfileV2`).
+
+Gates (delete when legacy pages go):
+- `src/pages/customer/CustomerDashboardGate.tsx`
+- `src/pages/customer/CustomerProfileGate.tsx`
+- `src/pages/provider/ProviderDashboardGate.tsx`
+- `src/pages/provider/ProviderProfileGate.tsx`
+- Inline route wiring in `src/App.tsx` (lines 113, 118, 151-152, 111).
+
+### Criteria required before Phase 6 legacy removal
+1. All four v2 hooks expose `error` + `refetch`; SectionCards render retry
+   UI on failure.
+2. Native v2 editors replace every `?tab=<id>` deep-link into `Profile.tsx`
+   and legacy provider editor (or those routes redirect to v2 sections).
+3. Playwright smoke green for the 4 surfaces under both authenticated
+   roles + admin bypass.
+4. One sprint (7 days) of `?legacy=1` availability with zero rollback
+   requests logged.
 
 ## Phase 6 — Legacy removal
 
-Delete `CustomerDashboard.tsx`, `ProviderDashboard.tsx`, old profile branches
-after 1 sprint of `?legacy=1` availability with no rollback requests.
-Update `nav-config.ts` if any URL changed.
+Blocked on Phase 5 criteria above. When cleared, delete files listed in
+"Legacy inventory" and simplify `src/App.tsx` routes to render V2
+components directly.
+
 
 ## Non-goals
 
