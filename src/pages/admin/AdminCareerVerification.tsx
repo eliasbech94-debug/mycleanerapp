@@ -7,9 +7,9 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { careerDb } from "@/features/career/careerClient";
+import { supabase } from "@/integrations/supabase/client";
 
-const db = careerDb;
+const db = supabase;
 
 type PendingKind = "work_history" | "certification";
 
