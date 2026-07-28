@@ -60,7 +60,7 @@ export default function EvidenceUploadPanel({ evidenceType, recordId, recordVeri
   const handleUpload = async (file: File) => {
     const check = isAllowedEvidenceFile(file);
     if (!check.ok) {
-      toast.error(check.reason);
+      toast.error((check as { ok: false; reason: string }).reason);
       return;
     }
     setUploading(true);
