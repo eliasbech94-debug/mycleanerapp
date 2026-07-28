@@ -1,7 +1,29 @@
-// Scoped, minimal client types for Phase 2 Career Identity tables until the
-// Supabase types file regenerates and includes them natively. Do NOT widen —
-// this file exists so we can drop `supabase as any` casts from the pages.
-import { supabase } from "@/integrations/supabase/client";
+// Career Identity client helpers.
+//
+// After Phase 2's migrations were approved and Supabase types were regenerated,
+// the Career Identity tables (`cleaner_career_profiles`, `cleaner_work_history`,
+// `cleaner_certifications`, `career_evidence_documents`, `career_audit_log`)
+// are now first-class members of `Database["public"]["Tables"]`. The previous
+// `careerDb = supabase as any` scoped cast is therefore no longer required and
+// has been removed — pages import `supabase` directly and receive full
+// generated typing.
+//
+// This module now only exports:
+//   - Row-shape aliases derived from the generated Database types
+//   - Client-side file validation (MIME allow-list + 10 MB cap)
+
+import type { Database } from "@/integrations/supabase/types";
+
+export type CareerEvidenceDocumentRow =
+  Database["public"]["Tables"]["career_evidence_documents"]["Row"];
+export type CleanerCareerProfileRow =
+  Database["public"]["Tables"]["cleaner_career_profiles"]["Row"];
+export type CleanerWorkHistoryRow =
+  Database["public"]["Tables"]["cleaner_work_history"]["Row"];
+export type CleanerCertificationRow =
+  Database["public"]["Tables"]["cleaner_certifications"]["Row"];
+export type CareerAuditLogRow =
+  Database["public"]["Tables"]["career_audit_log"]["Row"];
 
 export type CareerEvidenceType = "work_history" | "certification";
 
@@ -22,6 +44,12 @@ export type CareerVerificationStatus =
   | "rejected"
   | "expired";
 
+/**
+ * Narrowed shape of a career evidence document as consumed by the provider UI.
+ * Kept intentionally smaller than the DB Row: sensitive columns like
+ * `reviewed_by`, `storage_path`, and `updated_at` are never rendered
+ * client-side and are excluded here to prevent accidental exposure.
+ */
 export interface CareerEvidenceDocument {
   id: string;
   user_id: string;
@@ -38,20 +66,6 @@ export interface CareerEvidenceDocument {
   rejection_reason: string | null;
 }
 
-// Scoped cast: only for tables not yet in the generated types file. Do not
-// re-export as a general `db = supabase as any` — always name the table.
-export const careerDb = supabase as unknown as {
-  from: (table:
-    | "career_evidence_documents"
-    | "cleaner_career_profiles"
-    | "cleaner_work_history"
-    | "cleaner_certifications"
-    | "career_audit_log"
-  ) => any;
-  rpc: (fn: "ensure_cleaner_career_profile", args?: Record<string, unknown>) => any;
-  functions: typeof supabase.functions;
-};
-
 export const ALLOWED_EVIDENCE_MIME = [
   "application/pdf",
   "image/jpeg",
@@ -61,8 +75,10 @@ export const ALLOWED_EVIDENCE_MIME = [
 
 export const MAX_EVIDENCE_BYTES = 10 * 1024 * 1024;
 
-export function isAllowedEvidenceFile(file: File): { ok: true } | { ok: false; reason: string } {
-  if (!ALLOWED_EVIDENCE_MIME.includes(file.type as any)) {
+export function isAllowedEvidenceFile(
+  file: File,
+): { ok: true } | { ok: false; reason: string } {
+  if (!ALLOWED_EVIDENCE_MIME.includes(file.type as (typeof ALLOWED_EVIDENCE_MIME)[number])) {
     return { ok: false, reason: "Kun PDF, JPG, PNG eller WebP er tilladt." };
   }
   if (file.size > MAX_EVIDENCE_BYTES) {

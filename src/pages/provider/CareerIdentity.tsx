@@ -10,9 +10,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import EvidenceUploadPanel from "@/features/career/EvidenceUploadPanel";
-import { careerDb } from "@/features/career/careerClient";
+import { supabase } from "@/integrations/supabase/client";
 
-const db = careerDb;
+const db = supabase;
 
 type CareerProfile = {
   id: string;

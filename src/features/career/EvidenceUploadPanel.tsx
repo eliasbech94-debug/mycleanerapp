@@ -2,9 +2,10 @@ import { useCallback, useEffect, useState } from "react";
 import { FileText, Loader2, Trash2, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
 import {
-  careerDb,
   CareerEvidenceDocument,
+  CareerEvidenceStatus,
   CareerEvidenceType,
   isAllowedEvidenceFile,
 } from "@/features/career/careerClient";
@@ -41,7 +42,7 @@ export default function EvidenceUploadPanel({ evidenceType, recordId, recordVeri
   const load = useCallback(async () => {
     setLoading(true);
     const column = evidenceType === "work_history" ? "work_history_id" : "certification_id";
-    const { data, error } = await careerDb
+    const { data, error } = await supabase
       .from("career_evidence_documents")
       .select(
         "id,user_id,work_history_id,certification_id,storage_path,original_filename,mime_type,size_bytes,evidence_type,status,uploaded_at,reviewed_at,rejection_reason",
@@ -49,7 +50,23 @@ export default function EvidenceUploadPanel({ evidenceType, recordId, recordVeri
       .eq(column, recordId)
       .order("uploaded_at", { ascending: false });
     if (error) toast.error("Kunne ikke hente dokumenter");
-    setDocs((data ?? []) as CareerEvidenceDocument[]);
+    setDocs(
+      ((data ?? []) as Array<Record<string, unknown>>).map((r) => ({
+        id: r.id as string,
+        user_id: r.user_id as string,
+        work_history_id: (r.work_history_id as string | null) ?? null,
+        certification_id: (r.certification_id as string | null) ?? null,
+        storage_path: r.storage_path as string,
+        original_filename: (r.original_filename as string | null) ?? null,
+        mime_type: r.mime_type as string,
+        size_bytes: r.size_bytes as number,
+        evidence_type: r.evidence_type as CareerEvidenceType,
+        status: r.status as CareerEvidenceStatus,
+        uploaded_at: r.uploaded_at as string,
+        reviewed_at: (r.reviewed_at as string | null) ?? null,
+        rejection_reason: (r.rejection_reason as string | null) ?? null,
+      })),
+    );
     setLoading(false);
   }, [evidenceType, recordId]);
 
@@ -75,15 +92,16 @@ export default function EvidenceUploadPanel({ evidenceType, recordId, recordVeri
       if (evidenceType === "work_history") initBody.work_history_id = recordId;
       else initBody.certification_id = recordId;
 
-      const { data: init, error: initErr } = await careerDb.functions.invoke(
+      const { data: init, error: initErr } = await supabase.functions.invoke(
         "career-evidence-upload",
         { body: initBody },
       );
-      if (initErr || !init?.upload_url) {
-        throw new Error(initErr?.message ?? init?.error ?? "upload_init_failed");
+      const initData = init as { upload_url?: string; storage_path?: string; error?: string } | null;
+      if (initErr || !initData?.upload_url) {
+        throw new Error(initErr?.message ?? initData?.error ?? "upload_init_failed");
       }
 
-      const putRes = await fetch(init.upload_url, {
+      const putRes = await fetch(initData.upload_url, {
         method: "PUT",
         headers: { "Content-Type": file.type },
         body: file,
@@ -92,7 +110,7 @@ export default function EvidenceUploadPanel({ evidenceType, recordId, recordVeri
 
       const finalizeBody: Record<string, unknown> = {
         step: "finalize",
-        storage_path: init.storage_path,
+        storage_path: initData.storage_path,
         mime_type: file.type,
         size_bytes: file.size,
         original_filename: file.name.slice(0, 200),
@@ -101,7 +119,7 @@ export default function EvidenceUploadPanel({ evidenceType, recordId, recordVeri
       if (evidenceType === "work_history") finalizeBody.work_history_id = recordId;
       else finalizeBody.certification_id = recordId;
 
-      const { error: finErr } = await careerDb.functions.invoke(
+      const { error: finErr } = await supabase.functions.invoke(
         "career-evidence-upload",
         { body: finalizeBody },
       );
@@ -121,7 +139,7 @@ export default function EvidenceUploadPanel({ evidenceType, recordId, recordVeri
       toast.error("Dokumentet er låst efter review");
       return;
     }
-    const { error } = await careerDb
+    const { error } = await supabase
       .from("career_evidence_documents")
       .delete()
       .eq("id", doc.id);
