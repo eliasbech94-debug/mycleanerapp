@@ -199,14 +199,6 @@ export default function ProviderDashboardV2() {
                 <SectionCard
                   title="Åbne anmodninger"
                   description="Svar hurtigt for bedre placering i marketplace."
-                  action={
-                    <Link
-                      to="/provider-dashboard?legacy=1"
-                      className="text-xs font-semibold uppercase tracking-wide text-primary hover:underline"
-                    >
-                      Klassisk visning
-                    </Link>
-                  }
                   loading={data.loading}
                   empty={!data.loading && data.openRequests.length === 0}
                   emptyState={

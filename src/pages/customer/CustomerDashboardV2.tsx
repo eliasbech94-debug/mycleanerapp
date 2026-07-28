@@ -226,7 +226,7 @@ export default function CustomerDashboardV2() {
                       title="Fakturaer"
                       description="Download kvitteringer"
                       icon={FileText}
-                      to="/profil?tab=invoices"
+                      to="/customer/invoices"
                     />
                     <QuickActionCard
                       title="Support"

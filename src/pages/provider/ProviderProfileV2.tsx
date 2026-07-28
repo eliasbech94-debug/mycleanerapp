@@ -2,8 +2,8 @@
 // Reads the same underlying rows as the legacy 16-tab editor
 // (`provider_profiles`, `provider_service_prices`, `bookings`). All
 // editing is now native V2: every "Redigér" opens a SectionEditDialog
-// with a form from `provider-editors`. No `?legacy=1` links in normal
-// user flow — the safety-net remains reachable via `/provider/profile?legacy=1`.
+// with a form from `provider-editors`. Legacy tabbed editor removed in
+// Phase 6.
 import { useCallback, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
