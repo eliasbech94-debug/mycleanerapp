@@ -17,7 +17,9 @@ type PriceRow = { service_code: string; amount_minor: number; currency: string; 
 const CURRENCY: Record<string, { code: string; symbol: string; factor: number; min: number }> = {
   DK: { code: "DKK", symbol: "kr.", factor: 100, min: 140 },
   SE: { code: "SEK", symbol: "kr.", factor: 100, min: 135 },
+  DE: { code: "EUR", symbol: "€", factor: 100, min: 12 },
   ES: { code: "EUR", symbol: "€", factor: 100, min: 8 },
+  GB: { code: "GBP", symbol: "£", factor: 100, min: 11 },
   UK: { code: "GBP", symbol: "£", factor: 100, min: 11 },
 };
 
