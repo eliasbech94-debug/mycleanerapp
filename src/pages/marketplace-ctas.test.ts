@@ -41,7 +41,10 @@ describe("public discovery CTAs use /p/:slug?src=marketplace_pick", () => {
   });
 
   it("PublicProviderProfile guards 'Se andre cleaners' behind AlertDialog confirmation", () => {
-    const src = read("src/pages/PublicProviderProfile.tsx");
+    // The button markup now lives in the shared presentational view.
+    const src =
+      read("src/pages/PublicProviderProfile.tsx") +
+      read("src/components/provider/public/ProviderProfileView.tsx");
     // The button opens the dialog…
     expect(src).toContain('data-testid="see-alternatives-btn"');
     expect(src).toContain("setShowAltDialog(true)");
