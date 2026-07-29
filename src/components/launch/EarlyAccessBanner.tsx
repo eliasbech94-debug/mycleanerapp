@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Rocket, Sparkles } from "lucide-react";
+import { ArrowRight, Sparkle, Sparkles, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -10,16 +10,23 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { EARLY_ACCESS_COPY, EARLY_ACCESS_MODE } from "@/config/launch";
+import logoWatermark from "@/assets/mycleaner-logo.png";
 
 /** Where the CTA sends people: the existing signup / role-selection surface. */
 export const EARLY_ACCESS_SIGNUP_PATH = "/login?mode=signup";
 
-const HEADLINE = "Vær blandt de første på MyCleaner";
-const SUBLINE = "Opret din profil allerede nu. Bookinger åbner snart.";
-const CTA_LABEL = "Opret profil";
-const SECONDARY_LABEL = "Læs mere";
+const BADGE = "Early Access · 1. august";
+const HEADLINE = "MyCleaner åbner dørene";
+const SUBLINE = "Opret din profil nu, og bliv en af de første på platformen.";
+const CTA_LABEL = "Få Early Access";
+const SECONDARY_LABEL = "Se hvordan det virker";
+const FOOTNOTE = "Gratis at oprette · Ingen binding";
 const DIALOG_BODY =
   "MyCleaner åbner som Early Access. Du kan allerede nu oprette din konto, bygge din profil og blive en af de første på platformen. Vi giver dig besked, når bookinger åbner.";
+
+/** Logo-derived palette: deep navy → royal blue → cyan. */
+const GRADIENT =
+  "linear-gradient(115deg, hsl(224 72% 14%) 0%, hsl(226 78% 26%) 38%, hsl(222 88% 42%) 68%, hsl(192 90% 46%) 100%)";
 
 type Variant = "hero" | "compact";
 
@@ -59,10 +66,10 @@ export function EarlyAccessBanner({
   const badge = (
     <span
       data-testid="early-access-badge"
-      className="inline-flex w-fit items-center gap-1.5 rounded-full bg-primary-foreground/15 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-primary-foreground ring-1 ring-inset ring-primary-foreground/25"
+      className="inline-flex w-fit items-center gap-1.5 rounded-full border border-white/35 bg-white/15 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-white backdrop-blur-sm sm:text-[11px]"
     >
       <Sparkles className="h-3 w-3 shrink-0" aria-hidden="true" />
-      Early Access
+      {BADGE}
     </span>
   );
 
@@ -73,23 +80,27 @@ export function EarlyAccessBanner({
         aria-label={HEADLINE}
         data-testid="early-access-banner"
         data-variant="compact"
-        className={`motion-safe:animate-in motion-safe:fade-in motion-safe:duration-500 relative w-full overflow-hidden rounded-xl bg-gradient-to-r from-[hsl(174_72%_14%)] via-[hsl(176_68%_22%)] to-[hsl(186_70%_28%)] text-primary-foreground shadow-sm ${className}`}
+        className={`relative w-full overflow-hidden rounded-xl text-white shadow-md ${className}`}
+        style={{ background: GRADIENT }}
       >
-        <div className="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-          <div className="flex items-center gap-3">
-            <Rocket className="h-4 w-4 shrink-0 opacity-90" aria-hidden="true" />
-            <div className="min-w-0">
-              {badge}
-              <p className="mt-1 text-sm font-medium leading-snug">{SUBLINE}</p>
-            </div>
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -right-10 -top-12 h-40 w-40 rounded-full bg-cyan-300/25 blur-3xl"
+        />
+        <div className="relative flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+          <div className="min-w-0">
+            {badge}
+            <p className="mt-1 text-sm font-medium leading-snug text-white/90">{SUBLINE}</p>
           </div>
           <Button
             asChild
             size="sm"
-            variant="secondary"
-            className="w-full shrink-0 sm:w-auto"
+            className="w-full shrink-0 bg-white text-[hsl(226_78%_26%)] shadow-sm transition-transform hover:bg-white/90 active:scale-[0.98] sm:w-auto"
           >
-            <Link to={EARLY_ACCESS_SIGNUP_PATH}>{CTA_LABEL}</Link>
+            <Link to={EARLY_ACCESS_SIGNUP_PATH}>
+              {CTA_LABEL}
+              <ArrowRight className="ml-1.5 h-4 w-4" aria-hidden="true" />
+            </Link>
           </Button>
         </div>
         {infoDialog}
@@ -103,42 +114,81 @@ export function EarlyAccessBanner({
       aria-label={HEADLINE}
       data-testid="early-access-banner"
       data-variant="hero"
-      className={`w-full px-3 pt-3 sm:px-6 ${className}`}
+      className={`w-full px-4 pt-3 sm:px-6 ${className}`}
     >
-      <div className="motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-top-2 motion-safe:duration-500 relative mx-auto max-w-6xl overflow-hidden rounded-2xl bg-gradient-to-br from-[hsl(174_72%_13%)] via-[hsl(176_68%_20%)] to-[hsl(186_70%_26%)] text-primary-foreground shadow-lg ring-1 ring-inset ring-primary-foreground/10">
-        {/* Very subtle decorative glow */}
+      <div
+        className="motion-safe:animate-in motion-safe:fade-in motion-safe:duration-700 relative mx-auto max-w-6xl overflow-hidden rounded-2xl text-white shadow-[0_18px_50px_-18px_hsl(226_78%_26%/0.75)] ring-1 ring-inset ring-white/15"
+        style={{ background: GRADIENT }}
+      >
+        {/* Radial glows */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-[hsl(176_80%_60%)] opacity-20 blur-3xl"
+          className="motion-safe:animate-pulse pointer-events-none absolute -right-24 -top-28 h-72 w-72 rounded-full bg-cyan-300/30 blur-3xl"
         />
-        <div className="relative flex flex-col gap-4 px-5 py-5 sm:px-8 sm:py-6 md:flex-row md:items-center md:justify-between md:gap-8">
-          <div className="min-w-0">
-            {badge}
-            <h2 className="mt-2 flex items-center gap-2 text-lg font-bold leading-tight sm:text-2xl">
-              <Rocket className="hidden h-5 w-5 shrink-0 opacity-90 sm:inline-block" aria-hidden="true" />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -bottom-24 left-1/3 h-56 w-56 rounded-full bg-blue-400/25 blur-3xl"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -left-16 top-1/2 h-40 w-40 -translate-y-1/2 rounded-full bg-sky-200/20 blur-3xl"
+        />
+
+        {/* Curved graphic element for depth */}
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 600 200"
+          preserveAspectRatio="none"
+          className="pointer-events-none absolute inset-y-0 right-0 h-full w-2/3 opacity-30"
+        >
+          <path d="M180 0 C 320 60, 300 150, 460 200 L600 200 L600 0 Z" fill="white" fillOpacity="0.06" />
+          <path d="M300 0 C 420 70, 400 140, 560 200" stroke="white" strokeOpacity="0.18" strokeWidth="1.5" fill="none" />
+        </svg>
+
+        {/* Logo watermark */}
+        <img
+          src={logoWatermark}
+          alt=""
+          aria-hidden="true"
+          className="pointer-events-none absolute -bottom-8 -right-8 hidden h-[150%] max-w-none select-none opacity-[0.07] md:block"
+        />
+
+        {/* Sparkle accents */}
+        <Sparkle className="pointer-events-none absolute right-[18%] top-6 h-4 w-4 text-white/50" aria-hidden="true" />
+        <Star className="pointer-events-none absolute right-[10%] bottom-8 h-3 w-3 text-cyan-200/60" aria-hidden="true" />
+        <Sparkle className="pointer-events-none absolute right-[30%] bottom-5 h-2.5 w-2.5 text-white/35" aria-hidden="true" />
+
+        <div className="relative flex flex-col gap-3 px-4 py-4 sm:gap-4 sm:px-8 sm:py-7 md:max-w-[62%] md:py-9">
+          {badge}
+          <div>
+            <h2 className="text-2xl font-extrabold leading-[1.1] tracking-tight sm:text-4xl">
               {HEADLINE}
             </h2>
-            <p className="mt-1 text-sm leading-snug text-primary-foreground/85 sm:text-base">
-              {SUBLINE}
-            </p>
+            <p className="mt-2 text-sm leading-snug text-white/85 sm:text-base">{SUBLINE}</p>
           </div>
 
-          <div className="flex w-full flex-col gap-2 md:w-auto md:flex-row md:items-center md:gap-3">
-            <Button asChild size="lg" variant="secondary" className="w-full md:w-auto">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
+            <Button
+              asChild
+              size="lg"
+              className="w-full bg-white text-[hsl(226_78%_26%)] shadow-lg shadow-black/20 transition-transform hover:bg-white/90 active:scale-[0.98] sm:w-auto"
+            >
               <Link to={EARLY_ACCESS_SIGNUP_PATH} data-testid="early-access-cta">
                 {CTA_LABEL}
+                <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
               </Link>
             </Button>
-            <Button
+            <button
               type="button"
-              variant="ghost"
               onClick={() => setOpen(true)}
               data-testid="early-access-more"
-              className="w-full text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground md:w-auto"
+              className="w-fit self-center rounded-md text-sm font-semibold text-white/90 underline underline-offset-4 transition-colors hover:text-white sm:self-auto"
             >
               {SECONDARY_LABEL}
-            </Button>
+            </button>
           </div>
+
+          <p className="text-xs font-medium text-white/70">{FOOTNOTE}</p>
         </div>
       </div>
       {infoDialog}

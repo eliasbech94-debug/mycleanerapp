@@ -21,7 +21,15 @@ const COMPACT_PREFIXES = [
 export function EarlyAccessBannerSlot() {
   const { pathname } = useLocation();
 
-  if (pathname === "/") return <EarlyAccessBanner variant="hero" />;
+  // On "/" below 768px the mobile app shell renders its own copy inside the
+  // shell (under MobileAppBar), so the root-level banner is desktop-only.
+  if (pathname === "/") {
+    return (
+      <div className="hidden md:block">
+        <EarlyAccessBanner variant="hero" />
+      </div>
+    );
+  }
 
   if (COMPACT_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`))) {
     return (

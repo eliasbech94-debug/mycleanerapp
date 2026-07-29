@@ -23,10 +23,11 @@ describe("Early Access mode", () => {
       </MemoryRouter>,
     );
     expect(screen.getByTestId("early-access-banner")).toBeTruthy();
-    expect(screen.getByTestId("early-access-badge").textContent).toContain("Early Access");
-    expect(screen.getByText("Vær blandt de første på MyCleaner")).toBeTruthy();
-    expect(screen.getByText("Opret din profil allerede nu. Bookinger åbner snart.")).toBeTruthy();
-    expect(screen.getByTestId("early-access-cta").textContent).toBe("Opret profil");
+    expect(screen.getByTestId("early-access-badge").textContent).toContain("Early Access · 1. august");
+    expect(screen.getByText("MyCleaner åbner dørene")).toBeTruthy();
+    expect(screen.getByText("Opret din profil nu, og bliv en af de første på platformen.")).toBeTruthy();
+    expect(screen.getByTestId("early-access-cta").textContent).toContain("Få Early Access");
+    expect(screen.getByTestId("early-access-more").textContent).toBe("Se hvordan det virker");
   });
 
   it("points the CTA at the signup / role-selection page only", () => {

@@ -15,6 +15,7 @@
  * trusted earnings source we render an honest unavailable state.
  */
 import { lazy, Suspense, useCallback, useEffect, useState } from "react";
+import EarlyAccessBanner from "@/components/launch/EarlyAccessBanner";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
@@ -785,6 +786,7 @@ export default function MobileHome() {
 
   return (
     <div data-testid="mobile-home" data-audience={audience} className="pb-6">
+      <EarlyAccessBanner />
       {audience === "guest" ? (
         <GuestHome />
       ) : audience === "provider" ? (
