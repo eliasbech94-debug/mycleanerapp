@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -47,6 +48,11 @@ import ProviderDashboardV2 from "./pages/provider/ProviderDashboardV2";
 import ProviderProfileV2 from "./pages/provider/ProviderProfileV2";
 import ProviderReceipts from "./pages/ProviderReceipts";
 import NotFound from "./pages/NotFound";
+import { isDevPreviewEnabled } from "@/lib/appEnv";
+
+// Development-only visual preview. Lazy so it never lands in the prod entry
+// bundle, and the route below is not registered at all in production.
+const ProviderProfilePreview = lazy(() => import("@/dev/ProviderProfilePreview"));
 import FAQ from "./pages/FAQ";
 import Regler from "./pages/Regler";
 import FindCleaner from "./pages/FindCleaner";
@@ -183,6 +189,16 @@ export function AppRoutes() {
       <Route path="/admin/knowledge" element={<RoleGuard allow={["admin"]}><AdminKnowledge /></RoleGuard>} />
       <Route path="/admin/career-verification" element={<RoleGuard allow={["admin"]}><AdminCareerVerification /></RoleGuard>} />
       <Route path="/admin/design-system" element={<RoleGuard allow={["admin"]}><AdminDesignSystem /></RoleGuard>} />
+      {isDevPreviewEnabled() && (
+        <Route
+          path="/dev/provider-profile-preview"
+          element={
+            <Suspense fallback={null}>
+              <ProviderProfilePreview />
+            </Suspense>
+          }
+        />
+      )}
       <Route path="/not-found" element={<NotFound />} />
       <Route path="*" element={<NotFound />} />
     </Routes>

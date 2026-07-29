@@ -24,14 +24,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useAppContext, type AcquisitionSource } from "@/context/AppContext";
 import BackButton from "@/components/BackButton";
 import { usePublicProviderProfileData } from "@/hooks/usePublicProviderProfile";
-import ProviderHero from "@/components/provider/public/ProviderHero";
-import ProviderTrustBadges from "@/components/provider/public/ProviderTrustBadges";
-import ProviderAbout from "@/components/provider/public/ProviderAbout";
-import ProviderServices from "@/components/provider/public/ProviderServices";
-import ProviderAvailability from "@/components/provider/public/ProviderAvailability";
-import ProviderExperience from "@/components/provider/public/ProviderExperience";
-import ProviderReviews from "@/components/provider/public/ProviderReviews";
-import ProviderStickyCta from "@/components/provider/public/ProviderStickyCta";
+import ProviderProfileView from "@/components/provider/public/ProviderProfileView";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const rpc = (name: string, args?: Record<string, unknown>) => (supabase.rpc as any)(name, args);
@@ -161,58 +154,31 @@ export default function PublicProviderProfile() {
 
   return (
     <main className="min-h-screen bg-[hsl(210_60%_98%)]">
-      <div className="mx-auto max-w-4xl px-4 pb-6 pt-4 sm:px-6">
-        <div className="mb-3"><BackButton /></div>
-
-        <div className="space-y-5">
-          <ProviderHero
-            profile={profile}
-            availabilityStatus={availabilityStatus}
-            presenceStatus={presenceStatus}
-            distanceKm={distanceKm}
-            earlyAccess={EARLY_ACCESS_MODE}
-          />
-          <ProviderTrustBadges profile={profile} />
-          <ProviderAbout profile={profile} />
-          <ProviderServices profile={profile} />
-          <ProviderAvailability
-            slots={slots}
-            nextSlot={nextSlot}
-            providerName={profile.display_name}
-            onPick={(d, s) => bookDirect(d, s)}
-            onRequestOther={() => bookDirect()}
-            onNotify={() => {
-              setNotifyRequested(true);
-              toast.success("Vi giver besked, når der åbner en ny tid.");
-            }}
-            notifyRequested={notifyRequested}
-            onSeeAlternatives={() => setShowAltDialog(true)}
-          />
-          <ProviderExperience profile={profile} workHistory={workHistory} />
-          <ProviderReviews profile={profile} reviews={reviews} onVisible={data.loadReviews} />
-
-          <button
-            type="button"
-            onClick={() => setShowAltDialog(true)}
-            className="w-full text-xs text-[hsl(224_20%_45%)] underline underline-offset-2 hover:text-[hsl(224_72%_18%)]"
-            data-testid="see-alternatives-btn"
-          >
-            Se andre cleaners
-          </button>
-
-          <p className="text-center text-xs text-[hsl(224_20%_50%)]">
-            Sikker betaling gennem MyCleaner. Ingen adresser, telefonnumre eller e-mails deles udenfor platformen.
-          </p>
-        </div>
-
-        <ProviderStickyCta
-          earlyAccess={isBookingLocked()}
-          isFollowing={isFav}
-          providerFirstName={firstName}
-          onBook={() => bookDirect()}
-          onFollow={onFollow}
-        />
-      </div>
+      <ProviderProfileView
+        profile={profile}
+        workHistory={workHistory}
+        slots={slots}
+        nextSlot={nextSlot}
+        reviews={reviews}
+        availabilityStatus={availabilityStatus}
+        presenceStatus={presenceStatus}
+        distanceKm={distanceKm}
+        earlyAccess={EARLY_ACCESS_MODE}
+        bookingLocked={isBookingLocked()}
+        isFollowing={isFav}
+        notifyRequested={notifyRequested}
+        header={<BackButton />}
+        onPickSlot={(d, sl) => bookDirect(d, sl)}
+        onRequestOther={() => bookDirect()}
+        onNotify={() => {
+          setNotifyRequested(true);
+          toast.success("Vi giver besked, når der åbner en ny tid.");
+        }}
+        onSeeAlternatives={() => setShowAltDialog(true)}
+        onBook={() => bookDirect()}
+        onFollow={onFollow}
+        onLoadReviews={data.loadReviews}
+      />
 
       <AlertDialog open={showAltDialog} onOpenChange={setShowAltDialog}>
         <AlertDialogContent data-testid="see-alternatives-dialog">
