@@ -88,7 +88,31 @@ function OnboardingInner() {
   const [saving, setSaving] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [initialized, setInitialized] = useState(false);
+  const [hasActiveServicePrice, setHasActiveServicePrice] = useState(false);
+  const [smsVerifiedAt, setSmsVerifiedAt] = useState<string | null>(null);
+  const [submitErrorCode, setSubmitErrorCode] = useState<string | null>(null);
   const saveTimer = useRef<number | null>(null);
+
+  const refreshServicePrices = useCallback(async () => {
+    if (!user) return;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { count } = await (supabase as any)
+      .from("provider_service_prices")
+      .select("service_code", { count: "exact", head: true })
+      .eq("user_id", user.id)
+      .eq("active", true);
+    setHasActiveServicePrice((count ?? 0) > 0);
+  }, [user]);
+
+  const refreshSmsStatus = useCallback(async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from("profiles")
+      .select("sms_verified_at")
+      .eq("id", user.id)
+      .maybeSingle();
+    setSmsVerifiedAt((data as any)?.sms_verified_at ?? null);
+  }, [user]);
 
   const load = useCallback(async () => {
     if (!user) return;
@@ -98,7 +122,8 @@ function OnboardingInner() {
       .eq("user_id", user.id)
       .maybeSingle();
     if (data) setPp(data as any);
-  }, [user]);
+    await Promise.all([refreshServicePrices(), refreshSmsStatus()]);
+  }, [user, refreshServicePrices, refreshSmsStatus]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -114,11 +139,11 @@ function OnboardingInner() {
   // Server-authoritative resume: pick first incomplete step on initial load
   useEffect(() => {
     if (!pp || initialized) return;
-    const completion = computeStepCompletion(pp, authProfile, user);
+    const completion = computeStepCompletion(pp, authProfile, user, { hasActiveServicePrice, smsVerifiedAt });
     const first = completion.findIndex((c) => !c);
     setStep(first === -1 ? STEPS.length - 1 : first);
     setInitialized(true);
-  }, [pp, authProfile, user, initialized]);
+  }, [pp, authProfile, user, initialized, hasActiveServicePrice, smsVerifiedAt]);
 
   // Realtime + polling to reflect webhook updates
   useEffect(() => {
@@ -163,20 +188,33 @@ function OnboardingInner() {
     [user, refreshProfile],
   );
 
-  const completion = useMemo(
-    () => (pp ? computeStepCompletion(pp, authProfile, user) : STEPS.map(() => false)),
-    [pp, authProfile, user],
+  const completionByKey = useMemo(
+    () =>
+      pp
+        ? computeStepCompletionByKey(pp, authProfile, user, { hasActiveServicePrice, smsVerifiedAt })
+        : (Object.fromEntries(ONBOARDING_STEP_KEYS.map((k) => [k, false])) as Record<OnboardingStepKey, boolean>),
+    [pp, authProfile, user, hasActiveServicePrice, smsVerifiedAt],
   );
+  const completion = useMemo(() => ONBOARDING_STEP_KEYS.map((k) => completionByKey[k]), [completionByKey]);
   const overallPct = pp?.completion_pct ?? Math.round((completion.filter(Boolean).length / STEPS.length) * 100);
+  const missingSteps = useMemo(
+    () =>
+      ONBOARDING_STEP_KEYS.slice(0, 6).filter((k) => !completionByKey[k]) as OnboardingStepKey[],
+    [completionByKey],
+  );
 
   async function handleSubmit() {
     setSubmitting(true);
+    setSubmitErrorCode(null);
     const { data, error } = await supabase.functions.invoke("provider-submit-application");
     setSubmitting(false);
-    if (error || (data as any)?.error) {
-      const code = (data as any)?.error || error?.message || "submit_failed";
-      const msg = (data as any)?.message || error?.message || "Kunne ikke indsende ansøgning";
-      toast.error(`${code}: ${msg}`);
+    const errCode = (data as any)?.error || (error?.message ?? "").split(":")[0]?.trim() || null;
+    if (errCode || (data as any)?.error) {
+      const code = errCode || "submit_failed";
+      const message = SUBMIT_ERROR_MESSAGES[code] || (data as any)?.message || error?.message || "Kunne ikke indsende ansøgning";
+      setSubmitErrorCode(code);
+      toast.error(message);
+      await load(); // sync latest server truth so the missing-list stays honest
       return;
     }
     toast.success("Ansøgning indsendt — vi vender tilbage inden for 24-48 timer.");
@@ -193,6 +231,7 @@ function OnboardingInner() {
 
   const canSubmit = completion.slice(0, 6).every(Boolean);
   const currentComplete = completion[step];
+
 
   return (
     <main className="font-editorial" style={{ background: C.cream, color: C.ink }}>
@@ -256,9 +295,9 @@ function OnboardingInner() {
               patchContact={patchContact}
             />
           )}
-          {step === 2 && <StepService pp={pp} patch={patch} />}
+          {step === 2 && <StepService pp={pp} patch={patch} hasActiveServicePrice={hasActiveServicePrice} onServicePricesChange={refreshServicePrices} />}
           {step === 3 && <StepInsurance pp={pp} patch={patch} />}
-          {step === 4 && <StepIdentity pp={pp} authUser={user} />}
+          {step === 4 && <StepIdentity pp={pp} authUser={user} smsVerifiedAt={smsVerifiedAt} />}
           {step === 5 && <StepStripe pp={pp} patch={patch} />}
           {step === 6 && (
             <StepReview
@@ -266,6 +305,8 @@ function OnboardingInner() {
               canSubmit={canSubmit}
               submitting={submitting}
               completion={completion}
+              missingSteps={missingSteps}
+              submitErrorCode={submitErrorCode}
               onSubmit={handleSubmit}
             />
           )}
@@ -467,7 +508,17 @@ function StepBasic({
   );
 }
 
-function StepService({ pp, patch }: { pp: ProviderProfile; patch: (u: Partial<ProviderProfile>) => void }) {
+function StepService({
+  pp,
+  patch,
+  hasActiveServicePrice,
+  onServicePricesChange,
+}: {
+  pp: ProviderProfile;
+  patch: (u: Partial<ProviderProfile>) => void;
+  hasActiveServicePrice: boolean;
+  onServicePricesChange: () => void;
+}) {
   const toggle = (list: string[], id: string) =>
     list.includes(id) ? list.filter((x) => x !== id) : [...list, id];
 
@@ -497,7 +548,15 @@ function StepService({ pp, patch }: { pp: ProviderProfile; patch: (u: Partial<Pr
         </div>
       </Field>
 
-      <ProviderServicePricing countryCode={(pp.base_country_code || "DK").toUpperCase()} />
+      <ProviderServicePricing
+        countryCode={(pp.base_country_code || "DK").toUpperCase()}
+        onChange={onServicePricesChange}
+      />
+      {!hasActiveServicePrice && (
+        <p className="rounded-xl border-2 p-3 text-xs font-semibold" style={{ borderColor: C.orange }}>
+          Aktivér og gem mindst én servicepris, før onboardingen tæller som færdig.
+        </p>
+      )}
 
       <Field label="Overskrift">
         <input
@@ -508,13 +567,16 @@ function StepService({ pp, patch }: { pp: ProviderProfile; patch: (u: Partial<Pr
         />
       </Field>
 
-      <Field label="Beskrivelse">
+      <Field label="Beskrivelse (mindst 40 tegn)">
         <textarea
           className="w-full rounded-lg border px-3 py-2 min-h-[120px]"
           value={pp.bio || ""}
           onChange={(e) => patch({ bio: e.target.value })}
           placeholder="Fortæl om din erfaring, dine metoder og hvorfor kunder skal vælge dig."
         />
+        <span className="mt-1 block text-[11px] opacity-60">
+          {(pp.bio || "").trim().length}/40 tegn
+        </span>
       </Field>
 
       <div className="grid gap-4 sm:grid-cols-2">
@@ -673,8 +735,18 @@ function StepInsurance({ pp, patch }: { pp: ProviderProfile; patch: (u: Partial<
   );
 }
 
-function StepIdentity({ pp, authUser }: { pp: ProviderProfile; authUser: any }) {
+function StepIdentity({
+  pp,
+  authUser,
+  smsVerifiedAt,
+}: {
+  pp: ProviderProfile;
+  authUser: any;
+  smsVerifiedAt: string | null;
+}) {
   const emailOk = !!(authUser.email_confirmed_at || authUser.confirmed_at);
+  const identityOk = pp.identity_status === "approved";
+  const smsOk = !!smsVerifiedAt;
   return (
     <div className="space-y-4">
       <h2 className="font-display text-2xl">Identitet & Verifikation</h2>
@@ -685,20 +757,26 @@ function StepIdentity({ pp, authUser }: { pp: ProviderProfile; authUser: any }) 
       <div className="grid gap-3">
         <StatusRow ok={emailOk} label="Email bekræftet" hint={emailOk ? authUser.email : "Åbn linket i din indbakke"} />
         <StatusRow
-          ok={["approved", "verified"].includes(pp.identity_status)}
-          label="Identitet verificeret"
-          hint={`Status: ${pp.identity_status}`}
+          ok={smsOk}
+          label="Telefon SMS-verificeret"
+          hint={smsOk ? "Bekræftet" : "Verificér dit nummer under Profil → SMS"}
+        />
+        <StatusRow
+          ok={identityOk}
+          label="Identitet godkendt"
+          hint={`Status: ${pp.identity_status}${identityOk ? "" : " — kun 'approved' tæller"}`}
         />
       </div>
 
       <div className="pt-2"><IdentityVerificationCard /></div>
 
       <div className="rounded-xl p-4 text-xs leading-relaxed" style={{ background: C.cream }}>
-        Hvis dit telefonnummer endnu ikke er bekræftet, kan du gøre det under <a className="font-bold underline" href="/profil?tab=info">profil og kontaktoplysninger</a>. Du kan derefter vende tilbage hertil uden at miste noget.
+        Hvis dit telefonnummer endnu ikke er SMS-verificeret, kan du gøre det under <a className="font-bold underline" href="/profil?tab=sms">profil og SMS-verifikation</a>. Du kan derefter vende tilbage hertil uden at miste noget.
       </div>
     </div>
   );
 }
+
 
 function StepStripe({ pp, patch }: { pp: ProviderProfile; patch: (u: Partial<ProviderProfile>) => void }) {
   return (
@@ -708,6 +786,11 @@ function StepStripe({ pp, patch }: { pp: ProviderProfile; patch: (u: Partial<Pro
         Opret din personlige Stripe Connect-konto, så MyCleaner kan sende dine udbetalinger sikkert. MyCleaner ser ikke dine fulde bankoplysninger, og en godkendt Stripe-konto aktiverer ikke automatisk din profil.
       </p>
       <StripeConnectStatusWidget />
+      <div className="grid gap-2">
+        <StatusRow ok={!!pp.stripe_charges_enabled} label="Charges enabled" />
+        <StatusRow ok={!!pp.stripe_payouts_enabled} label="Payouts enabled" />
+        <StatusRow ok={!!pp.stripe_details_submitted} label="Detaljer indsendt (details_submitted)" />
+      </div>
       <div className="mt-4 rounded-xl border-2 p-4" style={{ borderColor: `${C.ink}22` }}>
         <label className="flex items-start gap-3 text-sm">
           <input
@@ -728,13 +811,16 @@ function StepStripe({ pp, patch }: { pp: ProviderProfile; patch: (u: Partial<Pro
   );
 }
 
+
 function StepReview({
-  pp, canSubmit, submitting, completion, onSubmit,
+  pp, canSubmit, submitting, completion, missingSteps, submitErrorCode, onSubmit,
 }: {
   pp: ProviderProfile;
   canSubmit: boolean;
   submitting: boolean;
   completion: boolean[];
+  missingSteps: OnboardingStepKey[];
+  submitErrorCode: string | null;
   onSubmit: () => void;
 }) {
   const submitted = pp.status !== "draft" && pp.status !== "pending_identity" && pp.status !== "pending_stripe";
@@ -759,6 +845,28 @@ function StepReview({
         ))}
       </ul>
 
+      {missingSteps.length > 0 && !submitted && (
+        <div
+          data-testid="missing-requirements"
+          className="rounded-xl border-2 p-4 text-sm"
+          style={{ borderColor: C.orange, background: "#fff7f0" }}
+        >
+          <div className="font-bold uppercase tracking-wider text-[11px]" style={{ color: C.orange }}>
+            Manglende krav
+          </div>
+          <ul className="mt-2 list-disc space-y-1 pl-5">
+            {missingSteps.map((k) => (
+              <li key={k}>{ONBOARDING_STEP_LABELS[k]}</li>
+            ))}
+          </ul>
+          {submitErrorCode && (
+            <p className="mt-3 text-xs opacity-80">
+              Backend afviste indsendelsen: {SUBMIT_ERROR_MESSAGES[submitErrorCode] ?? submitErrorCode}
+            </p>
+          )}
+        </div>
+      )}
+
       {submitted ? (
         <div className="rounded-xl p-4 text-sm" style={{ background: C.mint, color: C.ink }}>
           <strong>Indsendt ✔</strong> — Status: {pp.status.replace(/_/g, " ")}.
@@ -782,6 +890,7 @@ function StepReview({
     </div>
   );
 }
+
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
