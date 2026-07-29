@@ -182,5 +182,6 @@ export function RefundRequestDialog({ conversation }: Props) {
         </DialogFooter>
       </DialogContent>
     </Dialog>
+    </>
   );
 }
