@@ -50,8 +50,8 @@ jobs:
       - name: Guard - required secrets present
         run: |
           missing=0
-          for name in STAGING_SUPABASE_ACCESS_TOKEN STAGING_SUPABASE_PROJECT_REF STAGING_SUPABASE_DB_PASSWORD STAGING_PG_CONN STAGING_SUPABASE_URL; do
-            val="$(printenv "$(echo "$name" | sed 's/^STAGING_SUPABASE_ACCESS_TOKEN$/SUPABASE_ACCESS_TOKEN/; s/^STAGING_SUPABASE_DB_PASSWORD$/SUPABASE_DB_PASSWORD/; s/^STAGING_SUPABASE_PROJECT_REF$/STAGING_PROJECT_REF/; s/^STAGING_PG_CONN$/STAGING_DB_URL/')" || true)"
+          for name in SUPABASE_ACCESS_TOKEN STAGING_PROJECT_REF SUPABASE_DB_PASSWORD STAGING_DB_URL STAGING_SUPABASE_URL; do
+            val="$(printenv "$name" || true)"
             if [ -z "$val" ]; then
               echo "::error::Required GitHub secret missing: $name"
               missing=1
