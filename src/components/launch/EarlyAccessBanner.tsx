@@ -158,7 +158,7 @@ export function EarlyAccessBanner({
         <Star className="pointer-events-none absolute right-[10%] bottom-8 h-3 w-3 text-cyan-200/60" aria-hidden="true" />
         <Sparkle className="pointer-events-none absolute right-[30%] bottom-5 h-2.5 w-2.5 text-white/35" aria-hidden="true" />
 
-        <div className="relative flex flex-col gap-4 px-5 py-5 sm:px-8 sm:py-7 md:max-w-[62%] md:py-9">
+        <div className="relative flex flex-col gap-3 px-4 py-4 sm:gap-4 sm:px-8 sm:py-7 md:max-w-[62%] md:py-9">
           {badge}
           <div>
             <h2 className="text-2xl font-extrabold leading-[1.1] tracking-tight sm:text-4xl">
