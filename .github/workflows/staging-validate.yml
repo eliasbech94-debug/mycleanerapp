@@ -31,10 +31,11 @@ jobs:
     timeout-minutes: 30
 
     env:
-      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-      SUPABASE_DB_PASSWORD:  ${{ secrets.STAGING_DB_PASSWORD }}
-      STAGING_PROJECT_REF:   ${{ secrets.STAGING_PROJECT_REF }}
-      STAGING_DB_URL:        ${{ secrets.STAGING_DB_URL }}
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.STAGING_SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_DB_PASSWORD:  ${{ secrets.STAGING_SUPABASE_DB_PASSWORD }}
+      STAGING_PROJECT_REF:   ${{ secrets.STAGING_SUPABASE_PROJECT_REF }}
+      STAGING_DB_URL:        ${{ secrets.STAGING_PG_CONN }}
+      STAGING_SUPABASE_URL:  ${{ secrets.STAGING_SUPABASE_URL }}
       PROD_REF:              qfjgifubavuomwvroahy
       SUPABASE_CLI_VERSION:  2.60.0
 
@@ -49,7 +50,7 @@ jobs:
       - name: Guard - required secrets present
         run: |
           missing=0
-          for name in SUPABASE_ACCESS_TOKEN STAGING_PROJECT_REF STAGING_DB_PASSWORD STAGING_DB_URL; do
+          for name in SUPABASE_ACCESS_TOKEN STAGING_PROJECT_REF SUPABASE_DB_PASSWORD STAGING_DB_URL STAGING_SUPABASE_URL; do
             val="$(printenv "$name" || true)"
             if [ -z "$val" ]; then
               echo "::error::Required GitHub secret missing: $name"
