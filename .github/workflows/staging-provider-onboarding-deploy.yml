@@ -102,6 +102,7 @@ jobs:
             "20260727223000_provider_service_prices.sql"
             "20260727223200_completion_uses_service_prices.sql"
             "20260727223300_service_price_floor.sql"
+            "20260729175000_provider_service_price_country_compat.sql"
             "20260729180000_backfill_provider_service_prices.sql"
           )
           : > db-push.log
