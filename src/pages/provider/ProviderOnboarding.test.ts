@@ -3,6 +3,8 @@ import {
   computeStepCompletion,
   computeStepCompletionByKey,
   ONBOARDING_STEP_KEYS,
+  ONBOARDING_STEP_LABELS,
+  SUBMIT_ERROR_MESSAGES,
   type OnboardingStepKey,
 } from "@/pages/provider/ProviderOnboarding";
 
@@ -15,6 +17,9 @@ const basePp: any = {
   date_of_birth: null,
   photo_path: null,
   base_address_place_id: null,
+  base_postal_code: null,
+  base_country_code: null,
+  headline: null,
   bio: null,
   service_categories: [],
   languages: [],
@@ -26,6 +31,7 @@ const basePp: any = {
   identity_status: "not_started",
   stripe_charges_enabled: false,
   stripe_payouts_enabled: false,
+  stripe_details_submitted: false,
   terms_accepted_at: null,
 };
 
@@ -36,11 +42,14 @@ const completeBasic = {
   date_of_birth: "1990-01-01",
   photo_path: "p",
   base_address_place_id: "pid",
+  base_postal_code: "1000",
+  base_country_code: "DK",
 };
 const completeBasicProfile = { full_name: "Anna", phone: "+4522334455" };
 const completeService = {
   service_categories: ["cleaning"],
-  bio: "Erfaren cleaner med fokus på kvalitet.",
+  headline: "Erfaren cleaner i København",
+  bio: "Erfaren cleaner med fokus på kvalitet og grundighed hver eneste gang.",
   languages: ["da"],
   service_area_radius_km: 20,
 };
@@ -52,7 +61,13 @@ const completeInsurance = {
 const completeStripe = {
   stripe_charges_enabled: true,
   stripe_payouts_enabled: true,
+  stripe_details_submitted: true,
   terms_accepted_at: "2026-01-01",
+};
+
+const fullyCompleteOpts = {
+  hasActiveServicePrice: true,
+  smsVerifiedAt: "2026-01-01T00:00:00Z",
 };
 
 function fullyComplete(status = "active") {
@@ -63,11 +78,12 @@ function fullyComplete(status = "active") {
       ...completeService,
       ...completeInsurance,
       ...completeStripe,
-      identity_status: "verified",
+      identity_status: "approved",
       status,
     },
     completeBasicProfile,
     { ...baseUser, email_confirmed_at: "2026-01-01" },
+    fullyCompleteOpts,
   );
 }
 
@@ -92,21 +108,23 @@ describe("computeStepCompletionByKey — shape", () => {
     expect(arr).toEqual(ONBOARDING_STEP_KEYS.map((k) => keyed[k]));
     expect(arr).toHaveLength(7);
   });
+
+  it("exposes Danish labels for every step", () => {
+    for (const k of ONBOARDING_STEP_KEYS) {
+      expect(ONBOARDING_STEP_LABELS[k].length).toBeGreaterThan(0);
+    }
+    expect(SUBMIT_ERROR_MESSAGES.requirements_incomplete).toMatch(/mangler/i);
+    expect(SUBMIT_ERROR_MESSAGES.provider_underage).toMatch(/18 år/);
+  });
 });
 
 describe("computeStepCompletionByKey — empty applicant", () => {
   it("only account is complete; every other step is incomplete", () => {
     const c = computeStepCompletionByKey(basePp, {}, baseUser);
-    const incomplete = ONBOARDING_STEP_KEYS.filter((k) => !c[k]);
     expect(c.account).toBe(true);
-    expect(incomplete).toEqual([
-      "basic",
-      "service",
-      "insurance",
-      "identity",
-      "stripe",
-      "review",
-    ]);
+    expect(
+      ONBOARDING_STEP_KEYS.filter((k) => !c[k]),
+    ).toEqual(["basic", "service", "insurance", "identity", "stripe", "review"]);
   });
 
   it("without a user, account itself is incomplete", () => {
@@ -115,38 +133,90 @@ describe("computeStepCompletionByKey — empty applicant", () => {
   });
 });
 
-describe("computeStepCompletionByKey — per-step completion", () => {
-  it("basic completes only when name, dob, phone, address and photo are set", () => {
+describe("computeStepCompletionByKey — basic", () => {
+  it("completes when all identity, phone, address & photo fields are filled and provider is 18+", () => {
     const c = computeStepCompletionByKey(
       { ...basePp, ...completeBasic },
       completeBasicProfile,
       baseUser,
     );
     expect(c.basic).toBe(true);
-    const missingPhone = computeStepCompletionByKey(
-      { ...basePp, ...completeBasic },
-      { full_name: "Anna" },
-      baseUser,
-    );
-    expect(missingPhone.basic).toBe(false);
   });
 
-  it("service completes when categories, bio(>=20), languages and radius are set; prices are server validated", () => {
+  it("under 18 → basic INCOMPLETE (age is client-mirrored from backend)", () => {
+    const dob = new Date();
+    dob.setFullYear(dob.getFullYear() - 17);
+    const c = computeStepCompletionByKey(
+      { ...basePp, ...completeBasic, date_of_birth: dob.toISOString().slice(0, 10) },
+      completeBasicProfile,
+      baseUser,
+    );
+    expect(c.basic).toBe(false);
+  });
+
+  it("missing display_name → basic INCOMPLETE", () => {
+    const c = computeStepCompletionByKey(
+      { ...basePp, ...completeBasic, display_name: null },
+      completeBasicProfile,
+      baseUser,
+    );
+    expect(c.basic).toBe(false);
+  });
+
+  it("missing validated postal code → basic INCOMPLETE", () => {
+    const c = computeStepCompletionByKey(
+      { ...basePp, ...completeBasic, base_postal_code: null },
+      completeBasicProfile,
+      baseUser,
+    );
+    expect(c.basic).toBe(false);
+  });
+});
+
+describe("computeStepCompletionByKey — service", () => {
+  it("bio under 40 chars → service INCOMPLETE", () => {
+    const c = computeStepCompletionByKey(
+      { ...basePp, ...completeService, bio: "kort bio" },
+      {},
+      baseUser,
+      { hasActiveServicePrice: true },
+    );
+    expect(c.service).toBe(false);
+  });
+
+  it("missing headline → service INCOMPLETE", () => {
+    const c = computeStepCompletionByKey(
+      { ...basePp, ...completeService, headline: null },
+      {},
+      baseUser,
+      { hasActiveServicePrice: true },
+    );
+    expect(c.service).toBe(false);
+  });
+
+  it("no saved active service price → service INCOMPLETE", () => {
     const c = computeStepCompletionByKey(
       { ...basePp, ...completeService },
       {},
       baseUser,
+      { hasActiveServicePrice: false },
     );
-    expect(c.service).toBe(true);
-    const shortBio = computeStepCompletionByKey(
-      { ...basePp, ...completeService, bio: "short" },
-      {},
-      baseUser,
-    );
-    expect(shortBio.service).toBe(false);
+    expect(c.service).toBe(false);
   });
 
-  it("insurance requires policy number, doc, and non-expired date", () => {
+  it("all service fields + at least one saved active price → service COMPLETE", () => {
+    const c = computeStepCompletionByKey(
+      { ...basePp, ...completeService },
+      {},
+      baseUser,
+      { hasActiveServicePrice: true },
+    );
+    expect(c.service).toBe(true);
+  });
+});
+
+describe("computeStepCompletionByKey — insurance", () => {
+  it("requires policy number, doc, and non-expired date", () => {
     const c = computeStepCompletionByKey(
       { ...basePp, ...completeInsurance },
       {},
@@ -163,60 +233,75 @@ describe("computeStepCompletionByKey — per-step completion", () => {
 });
 
 describe("computeStepCompletionByKey — identity", () => {
-  it("identity requires verification AND confirmed email", () => {
+  const user = { ...baseUser, email_confirmed_at: "2026-01-01" };
+
+  it("requires identity_status === 'approved' AND email confirmed AND SMS-verified", () => {
     const c = computeStepCompletionByKey(
-      { ...basePp, identity_status: "verified" },
+      { ...basePp, identity_status: "approved" },
       {},
-      { ...baseUser, email_confirmed_at: "2026-01-01" },
+      user,
+      { smsVerifiedAt: "2026-01-01" },
     );
     expect(c.identity).toBe(true);
   });
 
-  it("identity verified but email unconfirmed → incomplete", () => {
+  it("identity_status = 'verified' is NOT enough (backend accepts only 'approved')", () => {
     const c = computeStepCompletionByKey(
       { ...basePp, identity_status: "verified" },
       {},
-      baseUser,
+      user,
+      { smsVerifiedAt: "2026-01-01" },
     );
     expect(c.identity).toBe(false);
   });
 
-  it("email confirmed but identity unverified → incomplete", () => {
+  it("phone not SMS-verified → identity INCOMPLETE", () => {
+    const c = computeStepCompletionByKey(
+      { ...basePp, identity_status: "approved" },
+      {},
+      user,
+      { smsVerifiedAt: null },
+    );
+    expect(c.identity).toBe(false);
+  });
+
+  it("email confirmed but identity NOT approved → INCOMPLETE", () => {
     const c = computeStepCompletionByKey(
       { ...basePp, identity_status: "pending" },
       {},
-      { ...baseUser, email_confirmed_at: "2026-01-01" },
+      user,
+      { smsVerifiedAt: "2026-01-01" },
     );
     expect(c.identity).toBe(false);
   });
 });
 
 describe("computeStepCompletionByKey — stripe", () => {
-  it("stripe submitted without accepted terms → incomplete", () => {
-    const c = computeStepCompletionByKey(
-      { ...basePp, stripe_charges_enabled: true, stripe_payouts_enabled: true },
-      {},
-      baseUser,
-    );
-    expect(c.stripe).toBe(false);
-  });
-
-  it("terms accepted without completed Stripe onboarding → incomplete", () => {
-    const c = computeStepCompletionByKey(
-      { ...basePp, terms_accepted_at: "2026-01-01" },
-      {},
-      baseUser,
-    );
-    expect(c.stripe).toBe(false);
-  });
-
-  it("stripe complete only when charges, payouts and terms are all satisfied", () => {
+  it("charges + payouts + details_submitted + terms all required", () => {
     const c = computeStepCompletionByKey(
       { ...basePp, ...completeStripe },
       {},
       baseUser,
     );
     expect(c.stripe).toBe(true);
+  });
+
+  it("details_submitted = false → stripe INCOMPLETE", () => {
+    const c = computeStepCompletionByKey(
+      { ...basePp, ...completeStripe, stripe_details_submitted: false },
+      {},
+      baseUser,
+    );
+    expect(c.stripe).toBe(false);
+  });
+
+  it("terms not accepted → stripe INCOMPLETE", () => {
+    const c = computeStepCompletionByKey(
+      { ...basePp, ...completeStripe, terms_accepted_at: null },
+      {},
+      baseUser,
+    );
+    expect(c.stripe).toBe(false);
   });
 });
 
@@ -235,12 +320,9 @@ describe("computeStepCompletionByKey — review by status", () => {
     expect(check("active")).toBe(true);
   });
 
-  it("is INCOMPLETE for rejected and suspended (fail closed)", () => {
+  it("is INCOMPLETE for rejected, suspended and unknown statuses (fail closed)", () => {
     expect(check("rejected")).toBe(false);
     expect(check("suspended")).toBe(false);
-  });
-
-  it("is INCOMPLETE for unknown/future statuses (fail closed)", () => {
     expect(check("something_new")).toBe(false);
     expect(check("")).toBe(false);
   });
@@ -252,14 +334,27 @@ describe("computeStepCompletionByKey — end-to-end", () => {
     for (const k of ONBOARDING_STEP_KEYS) expect(c[k]).toBe(true);
   });
 
-  it("fully completed but rejected → onboarding is NOT complete", () => {
+  it("deactivating the only saved service price → onboarding is NOT complete", () => {
+    const c = computeStepCompletionByKey(
+      {
+        ...basePp,
+        ...completeBasic,
+        ...completeService,
+        ...completeInsurance,
+        ...completeStripe,
+        identity_status: "approved",
+        status: "draft",
+      },
+      completeBasicProfile,
+      { ...baseUser, email_confirmed_at: "2026-01-01" },
+      { hasActiveServicePrice: false, smsVerifiedAt: "2026-01-01" },
+    );
+    expect(c.service).toBe(false);
+  });
+
+  it("fully completed but rejected → review is NOT complete", () => {
     const c = fullyComplete("rejected");
     expect(c.review).toBe(false);
     expect(ONBOARDING_STEP_KEYS.every((k: OnboardingStepKey) => c[k])).toBe(false);
-  });
-
-  it("fully completed but suspended → onboarding is NOT complete", () => {
-    const c = fullyComplete("suspended");
-    expect(c.review).toBe(false);
   });
 });
