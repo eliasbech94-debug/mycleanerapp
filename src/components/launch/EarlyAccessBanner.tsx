@@ -150,7 +150,7 @@ export function EarlyAccessBanner({
           src={logoWatermark}
           alt=""
           aria-hidden="true"
-          className="pointer-events-none absolute -right-6 bottom--6 hidden h-[130%] max-w-none select-none opacity-[0.07] md:block"
+          className="pointer-events-none absolute -bottom-8 -right-8 hidden h-[150%] max-w-none select-none opacity-[0.07] md:block"
         />
 
         {/* Sparkle accents */}
