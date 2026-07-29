@@ -11,6 +11,9 @@
     "close": "Close",
     "loading": "Loading…"
   },
+  "common": {
+    "loading": "Loading…"
+  },
   "nav": {
     "home": "Home",
     "bookings": "Bookings",
@@ -31,5 +34,72 @@
     "GB": "United Kingdom",
     "SE": "Sweden",
     "ES": "Spain"
+  },
+  "mobileMessages": {
+    "title": "Messages",
+    "defaultTitle": "Conversation",
+    "supportTitle": "Support",
+    "empty": "No conversations yet. Book a Cleaner to get started.",
+    "error": "Couldn't load messages.",
+    "retry": "Try again",
+    "signedOut": "Sign in to see your messages.",
+    "signIn": "Sign in",
+    "tapToOpen": "Tap to open",
+    "statusClosed": "Closed",
+    "composerLabel": "Write a message",
+    "placeholder": "Write a message…",
+    "send": "Send",
+    "sendFailed": "Couldn't send message",
+    "failed": "Failed to send"
+  },
+  "mobileProfile": {
+    "title": "Profile",
+    "roleGuest": "Guest",
+    "roleCustomer": "Customer",
+    "roleProvider": "Cleaner",
+    "roleMember": "Member",
+    "groupAccount": "Account",
+    "groupPrefs": "Preferences",
+    "groupHelp": "Help",
+    "groupSession": "Session",
+    "info": "Personal information",
+    "addresses": "Addresses",
+    "notifications": "Notifications",
+    "cards": "Cards & payments",
+    "invoices": "Invoices",
+    "payout": "Payouts",
+    "receipts": "Receipts",
+    "sms": "SMS",
+    "tax": "Tax information",
+    "language": "Language",
+    "country": "Country",
+    "faq": "Help & FAQ",
+    "rules": "Rules",
+    "deactivate": "Deactivate account",
+    "signOut": "Sign out",
+    "signIn": "Sign in"
+  },
+  "mobilenav": {
+    "home": "Home",
+    "search": "Search",
+    "bookings": "Bookings",
+    "profile": "Profile",
+    "login": "Log in",
+    "more": "More",
+    "dashboard": "Dashboard",
+    "messages": "Messages",
+    "label": "Primary navigation"
+  },
+  "auth": {
+    "welcome_back": "Welcome back",
+    "subtitle": "Log in to continue",
+    "email": "Email",
+    "password": "Password",
+    "sign_in": "Log in",
+    "forgot": "Forgot password?",
+    "no_account": "Create a profile",
+    "captcha_required": "Please complete the captcha challenge first",
+    "captcha_failed": "Captcha verification failed — please try again",
+    "invalid_credentials": "Invalid email or password"
   }
 }

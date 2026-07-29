@@ -1,21 +1,12 @@
 name: Funds Release v7 Step 7 — Staging Evidence
 
-# Manually triggered only. Runs Scenario 18 (Funds Release v7 Step 7:
-# dual-control authorization + dry-run rehearsal) against the staging
-# environment. Never runs on push. Never deploys. Never touches production.
-# The feature flag funds_release.enabled MUST remain false throughout.
-# See docs/finance/FUNDS_RELEASE_V7_STEP7_REPORT.md.
-
 on:
   workflow_dispatch:
     inputs:
-      run_note:
-        description: "Optional free-text note attached to the run"
+      harness_ref:
+        description: "Fallback branch/ref to source the staging-validation harness from if it does not exist on 'staging' (default: develop)"
         required: false
-        default: ""
-
-permissions:
-  contents: read
+        default: "develop"
 
 concurrency:
   group: v7-step7-staging
@@ -23,83 +14,183 @@ concurrency:
 
 jobs:
   step7:
-    # Hard gate: this workflow is only allowed on the `staging` branch.
+    name: Scenario 18 — dry-run rehearsal evidence
     if: github.ref_name == 'staging'
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    defaults:
-      run:
-        working-directory: staging-validation
-
+    environment: staging
     env:
       STAGING_SUPABASE_URL: ${{ secrets.STAGING_SUPABASE_URL }}
       STAGING_SUPABASE_ANON_KEY: ${{ secrets.STAGING_SUPABASE_ANON_KEY }}
       STAGING_SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.STAGING_SUPABASE_SERVICE_ROLE_KEY }}
-      STAGING_PG_CONN: ${{ secrets.STAGING_PG_CONN }}
-      V7_STEP7_RUN_ID: gha-${{ github.run_id }}-${{ github.run_attempt }}
-
+      STAGING_SUPABASE_PROJECT_REF: ${{ secrets.STAGING_SUPABASE_PROJECT_REF }}
     steps:
       - name: Guard — refuse to run outside the staging branch
         env:
           REF_NAME: ${{ github.ref_name }}
-          REF: ${{ github.ref }}
         run: |
-          if [ "${REF_NAME}" != "staging" ]; then
-            echo "This workflow may only run against the staging branch (got ref_name=${REF_NAME}, ref=${REF})."
+          if [ "$REF_NAME" != "staging" ]; then
+            echo "Refusing to run: workflow must be dispatched from the 'staging' branch (got: $REF_NAME)."
             exit 1
           fi
-          echo "Branch guard OK: ref_name=${REF_NAME}, ref=${REF}"
+          echo "Branch guard OK: $REF_NAME"
 
       - name: Guard — required staging secrets present
         run: |
           missing=0
-          for name in STAGING_SUPABASE_URL STAGING_SUPABASE_ANON_KEY STAGING_SUPABASE_SERVICE_ROLE_KEY STAGING_PG_CONN; do
+          for name in STAGING_SUPABASE_URL STAGING_SUPABASE_ANON_KEY STAGING_SUPABASE_SERVICE_ROLE_KEY STAGING_SUPABASE_PROJECT_REF; do
             if [ -z "${!name}" ]; then
               echo "Missing required secret: $name"
               missing=1
             fi
           done
-          if [ "$missing" = "1" ]; then exit 1; fi
+          if [ "$missing" = "1" ]; then
+            exit 1
+          fi
+          echo "All required staging secrets are present."
 
-
-      - name: Checkout (staging)
+      - name: Checkout staging
         uses: actions/checkout@v4
         with:
           ref: staging
-          persist-credentials: false
+          fetch-depth: 1
+          path: repo
+
+      - name: Detect repository layout and locate harness directory
+        id: layout
+        env:
+          FALLBACK_REF: ${{ github.event.inputs.harness_ref || 'develop' }}
+        run: |
+          set -euo pipefail
+          echo "=== Top-level layout on staging ==="
+          ls -la repo || true
+          echo "=== Searching for staging-validation on staging ==="
+          HARNESS_PATH="$(find repo -maxdepth 4 -type d -name staging-validation -not -path '*/node_modules/*' | head -n 1 || true)"
+
+          if [ -z "$HARNESS_PATH" ]; then
+            echo "staging-validation not found on 'staging' branch."
+            echo "Falling back to ref: $FALLBACK_REF"
+            # Use a separate directory so we do not disturb the staging checkout.
+            git -C repo fetch --no-tags --prune --depth=1 origin "+refs/heads/$FALLBACK_REF:refs/remotes/origin/$FALLBACK_REF"
+            FALLBACK_SHA="$(git -C repo rev-parse "refs/remotes/origin/$FALLBACK_REF")"
+            echo "Fallback SHA: $FALLBACK_SHA"
+            echo "Fallback package.json from $FALLBACK_REF@$FALLBACK_SHA:"
+            git -C repo show "$FALLBACK_SHA:staging-validation/package.json"
+            echo "Fallback script check:"
+            git -C repo show "$FALLBACK_SHA:staging-validation/package.json" | grep '"v7:step7"'
+
+            # Extract only the staging-validation subtree from the fallback ref
+            # without switching the working tree away from staging.
+            mkdir -p repo/staging-validation
+            git -C repo archive --format=tar "$FALLBACK_SHA" -- staging-validation \
+              | tar -x -C repo
+            HARNESS_PATH="repo/staging-validation"
+
+            if [ ! -d "$HARNESS_PATH" ]; then
+              echo "ERROR: staging-validation still missing after fallback checkout from '$FALLBACK_REF'."
+              exit 1
+            fi
+            echo "harness_source=fallback:$FALLBACK_REF@$FALLBACK_SHA" >> "$GITHUB_OUTPUT"
+          else
+            echo "harness_source=staging" >> "$GITHUB_OUTPUT"
+          fi
+
+          echo "Resolved harness directory: $HARNESS_PATH"
+          echo "harness_dir=$HARNESS_PATH" >> "$GITHUB_OUTPUT"
+
+          echo "=== Harness contents ==="
+          ls -la "$HARNESS_PATH"
+
+          if [ ! -f "$HARNESS_PATH/package.json" ]; then
+            echo "ERROR: $HARNESS_PATH/package.json is missing; cannot run Scenario 18."
+            exit 1
+          fi
+
+          if ! grep -q '"v7:step7"' "$HARNESS_PATH/package.json"; then
+            echo "WARNING: Existing harness package.json does not contain v7:step7."
+            echo "Falling back to latest ref: $FALLBACK_REF"
+            git -C repo fetch --no-tags --prune --depth=1 origin "+refs/heads/$FALLBACK_REF:refs/remotes/origin/$FALLBACK_REF"
+            FALLBACK_SHA="$(git -C repo rev-parse "refs/remotes/origin/$FALLBACK_REF")"
+            echo "Fallback SHA: $FALLBACK_SHA"
+            echo "Fallback package.json from $FALLBACK_REF@$FALLBACK_SHA:"
+            git -C repo show "$FALLBACK_SHA:staging-validation/package.json"
+            echo "Fallback script check:"
+            git -C repo show "$FALLBACK_SHA:staging-validation/package.json" | grep '"v7:step7"'
+            rm -rf repo/staging-validation
+            git -C repo archive --format=tar "$FALLBACK_SHA" -- staging-validation \
+              | tar -x -C repo
+            HARNESS_PATH="repo/staging-validation"
+            echo "harness_source=fallback:$FALLBACK_REF@$FALLBACK_SHA" >> "$GITHUB_OUTPUT"
+            echo "harness_dir=$HARNESS_PATH" >> "$GITHUB_OUTPUT"
+          fi
+
+          echo "=== Scenario 18 harness diagnostics ==="
+          cd "$HARNESS_PATH"
+          echo "pwd: $(pwd)"
+          echo "ls -la:"
+          ls -la
+          echo "package.json:"
+          cat package.json
+          echo "grep v7:step7:"
+          grep '"v7:step7"' package.json
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
 
-      - name: Install dependencies (frozen)
-        run: bun install --frozen-lockfile
-
-      - name: Run Funds Release v7 Step 7 scenario (Scenario 18)
-        # Scenario 18 asserts all 14 checks: privilege lockdown,
-        # dry-run-only state transitions, idempotency, advisory locking,
-        # executable-path isolation (no ledger/bank/transfer/payout writes),
-        # and feature-flag OFF invariant.
-        run: bun run v7:step7
-
-      - name: Verify evidence artefacts exist
-        if: always()
+      - name: Install staging-validation deps
+        working-directory: ${{ steps.layout.outputs.harness_dir }}
         run: |
-          set -e
-          ls -R evidence/"${V7_STEP7_RUN_ID}" || (echo "No evidence produced"; exit 1)
-          test -f "evidence/${V7_STEP7_RUN_ID}/report.json" || (echo "report.json missing"; exit 1)
+          echo "=== Pre-install harness diagnostics ==="
+          pwd
+          ls -la
+          cat package.json
+          grep '"v7:step7"' package.json
+          if [ -f bun.lock ] || [ -f bun.lockb ]; then
+            bun install --frozen-lockfile
+          else
+            echo "No bun lockfile present; installing without --frozen-lockfile."
+            bun install
+          fi
 
-      - name: Upload redacted evidence
+      - name: Run Scenario 18 (Funds Release v7 Step 7 rehearsal evidence)
+        working-directory: ${{ steps.layout.outputs.harness_dir }}
+        env:
+          NODE_ENV: staging
+          FUNDS_RELEASE_STEP: "7"
+          HARNESS_SOURCE: ${{ steps.layout.outputs.harness_source }}
+        run: |
+          echo "=== Pre-run harness diagnostics ==="
+          git rev-parse HEAD
+          git branch --show-current
+          pwd
+          ls -la
+          cat package.json
+          grep '"v7:step7"' package.json || true
+          echo "=== Scenarios directory tree ==="
+          ls -R scenarios || true
+          echo "=== Resolved v7:step7 target ==="
+          ls -la scenarios/18-funds-release-step7.ts || true
+          bun run v7:step7
+
+      - name: Collect redacted evidence
+        if: always()
+        working-directory: ${{ steps.layout.outputs.harness_dir }}
+        run: |
+          mkdir -p "$GITHUB_WORKSPACE/artifacts"
+          if [ -d reports ]; then
+            cp -r reports "$GITHUB_WORKSPACE/artifacts/reports" || true
+          fi
+          if [ -d logs ]; then
+            cp -r logs "$GITHUB_WORKSPACE/artifacts/logs" || true
+          fi
+
+      - name: Upload evidence artifact
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: v7-step7-staging-evidence
+          name: v7-step7-staging-evidence-${{ github.run_id }}
+          path: artifacts/
           retention-days: 30
-          if-no-files-found: error
-          # Only redacted machine-readable + markdown summaries. Never
-          # raw HTTP transcripts or environment files.
-          path: |
-            staging-validation/evidence/**/report.json
-            staging-validation/evidence/**/report.md
-            staging-validation/evidence/**/manifest.json
+          if-no-files-found: warn

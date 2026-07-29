@@ -12,6 +12,7 @@ import AddressBook from "@/components/AddressBook";
 import { listAddresses, buildAutoNotes, updateAddressAccess, PLACE_TYPE_LABEL, ACCESS_METHOD_LABEL, type CustomerAddress, type AccessMethod } from "@/lib/customerAddresses";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { useAuth } from "@/hooks/useAuth";
+import { useAppContext } from "@/context/AppContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Elements, CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { loadStripe, type Stripe as StripeJS } from "@stripe/stripe-js";
@@ -95,6 +96,7 @@ function BookingFlowInner() {
   const [date, setDate] = useState<Date | null>(null);
   const [slot, setSlot] = useState<string>(params.get("slot") || "");
   const { profile, user } = useAuth();
+  const { providerLock } = useAppContext();
   const [address, setAddress] = useState<string>("");
   const [addressPlaceId, setAddressPlaceId] = useState<string | null>(null);
   const [addressLat, setAddressLat] = useState<number | null>(null);
@@ -235,6 +237,11 @@ function BookingFlowInner() {
               lat: addressLat,
               lng: addressLng,
               notes: notes || null,
+              // Attribution (contractual, retained on the booking row).
+              // Slug is authoritative; server re-derives provider from the locked quote and
+              // rejects the request if the slug doesn't match that provider.
+              acquisition_source: providerLock?.slug ? providerLock.source : "marketplace",
+              acquisition_provider_slug: providerLock?.slug ?? null,
             },
           });
           if (error || !data?.client_secret) {

@@ -4,17 +4,24 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import Header from "@/components/layout/Header";
+import MobileBottomNav from "@/components/layout/MobileBottomNav";
 import Footer from "@/components/layout/Footer";
 import CustomCursor from "@/components/CustomCursor";
 import { AuthProvider } from "@/hooks/useAuth";
 import Index from "./pages/Index";
+import MobileHomeGate from "./pages/mobile/MobileHomeGate";
+import MobileMarketplaceGate from "./pages/mobile/MobileMarketplaceGate";
+import MobileBookingsGate from "./pages/mobile/MobileBookingsGate";
 import Login from "./pages/Login";
 import AuthCallback from "./pages/AuthCallback";
 import ResetPassword from "./pages/ResetPassword";
-import CustomerDashboard from "./pages/CustomerDashboard";
+import CustomerDashboardV2 from "./pages/customer/CustomerDashboardV2";
+import CustomerProfileV2 from "./pages/customer/CustomerProfileV2";
 import { Navigate } from "react-router-dom";
-import Profile from "./pages/Profile";
-import ProviderRegister from "./pages/ProviderRegister";
+import MobileProfileGate from "./pages/mobile/MobileProfileGate";
+import MobileInboxGate from "./pages/mobile/MobileInboxGate";
+import FoundingCleaner from "./pages/FoundingCleaner";
+import MobileFoundingCleanerGate from "./pages/mobile/MobileFoundingCleanerGate";
 import ProviderProfile from "./pages/ProviderProfile";
 import CustomerRegister from "./pages/CustomerRegister";
 import CreateTask from "./pages/CreateTask";
@@ -36,7 +43,8 @@ import {
   SupportCustomers, SupportProviders, SupportBookings,
 } from "./pages/support/SupportShell";
 
-import ProviderDashboard from "./pages/ProviderDashboard";
+import ProviderDashboardV2 from "./pages/provider/ProviderDashboardV2";
+import ProviderProfileV2 from "./pages/provider/ProviderProfileV2";
 import ProviderReceipts from "./pages/ProviderReceipts";
 import NotFound from "./pages/NotFound";
 import FAQ from "./pages/FAQ";
@@ -48,6 +56,11 @@ import { ProviderFinance, AdminFinance } from "./pages/finance/FinancePages";
 import AdminDisputes from "./pages/AdminDisputes";
 import ProviderDisputes from "./pages/ProviderDisputes";
 import { RoleGuard } from "@/components/RoleGuard";
+import CampaignPage from "./pages/campaigns/CampaignPage";
+import CampaignVerify from "./pages/campaigns/CampaignVerify";
+import AdminCampaigns from "./pages/admin/AdminCampaigns";
+import AdminDesignSystem from "./pages/admin/AdminDesignSystem";
+import { UuidGuard, LegacySlugRedirect } from "@/components/routing/UuidGuard";
 import ScrollToTop from "@/components/ScrollToTop";
 import RouteLoadingBar from "@/components/RouteLoadingBar";
 import PrivacyCenter from "./pages/PrivacyCenter";
@@ -58,12 +71,17 @@ import { StagingBanner } from "@/components/StagingBanner";
 import { installFrontendMonitoring, initSentry } from "@/lib/monitoring";
 import OAuthConsent from "./pages/OAuthConsent";
 import { CountryProvider } from "@/i18n/CountryContext";
+import { ActiveMarketProvider } from "@/context/ActiveMarketContext";
+import { AppContextProvider } from "@/context/AppContext";
+import { AuthGateProvider } from "@/context/AuthGateContext";
 import IdentityVerificationPage from "./pages/identity/IdentityVerificationPage";
 import ProviderOnboarding from "./pages/provider/ProviderOnboarding";
 import ProviderProfilePage from "./pages/provider/ProviderProfile";
 import CareerIdentity from "./pages/provider/CareerIdentity";
 import ProviderPricing from "./pages/provider/ProviderPricing";
 import AdminPricing from "./pages/admin/AdminPricing";
+import AdminKnowledge from "./pages/admin/AdminKnowledge";
+import AdminCareerVerification from "./pages/admin/AdminCareerVerification";
 
 
 initSentry();
@@ -81,28 +99,34 @@ const COUNTRY_ROUTE_PREFIXES = ["dk", "gb", "se", "es"] as const;
 export function AppRoutes() {
   return (
     <Routes>
-      <Route path="/" element={<Index />} />
+      <Route path="/" element={<MobileHomeGate />} />
       <Route path="/login" element={<Login />} />
       <Route path="/auth/callback" element={<AuthCallback />} />
       <Route path="/reset-password" element={<ResetPassword />} />
-      <Route path="/profil" element={<Profile />} />
+      <Route path="/profil" element={<MobileProfileGate />} />
+      <Route path="/inbox" element={<MobileInboxGate />} />
+      <Route path="/inbox/:id" element={<MobileInboxGate />} />
       <Route path="/verify-identity" element={<RoleGuard allow={["provider", "admin"]}><IdentityVerificationPage /></RoleGuard>} />
       <Route path="/bliv-cleaner" element={<ProviderOnboarding />} />
-      <Route path="/provider/profile" element={<RoleGuard allow={["provider", "admin"]}><ProviderProfilePage /></RoleGuard>} />
+      <Route path="/provider/profile" element={<RoleGuard allow={["provider", "admin"]}><ProviderProfileV2 /></RoleGuard>} />
       <Route path="/provider/career" element={<RoleGuard allow={["provider", "admin"]}><CareerIdentity /></RoleGuard>} />
 
-      <Route path="/customer" element={<RoleGuard allow={["customer"]}><CustomerDashboard /></RoleGuard>} />
-      <Route path="/customer/bookings" element={<RoleGuard allow={["customer"]}><MyBookings /></RoleGuard>} />
+      <Route path="/customer" element={<RoleGuard allow={["customer"]}><CustomerDashboardV2 /></RoleGuard>} />
+      <Route path="/customer/bookings" element={<RoleGuard allow={["customer"]}><MobileBookingsGate /></RoleGuard>} />
       <Route path="/customer/notifications" element={<RoleGuard allow={["customer"]}><Navigate to="/profil?tab=inbox" replace /></RoleGuard>} />
       <Route path="/customer/invoices" element={<RoleGuard allow={["customer"]}><Navigate to="/profil?tab=invoices" replace /></RoleGuard>} />
       <Route path="/customer/addresses" element={<RoleGuard allow={["customer"]}><Navigate to="/profil?tab=addresses" replace /></RoleGuard>} />
-      <Route path="/customer/profile" element={<RoleGuard allow={["customer"]}><Navigate to="/profil?tab=info" replace /></RoleGuard>} />
+      <Route path="/customer/profile" element={<RoleGuard allow={["customer"]}><CustomerProfileV2 /></RoleGuard>} />
       <Route path="/customer/settings" element={<RoleGuard allow={["customer"]}><Navigate to="/profil?tab=notifications" replace /></RoleGuard>} />
-      <Route path="/provider/register" element={<ProviderRegister />} />
-      <Route path="/provider/:id" element={<ProviderProfile />} />
+      <Route path="/provider/register" element={<Navigate to="/bliv-cleaner" replace />} />
+      <Route path="/founding-cleaner" element={<MobileFoundingCleanerGate />} />
+      {/* UUID-guarded internal provider route. Non-UUID falls through to NotFound. */}
+      <Route path="/provider/:id" element={<UuidGuard param="id"><ProviderProfile /></UuidGuard>} />
       <Route path="/find-cleaner" element={<FindCleaner />} />
-      <Route path="/marketplace" element={<Marketplace />} />
-      <Route path="/c/:slug" element={<PublicProviderProfile />} />
+      <Route path="/marketplace" element={<MobileMarketplaceGate />} />
+      {/* Canonical public provider URL. `/c/:slug` is kept as a legacy alias and client-redirects. */}
+      <Route path="/p/:slug" element={<PublicProviderProfile />} />
+      <Route path="/c/:slug" element={<LegacySlugRedirect />} />
       <Route path="/customer/register" element={<CustomerRegister />} />
       <Route path="/task/create" element={<CreateTask />} />
       <Route path="/task/offers" element={<MatchingOffers />} />
@@ -123,9 +147,10 @@ export function AppRoutes() {
       <Route path="/support/bookings" element={<RoleGuard allow={["support", "admin"]}><SupportBookings /></RoleGuard>} />
       <Route path="/book" element={<BookingEntry />} />
       <Route path="/book/:id" element={<BookingFlow />} />
-      <Route path="/mine-bookinger" element={<MyBookings />} />
+      <Route path="/mine-bookinger" element={<MobileBookingsGate />} />
       <Route path="/booking/:id/plan" element={<BookingPlan />} />
-      <Route path="/provider-dashboard" element={<RoleGuard allow={["provider", "admin"]}><ProviderDashboard /></RoleGuard>} />
+      <Route path="/provider-dashboard" element={<RoleGuard allow={["provider", "admin"]}><ProviderDashboardV2 /></RoleGuard>} />
+      <Route path="/provider" element={<RoleGuard allow={["provider", "admin"]}><ProviderDashboardV2 /></RoleGuard>} />
       <Route path="/provider/pricing" element={<RoleGuard allow={["provider", "admin"]}><ProviderPricing /></RoleGuard>} />
       <Route path="/admin/pricing" element={<RoleGuard allow={["admin"]}><AdminPricing /></RoleGuard>} />
       <Route path="/provider/finance" element={<RoleGuard allow={["provider", "admin"]}><ProviderFinance /></RoleGuard>} />
@@ -143,6 +168,12 @@ export function AppRoutes() {
         element={<RoleGuard allow={["provider", "admin", "super_admin"]}><ProviderReceipts /></RoleGuard>}
       />
       <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
+      <Route path="/campaigns/verify" element={<CampaignVerify />} />
+      <Route path="/campaigns/:slug" element={<CampaignPage />} />
+      <Route path="/admin/campaigns" element={<RoleGuard allow={["admin"]}><AdminCampaigns /></RoleGuard>} />
+      <Route path="/admin/knowledge" element={<RoleGuard allow={["admin"]}><AdminKnowledge /></RoleGuard>} />
+      <Route path="/admin/career-verification" element={<RoleGuard allow={["admin"]}><AdminCareerVerification /></RoleGuard>} />
+      <Route path="/admin/design-system" element={<RoleGuard allow={["admin"]}><AdminDesignSystem /></RoleGuard>} />
       <Route path="/not-found" element={<NotFound />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
@@ -185,12 +216,20 @@ const App = () => (
         <CustomCursor />
         <BrowserRouter>
           <AuthProvider>
-            <ScrollToTop />
-            <RouteLoadingBar />
-            <Header />
-            <RootRouteSwitch />
-            <Footer />
+            <ActiveMarketProvider>
+              <AppContextProvider>
+                <AuthGateProvider>
+                  <ScrollToTop />
+                  <RouteLoadingBar />
+                  <Header />
+                  <RootRouteSwitch />
+                  <Footer />
+                  <MobileBottomNav />
+                </AuthGateProvider>
+              </AppContextProvider>
+            </ActiveMarketProvider>
           </AuthProvider>
+
         </BrowserRouter>
       </TooltipProvider>
     </AppErrorBoundary>

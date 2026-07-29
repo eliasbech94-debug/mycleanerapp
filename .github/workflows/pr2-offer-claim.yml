@@ -1,0 +1,72 @@
+name: PR-2 — Offer Claim / Decline Staging Evidence
+
+# Manually triggered only. Runs Scenario 20 (atomic direct-provider offer claim,
+# decline, service-duration rules, eligibility gates and true parallel
+# concurrency) against the staging Supabase project. Never runs on push.
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_note:
+        description: "Optional free-text note attached to the run"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pr2-offer-claim-staging
+  cancel-in-progress: false
+
+jobs:
+  scenario-20:
+    if: github.ref_name == 'staging'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: staging-validation
+
+    env:
+      STAGING_SUPABASE_URL: ${{ secrets.STAGING_SUPABASE_URL }}
+      STAGING_SUPABASE_ANON_KEY: ${{ secrets.STAGING_SUPABASE_ANON_KEY }}
+      STAGING_SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.STAGING_SUPABASE_SERVICE_ROLE_KEY }}
+      STAGING_PG_CONN: ${{ secrets.STAGING_PG_CONN }}
+      STAGING_APP_URL: ${{ secrets.STAGING_APP_URL }}
+      RC2_ALLOW_DESTRUCTIVE_STAGING_TESTS: "true"
+      RC2_RUN_ID: gha-${{ github.run_id }}-${{ github.run_attempt }}
+
+    steps:
+      - name: Checkout (staging)
+        uses: actions/checkout@v4
+        with:
+          ref: staging
+          persist-credentials: false
+
+      - name: Guard — refuse to run outside the staging branch
+        run: |
+          if [ "${GITHUB_REF_NAME}" != "staging" ]; then
+            echo "This workflow may only run against the staging branch (got ${GITHUB_REF_NAME})."
+            exit 1
+          fi
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies (frozen)
+        run: bun install --frozen-lockfile
+
+      - name: Run Scenario 20 — Offer claim / decline
+        run: bun run pr2:claim | tee evidence-scenario-20.log
+
+      - name: Upload scenario output
+        if: always() && hashFiles('staging-validation/evidence-scenario-20.log') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr2-scenario-20
+          retention-days: 14
+          if-no-files-found: warn
+          path: staging-validation/evidence-scenario-20.log

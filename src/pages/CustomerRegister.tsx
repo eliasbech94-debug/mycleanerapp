@@ -13,7 +13,16 @@ import Turnstile, { resetTurnstile } from "@/components/Turnstile";
 import { fetchActiveRequiredDocs, recordAcceptances, type ActiveLegalDoc } from "@/lib/legalAcceptance";
 
 const propertyTypes = ["Lejlighed", "Rækkehus", "Villa", "Landejendom", "Erhverv", "Andet"];
-const steps = ["Konto", "Bolig", "Præferencer"];
+const steps = ["Konto", "Dit hjem", "Præferencer"];
+
+const C = {
+  ink: "#0a3d3a",
+  orange: "#ff6b35",
+  cream: "#f5f0e0",
+  paper: "#fbf6e7",
+  teal: "#168a7a",
+  mint: "#c8e6c0",
+};
 
 const CustomerRegister = () => {
   const navigate = useNavigate();
@@ -101,7 +110,7 @@ const CustomerRegister = () => {
           email: form.email,
           password: form.password,
           options: {
-            emailRedirectTo: `${window.location.origin}/profil`,
+            emailRedirectTo: `${window.location.origin}/book`,
             data: { full_name: `${form.firstName} ${form.lastName}`.trim() },
             captchaToken: usedCaptcha,
           },
@@ -118,7 +127,7 @@ const CustomerRegister = () => {
           } as any);
           if (signinErr || !signin.session) {
             toast.success("Konto oprettet — bekræft din email for at færdiggøre profilen");
-            navigate("/login?redirect=/profil");
+            navigate("/login?redirect=/book");
             return;
           }
           userId = signin.user.id;
@@ -178,8 +187,8 @@ const CustomerRegister = () => {
         catch (e) { console.warn("legal acceptance write failed", e); }
       }
 
-      toast.success("Velkommen! Din profil er oprettet");
-      navigate("/profil");
+      toast.success("Velkommen! Dit hjem er gemt — nu kan du booke");
+      navigate("/book");
     } catch (err: any) {
       toast.error(err?.message || "Noget gik galt");
     } finally {
@@ -190,27 +199,34 @@ const CustomerRegister = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container-narrow py-12">
-        <div className="max-w-2xl mx-auto">
-          <div className="text-center mb-8">
-            <h1 className="font-heading text-3xl font-bold mb-2">Opret din profil</h1>
-            <p className="text-muted-foreground">Jo mere du fortæller, jo bedre matching og tilbud får du</p>
+    <main className="min-h-screen font-editorial" style={{ background: C.cream, color: C.ink }}>
+      <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-16">
+        <div className="mx-auto max-w-3xl">
+          <div className="mb-8 border-b-2 pb-7 sm:mb-10 sm:pb-9" style={{ borderColor: C.ink }}>
+            <p className="mb-3 text-[10px] font-black uppercase tracking-[0.28em]" style={{ color: C.orange }}>
+              Kom godt i gang
+            </p>
+            <h1 className="max-w-2xl text-4xl font-black leading-[1.02] tracking-[-0.04em] sm:text-6xl">
+              Opret dit hjem. Book din cleaner.
+            </h1>
+            <p className="mt-4 max-w-xl text-base leading-relaxed opacity-75 sm:text-lg">
+              Tre korte trin, så vi kan vise relevante cleaners, realistiske tider og den rigtige pris.
+            </p>
           </div>
 
-          <div className="flex items-center gap-1 mb-10">
+          <div className="mb-8 grid grid-cols-3 gap-2 sm:mb-10">
             {steps.map((s, i) => (
               <div key={s} className="flex-1">
-                <div className={`h-1.5 rounded-full transition-all ${i <= step ? "gradient-hero" : "bg-border"}`} />
-                <p className={`text-xs mt-1.5 ${i === step ? "text-primary font-medium" : "text-muted-foreground"}`}>{s}</p>
+                <div className="h-1.5 rounded-full transition-all" style={{ background: i <= step ? C.orange : "rgba(10,61,58,.18)" }} />
+                <p className={`mt-2 text-[10px] font-black uppercase tracking-[0.16em] ${i === step ? "" : "opacity-45"}`}>{s}</p>
               </div>
             ))}
           </div>
 
-          <div className="glass-card p-6 md:p-8">
+          <div className="rounded-[1.75rem] border-2 p-5 shadow-[6px_6px_0_#0a3d3a] sm:p-8" style={{ background: C.paper, borderColor: C.ink }}>
             {step === 0 && (
               <div className="space-y-5">
-                <h2 className="font-heading text-xl font-semibold">Personlige oplysninger</h2>
+                <h2 className="text-2xl font-black tracking-[-0.02em]">Først: hvem er du?</h2>
                 {authed && (
                   <div className="flex items-center gap-2 rounded-lg bg-success/10 border border-success/20 text-success px-3 py-2 text-sm">
                     <CheckCircle2 className="h-4 w-4" /> Du er allerede logget ind
@@ -263,10 +279,10 @@ const CustomerRegister = () => {
 
             {step === 1 && (
               <div className="space-y-5">
-                <h2 className="font-heading text-xl font-semibold flex items-center gap-2">
-                  <Home className="h-5 w-5 text-primary" /> Din bolig
+                <h2 className="flex items-center gap-2 text-2xl font-black tracking-[-0.02em]">
+                  <Home className="h-5 w-5" style={{ color: C.orange }} /> Dit hjem
                 </h2>
-                <p className="text-sm text-muted-foreground">Disse oplysninger hjælper os med at matche dig med de rette fagfolk og give præcise tilbud.</p>
+                <p className="text-sm leading-relaxed opacity-70">Oplysningerne bruges til rengøringen og deles kun med den cleaner, du booker.</p>
                 <div><Label>Adresse</Label><Input value={form.address} onChange={(e) => update("address", e.target.value)} placeholder="Vejnavn 123" /></div>
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div><Label>By</Label><Input value={form.city} onChange={(e) => update("city", e.target.value)} /></div>
@@ -308,8 +324,8 @@ const CustomerRegister = () => {
 
             {step === 2 && (
               <div className="space-y-5">
-                <h2 className="font-heading text-xl font-semibold flex items-center gap-2">
-                  <Sparkles className="h-5 w-5 text-primary" /> Dine præferencer
+                <h2 className="flex items-center gap-2 text-2xl font-black tracking-[-0.02em]">
+                  <Sparkles className="h-5 w-5" style={{ color: C.orange }} /> Hvad passer dig bedst?
                 </h2>
                 <div>
                   <Label className="mb-2 block">Foretrukne dage</Label>
@@ -337,15 +353,15 @@ const CustomerRegister = () => {
                   </div>
                 </div>
                 <div className="p-4 rounded-xl bg-primary/5 border border-primary/10">
-                  <p className="text-sm font-medium flex items-center gap-2"><Sparkles className="h-4 w-4 text-primary" /> AI-baseret matching</p>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Baseret på din bolig og præferencer finder vores AI de mest relevante fagfolk og giver dig dynamiske tilbud med fair priser.
+                  <p className="flex items-center gap-2 text-sm font-bold"><Sparkles className="h-4 w-4" /> Bedre forslag fra start</p>
+                  <p className="mt-1 text-sm opacity-70">
+                    Vi bruger dine valg til at vise cleaners, som arbejder i dit område og passer til dine foretrukne tider. Du vælger altid selv.
                   </p>
                 </div>
               </div>
             )}
 
-            <div className="flex justify-between mt-8 pt-6 border-t border-border">
+            <div className="mt-8 flex items-center justify-between border-t-2 pt-6" style={{ borderColor: C.ink }}>
               <BackButton
                 variant="ghost"
                 label={step === 0 ? "Tilbage" : "Forrige trin"}
@@ -358,14 +374,14 @@ const CustomerRegister = () => {
                 </Button>
               ) : (
                 <Button onClick={handleSubmit} disabled={submitting}>
-                  {submitting ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Opretter…</> : <>Opret profil <ArrowRight className="h-4 w-4 ml-2" /></>}
+                  {submitting ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Opretter…</> : <>Gem og fortsæt til booking <ArrowRight className="ml-2 h-4 w-4" /></>}
                 </Button>
               )}
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </main>
   );
 };
 

@@ -1,0 +1,455 @@
+{
+  "hero": {
+    "trust": {
+      "verified": "Cleaners verificados",
+      "payments": "Pagos seguros",
+      "reviews": "Reseñas reales",
+      "fixed_price": "Precio fijo, sin sorpresas",
+      "rowLabel": "Ventajas"
+    },
+    "availability": "Disponible en 🇩🇰 Dinamarca · 🇸🇪 Suecia · 🇩🇪 Alemania · 🇬🇧 Reino Unido · 🇪🇸 España",
+    "availability_label": "Disponible en",
+    "countries": {
+      "dk": "Dinamarca",
+      "se": "Suecia",
+      "de": "Alemania",
+      "gb": "Reino Unido",
+      "es": "España"
+    },
+    "image_alt": "Cleaner verificado en un hogar europeo",
+    "variants": {
+      "guest": {
+        "eyebrow": "El marketplace europeo de limpieza",
+        "title_line_1": "Encuentra el Cleaner perfecto",
+        "title_line_2": "— cuando y donde te convenga.",
+        "subtitle": "Reserva Cleaners verificados para tu hogar o empresa. Rápido, seguro y sencillo — con precios transparentes y reseñas reales.",
+        "cta_secondary_label": "Hazte Cleaner",
+        "cta_secondary_href": "/bliv-cleaner"
+      },
+      "customer": {
+        "eyebrow": "Bienvenido de nuevo",
+        "title_line_1": "Bienvenido de nuevo, {{name}}.",
+        "title_line_2": "Reserva tu próximo Cleaner en segundos.",
+        "subtitle": "Repite una reserva anterior o encuentra un nuevo Cleaner en tu zona.",
+        "cta_secondary_label": "Ver mis reservas",
+        "cta_secondary_href": "/my-bookings"
+      },
+      "provider": {
+        "eyebrow": "Tu día",
+        "title_line_1": "Bienvenido de nuevo.",
+        "title_line_2": "Consulta tus reservas y nuevos trabajos.",
+        "subtitle": "Controla los trabajos del día, tiempo de respuesta e ingresos — todo en un solo lugar.",
+        "cta_secondary_label": "Abrir dashboard",
+        "cta_secondary_href": "/provider-dashboard"
+      }
+    }
+  },
+  "search": {
+    "aria": "Encuentra un Cleaner",
+    "where": "Dónde",
+    "where_placeholder": "Ciudad o código postal",
+    "when": "Cuándo",
+    "service": "Servicio",
+    "submit": "Encuentra un Cleaner"
+  },
+  "categories": {
+    "heading": "Servicios populares",
+    "view_all": "Ver todos",
+    "cleaning": "Limpieza",
+    "handyman": "Manitas",
+    "garden": "Jardín",
+    "moving": "Mudanza",
+    "tiles": {
+      "regular": "Limpieza regular",
+      "deep": "Limpieza a fondo",
+      "move": "Limpieza de mudanza",
+      "office": "Limpieza de oficina",
+      "custom": "Trabajo personalizado"
+    }
+  },
+  "results": {
+    "heading": "Cleaners destacados cerca de ti",
+    "subtitle": "Profesionales verificados. Reseñas reales. Reserva con confianza.",
+    "see_all": "Ver todos los Cleaners",
+    "empty": "Aún no hay Cleaners en {{area}}. Prueba con otra zona.",
+    "empty_area": "tu zona",
+    "error_title": "No pudimos cargar los Cleaners disponibles en este momento."
+  },
+  "card": {
+    "verified": "Verificado",
+    "badge_verified": "Verificado",
+    "badge_top": "Mejor valorado",
+    "badge_fast": "Respuesta rápida",
+    "badge_today": "Disponible hoy",
+    "add_fav": "Añadir a favoritos",
+    "remove_fav": "Quitar de favoritos",
+    "avatar_alt": "Foto de perfil de {{name}}",
+    "radius": "hasta {{km}} km",
+    "completed": "{{n}} reservas",
+    "price_note": "El precio se calcula durante la reserva",
+    "view": "Ver perfil",
+    "demo_hint": "Perfil demo — inicia sesión para ver Cleaners reales"
+  },
+  "trust": {
+    "heading": "Por qué los clientes eligen MyCleaner",
+    "identity": {
+      "title": "Identidad verificada",
+      "body": "Todos los Cleaners pasan por verificación de identidad antes de aceptar reservas."
+    },
+    "payments": {
+      "title": "Pagos seguros",
+      "body": "Los pagos se procesan mediante Stripe. Tus datos de tarjeta nunca se comparten con tu Cleaner."
+    },
+    "reviews": {
+      "title": "Reseñas reales",
+      "body": "Solo los clientes con reservas completadas pueden dejar una reseña."
+    },
+    "support": {
+      "title": "Atención al cliente",
+      "body": "¿Algo no cuadra? Escríbenos y te acompañamos en cada caso."
+    }
+  },
+  "summary": {
+    "heading": "Resumen de la reserva",
+    "service": "Servicio",
+    "when": "Cuándo",
+    "where": "Dónde",
+    "total": "Total",
+    "price_note": "El precio se calcula durante la reserva según tu Cleaner y servicio."
+  },
+  "sidebar": {
+    "price_note": "El precio se calcula durante la reserva según tu Cleaner y servicio.",
+    "why_heading": "¿Por qué elegir MyCleaner?",
+    "why_verified": "Cleaners con identidad verificada"
+  },
+  "how": {
+    "eyebrow": "Cómo funciona",
+    "heading": "Tres pasos hacia un hogar limpio",
+    "steps": {
+      "search": {
+        "title": "Encuentra un Cleaner",
+        "body": "Busca localmente, compara precios y reseñas reales."
+      },
+      "book": {
+        "title": "Reserva en el calendario",
+        "body": "Elige una hora directamente con tu Cleaner — sin esperas, sin pujas."
+      },
+      "enjoy": {
+        "title": "Disfruta de un hogar limpio",
+        "body": "El pago se retiene de forma segura hasta que se aprueba el trabajo."
+      }
+    }
+  },
+  "reviews": {
+    "eyebrow": "De nuestros clientes",
+    "heading": "Querido en toda Europa",
+    "items": [
+      {
+        "quote": "Increíblemente fácil de reservar y mi Cleaner fue fantástico. Volveré a usarlo sin duda.",
+        "name": "Sofie L.",
+        "city": "Copenhague",
+        "rating": 5
+      },
+      {
+        "quote": "Los precios son transparentes y sabía exactamente qué pagaba. Muy recomendable.",
+        "name": "Marcus B.",
+        "city": "Malmö",
+        "rating": 5
+      },
+      {
+        "quote": "Por fin una plataforma donde mi Cleaner cobra como es debido y yo recibo calidad.",
+        "name": "Ana R.",
+        "city": "Madrid",
+        "rating": 5
+      }
+    ]
+  },
+  "campaign": {
+    "eyebrow": "FOUNDING CLEANER",
+    "title": "El programa Founding Cleaner abre pronto",
+    "body": "Ventaja planeada para los primeros 500 Cleaners aprobados que envíen su solicitud de proveedor en 2026: 0 € en comisión de plataforma del proveedor durante tres meses naturales.",
+    "note": "El programa aún no ha abierto. Tu solicitud no reserva automáticamente una plaza.",
+    "cta": "Lee sobre el programa",
+    "href": "/founding-cleaner",
+    "badgePrimary": "FOUNDING CLEANER",
+    "badgeSecondary": "ABRE PRONTO",
+    "edition": "2026 EDITION",
+    "amount": "0 €",
+    "amountSuffix1": "en comisión de plataforma del proveedor",
+    "amountSuffix2": "durante 3 meses",
+    "explain": "Ventaja planeada para los primeros 500 Cleaners aprobados que envíen su solicitud de proveedor en 2026.",
+    "noteShort": "El programa aún no ha abierto. Tu solicitud no reserva automáticamente una plaza.",
+    "ctaShort": "Lee sobre el programa"
+  },
+  "app": {
+    "eyebrow": "La app MyCleaner",
+    "heading": "Reserva y repite desde el bolsillo",
+    "body": "Sigue tu reserva, chatea con tu Cleaner y paga con seguridad — todo en una sola app.",
+    "ios": "App Store",
+    "android": "Google Play",
+    "ios_href": "",
+    "android_href": ""
+  },
+  "faq": {
+    "eyebrow": "FAQ",
+    "heading": "Preguntas frecuentes",
+    "items": [
+      {
+        "q": "¿Cómo se fijan los precios?",
+        "a": "Los Cleaners fijan sus propios precios dentro de las tarifas mínimas locales. Ves el precio total antes de reservar — sin cargos ocultos."
+      },
+      {
+        "q": "¿Están todos los Cleaners verificados?",
+        "a": "Sí. Cada Cleaner pasa por verificación de identidad antes de aceptar reservas."
+      },
+      {
+        "q": "¿Cuándo se cobra?",
+        "a": "Reservamos el importe al reservar y lo liberamos a tu Cleaner cuando el trabajo se completa y se aprueba."
+      },
+      {
+        "q": "¿Puedo cancelar?",
+        "a": "Sí — la cancelación es gratuita hasta 24 horas antes. Consulta la política completa en las FAQ."
+      },
+      {
+        "q": "¿En qué países está activo?",
+        "a": "Dinamarca, Suecia, Alemania, Reino Unido y España. Más países en camino."
+      }
+    ]
+  },
+  "welcome_back": {
+    "eyebrow": "Bienvenido de nuevo",
+    "heading": "Continúa donde lo dejaste",
+    "heading_named": "Hola {{name}} — continúa donde lo dejaste",
+    "tiles": {
+      "upcoming": {
+        "title": "Próximas reservas",
+        "body": "Consulta y gestiona tus reservas programadas."
+      },
+      "favorites": {
+        "title": "Cleaners favoritos",
+        "body": "Ve directo a los Cleaners que has guardado."
+      },
+      "book_again": {
+        "title": "Reservar de nuevo",
+        "body": "Vuelve a reservar con un Cleaner que ya has usado."
+      }
+    }
+  },
+  "provider_home": {
+    "eyebrow": "Tu día",
+    "heading": "Vista general y accesos rápidos",
+    "tiles": {
+      "today": {
+        "title": "Reservas de hoy",
+        "body": "Quién, dónde y cuándo hoy."
+      },
+      "performance": {
+        "title": "Rendimiento",
+        "body": "Valoración, tiempo de respuesta y finalización."
+      },
+      "earnings": {
+        "title": "Ingresos",
+        "body": "Pagos de esta semana y del mes."
+      },
+      "pricing": {
+        "title": "Precios dinámicos",
+        "body": "Optimiza precios según la demanda."
+      }
+    }
+  },
+  "mobileHome": {
+    "greeting_guest": "Encuentra tu Cleaner ideal",
+    "greeting_named": "Hola {{name}}",
+    "greeting_fallback_name": "de nuevo",
+    "subtitle_guest": "Cleaners verificados: rápido, seguro y fácil.",
+    "subtitle_customer": "Reserva tu próximo Cleaner en segundos.",
+    "bookingCard": {
+      "eyebrow": "Reserva un Cleaner",
+      "title": "Encuentra tu Cleaner",
+      "subtitle": "Compara perfiles, precios y horarios disponibles.",
+      "trust": "Perfiles verificados · Pagos seguros",
+      "cta": "Encuentra un Cleaner",
+      "ariaLabel": "Encuentra un Cleaner"
+    },
+    "howItWorks": {
+      "cta": "Encuentra un Cleaner",
+      "step_of": "Paso {{n}} de {{total}}",
+      "progress": "Indicador de pasos"
+    },
+    "services": {
+      "title": "Servicios populares"
+    },
+    "featured": {
+      "title": "Cleaners destacados",
+      "viewAll": "Ver todos",
+      "empty": "No hay Cleaners para mostrar ahora mismo."
+    },
+    "quickActions": {
+      "title": "Acciones rápidas",
+      "book_again": "Reservar de nuevo",
+      "find_cleaner": "Buscar cleaner",
+      "messages": "Mensajes"
+    },
+    "customer": {
+      "upcoming": "Próxima reserva",
+      "loading": "Cargando…",
+      "error": "No se han podido cargar las reservas.",
+      "empty": "No tienes reservas próximas. Reserva tu próximo Cleaner ahora.",
+      "provider": "Cleaner"
+    },
+    "provider": {
+      "today": "Hoy",
+      "todayJobs_one": "trabajo activo hoy",
+      "todayJobs_other": "trabajos activos hoy",
+      "openDashboard": "Abrir panel",
+      "nextJob": "Próximo trabajo",
+      "job": "Trabajo",
+      "noJobs": "Sin trabajos próximos.",
+      "error": "No se han podido cargar los trabajos.",
+      "earnings": "Ingresos del mes",
+      "earningsUnavailable": "Consulta tus ingresos actualizados en Finanzas.",
+      "openFinance": "Abrir Finanzas",
+      "onboarding": "Empezar",
+      "onboardingProgress": "{{done}} de {{total}} pasos completados",
+      "continueOnboarding": "Continuar",
+      "calendar": "Calendario",
+      "payouts": "Pagos"
+    }
+  },
+  "mobileSearch": {
+    "appBarTitle": "Encuentra un Cleaner",
+    "placeholder": "Busca por nombre, ciudad o código postal",
+    "aria": "Buscar Cleaners",
+    "clear": "Borrar búsqueda",
+    "loading_count": "Cargando…",
+    "count": "{{n}} Cleaners encontrados",
+    "price_from": "desde {{price}} /h",
+    "chips": {
+      "aria": "Filtrar categoría",
+      "all": "Todos",
+      "cleaning": "Limpieza"
+    },
+    "filters": {
+      "label": "Filtros",
+      "open": "Abrir filtros",
+      "title": "Filtros y orden",
+      "description": "Ajusta tu búsqueda",
+      "sortHeading": "Orden",
+      "maxRate": "Tarifa máx. por hora",
+      "maxRatePlaceholder": "Sin límite",
+      "reset": "Restablecer",
+      "apply": "Ver resultados"
+    },
+    "sort": {
+      "score": "Mejor coincidencia",
+      "price_asc": "Precio (bajo → alto)",
+      "price_desc": "Precio (alto → bajo)",
+      "rating": "Mejor valoración",
+      "response": "Respuesta más rápida"
+    },
+    "empty": {
+      "title": "Ningún Cleaner coincide con tus filtros",
+      "body": "Prueba a restablecer los filtros o ampliar el área.",
+      "reset": "Restablecer filtros"
+    },
+    "error": {
+      "title": "La búsqueda no está disponible",
+      "body": "Inténtalo de nuevo en un momento.",
+      "retry": "Reintentar"
+    },
+    "pagination": {
+      "prev": "Anterior",
+      "next": "Siguiente",
+      "pageOf": "Página {{page}} de {{pages}}"
+    }
+  },
+  "mobileBookings": {
+    "appBarTitle": "Mis reservas",
+    "provider": "Cleaner",
+    "total": "Tú pagas",
+    "tabs": {
+      "aria": "Reservas",
+      "upcoming": "Próximas",
+      "previous": "Anteriores"
+    },
+    "status": {
+      "pending": "Pendiente",
+      "accepted": "Aceptada",
+      "declined": "Rechazada",
+      "cancelled": "Cancelada",
+      "completed": "Completada"
+    },
+    "empty": {
+      "cta": "Encuentra un Cleaner",
+      "upcoming": {
+        "title": "Sin reservas próximas",
+        "body": "Encuentra un Cleaner y reserva directamente en su calendario."
+      },
+      "previous": {
+        "title": "Sin reservas anteriores",
+        "body": "Tus reservas completadas aparecerán aquí."
+      },
+      "signed_out": {
+        "title": "Inicia sesión para ver tus reservas",
+        "body": "Las reservas solo son visibles al iniciar sesión.",
+        "cta": "Iniciar sesión"
+      }
+    },
+    "error": {
+      "title": "No se pudieron cargar las reservas",
+      "body": "Inténtalo de nuevo en un momento.",
+      "retry": "Reintentar"
+    }
+  },
+  "foundingCleaner": {
+    "eyebrow": "FOUNDING CLEANER",
+    "heading": "Programa Founding Cleaner",
+    "intro": "El programa Founding Cleaner tiene previsto ofrecer a los primeros 500 Cleaners aprobados que envíen su solicitud de proveedor en 2026 una ventaja de 0 € en comisión de plataforma del proveedor durante tres meses naturales. El programa aún no está activo y una solicitud no reserva automáticamente una plaza.",
+    "status": {
+      "title": "El programa abre pronto",
+      "body": "El programa Founding Cleaner aún no está activo. Puedes enviar tu solicitud de Cleaner, pero la solicitud no reserva una plaza de la campaña. Si el programa abre, MyCleaner avisará directamente a las personas solicitantes que cumplan los requisitos."
+    },
+    "plannedBenefit": "La ventaja planeada es de 0 € en comisión de plataforma del proveedor durante tres meses naturales. La comisión de plataforma independiente del cliente, el procesamiento de pagos, los impuestos, el IVA, el seguro y otros costes de terceros no cambian.",
+    "ctaPrimary": "Solicitar como Cleaner",
+    "ctaPrimaryNote": "La solicitud no es una reserva de una plaza de la campaña.",
+    "ctaSecondary": "Ver los términos",
+    "startNote": "Si el programa abre y cumples los requisitos, los tres meses naturales solo empiezan cuando tu primer trabajo cualificado se haya completado, pagado y liberado según el control de liberación existente de MyCleaner.",
+    "how": {
+      "heading": "Cómo se ha planeado el programa",
+      "steps": [
+        {
+          "title": "Envía tu solicitud",
+          "body": "Completa tu perfil de Cleaner en 2026 y finaliza el onboarding existente. La solicitud no reserva una plaza."
+        },
+        {
+          "title": "Espera la aprobación",
+          "body": "MyCleaner revisa el perfil, la identidad y la documentación requerida. La aprobación puede completarse después de 2026."
+        },
+        {
+          "title": "Recibe aviso si el programa abre",
+          "body": "Si el programa se activa y se te asigna una de hasta 500 plazas globales, MyCleaner te avisará directamente."
+        }
+      ]
+    },
+    "terms": {
+      "heading": "Términos previstos",
+      "lastUpdatedLabel": "Última actualización",
+      "lastUpdated": "2026-07-27",
+      "items": [
+        "El programa Founding Cleaner aún no está activo. Enviar una solicitud no otorga automáticamente la ventaja y no reserva una plaza de la campaña.",
+        "Se pueden asignar como máximo 500 plazas globalmente en todos los mercados.",
+        "Solo se pueden considerar las solicitudes de proveedor completadas y enviadas en el año natural 2026 (del 1 de enero de 2026 al 31 de diciembre de 2026 incluidos). La marca de tiempo autoritativa es provider_profiles.submitted_at en el servidor.",
+        "La aprobación puede producirse después de 2026. Una plaza solo se asigna en el servidor tras la aprobación y activación finales.",
+        "Se concede como máximo una ventaja de campaña por persona física verificada, aunque esa persona controle varias empresas. Los perfiles duplicados no reciben ventajas adicionales.",
+        "La ventaja planeada es de 0 € en la comisión de plataforma del proveedor de MyCleaner durante tres meses naturales. La comisión de plataforma independiente del cliente no se ve afectada.",
+        "Los costes de procesamiento de pagos, impuestos, IVA, seguros y otros costes de terceros no se modifican automáticamente por el programa.",
+        "El periodo dura tres meses naturales mediante started_at + interval ‘3 months’ y no se mide en 90 días.",
+        "El periodo solo empieza cuando el primer trabajo cualificado se ha completado, pagado/capturado, confirmado por el cliente o gestionado según la regla de completion existente y aprobado para su liberación según el hold existente de 24 horas y el control de disputas de MyCleaner.",
+        "Un reembolso total o una disputa abierta antes de la liberación no inicia el periodo. Un reembolso o contracargo posterior al inicio no reinicia ni amplía el periodo.",
+        "MyCleaner avisa directamente a las personas solicitantes si se les asigna una plaza. No se publica ninguna cuenta atrás pública ni contador de plazas restantes.",
+        "Los términos definitivos de la campaña deberán aceptarse cuando el programa se active. MyCleaner puede modificar o finalizar el programa previsto para futuros participantes; una ventaja de campaña ya confirmada no se modificará retroactivamente en contra de la ley aplicable."
+      ]
+    },
+    "appBarTitle": "Founding Cleaner"
+  }
+}
