@@ -1,0 +1,313 @@
+/**
+ * Native V2 customer profile section editors.
+ *
+ * Personal + Contact are focused forms writing to `public.profiles`.
+ * Addresses re-mounts `AddressBook` (already the source of truth for
+ * customer_addresses). Preferences + Access edit fields on the
+ * customer's primary address. Notifications / Deactivate / Tax re-mount
+ * the existing self-contained tabs so no business logic is duplicated.
+ */
+import { useEffect, useState } from "react";
+import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import { z } from "zod";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import AddressBook from "@/components/AddressBook";
+import {
+  ACCESS_METHOD_LABEL, type AccessMethod, type CustomerAddress,
+} from "@/lib/customerAddresses";
+
+export {
+  NotificationsTab as NotificationsEditor,
+  TaxTab as TaxEditor,
+  DeactivateTab as DeactivateEditor,
+} from "@/components/profile/ProfileExtraTabs";
+
+/* ----------------------------- Personal ----------------------------- */
+const personalSchema = z.object({
+  full_name: z.string().trim().max(100, "Maks. 100 tegn").nullable(),
+  country_code: z.string().trim().length(2, "2-bogstavs landekode").nullable().optional(),
+  ui_language: z.string().trim().max(5).nullable().optional(),
+});
+
+export interface PersonalEditorProps {
+  initial: { full_name: string | null; country_code: string | null; ui_language: string | null };
+  onSaved: () => void;
+  registerSave: (fn: () => Promise<boolean>) => void;
+  registerDirty: (dirty: boolean) => void;
+}
+
+export function PersonalEditor({ initial, onSaved, registerSave, registerDirty }: PersonalEditorProps) {
+  const { user } = useAuth();
+  const [full, setFull] = useState(initial.full_name ?? "");
+  const [cc, setCc] = useState(initial.country_code ?? "");
+  const [lang, setLang] = useState(initial.ui_language ?? "");
+  const [error, setError] = useState<string | null>(null);
+
+  const dirty =
+    (initial.full_name ?? "") !== full ||
+    (initial.country_code ?? "") !== cc ||
+    (initial.ui_language ?? "") !== lang;
+
+  useEffect(() => { registerDirty(dirty); }, [dirty, registerDirty]);
+
+  useEffect(() => {
+    registerSave(async () => {
+      const parsed = personalSchema.safeParse({
+        full_name: full.trim() || null,
+        country_code: cc.trim().toUpperCase() || null,
+        ui_language: lang.trim().toLowerCase() || null,
+      });
+      if (!parsed.success) {
+        const msg = parsed.error.issues[0]?.message ?? "Ugyldigt";
+        setError(msg); toast.error(msg); return false;
+      }
+      if (!user) return false;
+      const { error: err } = await supabase.from("profiles")
+        .update(parsed.data).eq("id", user.id);
+      if (err) { toast.error(err.message); return false; }
+      toast.success("Gemt"); onSaved(); return true;
+    });
+  }, [full, cc, lang, user, registerSave, onSaved]);
+
+  return (
+    <div className="grid gap-4 sm:grid-cols-2">
+      <div className="sm:col-span-2">
+        <Label htmlFor="full">Fulde navn</Label>
+        <Input id="full" value={full} maxLength={100}
+          onChange={(e) => setFull(e.target.value)} />
+      </div>
+      <div>
+        <Label htmlFor="cc">Land (ISO 3166-1)</Label>
+        <Input id="cc" value={cc} maxLength={2}
+          onChange={(e) => setCc(e.target.value.toUpperCase())}
+          placeholder="DK" />
+      </div>
+      <div>
+        <Label htmlFor="lang">Sprog</Label>
+        <select id="lang" value={lang}
+          onChange={(e) => setLang(e.target.value)}
+          className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm">
+          <option value="">—</option>
+          <option value="da">Dansk</option>
+          <option value="en">English</option>
+          <option value="sv">Svenska</option>
+          <option value="es">Español</option>
+        </select>
+      </div>
+      {error && <p className="sm:col-span-2 text-sm text-destructive" role="alert">{error}</p>}
+    </div>
+  );
+}
+
+/* ------------------------------ Contact ----------------------------- */
+const contactSchema = z.object({
+  phone: z.string().trim().max(32).regex(/^[+0-9 \-()]*$/i, "Ugyldigt nummer").nullable(),
+});
+
+export interface ContactEditorProps {
+  initial: { phone: string | null; email: string | null };
+  onSaved: () => void;
+  registerSave: (fn: () => Promise<boolean>) => void;
+  registerDirty: (dirty: boolean) => void;
+}
+
+export function ContactEditor({ initial, onSaved, registerSave, registerDirty }: ContactEditorProps) {
+  const { user } = useAuth();
+  const [phone, setPhone] = useState(initial.phone ?? "");
+  const [error, setError] = useState<string | null>(null);
+
+  const dirty = (initial.phone ?? "") !== phone;
+  useEffect(() => { registerDirty(dirty); }, [dirty, registerDirty]);
+
+  useEffect(() => {
+    registerSave(async () => {
+      const parsed = contactSchema.safeParse({ phone: phone.trim() || null });
+      if (!parsed.success) {
+        const msg = parsed.error.issues[0]?.message ?? "Ugyldigt";
+        setError(msg); toast.error(msg); return false;
+      }
+      if (!user) return false;
+      const { error: err } = await supabase.from("profiles")
+        .update(parsed.data).eq("id", user.id);
+      if (err) { toast.error(err.message); return false; }
+      toast.success("Gemt"); onSaved(); return true;
+    });
+  }, [phone, user, registerSave, onSaved]);
+
+  return (
+    <div className="space-y-4">
+      <div>
+        <Label>E-mail</Label>
+        <Input value={initial.email ?? ""} disabled />
+        <p className="mt-1 text-xs text-muted-foreground">
+          E-mail ændres via kontoindstillinger.
+        </p>
+      </div>
+      <div>
+        <Label htmlFor="phone">Telefon</Label>
+        <Input id="phone" value={phone} maxLength={32}
+          onChange={(e) => setPhone(e.target.value)}
+          placeholder="+45 12 34 56 78" />
+      </div>
+      {error && <p className="text-sm text-destructive" role="alert">{error}</p>}
+    </div>
+  );
+}
+
+/* ---------------------------- Addresses ----------------------------- */
+export function AddressesEditor() {
+  // AddressBook owns its own CRUD dialog + reload cycle.
+  return <AddressBook />;
+}
+
+/* --------------------- Cleaning preferences (primary) --------------- */
+const ACCESS_METHODS: AccessMethod[] = [
+  "home", "key_box", "key_under_mat", "doorman", "code", "other",
+];
+
+export interface PrimaryPrefsProps {
+  address: CustomerAddress | null;
+  onSaved: () => void;
+  registerSave: (fn: () => Promise<boolean>) => void;
+  registerDirty: (dirty: boolean) => void;
+}
+
+export function CleaningPreferencesEditor(props: PrimaryPrefsProps) {
+  return <PrimaryAddressForm {...props} scope="prefs" />;
+}
+export function AccessInstructionsEditor(props: PrimaryPrefsProps) {
+  return <PrimaryAddressForm {...props} scope="access" />;
+}
+
+function PrimaryAddressForm({
+  address, onSaved, registerSave, registerDirty, scope,
+}: PrimaryPrefsProps & { scope: "prefs" | "access" }) {
+  const [hasPets, setHasPets] = useState(!!address?.has_pets);
+  const [petDetails, setPetDetails] = useState(address?.pet_details ?? "");
+  const [hasChildren, setHasChildren] = useState(!!address?.has_children);
+  const [supplies, setSupplies] = useState(!!address?.cleaning_supplies_available);
+  const [parking, setParking] = useState(address?.parking_info ?? "");
+  const [method, setMethod] = useState<AccessMethod>(address?.access_method ?? "home");
+  const [code, setCode] = useState(address?.access_code ?? "");
+  const [instr, setInstr] = useState(address?.access_instructions ?? "");
+
+  const dirty =
+    scope === "prefs"
+      ? hasPets !== !!address?.has_pets ||
+        petDetails !== (address?.pet_details ?? "") ||
+        hasChildren !== !!address?.has_children ||
+        supplies !== !!address?.cleaning_supplies_available ||
+        parking !== (address?.parking_info ?? "")
+      : method !== (address?.access_method ?? "home") ||
+        code !== (address?.access_code ?? "") ||
+        instr !== (address?.access_instructions ?? "");
+
+  useEffect(() => { registerDirty(dirty); }, [dirty, registerDirty]);
+
+  useEffect(() => {
+    registerSave(async () => {
+      if (!address) { toast.error("Tilføj en primær adresse først"); return false; }
+      const payload: Record<string, unknown> = scope === "prefs"
+        ? {
+            has_pets: hasPets,
+            pet_details: hasPets ? (petDetails.trim() || null) : null,
+            has_children: hasChildren,
+            cleaning_supplies_available: supplies,
+            parking_info: parking.trim() || null,
+          }
+        : {
+            access_method: method,
+            access_code: code.trim() || null,
+            access_instructions: instr.trim() || null,
+          };
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { error } = await (supabase.from("customer_addresses" as any))
+        .update(payload).eq("id", address.id);
+      if (error) { toast.error(error.message); return false; }
+      toast.success("Gemt"); onSaved(); return true;
+    });
+  }, [address, hasPets, petDetails, hasChildren, supplies, parking,
+      method, code, instr, scope, registerSave, onSaved]);
+
+  if (!address) {
+    return (
+      <p className="rounded-md border border-dashed border-border p-4 text-sm text-muted-foreground">
+        Tilføj en primær adresse først i "Gemte adresser".
+      </p>
+    );
+  }
+
+  if (scope === "prefs") {
+    return (
+      <div className="space-y-3">
+        <ToggleRow label="Kæledyr" checked={hasPets} onChange={setHasPets} />
+        {hasPets && (
+          <div>
+            <Label htmlFor="pet">Detaljer</Label>
+            <Input id="pet" value={petDetails} maxLength={200}
+              onChange={(e) => setPetDetails(e.target.value)}
+              placeholder="F.eks. 'Hund, ikke aggressiv'" />
+          </div>
+        )}
+        <ToggleRow label="Børn i hjemmet" checked={hasChildren} onChange={setHasChildren} />
+        <ToggleRow label="Rengøringsmidler er klar" checked={supplies} onChange={setSupplies} />
+        <div>
+          <Label htmlFor="park">Parkering</Label>
+          <Input id="park" value={parking} maxLength={200}
+            onChange={(e) => setParking(e.target.value)} />
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      <div>
+        <Label htmlFor="method">Adgangsmetode</Label>
+        <select id="method" value={method}
+          onChange={(e) => setMethod(e.target.value as AccessMethod)}
+          className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm">
+          {ACCESS_METHODS.map((m) => (
+            <option key={m} value={m}>{ACCESS_METHOD_LABEL[m] ?? m}</option>
+          ))}
+        </select>
+      </div>
+      <div>
+        <Label htmlFor="code">Kode (valgfri)</Label>
+        <Input id="code" value={code} maxLength={64}
+          onChange={(e) => setCode(e.target.value)} />
+      </div>
+      <div>
+        <Label htmlFor="instr">Instruktioner</Label>
+        <Textarea id="instr" value={instr} rows={4} maxLength={1000}
+          onChange={(e) => setInstr(e.target.value)} />
+      </div>
+    </div>
+  );
+}
+
+function ToggleRow({
+  label, checked, onChange,
+}: { label: string; checked: boolean; onChange: (v: boolean) => void }) {
+  return (
+    <label className="flex items-center justify-between rounded-md border border-border p-3 text-sm">
+      <span>{label}</span>
+      <Switch checked={checked} onCheckedChange={onChange} />
+    </label>
+  );
+}
+
+/* --------------------------- Loading fallback ----------------------- */
+export function EditorSpinner() {
+  return (
+    <div className="grid place-items-center py-8">
+      <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+    </div>
+  );
+}

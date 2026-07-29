@@ -3,7 +3,9 @@ import { useMemo } from "react";
 const CALLING_CODES: Record<string, { code: string; flag: string; label: string }> = {
   DK: { code: "+45", flag: "🇩🇰", label: "Danmark" },
   SE: { code: "+46", flag: "🇸🇪", label: "Sverige" },
+  DE: { code: "+49", flag: "🇩🇪", label: "Deutschland" },
   ES: { code: "+34", flag: "🇪🇸", label: "España" },
+  GB: { code: "+44", flag: "🇬🇧", label: "United Kingdom" },
   UK: { code: "+44", flag: "🇬🇧", label: "United Kingdom" },
 };
 

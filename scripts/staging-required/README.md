@@ -15,7 +15,7 @@ Preview currently shares the production Supabase project, so:
   `supabase/functions/` — moving them there triggers a deploy).
 - The orphan cleanup worker + cron scaffold are here too. Do not register the
   cron entry until staging validation of dry-run mode + retention policy
-  approval er complete.
+  approval is complete.
 
 ## Promotion checklist (staging only)
 

@@ -15,8 +15,17 @@ vi.mock("@/i18n/CountryContext", () => ({
 vi.mock("@/components/RoleGuard", () => ({
   RoleGuard: ({ children }: { children: ReactNode }) => <>{children}</>,
 }));
-vi.mock("./pages/CustomerDashboard", () => ({
-  default: () => <main data-testid="customer-dashboard">CustomerDashboard</main>,
+vi.mock("@/pages/customer/CustomerDashboardV2", () => ({
+  default: () => <main data-testid="customer-dashboard">CustomerDashboardV2</main>,
+}));
+vi.mock("@/pages/customer/CustomerProfileV2", () => ({
+  default: () => <main data-testid="customer-profile-v2">CustomerProfileV2</main>,
+}));
+vi.mock("@/pages/provider/ProviderDashboardV2", () => ({
+  default: () => <main data-testid="provider-dashboard-v2">ProviderDashboardV2</main>,
+}));
+vi.mock("@/pages/provider/ProviderProfileV2", () => ({
+  default: () => <main data-testid="provider-profile-v2">ProviderProfileV2</main>,
 }));
 vi.mock("./pages/MyBookings", () => ({
   default: () => <main data-testid="my-bookings">MyBookings</main>,
@@ -40,17 +49,56 @@ function at(path: string) {
   );
 }
 
-describe("customer routes", () => {
-  it("/customer renders customer dashboard", () => {
+vi.mock("./pages/mobile/MobileBookingsGate", () => ({
+  default: () => <main data-testid="mobile-bookings">MobileBookings</main>,
+}));
+
+describe("customer routes (v2 only, legacy removed)", () => {
+  it("/customer renders v2 dashboard", () => {
     at("/customer");
     expect(screen.getByTestId("customer-dashboard")).toBeInTheDocument();
   });
-  it("/dk/customer renders customer dashboard", () => {
+  it("/customer?legacy=1 still renders v2 (legacy gate removed)", () => {
+    at("/customer?legacy=1");
+    expect(screen.getByTestId("customer-dashboard")).toBeInTheDocument();
+  });
+  it("/dk/customer renders v2 dashboard", () => {
     at("/dk/customer");
     expect(screen.getByTestId("customer-dashboard")).toBeInTheDocument();
   });
-  it("/customer/bookings reuses MyBookings", () => {
+  it("/customer/bookings routes to MobileBookingsGate", () => {
     at("/customer/bookings");
-    expect(screen.getByTestId("my-bookings")).toBeInTheDocument();
+    expect(screen.getByTestId("mobile-bookings")).toBeInTheDocument();
+  });
+  it("/customer/profile renders v2 profile", () => {
+    at("/customer/profile");
+    expect(screen.getByTestId("customer-profile-v2")).toBeInTheDocument();
+  });
+  it("/customer/profile?legacy=1 still renders v2 (legacy gate removed)", () => {
+    at("/customer/profile?legacy=1");
+    expect(screen.getByTestId("customer-profile-v2")).toBeInTheDocument();
+  });
+});
+
+describe("provider routes (v2 only, legacy removed)", () => {
+  it("/provider renders v2 dashboard", () => {
+    at("/provider");
+    expect(screen.getByTestId("provider-dashboard-v2")).toBeInTheDocument();
+  });
+  it("/provider-dashboard renders v2 dashboard", () => {
+    at("/provider-dashboard");
+    expect(screen.getByTestId("provider-dashboard-v2")).toBeInTheDocument();
+  });
+  it("/provider?legacy=1 still renders v2 (legacy gate removed)", () => {
+    at("/provider?legacy=1");
+    expect(screen.getByTestId("provider-dashboard-v2")).toBeInTheDocument();
+  });
+  it("/provider/profile renders v2 profile", () => {
+    at("/provider/profile");
+    expect(screen.getByTestId("provider-profile-v2")).toBeInTheDocument();
+  });
+  it("/provider/profile?legacy=1 still renders v2 (legacy gate removed)", () => {
+    at("/provider/profile?legacy=1");
+    expect(screen.getByTestId("provider-profile-v2")).toBeInTheDocument();
   });
 });
