@@ -20,23 +20,26 @@ BEGIN
         WHERE psp.user_id = pp.user_id
      )
      AND (
-       upper(coalesce(pp.base_country_code, p.country_code, '')) NOT IN ('DK', 'SE', 'ES', 'UK')
+       upper(coalesce(pp.base_country_code, p.country_code, '')) NOT IN ('DK', 'SE', 'DE', 'ES', 'GB', 'UK')
        OR (
          pp.hourly_rate < CASE upper(coalesce(pp.base_country_code, p.country_code, ''))
            WHEN 'DK' THEN 14000 WHEN 'SE' THEN 13500
-           WHEN 'ES' THEN 800 WHEN 'UK' THEN 1100
+           WHEN 'DE' THEN 1200 WHEN 'ES' THEN 800
+           WHEN 'GB' THEN 1100 WHEN 'UK' THEN 1100
            ELSE 2147483647
          END
          AND pp.hourly_rate NOT BETWEEN
            CASE upper(coalesce(pp.base_country_code, p.country_code, ''))
              WHEN 'DK' THEN 140 WHEN 'SE' THEN 135
-             WHEN 'ES' THEN 8 WHEN 'UK' THEN 11
+             WHEN 'DE' THEN 12 WHEN 'ES' THEN 8
+             WHEN 'GB' THEN 11 WHEN 'UK' THEN 11
              ELSE 2147483647
            END
            AND
            CASE upper(coalesce(pp.base_country_code, p.country_code, ''))
              WHEN 'DK' THEN 420 WHEN 'SE' THEN 405
-             WHEN 'ES' THEN 24 WHEN 'UK' THEN 33
+             WHEN 'DE' THEN 36 WHEN 'ES' THEN 24
+             WHEN 'GB' THEN 33 WHEN 'UK' THEN 33
              ELSE -1
            END
        )
@@ -66,7 +69,8 @@ SELECT
   CASE
     WHEN pp.hourly_rate < CASE upper(coalesce(pp.base_country_code, p.country_code, ''))
       WHEN 'DK' THEN 14000 WHEN 'SE' THEN 13500
-      WHEN 'ES' THEN 800 WHEN 'UK' THEN 1100
+      WHEN 'DE' THEN 1200 WHEN 'ES' THEN 800
+      WHEN 'GB' THEN 1100 WHEN 'UK' THEN 1100
     END
     THEN pp.hourly_rate * 100
     ELSE pp.hourly_rate
@@ -74,7 +78,9 @@ SELECT
   CASE upper(coalesce(pp.base_country_code, p.country_code))
     WHEN 'DK' THEN 'DKK'
     WHEN 'SE' THEN 'SEK'
+    WHEN 'DE' THEN 'EUR'
     WHEN 'ES' THEN 'EUR'
+    WHEN 'GB' THEN 'GBP'
     WHEN 'UK' THEN 'GBP'
   END,
   true
@@ -82,7 +88,7 @@ FROM public.provider_profiles pp
 LEFT JOIN public.profiles p ON p.id = pp.user_id
 WHERE pp.hourly_rate IS NOT NULL
   AND pp.hourly_rate > 0
-  AND upper(coalesce(pp.base_country_code, p.country_code, '')) IN ('DK', 'SE', 'ES', 'UK')
+  AND upper(coalesce(pp.base_country_code, p.country_code, '')) IN ('DK', 'SE', 'DE', 'ES', 'GB', 'UK')
   AND NOT EXISTS (
     SELECT 1
       FROM public.provider_service_prices psp
@@ -100,7 +106,7 @@ BEGIN
     LEFT JOIN public.profiles p ON p.id = pp.user_id
    WHERE pp.hourly_rate IS NOT NULL
      AND pp.hourly_rate > 0
-     AND upper(coalesce(pp.base_country_code, p.country_code, '')) IN ('DK', 'SE', 'ES', 'UK')
+     AND upper(coalesce(pp.base_country_code, p.country_code, '')) IN ('DK', 'SE', 'DE', 'ES', 'GB', 'UK')
      AND NOT EXISTS (
        SELECT 1
          FROM public.provider_service_prices psp
