@@ -98,6 +98,8 @@ export function RefundRequestDialog({ conversation }: Props) {
   };
 
   return (
+    <>
+    <BookingsOpenSoonDialog open={lockOpen} onOpenChange={setLockOpen} />
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm" className="h-8">
