@@ -1,0 +1,190 @@
+name: Staging Validate (read-only preflight)
+
+# Manual READ-ONLY preflight against an isolated staging Supabase project.
+# Never runs on push. Never targets production. Never deploys, migrates,
+# resets, seeds, or otherwise mutates the staging database.
+"on":
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type "validate-staging" to confirm this read-only run.'
+        required: true
+        default: ''
+
+permissions:
+  contents: read
+
+concurrency:
+  group: staging-validate
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    name: Staging read-only preflight (lint + migration status + RLS regression + tests)
+    runs-on: ubuntu-latest
+    environment: staging
+    # Hard guard: only run on the staging branch.
+    if: ${{ github.ref == 'refs/heads/staging' }}
+    timeout-minutes: 30
+
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.STAGING_SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_DB_PASSWORD:  ${{ secrets.STAGING_SUPABASE_DB_PASSWORD }}
+      STAGING_PROJECT_REF:   ${{ secrets.STAGING_SUPABASE_PROJECT_REF }}
+      STAGING_DB_URL:        ${{ secrets.STAGING_PG_CONN }}
+      STAGING_SUPABASE_URL:  ${{ secrets.STAGING_SUPABASE_URL }}
+      PROD_REF:              qfjgifubavuomwvroahy
+      SUPABASE_CLI_VERSION:  2.60.0
+
+    steps:
+      - name: Guard - confirmation input
+        run: |
+          if [ "${{ github.event.inputs.confirm }}" != "validate-staging" ]; then
+            echo "::error::Confirmation input must be exactly 'validate-staging'."
+            exit 1
+          fi
+
+      - name: Guard - required secrets present
+        run: |
+          missing=0
+          for name in SUPABASE_ACCESS_TOKEN STAGING_PROJECT_REF SUPABASE_DB_PASSWORD STAGING_DB_URL STAGING_SUPABASE_URL; do
+            val="$(printenv "$name" || true)"
+            if [ -z "$val" ]; then
+              echo "::error::Required GitHub secret missing: $name"
+              missing=1
+            fi
+          done
+          if [ "$missing" -ne 0 ]; then
+            echo "::error::Add the missing secrets under repo Settings -> Secrets and variables -> Actions (environment: staging). Refusing to fall back to production credentials."
+            exit 1
+          fi
+
+      - name: Guard - refuse production project ref
+        run: |
+          if [ "$STAGING_PROJECT_REF" = "$PROD_REF" ]; then
+            echo "::error::STAGING_PROJECT_REF equals the production project ref ($PROD_REF). Aborting to protect production."
+            exit 1
+          fi
+          case "$STAGING_DB_URL" in
+            *"$PROD_REF"*)
+              echo "::error::STAGING_DB_URL points at the production project ref ($PROD_REF). Aborting."
+              exit 1
+              ;;
+          esac
+          case "$STAGING_SUPABASE_URL" in
+            *"$PROD_REF"*)
+              echo "::error::STAGING_SUPABASE_URL points at the production project ref ($PROD_REF). Aborting."
+              exit 1
+              ;;
+          esac
+          echo "Staging project ref verified as non-production."
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: ${{ env.SUPABASE_CLI_VERSION }}
+
+      - name: Install psql client
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y --no-install-recommends postgresql-client
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Prepare artifacts dir
+        run: mkdir -p artifacts
+
+      - name: Link Supabase CLI to staging project
+        run: |
+          supabase link --project-ref "$STAGING_PROJECT_REF" --password "$SUPABASE_DB_PASSWORD" \
+            | tee artifacts/00-link.log
+
+      - name: Database lint (read-only)
+        run: |
+          set -o pipefail
+          supabase db lint --linked 2>&1 | tee artifacts/10-db-lint.log || {
+            echo "::error::supabase db lint failed. See artifacts/10-db-lint.log."
+            exit 1
+          }
+
+      - name: Migration status (read-only, report only)
+        run: |
+          set -o pipefail
+          # READ-ONLY: list local vs remote migrations. Never applies, resets,
+          # or mutates the staging database. Pending migrations are reported
+          # as a controlled failure so they can be promoted deliberately via
+          # the separate staging-deploy workflow — never auto-applied here.
+          supabase migration list --linked 2>&1 | tee artifacts/20-migration-list.log || {
+            echo "::error::supabase migration list failed. See artifacts/20-migration-list.log."
+            exit 1
+          }
+          # Detect pending migrations: rows where the Remote column is empty
+          # while the Local column has a timestamp. The CLI output is a
+          # pipe-separated table; parse defensively.
+          pending=$(awk -F'|' '
+            NR>2 && $0 !~ /^[[:space:]]*$/ {
+              local=$2; remote=$3;
+              gsub(/[[:space:]]/, "", local);
+              gsub(/[[:space:]]/, "", remote);
+              if (local != "" && remote == "") print local;
+            }
+          ' artifacts/20-migration-list.log || true)
+          if [ -n "$pending" ]; then
+            echo "::error::Pending migrations detected on staging (not applied by this workflow):"
+            echo "$pending" | sed 's/^/  - /'
+            echo "::error::Promote them via the staging-deploy workflow after review. This preflight is read-only."
+            exit 1
+          fi
+          echo "Migration status: staging is in sync with repo migrations."
+
+      - name: Run RLS regression (knowledge / incident evidence, read-only asserts)
+        run: |
+          set -o pipefail
+          psql "$STAGING_DB_URL" -v ON_ERROR_STOP=1 \
+            -f scripts/knowledge-incident-evidence-rls-regression.sql \
+            2>&1 | tee artifacts/30-rls-regression.log || {
+            echo "::error::RLS regression failed. See artifacts/30-rls-regression.log."
+            exit 1
+          }
+
+      - name: Install project dependencies
+        run: bun install --frozen-lockfile 2>&1 | tee artifacts/40-bun-install.log
+
+      - name: Run full test suite (read-only)
+        run: |
+          set -o pipefail
+          bun run test 2>&1 | tee artifacts/50-tests.log || {
+            echo "::error::Automated test suite failed. See artifacts/50-tests.log."
+            exit 1
+          }
+
+      - name: Typecheck
+        run: |
+          set -o pipefail
+          bun run typecheck 2>&1 | tee artifacts/60-typecheck.log || {
+            echo "::error::Typecheck failed. See artifacts/60-typecheck.log."
+            exit 1
+          }
+
+      - name: Build (read-only artifact)
+        run: |
+          set -o pipefail
+          bun run build 2>&1 | tee artifacts/70-build.log || {
+            echo "::error::Build failed. See artifacts/70-build.log."
+            exit 1
+          }
+
+      - name: Upload validation evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: staging-validate-${{ github.run_id }}
+          path: artifacts/
+          if-no-files-found: warn
+          retention-days: 14
