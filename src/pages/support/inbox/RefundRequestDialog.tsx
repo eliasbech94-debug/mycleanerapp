@@ -50,6 +50,7 @@ export function RefundRequestDialog({ conversation }: Props) {
   const [currency, setCurrency] = useState("DKK");
   const [reason, setReason] = useState("");
   const [busy, setBusy] = useState(false);
+  const [lockOpen, setLockOpen] = useState(false);
 
   const { data: refunds, isLoading } = useQuery({
     queryKey: ["support", "refund-requests", convId],
