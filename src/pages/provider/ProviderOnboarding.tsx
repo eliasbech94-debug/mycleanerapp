@@ -829,43 +829,99 @@ export const ONBOARDING_STEP_KEYS: readonly OnboardingStepKey[] = [
   "review",
 ] as const;
 
+/** Human-readable missing-requirement summaries shown to the applicant. */
+export const ONBOARDING_STEP_LABELS: Record<OnboardingStepKey, string> = {
+  account: "Log ind eller opret konto",
+  basic: "Udfyld grundprofil (navn, alder ≥ 18, valid postnr./by, profilfoto)",
+  service:
+    "Udfyld serviceprofil (kategori, overskrift, bio ≥ 40 tegn, sprog, arbejdsradius, mindst én gemt servicepris)",
+  insurance: "Upload forsikringspolice med gyldig udløbsdato",
+  identity: "Bekræft email, SMS-verificér telefon og godkendt identitet",
+  stripe: "Fuldfør Stripe Connect (charges, payouts, details) og accepter provider-vilkår",
+  review: "Indsend ansøgning til godkendelse",
+};
+
+/** Backend error codes from submit_provider_application() → Danish messages. */
+export const SUBMIT_ERROR_MESSAGES: Record<string, string> = {
+  requirements_incomplete: "Nogle krav mangler stadig — se listen over manglende trin.",
+  phone_not_verified: "Dit telefonnummer er ikke SMS-verificeret.",
+  identity_not_approved: "Din identitet er ikke godkendt endnu.",
+  stripe_not_ready: "Din Stripe Connect-konto er ikke helt klar (charges, payouts og details).",
+  provider_dob_missing: "Din fødselsdato mangler.",
+  provider_underage: "Providers skal være mindst 18 år.",
+  invalid_status_transition: "Ansøgningen kan ikke indsendes i den nuværende status.",
+  provider_profile_missing: "Providerprofilen findes ikke — kontakt support.",
+  unauthorized: "Du skal være logget ind for at indsende.",
+  submit_failed: "Ansøgningen kunne ikke indsendes. Prøv igen.",
+};
+
 // Statuses that mean the applicant has successfully submitted and is
 // awaiting/passed review. `rejected` and `suspended` MUST NOT count as
 // review-complete: they are terminal negative states.
 const REVIEW_COMPLETE_STATUSES = new Set(["pending_review", "active"]);
 
+/** Age in whole years on `today` (UTC-safe). */
+function yearsOld(dob: string, today: Date = new Date()): number | null {
+  const d = new Date(`${dob}T00:00:00Z`);
+  if (Number.isNaN(d.getTime())) return null;
+  let age = today.getUTCFullYear() - d.getUTCFullYear();
+  const m = today.getUTCMonth() - d.getUTCMonth();
+  if (m < 0 || (m === 0 && today.getUTCDate() < d.getUTCDate())) age--;
+  return age;
+}
+
 export function computeStepCompletionByKey(
   pp: ProviderProfile,
   authProfile: any,
   user: any,
+  opts: { hasActiveServicePrice?: boolean; smsVerifiedAt?: string | null } = {},
 ): Record<OnboardingStepKey, boolean> {
   const emailOk = !!(user?.email_confirmed_at || user?.confirmed_at);
   const account = !!user;
+
+  const dobAge = pp.date_of_birth ? yearsOld(pp.date_of_birth) : null;
   const basic = !!(
-    (authProfile?.full_name || pp.display_name) &&
+    (authProfile?.full_name || "").trim() &&
+    (pp.display_name || "").trim() &&
     pp.date_of_birth &&
+    dobAge !== null &&
+    dobAge >= 18 &&
     authProfile?.phone &&
     pp.base_address_place_id &&
+    pp.base_postal_code &&
+    pp.base_country_code &&
     pp.photo_path
   );
+
   const service = !!(
     pp.service_categories.length > 0 &&
-    (pp.bio || "").trim().length >= 20 &&
+    (pp.headline || "").trim().length > 0 &&
+    (pp.bio || "").trim().length >= 40 &&
     pp.languages.length > 0 &&
-    pp.service_area_radius_km
+    pp.service_area_radius_km &&
+    pp.service_area_radius_km > 0 &&
+    opts.hasActiveServicePrice === true
   );
+
   const insurance = !!(
     pp.insurance_policy_number?.trim() &&
     pp.insurance_doc_path?.trim() &&
     pp.insurance_expires_on &&
     pp.insurance_expires_on >= new Date().toISOString().slice(0, 10)
   );
-  const identity =
-    ["approved", "verified"].includes(pp.identity_status) && emailOk;
+
+  const smsVerified =
+    opts.smsVerifiedAt !== undefined
+      ? !!opts.smsVerifiedAt
+      : !!authProfile?.sms_verified_at;
+  const identity = pp.identity_status === "approved" && emailOk && smsVerified;
+
   const stripe =
     !!pp.stripe_charges_enabled &&
     !!pp.stripe_payouts_enabled &&
+    !!pp.stripe_details_submitted &&
     !!pp.terms_accepted_at;
+
   // Fail closed: only recognised submitted/approved statuses count.
   const review = REVIEW_COMPLETE_STATUSES.has(pp.status);
   return { account, basic, service, insurance, identity, stripe, review };
@@ -875,8 +931,10 @@ export function computeStepCompletion(
   pp: ProviderProfile,
   authProfile: any,
   user: any,
+  opts?: { hasActiveServicePrice?: boolean; smsVerifiedAt?: string | null },
 ): boolean[] {
-  const byKey = computeStepCompletionByKey(pp, authProfile, user);
+  const byKey = computeStepCompletionByKey(pp, authProfile, user, opts);
   return ONBOARDING_STEP_KEYS.map((k) => byKey[k]);
 }
+
 
