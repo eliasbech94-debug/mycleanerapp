@@ -93,21 +93,32 @@ jobs:
         with:
           version: ${{ env.SUPABASE_CLI_VERSION }}
 
-      - name: Dry-run pending migrations
+      - name: Apply provider onboarding migrations only
         shell: bash
         run: |
           set +x
-          set -o pipefail
-          supabase db push --dry-run --db-url "$STAGING_PG_CONN" 2>&1 | tee db-push-dryrun.log
-          test "${PIPESTATUS[0]}" = "0"
-
-      - name: Apply pending migrations to staging
-        shell: bash
-        run: |
-          set +x
-          set -o pipefail
-          supabase db push --db-url "$STAGING_PG_CONN" 2>&1 | tee db-push.log
-          test "${PIPESTATUS[0]}" = "0"
+          set -euo pipefail
+          migrations=(
+            "20260727223000_provider_service_prices.sql"
+            "20260727223200_completion_uses_service_prices.sql"
+            "20260727223300_service_price_floor.sql"
+            "20260729180000_backfill_provider_service_prices.sql"
+          )
+          : > db-push.log
+          for migration in "${migrations[@]}"; do
+            version="${migration%%_*}"
+            applied="$(psql "$STAGING_PG_CONN" -v ON_ERROR_STOP=1 -Atc \
+              "select exists(select 1 from supabase_migrations.schema_migrations where version = '${version}')")"
+            if [ "$applied" = "t" ]; then
+              echo "Skipping already applied migration ${version}" | tee -a db-push.log
+              continue
+            fi
+            echo "Applying scoped migration ${migration}" | tee -a db-push.log
+            psql "$STAGING_PG_CONN" -v ON_ERROR_STOP=1 -1 \
+              -f "supabase/migrations/${migration}" 2>&1 | tee -a db-push.log
+            supabase migration repair "${version}" --status applied \
+              --db-url "$STAGING_PG_CONN" 2>&1 | tee -a db-push.log
+          done
 
       - name: Run provider price backfill regression
         shell: bash
@@ -153,7 +164,6 @@ jobs:
         with:
           name: staging-provider-onboarding-deploy-log
           path: |
-            db-push-dryrun.log
             db-push.log
             provider-price-backfill-regression.log
           if-no-files-found: ignore
