@@ -1,7 +1,8 @@
 -- Compatibility bridge from provider_profiles.hourly_rate to per-service
--- pricing. The legacy column is already stored in minor units, so the amount
--- is copied 1:1. This migration is intentionally fail-closed: no partial
--- backfill is allowed when a legacy provider cannot be represented safely.
+-- pricing. Historical rows exist in two formats: minor units and whole
+-- currency units. Values inside the original per-country market band are
+-- treated as whole units and multiplied by 100; values at or above the
+-- minor-unit floor are copied 1:1. Ambiguous values fail closed.
 
 DO $$
 DECLARE
@@ -20,13 +21,25 @@ BEGIN
      )
      AND (
        upper(coalesce(pp.base_country_code, p.country_code, '')) NOT IN ('DK', 'SE', 'ES', 'UK')
-       OR pp.hourly_rate < CASE upper(coalesce(pp.base_country_code, p.country_code, ''))
-         WHEN 'DK' THEN 14000
-         WHEN 'SE' THEN 13500
-         WHEN 'ES' THEN 800
-         WHEN 'UK' THEN 1100
-         ELSE 2147483647
-       END
+       OR (
+         pp.hourly_rate < CASE upper(coalesce(pp.base_country_code, p.country_code, ''))
+           WHEN 'DK' THEN 14000 WHEN 'SE' THEN 13500
+           WHEN 'ES' THEN 800 WHEN 'UK' THEN 1100
+           ELSE 2147483647
+         END
+         AND pp.hourly_rate NOT BETWEEN
+           CASE upper(coalesce(pp.base_country_code, p.country_code, ''))
+             WHEN 'DK' THEN 140 WHEN 'SE' THEN 135
+             WHEN 'ES' THEN 8 WHEN 'UK' THEN 11
+             ELSE 2147483647
+           END
+           AND
+           CASE upper(coalesce(pp.base_country_code, p.country_code, ''))
+             WHEN 'DK' THEN 420 WHEN 'SE' THEN 405
+             WHEN 'ES' THEN 24 WHEN 'UK' THEN 33
+             ELSE -1
+           END
+       )
      );
 
   IF invalid_count > 0 THEN
@@ -50,7 +63,14 @@ SELECT
   pp.user_id,
   'home_cleaning',
   'hour',
-  pp.hourly_rate,
+  CASE
+    WHEN pp.hourly_rate < CASE upper(coalesce(pp.base_country_code, p.country_code, ''))
+      WHEN 'DK' THEN 14000 WHEN 'SE' THEN 13500
+      WHEN 'ES' THEN 800 WHEN 'UK' THEN 1100
+    END
+    THEN pp.hourly_rate * 100
+    ELSE pp.hourly_rate
+  END,
   CASE upper(coalesce(pp.base_country_code, p.country_code))
     WHEN 'DK' THEN 'DKK'
     WHEN 'SE' THEN 'SEK'
