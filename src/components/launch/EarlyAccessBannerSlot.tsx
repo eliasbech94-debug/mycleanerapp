@@ -13,6 +13,9 @@ const COMPACT_PREFIXES = [
   "/find-cleaner",
 ];
 
+/** Auth surfaces show only the small inline Early Access chip. */
+const AUTH_ROUTES = ["/login", "/reset-password", "/customer/register", "/auth/callback"];
+
 /**
  * Chooses the right Early Access presentation per surface:
  * large hero banner on the homepage, compact strip on dashboards and
@@ -20,6 +23,10 @@ const COMPACT_PREFIXES = [
  */
 export function EarlyAccessBannerSlot() {
   const { pathname } = useLocation();
+
+  if (AUTH_ROUTES.some((p) => pathname === p || pathname.startsWith(`${p}/`))) return null;
+
+
 
   // On "/" below 768px the mobile app shell renders its own copy inside the
   // shell (under MobileAppBar), so the root-level banner is desktop-only.

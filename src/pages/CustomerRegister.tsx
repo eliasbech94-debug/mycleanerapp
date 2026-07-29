@@ -16,13 +16,14 @@ const propertyTypes = ["Lejlighed", "Rækkehus", "Villa", "Landejendom", "Erhver
 const steps = ["Konto", "Dit hjem", "Præferencer"];
 
 const C = {
-  ink: "#0a3d3a",
-  orange: "#ff6b35",
-  cream: "#f5f0e0",
-  paper: "#fbf6e7",
-  teal: "#168a7a",
-  mint: "#c8e6c0",
+  ink: "hsl(224 45% 16%)",
+  orange: "hsl(222 88% 42%)",
+  cream: "hsl(210 60% 98%)",
+  paper: "#ffffff",
+  teal: "hsl(192 90% 46%)",
+  border: "hsl(222 40% 88%)",
 };
+
 
 const CustomerRegister = () => {
   const navigate = useNavigate();
@@ -199,14 +200,14 @@ const CustomerRegister = () => {
   };
 
   return (
-    <main className="min-h-screen font-editorial" style={{ background: C.cream, color: C.ink }}>
+    <main className="min-h-screen" style={{ background: C.cream, color: C.ink }}>
       <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-16">
         <div className="mx-auto max-w-3xl">
-          <div className="mb-8 border-b-2 pb-7 sm:mb-10 sm:pb-9" style={{ borderColor: C.ink }}>
-            <p className="mb-3 text-[10px] font-black uppercase tracking-[0.28em]" style={{ color: C.orange }}>
-              Kom godt i gang
+          <div className="mb-8 border-b pb-7 sm:mb-10 sm:pb-9" style={{ borderColor: C.border }}>
+            <p className="mb-3 inline-flex w-fit items-center rounded-full bg-[hsl(222_88%_42%/0.08)] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide" style={{ color: C.orange }}>
+              Early Access
             </p>
-            <h1 className="max-w-2xl text-4xl font-black leading-[1.02] tracking-[-0.04em] sm:text-6xl">
+            <h1 className="max-w-2xl text-3xl font-bold leading-tight tracking-tight sm:text-5xl">
               Opret dit hjem. Book din cleaner.
             </h1>
             <p className="mt-4 max-w-xl text-base leading-relaxed opacity-75 sm:text-lg">
@@ -217,16 +218,16 @@ const CustomerRegister = () => {
           <div className="mb-8 grid grid-cols-3 gap-2 sm:mb-10">
             {steps.map((s, i) => (
               <div key={s} className="flex-1">
-                <div className="h-1.5 rounded-full transition-all" style={{ background: i <= step ? C.orange : "rgba(10,61,58,.18)" }} />
-                <p className={`mt-2 text-[10px] font-black uppercase tracking-[0.16em] ${i === step ? "" : "opacity-45"}`}>{s}</p>
+                <div className="h-1.5 rounded-full transition-all" style={{ background: i <= step ? C.orange : "hsl(222 40% 88%)" }} />
+                <p className={`mt-2 text-[11px] font-semibold ${i === step ? "" : "opacity-45"}`}>{s}</p>
               </div>
             ))}
           </div>
 
-          <div className="rounded-[1.75rem] border-2 p-5 shadow-[6px_6px_0_#0a3d3a] sm:p-8" style={{ background: C.paper, borderColor: C.ink }}>
+          <div className="rounded-2xl border p-5 shadow-[0_18px_40px_-24px_hsl(222_88%_42%/0.45)] sm:p-8" style={{ background: C.paper, borderColor: C.border }}>
             {step === 0 && (
               <div className="space-y-5">
-                <h2 className="text-2xl font-black tracking-[-0.02em]">Først: hvem er du?</h2>
+                <h2 className="text-2xl font-bold tracking-tight">Først: hvem er du?</h2>
                 {authed && (
                   <div className="flex items-center gap-2 rounded-lg bg-success/10 border border-success/20 text-success px-3 py-2 text-sm">
                     <CheckCircle2 className="h-4 w-4" /> Du er allerede logget ind
@@ -279,7 +280,7 @@ const CustomerRegister = () => {
 
             {step === 1 && (
               <div className="space-y-5">
-                <h2 className="flex items-center gap-2 text-2xl font-black tracking-[-0.02em]">
+                <h2 className="flex items-center gap-2 text-2xl font-bold tracking-tight">
                   <Home className="h-5 w-5" style={{ color: C.orange }} /> Dit hjem
                 </h2>
                 <p className="text-sm leading-relaxed opacity-70">Oplysningerne bruges til rengøringen og deles kun med den cleaner, du booker.</p>
@@ -324,7 +325,7 @@ const CustomerRegister = () => {
 
             {step === 2 && (
               <div className="space-y-5">
-                <h2 className="flex items-center gap-2 text-2xl font-black tracking-[-0.02em]">
+                <h2 className="flex items-center gap-2 text-2xl font-bold tracking-tight">
                   <Sparkles className="h-5 w-5" style={{ color: C.orange }} /> Hvad passer dig bedst?
                 </h2>
                 <div>
@@ -361,7 +362,7 @@ const CustomerRegister = () => {
               </div>
             )}
 
-            <div className="mt-8 flex items-center justify-between border-t-2 pt-6" style={{ borderColor: C.ink }}>
+            <div className="mt-8 flex items-center justify-between border-t pt-6" style={{ borderColor: C.border }}>
               <BackButton
                 variant="ghost"
                 label={step === 0 ? "Tilbage" : "Forrige trin"}
