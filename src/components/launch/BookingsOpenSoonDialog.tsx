@@ -8,7 +8,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { EARLY_ACCESS_COPY, isBookingLocked } from "@/config/launch";
+import { EARLY_ACCESS_COPY, canPerformFinancialAction, isBookingLocked } from "@/config/launch";
 
 export function BookingsOpenSoonDialog({
   open,
