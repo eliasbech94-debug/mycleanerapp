@@ -13,10 +13,12 @@ export function ProviderStickyCta({ earlyAccess, isFollowing, providerFirstName,
   return (
     <div
       data-testid="provider-sticky-cta"
-      className="sticky bottom-0 z-20 -mx-4 mt-6 border-t border-[hsl(222_60%_92%)] bg-white/95 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-white/80 sm:mx-0 sm:rounded-2xl sm:border sm:px-4"
+      // Mobile: fixed bottom bar (always visible, like the reference).
+      // Desktop (>=640px): flows with the page below the content.
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-[hsl(222_60%_92%)] bg-white/95 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-white/85 sm:static sm:mt-6 sm:rounded-2xl sm:border sm:px-4"
       style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))" }}
     >
-      <div className="flex flex-col gap-2 sm:flex-row">
+      <div className="mx-auto flex max-w-4xl flex-col gap-2 sm:flex-row">
         <button
           type="button"
           onClick={onBook}
