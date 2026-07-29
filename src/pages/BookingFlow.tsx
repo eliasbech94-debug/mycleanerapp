@@ -290,6 +290,7 @@ function BookingFlowInner() {
 
   return (
     <main className="min-h-screen font-editorial" style={{ background: C.cream, color: C.ink }}>
+      <BookingsOpenSoonDialog open={financialLock.open} onOpenChange={financialLock.setOpen} />
       {/* Top */}
       <header className="sticky top-0 z-20 border-b-2" style={{ background: C.ink, color: C.cream, borderColor: C.ink }}>
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3 sm:px-6">
