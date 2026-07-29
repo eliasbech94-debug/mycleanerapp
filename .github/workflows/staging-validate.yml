@@ -1,17 +1,14 @@
-name: Staging Validate (DB only)
+name: Staging Validate (read-only preflight)
 
-# Manual database validation against an isolated staging Supabase project.
-# Never runs on push. Never targets production. Never deploys code or functions.
+# Manual READ-ONLY preflight against an isolated staging Supabase project.
+# Never runs on push. Never targets production. Never deploys, migrates,
+# resets, seeds, or otherwise mutates the staging database.
 "on":
   workflow_dispatch:
     inputs:
       confirm:
-        description: 'Type "deploy-staging" to confirm.'
+        description: 'Type "validate-staging" to confirm this read-only run.'
         required: true
-        default: ''
-      allow_db_reset:
-        description: 'DESTRUCTIVE. Type "reset-staging-db" to allow `supabase db reset --linked`. Leave empty for safe `migration up`.'
-        required: false
         default: ''
 
 permissions:
@@ -23,7 +20,7 @@ concurrency:
 
 jobs:
   validate:
-    name: Staging DB validation (lint + migrations + RLS regression + tests)
+    name: Staging read-only preflight (lint + migration status + RLS regression + tests)
     runs-on: ubuntu-latest
     environment: staging
     # Hard guard: only run on the staging branch.
@@ -42,8 +39,8 @@ jobs:
     steps:
       - name: Guard - confirmation input
         run: |
-          if [ "${{ github.event.inputs.confirm }}" != "deploy-staging" ]; then
-            echo "::error::Confirmation input must be exactly 'deploy-staging'."
+          if [ "${{ github.event.inputs.confirm }}" != "validate-staging" ]; then
+            echo "::error::Confirmation input must be exactly 'validate-staging'."
             exit 1
           fi
 
@@ -71,6 +68,12 @@ jobs:
           case "$STAGING_DB_URL" in
             *"$PROD_REF"*)
               echo "::error::STAGING_DB_URL points at the production project ref ($PROD_REF). Aborting."
+              exit 1
+              ;;
+          esac
+          case "$STAGING_SUPABASE_URL" in
+            *"$PROD_REF"*)
+              echo "::error::STAGING_SUPABASE_URL points at the production project ref ($PROD_REF). Aborting."
               exit 1
               ;;
           esac
@@ -102,7 +105,7 @@ jobs:
           supabase link --project-ref "$STAGING_PROJECT_REF" --password "$SUPABASE_DB_PASSWORD" \
             | tee artifacts/00-link.log
 
-      - name: Database lint
+      - name: Database lint (read-only)
         run: |
           set -o pipefail
           supabase db lint --linked 2>&1 | tee artifacts/10-db-lint.log || {
@@ -110,23 +113,37 @@ jobs:
             exit 1
           }
 
-      - name: Apply pending migrations
+      - name: Migration status (read-only, report only)
         run: |
           set -o pipefail
-          if [ "${{ github.event.inputs.allow_db_reset }}" = "reset-staging-db" ]; then
-            echo "DESTRUCTIVE: running 'supabase db reset --linked' as explicitly confirmed."
-            supabase db reset --linked 2>&1 | tee artifacts/20-db-reset.log || {
-              echo "::error::supabase db reset --linked failed. See artifacts/20-db-reset.log."
-              exit 1
+          # READ-ONLY: list local vs remote migrations. Never applies, resets,
+          # or mutates the staging database. Pending migrations are reported
+          # as a controlled failure so they can be promoted deliberately via
+          # the separate staging-deploy workflow — never auto-applied here.
+          supabase migration list --linked 2>&1 | tee artifacts/20-migration-list.log || {
+            echo "::error::supabase migration list failed. See artifacts/20-migration-list.log."
+            exit 1
+          }
+          # Detect pending migrations: rows where the Remote column is empty
+          # while the Local column has a timestamp. The CLI output is a
+          # pipe-separated table; parse defensively.
+          pending=$(awk -F'|' '
+            NR>2 && $0 !~ /^[[:space:]]*$/ {
+              local=$2; remote=$3;
+              gsub(/[[:space:]]/, "", local);
+              gsub(/[[:space:]]/, "", remote);
+              if (local != "" && remote == "") print local;
             }
-          else
-            supabase migration up --linked 2>&1 | tee artifacts/20-migration-up.log || {
-              echo "::error::supabase migration up --linked failed. See artifacts/20-migration-up.log."
-              exit 1
-            }
+          ' artifacts/20-migration-list.log || true)
+          if [ -n "$pending" ]; then
+            echo "::error::Pending migrations detected on staging (not applied by this workflow):"
+            echo "$pending" | sed 's/^/  - /'
+            echo "::error::Promote them via the staging-deploy workflow after review. This preflight is read-only."
+            exit 1
           fi
+          echo "Migration status: staging is in sync with repo migrations."
 
-      - name: Run RLS regression (knowledge / incident evidence)
+      - name: Run RLS regression (knowledge / incident evidence, read-only asserts)
         run: |
           set -o pipefail
           psql "$STAGING_DB_URL" -v ON_ERROR_STOP=1 \
@@ -139,11 +156,27 @@ jobs:
       - name: Install project dependencies
         run: bun install --frozen-lockfile 2>&1 | tee artifacts/40-bun-install.log
 
-      - name: Run full test suite
+      - name: Run full test suite (read-only)
         run: |
           set -o pipefail
           bun run test 2>&1 | tee artifacts/50-tests.log || {
             echo "::error::Automated test suite failed. See artifacts/50-tests.log."
+            exit 1
+          }
+
+      - name: Typecheck
+        run: |
+          set -o pipefail
+          bun run typecheck 2>&1 | tee artifacts/60-typecheck.log || {
+            echo "::error::Typecheck failed. See artifacts/60-typecheck.log."
+            exit 1
+          }
+
+      - name: Build (read-only artifact)
+        run: |
+          set -o pipefail
+          bun run build 2>&1 | tee artifacts/70-build.log || {
+            echo "::error::Build failed. See artifacts/70-build.log."
             exit 1
           }
 
