@@ -109,6 +109,16 @@ jobs:
           supabase db push --db-url "$STAGING_PG_CONN" 2>&1 | tee db-push.log
           test "${PIPESTATUS[0]}" = "0"
 
+      - name: Run provider price backfill regression
+        shell: bash
+        run: |
+          set +x
+          set -o pipefail
+          psql "$STAGING_PG_CONN" -v ON_ERROR_STOP=1 \
+            -f scripts/provider-service-price-backfill-regression.sql \
+            2>&1 | tee provider-price-backfill-regression.log
+          test "${PIPESTATUS[0]}" = "0"
+
       - name: Verify funds release remains disabled
         shell: bash
         run: |
@@ -145,5 +155,6 @@ jobs:
           path: |
             db-push-dryrun.log
             db-push.log
+            provider-price-backfill-regression.log
           if-no-files-found: ignore
           retention-days: 14
