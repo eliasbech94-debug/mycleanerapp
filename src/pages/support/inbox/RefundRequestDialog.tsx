@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Banknote, Loader2 } from "lucide-react";
+import BookingsOpenSoonDialog, { guardFinancialAction } from "@/components/launch/BookingsOpenSoonDialog";
 
 interface Props {
   conversation: { id: string; booking_id?: string | null };
