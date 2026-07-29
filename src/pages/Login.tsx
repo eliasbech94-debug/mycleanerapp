@@ -10,7 +10,11 @@ import Turnstile, { resetTurnstile } from "@/components/Turnstile";
 const C = { ink: "#0a3d3a", orange: "#ff6b35", cream: "#f5f0e0", teal: "#168a7a" };
 
 export default function Login() {
-  const [mode, setMode] = useState<"signin" | "signup" | "forgot">("signin");
+  const [mode, setMode] = useState<"signin" | "signup" | "forgot">(() =>
+    new URLSearchParams(typeof window === "undefined" ? "" : window.location.search).get("mode") === "signup"
+      ? "signup"
+      : "signin",
+  );
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
