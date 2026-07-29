@@ -16,13 +16,14 @@ const propertyTypes = ["Lejlighed", "Rækkehus", "Villa", "Landejendom", "Erhver
 const steps = ["Konto", "Dit hjem", "Præferencer"];
 
 const C = {
-  ink: "#0a3d3a",
-  orange: "#ff6b35",
-  cream: "#f5f0e0",
-  paper: "#fbf6e7",
-  teal: "#168a7a",
-  mint: "#c8e6c0",
+  ink: "hsl(224 45% 16%)",
+  orange: "hsl(222 88% 42%)",
+  cream: "hsl(210 60% 98%)",
+  paper: "#ffffff",
+  teal: "hsl(192 90% 46%)",
+  border: "hsl(222 40% 88%)",
 };
+
 
 const CustomerRegister = () => {
   const navigate = useNavigate();
