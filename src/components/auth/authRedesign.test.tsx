@@ -6,8 +6,7 @@
  * and redirect behaviour, plus the no-hamburger rule on auth routes.
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { render, screen, fireEvent, act, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { isAuthRoute } from "@/components/layout/Header";
 import { EARLY_ACCESS_MODE, isBookingLocked } from "@/config/launch";
@@ -86,7 +85,7 @@ describe("auth redesign — login", () => {
 
   it("keeps the Google OAuth handler", async () => {
     renderLogin();
-    await userEvent.click(screen.getByRole("button", { name: /Fortsæt med Google/ }));
+    fireEvent.click(screen.getByRole("button", { name: /Fortsæt med Google/ }));
     expect(signInWithOAuth).toHaveBeenCalledWith("google", expect.objectContaining({
       redirect_uri: expect.stringContaining("/auth/callback"),
     }));
@@ -94,21 +93,23 @@ describe("auth redesign — login", () => {
 
   it("submits through captcha-verify then supabase.auth.signInWithPassword", async () => {
     renderLogin();
-    await userEvent.type(screen.getByLabelText("Email"), "a@b.dk");
-    await userEvent.type(screen.getByLabelText("Adgangskode"), "hemmelig1");
-    turnstileToken?.("tok");
+    fireEvent.change(screen.getByLabelText("Email"), { target: { value: "a@b.dk" } });
+    fireEvent.change(screen.getByLabelText("Adgangskode"), { target: { value: "hemmelig1" } });
+    act(() => { turnstileToken?.("tok"); });
     const btn = await screen.findByRole("button", { name: /Log ind/ });
-    await userEvent.click(btn);
+    fireEvent.click(btn);
+    await waitFor(() => expect(signInWithPassword).toHaveBeenCalled());
     expect(invoke).toHaveBeenCalledWith("captcha-verify", expect.anything());
     expect(signInWithPassword).toHaveBeenCalled();
   });
 
   it("password reset still calls resetPasswordForEmail with the reset redirect", async () => {
     renderLogin();
-    await userEvent.click(screen.getByText("Glemt adgangskode?"));
-    await userEvent.type(screen.getByLabelText("Email"), "a@b.dk");
-    turnstileToken?.("tok");
-    await userEvent.click(await screen.findByRole("button", { name: /Send gendannelseslink/ }));
+    fireEvent.click(screen.getByText("Glemt adgangskode?"));
+    fireEvent.change(screen.getByLabelText("Email"), { target: { value: "a@b.dk" } });
+    act(() => { turnstileToken?.("tok"); });
+    fireEvent.click(await screen.findByRole("button", { name: /Send gendannelseslink/ }));
+    await waitFor(() => expect(resetPasswordForEmail).toHaveBeenCalled());
     expect(resetPasswordForEmail).toHaveBeenCalledWith(
       "a@b.dk",
       expect.objectContaining({ redirectTo: expect.stringContaining("/reset-password") }),
@@ -138,7 +139,7 @@ describe("auth redesign — signup", () => {
     expect(await screen.findByText("terms@1.0")).toBeInTheDocument();
     const checkbox = screen.getByRole("checkbox");
     expect(checkbox).toBeRequired();
-    turnstileToken?.("tok");
+    act(() => { turnstileToken?.("tok"); });
     expect(screen.getByRole("button", { name: /Opret konto/ })).toBeDisabled();
   });
 
