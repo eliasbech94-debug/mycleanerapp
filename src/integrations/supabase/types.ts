@@ -8342,6 +8342,37 @@ export type Database = {
           years_on_platform: number
         }[]
       }
+      get_public_provider_profile_v2: {
+        Args: { _slug: string }
+        Returns: {
+          address_verified: boolean
+          approx_lat: number
+          approx_lng: number
+          avatar_url: string
+          average_rating: number
+          avg_response_minutes: number
+          city: string
+          completed_bookings: number
+          country_code: string
+          display_name: string
+          equipment_badges: Json
+          headline: string
+          identity_verified_badge: boolean
+          insurance_valid: boolean
+          languages: string[]
+          marketplace_score: number
+          price_from: number
+          provider_slug: string
+          provider_tier: Database["public"]["Enums"]["provider_tier"]
+          public_bio: string
+          service_categories: string[]
+          service_radius_km: number
+          services: Json
+          total_reviews: number
+          years_experience: number
+          years_on_platform: number
+        }[]
+      }
       get_published_country_config: {
         Args: { _iso: string }
         Returns: {
@@ -8775,6 +8806,17 @@ export type Database = {
         Returns: {
           slot_date: string
           slot_hour: number
+        }[]
+      }
+      list_public_provider_work_history_v1: {
+        Args: { _slug: string }
+        Returns: {
+          city: string
+          company_name: string
+          currently_employed: boolean
+          ended_on: string
+          role_title: string
+          started_on: string
         }[]
       }
       lock_pricing_quote: {
