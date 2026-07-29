@@ -15,8 +15,10 @@ export function ProviderStickyCta({ earlyAccess, isFollowing, providerFirstName,
       data-testid="provider-sticky-cta"
       // Mobile: fixed bottom bar (always visible, like the reference).
       // Desktop (>=640px): flows with the page below the content.
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-[hsl(222_60%_92%)] bg-white/95 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-white/85 sm:static sm:mt-6 sm:rounded-2xl sm:border sm:px-4"
-      style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))" }}
+      className="fixed inset-x-0 bottom-0 z-30 border-t border-[hsl(222_60%_92%)] bg-white/95 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-white/85 sm:static sm:mt-6 sm:rounded-2xl sm:border sm:px-4"
+      // Sits directly above the mobile tab bar (h-14) incl. safe area.
+      // `bottom` is ignored once the bar becomes static at >=640px.
+      style={{ bottom: "calc(3.5rem + env(safe-area-inset-bottom))" }}
     >
       <div className="mx-auto flex max-w-4xl flex-col gap-2 sm:flex-row">
         <button
