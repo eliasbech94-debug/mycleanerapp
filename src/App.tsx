@@ -83,7 +83,7 @@ import AdminPricing from "./pages/admin/AdminPricing";
 import AdminKnowledge from "./pages/admin/AdminKnowledge";
 import AdminCareerVerification from "./pages/admin/AdminCareerVerification";
 import EarlyAccessRouteGuard from "@/components/launch/EarlyAccessRouteGuard";
-import EarlyAccessBanner from "@/components/launch/EarlyAccessBanner";
+import EarlyAccessBannerSlot from "@/components/launch/EarlyAccessBannerSlot";
 
 
 
@@ -231,7 +231,7 @@ const App = () => (
                   <ScrollToTop />
                   <RouteLoadingBar />
                   <Header />
-                  <EarlyAccessBanner />
+                  <EarlyAccessBannerSlot />
                   <RootRouteSwitch />
                   <Footer />
                   <MobileBottomNav />
