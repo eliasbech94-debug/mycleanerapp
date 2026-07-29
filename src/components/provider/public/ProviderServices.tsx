@@ -11,13 +11,15 @@ export function ProviderServices({ profile }: { profile: PublicProviderProfile }
   return (
     <section data-testid="provider-services" className="space-y-3">
       <h2 className="text-xl font-bold text-[hsl(224_72%_18%)]">Ydelser og priser</h2>
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      {/* Mobile: horizontal snap carousel (matches the app reference).
+          >=640px: responsive grid. */}
+      <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-1 sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 lg:grid-cols-3">
         {services.map((s) => {
           const minDuration = minDurationLabel(s);
           return (
             <article
               key={s.service_code}
-              className="flex min-w-0 flex-col gap-1.5 rounded-2xl bg-white p-4 ring-1 ring-[hsl(222_60%_92%)]"
+              className="flex w-[15.5rem] shrink-0 snap-start flex-col gap-1.5 rounded-2xl bg-white p-4 ring-1 ring-[hsl(222_60%_92%)] sm:w-auto sm:min-w-0 sm:shrink"
             >
               <Sparkles className="h-5 w-5 text-[hsl(222_88%_42%)]" aria-hidden="true" />
               <h3 className="break-words text-base font-semibold text-[hsl(224_72%_18%)]">

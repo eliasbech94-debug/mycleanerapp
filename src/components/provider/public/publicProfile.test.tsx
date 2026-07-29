@@ -275,7 +275,7 @@ describe("layout holds for different provider types", () => {
     const cards = container.querySelectorAll('[data-testid="provider-services"] article');
     expect(cards).toHaveLength(9);
     cards.forEach((card) => {
-      expect(card.className).toMatch(/min-w-0/);
+      expect(card.className).toMatch(/shrink-0|min-w-0/);
       expect(card.querySelector("h3")?.className).toMatch(/break-words/);
     });
 
