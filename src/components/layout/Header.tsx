@@ -38,6 +38,21 @@ export function isMobileShellHiddenHeaderRoute(pathname: string): boolean {
   return MOBILE_SHELL_HIDE_ROUTES.some((re) => re.test(p));
 }
 /**
+ * Auth surfaces (login/signup/reset) render their own minimal header inside
+ * AuthShell, so the global Header — including the mobile hamburger — is hidden.
+ */
+const AUTH_ROUTES: RegExp[] = [
+  /^\/login(\/|$)/,
+  /^\/reset-password(\/|$)/,
+  /^\/customer\/register(\/|$)/,
+  /^\/auth\/callback(\/|$)/,
+];
+export function isAuthRoute(pathname: string): boolean {
+  const p = normalizePath(pathname);
+  return AUTH_ROUTES.some((re) => re.test(p));
+}
+
+/**
  * `/profil` renders the existing dense Profile page when a `?tab=` is set,
  * but the mobile landing (no tab) uses MobileProfile with its own
  * MobileAppBar. Only the landing variant should suppress the global Header.
