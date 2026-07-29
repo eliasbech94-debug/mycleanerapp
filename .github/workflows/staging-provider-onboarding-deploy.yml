@@ -1,0 +1,171 @@
+name: Staging Deploy — Provider Onboarding
+
+# Scoped manual deployment for the unified provider onboarding.
+# Applies pending staging migrations and deploys postal-lookup only.
+"on":
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type "deploy-provider-onboarding-staging" to confirm.'
+        required: true
+        default: ''
+
+permissions:
+  contents: read
+
+concurrency:
+  group: staging-provider-onboarding-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy provider onboarding to staging
+    runs-on: ubuntu-latest
+    environment: staging
+    if: ${{ github.ref == 'refs/heads/staging' }}
+    timeout-minutes: 30
+
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.STAGING_SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_DB_PASSWORD: ${{ secrets.STAGING_SUPABASE_DB_PASSWORD }}
+      STAGING_REF: ${{ secrets.STAGING_SUPABASE_PROJECT_REF }}
+      STAGING_SUPABASE_URL: ${{ secrets.STAGING_SUPABASE_URL }}
+      STAGING_SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.STAGING_SUPABASE_SERVICE_ROLE_KEY }}
+      STAGING_PG_CONN: ${{ secrets.STAGING_PG_CONN }}
+      EXPECTED_STAGING_REF: acxtqclnrvpyncmtptdd
+      PROD_REF: qfjgifubavuomwvroahy
+      SUPABASE_CLI_VERSION: 2.60.0
+
+    steps:
+      - name: Validate confirmation, branch and secrets
+        shell: bash
+        run: |
+          set +x
+          set -euo pipefail
+          if [ "${{ github.event.inputs.confirm }}" != "deploy-provider-onboarding-staging" ]; then
+            echo "::error::Confirmation phrase not provided."
+            exit 1
+          fi
+          if [ "$GITHUB_REF" != "refs/heads/staging" ]; then
+            echo "::error::This workflow only runs from staging."
+            exit 1
+          fi
+          missing=0
+          [ -n "$SUPABASE_ACCESS_TOKEN" ] || { echo "::error::STAGING_SUPABASE_ACCESS_TOKEN is missing"; missing=1; }
+          [ -n "$SUPABASE_DB_PASSWORD" ] || { echo "::error::STAGING_SUPABASE_DB_PASSWORD is missing"; missing=1; }
+          [ -n "$STAGING_REF" ] || { echo "::error::STAGING_SUPABASE_PROJECT_REF is missing"; missing=1; }
+          [ -n "$STAGING_SUPABASE_URL" ] || { echo "::error::STAGING_SUPABASE_URL is missing"; missing=1; }
+          [ -n "$STAGING_SUPABASE_SERVICE_ROLE_KEY" ] || { echo "::error::STAGING_SUPABASE_SERVICE_ROLE_KEY is missing"; missing=1; }
+          [ -n "$STAGING_PG_CONN" ] || { echo "::error::STAGING_PG_CONN is missing"; missing=1; }
+          [ "$missing" = "0" ] || exit 1
+
+      - name: Refuse production or unexpected project
+        shell: bash
+        run: |
+          set +x
+          set -euo pipefail
+          if [ "$STAGING_REF" = "$PROD_REF" ] || [ "$STAGING_REF" != "$EXPECTED_STAGING_REF" ]; then
+            echo "::error::Unexpected or production project ref."
+            exit 1
+          fi
+          url_host="$(printf '%s' "$STAGING_SUPABASE_URL" | sed -E 's#^https?://([^./]+)\..*#\1#')"
+          if [ "$url_host" != "$EXPECTED_STAGING_REF" ] || [ "$url_host" = "$PROD_REF" ]; then
+            echo "::error::Unexpected or production Supabase URL."
+            exit 1
+          fi
+          if ! printf '%s' "$STAGING_PG_CONN" | grep -q "$EXPECTED_STAGING_REF"; then
+            echo "::error::Database connection does not contain the staging ref."
+            exit 1
+          fi
+          if printf '%s' "$STAGING_PG_CONN" | grep -q "$PROD_REF"; then
+            echo "::error::Database connection contains the production ref."
+            exit 1
+          fi
+          if ! printf '%s' "$STAGING_PG_CONN" | grep -Eq 'pooler\.supabase\.(com|co)'; then
+            echo "::error::Database connection must use the Supabase pooler."
+            exit 1
+          fi
+
+      - uses: actions/checkout@v4
+
+      - name: Install pinned Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: ${{ env.SUPABASE_CLI_VERSION }}
+
+      - name: Apply provider onboarding migrations only
+        shell: bash
+        run: |
+          set +x
+          set -euo pipefail
+          migrations=(
+            "20260727223000_provider_service_prices.sql"
+            "20260727223200_completion_uses_service_prices.sql"
+            "20260727223300_service_price_floor.sql"
+            "20260729175000_provider_service_price_country_compat.sql"
+            "20260729180000_backfill_provider_service_prices.sql"
+          )
+          : > db-push.log
+          for migration in "${migrations[@]}"; do
+            version="${migration%%_*}"
+            applied="$(psql "$STAGING_PG_CONN" -v ON_ERROR_STOP=1 -Atc \
+              "select exists(select 1 from supabase_migrations.schema_migrations where version = '${version}')")"
+            if [ "$applied" = "t" ]; then
+              echo "Skipping already applied migration ${version}" | tee -a db-push.log
+              continue
+            fi
+            echo "Applying scoped migration ${migration}" | tee -a db-push.log
+            psql "$STAGING_PG_CONN" -v ON_ERROR_STOP=1 -1 \
+              -f "supabase/migrations/${migration}" 2>&1 | tee -a db-push.log
+            supabase migration repair "${version}" --status applied \
+              --db-url "$STAGING_PG_CONN" 2>&1 | tee -a db-push.log
+          done
+
+      - name: Run provider price backfill regression
+        shell: bash
+        run: |
+          set +x
+          set -o pipefail
+          psql "$STAGING_PG_CONN" -v ON_ERROR_STOP=1 \
+            -f scripts/provider-service-price-backfill-regression.sql \
+            2>&1 | tee provider-price-backfill-regression.log
+          test "${PIPESTATUS[0]}" = "0"
+
+      - name: Verify funds release remains disabled
+        shell: bash
+        run: |
+          set +x
+          set -euo pipefail
+          response="$(mktemp)"
+          code="$(curl --silent --show-error --output "$response" --write-out '%{http_code}' \
+            -H "apikey: ${STAGING_SUPABASE_SERVICE_ROLE_KEY}" \
+            -H "Authorization: Bearer ${STAGING_SUPABASE_SERVICE_ROLE_KEY}" \
+            -H "Accept: application/json" \
+            "${STAGING_SUPABASE_URL}/rest/v1/feature_flags?flag_key=eq.funds_release.enabled&scope=eq.global&select=enabled")"
+          if [ "$code" != "200" ]; then
+            echo "::error::Unable to verify funds_release.enabled."
+            exit 1
+          fi
+          if [ "$(jq 'length' "$response")" != "1" ] || [ "$(jq -r '.[0].enabled' "$response")" != "false" ]; then
+            echo "::error::funds_release.enabled must exist exactly once and remain false."
+            exit 1
+          fi
+          echo "funds_release.enabled=false verified."
+
+      - name: Deploy postal lookup to staging
+        shell: bash
+        run: supabase functions deploy postal-lookup --project-ref "$STAGING_REF"
+
+      - name: Verify deployed function inventory
+        run: supabase functions list --project-ref "$STAGING_REF"
+
+      - name: Upload deployment logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: staging-provider-onboarding-deploy-log
+          path: |
+            db-push.log
+            provider-price-backfill-regression.log
+          if-no-files-found: ignore
+          retention-days: 14

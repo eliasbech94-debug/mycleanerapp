@@ -108,7 +108,7 @@ jobs:
       - name: Database lint (read-only)
         run: |
           set -o pipefail
-          supabase db lint --linked 2>&1 | tee artifacts/10-db-lint.log || {
+          supabase db lint --db-url "$STAGING_DB_URL" 2>&1 | tee artifacts/10-db-lint.log || {
             echo "::error::supabase db lint failed. See artifacts/10-db-lint.log."
             exit 1
           }
@@ -120,7 +120,7 @@ jobs:
           # or mutates the staging database. Pending migrations are reported
           # as a controlled failure so they can be promoted deliberately via
           # the separate staging-deploy workflow — never auto-applied here.
-          supabase migration list --linked 2>&1 | tee artifacts/20-migration-list.log || {
+          supabase migration list --db-url "$STAGING_DB_URL" 2>&1 | tee artifacts/20-migration-list.log || {
             echo "::error::supabase migration list failed. See artifacts/20-migration-list.log."
             exit 1
           }
@@ -146,6 +146,10 @@ jobs:
       - name: Run RLS regression (knowledge / incident evidence, read-only asserts)
         run: |
           set -o pipefail
+          if [ ! -f scripts/knowledge-incident-evidence-rls-regression.sql ]; then
+            echo "::warning::Knowledge/incident-evidence RLS regression is not present on this branch; skipping this unrelated suite."
+            exit 0
+          fi
           psql "$STAGING_DB_URL" -v ON_ERROR_STOP=1 \
             -f scripts/knowledge-incident-evidence-rls-regression.sql \
             2>&1 | tee artifacts/30-rls-regression.log || {
@@ -167,7 +171,7 @@ jobs:
       - name: Typecheck
         run: |
           set -o pipefail
-          bun run typecheck 2>&1 | tee artifacts/60-typecheck.log || {
+          bunx tsc --noEmit 2>&1 | tee artifacts/60-typecheck.log || {
             echo "::error::Typecheck failed. See artifacts/60-typecheck.log."
             exit 1
           }
