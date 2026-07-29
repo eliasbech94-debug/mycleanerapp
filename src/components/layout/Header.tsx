@@ -162,6 +162,9 @@ const Header = () => {
   const onEmployeeRoute = location.pathname.startsWith("/employee");
   const belowMd = useBelow768();
   if (onAdminRoute || onEmployeeRoute) return null;
+  // Auth surfaces own their own header (logo + back button) — no hamburger.
+  if (isAuthRoute(location.pathname)) return null;
+
   if (belowMd && isMobileShellHiddenHeaderRoute(location.pathname)) return null;
   if (belowMd && shouldHideHeaderForMobileProfile(location.pathname, location.search)) return null;
   if (isMarketplaceRoute(location.pathname)) return <MarketplaceHeader />;
