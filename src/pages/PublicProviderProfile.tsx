@@ -10,6 +10,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Loader2, MapPin, Sparkles, Heart, CalendarCheck, ShieldCheck, Clock, BellRing, CalendarPlus, Search } from "lucide-react";
 import { toast } from "sonner";
+import { isBookingLocked } from "@/config/launch";
+import { BookingsOpenSoonDialog } from "@/components/launch/BookingsOpenSoonDialog";
 import { useAuth } from "@/hooks/useAuth";
 import { useAppContext, type AcquisitionSource } from "@/context/AppContext";
 import BackButton from "@/components/BackButton";
