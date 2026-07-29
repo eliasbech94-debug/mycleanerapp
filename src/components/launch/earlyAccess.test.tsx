@@ -2,7 +2,8 @@ import { describe, expect, it, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { EARLY_ACCESS_MODE, isBookingLocked, canPerformFinancialAction } from "@/config/launch";
-import EarlyAccessBanner from "@/components/launch/EarlyAccessBanner";
+import EarlyAccessBanner, { EARLY_ACCESS_SIGNUP_PATH } from "@/components/launch/EarlyAccessBanner";
+import EarlyAccessBannerSlot from "@/components/launch/EarlyAccessBannerSlot";
 import EarlyAccessRouteGuard from "@/components/launch/EarlyAccessRouteGuard";
 
 describe("Early Access mode", () => {
@@ -15,19 +16,78 @@ describe("Early Access mode", () => {
     expect(canPerformFinancialAction()).toBe(false);
   });
 
-  it("renders the Early Access banner with the approved copy", () => {
-    render(<EarlyAccessBanner />);
+  it("renders badge, headline, subline and CTA", () => {
+    render(
+      <MemoryRouter>
+        <EarlyAccessBanner />
+      </MemoryRouter>,
+    );
     expect(screen.getByTestId("early-access-banner")).toBeTruthy();
-    expect(screen.getByText("MyCleaner Early Access")).toBeTruthy();
+    expect(screen.getByTestId("early-access-badge").textContent).toContain("Early Access");
+    expect(screen.getByText("Vær blandt de første på MyCleaner")).toBeTruthy();
+    expect(screen.getByText("Opret din profil allerede nu. Bookinger åbner snart.")).toBeTruthy();
+    expect(screen.getByTestId("early-access-cta").textContent).toBe("Opret profil");
+  });
+
+  it("points the CTA at the signup / role-selection page only", () => {
+    render(
+      <MemoryRouter>
+        <EarlyAccessBanner />
+      </MemoryRouter>,
+    );
+    const href = screen.getByTestId("early-access-cta").getAttribute("href") || "";
+    expect(href).toBe(EARLY_ACCESS_SIGNUP_PATH);
+    expect(href).not.toMatch(/book|checkout|payment|betaling/i);
+  });
+
+  it("explains Early Access in the 'Læs mere' dialog", async () => {
+    render(
+      <MemoryRouter>
+        <EarlyAccessBanner />
+      </MemoryRouter>,
+    );
+    fireEvent.click(screen.getByTestId("early-access-more"));
     expect(
-      screen.getByText(
-        "Opret din profil og bliv en af de første på platformen. Bookinger åbner snart.",
+      await screen.findByText(
+        "MyCleaner åbner som Early Access. Du kan allerede nu oprette din konto, bygge din profil og blive en af de første på platformen. Vi giver dig besked, når bookinger åbner.",
       ),
     ).toBeTruthy();
   });
 
+  it("renders the compact variant", () => {
+    render(
+      <MemoryRouter>
+        <EarlyAccessBanner variant="compact" />
+      </MemoryRouter>,
+    );
+    const el = screen.getByTestId("early-access-banner");
+    expect(el.getAttribute("data-variant")).toBe("compact");
+    expect(screen.getByTestId("early-access-badge")).toBeTruthy();
+  });
+
+  it("shows the hero banner on the homepage and the compact one on dashboards", () => {
+    const { unmount } = render(
+      <MemoryRouter initialEntries={["/"]}>
+        <EarlyAccessBannerSlot />
+      </MemoryRouter>,
+    );
+    expect(screen.getByTestId("early-access-banner").getAttribute("data-variant")).toBe("hero");
+    unmount();
+
+    render(
+      <MemoryRouter initialEntries={["/customer"]}>
+        <EarlyAccessBannerSlot />
+      </MemoryRouter>,
+    );
+    expect(screen.getByTestId("early-access-banner").getAttribute("data-variant")).toBe("compact");
+  });
+
   it("never calls the platform 'beta'", () => {
-    render(<EarlyAccessBanner />);
+    render(
+      <MemoryRouter>
+        <EarlyAccessBanner />
+      </MemoryRouter>,
+    );
     expect(screen.getByTestId("early-access-banner").textContent?.toLowerCase()).not.toContain("beta");
   });
 
