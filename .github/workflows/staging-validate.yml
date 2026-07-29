@@ -171,7 +171,7 @@ jobs:
       - name: Typecheck
         run: |
           set -o pipefail
-          bun run typecheck 2>&1 | tee artifacts/60-typecheck.log || {
+          bunx tsc --noEmit 2>&1 | tee artifacts/60-typecheck.log || {
             echo "::error::Typecheck failed. See artifacts/60-typecheck.log."
             exit 1
           }
