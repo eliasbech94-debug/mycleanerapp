@@ -175,6 +175,8 @@ function BookingFlowInner() {
 
   async function next() {
     if (step === 3) {
+      // Early Access: stop the checkout BEFORE quote / PaymentIntent / capture.
+      if (guardFinancialAction(() => financialLock.setOpen(true))) return;
       if (!addressValid) {
         toast({
           title: "Adresse mangler",
