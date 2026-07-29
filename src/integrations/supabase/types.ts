@@ -1586,6 +1586,313 @@ export type Database = {
         }
         Relationships: []
       }
+      career_audit_log: {
+        Row: {
+          action: string
+          actor_user_id: string | null
+          created_at: string
+          entity_id: string | null
+          entity_type: string
+          id: string
+          new_value: Json | null
+          previous_value: Json | null
+          reason: string | null
+          request_id: string | null
+        }
+        Insert: {
+          action: string
+          actor_user_id?: string | null
+          created_at?: string
+          entity_id?: string | null
+          entity_type: string
+          id?: string
+          new_value?: Json | null
+          previous_value?: Json | null
+          reason?: string | null
+          request_id?: string | null
+        }
+        Update: {
+          action?: string
+          actor_user_id?: string | null
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string
+          id?: string
+          new_value?: Json | null
+          previous_value?: Json | null
+          reason?: string | null
+          request_id?: string | null
+        }
+        Relationships: []
+      }
+      career_evidence_documents: {
+        Row: {
+          certification_id: string | null
+          created_at: string
+          evidence_type: string
+          id: string
+          mime_type: string
+          original_filename: string | null
+          rejection_reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          size_bytes: number
+          status: string
+          storage_path: string
+          updated_at: string
+          uploaded_at: string
+          user_id: string
+          work_history_id: string | null
+        }
+        Insert: {
+          certification_id?: string | null
+          created_at?: string
+          evidence_type: string
+          id?: string
+          mime_type: string
+          original_filename?: string | null
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          size_bytes: number
+          status?: string
+          storage_path: string
+          updated_at?: string
+          uploaded_at?: string
+          user_id: string
+          work_history_id?: string | null
+        }
+        Update: {
+          certification_id?: string | null
+          created_at?: string
+          evidence_type?: string
+          id?: string
+          mime_type?: string
+          original_filename?: string | null
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          size_bytes?: number
+          status?: string
+          storage_path?: string
+          updated_at?: string
+          uploaded_at?: string
+          user_id?: string
+          work_history_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "career_evidence_documents_certification_id_fkey"
+            columns: ["certification_id"]
+            isOneToOne: false
+            referencedRelation: "cleaner_certifications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "career_evidence_documents_work_history_id_fkey"
+            columns: ["work_history_id"]
+            isOneToOne: false
+            referencedRelation: "cleaner_work_history"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cleaner_career_profiles: {
+        Row: {
+          average_rating: number | null
+          cancellation_rate: number
+          career_score: number
+          career_summary: string | null
+          created_at: string
+          id: string
+          identity_verified: boolean
+          mycleaner_id: string
+          no_show_rate: number
+          professional_headline: string | null
+          punctuality_score: number
+          reliability_score: number
+          repeat_customer_rate: number
+          searchable_by_id: boolean
+          searchable_by_name: boolean
+          share_slug: string | null
+          total_completed_jobs: number
+          total_verified_hours: number
+          updated_at: string
+          user_id: string
+          visibility: string
+        }
+        Insert: {
+          average_rating?: number | null
+          cancellation_rate?: number
+          career_score?: number
+          career_summary?: string | null
+          created_at?: string
+          id?: string
+          identity_verified?: boolean
+          mycleaner_id: string
+          no_show_rate?: number
+          professional_headline?: string | null
+          punctuality_score?: number
+          reliability_score?: number
+          repeat_customer_rate?: number
+          searchable_by_id?: boolean
+          searchable_by_name?: boolean
+          share_slug?: string | null
+          total_completed_jobs?: number
+          total_verified_hours?: number
+          updated_at?: string
+          user_id: string
+          visibility?: string
+        }
+        Update: {
+          average_rating?: number | null
+          cancellation_rate?: number
+          career_score?: number
+          career_summary?: string | null
+          created_at?: string
+          id?: string
+          identity_verified?: boolean
+          mycleaner_id?: string
+          no_show_rate?: number
+          professional_headline?: string | null
+          punctuality_score?: number
+          reliability_score?: number
+          repeat_customer_rate?: number
+          searchable_by_id?: boolean
+          searchable_by_name?: boolean
+          share_slug?: string | null
+          total_completed_jobs?: number
+          total_verified_hours?: number
+          updated_at?: string
+          user_id?: string
+          visibility?: string
+        }
+        Relationships: []
+      }
+      cleaner_certifications: {
+        Row: {
+          career_profile_id: string
+          certificate_name: string
+          created_at: string
+          evidence_storage_path: string | null
+          expires_on: string | null
+          id: string
+          issued_on: string | null
+          issuer: string | null
+          updated_at: string
+          verification_status: string
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          career_profile_id: string
+          certificate_name: string
+          created_at?: string
+          evidence_storage_path?: string | null
+          expires_on?: string | null
+          id?: string
+          issued_on?: string | null
+          issuer?: string | null
+          updated_at?: string
+          verification_status?: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          career_profile_id?: string
+          certificate_name?: string
+          created_at?: string
+          evidence_storage_path?: string | null
+          expires_on?: string | null
+          id?: string
+          issued_on?: string | null
+          issuer?: string | null
+          updated_at?: string
+          verification_status?: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cleaner_certifications_career_profile_id_fkey"
+            columns: ["career_profile_id"]
+            isOneToOne: false
+            referencedRelation: "cleaner_career_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cleaner_work_history: {
+        Row: {
+          career_profile_id: string
+          city: string | null
+          company_name: string
+          country_code: string | null
+          created_at: string
+          currently_employed: boolean
+          description: string | null
+          ended_on: string | null
+          evidence_review_note: string | null
+          evidence_storage_path: string | null
+          id: string
+          role_title: string | null
+          started_on: string
+          updated_at: string
+          verification_method: string | null
+          verification_status: string
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          career_profile_id: string
+          city?: string | null
+          company_name: string
+          country_code?: string | null
+          created_at?: string
+          currently_employed?: boolean
+          description?: string | null
+          ended_on?: string | null
+          evidence_review_note?: string | null
+          evidence_storage_path?: string | null
+          id?: string
+          role_title?: string | null
+          started_on: string
+          updated_at?: string
+          verification_method?: string | null
+          verification_status?: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          career_profile_id?: string
+          city?: string | null
+          company_name?: string
+          country_code?: string | null
+          created_at?: string
+          currently_employed?: boolean
+          description?: string | null
+          ended_on?: string | null
+          evidence_review_note?: string | null
+          evidence_storage_path?: string | null
+          id?: string
+          role_title?: string | null
+          started_on?: string
+          updated_at?: string
+          verification_method?: string | null
+          verification_status?: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cleaner_work_history_career_profile_id_fkey"
+            columns: ["career_profile_id"]
+            isOneToOne: false
+            referencedRelation: "cleaner_career_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cleaning_plans: {
         Row: {
           address_id: string | null
@@ -2033,6 +2340,78 @@ export type Database = {
           timezone?: string
           updated_at?: string
           vat_rate_bps?: number
+        }
+        Relationships: []
+      }
+      country_emergency_info: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          country_code: string
+          created_at: string
+          created_by: string | null
+          emergency_number: string | null
+          extra: Json
+          fire_number: string | null
+          medical_number: string | null
+          non_emergency_number: string | null
+          notes: string | null
+          poison_control_number: string | null
+          police_number: string | null
+          published: boolean
+          published_at: string | null
+          published_by: string | null
+          source_url: string | null
+          updated_at: string
+          updated_by: string | null
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          country_code: string
+          created_at?: string
+          created_by?: string | null
+          emergency_number?: string | null
+          extra?: Json
+          fire_number?: string | null
+          medical_number?: string | null
+          non_emergency_number?: string | null
+          notes?: string | null
+          poison_control_number?: string | null
+          police_number?: string | null
+          published?: boolean
+          published_at?: string | null
+          published_by?: string | null
+          source_url?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          country_code?: string
+          created_at?: string
+          created_by?: string | null
+          emergency_number?: string | null
+          extra?: Json
+          fire_number?: string | null
+          medical_number?: string | null
+          non_emergency_number?: string | null
+          notes?: string | null
+          poison_control_number?: string | null
+          police_number?: string | null
+          published?: boolean
+          published_at?: string | null
+          published_by?: string | null
+          source_url?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
         }
         Relationships: []
       }
@@ -3187,6 +3566,162 @@ export type Database = {
         }
         Relationships: []
       }
+      incident_evidence: {
+        Row: {
+          caption: string | null
+          checksum_algo: string
+          created_at: string
+          file_hash: string | null
+          file_size: number | null
+          id: string
+          incident_id: string
+          mime_type: string | null
+          original_filename: string | null
+          storage_path: string
+          uploaded_by: string
+        }
+        Insert: {
+          caption?: string | null
+          checksum_algo?: string
+          created_at?: string
+          file_hash?: string | null
+          file_size?: number | null
+          id?: string
+          incident_id: string
+          mime_type?: string | null
+          original_filename?: string | null
+          storage_path: string
+          uploaded_by: string
+        }
+        Update: {
+          caption?: string | null
+          checksum_algo?: string
+          created_at?: string
+          file_hash?: string | null
+          file_size?: number | null
+          id?: string
+          incident_id?: string
+          mime_type?: string | null
+          original_filename?: string | null
+          storage_path?: string
+          uploaded_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "incident_evidence_incident_id_fkey"
+            columns: ["incident_id"]
+            isOneToOne: false
+            referencedRelation: "incident_reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      incident_report_events: {
+        Row: {
+          actor_id: string | null
+          created_at: string
+          event_type: string
+          id: string
+          incident_id: string
+          meta: Json
+          notes: string | null
+        }
+        Insert: {
+          actor_id?: string | null
+          created_at?: string
+          event_type: string
+          id?: string
+          incident_id: string
+          meta?: Json
+          notes?: string | null
+        }
+        Update: {
+          actor_id?: string | null
+          created_at?: string
+          event_type?: string
+          id?: string
+          incident_id?: string
+          meta?: Json
+          notes?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "incident_report_events_incident_id_fkey"
+            columns: ["incident_id"]
+            isOneToOne: false
+            referencedRelation: "incident_reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      incident_reports: {
+        Row: {
+          address_snapshot: Json | null
+          assigned_to: string | null
+          booking_id: string | null
+          category: string
+          created_at: string
+          description: string
+          follow_up_required: boolean
+          id: string
+          immediate_actions_taken: string | null
+          location: string | null
+          occurred_at: string
+          provider_user_id: string
+          resolution_notes: string | null
+          resolved_at: string | null
+          severity: Database["public"]["Enums"]["incident_severity"]
+          status: Database["public"]["Enums"]["incident_status"]
+          updated_at: string
+        }
+        Insert: {
+          address_snapshot?: Json | null
+          assigned_to?: string | null
+          booking_id?: string | null
+          category: string
+          created_at?: string
+          description: string
+          follow_up_required?: boolean
+          id?: string
+          immediate_actions_taken?: string | null
+          location?: string | null
+          occurred_at?: string
+          provider_user_id: string
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          severity?: Database["public"]["Enums"]["incident_severity"]
+          status?: Database["public"]["Enums"]["incident_status"]
+          updated_at?: string
+        }
+        Update: {
+          address_snapshot?: Json | null
+          assigned_to?: string | null
+          booking_id?: string | null
+          category?: string
+          created_at?: string
+          description?: string
+          follow_up_required?: boolean
+          id?: string
+          immediate_actions_taken?: string | null
+          location?: string | null
+          occurred_at?: string
+          provider_user_id?: string
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          severity?: Database["public"]["Enums"]["incident_severity"]
+          status?: Database["public"]["Enums"]["incident_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "incident_reports_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       incident_timeline: {
         Row: {
           actor_user_id: string | null
@@ -3338,6 +3873,429 @@ export type Database = {
           success_count?: number
         }
         Relationships: []
+      }
+      knowledge_article_countries: {
+        Row: {
+          article_id: string
+          country_code: string
+          created_at: string
+        }
+        Insert: {
+          article_id: string
+          country_code: string
+          created_at?: string
+        }
+        Update: {
+          article_id?: string
+          country_code?: string
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "knowledge_article_countries_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "knowledge_articles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "knowledge_article_countries_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "knowledge_articles_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      knowledge_article_favorites: {
+        Row: {
+          article_id: string
+          created_at: string
+          user_id: string
+        }
+        Insert: {
+          article_id: string
+          created_at?: string
+          user_id: string
+        }
+        Update: {
+          article_id?: string
+          created_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "knowledge_article_favorites_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "knowledge_articles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "knowledge_article_favorites_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "knowledge_articles_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      knowledge_article_feedback: {
+        Row: {
+          article_id: string
+          comment: string | null
+          created_at: string
+          helpful: boolean | null
+          id: string
+          rating: number | null
+          user_id: string
+        }
+        Insert: {
+          article_id: string
+          comment?: string | null
+          created_at?: string
+          helpful?: boolean | null
+          id?: string
+          rating?: number | null
+          user_id: string
+        }
+        Update: {
+          article_id?: string
+          comment?: string | null
+          created_at?: string
+          helpful?: boolean | null
+          id?: string
+          rating?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "knowledge_article_feedback_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "knowledge_articles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "knowledge_article_feedback_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "knowledge_articles_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      knowledge_article_languages: {
+        Row: {
+          article_id: string
+          created_at: string
+          language_code: string
+        }
+        Insert: {
+          article_id: string
+          created_at?: string
+          language_code: string
+        }
+        Update: {
+          article_id?: string
+          created_at?: string
+          language_code?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "knowledge_article_languages_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "knowledge_articles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "knowledge_article_languages_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "knowledge_articles_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      knowledge_article_sources: {
+        Row: {
+          article_id: string
+          created_at: string
+          id: string
+          label: string
+          updated_at: string
+          url: string | null
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          article_id: string
+          created_at?: string
+          id?: string
+          label: string
+          updated_at?: string
+          url?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          article_id?: string
+          created_at?: string
+          id?: string
+          label?: string
+          updated_at?: string
+          url?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "knowledge_article_sources_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "knowledge_articles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "knowledge_article_sources_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "knowledge_articles_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      knowledge_article_versions: {
+        Row: {
+          article_id: string
+          change_summary: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          snapshot: Json
+          version: number
+        }
+        Insert: {
+          article_id: string
+          change_summary?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          snapshot: Json
+          version: number
+        }
+        Update: {
+          article_id?: string
+          change_summary?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          snapshot?: Json
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "knowledge_article_versions_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "knowledge_articles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "knowledge_article_versions_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "knowledge_articles_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      knowledge_articles: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          archived_at: string | null
+          archived_by: string | null
+          body_md: string
+          category_id: string | null
+          created_at: string
+          created_by: string | null
+          current_version: number
+          expected_review_date: string | null
+          id: string
+          published_at: string | null
+          published_by: string | null
+          review_notes: string | null
+          risk_level: Database["public"]["Enums"]["knowledge_risk_level"]
+          safety_critical: boolean
+          slug: string
+          status: Database["public"]["Enums"]["knowledge_article_status"]
+          submitted_at: string | null
+          submitted_by: string | null
+          summary: string | null
+          title: string
+          updated_at: string
+          updated_by: string | null
+          verification_required: boolean
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          archived_at?: string | null
+          archived_by?: string | null
+          body_md?: string
+          category_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          current_version?: number
+          expected_review_date?: string | null
+          id?: string
+          published_at?: string | null
+          published_by?: string | null
+          review_notes?: string | null
+          risk_level?: Database["public"]["Enums"]["knowledge_risk_level"]
+          safety_critical?: boolean
+          slug: string
+          status?: Database["public"]["Enums"]["knowledge_article_status"]
+          submitted_at?: string | null
+          submitted_by?: string | null
+          summary?: string | null
+          title: string
+          updated_at?: string
+          updated_by?: string | null
+          verification_required?: boolean
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          archived_at?: string | null
+          archived_by?: string | null
+          body_md?: string
+          category_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          current_version?: number
+          expected_review_date?: string | null
+          id?: string
+          published_at?: string | null
+          published_by?: string | null
+          review_notes?: string | null
+          risk_level?: Database["public"]["Enums"]["knowledge_risk_level"]
+          safety_critical?: boolean
+          slug?: string
+          status?: Database["public"]["Enums"]["knowledge_article_status"]
+          submitted_at?: string | null
+          submitted_by?: string | null
+          summary?: string | null
+          title?: string
+          updated_at?: string
+          updated_by?: string | null
+          verification_required?: boolean
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "knowledge_articles_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "knowledge_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      knowledge_categories: {
+        Row: {
+          active: boolean
+          created_at: string
+          description_key: string | null
+          icon: string | null
+          id: string
+          name_key: string
+          parent_id: string | null
+          slug: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          description_key?: string | null
+          icon?: string | null
+          id?: string
+          name_key: string
+          parent_id?: string | null
+          slug: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          description_key?: string | null
+          icon?: string | null
+          id?: string
+          name_key?: string
+          parent_id?: string | null
+          slug?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "knowledge_categories_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "knowledge_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      knowledge_search_events: {
+        Row: {
+          category_id: string | null
+          country_code: string | null
+          created_at: string
+          id: string
+          language_code: string | null
+          query: string
+          results_count: number
+          user_id: string | null
+        }
+        Insert: {
+          category_id?: string | null
+          country_code?: string | null
+          created_at?: string
+          id?: string
+          language_code?: string | null
+          query: string
+          results_count?: number
+          user_id?: string | null
+        }
+        Update: {
+          category_id?: string | null
+          country_code?: string | null
+          created_at?: string
+          id?: string
+          language_code?: string | null
+          query?: string
+          results_count?: number
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "knowledge_search_events_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "knowledge_categories"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       ledger_entries: {
         Row: {
@@ -6917,6 +7875,60 @@ export type Database = {
         }
         Relationships: []
       }
+      knowledge_articles_public: {
+        Row: {
+          body_md: string | null
+          category_id: string | null
+          id: string | null
+          published_at: string | null
+          risk_level: Database["public"]["Enums"]["knowledge_risk_level"] | null
+          risk_rank: number | null
+          safety_critical: boolean | null
+          slug: string | null
+          summary: string | null
+          title: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          body_md?: string | null
+          category_id?: string | null
+          id?: string | null
+          published_at?: string | null
+          risk_level?:
+            | Database["public"]["Enums"]["knowledge_risk_level"]
+            | null
+          risk_rank?: never
+          safety_critical?: boolean | null
+          slug?: string | null
+          summary?: string | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          body_md?: string | null
+          category_id?: string | null
+          id?: string | null
+          published_at?: string | null
+          risk_level?:
+            | Database["public"]["Enums"]["knowledge_risk_level"]
+            | null
+          risk_rank?: never
+          safety_critical?: boolean | null
+          slug?: string | null
+          summary?: string | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "knowledge_articles_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "knowledge_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       platform_tax_settings_v: {
         Row: {
           country_code: string | null
@@ -6932,6 +7944,30 @@ export type Database = {
           tax_id: string | null
           updated_at: string | null
           vat_rate: number | null
+        }
+        Relationships: []
+      }
+      public_cleaner_career_profiles: {
+        Row: {
+          average_rating: number | null
+          career_score: number | null
+          career_summary: string | null
+          company_name: string | null
+          created_at: string | null
+          currently_employed: boolean | null
+          ended_on: string | null
+          identity_verified: boolean | null
+          mycleaner_id: string | null
+          professional_headline: string | null
+          punctuality_score: number | null
+          reliability_score: number | null
+          repeat_customer_rate: number | null
+          role_title: string | null
+          share_slug: string | null
+          started_on: string | null
+          total_completed_jobs: number | null
+          total_verified_hours: number | null
+          verification_status: string | null
         }
         Relationships: []
       }
@@ -7002,6 +8038,7 @@ export type Database = {
       }
     }
     Functions: {
+      _knowledge_in_workflow: { Args: never; Returns: boolean }
       _ledger_normalize_entries: { Args: { _entries: Json }; Returns: Json }
       _ledger_payload_fingerprint: {
         Args: {
@@ -7107,6 +8144,70 @@ export type Database = {
         Returns: Database["public"]["Enums"]["booking_payment_flow_version"]
       }
       compute_recommended_price: { Args: { _user_id: string }; Returns: Json }
+      country_emergency_info_publish: {
+        Args: { _country_code: string }
+        Returns: {
+          approved_at: string | null
+          approved_by: string | null
+          country_code: string
+          created_at: string
+          created_by: string | null
+          emergency_number: string | null
+          extra: Json
+          fire_number: string | null
+          medical_number: string | null
+          non_emergency_number: string | null
+          notes: string | null
+          poison_control_number: string | null
+          police_number: string | null
+          published: boolean
+          published_at: string | null
+          published_by: string | null
+          source_url: string | null
+          updated_at: string
+          updated_by: string | null
+          verified_at: string | null
+          verified_by: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "country_emergency_info"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      country_emergency_info_verify: {
+        Args: { _country_code: string }
+        Returns: {
+          approved_at: string | null
+          approved_by: string | null
+          country_code: string
+          created_at: string
+          created_by: string | null
+          emergency_number: string | null
+          extra: Json
+          fire_number: string | null
+          medical_number: string | null
+          non_emergency_number: string | null
+          notes: string | null
+          poison_control_number: string | null
+          police_number: string | null
+          published: boolean
+          published_at: string | null
+          published_by: string | null
+          source_url: string | null
+          updated_at: string
+          updated_by: string | null
+          verified_at: string | null
+          verified_by: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "country_emergency_info"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       create_booking_hold_v1: {
         Args: {
           p_actor_role?: string
@@ -7120,6 +8221,38 @@ export type Database = {
         Returns: string
       }
       decline_booking_offer_v1: { Args: { _offer_id: string }; Returns: Json }
+      ensure_cleaner_career_profile: {
+        Args: { p_country_code?: string }
+        Returns: {
+          average_rating: number | null
+          cancellation_rate: number
+          career_score: number
+          career_summary: string | null
+          created_at: string
+          id: string
+          identity_verified: boolean
+          mycleaner_id: string
+          no_show_rate: number
+          professional_headline: string | null
+          punctuality_score: number
+          reliability_score: number
+          repeat_customer_rate: number
+          searchable_by_id: boolean
+          searchable_by_name: boolean
+          share_slug: string | null
+          total_completed_jobs: number
+          total_verified_hours: number
+          updated_at: string
+          user_id: string
+          visibility: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "cleaner_career_profiles"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       evaluate_booking_release_eligibility_v1: {
         Args: {
           p_booking_id: string
@@ -7147,6 +8280,10 @@ export type Database = {
       funds_release_worker_tick_v1: { Args: { _limit?: number }; Returns: Json }
       gen_provider_slug: {
         Args: { _display_name: string; _user_id: string }
+        Returns: string
+      }
+      generate_mycleaner_id: {
+        Args: { country_code?: string }
         Returns: string
       }
       get_booking_captured_gross_minor_v1: {
@@ -7239,6 +8376,11 @@ export type Database = {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"][]
       }
+      has_knowledge_editor_role: { Args: { _user: string }; Returns: boolean }
+      has_knowledge_publisher_role: {
+        Args: { _user: string }
+        Returns: boolean
+      }
       has_request_context: { Args: never; Returns: boolean }
       has_role: {
         Args: {
@@ -7246,6 +8388,38 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      incident_report_update_status: {
+        Args: {
+          _incident_id: string
+          _new_status: Database["public"]["Enums"]["incident_status"]
+          _notes?: string
+        }
+        Returns: {
+          address_snapshot: Json | null
+          assigned_to: string | null
+          booking_id: string | null
+          category: string
+          created_at: string
+          description: string
+          follow_up_required: boolean
+          id: string
+          immediate_actions_taken: string | null
+          location: string | null
+          occurred_at: string
+          provider_user_id: string
+          resolution_notes: string | null
+          resolved_at: string | null
+          severity: Database["public"]["Enums"]["incident_severity"]
+          status: Database["public"]["Enums"]["incident_status"]
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "incident_reports"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       ingest_payment_captured_reclassify_v1: {
         Args: {
@@ -7355,6 +8529,238 @@ export type Database = {
       is_under_legal_hold: {
         Args: { _target_id: string; _target_type: string }
         Returns: boolean
+      }
+      knowledge_article_approve: {
+        Args: { _article_id: string }
+        Returns: {
+          approved_at: string | null
+          approved_by: string | null
+          archived_at: string | null
+          archived_by: string | null
+          body_md: string
+          category_id: string | null
+          created_at: string
+          created_by: string | null
+          current_version: number
+          expected_review_date: string | null
+          id: string
+          published_at: string | null
+          published_by: string | null
+          review_notes: string | null
+          risk_level: Database["public"]["Enums"]["knowledge_risk_level"]
+          safety_critical: boolean
+          slug: string
+          status: Database["public"]["Enums"]["knowledge_article_status"]
+          submitted_at: string | null
+          submitted_by: string | null
+          summary: string | null
+          title: string
+          updated_at: string
+          updated_by: string | null
+          verification_required: boolean
+          verified_at: string | null
+          verified_by: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "knowledge_articles"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      knowledge_article_archive: {
+        Args: { _article_id: string; _reason?: string }
+        Returns: {
+          approved_at: string | null
+          approved_by: string | null
+          archived_at: string | null
+          archived_by: string | null
+          body_md: string
+          category_id: string | null
+          created_at: string
+          created_by: string | null
+          current_version: number
+          expected_review_date: string | null
+          id: string
+          published_at: string | null
+          published_by: string | null
+          review_notes: string | null
+          risk_level: Database["public"]["Enums"]["knowledge_risk_level"]
+          safety_critical: boolean
+          slug: string
+          status: Database["public"]["Enums"]["knowledge_article_status"]
+          submitted_at: string | null
+          submitted_by: string | null
+          summary: string | null
+          title: string
+          updated_at: string
+          updated_by: string | null
+          verification_required: boolean
+          verified_at: string | null
+          verified_by: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "knowledge_articles"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      knowledge_article_publish: {
+        Args: { _article_id: string }
+        Returns: {
+          approved_at: string | null
+          approved_by: string | null
+          archived_at: string | null
+          archived_by: string | null
+          body_md: string
+          category_id: string | null
+          created_at: string
+          created_by: string | null
+          current_version: number
+          expected_review_date: string | null
+          id: string
+          published_at: string | null
+          published_by: string | null
+          review_notes: string | null
+          risk_level: Database["public"]["Enums"]["knowledge_risk_level"]
+          safety_critical: boolean
+          slug: string
+          status: Database["public"]["Enums"]["knowledge_article_status"]
+          submitted_at: string | null
+          submitted_by: string | null
+          summary: string | null
+          title: string
+          updated_at: string
+          updated_by: string | null
+          verification_required: boolean
+          verified_at: string | null
+          verified_by: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "knowledge_articles"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      knowledge_article_return_to_draft: {
+        Args: { _article_id: string; _reason?: string }
+        Returns: {
+          approved_at: string | null
+          approved_by: string | null
+          archived_at: string | null
+          archived_by: string | null
+          body_md: string
+          category_id: string | null
+          created_at: string
+          created_by: string | null
+          current_version: number
+          expected_review_date: string | null
+          id: string
+          published_at: string | null
+          published_by: string | null
+          review_notes: string | null
+          risk_level: Database["public"]["Enums"]["knowledge_risk_level"]
+          safety_critical: boolean
+          slug: string
+          status: Database["public"]["Enums"]["knowledge_article_status"]
+          submitted_at: string | null
+          submitted_by: string | null
+          summary: string | null
+          title: string
+          updated_at: string
+          updated_by: string | null
+          verification_required: boolean
+          verified_at: string | null
+          verified_by: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "knowledge_articles"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      knowledge_article_save_draft: {
+        Args: { _article_id: string; _change_summary?: string; _patch: Json }
+        Returns: {
+          approved_at: string | null
+          approved_by: string | null
+          archived_at: string | null
+          archived_by: string | null
+          body_md: string
+          category_id: string | null
+          created_at: string
+          created_by: string | null
+          current_version: number
+          expected_review_date: string | null
+          id: string
+          published_at: string | null
+          published_by: string | null
+          review_notes: string | null
+          risk_level: Database["public"]["Enums"]["knowledge_risk_level"]
+          safety_critical: boolean
+          slug: string
+          status: Database["public"]["Enums"]["knowledge_article_status"]
+          submitted_at: string | null
+          submitted_by: string | null
+          summary: string | null
+          title: string
+          updated_at: string
+          updated_by: string | null
+          verification_required: boolean
+          verified_at: string | null
+          verified_by: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "knowledge_articles"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      knowledge_article_submit_for_review: {
+        Args: { _article_id: string }
+        Returns: {
+          approved_at: string | null
+          approved_by: string | null
+          archived_at: string | null
+          archived_by: string | null
+          body_md: string
+          category_id: string | null
+          created_at: string
+          created_by: string | null
+          current_version: number
+          expected_review_date: string | null
+          id: string
+          published_at: string | null
+          published_by: string | null
+          review_notes: string | null
+          risk_level: Database["public"]["Enums"]["knowledge_risk_level"]
+          safety_critical: boolean
+          slug: string
+          status: Database["public"]["Enums"]["knowledge_article_status"]
+          submitted_at: string | null
+          submitted_by: string | null
+          summary: string | null
+          title: string
+          updated_at: string
+          updated_by: string | null
+          verification_required: boolean
+          verified_at: string | null
+          verified_by: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "knowledge_articles"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      knowledge_risk_rank: {
+        Args: { _lvl: Database["public"]["Enums"]["knowledge_risk_level"] }
+        Returns: number
       }
       list_favorite_providers_v1: {
         Args: never
@@ -8060,6 +9466,20 @@ export type Database = {
         | "failed"
         | "signature_invalid"
         | "unknown_type"
+      incident_severity: "low" | "medium" | "high" | "critical"
+      incident_status:
+        | "submitted"
+        | "acknowledged"
+        | "in_progress"
+        | "resolved"
+        | "dismissed"
+      knowledge_article_status:
+        | "draft"
+        | "in_review"
+        | "approved"
+        | "published"
+        | "archived"
+      knowledge_risk_level: "info" | "caution" | "stop" | "emergency"
       ledger_entry_direction: "debit" | "credit"
       offer_status:
         | "pending"
@@ -8408,6 +9828,22 @@ export const Constants = {
         "signature_invalid",
         "unknown_type",
       ],
+      incident_severity: ["low", "medium", "high", "critical"],
+      incident_status: [
+        "submitted",
+        "acknowledged",
+        "in_progress",
+        "resolved",
+        "dismissed",
+      ],
+      knowledge_article_status: [
+        "draft",
+        "in_review",
+        "approved",
+        "published",
+        "archived",
+      ],
+      knowledge_risk_level: ["info", "caution", "stop", "emergency"],
       ledger_entry_direction: ["debit", "credit"],
       offer_status: [
         "pending",
