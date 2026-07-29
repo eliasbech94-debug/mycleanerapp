@@ -82,6 +82,9 @@ import ProviderPricing from "./pages/provider/ProviderPricing";
 import AdminPricing from "./pages/admin/AdminPricing";
 import AdminKnowledge from "./pages/admin/AdminKnowledge";
 import AdminCareerVerification from "./pages/admin/AdminCareerVerification";
+import EarlyAccessRouteGuard from "@/components/launch/EarlyAccessRouteGuard";
+import EarlyAccessBanner from "@/components/launch/EarlyAccessBanner";
+
 
 
 initSentry();
@@ -151,8 +154,8 @@ export function AppRoutes() {
       <Route path="/support/customers" element={<RoleGuard allow={["support", "admin"]}><SupportCustomers /></RoleGuard>} />
       <Route path="/support/providers" element={<RoleGuard allow={["support", "admin"]}><SupportProviders /></RoleGuard>} />
       <Route path="/support/bookings" element={<RoleGuard allow={["support", "admin"]}><SupportBookings /></RoleGuard>} />
-      <Route path="/book" element={<BookingEntry />} />
-      <Route path="/book/:id" element={<BookingFlow />} />
+      <Route path="/book" element={<EarlyAccessRouteGuard><BookingEntry /></EarlyAccessRouteGuard>} />
+      <Route path="/book/:id" element={<EarlyAccessRouteGuard><BookingFlow /></EarlyAccessRouteGuard>} />
       <Route path="/mine-bookinger" element={<MobileBookingsGate />} />
       <Route path="/booking/:id/plan" element={<BookingPlan />} />
       <Route path="/provider-dashboard" element={<RoleGuard allow={["provider", "admin"]}><ProviderDashboardV2 /></RoleGuard>} />
@@ -228,6 +231,7 @@ const App = () => (
                   <ScrollToTop />
                   <RouteLoadingBar />
                   <Header />
+                  <EarlyAccessBanner />
                   <RootRouteSwitch />
                   <Footer />
                   <MobileBottomNav />

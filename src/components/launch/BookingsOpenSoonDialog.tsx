@@ -1,0 +1,53 @@
+import { useCallback, useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { EARLY_ACCESS_COPY, isBookingLocked } from "@/config/launch";
+
+export function BookingsOpenSoonDialog({
+  open,
+  onOpenChange,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent data-testid="bookings-open-soon-dialog" className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>{EARLY_ACCESS_COPY.lockedTitle}</DialogTitle>
+          <DialogDescription>{EARLY_ACCESS_COPY.lockedBody}</DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <Button onClick={() => onOpenChange(false)}>Forstået</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/**
+ * Guards a booking CTA. When Early Access is active the dialog is shown
+ * instead of running the booking action.
+ */
+export function useBookingLockDialog() {
+  const [open, setOpen] = useState(false);
+
+  const guard = useCallback((action: () => void) => {
+    if (isBookingLocked()) {
+      setOpen(true);
+      return;
+    }
+    action();
+  }, []);
+
+  return { open, setOpen, guard, locked: isBookingLocked() };
+}
+
+export default BookingsOpenSoonDialog;

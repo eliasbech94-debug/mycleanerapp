@@ -60,9 +60,10 @@ describe("application route matching", () => {
     expect(screen.getByTestId("provider-profile")).toHaveTextContent(`ProviderProfile:${TEST_UUID}`);
   });
 
-  it("passes provider id to unprefixed booking calendar page", () => {
+  it("blocks the unprefixed booking calendar page in Early Access", () => {
     renderAt(`/book/${TEST_UUID}?slot=10:00`);
-    expect(screen.getByTestId("booking-flow")).toHaveTextContent(`BookingFlow:${TEST_UUID}`);
+    expect(screen.getByTestId("early-access-blocked")).toBeInTheDocument();
+    expect(screen.queryByTestId("booking-flow")).toBeNull();
   });
 
   it("renders country-prefixed find cleaner", () => {
@@ -75,9 +76,10 @@ describe("application route matching", () => {
     expect(screen.getByTestId("provider-profile")).toHaveTextContent(`ProviderProfile:${TEST_UUID}`);
   });
 
-  it("passes provider id to country-prefixed booking calendar page", () => {
+  it("blocks the country-prefixed booking calendar page in Early Access", () => {
     renderAt(`/dk/book/${TEST_UUID}`);
-    expect(screen.getByTestId("booking-flow")).toHaveTextContent(`BookingFlow:${TEST_UUID}`);
+    expect(screen.getByTestId("early-access-blocked")).toBeInTheDocument();
+    expect(screen.queryByTestId("booking-flow")).toBeNull();
   });
 
   it("rejects non-UUID /provider/:id with UuidGuard", () => {

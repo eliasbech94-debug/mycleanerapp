@@ -10,6 +10,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Loader2, MapPin, Sparkles, Heart, CalendarCheck, ShieldCheck, Clock, BellRing, CalendarPlus, Search } from "lucide-react";
 import { toast } from "sonner";
+import { isBookingLocked } from "@/config/launch";
+import { BookingsOpenSoonDialog } from "@/components/launch/BookingsOpenSoonDialog";
 import { useAuth } from "@/hooks/useAuth";
 import { useAppContext, type AcquisitionSource } from "@/context/AppContext";
 import BackButton from "@/components/BackButton";
@@ -71,6 +73,7 @@ export default function PublicProviderProfile() {
   const [nextSlot, setNextSlot] = useState<Slot | null>(null);
   const [notifyRequested, setNotifyRequested] = useState(false);
   const [showAltDialog, setShowAltDialog] = useState(false);
+  const [showBookingLocked, setShowBookingLocked] = useState(false);
 
   const search = useMemo(() => new URLSearchParams(location.search), [location.search]);
   const source = parseSource(search.get("src"));
@@ -158,6 +161,11 @@ export default function PublicProviderProfile() {
 
   function bookDirect(prefillDate?: string, prefillSlot?: string) {
     if (!slug) return;
+    // Early Access: booking CTAs must never start a financial flow.
+    if (isBookingLocked()) {
+      setShowBookingLocked(true);
+      return;
+    }
     const qs = new URLSearchParams({
       provider: slug,
       src: source,
@@ -437,6 +445,8 @@ export default function PublicProviderProfile() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <BookingsOpenSoonDialog open={showBookingLocked} onOpenChange={setShowBookingLocked} />
     </main>
   );
 }
