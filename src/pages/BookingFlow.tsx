@@ -16,6 +16,7 @@ import { useAppContext } from "@/context/AppContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Elements, CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { loadStripe, type Stripe as StripeJS } from "@stripe/stripe-js";
+import BookingsOpenSoonDialog, { useFinancialActionLock } from "@/components/launch/BookingsOpenSoonDialog";
 
 let _stripePromise: Promise<StripeJS | null> | null = null;
 function getStripePromise() {
