@@ -76,6 +76,7 @@ export default function BookingFlow() {
 }
 
 function BookingFlowInner() {
+  const financialLock = useFinancialActionLock();
   const { id } = useParams();
   const [params] = useSearchParams();
   const navigate = useNavigate();
