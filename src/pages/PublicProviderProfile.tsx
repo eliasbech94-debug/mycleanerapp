@@ -66,7 +66,7 @@ export default function PublicProviderProfile() {
   const ref = search.get("ref");
 
   const data = usePublicProviderProfileData(slug, resolved === "ok");
-  const { profile, workHistory, slots, nextSlot, isFav, distanceKm, onlineStatus, reviews } = data;
+  const { profile, workHistory, slots, nextSlot, isFav, distanceKm, availabilityStatus, presenceStatus, reviews } = data;
 
   // Attribution capture the moment we land on a /p/:slug URL.
   useEffect(() => {
@@ -167,7 +167,8 @@ export default function PublicProviderProfile() {
         <div className="space-y-5">
           <ProviderHero
             profile={profile}
-            onlineStatus={onlineStatus}
+            availabilityStatus={availabilityStatus}
+            presenceStatus={presenceStatus}
             distanceKm={distanceKm}
             earlyAccess={EARLY_ACCESS_MODE}
           />

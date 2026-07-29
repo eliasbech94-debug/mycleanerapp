@@ -2,7 +2,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import type {
-  OnlineStatus,
+  AvailabilityStatus,
+  PresenceStatus,
   PublicProviderProfile,
   PublicReview,
   PublicWorkHistoryEntry,
@@ -28,14 +29,26 @@ export function haversineKm(
   return 2 * R * Math.asin(Math.sqrt(s));
 }
 
-/** Availability-derived presence. Never a hardcoded value. */
-export function deriveOnlineStatus(slots: Slot[] | null): OnlineStatus {
-  if (!slots || slots.length === 0) return "offline";
-  const today = new Date().toISOString().slice(0, 10);
-  if (slots.some((s) => s.slot_date === today)) return "online";
-  const in3 = new Date(Date.now() + 3 * 86400000).toISOString().slice(0, 10);
-  if (slots.some((s) => s.slot_date <= in3)) return "busy";
-  return "offline";
+/**
+ * Calendar availability. This is NEVER presence — a provider with free slots is
+ * "Tilgængelig", not "Online".
+ */
+export function deriveAvailabilityStatus(slots: Slot[] | null): AvailabilityStatus {
+  return slots && slots.length > 0 ? "available" : "unavailable";
+}
+
+/** Presence window: active on the platform within the last 10 minutes. */
+export const PRESENCE_WINDOW_MS = 10 * 60 * 1000;
+
+/**
+ * Real presence only. Returns "unknown" when no presence source exists, which
+ * makes the UI hide "Online nu" entirely until presence tracking ships.
+ */
+export function derivePresenceStatus(lastSeenAt: string | null | undefined, now = Date.now()): PresenceStatus {
+  if (!lastSeenAt) return "unknown";
+  const t = Date.parse(lastSeenAt);
+  if (!Number.isFinite(t)) return "unknown";
+  return now - t <= PRESENCE_WINDOW_MS ? "online" : "unknown";
 }
 
 type State = {
@@ -183,14 +196,22 @@ export function usePublicProviderProfileData(slug: string | undefined, enabled =
     return haversineKm(customerCoords, { lat: Number(p.approx_lat), lng: Number(p.approx_lng) });
   }, [state.profile, customerCoords]);
 
-  const onlineStatus = useMemo(() => deriveOnlineStatus(state.slots), [state.slots]);
+  const availabilityStatus = useMemo(() => deriveAvailabilityStatus(state.slots), [state.slots]);
+
+  // No presence source exists yet (no last_seen_at column / realtime presence).
+  // Until it does this stays "unknown" and the hero hides "Online nu".
+  const presenceStatus = useMemo<PresenceStatus>(
+    () => derivePresenceStatus((state.profile as { last_seen_at?: string | null } | null)?.last_seen_at ?? null),
+    [state.profile],
+  );
 
   return {
     ...state,
     isFav,
     toggleFollow,
     distanceKm,
-    onlineStatus,
+    availabilityStatus,
+    presenceStatus,
     reviews,
     loadReviews,
     requestCustomerLocation,

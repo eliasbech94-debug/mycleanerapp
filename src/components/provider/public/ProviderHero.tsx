@@ -2,24 +2,31 @@
  * Hero — provider identity. 100% database driven; the mockup only defines layout.
  */
 import { BadgeCheck, MapPin, Sparkles, Star } from "lucide-react";
-import type { OnlineStatus, PublicProviderProfile } from "./types";
+import type { AvailabilityStatus, PresenceStatus, PublicProviderProfile } from "./types";
 import { formatDistance } from "./format";
 
-const STATUS_META: Record<OnlineStatus, { dot: string; label: string; text: string }> = {
-  online: { dot: "bg-emerald-500", label: "Online", text: "text-emerald-600" },
-  busy: { dot: "bg-amber-400", label: "Optaget", text: "text-amber-600" },
-  offline: { dot: "bg-slate-300", label: "Offline", text: "text-slate-500" },
+const AVAILABILITY_META: Record<AvailabilityStatus, { dot: string; label: string; text: string }> = {
+  available: { dot: "bg-emerald-500", label: "Tilgængelig", text: "text-emerald-600" },
+  unavailable: { dot: "bg-slate-300", label: "Ikke tilgængelig", text: "text-slate-500" },
 };
 
 type Props = {
   profile: PublicProviderProfile;
-  onlineStatus: OnlineStatus;
+  availabilityStatus: AvailabilityStatus;
+  /** "unknown" until real presence tracking exists — then "Online nu" is hidden. */
+  presenceStatus?: PresenceStatus;
   distanceKm: number | null;
   earlyAccess?: boolean;
 };
 
-export function ProviderHero({ profile, onlineStatus, distanceKm, earlyAccess }: Props) {
-  const status = STATUS_META[onlineStatus];
+export function ProviderHero({
+  profile,
+  availabilityStatus,
+  presenceStatus = "unknown",
+  distanceKm,
+  earlyAccess,
+}: Props) {
+  const status = AVAILABILITY_META[availabilityStatus];
   const distance = formatDistance(distanceKm);
   const isTopTier = ["top_rated", "elite", "partner"].includes(profile.provider_tier ?? "");
 
@@ -96,10 +103,24 @@ export function ProviderHero({ profile, onlineStatus, distanceKm, earlyAccess }:
             </p>
           )}
 
-          <p className={`flex items-center gap-2 text-sm font-medium ${status.text}`}>
-            <span className={`h-2.5 w-2.5 rounded-full ${status.dot}`} aria-hidden="true" />
-            {status.label}
-          </p>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+            {presenceStatus === "online" && (
+              <p
+                data-testid="provider-presence"
+                className="flex items-center gap-2 text-sm font-medium text-emerald-600"
+              >
+                <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" aria-hidden="true" />
+                Online nu
+              </p>
+            )}
+            <p
+              data-testid="provider-availability-status"
+              className={`flex items-center gap-2 text-sm font-medium ${status.text}`}
+            >
+              <span className={`h-2.5 w-2.5 rounded-full ${status.dot}`} aria-hidden="true" />
+              {status.label}
+            </p>
+          </div>
 
           {profile.completed_bookings > 0 && (
             <p className="text-sm text-[hsl(224_20%_40%)]">
