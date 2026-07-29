@@ -16,6 +16,7 @@ import { useAppContext } from "@/context/AppContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Elements, CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { loadStripe, type Stripe as StripeJS } from "@stripe/stripe-js";
+import BookingsOpenSoonDialog, { guardFinancialAction, useFinancialActionLock } from "@/components/launch/BookingsOpenSoonDialog";
 
 let _stripePromise: Promise<StripeJS | null> | null = null;
 function getStripePromise() {
@@ -76,6 +77,7 @@ export default function BookingFlow() {
 }
 
 function BookingFlowInner() {
+  const financialLock = useFinancialActionLock();
   const { id } = useParams();
   const [params] = useSearchParams();
   const navigate = useNavigate();
@@ -173,6 +175,8 @@ function BookingFlowInner() {
 
   async function next() {
     if (step === 3) {
+      // Early Access: stop the checkout BEFORE quote / PaymentIntent / capture.
+      if (guardFinancialAction(() => financialLock.setOpen(true))) return;
       if (!addressValid) {
         toast({
           title: "Adresse mangler",
@@ -286,6 +290,7 @@ function BookingFlowInner() {
 
   return (
     <main className="min-h-screen font-editorial" style={{ background: C.cream, color: C.ink }}>
+      <BookingsOpenSoonDialog open={financialLock.open} onOpenChange={financialLock.setOpen} />
       {/* Top */}
       <header className="sticky top-0 z-20 border-b-2" style={{ background: C.ink, color: C.cream, borderColor: C.ink }}>
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3 sm:px-6">

@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Banknote, Loader2 } from "lucide-react";
+import BookingsOpenSoonDialog, { guardFinancialAction } from "@/components/launch/BookingsOpenSoonDialog";
 
 interface Props {
   conversation: { id: string; booking_id?: string | null };
@@ -49,6 +50,7 @@ export function RefundRequestDialog({ conversation }: Props) {
   const [currency, setCurrency] = useState("DKK");
   const [reason, setReason] = useState("");
   const [busy, setBusy] = useState(false);
+  const [lockOpen, setLockOpen] = useState(false);
 
   const { data: refunds, isLoading } = useQuery({
     queryKey: ["support", "refund-requests", convId],
@@ -65,6 +67,8 @@ export function RefundRequestDialog({ conversation }: Props) {
   });
 
   const submit = async () => {
+    // Early Access: block before any refund network call.
+    if (guardFinancialAction(() => setLockOpen(true))) return;
     const cents = Math.round(Number(amount) * 100);
     if (!Number.isFinite(cents) || cents <= 0) {
       toast.error("Beløbet skal være større end 0.");
@@ -94,6 +98,8 @@ export function RefundRequestDialog({ conversation }: Props) {
   };
 
   return (
+    <>
+    <BookingsOpenSoonDialog open={lockOpen} onOpenChange={setLockOpen} />
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm" className="h-8">
@@ -176,5 +182,6 @@ export function RefundRequestDialog({ conversation }: Props) {
         </DialogFooter>
       </DialogContent>
     </Dialog>
+    </>
   );
 }

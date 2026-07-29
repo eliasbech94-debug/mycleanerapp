@@ -8,7 +8,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { EARLY_ACCESS_COPY, isBookingLocked } from "@/config/launch";
+import { EARLY_ACCESS_COPY, canPerformFinancialAction, isBookingLocked } from "@/config/launch";
 
 export function BookingsOpenSoonDialog({
   open,
@@ -48,6 +48,34 @@ export function useBookingLockDialog() {
   }, []);
 
   return { open, setOpen, guard, locked: isBookingLocked() };
+}
+
+/**
+ * Programmatic guard for ANY financial action (checkout, PaymentIntent,
+ * capture, refund, payout/transfer, funds release, booking accept).
+ *
+ * Returns `true` when the action was blocked. Call this FIRST in the handler,
+ * before any fetch / Supabase RPC / edge-function call.
+ */
+export function guardFinancialAction(onBlocked: () => void): boolean {
+  if (canPerformFinancialAction()) return false;
+  onBlocked();
+  return true;
+}
+
+/**
+ * Hook variant: owns the shared "Bookinger åbner snart" dialog state and
+ * blocks the wrapped financial action while Early Access is active.
+ */
+export function useFinancialActionLock() {
+  const [open, setOpen] = useState(false);
+
+  const guard = useCallback(<T,>(action: () => T): T | undefined => {
+    if (guardFinancialAction(() => setOpen(true))) return undefined;
+    return action();
+  }, []);
+
+  return { open, setOpen, guard, locked: !canPerformFinancialAction() };
 }
 
 export default BookingsOpenSoonDialog;
