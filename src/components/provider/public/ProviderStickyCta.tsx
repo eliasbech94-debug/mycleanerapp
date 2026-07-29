@@ -1,5 +1,25 @@
 /** Sticky bottom CTA — booking CTA respects Early Access; follow is optimistic. */
+import { useEffect, useState } from "react";
 import { BellRing, CalendarCheck, Heart } from "lucide-react";
+
+/** Height of the mobile tab bar (h-14) when it is present on the route. */
+const MOBILE_NAV_HEIGHT = 56;
+
+/** Stacks the CTA above the mobile tab bar only when that bar is rendered. */
+function useMobileNavOffset(): number {
+  const [offset, setOffset] = useState(0);
+  useEffect(() => {
+    const measure = () => {
+      const nav = document.querySelector("[data-mobile-bottom-nav]");
+      const visible = !!nav && getComputedStyle(nav).display !== "none";
+      setOffset(visible ? MOBILE_NAV_HEIGHT : 0);
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, []);
+  return offset;
+}
 
 type Props = {
   earlyAccess: boolean;
@@ -10,6 +30,7 @@ type Props = {
 };
 
 export function ProviderStickyCta({ earlyAccess, isFollowing, providerFirstName, onBook, onFollow }: Props) {
+  const navOffset = useMobileNavOffset();
   return (
     <div
       data-testid="provider-sticky-cta"
@@ -18,7 +39,7 @@ export function ProviderStickyCta({ earlyAccess, isFollowing, providerFirstName,
       className="fixed inset-x-0 bottom-0 z-30 border-t border-[hsl(222_60%_92%)] bg-white/95 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-white/85 sm:static sm:mt-6 sm:rounded-2xl sm:border sm:px-4"
       // Sits directly above the mobile tab bar (h-14) incl. safe area.
       // `bottom` is ignored once the bar becomes static at >=640px.
-      style={{ bottom: "calc(3.5rem + env(safe-area-inset-bottom))" }}
+      style={{ bottom: `calc(${navOffset}px + env(safe-area-inset-bottom))`, }}
     >
       <div className="mx-auto flex max-w-4xl flex-col gap-2 sm:flex-row">
         <button

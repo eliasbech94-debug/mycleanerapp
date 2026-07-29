@@ -114,6 +114,7 @@ export default function MobileBottomNav() {
       <nav
         data-surface="marketplace"
         aria-label={t("mobilenav.label", "Primær navigation")}
+        data-mobile-bottom-nav="true"
         className="fixed bottom-0 left-0 right-0 z-50 border-t border-[hsl(var(--mkt-border))] bg-[hsl(var(--mkt-surface))]/95 shadow-[0_-8px_24px_-12px_rgba(6,22,21,0.18)] backdrop-blur md:hidden"
         style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
       >
