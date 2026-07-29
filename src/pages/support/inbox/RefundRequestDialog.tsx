@@ -65,6 +65,8 @@ export function RefundRequestDialog({ conversation }: Props) {
   });
 
   const submit = async () => {
+    // Early Access: block before any refund network call.
+    if (guardFinancialAction(() => setLockOpen(true))) return;
     const cents = Math.round(Number(amount) * 100);
     if (!Number.isFinite(cents) || cents <= 0) {
       toast.error("Beløbet skal være større end 0.");
