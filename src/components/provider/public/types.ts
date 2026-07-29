@@ -8,12 +8,20 @@
  * timeline, achievements…) without a redesign.
  */
 
+/** How a provider prices a service. Mirrors provider_service_prices.price_model. */
+export type ServicePriceModel = "hourly" | "fixed" | "from";
+
 export type PublicProviderService = {
   service_code: string;
   amount_minor: number;
   currency: string;
-  /** "hour" | "job" — defaults to hour when omitted. */
+  /** "hour" | "job" — legacy shape, defaults to hour when omitted. */
   unit?: string | null;
+  /** provider_service_prices fields (optional until PR #36 is merged). */
+  price_model?: ServicePriceModel | null;
+  min_duration_minutes?: number | null;
+  surcharges?: { label: string; amount_minor?: number | null; percent?: number | null }[] | null;
+  is_active?: boolean | null;
 };
 
 export type PublicProviderProfile = {
@@ -65,5 +73,11 @@ export type PublicReview = {
 
 export type Slot = { slot_date: string; slot_hour: number };
 
-/** Derived from real availability — never hardcoded. */
-export type OnlineStatus = "online" | "busy" | "offline";
+/**
+ * Presence — REAL platform activity only (last_seen_at within 10 minutes).
+ * `unknown` means we have no presence source yet; the UI hides "Online nu".
+ */
+export type PresenceStatus = "online" | "unknown";
+
+/** Calendar-derived availability. Never rendered as "Online". */
+export type AvailabilityStatus = "available" | "unavailable";
