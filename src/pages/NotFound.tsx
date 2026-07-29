@@ -1,7 +1,10 @@
 import { Link, useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import { useUserRoles } from "@/hooks/useUserRoles";
-import { ArrowLeft, Home, LayoutDashboard, Briefcase, Store, User } from "lucide-react";
+import {
+  ArrowLeft, Home, LayoutDashboard, Briefcase, Store, User,
+  Search, HelpCircle,
+} from "lucide-react";
 
 const NotFound = () => {
   const location = useLocation();
@@ -18,7 +21,6 @@ const NotFound = () => {
 
   return (
     <main className="relative min-h-screen flex items-center justify-center overflow-hidden bg-background">
-      {/* Decorative background blobs */}
       <div
         className="mesh-blob w-[500px] h-[500px] -top-40 -right-40"
         style={{ background: "hsl(168 65% 38% / 0.12)" }}
@@ -28,8 +30,7 @@ const NotFound = () => {
         style={{ background: "hsl(32 95% 55% / 0.10)" }}
       />
 
-      <div className="relative z-10 max-w-lg mx-auto px-6 text-center">
-        {/* 404 Number */}
+      <div className="relative z-10 max-w-lg mx-auto px-6 py-12 text-center">
         <h1
           className="font-heading text-[7rem] leading-none font-bold tracking-tighter text-gradient select-none"
           aria-hidden="true"
@@ -37,49 +38,55 @@ const NotFound = () => {
           404
         </h1>
 
-        {/* Message */}
-        <h2 className="font-heading text-2xl font-semibold text-foreground mt-2">
-          Siden blev ikke fundet
+        <h2 className="font-heading text-2xl sm:text-3xl font-semibold text-foreground mt-2">
+          Siden blev væk
         </h2>
         <p className="text-muted-foreground mt-3 max-w-sm mx-auto leading-relaxed">
-          Den side du leder efter, findes ikke eller er blevet flyttet.
+          Den side, du leder efter, findes ikke længere — men vi hjælper dig
+          videre. Vælg en af mulighederne herunder.
         </p>
 
-        {/* Role context */}
         {!loading && (
           <div className="mt-6 inline-flex items-center gap-2 rounded-full bg-secondary px-4 py-2 text-sm text-secondary-foreground">
-            <User className="h-4 w-4 text-primary" />
+            <User className="h-4 w-4 text-primary" aria-hidden="true" />
             <span>
               Logget ind som <strong className="text-foreground">{roleLabel}</strong>
             </span>
           </div>
         )}
 
-        {/* Action buttons */}
         <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
           <Link
             to={homeRoute}
-            className="inline-flex items-center gap-2 rounded-lg gradient-hero px-6 py-3 text-sm font-medium text-primary-foreground shadow-lg hover:opacity-90 transition-opacity"
+            className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-lg gradient-hero px-6 py-3 text-sm font-medium text-primary-foreground shadow-lg hover:opacity-90 transition-opacity"
           >
-            <HomeIcon className="h-4 w-4" />
+            <HomeIcon className="h-4 w-4" aria-hidden="true" />
             {homeLabel}
           </Link>
 
           <Link
-            to="/"
-            className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-6 py-3 text-sm font-medium text-foreground hover:bg-secondary transition-colors"
+            to="/find-cleaner"
+            className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-lg border border-border bg-card px-6 py-3 text-sm font-medium text-foreground hover:bg-secondary transition-colors"
           >
-            <Home className="h-4 w-4" />
-            Forside
+            <Search className="h-4 w-4 text-primary" aria-hidden="true" />
+            Find rengøring
+          </Link>
+
+          <Link
+            to="/faq"
+            className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-lg border border-border bg-card px-6 py-3 text-sm font-medium text-foreground hover:bg-secondary transition-colors"
+          >
+            <HelpCircle className="h-4 w-4 text-primary" aria-hidden="true" />
+            Hjælp
           </Link>
         </div>
 
-        {/* Back */}
         <button
+          type="button"
           onClick={() => history.back()}
-          className="mt-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          className="mt-6 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded"
         >
-          <ArrowLeft className="h-4 w-4" />
+          <ArrowLeft className="h-4 w-4" aria-hidden="true" />
           Gå tilbage
         </button>
       </div>
