@@ -118,6 +118,12 @@ export function AppRoutes() {
       <Route path="/customer/addresses" element={<RoleGuard allow={["customer"]}><Navigate to="/profil?tab=addresses" replace /></RoleGuard>} />
       <Route path="/customer/profile" element={<RoleGuard allow={["customer"]}><CustomerProfileV2 /></RoleGuard>} />
       <Route path="/customer/settings" element={<RoleGuard allow={["customer"]}><Navigate to="/profil?tab=notifications" replace /></RoleGuard>} />
+      <Route path="/customer/cards" element={<RoleGuard allow={["customer"]}><Navigate to="/profil?tab=cards" replace /></RoleGuard>} />
+      {/* Public aliases for well-known short URLs. Pure client-side redirects, no loops. */}
+      <Route path="/help" element={<Navigate to="/faq" replace />} />
+      <Route path="/house-rules" element={<Navigate to="/regler" replace />} />
+      <Route path="/chat" element={<Navigate to="/inbox" replace />} />
+      <Route path="/contact" element={<Contact />} />
       <Route path="/provider/register" element={<Navigate to="/bliv-cleaner" replace />} />
       <Route path="/founding-cleaner" element={<MobileFoundingCleanerGate />} />
       {/* UUID-guarded internal provider route. Non-UUID falls through to NotFound. */}
