@@ -1,0 +1,455 @@
+{
+  "hero": {
+    "trust": {
+      "verified": "Verificerede Cleaners",
+      "payments": "Sikre betalinger",
+      "reviews": "Ægte anmeldelser",
+      "fixed_price": "Fast pris uden overraskelser",
+      "rowLabel": "Fordele"
+    },
+    "availability": "Tilgængelig i 🇩🇰 Danmark · 🇸🇪 Sverige · 🇩🇪 Tyskland · 🇬🇧 Storbritannien · 🇪🇸 Spanien",
+    "availability_label": "Tilgængelig i",
+    "countries": {
+      "dk": "Danmark",
+      "se": "Sverige",
+      "de": "Tyskland",
+      "gb": "Storbritannien",
+      "es": "Spanien"
+    },
+    "image_alt": "Verificeret Cleaner i et europæisk hjem",
+    "variants": {
+      "guest": {
+        "eyebrow": "Europas rengøringsmarkedsplads",
+        "title_line_1": "Find den perfekte Cleaner",
+        "title_line_2": "– når og hvor det passer dig.",
+        "subtitle": "Book verificerede Cleaners til hjemmet eller virksomheden. Hurtigt, sikkert og nemt – med gennemsigtige priser og ægte anmeldelser.",
+        "cta_secondary_label": "Bliv Cleaner",
+        "cta_secondary_href": "/bliv-cleaner"
+      },
+      "customer": {
+        "eyebrow": "Velkommen tilbage",
+        "title_line_1": "Velkommen tilbage, {{name}}.",
+        "title_line_2": "Book din næste Cleaner på få sekunder.",
+        "subtitle": "Gentag en tidligere booking eller find en ny Cleaner i dit område.",
+        "cta_secondary_label": "Se mine bookinger",
+        "cta_secondary_href": "/my-bookings"
+      },
+      "provider": {
+        "eyebrow": "Din dag",
+        "title_line_1": "Velkommen tilbage.",
+        "title_line_2": "Se dine bookinger og nye opgaver.",
+        "subtitle": "Hold styr på dagens jobs, svartid og indtjening – alt samlet ét sted.",
+        "cta_secondary_label": "Åbn dashboard",
+        "cta_secondary_href": "/provider-dashboard"
+      }
+    }
+  },
+  "search": {
+    "aria": "Find en Cleaner",
+    "where": "Hvor",
+    "where_placeholder": "By eller postnummer",
+    "when": "Hvornår",
+    "service": "Service",
+    "submit": "Find en Cleaner"
+  },
+  "categories": {
+    "heading": "Populære ydelser",
+    "view_all": "Se alle",
+    "cleaning": "Rengøring",
+    "handyman": "Handyman",
+    "garden": "Have",
+    "moving": "Flytning",
+    "tiles": {
+      "regular": "Almindelig rengøring",
+      "deep": "Hovedrengøring",
+      "move": "Flytterengøring",
+      "office": "Kontorrengøring",
+      "custom": "Særlig opgave"
+    }
+  },
+  "results": {
+    "heading": "Fremhævede Cleaners nær dig",
+    "subtitle": "Verificerede professionelle. Ægte anmeldelser. Book med ro i sindet.",
+    "see_all": "Se alle Cleaners",
+    "empty": "Ingen Cleaners endnu i {{area}}. Prøv et andet område.",
+    "empty_area": "dit område",
+    "error_title": "Vi kunne ikke hente ledige Cleaners lige nu."
+  },
+  "card": {
+    "verified": "Verificeret",
+    "badge_verified": "Verificeret",
+    "badge_top": "Topbedømt",
+    "badge_fast": "Hurtigt svar",
+    "badge_today": "Ledig i dag",
+    "add_fav": "Tilføj til favoritter",
+    "remove_fav": "Fjern favorit",
+    "avatar_alt": "{{name}} profilfoto",
+    "radius": "inden for {{km}} km",
+    "completed": "{{n}} bookinger",
+    "price_note": "Prisen beregnes ved booking",
+    "view": "Se profil",
+    "demo_hint": "Demoprofil — log ind for at browse ægte Cleaners"
+  },
+  "trust": {
+    "heading": "Derfor vælger kunder MyCleaner",
+    "identity": {
+      "title": "Verificeret identitet",
+      "body": "Alle Cleaners gennemgår ID-verifikation, før de kan modtage bookinger."
+    },
+    "payments": {
+      "title": "Sikre betalinger",
+      "body": "Betalinger håndteres via Stripe. Dine kortdata deles aldrig med din Cleaner."
+    },
+    "reviews": {
+      "title": "Ægte anmeldelser",
+      "body": "Kun kunder med gennemførte bookinger kan skrive anmeldelser."
+    },
+    "support": {
+      "title": "Kundesupport",
+      "body": "Skriv til os hvis noget går galt — vi hjælper hver enkelt sag igennem."
+    }
+  },
+  "summary": {
+    "heading": "Bookingoversigt",
+    "service": "Service",
+    "when": "Hvornår",
+    "where": "Hvor",
+    "total": "Total",
+    "price_note": "Prisen beregnes ved booking baseret på din Cleaner og service."
+  },
+  "sidebar": {
+    "price_note": "Prisen beregnes ved booking baseret på din Cleaner og service.",
+    "why_heading": "Derfor vælger kunder MyCleaner",
+    "why_verified": "ID-verificerede Cleaners"
+  },
+  "how": {
+    "eyebrow": "Sådan virker det",
+    "heading": "Tre trin til et rent hjem",
+    "steps": {
+      "search": {
+        "title": "Find en Cleaner",
+        "body": "Søg lokalt, sammenlign priser og ægte anmeldelser."
+      },
+      "book": {
+        "title": "Book i kalenderen",
+        "body": "Vælg tidspunkt direkte hos din Cleaner — ingen ventetid, ingen bud."
+      },
+      "enjoy": {
+        "title": "Nyd et rent hjem",
+        "body": "Betalingen holdes sikkert, indtil jobbet er godkendt."
+      }
+    }
+  },
+  "reviews": {
+    "eyebrow": "Fra vores kunder",
+    "heading": "Elsket i hele Europa",
+    "items": [
+      {
+        "quote": "Utrolig nem booking, og min Cleaner var fantastisk. Bruger det helt sikkert igen.",
+        "name": "Sofie L.",
+        "city": "København",
+        "rating": 5
+      },
+      {
+        "quote": "Priserne er gennemsigtige, og jeg vidste præcis hvad jeg betalte for. Kan varmt anbefales.",
+        "name": "Marcus B.",
+        "city": "Malmö",
+        "rating": 5
+      },
+      {
+        "quote": "Endelig en platform, hvor min Cleaner får ordentlig betaling, og jeg får kvalitet.",
+        "name": "Ana R.",
+        "city": "Madrid",
+        "rating": 5
+      }
+    ]
+  },
+  "campaign": {
+    "eyebrow": "FOUNDING CLEANER",
+    "title": "Founding Cleaner-programmet åbner snart",
+    "body": "Planlagt fordel for de første 500 godkendte Cleaners, der indsender deres provideransøgning i 2026: 0 kr. i provider-platformsgebyr i tre kalendermåneder.",
+    "note": "Programmet er endnu ikke åbnet. Din ansøgning reserverer ikke automatisk en plads.",
+    "cta": "Læs om programmet",
+    "href": "/founding-cleaner",
+    "badgePrimary": "FOUNDING CLEANER",
+    "badgeSecondary": "ÅBNER SNART",
+    "edition": "2026 EDITION",
+    "amount": "0 KR.",
+    "amountSuffix1": "i provider-platformsgebyr",
+    "amountSuffix2": "i 3 måneder",
+    "explain": "Planlagt fordel for de første 500 godkendte Cleaners, der indsender deres provideransøgning i 2026.",
+    "noteShort": "Programmet er endnu ikke åbnet. Din ansøgning reserverer ikke automatisk en plads.",
+    "ctaShort": "Læs om programmet"
+  },
+  "app": {
+    "eyebrow": "MyCleaner-appen",
+    "heading": "Book og genbook fra lommen",
+    "body": "Følg din booking, chat med din Cleaner og betal sikkert — alt i én app.",
+    "ios": "App Store",
+    "android": "Google Play",
+    "ios_href": "",
+    "android_href": ""
+  },
+  "faq": {
+    "eyebrow": "FAQ",
+    "heading": "Ofte stillede spørgsmål",
+    "items": [
+      {
+        "q": "Hvordan er priserne fastsat?",
+        "a": "Cleaners sætter deres egne priser inden for lokale minimumssatser. Du ser den fulde pris før du booker — ingen skjulte gebyrer."
+      },
+      {
+        "q": "Er alle Cleaners verificerede?",
+        "a": "Ja. Alle Cleaners gennemgår ID- og identitetsverifikation, før de kan modtage bookinger."
+      },
+      {
+        "q": "Hvornår trækkes betalingen?",
+        "a": "Vi reserverer beløbet ved bookingen og frigiver det til din Cleaner, når jobbet er udført og godkendt."
+      },
+      {
+        "q": "Kan jeg aflyse?",
+        "a": "Ja — aflysning er gratis op til 24 timer før. Se vores fulde aflysningspolitik i FAQ."
+      },
+      {
+        "q": "Hvilke lande er live?",
+        "a": "Danmark, Sverige, Tyskland, Storbritannien og Spanien. Flere lande kommer løbende."
+      }
+    ]
+  },
+  "welcome_back": {
+    "eyebrow": "Velkommen tilbage",
+    "heading": "Fortsæt hvor du slap",
+    "heading_named": "Hej {{name}} — fortsæt hvor du slap",
+    "tiles": {
+      "upcoming": {
+        "title": "Kommende bookinger",
+        "body": "Se og administrer dine planlagte bookinger."
+      },
+      "favorites": {
+        "title": "Favorit-Cleaners",
+        "body": "Gå direkte til de Cleaners du har gemt."
+      },
+      "book_again": {
+        "title": "Book igen",
+        "body": "Genbestil hos en Cleaner du har brugt før."
+      }
+    }
+  },
+  "provider_home": {
+    "eyebrow": "Din dag",
+    "heading": "Overblik og genveje",
+    "tiles": {
+      "today": {
+        "title": "Dagens bookinger",
+        "body": "Hvem, hvor og hvornår i dag."
+      },
+      "performance": {
+        "title": "Performance",
+        "body": "Rating, svartid og gennemførelse."
+      },
+      "earnings": {
+        "title": "Indtjening",
+        "body": "Denne uges og månedens payout."
+      },
+      "pricing": {
+        "title": "Dynamisk prissætning",
+        "body": "Optimer priser efter efterspørgsel."
+      }
+    }
+  },
+  "mobileHome": {
+    "greeting_guest": "Find den perfekte Cleaner",
+    "greeting_named": "Hej {{name}}",
+    "greeting_fallback_name": "der",
+    "subtitle_guest": "Verificerede Cleaners – hurtigt, sikkert og nemt.",
+    "subtitle_customer": "Book din næste Cleaner på få sekunder.",
+    "bookingCard": {
+      "eyebrow": "Book en Cleaner",
+      "title": "Find din Cleaner",
+      "subtitle": "Sammenlign profiler, priser og ledige tider.",
+      "trust": "Verificerede profiler · Sikker betaling",
+      "cta": "Find en Cleaner",
+      "ariaLabel": "Find en Cleaner"
+    },
+    "howItWorks": {
+      "cta": "Find en Cleaner",
+      "step_of": "Trin {{n}} af {{total}}",
+      "progress": "Trin-indikator"
+    },
+    "services": {
+      "title": "Populære services"
+    },
+    "featured": {
+      "title": "Anbefalede Cleaners",
+      "viewAll": "Se alle",
+      "empty": "Ingen Cleaners at vise lige nu."
+    },
+    "quickActions": {
+      "title": "Hurtige handlinger",
+      "book_again": "Book igen",
+      "find_cleaner": "Find cleaner",
+      "messages": "Beskeder"
+    },
+    "customer": {
+      "upcoming": "Kommende booking",
+      "loading": "Henter…",
+      "error": "Kunne ikke hente bookinger.",
+      "empty": "Du har ingen kommende bookinger. Book din næste Cleaner nu.",
+      "provider": "Cleaner"
+    },
+    "provider": {
+      "today": "I dag",
+      "todayJobs_one": "aktiv opgave i dag",
+      "todayJobs_other": "aktive opgaver i dag",
+      "openDashboard": "Åbn dashboard",
+      "nextJob": "Næste opgave",
+      "job": "Opgave",
+      "noJobs": "Ingen kommende opgaver.",
+      "error": "Kunne ikke hente jobs.",
+      "earnings": "Månedens indtjening",
+      "earningsUnavailable": "Se din opdaterede indtjening i Finans.",
+      "openFinance": "Åbn Finans",
+      "onboarding": "Kom i gang",
+      "onboardingProgress": "{{done}} af {{total}} trin gennemført",
+      "continueOnboarding": "Fortsæt",
+      "calendar": "Kalender",
+      "payouts": "Udbetalinger"
+    }
+  },
+  "mobileSearch": {
+    "appBarTitle": "Find en Cleaner",
+    "placeholder": "Søg efter navn, by eller postnummer",
+    "aria": "Søg efter Cleaners",
+    "clear": "Ryd søgning",
+    "loading_count": "Henter…",
+    "count": "{{n}} Cleaners fundet",
+    "price_from": "fra {{price}} kr/t",
+    "chips": {
+      "aria": "Filtrer kategori",
+      "all": "Alle",
+      "cleaning": "Rengøring"
+    },
+    "filters": {
+      "label": "Filtre",
+      "open": "Åbn filtre",
+      "title": "Filtre og sortering",
+      "description": "Tilpas søgningen",
+      "sortHeading": "Sortering",
+      "maxRate": "Maks. timepris",
+      "maxRatePlaceholder": "Ingen grænse",
+      "reset": "Nulstil",
+      "apply": "Vis resultater"
+    },
+    "sort": {
+      "score": "Bedste match",
+      "price_asc": "Pris (lav → høj)",
+      "price_desc": "Pris (høj → lav)",
+      "rating": "Højeste rating",
+      "response": "Hurtigst svar"
+    },
+    "empty": {
+      "title": "Ingen Cleaners matcher dine filtre",
+      "body": "Prøv at nulstille filtrene eller udvid dit søgeområde.",
+      "reset": "Nulstil filtre"
+    },
+    "error": {
+      "title": "Søgning er midlertidigt utilgængelig",
+      "body": "Prøv igen om et øjeblik.",
+      "retry": "Prøv igen"
+    },
+    "pagination": {
+      "prev": "Forrige",
+      "next": "Næste",
+      "pageOf": "Side {{page}} af {{pages}}"
+    }
+  },
+  "mobileBookings": {
+    "appBarTitle": "Mine bookinger",
+    "provider": "Cleaner",
+    "total": "Du betaler",
+    "tabs": {
+      "aria": "Bookinger",
+      "upcoming": "Kommende",
+      "previous": "Tidligere"
+    },
+    "status": {
+      "pending": "Afventer",
+      "accepted": "Accepteret",
+      "declined": "Afvist",
+      "cancelled": "Annulleret",
+      "completed": "Udført"
+    },
+    "empty": {
+      "cta": "Find en Cleaner",
+      "upcoming": {
+        "title": "Ingen kommende bookinger",
+        "body": "Find en Cleaner og book direkte i kalenderen."
+      },
+      "previous": {
+        "title": "Ingen tidligere bookinger",
+        "body": "Dine gennemførte bookinger vises her."
+      },
+      "signed_out": {
+        "title": "Log ind for at se dine bookinger",
+        "body": "Bookinger er kun synlige når du er logget ind.",
+        "cta": "Log ind"
+      }
+    },
+    "error": {
+      "title": "Kunne ikke hente bookinger",
+      "body": "Prøv igen om et øjeblik.",
+      "retry": "Prøv igen"
+    }
+  },
+  "foundingCleaner": {
+    "eyebrow": "FOUNDING CLEANER",
+    "heading": "Founding Cleaner-programmet",
+    "intro": "Founding Cleaner-programmet planlægger at give de første 500 godkendte Cleaners, der indsender deres provideransøgning i 2026, 0 kr. i provider-platformsgebyr i tre kalendermåneder. Programmet er endnu ikke aktiveret, og en ansøgning reserverer ikke automatisk en plads.",
+    "status": {
+      "title": "Programmet åbner snart",
+      "body": "Founding Cleaner-programmet er endnu ikke aktiveret. Du kan indsende din Cleaner-ansøgning, men ansøgningen reserverer ikke en kampagneplads. Hvis programmet åbner, får kvalificerede ansøgere besked direkte fra MyCleaner."
+    },
+    "plannedBenefit": "Den planlagte fordel er 0 kr. i provider-platformsgebyr i tre kalendermåneder. Kundens separate platformsgebyr, betalingsbehandling, skat, moms, forsikring og andre tredjepartsomkostninger ændres ikke.",
+    "ctaPrimary": "Ansøg som Cleaner",
+    "ctaPrimaryNote": "Ansøgningen er ikke en reservation af en kampagneplads.",
+    "ctaSecondary": "Se vilkårene",
+    "startNote": "Hvis programmet åbnes og du kvalificeres, starter de tre kalendermåneder først, når din første kvalificerende opgave er gennemført, betalt og frigivet efter MyCleaners eksisterende releasekontrol.",
+    "how": {
+      "heading": "Sådan er programmet tænkt",
+      "steps": [
+        {
+          "title": "Indsend din ansøgning",
+          "body": "Udfyld din Cleaner-profil i 2026 og gennemfør den eksisterende onboarding. Ansøgningen reserverer ikke en plads."
+        },
+        {
+          "title": "Vent på godkendelse",
+          "body": "MyCleaner gennemgår profil, identitet og den nødvendige dokumentation. Godkendelse må gerne ske efter 2026."
+        },
+        {
+          "title": "Modtag besked, hvis programmet åbner",
+          "body": "Hvis programmet aktiveres og du tildeles en af de op til 500 globale pladser, får du direkte besked fra MyCleaner."
+        }
+      ]
+    },
+    "terms": {
+      "heading": "Planlagte vilkår",
+      "lastUpdatedLabel": "Sidst opdateret",
+      "lastUpdated": "2026-07-27",
+      "items": [
+        "Founding Cleaner-programmet er endnu ikke aktiveret. Indsendelse af en ansøgning giver ikke automatisk ret til fordelen og reserverer ikke en kampagneplads.",
+        "Der kan maksimalt tildeles 500 pladser globalt på tværs af alle markeder.",
+        "Kun færdiggjorte provideransøgninger indsendt i kalenderåret 2026 (fra 1. januar 2026 til og med 31. december 2026) kan komme i betragtning. Autoritativt tidspunkt er provider_profiles.submitted_at på serveren.",
+        "Godkendelse må gerne ske efter 2026. En plads tildeles først server-side ved endelig godkendelse og aktivering.",
+        "Der tildeles maksimalt én kampagnefordel pr. verificeret fysisk person, også hvis personen kontrollerer flere virksomheder. Duplikerede profiler medfører ikke flere fordele.",
+        "Den planlagte fordel er 0 kr. i MyCleaners provider-platformsgebyr i tre kalendermåneder. Kundens separate platformsgebyr påvirkes ikke.",
+        "Betalingsbehandlingsomkostninger, skat, moms, forsikring og andre tredjepartsomkostninger ændres ikke automatisk af kampagnen.",
+        "Perioden varer tre kalendermåneder fra started_at + interval ‘3 months’ og opgøres ikke i 90 dage.",
+        "Perioden starter først, når den første kvalificerende opgave er gennemført, betalt/captured, kundebekræftet eller behandlet efter eksisterende completionregel og godkendt til release efter MyCleaners eksisterende 24-timers hold og dispute-kontrol.",
+        "En fuld refundering eller åben dispute før release starter ikke perioden. En refundering eller chargeback efter start nulstiller eller forlænger ikke perioden.",
+        "MyCleaner giver direkte besked, hvis en ansøger tildeles en plads. Der offentliggøres ingen countdown eller restpladstæller.",
+        "Endelige kampagnevilkår skal accepteres, når programmet aktiveres. MyCleaner kan ændre eller afslutte det planlagte program for fremtidige deltagere; en allerede bekræftet kampagnefordel ændres ikke med tilbagevirkende kraft i strid med gældende lov."
+      ]
+    },
+    "appBarTitle": "Founding Cleaner"
+  }
+}

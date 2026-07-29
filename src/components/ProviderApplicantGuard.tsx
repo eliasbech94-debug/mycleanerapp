@@ -53,7 +53,7 @@ export function ProviderApplicantGuard({ children, autoStart = true }: Props) {
       </div>
     );
   }
-  if (!user) return <Navigate to="/login" replace state={{ from: location.pathname }} />;
+  if (!user) return <Navigate to={`/login?redirect=${encodeURIComponent(location.pathname + location.search)}`} replace />;
 
   if (status === "archived" && !isAdmin) {
     return (

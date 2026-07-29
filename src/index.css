@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Space+Grotesk:wght@300..700&family=DM+Serif+Display:ital@0;1&family=Fira+Sans:ital,wght@0,300..700;1,300..700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Space+Grotesk:wght@300..700&family=DM+Serif+Display:ital@0;1&family=Fira+Sans:ital,wght@0,300..700;1,300..700&family=Instrument+Serif:ital@0;1&family=Work+Sans:ital,wght@0,300..700;1,300..700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -100,6 +100,32 @@
     --sidebar-ring: 176 68% 50%;
   }
 }
+
+  /* === Public marketplace surface (Phase 2A) ===
+   * Scoped light theme applied only where [data-surface="marketplace"]
+   * wraps content — homepage, marketplace search, find-cleaner, public
+   * provider profile and public booking flow. Does NOT modify :root, so
+   * provider/admin/internal dashboards keep their existing tokens.
+   */
+  [data-surface="marketplace"] {
+    --mkt-bg: 210 40% 98%;
+    --mkt-surface: 0 0% 100%;
+    --mkt-surface-muted: 214 32% 96%;
+    --mkt-ink: 222 47% 11%;
+    --mkt-ink-muted: 215 16% 40%;
+    --mkt-ink-soft: 215 14% 55%;
+    --mkt-border: 214 25% 90%;
+    --mkt-border-strong: 214 22% 82%;
+    --mkt-brand: 224 76% 48%;         /* royal blue */
+    --mkt-brand-hover: 224 76% 42%;
+    --mkt-brand-soft: 224 100% 96%;
+    --mkt-brand-on: 0 0% 100%;
+    --mkt-accent: 24 95% 55%;
+    --mkt-success: 152 62% 40%;
+    --mkt-star: 42 96% 52%;
+    --mkt-shadow-soft: 0 1px 2px hsl(222 47% 11% / 0.04), 0 8px 24px -12px hsl(222 47% 11% / 0.10);
+    --mkt-shadow-lift: 0 4px 12px -2px hsl(222 47% 11% / 0.08), 0 16px 40px -18px hsl(224 76% 48% / 0.18);
+  }
 
 @layer base {
   * {
@@ -238,6 +264,14 @@
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-10px); }
   }
+  @keyframes mktRotateWord {
+    0%   { opacity: 0; transform: translateY(0.4em); filter: blur(4px); }
+    60%  { opacity: 1; transform: translateY(0);      filter: blur(0);  }
+    100% { opacity: 1; transform: translateY(0);      filter: blur(0);  }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .animate-\[mktRotateWord_600ms_ease-out\] { animation: none !important; }
+  }
 
   /* === Cert tile wow effects === */
   .cert-tile { position: relative; isolation: isolate; }
@@ -369,4 +403,98 @@
       animation: none !important;
     }
   }
+}
+
+/* =========================================================================
+ * Phase 2 — Mobile App tokens & utilities
+ * Applied only inside mobile-app shell contexts (mobile.css scope class or
+ * <768px media query). Desktop/tablet visuals unchanged.
+ * ========================================================================= */
+:root {
+  --app-radius: 20px;
+  --app-shadow-card: 0 12px 32px -18px rgba(6, 22, 21, 0.35),
+                     0 2px 8px -4px rgba(6, 22, 21, 0.18);
+  --app-tap-highlight: rgba(22, 138, 122, 0.14);
+  --bs-radius: 24px;
+  --bs-shadow: 0 -20px 48px -20px rgba(6, 22, 21, 0.35);
+  --bs-overlay: rgba(6, 22, 21, 0.55);
+}
+
+@layer utilities {
+  .safe-top   { padding-top: env(safe-area-inset-top, 0px); }
+  .safe-bot   { padding-bottom: env(safe-area-inset-bottom, 0px); }
+  .safe-left  { padding-left: env(safe-area-inset-left, 0px); }
+  .safe-right { padding-right: env(safe-area-inset-right, 0px); }
+
+  .momentum-scroll {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+  }
+
+  /* Ensures the WCAG 44x44 minimum tap target */
+  .tap-target {
+    min-height: 44px;
+    min-width: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Compact mobile-only typography — scoped to <768px so desktop stays put. */
+  @media (max-width: 767px) {
+    .type-mobile-title    { font-size: 17px; line-height: 22px; font-weight: 600; letter-spacing: -0.01em; }
+    .type-mobile-headline { font-size: 24px; line-height: 30px; font-weight: 700; letter-spacing: -0.02em; }
+    .type-mobile-body     { font-size: 15px; line-height: 22px; }
+    .type-mobile-caption  { font-size: 12px; line-height: 16px; color: hsl(var(--mkt-ink-muted)); }
+  }
+
+  /* Phase 5B — mobile-only tap feedback. Presentation only, respects tokens. */
+  @media (max-width: 767px) {
+    .tap-pressable {
+      transition: transform 120ms ease, background-color 120ms ease, box-shadow 120ms ease;
+      -webkit-tap-highlight-color: var(--app-tap-highlight);
+    }
+    .tap-pressable:active {
+      transform: scale(0.985);
+      background-color: color-mix(in srgb, hsl(var(--mkt-brand-soft)) 55%, transparent);
+    }
+    .tap-row {
+      transition: background-color 120ms ease;
+      -webkit-tap-highlight-color: var(--app-tap-highlight);
+    }
+    .tap-row:active {
+      background-color: color-mix(in srgb, hsl(var(--mkt-brand-soft)) 55%, transparent);
+    }
+  }
+
+  /* Phase 5B — mobile route transition (content only). Fixed app bar and
+     bottom nav are outside this wrapper and must never animate. */
+  @media (max-width: 767px) {
+    .mobile-route-enter {
+      animation: mobileRouteEnter 220ms ease-out both;
+      will-change: opacity, transform;
+    }
+    @keyframes mobileRouteEnter {
+      from { opacity: 0.55; transform: translateY(4px); }
+      to   { opacity: 1;    transform: translateY(0);   }
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-testid="bottom-sheet"],
+    [data-testid="mobile-app-shell"] * {
+      transition-duration: 0ms !important;
+      animation-duration: 0ms !important;
+    }
+    .mobile-route-enter { animation: none !important; }
+    .tap-pressable, .tap-row { transition: none !important; }
+    .tap-pressable:active { transform: none !important; }
+  }
+}
+
+
+/* Utility: hide scrollbar while preserving native scroll (used by mobile chip rows). */
+@layer utilities {
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
 }

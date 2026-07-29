@@ -360,6 +360,59 @@ export type Database = {
           },
         ]
       }
+      booking_slot_locks: {
+        Row: {
+          booking_date: string | null
+          booking_id: string
+          created_at: string
+          ends_at: string
+          hours: number | null
+          id: string
+          provider_user_id: string
+          reason: string | null
+          released_at: string | null
+          slot: string | null
+          starts_at: string
+          status: string
+        }
+        Insert: {
+          booking_date?: string | null
+          booking_id: string
+          created_at?: string
+          ends_at: string
+          hours?: number | null
+          id?: string
+          provider_user_id: string
+          reason?: string | null
+          released_at?: string | null
+          slot?: string | null
+          starts_at: string
+          status?: string
+        }
+        Update: {
+          booking_date?: string | null
+          booking_id?: string
+          created_at?: string
+          ends_at?: string
+          hours?: number | null
+          id?: string
+          provider_user_id?: string
+          reason?: string | null
+          released_at?: string | null
+          slot?: string | null
+          starts_at?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "booking_slot_locks_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       booking_workers: {
         Row: {
           assigned_at: string
@@ -409,8 +462,14 @@ export type Database = {
       }
       bookings: {
         Row: {
+          acquisition_provider_id: string | null
+          acquisition_source: string
           address: string
           address_place_id: string | null
+          assigned_at: string | null
+          assigned_provider_id: string | null
+          assignment_deadline_at: string | null
+          assignment_mode: Database["public"]["Enums"]["booking_assignment_mode"]
           authorization_expires_at: string | null
           booking_date: string
           booking_rules_snapshot: Json | null
@@ -427,6 +486,8 @@ export type Database = {
           customer_pays: number
           customer_user_id: string
           decided_at: string | null
+          dispatch_status: Database["public"]["Enums"]["booking_dispatch_status"]
+          dispatched_at: string | null
           dynamic_pricing_applied: boolean | null
           fee_reconciliation_overdue: boolean
           funds_release_at: string | null
@@ -435,6 +496,7 @@ export type Database = {
           lat: number | null
           legacy_classification: string | null
           lng: number | null
+          max_provider_cost_minor: number | null
           notes: string | null
           payment_flow_version:
             | Database["public"]["Enums"]["booking_payment_flow_version"]
@@ -460,6 +522,7 @@ export type Database = {
           refund_reason: string | null
           refunded_at: string | null
           refunds: Json
+          requested_provider_id: string | null
           service: string
           settled_reason: string | null
           slot: string
@@ -469,8 +532,14 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          acquisition_provider_id?: string | null
+          acquisition_source?: string
           address: string
           address_place_id?: string | null
+          assigned_at?: string | null
+          assigned_provider_id?: string | null
+          assignment_deadline_at?: string | null
+          assignment_mode?: Database["public"]["Enums"]["booking_assignment_mode"]
           authorization_expires_at?: string | null
           booking_date: string
           booking_rules_snapshot?: Json | null
@@ -487,6 +556,8 @@ export type Database = {
           customer_pays: number
           customer_user_id: string
           decided_at?: string | null
+          dispatch_status?: Database["public"]["Enums"]["booking_dispatch_status"]
+          dispatched_at?: string | null
           dynamic_pricing_applied?: boolean | null
           fee_reconciliation_overdue?: boolean
           funds_release_at?: string | null
@@ -495,6 +566,7 @@ export type Database = {
           lat?: number | null
           legacy_classification?: string | null
           lng?: number | null
+          max_provider_cost_minor?: number | null
           notes?: string | null
           payment_flow_version?:
             | Database["public"]["Enums"]["booking_payment_flow_version"]
@@ -520,6 +592,7 @@ export type Database = {
           refund_reason?: string | null
           refunded_at?: string | null
           refunds?: Json
+          requested_provider_id?: string | null
           service: string
           settled_reason?: string | null
           slot: string
@@ -529,8 +602,14 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          acquisition_provider_id?: string | null
+          acquisition_source?: string
           address?: string
           address_place_id?: string | null
+          assigned_at?: string | null
+          assigned_provider_id?: string | null
+          assignment_deadline_at?: string | null
+          assignment_mode?: Database["public"]["Enums"]["booking_assignment_mode"]
           authorization_expires_at?: string | null
           booking_date?: string
           booking_rules_snapshot?: Json | null
@@ -547,6 +626,8 @@ export type Database = {
           customer_pays?: number
           customer_user_id?: string
           decided_at?: string | null
+          dispatch_status?: Database["public"]["Enums"]["booking_dispatch_status"]
+          dispatched_at?: string | null
           dynamic_pricing_applied?: boolean | null
           fee_reconciliation_overdue?: boolean
           funds_release_at?: string | null
@@ -555,6 +636,7 @@ export type Database = {
           lat?: number | null
           legacy_classification?: string | null
           lng?: number | null
+          max_provider_cost_minor?: number | null
           notes?: string | null
           payment_flow_version?:
             | Database["public"]["Enums"]["booking_payment_flow_version"]
@@ -580,6 +662,7 @@ export type Database = {
           refund_reason?: string | null
           refunded_at?: string | null
           refunds?: Json
+          requested_provider_id?: string | null
           service?: string
           settled_reason?: string | null
           slot?: string
@@ -594,6 +677,1218 @@ export type Database = {
             columns: ["pricing_calculation_id"]
             isOneToOne: false
             referencedRelation: "pricing_calculations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaign_applications: {
+        Row: {
+          accepted_privacy_at: string | null
+          accepted_terms_at: string | null
+          approval_idempotency_key: string | null
+          assigned_number: number | null
+          campaign_id: string
+          categories: string[]
+          city: string | null
+          company_logo_path: string | null
+          company_name: string | null
+          country_code: string
+          created_at: string
+          deleted_at: string | null
+          deleted_by: string | null
+          email: string
+          email_verification_expires_at: string | null
+          email_verification_sent_at: string | null
+          email_verification_token: string | null
+          email_verification_used_at: string | null
+          email_verified_at: string | null
+          experience_years: number | null
+          full_name: string
+          heard_about: string | null
+          hourly_rate_minor: number | null
+          id: string
+          invite_source: string | null
+          ip: string | null
+          languages: string[]
+          phone: string | null
+          postal_codes: string[]
+          profile_photo_path: string | null
+          provider_user_id: string | null
+          referral_code: string | null
+          referred_by: string | null
+          rejection_reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: Database["public"]["Enums"]["campaign_application_status"]
+          updated_at: string
+          user_agent: string | null
+          user_id: string | null
+          utm_campaign: string | null
+          utm_medium: string | null
+          utm_source: string | null
+          waiting_list_position: number | null
+        }
+        Insert: {
+          accepted_privacy_at?: string | null
+          accepted_terms_at?: string | null
+          approval_idempotency_key?: string | null
+          assigned_number?: number | null
+          campaign_id: string
+          categories?: string[]
+          city?: string | null
+          company_logo_path?: string | null
+          company_name?: string | null
+          country_code: string
+          created_at?: string
+          deleted_at?: string | null
+          deleted_by?: string | null
+          email: string
+          email_verification_expires_at?: string | null
+          email_verification_sent_at?: string | null
+          email_verification_token?: string | null
+          email_verification_used_at?: string | null
+          email_verified_at?: string | null
+          experience_years?: number | null
+          full_name: string
+          heard_about?: string | null
+          hourly_rate_minor?: number | null
+          id?: string
+          invite_source?: string | null
+          ip?: string | null
+          languages?: string[]
+          phone?: string | null
+          postal_codes?: string[]
+          profile_photo_path?: string | null
+          provider_user_id?: string | null
+          referral_code?: string | null
+          referred_by?: string | null
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["campaign_application_status"]
+          updated_at?: string
+          user_agent?: string | null
+          user_id?: string | null
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          waiting_list_position?: number | null
+        }
+        Update: {
+          accepted_privacy_at?: string | null
+          accepted_terms_at?: string | null
+          approval_idempotency_key?: string | null
+          assigned_number?: number | null
+          campaign_id?: string
+          categories?: string[]
+          city?: string | null
+          company_logo_path?: string | null
+          company_name?: string | null
+          country_code?: string
+          created_at?: string
+          deleted_at?: string | null
+          deleted_by?: string | null
+          email?: string
+          email_verification_expires_at?: string | null
+          email_verification_sent_at?: string | null
+          email_verification_token?: string | null
+          email_verification_used_at?: string | null
+          email_verified_at?: string | null
+          experience_years?: number | null
+          full_name?: string
+          heard_about?: string | null
+          hourly_rate_minor?: number | null
+          id?: string
+          invite_source?: string | null
+          ip?: string | null
+          languages?: string[]
+          phone?: string | null
+          postal_codes?: string[]
+          profile_photo_path?: string | null
+          provider_user_id?: string | null
+          referral_code?: string | null
+          referred_by?: string | null
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["campaign_application_status"]
+          updated_at?: string
+          user_agent?: string | null
+          user_id?: string | null
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          waiting_list_position?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_applications_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_counters"
+            referencedColumns: ["campaign_id"]
+          },
+          {
+            foreignKeyName: "campaign_applications_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaign_applications_referred_by_fkey"
+            columns: ["referred_by"]
+            isOneToOne: false
+            referencedRelation: "campaign_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaign_apply_attempts: {
+        Row: {
+          campaign_id: string | null
+          created_at: string
+          email: string | null
+          id: number
+          ip: string | null
+          outcome: string
+          reason: string | null
+        }
+        Insert: {
+          campaign_id?: string | null
+          created_at?: string
+          email?: string | null
+          id?: number
+          ip?: string | null
+          outcome: string
+          reason?: string | null
+        }
+        Update: {
+          campaign_id?: string | null
+          created_at?: string
+          email?: string | null
+          id?: number
+          ip?: string | null
+          outcome?: string
+          reason?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_apply_attempts_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_counters"
+            referencedColumns: ["campaign_id"]
+          },
+          {
+            foreignKeyName: "campaign_apply_attempts_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaign_benefits: {
+        Row: {
+          campaign_id: string
+          country_code: string | null
+          created_at: string
+          description: string | null
+          enabled: boolean
+          icon: string | null
+          id: string
+          sort_order: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          campaign_id: string
+          country_code?: string | null
+          created_at?: string
+          description?: string | null
+          enabled?: boolean
+          icon?: string | null
+          id?: string
+          sort_order?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          campaign_id?: string
+          country_code?: string | null
+          created_at?: string
+          description?: string | null
+          enabled?: boolean
+          icon?: string | null
+          id?: string
+          sort_order?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_benefits_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_counters"
+            referencedColumns: ["campaign_id"]
+          },
+          {
+            foreignKeyName: "campaign_benefits_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaign_country_settings: {
+        Row: {
+          ai_config: Json
+          badge_emoji: string | null
+          badge_label: string | null
+          badge_template: string | null
+          campaign_id: string
+          countdown_enabled: boolean
+          countdown_target_at: string | null
+          country_code: string
+          created_at: string
+          cta_primary_label: string | null
+          cta_secondary_label: string | null
+          currency: string | null
+          enabled: boolean
+          hero_headline: string | null
+          hero_subheadline: string | null
+          max_applicants: number | null
+          seo_description: string | null
+          seo_og_image_url: string | null
+          seo_title: string | null
+          title: string | null
+          updated_at: string
+          waiting_list_enabled: boolean
+        }
+        Insert: {
+          ai_config?: Json
+          badge_emoji?: string | null
+          badge_label?: string | null
+          badge_template?: string | null
+          campaign_id: string
+          countdown_enabled?: boolean
+          countdown_target_at?: string | null
+          country_code: string
+          created_at?: string
+          cta_primary_label?: string | null
+          cta_secondary_label?: string | null
+          currency?: string | null
+          enabled?: boolean
+          hero_headline?: string | null
+          hero_subheadline?: string | null
+          max_applicants?: number | null
+          seo_description?: string | null
+          seo_og_image_url?: string | null
+          seo_title?: string | null
+          title?: string | null
+          updated_at?: string
+          waiting_list_enabled?: boolean
+        }
+        Update: {
+          ai_config?: Json
+          badge_emoji?: string | null
+          badge_label?: string | null
+          badge_template?: string | null
+          campaign_id?: string
+          countdown_enabled?: boolean
+          countdown_target_at?: string | null
+          country_code?: string
+          created_at?: string
+          cta_primary_label?: string | null
+          cta_secondary_label?: string | null
+          currency?: string | null
+          enabled?: boolean
+          hero_headline?: string | null
+          hero_subheadline?: string | null
+          max_applicants?: number | null
+          seo_description?: string | null
+          seo_og_image_url?: string | null
+          seo_title?: string | null
+          title?: string | null
+          updated_at?: string
+          waiting_list_enabled?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_country_settings_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_counters"
+            referencedColumns: ["campaign_id"]
+          },
+          {
+            foreignKeyName: "campaign_country_settings_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaign_email_outbox: {
+        Row: {
+          application_id: string | null
+          attempts: number
+          campaign_id: string
+          created_at: string
+          dedupe_key: string
+          email: string
+          id: string
+          last_error: string | null
+          last_error_code: string | null
+          locale: string | null
+          next_attempt_at: string | null
+          payload: Json
+          scheduled_for: string
+          sent_at: string | null
+          status: string
+          template: string
+          updated_at: string
+        }
+        Insert: {
+          application_id?: string | null
+          attempts?: number
+          campaign_id: string
+          created_at?: string
+          dedupe_key: string
+          email: string
+          id?: string
+          last_error?: string | null
+          last_error_code?: string | null
+          locale?: string | null
+          next_attempt_at?: string | null
+          payload?: Json
+          scheduled_for?: string
+          sent_at?: string | null
+          status?: string
+          template: string
+          updated_at?: string
+        }
+        Update: {
+          application_id?: string | null
+          attempts?: number
+          campaign_id?: string
+          created_at?: string
+          dedupe_key?: string
+          email?: string
+          id?: string
+          last_error?: string | null
+          last_error_code?: string | null
+          locale?: string | null
+          next_attempt_at?: string | null
+          payload?: Json
+          scheduled_for?: string
+          sent_at?: string | null
+          status?: string
+          template?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_email_outbox_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_applications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaign_email_outbox_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_counters"
+            referencedColumns: ["campaign_id"]
+          },
+          {
+            foreignKeyName: "campaign_email_outbox_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaign_events: {
+        Row: {
+          application_id: string | null
+          campaign_id: string
+          country_code: string | null
+          created_at: string
+          event_type: Database["public"]["Enums"]["campaign_event_type"]
+          id: number
+          ip: string | null
+          payload: Json
+          session_id: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          application_id?: string | null
+          campaign_id: string
+          country_code?: string | null
+          created_at?: string
+          event_type: Database["public"]["Enums"]["campaign_event_type"]
+          id?: number
+          ip?: string | null
+          payload?: Json
+          session_id?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          application_id?: string | null
+          campaign_id?: string
+          country_code?: string | null
+          created_at?: string
+          event_type?: Database["public"]["Enums"]["campaign_event_type"]
+          id?: number
+          ip?: string | null
+          payload?: Json
+          session_id?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_events_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_applications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaign_events_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_counters"
+            referencedColumns: ["campaign_id"]
+          },
+          {
+            foreignKeyName: "campaign_events_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaign_faq: {
+        Row: {
+          answer: string
+          campaign_id: string
+          country_code: string | null
+          created_at: string
+          enabled: boolean
+          id: string
+          question: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          answer: string
+          campaign_id: string
+          country_code?: string | null
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          question: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          answer?: string
+          campaign_id?: string
+          country_code?: string | null
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          question?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_faq_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_counters"
+            referencedColumns: ["campaign_id"]
+          },
+          {
+            foreignKeyName: "campaign_faq_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaign_number_counters: {
+        Row: {
+          campaign_id: string
+          last_number: number
+        }
+        Insert: {
+          campaign_id: string
+          last_number?: number
+        }
+        Update: {
+          campaign_id?: string
+          last_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_number_counters_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: true
+            referencedRelation: "campaign_counters"
+            referencedColumns: ["campaign_id"]
+          },
+          {
+            foreignKeyName: "campaign_number_counters_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: true
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaign_page_blocks: {
+        Row: {
+          ai_config: Json
+          block_type: Database["public"]["Enums"]["campaign_block_type"]
+          campaign_id: string
+          country_code: string | null
+          created_at: string
+          enabled: boolean
+          id: string
+          payload: Json
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          ai_config?: Json
+          block_type: Database["public"]["Enums"]["campaign_block_type"]
+          campaign_id: string
+          country_code?: string | null
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          payload?: Json
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          ai_config?: Json
+          block_type?: Database["public"]["Enums"]["campaign_block_type"]
+          campaign_id?: string
+          country_code?: string | null
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          payload?: Json
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_page_blocks_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_counters"
+            referencedColumns: ["campaign_id"]
+          },
+          {
+            foreignKeyName: "campaign_page_blocks_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaign_reward_grants: {
+        Row: {
+          application_id: string
+          campaign_id: string
+          consumed_minor: number
+          created_at: string
+          expires_at: string | null
+          granted_at: string
+          id: string
+          metadata: Json
+          remaining_minor: number | null
+          reward_id: string
+          status: Database["public"]["Enums"]["campaign_reward_grant_status"]
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          application_id: string
+          campaign_id: string
+          consumed_minor?: number
+          created_at?: string
+          expires_at?: string | null
+          granted_at?: string
+          id?: string
+          metadata?: Json
+          remaining_minor?: number | null
+          reward_id: string
+          status?: Database["public"]["Enums"]["campaign_reward_grant_status"]
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          application_id?: string
+          campaign_id?: string
+          consumed_minor?: number
+          created_at?: string
+          expires_at?: string | null
+          granted_at?: string
+          id?: string
+          metadata?: Json
+          remaining_minor?: number | null
+          reward_id?: string
+          status?: Database["public"]["Enums"]["campaign_reward_grant_status"]
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_reward_grants_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_applications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaign_reward_grants_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_counters"
+            referencedColumns: ["campaign_id"]
+          },
+          {
+            foreignKeyName: "campaign_reward_grants_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaign_reward_grants_reward_id_fkey"
+            columns: ["reward_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_rewards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaign_rewards: {
+        Row: {
+          campaign_id: string
+          cap_minor: number | null
+          country_code: string | null
+          created_at: string
+          currency: string | null
+          description: string | null
+          duration_days: number | null
+          enabled: boolean
+          id: string
+          reward_type: Database["public"]["Enums"]["campaign_reward_type"]
+          updated_at: string
+          value_minor: number | null
+          value_percent: number | null
+        }
+        Insert: {
+          campaign_id: string
+          cap_minor?: number | null
+          country_code?: string | null
+          created_at?: string
+          currency?: string | null
+          description?: string | null
+          duration_days?: number | null
+          enabled?: boolean
+          id?: string
+          reward_type: Database["public"]["Enums"]["campaign_reward_type"]
+          updated_at?: string
+          value_minor?: number | null
+          value_percent?: number | null
+        }
+        Update: {
+          campaign_id?: string
+          cap_minor?: number | null
+          country_code?: string | null
+          created_at?: string
+          currency?: string | null
+          description?: string | null
+          duration_days?: number | null
+          enabled?: boolean
+          id?: string
+          reward_type?: Database["public"]["Enums"]["campaign_reward_type"]
+          updated_at?: string
+          value_minor?: number | null
+          value_percent?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_rewards_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_counters"
+            referencedColumns: ["campaign_id"]
+          },
+          {
+            foreignKeyName: "campaign_rewards_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaign_testimonials: {
+        Row: {
+          author: string
+          avatar_url: string | null
+          campaign_id: string
+          country_code: string | null
+          created_at: string
+          enabled: boolean
+          id: string
+          quote: string
+          role_label: string | null
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          author: string
+          avatar_url?: string | null
+          campaign_id: string
+          country_code?: string | null
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          quote: string
+          role_label?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          author?: string
+          avatar_url?: string | null
+          campaign_id?: string
+          country_code?: string | null
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          quote?: string
+          role_label?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_testimonials_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_counters"
+            referencedColumns: ["campaign_id"]
+          },
+          {
+            foreignKeyName: "campaign_testimonials_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaigns: {
+        Row: {
+          ai_config: Json
+          created_at: string
+          created_by: string | null
+          default_locale: string
+          deleted_at: string | null
+          deleted_by: string | null
+          enable_badges: boolean
+          enable_countdown: boolean
+          enable_live_counter: boolean
+          enable_referrals: boolean
+          enable_rewards: boolean
+          enable_testimonials: boolean
+          enable_waiting_list: boolean
+          ends_at: string | null
+          id: string
+          kind: Database["public"]["Enums"]["campaign_kind"]
+          lifecycle: Database["public"]["Enums"]["campaign_lifecycle"]
+          owner_role: string
+          slug: string
+          starts_at: string | null
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          ai_config?: Json
+          created_at?: string
+          created_by?: string | null
+          default_locale?: string
+          deleted_at?: string | null
+          deleted_by?: string | null
+          enable_badges?: boolean
+          enable_countdown?: boolean
+          enable_live_counter?: boolean
+          enable_referrals?: boolean
+          enable_rewards?: boolean
+          enable_testimonials?: boolean
+          enable_waiting_list?: boolean
+          ends_at?: string | null
+          id?: string
+          kind: Database["public"]["Enums"]["campaign_kind"]
+          lifecycle?: Database["public"]["Enums"]["campaign_lifecycle"]
+          owner_role?: string
+          slug: string
+          starts_at?: string | null
+          updated_at?: string
+          version?: number
+        }
+        Update: {
+          ai_config?: Json
+          created_at?: string
+          created_by?: string | null
+          default_locale?: string
+          deleted_at?: string | null
+          deleted_by?: string | null
+          enable_badges?: boolean
+          enable_countdown?: boolean
+          enable_live_counter?: boolean
+          enable_referrals?: boolean
+          enable_rewards?: boolean
+          enable_testimonials?: boolean
+          enable_waiting_list?: boolean
+          ends_at?: string | null
+          id?: string
+          kind?: Database["public"]["Enums"]["campaign_kind"]
+          lifecycle?: Database["public"]["Enums"]["campaign_lifecycle"]
+          owner_role?: string
+          slug?: string
+          starts_at?: string | null
+          updated_at?: string
+          version?: number
+        }
+        Relationships: []
+      }
+      career_audit_log: {
+        Row: {
+          action: string
+          actor_user_id: string | null
+          created_at: string
+          entity_id: string | null
+          entity_type: string
+          id: string
+          new_value: Json | null
+          previous_value: Json | null
+          reason: string | null
+          request_id: string | null
+        }
+        Insert: {
+          action: string
+          actor_user_id?: string | null
+          created_at?: string
+          entity_id?: string | null
+          entity_type: string
+          id?: string
+          new_value?: Json | null
+          previous_value?: Json | null
+          reason?: string | null
+          request_id?: string | null
+        }
+        Update: {
+          action?: string
+          actor_user_id?: string | null
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string
+          id?: string
+          new_value?: Json | null
+          previous_value?: Json | null
+          reason?: string | null
+          request_id?: string | null
+        }
+        Relationships: []
+      }
+      career_evidence_documents: {
+        Row: {
+          certification_id: string | null
+          created_at: string
+          evidence_type: string
+          id: string
+          mime_type: string
+          original_filename: string | null
+          rejection_reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          size_bytes: number
+          status: string
+          storage_path: string
+          updated_at: string
+          uploaded_at: string
+          user_id: string
+          work_history_id: string | null
+        }
+        Insert: {
+          certification_id?: string | null
+          created_at?: string
+          evidence_type: string
+          id?: string
+          mime_type: string
+          original_filename?: string | null
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          size_bytes: number
+          status?: string
+          storage_path: string
+          updated_at?: string
+          uploaded_at?: string
+          user_id: string
+          work_history_id?: string | null
+        }
+        Update: {
+          certification_id?: string | null
+          created_at?: string
+          evidence_type?: string
+          id?: string
+          mime_type?: string
+          original_filename?: string | null
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          size_bytes?: number
+          status?: string
+          storage_path?: string
+          updated_at?: string
+          uploaded_at?: string
+          user_id?: string
+          work_history_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "career_evidence_documents_certification_id_fkey"
+            columns: ["certification_id"]
+            isOneToOne: false
+            referencedRelation: "cleaner_certifications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "career_evidence_documents_work_history_id_fkey"
+            columns: ["work_history_id"]
+            isOneToOne: false
+            referencedRelation: "cleaner_work_history"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cleaner_career_profiles: {
+        Row: {
+          average_rating: number | null
+          cancellation_rate: number
+          career_score: number
+          career_summary: string | null
+          created_at: string
+          id: string
+          identity_verified: boolean
+          mycleaner_id: string
+          no_show_rate: number
+          professional_headline: string | null
+          punctuality_score: number
+          reliability_score: number
+          repeat_customer_rate: number
+          searchable_by_id: boolean
+          searchable_by_name: boolean
+          share_slug: string | null
+          total_completed_jobs: number
+          total_verified_hours: number
+          updated_at: string
+          user_id: string
+          visibility: string
+        }
+        Insert: {
+          average_rating?: number | null
+          cancellation_rate?: number
+          career_score?: number
+          career_summary?: string | null
+          created_at?: string
+          id?: string
+          identity_verified?: boolean
+          mycleaner_id: string
+          no_show_rate?: number
+          professional_headline?: string | null
+          punctuality_score?: number
+          reliability_score?: number
+          repeat_customer_rate?: number
+          searchable_by_id?: boolean
+          searchable_by_name?: boolean
+          share_slug?: string | null
+          total_completed_jobs?: number
+          total_verified_hours?: number
+          updated_at?: string
+          user_id: string
+          visibility?: string
+        }
+        Update: {
+          average_rating?: number | null
+          cancellation_rate?: number
+          career_score?: number
+          career_summary?: string | null
+          created_at?: string
+          id?: string
+          identity_verified?: boolean
+          mycleaner_id?: string
+          no_show_rate?: number
+          professional_headline?: string | null
+          punctuality_score?: number
+          reliability_score?: number
+          repeat_customer_rate?: number
+          searchable_by_id?: boolean
+          searchable_by_name?: boolean
+          share_slug?: string | null
+          total_completed_jobs?: number
+          total_verified_hours?: number
+          updated_at?: string
+          user_id?: string
+          visibility?: string
+        }
+        Relationships: []
+      }
+      cleaner_certifications: {
+        Row: {
+          career_profile_id: string
+          certificate_name: string
+          created_at: string
+          evidence_storage_path: string | null
+          expires_on: string | null
+          id: string
+          issued_on: string | null
+          issuer: string | null
+          updated_at: string
+          verification_status: string
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          career_profile_id: string
+          certificate_name: string
+          created_at?: string
+          evidence_storage_path?: string | null
+          expires_on?: string | null
+          id?: string
+          issued_on?: string | null
+          issuer?: string | null
+          updated_at?: string
+          verification_status?: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          career_profile_id?: string
+          certificate_name?: string
+          created_at?: string
+          evidence_storage_path?: string | null
+          expires_on?: string | null
+          id?: string
+          issued_on?: string | null
+          issuer?: string | null
+          updated_at?: string
+          verification_status?: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cleaner_certifications_career_profile_id_fkey"
+            columns: ["career_profile_id"]
+            isOneToOne: false
+            referencedRelation: "cleaner_career_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cleaner_work_history: {
+        Row: {
+          career_profile_id: string
+          city: string | null
+          company_name: string
+          country_code: string | null
+          created_at: string
+          currently_employed: boolean
+          description: string | null
+          ended_on: string | null
+          evidence_review_note: string | null
+          evidence_storage_path: string | null
+          id: string
+          role_title: string | null
+          started_on: string
+          updated_at: string
+          verification_method: string | null
+          verification_status: string
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          career_profile_id: string
+          city?: string | null
+          company_name: string
+          country_code?: string | null
+          created_at?: string
+          currently_employed?: boolean
+          description?: string | null
+          ended_on?: string | null
+          evidence_review_note?: string | null
+          evidence_storage_path?: string | null
+          id?: string
+          role_title?: string | null
+          started_on: string
+          updated_at?: string
+          verification_method?: string | null
+          verification_status?: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          career_profile_id?: string
+          city?: string | null
+          company_name?: string
+          country_code?: string | null
+          created_at?: string
+          currently_employed?: boolean
+          description?: string | null
+          ended_on?: string | null
+          evidence_review_note?: string | null
+          evidence_storage_path?: string | null
+          id?: string
+          role_title?: string | null
+          started_on?: string
+          updated_at?: string
+          verification_method?: string | null
+          verification_status?: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cleaner_work_history_career_profile_id_fkey"
+            columns: ["career_profile_id"]
+            isOneToOne: false
+            referencedRelation: "cleaner_career_profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -1045,6 +2340,78 @@ export type Database = {
           timezone?: string
           updated_at?: string
           vat_rate_bps?: number
+        }
+        Relationships: []
+      }
+      country_emergency_info: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          country_code: string
+          created_at: string
+          created_by: string | null
+          emergency_number: string | null
+          extra: Json
+          fire_number: string | null
+          medical_number: string | null
+          non_emergency_number: string | null
+          notes: string | null
+          poison_control_number: string | null
+          police_number: string | null
+          published: boolean
+          published_at: string | null
+          published_by: string | null
+          source_url: string | null
+          updated_at: string
+          updated_by: string | null
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          country_code: string
+          created_at?: string
+          created_by?: string | null
+          emergency_number?: string | null
+          extra?: Json
+          fire_number?: string | null
+          medical_number?: string | null
+          non_emergency_number?: string | null
+          notes?: string | null
+          poison_control_number?: string | null
+          police_number?: string | null
+          published?: boolean
+          published_at?: string | null
+          published_by?: string | null
+          source_url?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          country_code?: string
+          created_at?: string
+          created_by?: string | null
+          emergency_number?: string | null
+          extra?: Json
+          fire_number?: string | null
+          medical_number?: string | null
+          non_emergency_number?: string | null
+          notes?: string | null
+          poison_control_number?: string | null
+          police_number?: string | null
+          published?: boolean
+          published_at?: string | null
+          published_by?: string | null
+          source_url?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
         }
         Relationships: []
       }
@@ -2199,6 +3566,162 @@ export type Database = {
         }
         Relationships: []
       }
+      incident_evidence: {
+        Row: {
+          caption: string | null
+          checksum_algo: string
+          created_at: string
+          file_hash: string | null
+          file_size: number | null
+          id: string
+          incident_id: string
+          mime_type: string | null
+          original_filename: string | null
+          storage_path: string
+          uploaded_by: string
+        }
+        Insert: {
+          caption?: string | null
+          checksum_algo?: string
+          created_at?: string
+          file_hash?: string | null
+          file_size?: number | null
+          id?: string
+          incident_id: string
+          mime_type?: string | null
+          original_filename?: string | null
+          storage_path: string
+          uploaded_by: string
+        }
+        Update: {
+          caption?: string | null
+          checksum_algo?: string
+          created_at?: string
+          file_hash?: string | null
+          file_size?: number | null
+          id?: string
+          incident_id?: string
+          mime_type?: string | null
+          original_filename?: string | null
+          storage_path?: string
+          uploaded_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "incident_evidence_incident_id_fkey"
+            columns: ["incident_id"]
+            isOneToOne: false
+            referencedRelation: "incident_reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      incident_report_events: {
+        Row: {
+          actor_id: string | null
+          created_at: string
+          event_type: string
+          id: string
+          incident_id: string
+          meta: Json
+          notes: string | null
+        }
+        Insert: {
+          actor_id?: string | null
+          created_at?: string
+          event_type: string
+          id?: string
+          incident_id: string
+          meta?: Json
+          notes?: string | null
+        }
+        Update: {
+          actor_id?: string | null
+          created_at?: string
+          event_type?: string
+          id?: string
+          incident_id?: string
+          meta?: Json
+          notes?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "incident_report_events_incident_id_fkey"
+            columns: ["incident_id"]
+            isOneToOne: false
+            referencedRelation: "incident_reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      incident_reports: {
+        Row: {
+          address_snapshot: Json | null
+          assigned_to: string | null
+          booking_id: string | null
+          category: string
+          created_at: string
+          description: string
+          follow_up_required: boolean
+          id: string
+          immediate_actions_taken: string | null
+          location: string | null
+          occurred_at: string
+          provider_user_id: string
+          resolution_notes: string | null
+          resolved_at: string | null
+          severity: Database["public"]["Enums"]["incident_severity"]
+          status: Database["public"]["Enums"]["incident_status"]
+          updated_at: string
+        }
+        Insert: {
+          address_snapshot?: Json | null
+          assigned_to?: string | null
+          booking_id?: string | null
+          category: string
+          created_at?: string
+          description: string
+          follow_up_required?: boolean
+          id?: string
+          immediate_actions_taken?: string | null
+          location?: string | null
+          occurred_at?: string
+          provider_user_id: string
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          severity?: Database["public"]["Enums"]["incident_severity"]
+          status?: Database["public"]["Enums"]["incident_status"]
+          updated_at?: string
+        }
+        Update: {
+          address_snapshot?: Json | null
+          assigned_to?: string | null
+          booking_id?: string | null
+          category?: string
+          created_at?: string
+          description?: string
+          follow_up_required?: boolean
+          id?: string
+          immediate_actions_taken?: string | null
+          location?: string | null
+          occurred_at?: string
+          provider_user_id?: string
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          severity?: Database["public"]["Enums"]["incident_severity"]
+          status?: Database["public"]["Enums"]["incident_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "incident_reports_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       incident_timeline: {
         Row: {
           actor_user_id: string | null
@@ -2350,6 +3873,429 @@ export type Database = {
           success_count?: number
         }
         Relationships: []
+      }
+      knowledge_article_countries: {
+        Row: {
+          article_id: string
+          country_code: string
+          created_at: string
+        }
+        Insert: {
+          article_id: string
+          country_code: string
+          created_at?: string
+        }
+        Update: {
+          article_id?: string
+          country_code?: string
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "knowledge_article_countries_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "knowledge_articles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "knowledge_article_countries_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "knowledge_articles_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      knowledge_article_favorites: {
+        Row: {
+          article_id: string
+          created_at: string
+          user_id: string
+        }
+        Insert: {
+          article_id: string
+          created_at?: string
+          user_id: string
+        }
+        Update: {
+          article_id?: string
+          created_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "knowledge_article_favorites_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "knowledge_articles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "knowledge_article_favorites_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "knowledge_articles_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      knowledge_article_feedback: {
+        Row: {
+          article_id: string
+          comment: string | null
+          created_at: string
+          helpful: boolean | null
+          id: string
+          rating: number | null
+          user_id: string
+        }
+        Insert: {
+          article_id: string
+          comment?: string | null
+          created_at?: string
+          helpful?: boolean | null
+          id?: string
+          rating?: number | null
+          user_id: string
+        }
+        Update: {
+          article_id?: string
+          comment?: string | null
+          created_at?: string
+          helpful?: boolean | null
+          id?: string
+          rating?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "knowledge_article_feedback_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "knowledge_articles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "knowledge_article_feedback_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "knowledge_articles_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      knowledge_article_languages: {
+        Row: {
+          article_id: string
+          created_at: string
+          language_code: string
+        }
+        Insert: {
+          article_id: string
+          created_at?: string
+          language_code: string
+        }
+        Update: {
+          article_id?: string
+          created_at?: string
+          language_code?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "knowledge_article_languages_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "knowledge_articles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "knowledge_article_languages_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "knowledge_articles_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      knowledge_article_sources: {
+        Row: {
+          article_id: string
+          created_at: string
+          id: string
+          label: string
+          updated_at: string
+          url: string | null
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          article_id: string
+          created_at?: string
+          id?: string
+          label: string
+          updated_at?: string
+          url?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          article_id?: string
+          created_at?: string
+          id?: string
+          label?: string
+          updated_at?: string
+          url?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "knowledge_article_sources_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "knowledge_articles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "knowledge_article_sources_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "knowledge_articles_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      knowledge_article_versions: {
+        Row: {
+          article_id: string
+          change_summary: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          snapshot: Json
+          version: number
+        }
+        Insert: {
+          article_id: string
+          change_summary?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          snapshot: Json
+          version: number
+        }
+        Update: {
+          article_id?: string
+          change_summary?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          snapshot?: Json
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "knowledge_article_versions_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "knowledge_articles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "knowledge_article_versions_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "knowledge_articles_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      knowledge_articles: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          archived_at: string | null
+          archived_by: string | null
+          body_md: string
+          category_id: string | null
+          created_at: string
+          created_by: string | null
+          current_version: number
+          expected_review_date: string | null
+          id: string
+          published_at: string | null
+          published_by: string | null
+          review_notes: string | null
+          risk_level: Database["public"]["Enums"]["knowledge_risk_level"]
+          safety_critical: boolean
+          slug: string
+          status: Database["public"]["Enums"]["knowledge_article_status"]
+          submitted_at: string | null
+          submitted_by: string | null
+          summary: string | null
+          title: string
+          updated_at: string
+          updated_by: string | null
+          verification_required: boolean
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          archived_at?: string | null
+          archived_by?: string | null
+          body_md?: string
+          category_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          current_version?: number
+          expected_review_date?: string | null
+          id?: string
+          published_at?: string | null
+          published_by?: string | null
+          review_notes?: string | null
+          risk_level?: Database["public"]["Enums"]["knowledge_risk_level"]
+          safety_critical?: boolean
+          slug: string
+          status?: Database["public"]["Enums"]["knowledge_article_status"]
+          submitted_at?: string | null
+          submitted_by?: string | null
+          summary?: string | null
+          title: string
+          updated_at?: string
+          updated_by?: string | null
+          verification_required?: boolean
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          archived_at?: string | null
+          archived_by?: string | null
+          body_md?: string
+          category_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          current_version?: number
+          expected_review_date?: string | null
+          id?: string
+          published_at?: string | null
+          published_by?: string | null
+          review_notes?: string | null
+          risk_level?: Database["public"]["Enums"]["knowledge_risk_level"]
+          safety_critical?: boolean
+          slug?: string
+          status?: Database["public"]["Enums"]["knowledge_article_status"]
+          submitted_at?: string | null
+          submitted_by?: string | null
+          summary?: string | null
+          title?: string
+          updated_at?: string
+          updated_by?: string | null
+          verification_required?: boolean
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "knowledge_articles_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "knowledge_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      knowledge_categories: {
+        Row: {
+          active: boolean
+          created_at: string
+          description_key: string | null
+          icon: string | null
+          id: string
+          name_key: string
+          parent_id: string | null
+          slug: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          description_key?: string | null
+          icon?: string | null
+          id?: string
+          name_key: string
+          parent_id?: string | null
+          slug: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          description_key?: string | null
+          icon?: string | null
+          id?: string
+          name_key?: string
+          parent_id?: string | null
+          slug?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "knowledge_categories_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "knowledge_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      knowledge_search_events: {
+        Row: {
+          category_id: string | null
+          country_code: string | null
+          created_at: string
+          id: string
+          language_code: string | null
+          query: string
+          results_count: number
+          user_id: string | null
+        }
+        Insert: {
+          category_id?: string | null
+          country_code?: string | null
+          created_at?: string
+          id?: string
+          language_code?: string | null
+          query: string
+          results_count?: number
+          user_id?: string | null
+        }
+        Update: {
+          category_id?: string | null
+          country_code?: string | null
+          created_at?: string
+          id?: string
+          language_code?: string | null
+          query?: string
+          results_count?: number
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "knowledge_search_events_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "knowledge_categories"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       ledger_entries: {
         Row: {
@@ -4064,6 +6010,56 @@ export type Database = {
           },
         ]
       }
+      provider_offers: {
+        Row: {
+          accepted_at: string | null
+          booking_id: string
+          created_at: string
+          declined_at: string | null
+          expired_at: string | null
+          id: string
+          offer_batch: number
+          offer_status: Database["public"]["Enums"]["offer_status"]
+          offered_at: string
+          provider_user_id: string
+          viewed_at: string | null
+        }
+        Insert: {
+          accepted_at?: string | null
+          booking_id: string
+          created_at?: string
+          declined_at?: string | null
+          expired_at?: string | null
+          id?: string
+          offer_batch?: number
+          offer_status?: Database["public"]["Enums"]["offer_status"]
+          offered_at?: string
+          provider_user_id: string
+          viewed_at?: string | null
+        }
+        Update: {
+          accepted_at?: string | null
+          booking_id?: string
+          created_at?: string
+          declined_at?: string | null
+          expired_at?: string | null
+          id?: string
+          offer_batch?: number
+          offer_status?: Database["public"]["Enums"]["offer_status"]
+          offered_at?: string
+          provider_user_id?: string
+          viewed_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_offers_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       provider_pricing_preferences: {
         Row: {
           city: string | null
@@ -4575,6 +6571,72 @@ export type Database = {
           },
         ]
       }
+      provider_slug_history: {
+        Row: {
+          changed_by: string | null
+          created_at: string
+          id: string
+          new_slug: string
+          old_slug: string
+          provider_user_id: string
+          reason: string
+        }
+        Insert: {
+          changed_by?: string | null
+          created_at?: string
+          id?: string
+          new_slug: string
+          old_slug: string
+          provider_user_id: string
+          reason?: string
+        }
+        Update: {
+          changed_by?: string | null
+          created_at?: string
+          id?: string
+          new_slug?: string
+          old_slug?: string
+          provider_user_id?: string
+          reason?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_slug_history_provider_user_id_fkey"
+            columns: ["provider_user_id"]
+            isOneToOne: false
+            referencedRelation: "provider_profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "provider_slug_history_provider_user_id_fkey"
+            columns: ["provider_user_id"]
+            isOneToOne: false
+            referencedRelation: "public_provider_marketplace"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      provider_slug_reservations: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          reason: string
+          slug: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          reason: string
+          slug: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          reason?: string
+          slug?: string
+        }
+        Relationships: []
+      }
       provider_tax_profiles: {
         Row: {
           business_address: string | null
@@ -4981,6 +7043,42 @@ export type Database = {
           report?: Json
           started_at?: string
           status?: string
+        }
+        Relationships: []
+      }
+      service_duration_rules: {
+        Row: {
+          active: boolean
+          country_code: string | null
+          created_at: string
+          id: string
+          max_minutes: number
+          min_minutes: number
+          notes: string | null
+          service_key: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          country_code?: string | null
+          created_at?: string
+          id?: string
+          max_minutes?: number
+          min_minutes: number
+          notes?: string | null
+          service_key: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          country_code?: string | null
+          created_at?: string
+          id?: string
+          max_minutes?: number
+          min_minutes?: number
+          notes?: string | null
+          service_key?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -5651,6 +7749,87 @@ export type Database = {
       }
     }
     Views: {
+      campaign_counters: {
+        Row: {
+          approved_count: number | null
+          campaign_id: string | null
+          country_code: string | null
+          is_full: boolean | null
+          max_applicants: number | null
+          pending_count: number | null
+          remaining: number | null
+          total_count: number | null
+          waiting_list_count: number | null
+        }
+        Relationships: []
+      }
+      campaign_email_outbox_status: {
+        Row: {
+          application_id: string | null
+          attempts: number | null
+          campaign_id: string | null
+          created_at: string | null
+          id: string | null
+          last_error_code: string | null
+          next_attempt_at: string | null
+          scheduled_for: string | null
+          sent_at: string | null
+          status: string | null
+          template: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          application_id?: string | null
+          attempts?: number | null
+          campaign_id?: string | null
+          created_at?: string | null
+          id?: string | null
+          last_error_code?: string | null
+          next_attempt_at?: string | null
+          scheduled_for?: string | null
+          sent_at?: string | null
+          status?: string | null
+          template?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          application_id?: string | null
+          attempts?: number | null
+          campaign_id?: string | null
+          created_at?: string | null
+          id?: string | null
+          last_error_code?: string | null
+          next_attempt_at?: string | null
+          scheduled_for?: string | null
+          sent_at?: string | null
+          status?: string | null
+          template?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_email_outbox_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_applications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaign_email_outbox_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_counters"
+            referencedColumns: ["campaign_id"]
+          },
+          {
+            foreignKeyName: "campaign_email_outbox_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       country_configs_public: {
         Row: {
           active: boolean | null
@@ -5696,6 +7875,60 @@ export type Database = {
         }
         Relationships: []
       }
+      knowledge_articles_public: {
+        Row: {
+          body_md: string | null
+          category_id: string | null
+          id: string | null
+          published_at: string | null
+          risk_level: Database["public"]["Enums"]["knowledge_risk_level"] | null
+          risk_rank: number | null
+          safety_critical: boolean | null
+          slug: string | null
+          summary: string | null
+          title: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          body_md?: string | null
+          category_id?: string | null
+          id?: string | null
+          published_at?: string | null
+          risk_level?:
+            | Database["public"]["Enums"]["knowledge_risk_level"]
+            | null
+          risk_rank?: never
+          safety_critical?: boolean | null
+          slug?: string | null
+          summary?: string | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          body_md?: string | null
+          category_id?: string | null
+          id?: string | null
+          published_at?: string | null
+          risk_level?:
+            | Database["public"]["Enums"]["knowledge_risk_level"]
+            | null
+          risk_rank?: never
+          safety_critical?: boolean | null
+          slug?: string | null
+          summary?: string | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "knowledge_articles_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "knowledge_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       platform_tax_settings_v: {
         Row: {
           country_code: string | null
@@ -5711,6 +7944,30 @@ export type Database = {
           tax_id: string | null
           updated_at: string | null
           vat_rate: number | null
+        }
+        Relationships: []
+      }
+      public_cleaner_career_profiles: {
+        Row: {
+          average_rating: number | null
+          career_score: number | null
+          career_summary: string | null
+          company_name: string | null
+          created_at: string | null
+          currently_employed: boolean | null
+          ended_on: string | null
+          identity_verified: boolean | null
+          mycleaner_id: string | null
+          professional_headline: string | null
+          punctuality_score: number | null
+          reliability_score: number | null
+          repeat_customer_rate: number | null
+          role_title: string | null
+          share_slug: string | null
+          started_on: string | null
+          total_completed_jobs: number | null
+          total_verified_hours: number | null
+          verification_status: string | null
         }
         Relationships: []
       }
@@ -5781,6 +8038,7 @@ export type Database = {
       }
     }
     Functions: {
+      _knowledge_in_workflow: { Args: never; Returns: boolean }
       _ledger_normalize_entries: { Args: { _entries: Json }; Returns: Json }
       _ledger_payload_fingerprint: {
         Args: {
@@ -5800,7 +8058,8 @@ export type Database = {
         }
         Returns: Json
       }
-      _pp_as_service: { Args: never; Returns: undefined }
+      _pp_scope_clear: { Args: never; Returns: undefined }
+      _pp_scope_set: { Args: { _scope: string }; Returns: undefined }
       admin_get_provider_trust: {
         Args: { _uid: string }
         Returns: {
@@ -5832,8 +8091,24 @@ export type Database = {
         }
         Returns: Json
       }
+      admin_release_slug_v1: { Args: { _slug: string }; Returns: undefined }
+      admin_reserve_slug_v1: {
+        Args: { _reason: string; _slug: string }
+        Returns: undefined
+      }
       assert_ledger_writer_authorized: { Args: never; Returns: undefined }
       begin_ledger_write: { Args: never; Returns: undefined }
+      booking_interval_from_row: {
+        Args: { _b: Database["public"]["Tables"]["bookings"]["Row"] }
+        Returns: {
+          ends_at: string
+          starts_at: string
+        }[]
+      }
+      booking_lock_blocked_range: {
+        Args: { _ends_at: string; _starts_at: string }
+        Returns: unknown
+      }
       calc_provider_completion: { Args: { _uid: string }; Returns: Json }
       calc_provider_metrics: { Args: { _uid: string }; Returns: Json }
       calc_provider_score: { Args: { _uid: string }; Returns: Json }
@@ -5841,10 +8116,25 @@ export type Database = {
         Args: { _metrics?: Json; _uid: string }
         Returns: Database["public"]["Enums"]["provider_tier"]
       }
+      campaign_email_outbox_cleanup: {
+        Args: never
+        Returns: {
+          deleted_failed: number
+          deleted_sent: number
+        }[]
+      }
       check_provider_payout_readiness_v1: {
         Args: { p_provider_user_id: string }
         Returns: Json
       }
+      check_slug_availability_v1: {
+        Args: { _slug: string }
+        Returns: {
+          available: boolean
+          reason: string
+        }[]
+      }
+      claim_booking_offer_v1: { Args: { _offer_id: string }; Returns: Json }
       classify_booking_payment_flow_v1: {
         Args: {
           _booking_id: string
@@ -5854,6 +8144,70 @@ export type Database = {
         Returns: Database["public"]["Enums"]["booking_payment_flow_version"]
       }
       compute_recommended_price: { Args: { _user_id: string }; Returns: Json }
+      country_emergency_info_publish: {
+        Args: { _country_code: string }
+        Returns: {
+          approved_at: string | null
+          approved_by: string | null
+          country_code: string
+          created_at: string
+          created_by: string | null
+          emergency_number: string | null
+          extra: Json
+          fire_number: string | null
+          medical_number: string | null
+          non_emergency_number: string | null
+          notes: string | null
+          poison_control_number: string | null
+          police_number: string | null
+          published: boolean
+          published_at: string | null
+          published_by: string | null
+          source_url: string | null
+          updated_at: string
+          updated_by: string | null
+          verified_at: string | null
+          verified_by: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "country_emergency_info"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      country_emergency_info_verify: {
+        Args: { _country_code: string }
+        Returns: {
+          approved_at: string | null
+          approved_by: string | null
+          country_code: string
+          created_at: string
+          created_by: string | null
+          emergency_number: string | null
+          extra: Json
+          fire_number: string | null
+          medical_number: string | null
+          non_emergency_number: string | null
+          notes: string | null
+          poison_control_number: string | null
+          police_number: string | null
+          published: boolean
+          published_at: string | null
+          published_by: string | null
+          source_url: string | null
+          updated_at: string
+          updated_by: string | null
+          verified_at: string | null
+          verified_by: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "country_emergency_info"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       create_booking_hold_v1: {
         Args: {
           p_actor_role?: string
@@ -5865,6 +8219,39 @@ export type Database = {
           p_reason: string
         }
         Returns: string
+      }
+      decline_booking_offer_v1: { Args: { _offer_id: string }; Returns: Json }
+      ensure_cleaner_career_profile: {
+        Args: { p_country_code?: string }
+        Returns: {
+          average_rating: number | null
+          cancellation_rate: number
+          career_score: number
+          career_summary: string | null
+          created_at: string
+          id: string
+          identity_verified: boolean
+          mycleaner_id: string
+          no_show_rate: number
+          professional_headline: string | null
+          punctuality_score: number
+          reliability_score: number
+          repeat_customer_rate: number
+          searchable_by_id: boolean
+          searchable_by_name: boolean
+          share_slug: string | null
+          total_completed_jobs: number
+          total_verified_hours: number
+          updated_at: string
+          user_id: string
+          visibility: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "cleaner_career_profiles"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       evaluate_booking_release_eligibility_v1: {
         Args: {
@@ -5895,6 +8282,10 @@ export type Database = {
         Args: { _display_name: string; _user_id: string }
         Returns: string
       }
+      generate_mycleaner_id: {
+        Args: { country_code?: string }
+        Returns: string
+      }
       get_booking_captured_gross_minor_v1: {
         Args: { _booking_id: string }
         Returns: number
@@ -5922,6 +8313,7 @@ export type Database = {
           lat: number
           lng: number
           provider_id: string
+          provider_slug: string
         }[]
       }
       get_public_provider_profile_v1: {
@@ -5936,6 +8328,7 @@ export type Database = {
           display_name: string
           equipment_badges: Json
           identity_verified_badge: boolean
+          insurance_valid: boolean
           languages: string[]
           marketplace_score: number
           price_from: number
@@ -5983,12 +8376,50 @@ export type Database = {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"][]
       }
+      has_knowledge_editor_role: { Args: { _user: string }; Returns: boolean }
+      has_knowledge_publisher_role: {
+        Args: { _user: string }
+        Returns: boolean
+      }
+      has_request_context: { Args: never; Returns: boolean }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
         Returns: boolean
+      }
+      incident_report_update_status: {
+        Args: {
+          _incident_id: string
+          _new_status: Database["public"]["Enums"]["incident_status"]
+          _notes?: string
+        }
+        Returns: {
+          address_snapshot: Json | null
+          assigned_to: string | null
+          booking_id: string | null
+          category: string
+          created_at: string
+          description: string
+          follow_up_required: boolean
+          id: string
+          immediate_actions_taken: string | null
+          location: string | null
+          occurred_at: string
+          provider_user_id: string
+          resolution_notes: string | null
+          resolved_at: string | null
+          severity: Database["public"]["Enums"]["incident_severity"]
+          status: Database["public"]["Enums"]["incident_status"]
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "incident_reports"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       ingest_payment_captured_reclassify_v1: {
         Args: {
@@ -6079,6 +8510,10 @@ export type Database = {
         Returns: undefined
       }
       is_admin_only: { Args: { _uid: string }; Returns: boolean }
+      is_campaign_public: {
+        Args: { _lc: Database["public"]["Enums"]["campaign_lifecycle"] }
+        Returns: boolean
+      }
       is_conversation_participant: {
         Args: { _conversation_id: string; _user_id: string }
         Returns: boolean
@@ -6095,12 +8530,251 @@ export type Database = {
         Args: { _target_id: string; _target_type: string }
         Returns: boolean
       }
+      knowledge_article_approve: {
+        Args: { _article_id: string }
+        Returns: {
+          approved_at: string | null
+          approved_by: string | null
+          archived_at: string | null
+          archived_by: string | null
+          body_md: string
+          category_id: string | null
+          created_at: string
+          created_by: string | null
+          current_version: number
+          expected_review_date: string | null
+          id: string
+          published_at: string | null
+          published_by: string | null
+          review_notes: string | null
+          risk_level: Database["public"]["Enums"]["knowledge_risk_level"]
+          safety_critical: boolean
+          slug: string
+          status: Database["public"]["Enums"]["knowledge_article_status"]
+          submitted_at: string | null
+          submitted_by: string | null
+          summary: string | null
+          title: string
+          updated_at: string
+          updated_by: string | null
+          verification_required: boolean
+          verified_at: string | null
+          verified_by: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "knowledge_articles"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      knowledge_article_archive: {
+        Args: { _article_id: string; _reason?: string }
+        Returns: {
+          approved_at: string | null
+          approved_by: string | null
+          archived_at: string | null
+          archived_by: string | null
+          body_md: string
+          category_id: string | null
+          created_at: string
+          created_by: string | null
+          current_version: number
+          expected_review_date: string | null
+          id: string
+          published_at: string | null
+          published_by: string | null
+          review_notes: string | null
+          risk_level: Database["public"]["Enums"]["knowledge_risk_level"]
+          safety_critical: boolean
+          slug: string
+          status: Database["public"]["Enums"]["knowledge_article_status"]
+          submitted_at: string | null
+          submitted_by: string | null
+          summary: string | null
+          title: string
+          updated_at: string
+          updated_by: string | null
+          verification_required: boolean
+          verified_at: string | null
+          verified_by: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "knowledge_articles"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      knowledge_article_publish: {
+        Args: { _article_id: string }
+        Returns: {
+          approved_at: string | null
+          approved_by: string | null
+          archived_at: string | null
+          archived_by: string | null
+          body_md: string
+          category_id: string | null
+          created_at: string
+          created_by: string | null
+          current_version: number
+          expected_review_date: string | null
+          id: string
+          published_at: string | null
+          published_by: string | null
+          review_notes: string | null
+          risk_level: Database["public"]["Enums"]["knowledge_risk_level"]
+          safety_critical: boolean
+          slug: string
+          status: Database["public"]["Enums"]["knowledge_article_status"]
+          submitted_at: string | null
+          submitted_by: string | null
+          summary: string | null
+          title: string
+          updated_at: string
+          updated_by: string | null
+          verification_required: boolean
+          verified_at: string | null
+          verified_by: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "knowledge_articles"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      knowledge_article_return_to_draft: {
+        Args: { _article_id: string; _reason?: string }
+        Returns: {
+          approved_at: string | null
+          approved_by: string | null
+          archived_at: string | null
+          archived_by: string | null
+          body_md: string
+          category_id: string | null
+          created_at: string
+          created_by: string | null
+          current_version: number
+          expected_review_date: string | null
+          id: string
+          published_at: string | null
+          published_by: string | null
+          review_notes: string | null
+          risk_level: Database["public"]["Enums"]["knowledge_risk_level"]
+          safety_critical: boolean
+          slug: string
+          status: Database["public"]["Enums"]["knowledge_article_status"]
+          submitted_at: string | null
+          submitted_by: string | null
+          summary: string | null
+          title: string
+          updated_at: string
+          updated_by: string | null
+          verification_required: boolean
+          verified_at: string | null
+          verified_by: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "knowledge_articles"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      knowledge_article_save_draft: {
+        Args: { _article_id: string; _change_summary?: string; _patch: Json }
+        Returns: {
+          approved_at: string | null
+          approved_by: string | null
+          archived_at: string | null
+          archived_by: string | null
+          body_md: string
+          category_id: string | null
+          created_at: string
+          created_by: string | null
+          current_version: number
+          expected_review_date: string | null
+          id: string
+          published_at: string | null
+          published_by: string | null
+          review_notes: string | null
+          risk_level: Database["public"]["Enums"]["knowledge_risk_level"]
+          safety_critical: boolean
+          slug: string
+          status: Database["public"]["Enums"]["knowledge_article_status"]
+          submitted_at: string | null
+          submitted_by: string | null
+          summary: string | null
+          title: string
+          updated_at: string
+          updated_by: string | null
+          verification_required: boolean
+          verified_at: string | null
+          verified_by: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "knowledge_articles"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      knowledge_article_submit_for_review: {
+        Args: { _article_id: string }
+        Returns: {
+          approved_at: string | null
+          approved_by: string | null
+          archived_at: string | null
+          archived_by: string | null
+          body_md: string
+          category_id: string | null
+          created_at: string
+          created_by: string | null
+          current_version: number
+          expected_review_date: string | null
+          id: string
+          published_at: string | null
+          published_by: string | null
+          review_notes: string | null
+          risk_level: Database["public"]["Enums"]["knowledge_risk_level"]
+          safety_critical: boolean
+          slug: string
+          status: Database["public"]["Enums"]["knowledge_article_status"]
+          submitted_at: string | null
+          submitted_by: string | null
+          summary: string | null
+          title: string
+          updated_at: string
+          updated_by: string | null
+          verification_required: boolean
+          verified_at: string | null
+          verified_by: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "knowledge_articles"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      knowledge_risk_rank: {
+        Args: { _lvl: Database["public"]["Enums"]["knowledge_risk_level"] }
+        Returns: number
+      }
       list_favorite_providers_v1: {
         Args: never
         Returns: {
           added_at: string
           provider_id: string
           provider_slug: string
+        }[]
+      }
+      list_provider_bookable_slots_v1: {
+        Args: { _from: string; _slug: string; _to: string }
+        Returns: {
+          slot_date: string
+          slot_hour: number
         }[]
       }
       lock_pricing_quote: {
@@ -6204,6 +8878,16 @@ export type Database = {
         Args: { _uid: string }
         Returns: boolean
       }
+      provider_profile_protected_columns: { Args: never; Returns: string[] }
+      provider_profile_scope_allowlist: {
+        Args: { _scope: string }
+        Returns: string[]
+      }
+      provider_profile_service_update_v1: {
+        Args: { _patch: Json; _scope: string; _user_id: string }
+        Returns: undefined
+      }
+      provider_profile_write_scope: { Args: never; Returns: string }
       raise_system_alert: {
         Args: {
           _alert_key: string
@@ -6288,7 +8972,7 @@ export type Database = {
         }
       }
       refresh_provider_score_tier:
-        | { Args: { _reason?: string; _uid: string }; Returns: Json }
+        | { Args: { _reason: string; _uid: string }; Returns: Json }
         | {
             Args: { _event_id?: string; _reason?: string; _uid: string }
             Returns: Json
@@ -6305,6 +8989,14 @@ export type Database = {
           p_note?: string
         }
         Returns: undefined
+      }
+      rename_provider_slug_v1: {
+        Args: { _new_slug: string }
+        Returns: {
+          new_slug: string
+          next_change_allowed_at: string
+          old_slug: string
+        }[]
       }
       request_release_authorization_v1: {
         Args: {
@@ -6352,6 +9044,21 @@ export type Database = {
           _region?: string
         }
         Returns: Json
+      }
+      resolve_service_duration_rule: {
+        Args: { _country_code: string; _service: string }
+        Returns: {
+          max_minutes: number
+          min_minutes: number
+          source: string
+        }[]
+      }
+      resolve_slug_v1: {
+        Args: { _slug: string }
+        Returns: {
+          slug: string
+          status: string
+        }[]
       }
       resolve_system_alert: {
         Args: { _alert_key: string; _resolver?: string }
@@ -6589,6 +9296,19 @@ export type Database = {
       }
       user_owns_identity: { Args: { _identity_id: string }; Returns: boolean }
       user_owns_provider: { Args: { _provider_id: string }; Returns: boolean }
+      validate_booking_interval: {
+        Args: {
+          _ends_at: string
+          _max_minutes?: number
+          _min_minutes?: number
+          _starts_at: string
+        }
+        Returns: undefined
+      }
+      validate_provider_slug_format: {
+        Args: { _slug: string }
+        Returns: string
+      }
       visible_conversation_ids: {
         Args: { _user: string }
         Returns: {
@@ -6613,6 +9333,14 @@ export type Database = {
         | "customer"
         | "super_admin"
         | "support"
+      booking_assignment_mode: "direct_provider" | "quick_match"
+      booking_dispatch_status:
+        | "queued"
+        | "awaiting_provider"
+        | "dispatched"
+        | "assigned"
+        | "unfulfilled"
+        | "cancelled"
       booking_hold_status: "active" | "released" | "expired"
       booking_hold_type:
         | "complaint"
@@ -6642,6 +9370,66 @@ export type Database = {
         | "declined"
         | "cancelled"
         | "completed"
+      campaign_application_status:
+        | "pending"
+        | "approved"
+        | "rejected"
+        | "waiting_list"
+        | "withdrawn"
+      campaign_block_type:
+        | "hero"
+        | "text"
+        | "image"
+        | "cards"
+        | "benefits"
+        | "testimonials"
+        | "faq"
+        | "cta"
+        | "countdown"
+        | "counter"
+        | "richtext"
+      campaign_event_type:
+        | "landing_viewed"
+        | "cta_clicked"
+        | "application_started"
+        | "application_submitted"
+        | "application_approved"
+        | "application_rejected"
+        | "email_verified"
+        | "stripe_connected"
+        | "identity_verified"
+        | "first_booking"
+        | "first_completed_job"
+        | "first_payout"
+        | "campaign_completed"
+      campaign_kind:
+        | "provider_recruitment"
+        | "customer_promo"
+        | "referral"
+        | "seasonal"
+        | "launch"
+      campaign_lifecycle:
+        | "draft"
+        | "scheduled"
+        | "pre_launch"
+        | "preview"
+        | "active"
+        | "paused"
+        | "ended"
+        | "archived"
+      campaign_reward_grant_status:
+        | "active"
+        | "expired"
+        | "exhausted"
+        | "revoked"
+      campaign_reward_type:
+        | "commission_discount"
+        | "voucher"
+        | "cash_bonus"
+        | "free_months"
+        | "credits"
+        | "points"
+        | "campaign_badge"
       country_lifecycle_state:
         | "development"
         | "beta"
@@ -6678,7 +9466,28 @@ export type Database = {
         | "failed"
         | "signature_invalid"
         | "unknown_type"
+      incident_severity: "low" | "medium" | "high" | "critical"
+      incident_status:
+        | "submitted"
+        | "acknowledged"
+        | "in_progress"
+        | "resolved"
+        | "dismissed"
+      knowledge_article_status:
+        | "draft"
+        | "in_review"
+        | "approved"
+        | "published"
+        | "archived"
+      knowledge_risk_level: "info" | "caution" | "stop" | "emergency"
       ledger_entry_direction: "debit" | "credit"
+      offer_status:
+        | "pending"
+        | "viewed"
+        | "accepted"
+        | "declined"
+        | "expired"
+        | "superseded"
       payment_status:
         | "none"
         | "authorized"
@@ -6869,6 +9678,15 @@ export const Constants = {
         "super_admin",
         "support",
       ],
+      booking_assignment_mode: ["direct_provider", "quick_match"],
+      booking_dispatch_status: [
+        "queued",
+        "awaiting_provider",
+        "dispatched",
+        "assigned",
+        "unfulfilled",
+        "cancelled",
+      ],
       booking_hold_status: ["active", "released", "expired"],
       booking_hold_type: [
         "complaint",
@@ -6901,6 +9719,73 @@ export const Constants = {
         "declined",
         "cancelled",
         "completed",
+      ],
+      campaign_application_status: [
+        "pending",
+        "approved",
+        "rejected",
+        "waiting_list",
+        "withdrawn",
+      ],
+      campaign_block_type: [
+        "hero",
+        "text",
+        "image",
+        "cards",
+        "benefits",
+        "testimonials",
+        "faq",
+        "cta",
+        "countdown",
+        "counter",
+        "richtext",
+      ],
+      campaign_event_type: [
+        "landing_viewed",
+        "cta_clicked",
+        "application_started",
+        "application_submitted",
+        "application_approved",
+        "application_rejected",
+        "email_verified",
+        "stripe_connected",
+        "identity_verified",
+        "first_booking",
+        "first_completed_job",
+        "first_payout",
+        "campaign_completed",
+      ],
+      campaign_kind: [
+        "provider_recruitment",
+        "customer_promo",
+        "referral",
+        "seasonal",
+        "launch",
+      ],
+      campaign_lifecycle: [
+        "draft",
+        "scheduled",
+        "pre_launch",
+        "preview",
+        "active",
+        "paused",
+        "ended",
+        "archived",
+      ],
+      campaign_reward_grant_status: [
+        "active",
+        "expired",
+        "exhausted",
+        "revoked",
+      ],
+      campaign_reward_type: [
+        "commission_discount",
+        "voucher",
+        "cash_bonus",
+        "free_months",
+        "credits",
+        "points",
+        "campaign_badge",
       ],
       country_lifecycle_state: [
         "development",
@@ -6943,7 +9828,31 @@ export const Constants = {
         "signature_invalid",
         "unknown_type",
       ],
+      incident_severity: ["low", "medium", "high", "critical"],
+      incident_status: [
+        "submitted",
+        "acknowledged",
+        "in_progress",
+        "resolved",
+        "dismissed",
+      ],
+      knowledge_article_status: [
+        "draft",
+        "in_review",
+        "approved",
+        "published",
+        "archived",
+      ],
+      knowledge_risk_level: ["info", "caution", "stop", "emergency"],
       ledger_entry_direction: ["debit", "credit"],
+      offer_status: [
+        "pending",
+        "viewed",
+        "accepted",
+        "declined",
+        "expired",
+        "superseded",
+      ],
       payment_status: [
         "none",
         "authorized",
