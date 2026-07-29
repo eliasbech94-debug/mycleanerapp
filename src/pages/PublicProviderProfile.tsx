@@ -445,6 +445,8 @@ export default function PublicProviderProfile() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <BookingsOpenSoonDialog open={showBookingLocked} onOpenChange={setShowBookingLocked} />
     </main>
   );
 }
