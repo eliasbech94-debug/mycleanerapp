@@ -108,7 +108,7 @@ jobs:
       - name: Database lint (read-only)
         run: |
           set -o pipefail
-          supabase db lint --linked 2>&1 | tee artifacts/10-db-lint.log || {
+          supabase db lint --db-url "$STAGING_DB_URL" 2>&1 | tee artifacts/10-db-lint.log || {
             echo "::error::supabase db lint failed. See artifacts/10-db-lint.log."
             exit 1
           }
@@ -120,7 +120,7 @@ jobs:
           # or mutates the staging database. Pending migrations are reported
           # as a controlled failure so they can be promoted deliberately via
           # the separate staging-deploy workflow — never auto-applied here.
-          supabase migration list --linked 2>&1 | tee artifacts/20-migration-list.log || {
+          supabase migration list --db-url "$STAGING_DB_URL" 2>&1 | tee artifacts/20-migration-list.log || {
             echo "::error::supabase migration list failed. See artifacts/20-migration-list.log."
             exit 1
           }
