@@ -76,7 +76,7 @@ import { AppContextProvider } from "@/context/AppContext";
 import { AuthGateProvider } from "@/context/AuthGateContext";
 import IdentityVerificationPage from "./pages/identity/IdentityVerificationPage";
 import ProviderOnboarding from "./pages/provider/ProviderOnboarding";
-import ProviderProfilePage from "./pages/provider/ProviderProfile";
+import Contact from "./pages/Contact";
 import CareerIdentity from "./pages/provider/CareerIdentity";
 import ProviderPricing from "./pages/provider/ProviderPricing";
 import AdminPricing from "./pages/admin/AdminPricing";
