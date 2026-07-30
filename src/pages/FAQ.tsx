@@ -13,6 +13,10 @@ import { useAuth } from "@/hooks/useAuth";
 
 const FAQS: Array<{ q: string; a: string }> = [
   {
+    q: "Hvad er MyCleaner?",
+    a: "MyCleaner-platformen er en digital markedsplads, der forbinder kunder med selvstændige providere. Du vælger og booker selv den provider, du ønsker. MyCleaner udfører ikke selv rengøringen og er ikke part i aftalen om udførelsen af opgaven.",
+  },
+  {
     q: "Hvordan booker jeg en cleaner?",
     a: "Find en cleaner i marketplace, åbn profilen og vælg en ledig tid direkte i kalenderen. Du sender en booking request, og bookingen er bekræftet, når cleaneren accepterer.",
   },
@@ -30,7 +34,7 @@ const FAQS: Array<{ q: string; a: string }> = [
   },
   {
     q: "Hvad koster det at bruge MyCleaner?",
-    a: "Platformgebyret er 28% og deles ligeligt: 14% lægges oveni kundens pris, og 14% trækkes fra cleanerens udbetaling. Du ser altid totalprisen, før du bekræfter.",
+    a: "Platformgebyret er 28% og deles ligeligt: 14% lægges oveni kundens pris, og 14% trækkes fra providerens indtjening. Du ser altid providerens pris, platformgebyret og den samlede pris, før du bekræfter.",
   },
   {
     q: "Hvad er Provider Score?",
@@ -38,7 +42,7 @@ const FAQS: Array<{ q: string; a: string }> = [
   },
   {
     q: "Hvad er MyCleaner ID?",
-    a: "MyCleaner ID er cleanerens verificerede identitet på platformen. Den samler ID-verifikation, gennemførte bookinger og dokumenteret erfaring ét sted.",
+    a: "MyCleaner ID er providerens verificerede identitet på platformen. Den samler ID-verifikation, gennemførte bookinger og dokumenteret erfaring ét sted.",
   },
   {
     q: "Hvordan bliver cleaners verificeret?",
@@ -62,11 +66,11 @@ const FAQS: Array<{ q: string; a: string }> = [
   },
   {
     q: "Hvordan får jeg refusion?",
-    a: "Opret en supportsag og beskriv, hvad der er sket. Din anmodning bliver vurderet ud fra bookingens status, dokumentationen på sagen og de gældende vilkår. Bliver en refundering gennemført, afhænger tiden, før beløbet er tilbage, af din bank og betalingsmetode.",
+    a: "Opret en supportsag og beskriv, hvad der er sket. Din anmodning bliver vurderet ud fra bookingens status, dokumentationen på sagen og de gældende vilkår. En godkendt refundering sendes tilbage til den anvendte betalingsmetode. Behandlingstiden afhænger af betalingsudbyderen og din bank.",
   },
   {
-    q: "Hvornår får jeg som cleaner udbetaling?",
-    a: "Udbetalinger igangsættes, når bookingen er udført og den fastsatte periode er passeret. Hvornår beløbet står på din konto, afhænger af din bank og betalingsudbyder. Du følger status under Udbetalinger i dit dashboard.",
+    q: "Hvornår får jeg som selvstændig provider udbetaling?",
+    a: "Når bookingen er udført og den fastsatte periode er passeret, registreres en planlagt udbetaling. Det præcise tidspunkt, hvor beløbet bliver synligt på kontoen, afhænger af betalingsudbyderen og din bank. Du følger tilgængelig saldo og planlagte udbetalinger i dit dashboard.",
   },
   {
     q: "Hvad bruger jeg Bilag og regnskab til?",
@@ -78,7 +82,7 @@ const FAQS: Array<{ q: string; a: string }> = [
   },
   {
     q: "Hvordan bliver jeg cleaner på MyCleaner?",
-    a: "Vælg Bliv cleaner, gennemfør onboarding og verificér din Stripe-konto. Derefter kan du modtage booking requests.",
+    a: "Vælg Bliv cleaner, opret din providerprofil, angiv dine ydelser og priser, og vælg hvornår du er tilgængelig. Du arbejder som selvstændig provider — MyCleaner er ikke din arbejdsgiver og tildeler dig ikke opgaver.",
   },
   {
     q: "Er mine oplysninger sikre?",
