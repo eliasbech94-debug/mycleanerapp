@@ -3,9 +3,10 @@
 // UI components must not query the legal tables directly.
 import { supabase } from "@/integrations/supabase/client";
 import { sha256Hex } from "@/lib/legal/hash";
-import { bumpSectionVersion, bumpVersion, parseVersion, type VersionBump } from "@/lib/legal/version";
+import { bumpSectionVersion, bumpVersion, normalizeVersion, parseVersion, type VersionBump } from "@/lib/legal/version";
 import { detectSectionChanges, suggestBump, summarizeChanges, type ComparableSection, type SectionChange } from "@/lib/legal/diff";
 import { readingTimeMinutes } from "@/lib/legal/markdown";
+import { canPublish, canTransition, computeNextReview, type LegalStatus } from "@/lib/legal/lifecycle";
 
 export interface LegalSection {
   id: string;
@@ -26,6 +27,8 @@ export interface LegalSection {
   published_by: string | null;
   created_at: string;
   updated_at: string;
+  word_count?: number;
+  reading_minutes?: number;
 }
 
 export interface LegalChangelogEntry {
@@ -40,7 +43,7 @@ export interface LegalChangelogEntry {
 }
 
 const SECTION_COLUMNS =
-  "id,document_id,section_key,section_order,title,slug,content_md,version,status,hash,language,translation_of,effective_date,published_at,created_by,published_by,created_at,updated_at";
+  "id,document_id,section_key,section_order,title,slug,content_md,version,status,hash,language,translation_of,effective_date,published_at,created_by,published_by,created_at,updated_at,word_count,reading_minutes";
 
 /* ------------------------------------------------------------------ */
 /* Reads                                                               */
@@ -173,7 +176,7 @@ export async function createSection(input: {
       title: input.title,
       slug: slugifyKey(input.title, key),
       content_md: content,
-      version: "1.0",
+      version: "1.0.0",
       status: "draft",
       hash: await sha256Hex(content),
       language: input.language,
@@ -394,6 +397,22 @@ export interface LegalDocumentRef {
   status: string;
   required?: boolean;
   doc_uid?: string | null;
+  category?: string | null;
+  original_language?: string | null;
+  owner_id?: string | null;
+  review_interval_months?: number | null;
+  next_review_at?: string | null;
+  last_review_at?: string | null;
+  word_count?: number | null;
+  reading_minutes?: number | null;
+  section_count?: number | null;
+  approved_by?: string | null;
+  approved_at?: string | null;
+  published_by?: string | null;
+  published_at?: string | null;
+  effective_at?: string | null;
+  created_at?: string | null;
+  legacy_version?: string | null;
 }
 
 /**
@@ -406,7 +425,7 @@ export async function createDraftVersion(
   bump: VersionBump = "minor",
   reason?: string,
 ): Promise<string> {
-  const version = bumpVersion(doc.version, bump);
+  const version = bumpVersion(normalizeVersion(doc.version), bump);
   const v = parseVersion(version);
   const { data: auth } = await supabase.auth.getUser();
 
@@ -429,6 +448,10 @@ export async function createDraftVersion(
       status: "draft",
       required: doc.required ?? true,
       doc_uid: doc.doc_uid ?? null,
+      category: doc.category ?? null,
+      original_language: doc.original_language ?? doc.language,
+      owner_id: doc.owner_id ?? auth.user?.id ?? null,
+      review_interval_months: doc.review_interval_months ?? 12,
       created_by: auth.user?.id ?? null,
     })
     .select("id")
@@ -474,10 +497,15 @@ export async function publishDocumentVersion(input: {
   document: LegalDocumentRef;
   bump?: VersionBump;
   reason?: string;
+  /** Escape hatch for legacy drafts created before the review workflow. */
+  allowUnapproved?: boolean;
 }): Promise<{ version: string; hash: string }> {
   const { document } = input;
   if (document.status === "published") {
     throw new Error("Publicerede versioner er uforanderlige — opret en ny kladdeversion først.");
+  }
+  if (!input.allowUnapproved && !canPublish(document.status)) {
+    throw new Error("Dokumentet skal gennem intern og juridisk gennemgang og være godkendt før publicering.");
   }
 
   const preview = await buildPublishPreview(document);
@@ -495,7 +523,9 @@ export async function publishDocumentVersion(input: {
     .maybeSingle();
 
   const previousVersion = currentPublished?.version ?? null;
-  const version = input.bump ? bumpVersion(previousVersion ?? document.version, input.bump) : document.version;
+  const version = input.bump
+    ? bumpVersion(normalizeVersion(previousVersion ?? document.version), input.bump)
+    : normalizeVersion(document.version);
   const v = parseVersion(version);
 
   if (currentPublished) {
@@ -517,10 +547,14 @@ export async function publishDocumentVersion(input: {
       version_patch: v.patch,
       status: "published",
       published_at: now,
+      published_by: auth.user?.id ?? null,
       effective_at: now,
+      last_review_at: now,
+      next_review_at: computeNextReview(new Date(now), document.review_interval_months ?? 12),
     })
     .eq("id", document.id);
   if (docError) throw docError;
+
 
   const { error: sectionError } = await supabase
     .from("legal_document_sections")
@@ -617,3 +651,135 @@ export async function searchLegalLibrary(term: string, documentId?: string): Pro
   if (error) throw error;
   return matchSections((data ?? []) as LegalSection[], q);
 }
+
+/* ------------------------------------------------------------------ */
+/* Review workflow & scheduled legal review                            */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Moves a document through the lifecycle (draft → internal review → legal
+ * review → approved). Transitions are validated client-side and enforced by
+ * the database status constraint + immutability trigger.
+ */
+export async function transitionDocumentStatus(
+  doc: LegalDocumentRef,
+  to: LegalStatus,
+  reason?: string,
+): Promise<void> {
+  if (!canTransition(doc.status, to)) {
+    throw new Error(`Ugyldigt statusskifte: ${doc.status} → ${to}`);
+  }
+  const { data: auth } = await supabase.auth.getUser();
+  const now = new Date().toISOString();
+  const patch: {
+    status: string;
+    approved_by?: string | null;
+    approved_at?: string | null;
+  } = { status: to };
+  if (to === "approved") {
+    patch.approved_by = auth.user?.id ?? null;
+    patch.approved_at = now;
+  }
+
+  const { error } = await supabase.from("legal_documents").update(patch).eq("id", doc.id);
+  if (error) throw error;
+
+  await recordAudit({
+    documentId: doc.id,
+    action: `document.status.${to}`,
+    oldHash: doc.body_hash,
+    newHash: doc.body_hash,
+    reason: reason ?? null,
+    metadata: { from: doc.status, to },
+  });
+}
+
+/** Records that a legal review took place and schedules the next one. */
+export async function recordLegalReview(
+  doc: LegalDocumentRef,
+  intervalMonths = doc.review_interval_months ?? 12,
+  reason?: string,
+): Promise<void> {
+  const now = new Date();
+  const { error } = await supabase
+    .from("legal_documents")
+    .update({
+      last_review_at: now.toISOString(),
+      next_review_at: computeNextReview(now, intervalMonths),
+      review_interval_months: intervalMonths,
+    })
+    .eq("id", doc.id);
+  if (error) throw error;
+  await recordAudit({
+    documentId: doc.id,
+    action: "document.reviewed",
+    reason: reason ?? null,
+    metadata: { interval_months: intervalMonths },
+  });
+}
+
+export interface ReviewDueRow {
+  id: string;
+  doc_uid: string | null;
+  slug: string;
+  title: string;
+  version: string;
+  country_code: string;
+  language: string;
+  next_review_at: string;
+  days_until: number;
+}
+
+/** Published documents whose scheduled legal review is due (or overdue). */
+export async function fetchDocumentsDueForReview(withinDays = 30): Promise<ReviewDueRow[]> {
+  const { data, error } = await supabase.rpc("legal_documents_due_for_review", { _within_days: withinDays });
+  if (error) throw error;
+  return (data ?? []) as ReviewDueRow[];
+}
+
+/* ------------------------------------------------------------------ */
+/* Document metadata                                                   */
+/* ------------------------------------------------------------------ */
+
+export interface LegalDocumentMetadata {
+  documentId: string;
+  docUid: string | null;
+  category: string | null;
+  originalLanguage: string | null;
+  translations: string[];
+  wordCount: number;
+  readingMinutes: number;
+  sectionCount: number;
+  hash: string;
+  version: string;
+  legacyVersion: string | null;
+  status: string;
+  lastReviewAt: string | null;
+  nextReviewAt: string | null;
+}
+
+/** One call that returns everything the admin metadata panel needs. */
+export async function fetchDocumentMetadata(doc: LegalDocumentRef): Promise<LegalDocumentMetadata> {
+  const sections = await fetchSections(doc.id);
+  const translations = Array.from(
+    new Set(sections.filter((s) => s.language !== (doc.original_language ?? doc.language)).map((s) => s.language)),
+  ).sort();
+  const scoped = sections.filter((s) => s.language === doc.language && s.status !== "archived");
+  return {
+    documentId: doc.id,
+    docUid: doc.doc_uid ?? null,
+    category: doc.category ?? null,
+    originalLanguage: doc.original_language ?? doc.language,
+    translations,
+    wordCount: doc.word_count ?? 0,
+    readingMinutes: doc.reading_minutes ?? sectionsReadingTime(scoped),
+    sectionCount: doc.section_count ?? scoped.length,
+    hash: doc.body_hash,
+    version: doc.version,
+    legacyVersion: doc.legacy_version ?? null,
+    status: doc.status,
+    lastReviewAt: doc.last_review_at ?? null,
+    nextReviewAt: doc.next_review_at ?? null,
+  };
+}
+

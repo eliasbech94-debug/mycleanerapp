@@ -46,8 +46,21 @@ export function compareVersions(a: string | null | undefined, b: string | null |
   return x.label ? -1 : 1;
 }
 
-/** Section versions stay two-part ("1.0", "1.1") for readability. */
-export function bumpSectionVersion(input: string | null | undefined, bump: "minor" | "major" = "minor"): string {
-  const v = parseVersion(input);
-  return bump === "major" ? `${v.major + 1}.0` : `${v.major}.${v.minor + 1}`;
+/**
+ * Normalises any legacy version string to strict semver ("1.0" -> "1.0.0",
+ * "1.0-draft" -> "1.1.0"). Matches the database migration rules so the
+ * `legal_documents_semver_format` constraint can never be violated.
+ */
+export function normalizeVersion(input: string | null | undefined): string {
+  const raw = (input ?? "").trim();
+  if (/^\d+\.\d+\.\d+$/.test(raw)) return raw;
+  const v = parseVersion(raw);
+  if (v.label) return `${v.major}.${v.minor + 1}.0`;
+  return `${v.major}.${v.minor}.${v.patch}`;
 }
+
+/** Section versions are strict semver too (database constraint). */
+export function bumpSectionVersion(input: string | null | undefined, bump: VersionBump = "minor"): string {
+  return bumpVersion(normalizeVersion(input), bump);
+}
+

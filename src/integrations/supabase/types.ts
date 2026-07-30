@@ -4521,6 +4521,8 @@ export type Database = {
           language: string
           published_at: string | null
           published_by: string | null
+          reading_minutes: number
+          search_tsv: unknown
           section_key: string
           section_order: number
           slug: string
@@ -4529,6 +4531,7 @@ export type Database = {
           translation_of: string | null
           updated_at: string
           version: string
+          word_count: number
         }
         Insert: {
           content_md?: string
@@ -4541,6 +4544,8 @@ export type Database = {
           language?: string
           published_at?: string | null
           published_by?: string | null
+          reading_minutes?: number
+          search_tsv?: unknown
           section_key: string
           section_order?: number
           slug: string
@@ -4549,6 +4554,7 @@ export type Database = {
           translation_of?: string | null
           updated_at?: string
           version?: string
+          word_count?: number
         }
         Update: {
           content_md?: string
@@ -4561,6 +4567,8 @@ export type Database = {
           language?: string
           published_at?: string | null
           published_by?: string | null
+          reading_minutes?: number
+          search_tsv?: unknown
           section_key?: string
           section_order?: number
           slug?: string
@@ -4569,6 +4577,7 @@ export type Database = {
           translation_of?: string | null
           updated_at?: string
           version?: string
+          word_count?: number
         }
         Relationships: [
           {
@@ -4589,8 +4598,11 @@ export type Database = {
       }
       legal_documents: {
         Row: {
+          approved_at: string | null
+          approved_by: string | null
           body_hash: string
           body_md: string
+          category: string | null
           country_code: string
           created_at: string
           created_by: string | null
@@ -4602,9 +4614,19 @@ export type Database = {
           id: string
           kind: string
           language: string
+          last_review_at: string | null
+          legacy_version: string | null
+          next_review_at: string | null
+          original_language: string | null
+          owner_id: string | null
           published_at: string | null
+          published_by: string | null
+          reading_minutes: number
           required: boolean
+          review_interval_months: number
           scheduled_publish_at: string | null
+          search_tsv: unknown
+          section_count: number
           slug: string
           status: string
           summary_md: string | null
@@ -4615,10 +4637,14 @@ export type Database = {
           version_major: number
           version_minor: number
           version_patch: number
+          word_count: number
         }
         Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
           body_hash: string
           body_md: string
+          category?: string | null
           country_code: string
           created_at?: string
           created_by?: string | null
@@ -4630,9 +4656,19 @@ export type Database = {
           id?: string
           kind: string
           language: string
+          last_review_at?: string | null
+          legacy_version?: string | null
+          next_review_at?: string | null
+          original_language?: string | null
+          owner_id?: string | null
           published_at?: string | null
+          published_by?: string | null
+          reading_minutes?: number
           required?: boolean
+          review_interval_months?: number
           scheduled_publish_at?: string | null
+          search_tsv?: unknown
+          section_count?: number
           slug: string
           status?: string
           summary_md?: string | null
@@ -4643,10 +4679,14 @@ export type Database = {
           version_major?: number
           version_minor?: number
           version_patch?: number
+          word_count?: number
         }
         Update: {
+          approved_at?: string | null
+          approved_by?: string | null
           body_hash?: string
           body_md?: string
+          category?: string | null
           country_code?: string
           created_at?: string
           created_by?: string | null
@@ -4658,9 +4698,19 @@ export type Database = {
           id?: string
           kind?: string
           language?: string
+          last_review_at?: string | null
+          legacy_version?: string | null
+          next_review_at?: string | null
+          original_language?: string | null
+          owner_id?: string | null
           published_at?: string | null
+          published_by?: string | null
+          reading_minutes?: number
           required?: boolean
+          review_interval_months?: number
           scheduled_publish_at?: string | null
+          search_tsv?: unknown
+          section_count?: number
           slug?: string
           status?: string
           summary_md?: string | null
@@ -4671,6 +4721,7 @@ export type Database = {
           version_major?: number
           version_minor?: number
           version_patch?: number
+          word_count?: number
         }
         Relationships: []
       }
@@ -8996,6 +9047,21 @@ export type Database = {
         Args: { _lvl: Database["public"]["Enums"]["knowledge_risk_level"] }
         Returns: number
       }
+      legal_documents_due_for_review: {
+        Args: { _within_days?: number }
+        Returns: {
+          country_code: string
+          days_until: number
+          doc_uid: string
+          id: string
+          language: string
+          next_review_at: string
+          slug: string
+          title: string
+          version: string
+        }[]
+      }
+      legal_word_count: { Args: { _text: string }; Returns: number }
       list_favorite_providers_v1: {
         Args: never
         Returns: {
