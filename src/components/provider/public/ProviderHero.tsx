@@ -96,7 +96,7 @@ export function ProviderHero({
             </span>
           )}
 
-          <h1 className="flex flex-wrap items-center gap-2 break-words text-3xl font-bold leading-tight text-[hsl(224_72%_18%)] sm:text-4xl">
+          <h1 className="flex flex-wrap items-center gap-2 break-words text-3xl font-bold leading-tight text-[hsl(224_72%_18%)] sm:text-4xl xl:text-5xl">
             <span className="min-w-0 break-words">{profile.display_name}</span>
             {profile.identity_verified_badge && (
               <BadgeCheck
