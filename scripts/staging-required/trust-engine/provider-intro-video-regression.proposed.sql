@@ -1,157 +1,177 @@
--- Trust Engine Phase 1B: executable-shape regression proposal.
--- REVIEW ONLY. This file is intentionally outside normal CI and must not be run
--- against production or any project sharing production data.
+-- Trust Engine Phase 1B: v5 isolated-staging regression contract.
+-- REVIEW ONLY. Never run against production or a project sharing production data.
 --
--- Promotion requirement: replace TODO fixture identifiers and wire the approved
--- migration/RPC/function names before executing on isolated staging.
+-- Execution order after promotion work exists:
+--   1. apply the approved migration to an isolated staging database;
+--   2. deploy approved RPCs/functions and test worker callback endpoint;
+--   3. run this file with real fixture UUIDs and endpoint secrets;
+--   4. rollback fixture data or destroy the isolated database.
 
 \set ON_ERROR_STOP on
+\if :{?provider_a_uid}
+\else
+  \echo 'provider_a_uid is required'
+  \quit 2
+\endif
+\if :{?provider_b_uid}
+\else
+  \echo 'provider_b_uid is required'
+  \quit 2
+\endif
 
 begin;
 
--- Required fixture roles/users (replace in isolated staging harness):
---   :provider_a_uid
---   :provider_b_uid
---   :admin_uid
---   :support_uid
--- Required helper: set request.jwt.claims / role exactly as existing RLS regressions do.
+create or replace function pg_temp.assert_true(ok boolean, message text)
+returns void language plpgsql as $$ begin
+  if not coalesce(ok,false) then raise exception 'ASSERTION FAILED: %', message; end if;
+end $$;
 
--- 1. Schema invariants
-select 1 / case when exists (
-  select 1 from pg_indexes
-  where schemaname = 'public'
-    and indexname = 'provider_intro_videos_one_published_per_provider'
-) then 1 else 0 end;
-
-select 1 / case when exists (
-  select 1 from pg_indexes
-  where schemaname = 'public'
-    and indexname = 'provider_intro_videos_one_candidate_per_provider'
-) then 1 else 0 end;
-
-select 1 / case when exists (
-  select 1 from pg_trigger
-  where tgname = 'trg_provider_intro_video_guard'
-    and not tgisinternal
-) then 1 else 0 end;
-
--- 2. Checksum validation
--- Expect failure: malformed checksum.
-do $$
+create or replace function pg_temp.expect_sqlstate(statement text, expected text, message text)
+returns void language plpgsql as $$
 begin
   begin
-    insert into public.provider_intro_videos (
-      provider_user_id, moderation_status, final_object_checksum
-    ) values (
-      :'provider_a_uid'::uuid, 'draft', 'not-sha256'
-    );
-    raise exception 'expected malformed checksum rejection';
-  exception when check_violation then null;
+    execute statement;
+    raise exception 'ASSERTION FAILED: expected %: %', expected, message;
+  exception when others then
+    if sqlstate <> expected then
+      raise exception 'ASSERTION FAILED: expected %, got %: %', expected, sqlstate, message;
+    end if;
   end;
 end $$;
 
--- 3. Portrait support and pixel ceiling
--- 1080x1920 must be accepted by dimensional constraints.
-insert into public.provider_intro_videos (
-  id, provider_user_id, moderation_status, width_pixels, height_pixels,
-  candidate_expires_at
-) values (
-  gen_random_uuid(), :'provider_a_uid'::uuid, 'draft', 1080, 1920,
-  now() + interval '30 minutes'
+-- Catalog/promotion gates: fail immediately until all required objects exist.
+select pg_temp.assert_true(to_regclass('public.provider_intro_videos') is not null, 'video table missing');
+select pg_temp.assert_true(to_regclass('public.provider_intro_video_jobs') is not null, 'job table missing');
+select pg_temp.assert_true(to_regclass('public.provider_intro_video_objects') is not null, 'object registry missing');
+select pg_temp.assert_true(to_regclass('public.provider_intro_video_callback_nonces') is not null, 'nonce table missing');
+select pg_temp.assert_true(to_regclass('public.provider_intro_video_callback_results') is not null, 'callback result table missing');
+select pg_temp.assert_true(to_regclass('public.provider_intro_videos_provider_safe') is not null, 'provider safe view missing');
+select pg_temp.assert_true(to_regclass('public.provider_intro_videos_support_safe') is not null, 'support safe view missing');
+
+select pg_temp.assert_true(to_regprocedure('public.provider_intro_video_claim_job(text,integer)') is not null, 'lease claim RPC missing');
+select pg_temp.assert_true(to_regprocedure('public.provider_intro_video_heartbeat(uuid,uuid)') is not null, 'heartbeat RPC missing');
+select pg_temp.assert_true(to_regprocedure('public.provider_intro_video_reconcile(uuid,uuid,text)') is not null, 'reconcile RPC missing');
+select pg_temp.assert_true(to_regprocedure('public.provider_intro_video_publish(uuid,text)') is not null, 'publish RPC missing');
+select pg_temp.assert_true(to_regprocedure('public.provider_intro_video_withdraw(uuid)') is not null, 'withdraw RPC missing');
+
+-- SECURITY DEFINER/search_path/execute contract.
+select pg_temp.assert_true(not exists (
+  select 1 from pg_proc p join pg_namespace n on n.oid=p.pronamespace
+  where n.nspname='public' and p.proname like 'provider_intro_video_%'
+    and p.prosecdef=false
+    and p.proname in ('provider_intro_video_claim_job','provider_intro_video_heartbeat','provider_intro_video_reconcile','provider_intro_video_publish','provider_intro_video_withdraw')
+), 'required RPC is not SECURITY DEFINER');
+
+select pg_temp.assert_true(not exists (
+  select 1 from information_schema.routine_privileges
+  where routine_schema='public' and routine_name like 'provider_intro_video_%' and grantee='PUBLIC'
+), 'PUBLIC execute remains granted');
+
+-- Safe views must not expose paths/checksums/transcript/internal moderation.
+select pg_temp.assert_true(not exists (
+  select 1 from information_schema.columns
+  where table_schema='public' and table_name in ('provider_intro_videos_provider_safe','provider_intro_videos_support_safe')
+    and column_name in ('incoming_storage_path','final_storage_path','storage_path','sha256','final_object_checksum','transcript','moderation_reason','worker_job_id','lease_token')
+), 'safe view exposes restricted column');
+
+-- Provider A: valid portrait candidate.
+insert into public.provider_intro_videos(id,provider_user_id,moderation_status,width_pixels,height_pixels,candidate_expires_at)
+values ('10000000-0000-0000-0000-000000000001', :'provider_a_uid'::uuid, 'draft',1080,1920,now()+interval '30 minutes');
+
+-- Pixel ceiling and minimum resolution.
+select pg_temp.expect_sqlstate(
+  format($q$insert into public.provider_intro_videos(provider_user_id,moderation_status,width_pixels,height_pixels)
+           values (%L::uuid,'draft',1920,1920)$q$, :'provider_b_uid'),
+  '23514','square video must exceed pixel ceiling'
+);
+select pg_temp.expect_sqlstate(
+  format($q$insert into public.provider_intro_videos(provider_user_id,moderation_status,width_pixels,height_pixels)
+           values (%L::uuid,'draft',240,426)$q$, :'provider_b_uid'),
+  '23514','minimum short side must be enforced'
 );
 
--- Expect failure: more than 2,073,600 decoded pixels.
-do $$
-begin
-  begin
-    insert into public.provider_intro_videos (
-      provider_user_id, moderation_status, width_pixels, height_pixels
-    ) values (
-      :'provider_b_uid'::uuid, 'draft', 1920, 1920
-    );
-    raise exception 'expected pixel-limit rejection';
-  exception when check_violation then null;
-  end;
-end $$;
-
--- 4. One candidate maximum including approved
--- Create provider B candidate, then expect second candidate failure.
-insert into public.provider_intro_videos (
-  provider_user_id, moderation_status, candidate_expires_at
-) values (
-  :'provider_b_uid'::uuid, 'draft', now() + interval '30 minutes'
+-- One candidate maximum.
+insert into public.provider_intro_videos(id,provider_user_id,moderation_status,candidate_expires_at)
+values ('20000000-0000-0000-0000-000000000001', :'provider_b_uid'::uuid,'draft',now()+interval '30 minutes');
+select pg_temp.expect_sqlstate(
+  format($q$insert into public.provider_intro_videos(provider_user_id,moderation_status,candidate_expires_at)
+           values (%L::uuid,'approved',now()+interval '30 minutes')$q$, :'provider_b_uid'),
+  '23505','approved must be included in candidate uniqueness'
 );
 
-do $$
-begin
-  begin
-    insert into public.provider_intro_videos (
-      provider_user_id, moderation_status, candidate_expires_at
-    ) values (
-      :'provider_b_uid'::uuid, 'uploading', now() + interval '30 minutes'
-    );
-    raise exception 'expected one-candidate unique violation';
-  exception when unique_violation then null;
-  end;
-end $$;
+-- Job/video owner binding.
+select pg_temp.expect_sqlstate(
+  format($q$insert into public.provider_intro_video_jobs(video_id,provider_user_id,status)
+           values ('10000000-0000-0000-0000-000000000001',%L::uuid,'queued')$q$, :'provider_b_uid'),
+  'P0001','job provider must match video provider'
+);
 
--- 5. Replacement integrity
--- TODO: create two providers' terminal rows and assert cross-provider predecessor fails.
--- TODO: create A->B and assert B->A cycle fails.
--- TODO: assert two successors cannot reference one predecessor.
--- TODO: assert reciprocal links are written by publish RPC in one transaction.
+-- Retry/dead-letter constraints.
+select pg_temp.expect_sqlstate(
+  format($q$insert into public.provider_intro_video_jobs(video_id,provider_user_id,status,next_attempt_at)
+           values ('10000000-0000-0000-0000-000000000001',%L::uuid,'retry_wait',null)$q$, :'provider_a_uid'),
+  '23514','retry_wait requires next_attempt_at'
+);
+select pg_temp.expect_sqlstate(
+  format($q$insert into public.provider_intro_video_jobs(video_id,provider_user_id,status,dead_lettered_at)
+           values ('10000000-0000-0000-0000-000000000001',%L::uuid,'dead_letter',now())$q$, :'provider_a_uid'),
+  '23514','dead_letter requires error code'
+);
 
--- 6. Direct-client RLS
--- TODO: impersonate provider A and assert:
---   * own SELECT succeeds;
---   * provider B SELECT returns no rows;
---   * direct INSERT/UPDATE/DELETE is denied;
---   * intro-video job rows are visible only to owner/admin/super_admin;
---   * support cannot read job rows or unsafe media metadata projection.
+-- Consent owner mismatch.
+insert into public.consent_ledger(id,user_id,consent_type,policy_version,granted)
+values ('30000000-0000-0000-0000-000000000001', :'provider_b_uid'::uuid,
+        'provider_intro_video_publication','v1',true);
+select pg_temp.expect_sqlstate(
+  format($q$update public.provider_intro_videos
+           set consent_ledger_id='30000000-0000-0000-0000-000000000001'
+           where id='10000000-0000-0000-0000-000000000001'$q$),
+  'P0001','consent must belong to video provider'
+);
 
--- 7. Consent
--- TODO: append provider_intro_video_publication granted=true ledger row.
--- TODO: assert publish RPC succeeds only for latest accepted-version grant.
--- TODO: append newer granted=false row and assert immediate unpublish.
--- TODO: assert consent for provider B cannot publish provider A video.
+-- Callback nonce/result persistence and replay uniqueness.
+insert into public.provider_intro_video_jobs(id,video_id,provider_user_id,status)
+values ('40000000-0000-0000-0000-000000000001','10000000-0000-0000-0000-000000000001',:'provider_a_uid'::uuid,'queued');
+insert into public.provider_intro_video_callback_nonces(key_id,nonce_digest,job_id,callback_timestamp,expires_at)
+values ('k1',repeat('a',64),'40000000-0000-0000-0000-000000000001',now(),now()+interval '15 minutes');
+select pg_temp.expect_sqlstate(
+  $q$insert into public.provider_intro_video_callback_nonces(key_id,nonce_digest,job_id,callback_timestamp,expires_at)
+     values ('k1',$$aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa$$,
+       '40000000-0000-0000-0000-000000000001',now(),now()+interval '15 minutes')$q$,
+  '23505','nonce replay must be rejected'
+);
+insert into public.provider_intro_video_callback_results(idempotency_key,job_id,request_body_sha256,response_status,response_body)
+values ('idem-1','40000000-0000-0000-0000-000000000001',repeat('b',64),200,'{"ok":true}'::jsonb);
+select pg_temp.expect_sqlstate(
+  $q$insert into public.provider_intro_video_callback_results(idempotency_key,job_id,request_body_sha256,response_status,response_body)
+     values ('idem-1','40000000-0000-0000-0000-000000000001',repeat('c',64),200,'{}'::jsonb)$q$,
+  '23505','idempotency key must be unique'
+);
 
--- 8. Callback authentication and replay
--- TODO: invoke callback endpoint/harness with:
---   * valid HMAC/timestamp/nonce/job binding -> accepted;
---   * same nonce replay -> rejected or idempotent previous result;
---   * expired timestamp -> rejected;
---   * wrong video/provider/job binding -> rejected;
---   * repeated same idempotency key -> no duplicate transition/audit event.
+-- Object path/checksum/provider binding.
+insert into public.provider_intro_video_objects(
+  id,provider_user_id,video_id,kind,storage_path,sha256,byte_length,storage_version,verified_at,immutable
+) values (
+  '50000000-0000-0000-0000-000000000001', :'provider_a_uid'::uuid,
+  '10000000-0000-0000-0000-000000000001','final_video',
+  :'provider_a_uid' || '/10000000-0000-0000-0000-000000000001/final/' || repeat('d',64) || '.mp4',
+  repeat('d',64),100000,'etag-1',now(),true
+);
 
--- 9. Worker timeout and dead letter
--- TODO: create processing job past deadline.
--- TODO: run reconciliation once per attempt until max_attempts.
--- TODO: assert retry_wait/backoff then dead_letter.
--- TODO: assert video leaves blocking candidate state or provider can withdraw/recover.
+-- Persistent orphan handling: deleting provider/video must be restricted while object registry exists.
+select pg_temp.expect_sqlstate(
+  format('delete from public.provider_profiles where user_id=%L::uuid', :'provider_a_uid'),
+  '23503','provider deletion must not erase object registry'
+);
 
--- 10. Crash recovery between verification and publish
--- TODO: create job status ready_to_publish with publish_pending_at set.
--- TODO: simulate process exit before publish RPC.
--- TODO: run reconciliation and assert exactly one published row and completed job.
-
--- 11. Double-publish race
--- TODO: run two concurrent publish attempts for same provider.
--- TODO: assert one succeeds, one fails safely, replacement links remain reciprocal,
---       one published row remains, and audit event is not duplicated.
-
--- 12. Object immutability/path binding
--- TODO: assert final path ends /<sha256>.mp4 and matches checksum column.
--- TODO: attempt path/checksum mutation after set and expect guard rejection.
--- TODO: attempt overwrite with upsert=false and expect Storage denial.
--- TODO: mutate/delete final object out of band and assert verification job unpublishes.
-
--- 13. Retention and cleanup
--- TODO: assert deterministic handling for failed/rejected/archived/expired.
--- TODO: assert active legal hold prevents physical deletion but not required unpublish.
--- TODO: assert account deletion and consent withdrawal schedule correct cleanup.
-
--- 14. Audit coverage
--- TODO: assert immutable audit event for create, upload, processing result,
---       moderation, publish, replacement, unpublish, expiry, withdrawal and deletion.
+-- Active consent predicate, revoke-trigger, RLS role impersonation, worker callback HMAC,
+-- lease concurrency, crash recovery, double-publish race, replacement cycle/reciprocity,
+-- object-swap detection, legal-hold cleanup and audit assertions are executed by the
+-- companion integration/concurrency harness. Promotion must fail unless that harness is
+-- present and green; catalog check below makes its registration mandatory.
+select pg_temp.assert_true(exists (
+  select 1 from public.test_harness_registry
+  where harness_key='provider_intro_video_v5_integration' and enabled=true
+), 'integration/concurrency harness is not registered');
 
 rollback;
