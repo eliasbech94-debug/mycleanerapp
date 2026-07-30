@@ -47,6 +47,7 @@ import {
 import ProviderDashboardV2 from "./pages/provider/ProviderDashboardV2";
 import ProviderProfileV2 from "./pages/provider/ProviderProfileV2";
 import ProviderReceipts from "./pages/ProviderReceipts";
+import ProviderAccounting from "./pages/provider/ProviderAccounting";
 import NotFound from "./pages/NotFound";
 import { isDevPreviewEnabled } from "@/lib/appEnv";
 
