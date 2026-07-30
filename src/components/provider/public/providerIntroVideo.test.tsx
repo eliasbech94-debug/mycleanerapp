@@ -4,7 +4,6 @@
  */
 import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import ProviderHero from "./ProviderHero";
 import {
   publicIntroVideo,
@@ -109,10 +108,9 @@ describe("intro video dialog", () => {
   afterEach(() => vi.unstubAllGlobals());
 
   it("opens on click, never autoplays and closes on Escape", async () => {
-    const user = userEvent.setup();
     hero({ ...base, intro_video: approved, average_rating: 4.9, completed_bookings: 241 });
     const trigger = screen.getByTestId("intro-video-trigger");
-    await user.click(trigger);
+    fireEvent.click(trigger);
 
     const player = await screen.findByTestId("intro-video-player");
     expect(player).not.toHaveAttribute("autoplay");
@@ -120,34 +118,31 @@ describe("intro video dialog", () => {
     expect(player).toHaveAttribute("controls");
     expect(screen.getByRole("dialog")).toBeTruthy();
 
-    await user.keyboard("{Escape}");
+    fireEvent.keyDown(document.activeElement ?? document.body, { key: "Escape" });
     await waitFor(() => expect(screen.queryByTestId("intro-video-player")).toBeNull());
     await waitFor(() => expect(document.activeElement).toBe(trigger));
   });
 
   it("pauses the video when the dialog closes", async () => {
     const pause = vi.spyOn(HTMLMediaElement.prototype, "pause").mockImplementation(() => {});
-    const user = userEvent.setup();
     hero({ ...base, intro_video: approved });
-    await user.click(screen.getByTestId("intro-video-trigger"));
+    fireEvent.click(screen.getByTestId("intro-video-trigger"));
     await screen.findByTestId("intro-video-player");
-    await user.keyboard("{Escape}");
+    fireEvent.keyDown(document.activeElement ?? document.body, { key: "Escape" });
     await waitFor(() => expect(pause).toHaveBeenCalled());
     pause.mockRestore();
   });
 
   it("shows a safe fallback when the video URL is missing", async () => {
-    const user = userEvent.setup();
     hero({ ...base, intro_video: { ...approved, videoUrl: "" } });
-    await user.click(screen.getByTestId("intro-video-trigger"));
+    fireEvent.click(screen.getByTestId("intro-video-trigger"));
     expect(await screen.findByTestId("intro-video-fallback")).toBeTruthy();
     expect(screen.queryByTestId("intro-video-player")).toBeNull();
   });
 
   it("shows only trust datapoints that exist", async () => {
-    const user = userEvent.setup();
     hero({ ...base, intro_video: approved });
-    await user.click(screen.getByTestId("intro-video-trigger"));
+    fireEvent.click(screen.getByTestId("intro-video-trigger"));
     const trust = await screen.findByTestId("intro-video-trust");
     expect(trust.textContent).toContain("gennemgået før offentliggørelse");
     expect(trust.textContent).not.toContain("booker igen");
@@ -155,7 +150,6 @@ describe("intro video dialog", () => {
   });
 
   it("renders trust datapoints and the verified badge when data supports it", async () => {
-    const user = userEvent.setup();
     hero({
       ...base,
       intro_video: approved,
@@ -164,7 +158,7 @@ describe("intro video dialog", () => {
       repeat_booking_rate: 68,
       mycleaner_recommended: true,
     });
-    await user.click(screen.getByTestId("intro-video-trigger"));
+    fireEvent.click(screen.getByTestId("intro-video-trigger"));
     const trust = await screen.findByTestId("intro-video-trust");
     expect(trust.textContent).toContain("4.9 i bedømmelse");
     expect(trust.textContent).toContain("68 % booker igen");
@@ -174,17 +168,15 @@ describe("intro video dialog", () => {
   });
 
   it("hides the verified badge when identity is not verified", async () => {
-    const user = userEvent.setup();
     hero({ ...base, intro_video: { ...approved, identityVerified: false } });
-    await user.click(screen.getByTestId("intro-video-trigger"));
+    fireEvent.click(screen.getByTestId("intro-video-trigger"));
     await screen.findByTestId("intro-video-trust");
     expect(screen.queryByTestId("intro-video-verified-badge")).toBeNull();
   });
 
   it("records analytics locally without any network call", async () => {
-    const user = userEvent.setup();
     hero({ ...base, intro_video: approved });
-    await user.click(screen.getByTestId("intro-video-trigger"));
+    fireEvent.click(screen.getByTestId("intro-video-trigger"));
     await screen.findByTestId("intro-video-player");
     expect(getRecordedIntroVideoEvents().map((e) => e.event)).toContain(
       "provider_intro_video_opened",
