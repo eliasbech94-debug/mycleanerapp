@@ -205,6 +205,16 @@ export function AppRoutes() {
           }
         />
       )}
+      {isDevPreviewEnabled() && (
+        <Route
+          path="/dev/provider-accounting-preview"
+          element={
+            <Suspense fallback={null}>
+              <ProviderAccountingPreview />
+            </Suspense>
+          }
+        />
+      )}
 
       <Route path="/not-found" element={<NotFound />} />
       <Route path="*" element={<NotFound />} />
