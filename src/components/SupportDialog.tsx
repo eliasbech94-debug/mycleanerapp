@@ -46,7 +46,7 @@ export default function SupportDialog({
       .select("id, topic, subject, status, last_message_at, created_at")
       .eq("topic", mode)
       .order("last_message_at", { ascending: false });
-    if (error) toast.error("Kunne ikke hente samtaler");
+    if (error) toast.error("Vi kunne ikke hente dine sager. Prøv igen om lidt.");
     setThreads((data ?? []) as Thread[]);
     setLoadingList(false);
   };
@@ -60,11 +60,11 @@ export default function SupportDialog({
     if (!user) return;
     const { data, error } = await supabase
       .from("support_threads")
-      .insert({ user_id: user.id, topic: mode, subject: "Ny henvendelse" })
+      .insert({ user_id: user.id, topic: mode, subject: "Ny sag" })
       .select("id, topic, subject, status, last_message_at, created_at")
       .single();
     if (error || !data) {
-      toast.error("Kunne ikke oprette samtale");
+      toast.error("Din sag blev ikke oprettet. Kontrollér forbindelsen, og prøv igen.");
       return;
     }
     setThreads((p) => [data as Thread, ...p]);
@@ -72,9 +72,9 @@ export default function SupportDialog({
   };
 
   const deleteThread = async (id: string) => {
-    if (!confirm("Slet denne samtale permanent?")) return;
+    if (!confirm("Slet denne sag permanent? Din historik forsvinder.")) return;
     const { error } = await supabase.from("support_threads").delete().eq("id", id);
-    if (error) return toast.error("Kunne ikke slette");
+    if (error) return toast.error("Sagen blev ikke slettet. Prøv igen om lidt.");
     setThreads((p) => p.filter((t) => t.id !== id));
     if (activeId === id) setActiveId(null);
   };
@@ -116,15 +116,15 @@ export default function SupportDialog({
             </span>
             <div>
               <h3 className="font-display text-xl leading-tight">
-                {isComplaint ? "Klager" : "Hjælp & support"}
+                {isComplaint ? "Klager & tvister" : "Hjælp & support"}
               </h3>
               {active && (
                 <p className="text-[11px] uppercase tracking-[0.14em] opacity-60">
                   {active.status === "escalated"
-                    ? "Eskaleret til medarbejder"
+                    ? "Sendt videre til support"
                     : active.status === "closed"
                     ? "Lukket"
-                    : "AI-assistent · skriv eskaler for menneske"}
+                    : "AI-assistent · skriv \"support\" for at få et menneske"}
                 </p>
               )}
             </div>
@@ -185,14 +185,14 @@ function ThreadList({
     <div className="flex min-h-0 flex-1 flex-col">
       <div className="flex items-center justify-between px-5 py-3">
         <p className="text-[11px] font-bold uppercase tracking-[0.16em] opacity-60">
-          Dine {isComplaint ? "klager" : "samtaler"}
+          Dine {isComplaint ? "klagesager" : "supportsager"}
         </p>
         <button
           onClick={onNew}
           className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold uppercase tracking-[0.14em]"
           style={{ background: C.ink, color: C.cream }}
         >
-          <Plus className="h-3.5 w-3.5" /> Ny
+          <Plus className="h-3.5 w-3.5" /> Opret sag
         </button>
       </div>
       <div className="min-h-0 flex-1 space-y-1 overflow-y-auto px-3 pb-3">
@@ -203,14 +203,14 @@ function ThreadList({
         ) : threads.length === 0 ? (
           <div className="px-5 py-10 text-center">
             <p className="text-sm opacity-70">
-              Ingen {isComplaint ? "klager" : "samtaler"} endnu.
+              Fortæl kort, hvad der er sket. Jo mere præcist du beskriver situationen, desto bedre kan vi hjælpe.
             </p>
             <button
               onClick={onNew}
               className="mt-4 inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold uppercase tracking-[0.14em]"
               style={{ background: C.orange, color: "#fff" }}
             >
-              <MessageCircle className="h-4 w-4" /> Start ny chat
+              <MessageCircle className="h-4 w-4" /> Opret supportsag
             </button>
           </div>
         ) : (
@@ -322,7 +322,7 @@ function ChatPane({
     id: thread.id,
     messages: initialMessages ?? [],
     transport,
-    onError: (e) => toast.error(e.message || "Chat fejlede"),
+    onError: () => toast.error("Din besked blev ikke sendt. Kontrollér forbindelsen, og prøv igen."),
     onFinish: () => {
       // Detect escalation tool result
       // refresh status from DB after assistant turn
@@ -396,7 +396,7 @@ function ChatPane({
                     <ReactMarkdown>{text || (isLoading ? "…" : "")}</ReactMarkdown>
                     {escalated && (
                       <div className="mt-3 inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-bold uppercase tracking-[0.14em]" style={{ background: C.orange, color: "#fff" }}>
-                        <ShieldAlert className="h-3.5 w-3.5" /> Sendt videre til medarbejder
+                        <ShieldAlert className="h-3.5 w-3.5" /> Sendt videre til support
                       </div>
                     )}
                   </div>
@@ -406,9 +406,9 @@ function ChatPane({
           );
         })}
         {status === "submitted" && (
-          <div className="text-sm opacity-60">AI tænker …</div>
+          <div className="text-sm opacity-60">Support-assistenten skriver …</div>
         )}
-        {error && <div className="text-sm text-red-600">{error.message}</div>}
+        {error && <div className="text-sm text-red-600">Din besked blev ikke sendt. Kontrollér forbindelsen, og prøv igen.</div>}
       </div>
 
       <form
@@ -429,7 +429,7 @@ function ChatPane({
               submit();
             }
           }}
-          placeholder="Skriv en besked …"
+          placeholder="Beskriv kort, hvad der er sket …"
           rows={1}
           className="flex-1 resize-none rounded-xl border-2 px-3 py-2 text-sm outline-none focus:border-current"
           style={{ borderColor: `${C.ink}22`, background: "#fff", color: C.ink, maxHeight: 120 }}
@@ -439,7 +439,7 @@ function ChatPane({
           disabled={isLoading || !input.trim()}
           className="grid h-10 w-10 flex-shrink-0 place-items-center rounded-xl disabled:opacity-40"
           style={{ background: C.orange, color: "#fff" }}
-          aria-label="Send"
+          aria-label="Send svar"
         >
           {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
         </button>
