@@ -55,6 +55,7 @@ import { isDevPreviewEnabled } from "@/lib/appEnv";
 // bundle, and the route below is not registered at all in production.
 const ProviderProfilePreview = lazy(() => import("@/dev/ProviderProfilePreview"));
 const ProviderAccountingPreview = lazy(() => import("@/dev/ProviderAccountingPreview"));
+const MonthlyReportPreview = lazy(() => import("@/dev/MonthlyReportPreview"));
 import FAQ from "./pages/FAQ";
 import Regler from "./pages/Regler";
 import FindCleaner from "./pages/FindCleaner";
@@ -65,6 +66,7 @@ import AdminDisputes from "./pages/AdminDisputes";
 import ProviderDisputes from "./pages/ProviderDisputes";
 import { RoleGuard } from "@/components/RoleGuard";
 import AdminAccountingRules from "@/pages/admin/AdminAccountingRules";
+import AdminAccountingReports from "@/pages/admin/AdminAccountingReports";
 import CampaignPage from "./pages/campaigns/CampaignPage";
 import CampaignVerify from "./pages/campaigns/CampaignVerify";
 import AdminCampaigns from "./pages/admin/AdminCampaigns";
@@ -154,6 +156,7 @@ export function AppRoutes() {
       <Route path="/admin/stripe" element={<RoleGuard allow={["admin"]}><AdminStripe /></RoleGuard>} />
       <Route path="/admin/webhooks" element={<RoleGuard allow={["admin"]}><AdminWebhooks /></RoleGuard>} />
       <Route path="/admin/payments" element={<RoleGuard allow={["admin"]}><AdminPayments /></RoleGuard>} />
+      <Route path="/admin/accounting-reports" element={<RoleGuard allow={["admin", "super_admin"]}><AdminAccountingReports /></RoleGuard>} />
       <Route path="/admin/accounting-rules" element={<RoleGuard allow={["admin", "super_admin"]}><AdminAccountingRules /></RoleGuard>} />
       <Route path="/admin/access-logs" element={<RoleGuard allow={["admin"]}><AdminAccessLogs /></RoleGuard>} />
       <Route path="/employee" element={<RoleGuard allow={["employee"]}><EmployeeDashboard /></RoleGuard>} />
@@ -213,6 +216,16 @@ export function AppRoutes() {
           element={
             <Suspense fallback={null}>
               <ProviderAccountingPreview />
+            </Suspense>
+          }
+        />
+      )}
+      {isDevPreviewEnabled() && (
+        <Route
+          path="/dev/monthly-report-preview"
+          element={
+            <Suspense fallback={null}>
+              <MonthlyReportPreview />
             </Suspense>
           }
         />

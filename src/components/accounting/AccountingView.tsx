@@ -9,6 +9,10 @@ import IndirectTaxPanel from "./IndirectTaxPanel";
 import CountryRulesDialog from "./CountryRulesDialog";
 import AccountingDisclaimer from "./AccountingDisclaimer";
 import IncomeTab from "./income/IncomeTab";
+import MonthlyReportsSection, {
+  type MonthlyReportListItem,
+} from "./reports/MonthlyReportsSection";
+import type { MonthlyReportRecord } from "@/lib/accounting/monthlyReport";
 import {
   formatMinor,
   showIndirectTaxModule,
@@ -31,10 +35,17 @@ export interface AccountingViewProps {
   monthlySummary?: { label: string; amountMinor: number }[];
   /** Manually registered income from outside MyCleaner. */
   externalIncome?: ExternalIncomeInput[];
+  /** Monthly PDF reports produced by the backend generator. */
+  monthlyReports?: MonthlyReportListItem[];
+  reportsLoading?: boolean;
+  reportsUnavailableReason?: string | null;
+  onDownloadReport?: (record: MonthlyReportRecord) => void;
+  downloadingReportId?: string | null;
   onCreateExternalIncome?: (item: ExternalIncomeInput) => void;
   onImportExternalIncome?: (items: ExternalIncomeInput[]) => void;
   onCheckDetails?: () => void;
 }
+
 
 /**
  * Presentation only. This component never computes a legal outcome and never
@@ -49,10 +60,17 @@ export default function AccountingView({
   result,
   monthlySummary,
   externalIncome = [],
+  monthlyReports = [],
+  reportsLoading = false,
+  reportsUnavailableReason = null,
+  onDownloadReport,
+  downloadingReportId = null,
   onCreateExternalIncome,
   onImportExternalIncome,
   onCheckDetails,
 }: AccountingViewProps) {
+  const [showSuperseded, setShowSuperseded] = useState(false);
+
   const [rulesOpen, setRulesOpen] = useState(false);
   const locale = rulePack?.defaultLocale ?? provider.preferredLocale ?? null;
 
@@ -96,7 +114,9 @@ export default function AccountingView({
         <TabsList>
           <TabsTrigger value="overview">Oversigt</TabsTrigger>
           <TabsTrigger value="income">Indkomst</TabsTrigger>
+          <TabsTrigger value="reports">Rapporter</TabsTrigger>
         </TabsList>
+
 
         <TabsContent value="overview" className="mt-4 space-y-4">
           <PreliminaryResultCard result={result} locale={locale} amountLabel={amountLabel} />
@@ -175,7 +195,21 @@ export default function AccountingView({
             onImport={onImportExternalIncome}
           />
         </TabsContent>
+
+        <TabsContent value="reports" className="mt-4">
+          <MonthlyReportsSection
+            reports={monthlyReports}
+            loading={reportsLoading}
+            unavailableReason={reportsUnavailableReason}
+            locale={locale}
+            onDownload={onDownloadReport}
+            downloadingId={downloadingReportId}
+            showSuperseded={showSuperseded}
+            onToggleSuperseded={setShowSuperseded}
+          />
+        </TabsContent>
       </Tabs>
+
 
       <AccountingDisclaimer extra={rulePack?.disclaimers} />
 

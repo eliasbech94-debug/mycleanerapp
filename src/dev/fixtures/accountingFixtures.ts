@@ -295,7 +295,7 @@ export const FIXTURE_RULE_PACKS: AccountingRulePack[] = [
   }),
 ];
 
-function profile(over: Partial<ProviderAccountingProfile>): ProviderAccountingProfile {
+export function profile(over: Partial<ProviderAccountingProfile>): ProviderAccountingProfile {
   return {
     providerUserId: "fixture-provider",
     registrationCountry: null,
@@ -638,7 +638,7 @@ export const SALES_TAX_PREVIEW_CASE: AccountingPreviewCase = {
 // External income preview cases I–P (§19). Testdata only.
 // ---------------------------------------------------------------------------
 
-function externalIncome(
+export function externalIncome(
   overrides: Partial<ExternalIncomeInput> & Pick<ExternalIncomeInput, "id" | "description">,
 ): ExternalIncomeInput {
   const currency = overrides.originalCurrency ?? "DKK";

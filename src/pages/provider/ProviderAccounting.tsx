@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -6,7 +6,10 @@ import { useAuth } from "@/hooks/useAuth";
 import BackButton from "@/components/BackButton";
 import AccountingView from "@/components/accounting/AccountingView";
 import AccountingDisclaimer from "@/components/accounting/AccountingDisclaimer";
+import type { MonthlyReportListItem } from "@/components/accounting/reports/MonthlyReportsSection";
+import type { MonthlyReportRecord } from "@/lib/accounting/monthlyReport";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { toast } from "@/hooks/use-toast";
 import type {
   AccountingPeriod,
   AccountingRulePack,
@@ -25,6 +28,7 @@ interface AccountingPayload {
   monthlySummary?: { label: string; amountMinor: number }[];
   externalIncome?: ExternalIncomeInput[];
 }
+
 
 
 /**
@@ -79,6 +83,69 @@ export default function ProviderAccounting() {
     };
   }, [user, period.periodStart, period.periodEnd]);
 
+  // Monthly PDF reports are produced by the scheduled backend generator. The
+  // page only lists what the backend already created — it never renders a
+  // report the generator has not signed off.
+  const [reports, setReports] = useState<MonthlyReportListItem[]>([]);
+  const [reportsLoading, setReportsLoading] = useState(true);
+  const [reportsUnavailable, setReportsUnavailable] = useState<string | null>(null);
+  const [downloadingReportId, setDownloadingReportId] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function loadReports() {
+      if (!user) return;
+      setReportsLoading(true);
+      try {
+        const { data, error } = await supabase.functions.invoke("accounting-monthly-reports", {
+          body: { action: "list" },
+        });
+        if (cancelled) return;
+        if (error || !data) {
+          setReports([]);
+          setReportsUnavailable(
+            "Den automatiske rapportgenerering er endnu ikke aktiveret for dette miljø.",
+          );
+        } else {
+          const records = (data as { reports?: MonthlyReportRecord[] }).reports ?? [];
+          setReports(records.map((record) => ({ record })));
+          setReportsUnavailable(null);
+        }
+      } catch {
+        if (!cancelled) {
+          setReports([]);
+          setReportsUnavailable("Rapporterne kunne ikke hentes. Prøv igen senere.");
+        }
+      } finally {
+        if (!cancelled) setReportsLoading(false);
+      }
+    }
+    loadReports();
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
+
+  const handleDownloadReport = useCallback(async (record: MonthlyReportRecord) => {
+    setDownloadingReportId(record.id);
+    try {
+      const { data, error } = await supabase.functions.invoke("accounting-monthly-reports", {
+        body: { action: "download_url", reportId: record.id },
+      });
+      const url = (data as { url?: string } | null)?.url;
+      if (error || !url) throw new Error("no_url");
+      window.open(url, "_blank", "noopener,noreferrer");
+    } catch {
+      toast({
+        title: "Kunne ikke hente rapporten",
+        description: "Prøv igen om lidt. Rapporten er uændret.",
+        variant: "destructive",
+      });
+    } finally {
+      setDownloadingReportId(null);
+    }
+  }, []);
+
   return (
     <main className="mx-auto w-full max-w-3xl px-4 py-6">
       <BackButton />
@@ -96,8 +163,15 @@ export default function ProviderAccounting() {
           result={payload.result}
           externalIncome={payload.externalIncome ?? []}
           monthlySummary={payload.monthlySummary}
+          monthlyReports={reports}
+          reportsLoading={reportsLoading}
+          reportsUnavailableReason={reportsUnavailable}
+          onDownloadReport={handleDownloadReport}
+          downloadingReportId={downloadingReportId}
           onCheckDetails={() => navigate("/provider/profile")}
         />
+
+
 
       ) : (
         <div className="space-y-4">
