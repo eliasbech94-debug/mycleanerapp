@@ -68,7 +68,7 @@ export default function Index() {
         </div>
       </div>
 
-      <DemoCollectionRails />
+      <DemoCollectionRails primarySlugs={(providers ?? []).slice(0, 4).map((p) => p.provider_slug)} />
 
       <MarketplaceStats />
       <HomeSections slot="bottom" />
