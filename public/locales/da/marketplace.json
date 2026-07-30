@@ -195,20 +195,36 @@
     "heading": "Ofte stillede spørgsmål",
     "items": [
       {
-        "q": "Hvordan er priserne fastsat?",
-        "a": "Cleaners sætter deres egne priser inden for lokale minimumssatser. Du ser den fulde pris før du booker — ingen skjulte gebyrer."
+        "q": "Hvordan booker jeg?",
+        "a": "Vælg en cleaner, se ledige tider i kalenderen og send en booking request. Bookingen er bekræftet, når cleaneren accepterer."
       },
       {
-        "q": "Er alle Cleaners verificerede?",
-        "a": "Ja. Alle Cleaners gennemgår ID- og identitetsverifikation, før de kan modtage bookinger."
+        "q": "Hvordan er priserne fastsat?",
+        "a": "Cleaners sætter selv deres priser inden for lokale minimumssatser. Du ser totalprisen, før du bekræfter — ingen skjulte gebyrer."
+      },
+      {
+        "q": "Er alle cleaners verificerede?",
+        "a": "Ja. Alle gennemgår ID-verifikation, før de kan modtage bookinger. Verificerede profiler er tydeligt markeret."
+      },
+      {
+        "q": "Hvad er Provider Score?",
+        "a": "Et samlet mål for kvalitet baseret på anmeldelser, svartid, gennemførte bookinger og verifikation."
+      },
+      {
+        "q": "Hvorfor har nogle profiler en video?",
+        "a": "Cleaners kan tilføje en kort videopræsentation, så du kan møde personen, før du booker."
+      },
+      {
+        "q": "Kan jeg få en fast, gentagende booking?",
+        "a": "Ja. Vælg recurring booking, så gentages opgaven automatisk i det interval, du vælger."
       },
       {
         "q": "Hvornår trækkes betalingen?",
-        "a": "Vi reserverer beløbet ved bookingen og frigiver det til din Cleaner, når jobbet er udført og godkendt."
+        "a": "Beløbet reserveres ved bookingen og frigives til cleaneren, når opgaven er udført og godkendt."
       },
       {
         "q": "Kan jeg aflyse?",
-        "a": "Ja — aflysning er gratis op til 24 timer før. Se vores fulde aflysningspolitik i FAQ."
+        "a": "Ja. Aflysning er gratis indtil 24 timer før. Se de fulde vilkår under Regler."
       },
       {
         "q": "Hvilke lande er live?",
