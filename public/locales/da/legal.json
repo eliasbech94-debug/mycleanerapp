@@ -1,0 +1,81 @@
+{
+  "center": {
+    "title": "MyCleaner Legal Center",
+    "subtitle": "Læs vores vilkår, politikker og retningslinjer. Vi tror på gennemsigtighed, fairness og tillid mellem kunder, providere og platformen.",
+    "metaTitle": "Legal Center — vilkår og politikker | MyCleaner",
+    "metaDescription": "Læs MyCleaners vilkår, privatlivspolitik, markedspladsregler og øvrige politikker samlet ét sted.",
+    "searchLabel": "Søg i juridiske dokumenter",
+    "searchPlaceholder": "Søg i dokumenter…",
+    "read": "Læs dokument",
+    "empty": "Ingen dokumenter matcher din søgning.",
+    "error": "Dokumenterne kunne ikke indlæses. Prøv igen senere."
+  },
+  "meta": {
+    "version": "Version",
+    "updated": "Senest opdateret",
+    "effective": "Ikrafttrædelsesdato",
+    "readingTime": "Læsetid",
+    "readingTimeValue": "{{count}} min. læsetid"
+  },
+  "toc": { "title": "Indhold" },
+  "document": {
+    "print": "Print",
+    "pdf": "Download PDF",
+    "pdfSoon": "PDF-download kommer snart",
+    "share": "Del dokument",
+    "linkCopied": "Link kopieret",
+    "linkCopyFailed": "Kunne ikke kopiere linket",
+    "breadcrumb": "Brødkrumme",
+    "notFoundTitle": "Dokumentet findes ikke",
+    "notFoundBody": "Dokumentet er enten ikke offentliggjort endnu eller findes ikke i dit land.",
+    "backToCenter": "Tilbage til Legal Center",
+    "metaFallbackTitle": "Juridisk dokument | MyCleaner",
+    "metaFallbackDescription": "Officielt juridisk dokument fra MyCleaner."
+  },
+  "update": {
+    "title": "MyCleaner har opdateret sine juridiske vilkår",
+    "subtitle": "{{title}} · version {{version}}",
+    "readFull": "Læs hele dokumentet",
+    "confirm": "Jeg har læst og accepterer dokumentet.",
+    "accept": "Accepter",
+    "acceptNext": "Accepter og fortsæt",
+    "logout": "Log ud"
+  },
+  "onboarding": {
+    "acceptProviderTerms": "Jeg har læst og accepterer <0>Providervilkårene</0> og bekræfter, at jeg er berettiget til at arbejde i det valgte land.",
+    "acceptRequired": "Du skal acceptere providervilkårene for at fortsætte."
+  },
+  "footer": {
+    "heading": "Juridisk",
+    "center": "Legal Center",
+    "privacy": "Privatliv",
+    "terms": "Vilkår",
+    "cookies": "Cookies",
+    "trust": "Trust Center"
+  },
+  "admin": {
+    "title": "Juridiske dokumenter",
+    "subtitle": "Opret, rediger, versionér og offentliggør dokumenter i Legal Center.",
+    "new": "Nyt dokument",
+    "save": "Gem kladde",
+    "publish": "Publicér",
+    "preview": "Preview",
+    "edit": "Redigér",
+    "history": "Versionshistorik",
+    "slug": "Slug",
+    "docTitle": "Titel",
+    "description": "Beskrivelse",
+    "kind": "Type",
+    "country": "Land",
+    "language": "Sprog",
+    "version": "Version",
+    "icon": "Ikon",
+    "required": "Kræver accept",
+    "content": "Indhold (Markdown)",
+    "status": "Status",
+    "saved": "Dokument gemt",
+    "published": "Dokument offentliggjort",
+    "error": "Handlingen kunne ikke gennemføres",
+    "empty": "Ingen dokumenter endnu."
+  }
+}
