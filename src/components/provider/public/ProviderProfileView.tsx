@@ -52,66 +52,86 @@ export function ProviderProfileView(props: ProviderProfileViewProps) {
   const firstName = profile.display_name.split(" ")[0];
 
   return (
-    <div className="mx-auto max-w-4xl px-4 pt-4 sm:px-6">
+    <div className="mx-auto w-full max-w-4xl px-4 pt-4 sm:px-6 lg:max-w-5xl xl:max-w-[1500px] xl:px-10 xl:pt-8">
       {props.header && <div className="mb-3">{props.header}</div>}
 
       {/* Bottom padding keeps the fixed mobile CTA (and the tab bar it sits on)
           from covering the last section, the footer or any link. */}
       <div
-        className="space-y-5"
+        className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_380px] xl:items-start xl:gap-10"
         style={{
           paddingBottom:
             "calc(var(--provider-mobile-cta-height, 64px) + env(safe-area-inset-bottom) + 24px)",
         }}
       >
-        <ProviderHero
-          profile={profile}
-          availabilityStatus={props.availabilityStatus}
-          presenceStatus={props.presenceStatus}
-          distanceKm={props.distanceKm}
-          earlyAccess={props.earlyAccess}
-          isFollowing={props.isFollowing}
-          onFollow={props.onFollow}
-        />
-        <ProviderTrustBadges profile={profile} />
-        <ProviderAbout profile={profile} />
-        <ProviderServices profile={profile} nextSlot={props.nextSlot ?? props.slots?.[0] ?? null} />
-        <ProviderAvailability
-          slots={props.slots}
-          nextSlot={props.nextSlot}
-          providerName={profile.display_name}
-          onPick={props.onPickSlot}
-          onRequestOther={props.onRequestOther}
-          onNotify={props.onNotify}
-          notifyRequested={props.notifyRequested}
-          onSeeAlternatives={props.onSeeAlternatives}
-        />
-        <ProviderExperience profile={profile} workHistory={props.workHistory} />
-        <ProviderReviews profile={profile} reviews={props.reviews} onVisible={props.onLoadReviews} />
+        <div className="min-w-0 space-y-5 xl:space-y-8">
+          <ProviderHero
+            profile={profile}
+            availabilityStatus={props.availabilityStatus}
+            presenceStatus={props.presenceStatus}
+            distanceKm={props.distanceKm}
+            earlyAccess={props.earlyAccess}
+            isFollowing={props.isFollowing}
+            onFollow={props.onFollow}
+          />
+          <ProviderTrustBadges profile={profile} />
+          <ProviderAbout profile={profile} />
+          <ProviderServices profile={profile} nextSlot={props.nextSlot ?? props.slots?.[0] ?? null} />
+          <ProviderAvailability
+            slots={props.slots}
+            nextSlot={props.nextSlot}
+            providerName={profile.display_name}
+            onPick={props.onPickSlot}
+            onRequestOther={props.onRequestOther}
+            onNotify={props.onNotify}
+            notifyRequested={props.notifyRequested}
+            onSeeAlternatives={props.onSeeAlternatives}
+          />
+          <ProviderExperience profile={profile} workHistory={props.workHistory} />
+          <ProviderReviews profile={profile} reviews={props.reviews} onVisible={props.onLoadReviews} />
 
-        <button
-          type="button"
-          onClick={props.onSeeAlternatives}
-          className="w-full rounded-md text-xs text-[hsl(224_20%_45%)] underline underline-offset-2 hover:text-[hsl(224_72%_18%)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(222_88%_42%)]"
-          data-testid="see-alternatives-btn"
-        >
-          Se lignende cleaners
-        </button>
+          <button
+            type="button"
+            onClick={props.onSeeAlternatives}
+            className="w-full rounded-md text-xs text-[hsl(224_20%_45%)] underline underline-offset-2 hover:text-[hsl(224_72%_18%)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(222_88%_42%)]"
+            data-testid="see-alternatives-btn"
+          >
+            Se lignende cleaners
+          </button>
 
-        <p className="text-center text-xs text-[hsl(224_20%_50%)]">
-          Sikker betaling gennem MyCleaner. Ingen adresser, telefonnumre eller e-mails deles udenfor platformen.
-        </p>
+          <p className="text-center text-xs text-[hsl(224_20%_50%)] xl:hidden">
+            Sikker betaling gennem MyCleaner. Ingen adresser, telefonnumre eller e-mails deles udenfor platformen.
+          </p>
+
+          {/* Sticky CTA is the mobile/laptop action bar; desktop uses the sidebar. */}
+          <div className="xl:hidden">
+            <ProviderStickyCta
+              earlyAccess={props.bookingLocked}
+              isFollowing={props.isFollowing}
+              providerFirstName={firstName}
+              onBook={props.onBook}
+              onFollow={props.onFollow}
+            />
+          </div>
+        </div>
+
+        {/* Desktop (>=1280px) sticky booking column. */}
+        <div className="hidden xl:block">
+          <ProviderBookingSidebar
+            profile={profile}
+            slots={props.slots}
+            nextSlot={props.nextSlot}
+            bookingLocked={props.bookingLocked}
+            isFollowing={props.isFollowing}
+            onBook={props.onBook}
+            onFollow={props.onFollow}
+            onPickSlot={props.onPickSlot}
+          />
+        </div>
       </div>
-
-      <ProviderStickyCta
-        earlyAccess={props.bookingLocked}
-        isFollowing={props.isFollowing}
-        providerFirstName={firstName}
-        onBook={props.onBook}
-        onFollow={props.onFollow}
-      />
     </div>
   );
 }
+
 
 export default ProviderProfileView;
