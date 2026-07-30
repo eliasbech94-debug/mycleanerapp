@@ -554,21 +554,20 @@ export async function publishDocumentVersion(input: {
   return { version, hash: preview.nextHash };
 }
 
-/** Restores the chapter set of an earlier published version as a new draft. */
-export async function rollbackToChangelogEntry(documentId: string, entryId: string, reason?: string): Promise<void> {
-  const { data, error } = await supabase
-    .from("legal_document_changelog")
-    .select("id,version,previous_version")
-    .eq("id", entryId)
-    .eq("document_id", documentId)
-    .single();
-  if (error) throw error;
+/**
+ * Rollback: takes an earlier (superseded/archived) version and re-creates it as
+ * a new draft version with its chapters, ready to be reviewed and published.
+ * Nothing is deleted, so the full version history stays intact.
+ */
+export async function rollbackToVersion(doc: LegalDocumentRef, reason?: string): Promise<string> {
+  const draftId = await createDraftVersion(doc, "patch", reason ?? "rollback");
   await recordAudit({
-    documentId,
-    action: "document.rollback_requested",
+    documentId: draftId,
+    action: "document.rollback_prepared",
     reason: reason ?? null,
-    metadata: { to_version: data.previous_version ?? data.version },
+    metadata: { from_document: doc.id, from_version: doc.version },
   });
+  return draftId;
 }
 
 /* ------------------------------------------------------------------ */
