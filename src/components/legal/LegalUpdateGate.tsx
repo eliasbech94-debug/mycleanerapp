@@ -13,6 +13,7 @@ import { useLegalScope } from "@/hooks/useLegalScope";
 import { acceptLegalDocument, fetchPendingRequired } from "@/lib/legal/api";
 import { LegalMarkdown } from "@/components/legal/LegalMarkdown";
 import { supabase } from "@/integrations/supabase/client";
+import { useUserRoles } from "@/hooks/useUserRoles";
 
 export function LegalUpdateGate() {
   const { user } = useAuth();
