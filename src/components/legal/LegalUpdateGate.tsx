@@ -95,3 +95,36 @@ export function LegalUpdateGate() {
     </Dialog>
   );
 }
+
+/** Shows the "what changed" summary from the published changelog, if any. */
+function LegalUpdateChangelog({ documentId }: { documentId: string }) {
+  const { t } = useTranslation("legal");
+  const { data } = useQuery({
+    queryKey: ["legal-changelog", documentId],
+    queryFn: () => fetchChangelog(documentId),
+    staleTime: 10 * 60 * 1000,
+  });
+  const latest = data?.[0];
+  if (!latest) return null;
+
+  return (
+    <section className="rounded-xl border border-border bg-muted/40 p-4">
+      <h3 className="text-sm font-semibold">{t("update.whatChanged", "Hvad er ændret")}</h3>
+      <p className="mt-1 text-sm text-muted-foreground">{latest.summary}</p>
+      {Array.isArray(latest.changes) && latest.changes.length > 0 && (
+        <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-muted-foreground">
+          {latest.changes.slice(0, 6).map((c, i) => (
+            <li key={i}>
+              {c.kind === "added"
+                ? t("update.changeAdded", "Nyt afsnit")
+                : c.kind === "removed"
+                  ? t("update.changeRemoved", "Fjernet afsnit")
+                  : t("update.changeModified", "Ændret afsnit")}
+              : {c.title}
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  );
+}
