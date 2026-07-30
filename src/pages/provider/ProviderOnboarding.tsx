@@ -11,8 +11,22 @@ import { ProviderServicePricing } from "@/components/provider/ProviderServicePri
 import { StripeConnectStatusWidget } from "@/components/provider/StripeConnectStatusWidget";
 import { IdentityVerificationCard } from "@/components/identity/IdentityVerificationCard";
 import BackButton from "@/components/BackButton";
+import { acceptLegalDocument, fetchLegalDocument } from "@/lib/legal/api";
 
 const C = { ink: "#0a3d3a", orange: "#ff6b35", cream: "#f5f0e0", teal: "#168a7a", mint: "#c8e6c0" };
+
+/** Records a versioned, hash-stamped acceptance of the provider terms. */
+async function recordProviderTermsAcceptance() {
+  try {
+    const { data: auth } = await supabase.auth.getUser();
+    if (!auth.user) return;
+    const doc = await fetchLegalDocument("provider-terms", "DK", "da");
+    if (!doc) return;
+    await acceptLegalDocument(auth.user.id, doc, "provider_onboarding");
+  } catch {
+    // Acceptance audit is best-effort here; the checkbox timestamp is the gate.
+  }
+}
 
 const STEPS = [
   { key: "account", title: "Konto", Icon: User },
