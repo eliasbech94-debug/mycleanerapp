@@ -651,3 +651,132 @@ export async function searchLegalLibrary(term: string, documentId?: string): Pro
   if (error) throw error;
   return matchSections((data ?? []) as LegalSection[], q);
 }
+
+/* ------------------------------------------------------------------ */
+/* Review workflow & scheduled legal review                            */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Moves a document through the lifecycle (draft → internal review → legal
+ * review → approved). Transitions are validated client-side and enforced by
+ * the database status constraint + immutability trigger.
+ */
+export async function transitionDocumentStatus(
+  doc: LegalDocumentRef,
+  to: LegalStatus,
+  reason?: string,
+): Promise<void> {
+  if (!canTransition(doc.status, to)) {
+    throw new Error(`Ugyldigt statusskifte: ${doc.status} → ${to}`);
+  }
+  const { data: auth } = await supabase.auth.getUser();
+  const now = new Date().toISOString();
+  const patch: Record<string, unknown> = { status: to };
+  if (to === "approved") {
+    patch.approved_by = auth.user?.id ?? null;
+    patch.approved_at = now;
+  }
+  if (to === "archived") patch.superseded_at = doc.status === "published" ? undefined : null;
+
+  const { error } = await supabase.from("legal_documents").update(patch).eq("id", doc.id);
+  if (error) throw error;
+
+  await recordAudit({
+    documentId: doc.id,
+    action: `document.status.${to}`,
+    oldHash: doc.body_hash,
+    newHash: doc.body_hash,
+    reason: reason ?? null,
+    metadata: { from: doc.status, to },
+  });
+}
+
+/** Records that a legal review took place and schedules the next one. */
+export async function recordLegalReview(
+  doc: LegalDocumentRef,
+  intervalMonths = doc.review_interval_months ?? 12,
+  reason?: string,
+): Promise<void> {
+  const now = new Date();
+  const { error } = await supabase
+    .from("legal_documents")
+    .update({
+      last_review_at: now.toISOString(),
+      next_review_at: computeNextReview(now, intervalMonths),
+      review_interval_months: intervalMonths,
+    })
+    .eq("id", doc.id);
+  if (error) throw error;
+  await recordAudit({
+    documentId: doc.id,
+    action: "document.reviewed",
+    reason: reason ?? null,
+    metadata: { interval_months: intervalMonths },
+  });
+}
+
+export interface ReviewDueRow {
+  id: string;
+  doc_uid: string | null;
+  slug: string;
+  title: string;
+  version: string;
+  country_code: string;
+  language: string;
+  next_review_at: string;
+  days_until: number;
+}
+
+/** Published documents whose scheduled legal review is due (or overdue). */
+export async function fetchDocumentsDueForReview(withinDays = 30): Promise<ReviewDueRow[]> {
+  const { data, error } = await supabase.rpc("legal_documents_due_for_review", { _within_days: withinDays });
+  if (error) throw error;
+  return (data ?? []) as ReviewDueRow[];
+}
+
+/* ------------------------------------------------------------------ */
+/* Document metadata                                                   */
+/* ------------------------------------------------------------------ */
+
+export interface LegalDocumentMetadata {
+  documentId: string;
+  docUid: string | null;
+  category: string | null;
+  originalLanguage: string | null;
+  translations: string[];
+  wordCount: number;
+  readingMinutes: number;
+  sectionCount: number;
+  hash: string;
+  version: string;
+  legacyVersion: string | null;
+  status: string;
+  lastReviewAt: string | null;
+  nextReviewAt: string | null;
+}
+
+/** One call that returns everything the admin metadata panel needs. */
+export async function fetchDocumentMetadata(doc: LegalDocumentRef): Promise<LegalDocumentMetadata> {
+  const sections = await fetchSections(doc.id);
+  const translations = Array.from(
+    new Set(sections.filter((s) => s.language !== (doc.original_language ?? doc.language)).map((s) => s.language)),
+  ).sort();
+  const scoped = sections.filter((s) => s.language === doc.language && s.status !== "archived");
+  return {
+    documentId: doc.id,
+    docUid: doc.doc_uid ?? null,
+    category: doc.category ?? null,
+    originalLanguage: doc.original_language ?? doc.language,
+    translations,
+    wordCount: doc.word_count ?? 0,
+    readingMinutes: doc.reading_minutes ?? sectionsReadingTime(scoped),
+    sectionCount: doc.section_count ?? scoped.length,
+    hash: doc.body_hash,
+    version: doc.version,
+    legacyVersion: doc.legacy_version ?? null,
+    status: doc.status,
+    lastReviewAt: doc.last_review_at ?? null,
+    nextReviewAt: doc.next_review_at ?? null,
+  };
+}
+
