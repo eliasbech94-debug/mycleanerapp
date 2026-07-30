@@ -184,6 +184,10 @@ export function AppRoutes() {
         path="/provider/bilag"
         element={<RoleGuard allow={["provider", "admin", "super_admin"]}><ProviderReceipts /></RoleGuard>}
       />
+      <Route
+        path="/provider/accounting"
+        element={<RoleGuard allow={["provider", "admin", "super_admin"]}><ProviderAccounting /></RoleGuard>}
+      />
       <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
       <Route path="/campaigns/verify" element={<CampaignVerify />} />
       <Route path="/campaigns/:slug" element={<CampaignPage />} />
