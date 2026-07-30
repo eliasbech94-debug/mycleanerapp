@@ -75,12 +75,13 @@ export function CompactProviderCard({ provider: p, to, className = "" }: Compact
         </div>
 
         <div className="flex flex-1 flex-col gap-1 p-4">
-          <div className="flex items-start justify-between gap-2">
-            <h3 className="truncate text-[15px] font-semibold leading-snug text-[hsl(var(--mkt-ink))]">
-              {p.display_name}
-            </h3>
+          <h3 className="truncate text-[15px] font-semibold leading-snug text-[hsl(var(--mkt-ink))]">
+            {p.display_name}
+          </h3>
+
+          <div className="flex min-w-0 items-center gap-1.5 text-[13px] text-[hsl(var(--mkt-ink-muted))]">
             {rating !== null && (
-              <span className="inline-flex shrink-0 items-center gap-1 text-[13px] font-semibold text-[hsl(var(--mkt-ink))]">
+              <span className="inline-flex shrink-0 items-center gap-1 font-semibold text-[hsl(var(--mkt-ink))]">
                 <Star className="h-3.5 w-3.5 fill-current text-[hsl(var(--mkt-star,38_92%_50%))]" aria-hidden />
                 {rating.toFixed(1)}
                 {p.total_reviews ? (
@@ -88,11 +89,10 @@ export function CompactProviderCard({ provider: p, to, className = "" }: Compact
                 ) : null}
               </span>
             )}
+            {rating !== null && location && <span aria-hidden>·</span>}
+            {location && <span className="truncate">{location}</span>}
           </div>
 
-          {location && (
-            <p className="truncate text-[13px] text-[hsl(var(--mkt-ink-muted))]">{location}</p>
-          )}
 
           <p className="mt-auto pt-2 text-[13.5px] text-[hsl(var(--mkt-ink-muted))]">
             {typeof p.price_from === "number" && p.price_from > 0 ? (
