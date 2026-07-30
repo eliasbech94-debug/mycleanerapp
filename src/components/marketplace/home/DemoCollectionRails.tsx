@@ -1,8 +1,8 @@
 import { Link } from "react-router-dom";
-import { Star, Clock, Heart } from "lucide-react";
-import { DEMO_MODE, getDemoFavoriteCount, hasDemoVideoIntro } from "@/data/demo";
+import { DEMO_MODE } from "@/data/demo";
 import { useDemoMarketplace } from "@/hooks/useDemoMarketplace";
-import { formatMoney, marketByCode, NEUTRAL_MARKET } from "@/lib/markets";
+import { ProviderCard } from "@/components/marketplace/ProviderCard";
+
 
 /**
  * Homepage demo rails — development / preview only.
@@ -45,56 +45,11 @@ export default function DemoCollectionRails() {
           <ul className="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2">
             {collection.providers.map((p) => (
               <li key={`${collection.id}-${p.provider_slug}`} className="w-[240px] shrink-0 snap-start">
-                <Link
-                  to={`/cleaner/${p.provider_slug}`}
-                  className="flex h-full flex-col gap-2 rounded-2xl border border-[hsl(var(--mkt-border))] bg-[hsl(var(--mkt-surface))] p-3 transition-shadow hover:shadow-md"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <img
-                      src={p.avatar_url ?? ""}
-                      alt={`Profilbillede af ${p.display_name}`}
-                      loading="lazy"
-                      className="h-11 w-11 rounded-full object-cover"
-                    />
-                    <div className="min-w-0">
-                      <p className="truncate text-[14px] font-semibold text-[hsl(var(--mkt-ink))]">
-                        {p.display_name}
-                      </p>
-                      <p className="truncate text-[12px] text-[hsl(var(--mkt-ink-muted))]">{p.city}</p>
-                    </div>
-                  </div>
-
-                  <p className="line-clamp-2 text-[12.5px] text-[hsl(var(--mkt-ink-muted))]">{p.public_bio}</p>
-
-                  <div className="mt-auto flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-[hsl(var(--mkt-ink-muted))]">
-                    <span className="inline-flex items-center gap-1">
-                      <Star className="h-3.5 w-3.5 fill-current text-[hsl(var(--mkt-brand))]" aria-hidden />
-                      {p.average_rating.toFixed(1)} ({p.total_reviews})
-                    </span>
-                    <span className="inline-flex items-center gap-1">
-                      <Clock className="h-3.5 w-3.5" aria-hidden />
-                      {p.avg_response_minutes} min
-                    </span>
-                    <span className="inline-flex items-center gap-1">
-                      <Heart className="h-3.5 w-3.5" aria-hidden />
-                      {getDemoFavoriteCount(p.provider_slug)}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <span className="text-[13px] font-semibold text-[hsl(var(--mkt-ink))]">
-                      {formatMoney(p.price_from ?? 0, marketByCode(p.country_code) ?? NEUTRAL_MARKET)}
-                    </span>
-                    {hasDemoVideoIntro(p.provider_slug) && (
-                      <span className="rounded-full bg-[hsl(var(--mkt-surface-muted))] px-2 py-0.5 text-[10.5px] font-medium text-[hsl(var(--mkt-ink-muted))]">
-                        🎥 Video Introduction
-                      </span>
-                    )}
-                  </div>
-                </Link>
+                <ProviderCard provider={p} to={`/cleaner/${p.provider_slug}`} />
               </li>
             ))}
           </ul>
+
         </div>
       ))}
 
