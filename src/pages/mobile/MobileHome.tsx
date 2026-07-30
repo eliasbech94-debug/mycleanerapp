@@ -43,7 +43,7 @@ import { PullIndicator } from "@/components/mobile/PullIndicator";
 import { MobileServicesCarousel } from "@/components/mobile/MobileServicesCarousel";
 import { MobileHowItWorksCard } from "@/components/mobile/MobileHowItWorksCard";
 import { CampaignSection } from "@/components/marketplace/home/CampaignSection";
-import { ProviderCard } from "@/components/marketplace/ProviderCard";
+import { CompactProviderCard as ProviderCard } from "@/components/marketplace/CompactProviderCard";
 
 
 const HomeSections = lazy(() =>
