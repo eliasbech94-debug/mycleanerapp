@@ -171,7 +171,7 @@ export function MobileHowItWorksCard() {
                 n: idx + 1,
                 total: STEPS.length,
               })}
-              className={`snap-start shrink-0 w-[calc(100vw-56px)] max-w-[360px] rounded-[24px] border bg-[hsl(var(--mkt-surface))] p-4 transition-[border-color,box-shadow,opacity] duration-400 ease-out motion-reduce:transition-none ${
+              className={`snap-start shrink-0 w-[calc(100vw-56px)] max-w-[360px] rounded-[24px] border bg-[hsl(var(--mkt-surface))] p-4 transition-[border-color,box-shadow,opacity] duration-500 ease-out motion-reduce:transition-none ${
                 active === idx
                   ? "border-[hsl(var(--mkt-brand))]/45 opacity-100 shadow-[0_16px_40px_-24px_hsl(var(--mkt-brand)/0.5)]"
                   : "border-[hsl(var(--mkt-border))] opacity-90"

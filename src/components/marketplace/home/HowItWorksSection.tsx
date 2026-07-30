@@ -201,7 +201,7 @@ export function HowItWorksSection() {
                         : "bg-[hsl(var(--mkt-brand-soft))] text-[hsl(var(--mkt-brand))]"
                     }`}
                   >
-                    <Icon className="h-4.5 w-4.5" strokeWidth={2.25} aria-hidden="true" />
+                    <Icon className="h-[18px] w-[18px]" strokeWidth={2.25} aria-hidden="true" />
                   </span>
                   <span
                     className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[hsl(var(--mkt-ink-muted))]"
