@@ -113,16 +113,16 @@ export default function MyBookings() {
 
       <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
         <h1 className="font-display text-3xl sm:text-4xl">Dine bookinger</h1>
-        <p className="mt-2 text-sm opacity-70">Følg status på dine cleaner-bookinger her.</p>
+        <p className="mt-2 text-sm opacity-70">Her følger du dine bookingforespørgsler og bekræftede bookinger.</p>
 
         <div className="mt-8 space-y-3">
-          {bookings === null && <div className="opacity-60 text-sm">Henter…</div>}
+          {bookings === null && <div className="opacity-60 text-sm">Henter dine bookinger…</div>}
           {bookings && bookings.length === 0 && (
             <div className="rounded-2xl border-2 border-dashed bg-white p-8 text-center" style={{ borderColor: `${C.ink}33` }}>
-              <div className="font-display text-xl">Ingen bookinger endnu</div>
-              <p className="mt-2 text-sm opacity-70">Find en cleaner og book direkte i kalenderen.</p>
+              <div className="font-display text-xl">Du har ingen bookinger endnu</div>
+              <p className="mt-2 text-sm opacity-70">Find en cleaner, og book direkte i providerens kalender.</p>
               <Link to="/" className="mt-4 inline-flex rounded-full px-5 py-2.5 text-xs font-bold uppercase tracking-[0.18em]" style={{ background: C.orange, color: C.ink }}>
-                Find cleaner
+                Find en cleaner
               </Link>
             </div>
           )}
