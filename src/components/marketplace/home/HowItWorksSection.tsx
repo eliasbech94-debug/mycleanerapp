@@ -50,16 +50,16 @@ export function HowItWorksSection() {
             <p className="mt-2 text-[14px] leading-relaxed text-[hsl(var(--mkt-ink-muted))]">
               {t(`how.steps.${key}.body`, "")}
             </p>
-            {key === "search" ? (
+            {key === "search" || key === "book" ? (
               <video
-                src={findCleanerVideo.url}
+                src={key === "search" ? findCleanerVideo.url : bookVideo.url}
                 className="mt-4 aspect-video w-full rounded-2xl border border-[hsl(var(--mkt-border))] object-cover"
                 autoPlay
                 muted
                 loop
                 playsInline
                 preload="metadata"
-                aria-label={t("how.steps.search.videoLabel", "Sådan finder du en cleaner")}
+                aria-label={t(`how.steps.${key}.videoLabel`, "Sådan virker det")}
               />
             ) : null}
           </li>
