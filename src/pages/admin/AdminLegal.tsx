@@ -214,36 +214,36 @@ export default function AdminLegal() {
             <TabsList>
               <TabsTrigger value="edit">{t("admin.edit", "Redigér")}</TabsTrigger>
               <TabsTrigger value="sections">{t("admin.sections", "Kapitler")}</TabsTrigger>
+              <TabsTrigger value="workflow">{t("admin.workflow", "Gennemgang")}</TabsTrigger>
               <TabsTrigger value="preview">{t("admin.preview", "Preview")}</TabsTrigger>
             </TabsList>
 
             <TabsContent value="sections" className="mt-6">
-              {selectedId && draft.slug ? (
-                <LegalSectionManager
-                  key={selectedId}
-                  document={{
-                    id: selectedId,
-                    slug: draft.slug ?? "",
-                    kind: draft.kind ?? "policy",
-                    title: draft.title ?? "",
-                    description: draft.description ?? null,
-                    icon: draft.icon ?? null,
-                    country_code: draft.country_code ?? "DK",
-                    language: draft.language ?? "da",
-                    version: draft.version ?? "1.0",
-                    body_md: draft.body_md ?? "",
-                    body_hash: draft.body_hash ?? "",
-                    status: draft.status ?? "draft",
-                    required: Boolean(draft.required),
-                    doc_uid: draft.doc_uid ?? null,
-                  }}
-                />
+              {docRef && docRef.slug ? (
+                <LegalSectionManager key={selectedId} document={docRef} />
               ) : (
                 <p className="text-sm text-muted-foreground">
                   {t("admin.selectDocument", "Vælg et dokument i listen for at arbejde med kapitler.")}
                 </p>
               )}
             </TabsContent>
+
+            <TabsContent value="workflow" className="mt-6 space-y-6">
+              {docRef && docRef.slug ? (
+                <LegalReviewWorkflow key={selectedId} document={docRef} onChanged={refreshDocuments} />
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  {t("admin.selectDocument", "Vælg et dokument i listen for at arbejde med kapitler.")}
+                </p>
+              )}
+              <LegalReviewDueWidget
+                onSelect={(id) => {
+                  const row = (rows ?? []).find((r) => r.id === id);
+                  if (row) select(row);
+                }}
+              />
+            </TabsContent>
+
 
             <TabsContent value="edit" className="mt-6 space-y-5">
 
