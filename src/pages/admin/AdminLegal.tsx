@@ -30,7 +30,7 @@ type Row = {
   required: boolean;
   effective_at: string | null;
   published_at: string | null;
-  updated_at: string | null;
+  body_hash?: string | null;
 };
 
 const EMPTY: Partial<Row> = {
@@ -58,7 +58,7 @@ export default function AdminLegal() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("legal_documents")
-        .select("id,slug,kind,title,description,icon,country_code,language,version,body_md,status,required,effective_at,published_at,updated_at")
+        .select("id,slug,kind,title,description,icon,country_code,language,version,body_md,body_hash,status,required,effective_at,published_at")
         .order("slug")
         .order("version", { ascending: false });
       if (error) throw error;
