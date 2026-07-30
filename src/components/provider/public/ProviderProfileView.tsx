@@ -15,6 +15,7 @@ import ProviderAvailability from "./ProviderAvailability";
 import ProviderExperience from "./ProviderExperience";
 import ProviderReviews from "./ProviderReviews";
 import ProviderStickyCta from "./ProviderStickyCta";
+import ProviderBookingSidebar from "./ProviderBookingSidebar";
 import type {
   AvailabilityStatus,
   PresenceStatus,
