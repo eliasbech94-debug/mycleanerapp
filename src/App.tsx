@@ -74,6 +74,8 @@ import AdminDesignSystem from "./pages/admin/AdminDesignSystem";
 import { UuidGuard, LegacySlugRedirect } from "@/components/routing/UuidGuard";
 import ScrollToTop from "@/components/ScrollToTop";
 import RouteLoadingBar from "@/components/RouteLoadingBar";
+import DemoControlPanel from "@/components/dev/DemoControlPanel";
+
 import PrivacyCenter from "./pages/PrivacyCenter";
 import AdminOps from "./pages/AdminOps";
 import CountryConsole from "./pages/admin/CountryConsole";
@@ -283,6 +285,8 @@ const App = () => (
                   <RootRouteSwitch />
                   <Footer />
                   <MobileBottomNav />
+                  <DemoControlPanel />
+
                 </AuthGateProvider>
               </AppContextProvider>
             </ActiveMarketProvider>
