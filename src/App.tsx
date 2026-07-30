@@ -45,7 +45,7 @@ import {
 } from "./pages/support/SupportShell";
 
 import ProviderDashboardV2 from "./pages/provider/ProviderDashboardV2";
-import Pr46Preview from "./pages/__Pr46Preview";
+import { PROVIDER_APP_ROUTES } from "@/config/provider-routes";
 import ProviderProfileV2 from "./pages/provider/ProviderProfileV2";
 import ProviderReceipts from "./pages/ProviderReceipts";
 import NotFound from "./pages/NotFound";
@@ -116,9 +116,9 @@ export function AppRoutes() {
       <Route path="/profil" element={<MobileProfileGate />} />
       <Route path="/inbox" element={<MobileInboxGate />} />
       <Route path="/inbox/:id" element={<MobileInboxGate />} />
-      <Route path="/verify-identity" element={<RoleGuard allow={["provider", "admin"]}><IdentityVerificationPage /></RoleGuard>} />
+      <Route path={PROVIDER_APP_ROUTES.identityVerification} element={<RoleGuard allow={["provider", "admin"]}><IdentityVerificationPage /></RoleGuard>} />
       <Route path="/bliv-cleaner" element={<ProviderOnboarding />} />
-      <Route path="/provider/profile" element={<RoleGuard allow={["provider", "admin"]}><ProviderProfileV2 /></RoleGuard>} />
+      <Route path={PROVIDER_APP_ROUTES.providerProfile} element={<RoleGuard allow={["provider", "admin"]}><ProviderProfileV2 /></RoleGuard>} />
       <Route path="/provider/career" element={<RoleGuard allow={["provider", "admin"]}><CareerIdentity /></RoleGuard>} />
 
       <Route path="/customer" element={<RoleGuard allow={["customer"]}><CustomerDashboardV2 /></RoleGuard>} />
@@ -165,9 +165,8 @@ export function AppRoutes() {
       <Route path="/book/:id" element={<EarlyAccessRouteGuard><BookingFlow /></EarlyAccessRouteGuard>} />
       <Route path="/mine-bookinger" element={<MobileBookingsGate />} />
       <Route path="/booking/:id/plan" element={<BookingPlan />} />
-      <Route path="/provider-dashboard" element={<RoleGuard allow={["provider", "admin"]}><ProviderDashboardV2 /></RoleGuard>} />
-      <Route path="/__pr46" element={<Pr46Preview />} />
-      <Route path="/provider" element={<RoleGuard allow={["provider", "admin"]}><ProviderDashboardV2 /></RoleGuard>} />
+      <Route path={PROVIDER_APP_ROUTES.dashboard} element={<RoleGuard allow={["provider", "admin"]}><ProviderDashboardV2 /></RoleGuard>} />
+      <Route path={PROVIDER_APP_ROUTES.dashboardAlias} element={<RoleGuard allow={["provider", "admin"]}><ProviderDashboardV2 /></RoleGuard>} />
       <Route path="/provider/pricing" element={<RoleGuard allow={["provider", "admin"]}><ProviderPricing /></RoleGuard>} />
       <Route path="/admin/pricing" element={<RoleGuard allow={["admin"]}><AdminPricing /></RoleGuard>} />
       <Route path="/provider/finance" element={<RoleGuard allow={["provider", "admin"]}><ProviderFinance /></RoleGuard>} />

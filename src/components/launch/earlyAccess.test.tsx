@@ -1,3 +1,4 @@
+import { PROVIDER_APP_ROUTES } from "@/config/provider-routes";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
@@ -188,8 +189,14 @@ describe("Booking CTA guard", () => {
 
 describe("Signup and onboarding stay open in Early Access", () => {
   it("does not guard signup, login or provider onboarding routes", async () => {
-    const src = await import("node:fs").then((fs) =>
+    const raw = await import("node:fs").then((fs) =>
       fs.readFileSync("src/App.tsx", "utf8"),
+    );
+    // App.tsx registers provider routes from a shared constant; expand those
+    // references back to literals so the guard assertions below still apply.
+    const src = Object.entries(PROVIDER_APP_ROUTES).reduce(
+      (acc, [key, value]) => acc.split(`path={PROVIDER_APP_ROUTES.${key}}`).join(`path="${value}"`),
+      raw,
     );
     const guarded = src
       .split("\n")

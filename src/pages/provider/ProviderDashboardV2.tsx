@@ -32,6 +32,7 @@ import {
   WelcomeHeader,
 } from "@/components/dashboard/primitives";
 import { AppErrorBoundary } from "@/components/AppErrorBoundary";
+import { ProviderFeatureRoadmap } from "@/components/provider/ProviderFeatureRoadmap";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useNotifications } from "@/components/Inbox";
@@ -363,6 +364,8 @@ export default function ProviderDashboardV2() {
             </div>
           </div>
         </div>
+
+        <ProviderFeatureRoadmap />
       </DashboardPage>
     </DashboardLayout>
   );
