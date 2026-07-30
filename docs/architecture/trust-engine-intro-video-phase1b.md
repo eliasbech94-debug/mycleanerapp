@@ -1,172 +1,197 @@
 # Trust Engine Phase 1B — Provider intro video backend
 
-Status: architecture proposal only. Nothing in this document is deployed or applied.
+Status: revised architecture proposal only. Nothing in this document is deployed or applied.
 
-## Goal
+## Confirmed boundary
 
-Add a secure backend for the existing frontend-only `Meet Your Cleaner` experience:
+Phase 1B is limited to one introduction video for the person represented by a provider account. Company/team worker videos are out of scope until ownership, consent and deletion semantics are designed separately.
 
-- providers record a short introduction in MyCleaner;
-- the original file remains private;
-- a provider can replace or delete a draft/pending video;
-- moderators approve or reject submissions;
-- only approved videos can be exposed to public provider profiles;
-- no client can promote its own video to `approved`.
+The browser is never trusted to set ownership, paths, technical metadata, moderation fields, identity status, publication state or timestamps. Direct client INSERT/UPDATE/DELETE on the video table is not part of the design; all mutations go through server-authoritative Edge Functions or SECURITY DEFINER RPCs.
 
-## Security boundary
+## Canonical identity
 
-The browser must never be trusted to set moderation fields, public URLs, ownership, or approval timestamps.
+- Internal owner key: `provider_profiles.user_id`.
+- Database FK: `provider_intro_videos.provider_user_id -> provider_profiles(user_id)`.
+- Every server mutation also requires the authenticated user to have the provider role.
+- Public contracts expose only `provider_slug` and video metadata; `auth.users.id` is never returned publicly.
+- The verified-video badge is calculated server-side from the canonical identity-verification source used by the provider profile RPC. The client must not combine independent flags.
+- A material identity relink/reverification event immediately unpublishes the video and returns it to `in_review`.
 
-Public profile reads must use a server-controlled view/RPC that returns only rows where:
+## State machine
 
-- `moderation_status = 'approved'`;
-- `deleted_at IS NULL`;
-- `published_at IS NOT NULL`;
-- the provider profile is otherwise publicly visible.
+Moderation and publication are separate:
 
-Draft, uploading, pending, rejected, archived, and deleted records remain private to the provider and privileged staff.
+`draft -> uploading -> processing -> in_review -> approved -> published`
 
-## Proposed database model
+Side states:
 
-Table: `public.provider_intro_videos`
-
-Key fields:
-
-- `id uuid primary key`
-- `provider_user_id uuid references auth.users(id)`
-- `storage_path text unique`
-- `thumbnail_storage_path text`
-- `duration_seconds integer`
-- `content_type text`
-- `file_size_bytes bigint`
-- `language text`
-- `transcript text`
-- `recorded_in_mycleaner boolean`
-- `moderation_status text`
-- `moderation_reason text`
-- `submitted_at timestamptz`
-- `reviewed_at timestamptz`
-- `reviewed_by uuid`
-- `approved_at timestamptz`
-- `published_at timestamptz`
-- `deleted_at timestamptz`
-- `created_at timestamptz`
-- `updated_at timestamptz`
-
-Only one non-deleted active intro video is allowed per provider.
-
-Allowed states:
-
-`draft -> uploading -> pending -> approved | rejected -> archived`
-
-Replacement archives the old approved row only after the new file has been safely persisted. The public profile keeps showing the previous approved video until the replacement is approved.
-
-## Storage
-
-Private bucket: `provider-intro-videos`
-
-Canonical object path:
-
-`<provider-user-id>/<video-id>/original.<extension>`
-
-Optional derived assets:
-
-- `<provider-user-id>/<video-id>/thumbnail.jpg`
-- `<provider-user-id>/<video-id>/transcript.vtt`
+- `changes_requested`
+- `rejected`
+- `failed`
+- `archived`
+- `expired`
 
 Rules:
 
-- provider can create/read/delete files only under their own first path segment;
-- provider cannot read another provider's object;
-- anonymous/public users never receive direct bucket access;
-- moderators may read objects through a privileged server path;
-- approved public playback uses a short-lived signed URL generated server-side;
-- storage path validation is repeated in the database/Edge Function, not only in RLS.
+- `processing` is mandatory after upload. The server validates bytes, container, codecs, duration, dimensions, audio/video tracks, metadata and path.
+- `failed` means technical validation failed; `rejected` means human moderation rejected the content.
+- `approved` means moderation passed but the asset is not yet public.
+- `published` is the only publicly playable state.
+- Unpublishing is immediate and does not erase the moderation result.
+- Re-review is required after material identity changes and may be required after 12–24 months.
 
-## API/Edge Functions
+## Replacement model
 
-Recommended server-authoritative operations:
+A provider may have:
+
+- at most one published video; and
+- at most one open replacement in `draft`, `uploading`, `processing`, `in_review` or `changes_requested`.
+
+The existing published video remains visible while a replacement is reviewed. On publication of the replacement, a single server transaction:
+
+1. unpublishes and archives the previous video;
+2. moves/records the new immutable final object;
+3. publishes the replacement;
+4. links both rows through `replaces_video_id` / `replaced_by_id`;
+5. writes an immutable audit event.
+
+## Storage
+
+Private bucket: `provider-intro-videos`.
+
+Proposed paths:
+
+- upload quarantine: `<provider-user-id>/<video-id>/incoming/<server-generated-name>`
+- immutable approved asset: `<provider-user-id>/<video-id>/final/video.mp4`
+- thumbnail: `<provider-user-id>/<video-id>/final/thumbnail.jpg`
+- captions: `<provider-user-id>/<video-id>/final/captions.vtt`
+
+There is no general provider write policy on `storage.objects`.
+
+Upload flow:
+
+1. Server creates the draft row and exact incoming path.
+2. Server returns a short-lived signed upload URL with `upsert = false`.
+3. Client uploads once.
+4. Finalize endpoint validates the stored object and moves/copies a sanitized transcoded asset into `final/`.
+5. Approved/final objects are immutable to providers.
+
+Providers never supply an arbitrary storage path. Anonymous users never receive bucket access.
+
+## Public profile integration
+
+Do not expose an independent anon-readable view over the base table.
+
+Extend the existing server-controlled public provider profile contract, preferably `get_public_provider_profile_v2`, so the video is returned only when all conditions are true:
+
+- provider profile is active and publicly visible;
+- video state is `published`;
+- `published_at` is set;
+- `deleted_at` is null;
+- identity verification satisfies the canonical badge rule.
+
+The public response contains slug-linked metadata only. Playback requires a separate endpoint that accepts a provider slug or opaque video id, re-checks publishability, and returns a signed playback URL with TTL no longer than 300 seconds.
+
+The endpoint must return the same not-found response for missing, unpublished, rejected and unauthorized records to prevent enumeration.
+
+## Server operations
 
 1. `provider-intro-video-create-upload`
-   - verifies authenticated provider;
-   - validates active-record constraints;
-   - creates a draft row;
-   - returns a short-lived signed upload URL for the exact canonical path.
+   - verifies provider role and provider profile;
+   - enforces one open in-flight replacement;
+   - creates a draft row with server-owned fields;
+   - creates an exact incoming path;
+   - returns a signed upload URL with `upsert = false`.
 
-2. `provider-intro-video-submit`
-   - verifies ownership;
-   - checks object metadata, duration, MIME type, size, and path;
-   - changes `draft/uploading -> pending`;
-   - providers cannot submit arbitrary storage paths.
+2. `provider-intro-video-finalize`
+   - verifies ownership and expected object;
+   - changes `uploading -> processing`;
+   - performs magic-byte/container validation;
+   - measures duration and dimensions server-side;
+   - rejects zero-frame, silent/corrupt and unsupported files;
+   - strips metadata and transcodes to the canonical playback format;
+   - changes `processing -> in_review` or `failed`.
 
-3. `provider-intro-video-delete`
-   - provider may delete draft/pending/rejected records;
-   - approved videos are archived first and deleted asynchronously after a retention window.
+3. `provider-intro-video-withdraw`
+   - withdraws drafts and in-review replacements;
+   - immediately unpublishes a currently published video when consent is withdrawn;
+   - schedules physical deletion subject to retention and legal holds.
 
 4. `provider-intro-video-moderate`
-   - staff/admin only;
-   - changes `pending -> approved|rejected`;
-   - writes reviewer, reason, and timestamps;
-   - records an audit event.
+   - admin or super_admin only unless a later policy explicitly delegates moderation;
+   - support is read-only;
+   - enforces the exact state machine;
+   - requires a reason for rejection/changes requested;
+   - writes audit events.
 
-5. `provider-intro-video-public-url`
-   - accepts provider slug or video id;
-   - verifies the record is currently publishable;
-   - returns a short-lived signed playback URL;
-   - never returns storage paths for non-approved records.
+5. `provider-intro-video-publish`
+   - server-only transaction;
+   - verifies moderation, identity and provider visibility;
+   - atomically replaces the previous published row.
 
-## Validation limits
+6. `provider-intro-video-public-url`
+   - rate-limited;
+   - accepts only slug/opaque id, never a path;
+   - returns a per-request signed URL with TTL <= 300 seconds;
+   - never logs tokens or URLs.
 
-Initial proposal:
+## Technical limits
 
-- maximum duration: 30 seconds;
-- maximum file size: 50 MB;
-- accepted MIME types: `video/webm`, `video/mp4`, `video/quicktime`;
-- no autoplay;
-- no user-supplied HTML in transcript or moderation reason;
-- server rejects empty, missing, oversized, unsupported, or path-mismatched objects.
+Upload acceptance:
 
-Exact browser/container compatibility should be verified on staging before production.
+- duration: 15–45 seconds recommended; hard maximum 60 seconds;
+- size: 50 kB minimum, 25 MB maximum;
+- accepted upload containers: MP4, WebM and QuickTime/MOV;
+- canonical public output: MP4 H.264 video + AAC audio;
+- maximum output resolution: 1080p;
+- at least one decodable video frame and an audio track are required.
 
-## Moderation and audit
+Validation is server-side and includes:
 
-Every submission, approval, rejection, archive, delete, and replacement should create an immutable audit event containing:
+- MP4/MOV `ftyp` box verification;
+- WebM/Matroska `1A 45 DF A3` signature verification;
+- codec/container validation;
+- measured duration, not client-declared duration;
+- metadata stripping, including location metadata;
+- filename/path independence;
+- rejection of polyglot, corrupt and truncated files.
 
-- actor user id;
-- actor role;
-- video id;
-- previous status;
-- new status;
-- reason code;
-- timestamp;
-- request/correlation id.
+Rate limit proposal: one upload creation per provider per 10 minutes, with stricter abuse limits server-side.
 
-Do not store sensitive identity documents or unrelated personal data in the video table.
+## Consent, retention and deletion
 
-## Rollout gates
+Publishing face and voice requires a versioned consent record in `consent_ledger`. Withdrawal must immediately unpublish the video.
 
-Before moving the SQL proposal into `supabase/migrations/`:
+Physical deletion must integrate with:
 
-1. confirm the canonical provider identity relationship in the current schema;
-2. run the RLS regression against isolated staging;
-3. verify storage ownership and cross-provider denial;
-4. verify providers cannot self-approve or alter moderation fields;
-5. verify anonymous users cannot enumerate bucket objects;
-6. verify approved playback URLs expire;
-7. verify replacement preserves the old approved video until the new one is approved;
-8. add generated Supabase types and frontend integration;
-9. add retention/deletion worker design;
-10. obtain explicit approval before applying migrations or creating the bucket.
+- account deletion requests;
+- legal holds;
+- moderation/audit retention rules;
+- replacement retention windows.
+
+Signed URLs may remain usable until their short expiry. For urgent takedowns, the final object must also be moved or removed so previously issued URLs fail as soon as Storage permits.
+
+## Audit requirements
+
+Create immutable audit records for creation, upload finalization, validation failure, submission, changes requested, approval, rejection, publication, unpublication, replacement, expiry, withdrawal and deletion.
+
+Each event records actor, role, video id, previous/new state, reason code, request/correlation id and timestamp. Integrate privileged actions with `admin_audit_log`.
+
+## Promotion gates
+
+Before any file moves into `supabase/migrations/`:
+
+1. confirm the exact provider role and identity-verification source;
+2. design the extension to `get_public_provider_profile_v2`;
+3. add transactional state-machine functions/RPCs;
+4. add Storage quarantine/finalization functions;
+5. add MIME/container validation and metadata stripping;
+6. add rate limiting;
+7. add consent, withdrawal, retention and legal-hold behavior;
+8. add immutable audit integration;
+9. add isolated staging RLS/Storage/state-machine regression tests;
+10. obtain explicit approval before creating a bucket, applying a migration or deploying functions.
 
 ## Current branch boundary
 
-This branch may contain documentation and inert SQL/regression proposals only.
-
-It must not:
-
-- deploy an Edge Function;
-- create a bucket;
-- apply a migration;
-- modify production configuration;
-- merge automatically;
-- expose draft or pending videos publicly.
+This branch contains documentation and inert SQL proposals only. No migration, bucket, Edge Function, merge, deploy or production write is authorized.
