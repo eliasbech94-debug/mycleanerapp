@@ -71,7 +71,7 @@ export default function AdminLegal() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("legal_documents")
-        .select("id,slug,kind,title,description,icon,country_code,language,version,body_md,body_hash,doc_uid,status,required,effective_at,published_at")
+        .select("id,slug,kind,title,description,icon,country_code,language,version,body_md,body_hash,doc_uid,status,required,effective_at,published_at,category,original_language,owner_id,review_interval_months,last_review_at,next_review_at,word_count,reading_minutes,section_count,legacy_version")
         .order("slug")
         .order("version", { ascending: false });
       if (error) throw error;
