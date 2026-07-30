@@ -1,3 +1,4 @@
+import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { Search, CalendarCheck, Sparkles, Truck } from "lucide-react";
 import findCleanerVideo from "@/assets/how-it-works-find-cleaner.mp4.asset.json";
@@ -19,6 +20,25 @@ const STEP_VIDEOS: Record<string, string | undefined> = {
  */
 export function HowItWorksSection() {
   const { t } = useTranslation("marketplace");
+  const [playing, setPlaying] = React.useState(0);
+  const videoRefs = React.useRef<Array<HTMLVideoElement | null>>([]);
+
+  React.useEffect(() => {
+    videoRefs.current.forEach((v, i) => {
+      if (!v) return;
+      if (i === playing) {
+        void v.play().catch(() => undefined);
+      } else {
+        v.pause();
+        try {
+          v.currentTime = 0;
+        } catch {
+          /* ignore */
+        }
+      }
+    });
+  }, [playing]);
+
   const steps = [
     { key: "search", Icon: Search, defaults: { title: "Find cleaner", body: "" } },
     { key: "book", Icon: CalendarCheck, defaults: { title: "Book", body: "" } },
