@@ -330,11 +330,15 @@ export interface CalculationInput {
   accountingPeriod: AccountingPeriod;
   rulePack: AccountingRulePack | null;
   jurisdiction: JurisdictionResolution;
+  /** Verified MyCleaner booking/payment income only. */
   income: IncomeInput[];
+  /** Manually registered income from outside MyCleaner. */
+  externalIncome?: import("./externalIncome").ExternalIncomeInput[];
   expenses: ExpenseInput[];
   mileage: MileageInput[];
   adjustments: AdjustmentInput[];
 }
+
 
 export interface IndirectTaxSummary {
   system: "vat_like" | "sales_tax_like";
