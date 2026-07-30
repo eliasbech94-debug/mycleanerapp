@@ -16,6 +16,7 @@ import type {
   MileageInput,
   ProviderAccountingProfile,
   ProviderRegistrationType,
+  ExternalIncomeInput,
 } from "@/lib/accounting";
 
 const ALL_TYPES: ProviderRegistrationType[] = [
@@ -632,3 +633,208 @@ export const SALES_TAX_PREVIEW_CASE: AccountingPreviewCase = {
     preferredLocale: "en-US",
   }),
 };
+
+// ---------------------------------------------------------------------------
+// External income preview cases I–P (§19). Testdata only.
+// ---------------------------------------------------------------------------
+
+function externalIncome(
+  overrides: Partial<ExternalIncomeInput> & Pick<ExternalIncomeInput, "id" | "description">,
+): ExternalIncomeInput {
+  const currency = overrides.originalCurrency ?? "DKK";
+  const amount = overrides.originalAmountMinor ?? 100000;
+  return {
+    incomeSourceType: "other_platform",
+    sourceName: null,
+    platformName: null,
+    customerReference: null,
+    incomeDate: "2026-05-12",
+    serviceDateFrom: null,
+    serviceDateTo: null,
+    originalAmountMinor: amount,
+    originalCurrency: currency,
+    accountingAmountMinor: amount,
+    accountingCurrency: currency,
+    exchangeRate: null,
+    exchangeRateDate: null,
+    exchangeRateSource: null,
+    indirectTaxIncluded: null,
+    taxRate: null,
+    taxAmountMinor: null,
+    taxCode: null,
+    taxJurisdiction: null,
+    taxTreatment: null,
+    paymentMethod: "platform_payout",
+    paymentStatus: "paid",
+    documentationStatus: "uploaded",
+    notes: null,
+    recordStatus: "ready",
+    reviewRequired: false,
+    documentHashes: [],
+    payout: null,
+    ...overrides,
+  };
+}
+
+export interface ExternalIncomePreviewCase extends AccountingPreviewCase {
+  externalIncome: ExternalIncomeInput[];
+}
+
+const DK_PROVIDER = profile({
+  registrationCountry: "DK",
+  taxResidenceCountry: "DK",
+  primaryWorkCountry: "DK",
+  registrationType: "sole_trader",
+  indirectTaxRegistered: true,
+  indirectTaxType: "vat",
+  accountingCurrency: "DKK",
+  preferredLocale: "da-DK",
+});
+
+const duplicateBase = externalIncome({
+  id: "ext-dup-1",
+  description: "Rengøring hos privatkunde",
+  incomeSourceType: "own_customer",
+  paymentMethod: "bank_transfer",
+  customerReference: "K-1042",
+  invoiceNumber: "2026-114",
+  originalAmountMinor: 180000,
+});
+
+export const EXTERNAL_INCOME_PREVIEW_CASES: ExternalIncomePreviewCase[] = [
+  {
+    id: "I",
+    title: "I — MyCleaner-indkomst + anden platform",
+    description: "Automatisk MyCleaner-indkomst kombineret med manuelt registreret platformindkomst.",
+    currency: "DKK",
+    provider: DK_PROVIDER,
+    externalIncome: [
+      externalIncome({
+        id: "ext-i-1",
+        description: "Udbetaling fra anden platform",
+        platformName: "Platform A",
+        sourceName: "Platform A",
+        originalAmountMinor: 250000,
+      }),
+    ],
+  },
+  {
+    id: "J",
+    title: "J — Egen kunde med faktura",
+    description: "Faktureret og betalt af providerens egen kunde.",
+    currency: "DKK",
+    provider: DK_PROVIDER,
+    externalIncome: [
+      externalIncome({
+        id: "ext-j-1",
+        description: "Faktura 2026-118",
+        incomeSourceType: "own_customer",
+        paymentMethod: "invoice",
+        customerReference: "K-2210",
+        invoiceNumber: "2026-118",
+        originalAmountMinor: 320000,
+      }),
+    ],
+  },
+  {
+    id: "K",
+    title: "K — Kontant betaling uden dokumentation",
+    description: "Kræver kontrol, indtil provideren har gennemgået posten.",
+    currency: "DKK",
+    provider: DK_PROVIDER,
+    externalIncome: [
+      externalIncome({
+        id: "ext-k-1",
+        description: "Kontant betaling",
+        incomeSourceType: "cash",
+        paymentMethod: "cash",
+        documentationStatus: "missing",
+        originalAmountMinor: 90000,
+      }),
+    ],
+  },
+  {
+    id: "L",
+    title: "L — Indkomst i fremmed valuta",
+    description: "Kurs mangler, så posten tæller ikke med.",
+    currency: "DKK",
+    provider: DK_PROVIDER,
+    externalIncome: [
+      externalIncome({
+        id: "ext-l-1",
+        description: "Opgave i Sverige",
+        originalCurrency: "SEK",
+        originalAmountMinor: 450000,
+        accountingAmountMinor: null,
+        accountingCurrency: null,
+      }),
+    ],
+  },
+  {
+    id: "M",
+    title: "M — Anden platform med platformgebyr",
+    description: "Brutto, gebyr, tilbageholdt skat og netto valideres.",
+    currency: "DKK",
+    provider: DK_PROVIDER,
+    externalIncome: [
+      externalIncome({
+        id: "ext-m-1",
+        description: "Payout maj",
+        platformName: "Platform B",
+        sourceName: "Platform B",
+        originalAmountMinor: 400000,
+        payout: {
+          payoutPeriodFrom: "2026-05-01",
+          payoutPeriodTo: "2026-05-31",
+          payoutDate: "2026-06-02",
+          payoutReference: "PB-556",
+          grossIncomeMinor: 400000,
+          platformFeeMinor: 60000,
+          taxWithheldMinor: 0,
+          netPayoutMinor: 340000,
+        },
+      }),
+    ],
+  },
+  {
+    id: "N",
+    title: "N — Mulig dublet",
+    description: "To poster med samme dato, beløb og fakturanummer.",
+    currency: "DKK",
+    provider: DK_PROVIDER,
+    externalIncome: [
+      duplicateBase,
+      { ...duplicateBase, id: "ext-dup-2", description: "Rengøring hos privatkunde (kopi)" },
+    ],
+  },
+  {
+    id: "O",
+    title: "O — Refunderet ekstern indkomst",
+    description: "Refunderede beløb medregnes ikke.",
+    currency: "DKK",
+    provider: DK_PROVIDER,
+    externalIncome: [
+      externalIncome({
+        id: "ext-o-1",
+        description: "Refunderet opgave",
+        paymentStatus: "refunded",
+        originalAmountMinor: 150000,
+      }),
+    ],
+  },
+  {
+    id: "P",
+    title: "P — Flere lande, kræver kontrol",
+    description: "Skattejurisdiktionen matcher ikke providerens regelpakke.",
+    currency: "DKK",
+    provider: DK_PROVIDER,
+    externalIncome: [
+      externalIncome({
+        id: "ext-p-1",
+        description: "Opgave med udenlandsk skattebehandling",
+        taxJurisdiction: "DE",
+        originalAmountMinor: 210000,
+      }),
+    ],
+  },
+];

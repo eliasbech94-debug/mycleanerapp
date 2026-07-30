@@ -205,10 +205,17 @@ export interface AccountingRulePack {
   disclaimers: string[];
   officialGuidanceLinks: { title: string; url: string }[];
 
+  /**
+   * External-income recognition policy. Optional: when absent the engine uses
+   * the conservative fallback in `externalIncome.ts` instead of guessing.
+   */
+  externalIncomeRules?: import("./externalIncome").ExternalIncomeRules;
+
   sources: RulePackSource[];
   verifiedAt: string | null;
   verifiedBy: string | null;
   sourceVersion: string | null;
+
 
   /**
    * Preview/fixture marker. Never true for a pack loaded from the database;
@@ -323,11 +330,15 @@ export interface CalculationInput {
   accountingPeriod: AccountingPeriod;
   rulePack: AccountingRulePack | null;
   jurisdiction: JurisdictionResolution;
+  /** Verified MyCleaner booking/payment income only. */
   income: IncomeInput[];
+  /** Manually registered income from outside MyCleaner. */
+  externalIncome?: import("./externalIncome").ExternalIncomeInput[];
   expenses: ExpenseInput[];
   mileage: MileageInput[];
   adjustments: AdjustmentInput[];
 }
+
 
 export interface IndirectTaxSummary {
   system: "vat_like" | "sales_tax_like";
@@ -356,8 +367,27 @@ export interface CalculationResult {
   includedExpensesMinor: number;
   includedMileageAmountMinor: number;
 
+  /** Verified MyCleaner income (automatic). */
+  myCleanerIncomeMinor: number;
+  /** Manually registered income from outside MyCleaner that the rules include. */
+  externalIncomeMinor: number;
+  /** myCleanerIncomeMinor + externalIncomeMinor. Frontend never sums this itself. */
+  totalIncomeMinor: number;
+
+  includedExternalIncomeItems: string[];
+  excludedExternalIncomeItems: string[];
+  reviewRequiredExternalIncomeItems: string[];
+
+  incomeBySource: {
+    sourceType: string;
+    sourceName: string | null;
+    amountMinor: number;
+    currency: string;
+  }[];
+
   excludedItems: AccountingItem[];
   reviewRequiredItems: AccountingItem[];
+
 
   calculationVersion: string;
   rulePackVersion: string | null;

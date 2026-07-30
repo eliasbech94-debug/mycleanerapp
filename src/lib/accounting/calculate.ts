@@ -5,6 +5,11 @@ import {
   findCategoryRule,
   resolveIndirectTaxRule,
 } from "./ruleEngine";
+import {
+  EXTERNAL_INCOME_SOURCE_LABELS,
+  evaluateExternalIncomeItem,
+  groupIncomeBySource,
+} from "./externalIncome";
 import type {
   AccountingItem,
   CalculationInput,
@@ -13,7 +18,7 @@ import type {
 } from "./types";
 import { showIndirectTaxModule } from "./jurisdiction";
 
-export const CALCULATION_VERSION = "accounting-calc-1.0.0";
+export const CALCULATION_VERSION = "accounting-calc-1.1.0";
 
 function emptyResult(
   status: CalculationResult["status"],
@@ -32,6 +37,13 @@ function emptyResult(
     includedIncomeMinor: 0,
     includedExpensesMinor: 0,
     includedMileageAmountMinor: 0,
+    myCleanerIncomeMinor: 0,
+    externalIncomeMinor: 0,
+    totalIncomeMinor: 0,
+    includedExternalIncomeItems: [],
+    excludedExternalIncomeItems: [],
+    reviewRequiredExternalIncomeItems: [],
+    incomeBySource: [],
     excludedItems: [],
     reviewRequiredItems: [],
     calculationVersion: CALCULATION_VERSION,
@@ -43,6 +55,7 @@ function emptyResult(
     explanationLines,
   };
 }
+
 
 /**
  * Authoritative preliminary calculation.
@@ -139,14 +152,98 @@ export function calculatePreliminaryRegistrationAmount(
     }
     includedIncome.push(item.accountingAmountMinor);
   }
-  const includedIncomeMinor = sumMinor(includedIncome);
+  const myCleanerIncomeMinor = sumMinor(includedIncome);
   const platformFeesMinor = sumMinor(input.income.map((i) => i.platformFeeMinor));
   explanation.push(
-    `Indtægter medregnet: ${includedIncome.length} af ${input.income.length}. Platformgebyrer behandles som en udgift.`,
+    `MyCleaner-indtægter medregnet: ${includedIncome.length} af ${input.income.length}. Platformgebyrer behandles som en udgift.`,
   );
 
+  // ---- External income (outside MyCleaner) --------------------------------
+  const externalItems = input.externalIncome ?? [];
+  const includedExternal: number[] = [];
+  const externalPlatformFees: number[] = [];
+  const includedExternalIncomeItems: string[] = [];
+  const excludedExternalIncomeItems: string[] = [];
+  const reviewRequiredExternalIncomeItems: string[] = [];
+  const sourceRows: {
+    sourceType: string;
+    sourceName: string | null;
+    amountMinor: number;
+    currency: string;
+  }[] = [];
+
+  for (const item of externalItems) {
+    const outcome = evaluateExternalIncomeItem({
+      item,
+      rulePack,
+      jurisdiction,
+      provider,
+      accountingCurrency: currency,
+    });
+    const label =
+      item.description ||
+      item.sourceName ||
+      item.platformName ||
+      EXTERNAL_INCOME_SOURCE_LABELS[item.incomeSourceType];
+
+    if (outcome.outcome === "included") {
+      includedExternal.push(outcome.amountMinor);
+      if (outcome.platformFeeMinor > 0) externalPlatformFees.push(outcome.platformFeeMinor);
+      includedExternalIncomeItems.push(item.id);
+      sourceRows.push({
+        sourceType: item.incomeSourceType,
+        sourceName: item.platformName ?? item.sourceName,
+        amountMinor: outcome.amountMinor,
+        currency,
+      });
+      continue;
+    }
+
+    const entry: AccountingItem = {
+      id: item.id,
+      kind: "income",
+      label,
+      accountingAmountMinor: item.accountingAmountMinor ?? 0,
+      categoryCode: item.incomeSourceType,
+      reasonCode: outcome.reasonCode,
+      reason: outcome.reason,
+    };
+    if (outcome.outcome === "review_required") {
+      review.push(entry);
+      reviewRequiredExternalIncomeItems.push(item.id);
+    } else {
+      excluded.push(entry);
+      excludedExternalIncomeItems.push(item.id);
+    }
+  }
+
+  const externalIncomeMinor = sumMinor(includedExternal);
+  const includedIncomeMinor = myCleanerIncomeMinor + externalIncomeMinor;
+  const totalIncomeMinor = includedIncomeMinor;
+  if (externalItems.length > 0) {
+    explanation.push(
+      `Ekstern indkomst medregnet: ${includedExternalIncomeItems.length} af ${externalItems.length}. Kilden fremgår af hver post.`,
+    );
+  }
+
+  const incomeBySource = groupIncomeBySource([
+    ...(myCleanerIncomeMinor > 0
+      ? [
+          {
+            sourceType: "mycleaner",
+            sourceName: "MyCleaner",
+            amountMinor: myCleanerIncomeMinor,
+            currency,
+          },
+        ]
+      : []),
+    ...sourceRows,
+  ]);
+
   // ---- Expenses -----------------------------------------------------------
-  const includedExpenses: number[] = [platformFeesMinor];
+  // Platform fees are counted exactly once, here, as an expense.
+  const includedExpenses: number[] = [platformFeesMinor, ...externalPlatformFees];
+
   let inputTaxMinor = 0;
   for (const item of input.expenses) {
     if (item.accountingCurrency !== currency) {
@@ -363,8 +460,16 @@ export function calculatePreliminaryRegistrationAmount(
     includedIncomeMinor,
     includedExpensesMinor,
     includedMileageAmountMinor,
+    myCleanerIncomeMinor,
+    externalIncomeMinor,
+    totalIncomeMinor,
+    includedExternalIncomeItems,
+    excludedExternalIncomeItems,
+    reviewRequiredExternalIncomeItems,
+    incomeBySource,
     excludedItems: excluded,
     reviewRequiredItems: review,
+
     calculationVersion: CALCULATION_VERSION,
     rulePackVersion: rulePack.rulePackVersion,
     jurisdictionCode: jurisdiction.jurisdictionCode,
