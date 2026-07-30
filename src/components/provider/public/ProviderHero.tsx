@@ -162,6 +162,21 @@ export function ProviderHero({
           )}
         </div>
       </div>
+
+      {introVideo && (
+        <ProviderIntroVideoDialog
+          open={videoOpen}
+          onOpenChange={setVideoOpen}
+          video={introVideo}
+          providerName={profile.display_name}
+          trust={{
+            averageRating: profile.average_rating,
+            repeatBookingRate: profile.repeat_booking_rate ?? null,
+            completedBookings: profile.completed_bookings,
+            recommended: profile.mycleaner_recommended ?? null,
+          }}
+        />
+      )}
     </section>
   );
 }
