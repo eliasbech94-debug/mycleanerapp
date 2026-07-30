@@ -95,6 +95,10 @@ import ProviderPricing from "./pages/provider/ProviderPricing";
 import AdminPricing from "./pages/admin/AdminPricing";
 import AdminKnowledge from "./pages/admin/AdminKnowledge";
 import AdminCareerVerification from "./pages/admin/AdminCareerVerification";
+import AdminLegal from "./pages/admin/AdminLegal";
+import LegalCenter from "./pages/legal/LegalCenter";
+import LegalDocumentPage from "./pages/legal/LegalDocumentPage";
+import { LegalUpdateGate } from "./components/legal/LegalUpdateGate";
 import EarlyAccessRouteGuard from "@/components/launch/EarlyAccessRouteGuard";
 import EarlyAccessBannerSlot from "@/components/launch/EarlyAccessBannerSlot";
 
@@ -187,6 +191,9 @@ export function AppRoutes() {
       <Route path="/admin/countries" element={<RoleGuard allow={["admin"]}><CountryConsole /></RoleGuard>} />
       <Route path="/faq" element={<FAQ />} />
       <Route path="/regler" element={<Regler />} />
+      <Route path="/legal" element={<LegalCenter />} />
+      <Route path="/legal/:slug" element={<LegalDocumentPage />} />
+      <Route path="/admin/legal" element={<RoleGuard allow={["admin", "super_admin"]}><AdminLegal /></RoleGuard>} />
       <Route
         path="/provider/bilag"
         element={<RoleGuard allow={["provider", "admin", "super_admin"]}><ProviderReceipts /></RoleGuard>}
