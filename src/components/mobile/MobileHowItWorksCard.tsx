@@ -9,6 +9,7 @@ import * as React from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Search, CalendarCheck, Sparkles, ChevronRight, ChevronLeft } from "lucide-react";
+import findCleanerVideo from "@/assets/how-it-works-find-cleaner.mp4.asset.json";
 
 const STEPS = [
   { key: "search", Icon: Search },
@@ -108,6 +109,18 @@ export function MobileHowItWorksCard() {
               <p className="mt-1.5 text-[13.5px] leading-relaxed text-[hsl(var(--mkt-ink-muted))]">
                 {t(`how.steps.${key}.body`, "")}
               </p>
+              {key === "search" ? (
+                <video
+                  src={findCleanerVideo.url}
+                  className="mt-3 aspect-video w-full rounded-xl border border-[hsl(var(--mkt-border))] object-cover"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  preload="metadata"
+                  aria-label={t("how.steps.search.videoLabel", "Sådan finder du en cleaner")}
+                />
+              ) : null}
             </article>
           ))}
         </div>
