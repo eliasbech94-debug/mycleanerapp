@@ -1,9 +1,13 @@
 /**
  * Hero — provider identity. 100% database driven; the mockup only defines layout.
  */
+import { useRef, useState } from "react";
 import { BadgeCheck, Heart, MapPin, Sparkles, Star } from "lucide-react";
 import type { AvailabilityStatus, PresenceStatus, PublicProviderProfile } from "./types";
 import { formatDistance } from "./format";
+import ProviderIntroVideoTrigger from "./ProviderIntroVideoTrigger";
+import ProviderIntroVideoDialog from "./ProviderIntroVideoDialog";
+import { publicIntroVideo } from "./providerIntroVideoTypes";
 
 const AVAILABILITY_META: Record<AvailabilityStatus, { dot: string; label: string; text: string }> = {
   available: { dot: "bg-emerald-500", label: "Tilgængelig", text: "text-emerald-600" },
@@ -34,6 +38,11 @@ export function ProviderHero({
   const status = AVAILABILITY_META[availabilityStatus];
   const distance = formatDistance(distanceKm);
   const isTopTier = ["top_rated", "elite", "partner"].includes(profile.provider_tier ?? "");
+  const introVideo = publicIntroVideo(profile.intro_video);
+  const [videoOpen, setVideoOpen] = useState(false);
+  const videoTriggerRef = useRef<HTMLButtonElement | null>(null);
+
+
 
   return (
     <section
@@ -67,7 +76,16 @@ export function ProviderHero({
               {profile.display_name.slice(0, 1)}
             </div>
           )}
+          {introVideo && (
+            <ProviderIntroVideoTrigger
+              video={introVideo}
+              providerName={profile.display_name}
+              triggerRef={videoTriggerRef}
+              onOpen={() => setVideoOpen(true)}
+            />
+          )}
         </div>
+
 
         <div className="flex flex-col gap-2.5 p-5 sm:p-6">
           {earlyAccess && (
@@ -146,6 +164,25 @@ export function ProviderHero({
           )}
         </div>
       </div>
+
+      {introVideo && (
+        <ProviderIntroVideoDialog
+          open={videoOpen}
+          onOpenChange={(next) => {
+            setVideoOpen(next);
+            // Focus always returns to the play button when the dialog closes.
+            if (!next) requestAnimationFrame(() => videoTriggerRef.current?.focus());
+          }}
+          video={introVideo}
+          providerName={profile.display_name}
+          trust={{
+            averageRating: profile.average_rating,
+            repeatBookingRate: profile.repeat_booking_rate ?? null,
+            completedBookings: profile.completed_bookings,
+            recommended: profile.mycleaner_recommended ?? null,
+          }}
+        />
+      )}
     </section>
   );
 }

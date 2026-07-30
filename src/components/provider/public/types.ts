@@ -26,6 +26,8 @@ export type PublicProviderService = {
   description?: string | null;
 };
 
+import type { ProviderIntroVideo } from "./providerIntroVideoTypes";
+
 export type PublicProviderProfile = {
   provider_slug: string;
   display_name: string;
@@ -53,7 +55,14 @@ export type PublicProviderProfile = {
   years_on_platform: number;
   insurance_valid: boolean;
   services: PublicProviderService[] | null;
+  /** Frontend-only (Trust Engine Phase 1A) — optional intro video. */
+  intro_video?: ProviderIntroVideo | null;
+  /** Frontend-only fixture datapoint: share of customers who rebook. */
+  repeat_booking_rate?: number | null;
+  /** Frontend-only fixture datapoint: editorial recommendation. */
+  mycleaner_recommended?: boolean | null;
 };
+
 
 export type PublicWorkHistoryEntry = {
   company_name: string;
