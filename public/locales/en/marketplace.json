@@ -195,24 +195,40 @@
     "heading": "Frequently asked questions",
     "items": [
       {
-        "q": "How are prices set?",
-        "a": "Cleaners set their own prices within local minimum rates. You see the full price before booking — no hidden fees."
+        "q": "How do I book?",
+        "a": "Pick a cleaner, choose an open slot in their calendar and send a booking request. It becomes a booking once the cleaner accepts."
       },
       {
-        "q": "Are all Cleaners verified?",
-        "a": "Yes. Every Cleaner passes ID and identity verification before they can accept bookings."
+        "q": "How are prices set?",
+        "a": "Cleaners set their own prices within local minimum rates. You see the total before you confirm — no hidden fees."
+      },
+      {
+        "q": "Are all cleaners verified?",
+        "a": "Yes. Everyone passes ID verification before they can accept bookings, and verified profiles are clearly marked."
+      },
+      {
+        "q": "What is Provider Score?",
+        "a": "A single measure of quality based on reviews, response time, completed bookings and verification."
+      },
+      {
+        "q": "Why do some profiles have a video?",
+        "a": "Cleaners can add a short video introduction so you can meet the person before booking."
+      },
+      {
+        "q": "Can I set up a recurring booking?",
+        "a": "Yes. Choose recurring booking and the job repeats automatically at the interval you pick."
       },
       {
         "q": "When is payment charged?",
-        "a": "We reserve the amount at booking and release it to your Cleaner once the job is completed and approved."
+        "a": "We reserve the amount at booking and release it to the cleaner once the job is completed and approved."
       },
       {
         "q": "Can I cancel?",
-        "a": "Yes — cancellation is free up to 24 hours before. See our full cancellation policy in the FAQ."
+        "a": "Yes. Cancelling is free up to 24 hours before. Full terms are in our rules."
       },
       {
         "q": "Which countries are live?",
-        "a": "Denmark, Sweden, Germany, United Kingdom and Spain. More countries are rolling out."
+        "a": "Denmark, Sweden, Germany, the United Kingdom and Spain, with more on the way."
       }
     ]
   },
