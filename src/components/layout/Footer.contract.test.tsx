@@ -1,31 +1,37 @@
 /**
  * Footer contract regression test.
  *
- * Enforces the central rule: on any route inside `MobileAppShell` at
- * viewports <768px, the website Footer is NOT rendered (node absent from
- * the DOM). At >=768px the Footer renders on every route. Non-app
- * public routes render the Footer at every viewport.
+ * Current (approved) contract — see the doc block in `Footer.tsx`:
+ *  - The footer is NEVER rendered below 1024px (mobile + tablet), on ANY
+ *    route. The node is fully removed from the DOM so no space is reserved
+ *    and `MobileBottomNav` is the sole permanent bottom navigation.
+ *  - At >=1024px (desktop) the footer renders on every route.
  *
- * This suite deliberately mocks `useIsMobileApp` — the hook itself has
- * dedicated unit tests. Here we assert the Footer component honours the
- * hook's decision without any per-page CSS hack.
+ * The suite drives the real `window.innerWidth` instead of mocking a hook,
+ * so it verifies the component's own breakpoint decision rather than an
+ * indirection that the component no longer uses.
  */
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render } from "@testing-library/react";
+import { describe, it, expect, afterEach } from "vitest";
+import { render, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import Footer from "./Footer";
 
-vi.mock("@/hooks/useIsMobileApp", async () => {
-  const actual = await vi.importActual<typeof import("@/hooks/useIsMobileApp")>(
-    "@/hooks/useIsMobileApp",
-  );
-  return { ...actual, useIsMobileApp: vi.fn() };
-});
-import { useIsMobileApp } from "@/hooks/useIsMobileApp";
+const ORIGINAL_WIDTH = window.innerWidth;
 
-const useIsMobileAppMock = useIsMobileApp as unknown as ReturnType<typeof vi.fn>;
+/** Device widths from the responsive matrix under review. */
+const BELOW_DESKTOP_WIDTHS = [320, 375, 390, 430, 768] as const;
+const DESKTOP_WIDTHS = [1024, 1440] as const;
 
-function renderFooter(path: string) {
+function setViewport(width: number) {
+  Object.defineProperty(window, "innerWidth", {
+    configurable: true,
+    writable: true,
+    value: width,
+  });
+}
+
+function renderFooter(path: string, width: number) {
+  setViewport(width);
   return render(
     <MemoryRouter initialEntries={[path]}>
       <Footer />
@@ -33,59 +39,98 @@ function renderFooter(path: string) {
   );
 }
 
+/** Routes rendered inside the mobile app shell. */
+const mobileAppRoutes = [
+  "/",
+  "/marketplace",
+  "/mine-bookinger",
+  "/customer/bookings",
+  "/inbox",
+  "/inbox/abc-123",
+  "/profil",
+  "/founding-cleaner",
+  "/p/some-slug",
+  "/find-cleaner",
+  // country-prefixed variants
+  "/dk/marketplace",
+  "/gb/inbox",
+  "/se/profil",
+  "/es/founding-cleaner",
+];
+
+/** Static document routes outside the app shell. */
+const publicDocumentRoutes = ["/faq", "/regler", "/privacy"];
+
 describe("Footer contract", () => {
-  beforeEach(() => useIsMobileAppMock.mockReset());
+  afterEach(() => setViewport(ORIGINAL_WIDTH));
 
-  const mobileAppRoutes = [
-    "/",
-    "/marketplace",
-    "/mine-bookinger",
-    "/customer/bookings",
-    "/inbox",
-    "/inbox/abc-123",
-    "/profil",
-    "/founding-cleaner",
-    "/p/some-slug",
-    "/find-cleaner",
-    // country-prefixed variants
-    "/dk/marketplace",
-    "/gb/inbox",
-    "/se/profil",
-    "/es/founding-cleaner",
-  ];
+  describe.each(BELOW_DESKTOP_WIDTHS)("below desktop (%ipx)", (width) => {
+    it.each([...mobileAppRoutes, ...publicDocumentRoutes])(
+      "removes the footer from the DOM on %s",
+      (path) => {
+        const { container } = renderFooter(path, width);
+        expect(container.querySelector("footer")).toBeNull();
+      },
+    );
 
-  it.each(mobileAppRoutes)(
-    "removes the footer from the DOM on mobile-app route %s (<768px)",
-    (path) => {
-      useIsMobileAppMock.mockReturnValue(true);
-      const { container } = renderFooter(path);
-      expect(container.querySelector("footer")).toBeNull();
-    },
-  );
-
-  it.each(mobileAppRoutes)(
-    "renders the footer on mobile-app route %s at >=768px",
-    (path) => {
-      // >=768px viewports never trigger useIsMobileApp → false
-      useIsMobileAppMock.mockReturnValue(false);
-      const { container } = renderFooter(path);
-      expect(container.querySelector("footer")).not.toBeNull();
-    },
-  );
-
-  it("renders the footer on non-app public routes at every viewport", () => {
-    useIsMobileAppMock.mockReturnValue(false);
-    for (const path of ["/faq", "/regler", "/privacy"]) {
-      const { container, unmount } = renderFooter(path);
-      expect(container.querySelector("footer")).not.toBeNull();
-      unmount();
-    }
+    it("reserves no hidden height — nothing at all is rendered", () => {
+      const { container } = renderFooter("/marketplace", width);
+      expect(container.firstChild).toBeNull();
+    });
   });
 
-  it("does not reserve any hidden footer height when suppressed", () => {
-    useIsMobileAppMock.mockReturnValue(true);
-    const { container } = renderFooter("/marketplace");
-    // Nothing rendered at all — no wrapper divs, no hidden node.
-    expect(container.firstChild).toBeNull();
+  describe.each(DESKTOP_WIDTHS)("desktop (%ipx)", (width) => {
+    it.each([...mobileAppRoutes, ...publicDocumentRoutes])(
+      "renders the footer on %s",
+      (path) => {
+        const { container } = renderFooter(path, width);
+        expect(container.querySelector("footer")).not.toBeNull();
+      },
+    );
+
+    it("exposes the legal and support links", () => {
+      const { container } = renderFooter("/", width);
+      const footer = container.querySelector("footer")!;
+      const scope = within(footer);
+      expect(scope.getByRole("link", { name: "Regler" })).toHaveAttribute("href", "/regler");
+      expect(scope.getByRole("link", { name: "Privatlivspolitik" })).toHaveAttribute("href", "/regler");
+      expect(scope.getByRole("link", { name: "Priser & regler" })).toHaveAttribute("href", "/regler");
+      expect(scope.getByRole("link", { name: "Kontakt" })).toHaveAttribute(
+        "href",
+        "mailto:support@mycleaner.app",
+      );
+    });
+
+    it("keeps every footer link reachable by keyboard", () => {
+      const { container } = renderFooter("/", width);
+      const footer = container.querySelector("footer")!;
+      const links = Array.from(footer.querySelectorAll("a"));
+      expect(links.length).toBeGreaterThan(0);
+      for (const link of links) {
+        // Anchors with href are natively focusable; a negative tabindex or a
+        // missing href would silently remove them from the tab order.
+        expect(link.getAttribute("href")).toBeTruthy();
+        expect(link.getAttribute("tabindex")).not.toBe("-1");
+      }
+      const brand = within(footer).getByLabelText("MyCleaner – forside");
+      expect(brand).toHaveAttribute("href", "/");
+    });
+
+    it("renders the four column headings exactly once each", () => {
+      const { container } = renderFooter("/", width);
+      const footer = container.querySelector("footer")!;
+      const headings = Array.from(footer.querySelectorAll("h4")).map((h) => h.textContent);
+      expect(headings).toEqual(["Platform", "For providere", "Support"]);
+    });
+
+    it("does not ship a parallel hidden mobile copy of the footer content", () => {
+      const { container } = renderFooter("/", width);
+      const footer = container.querySelector("footer")!;
+      // A duplicated `hidden`/`md:hidden` mirror block would double the links.
+      expect(footer.querySelectorAll('[class*="md:hidden"]')).toHaveLength(0);
+      expect(footer.querySelectorAll("footer")).toHaveLength(0);
+      const regler = within(footer).getAllByRole("link", { name: "Regler" });
+      expect(regler).toHaveLength(1);
+    });
   });
 });
