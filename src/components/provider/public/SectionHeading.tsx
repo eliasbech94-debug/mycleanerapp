@@ -5,7 +5,8 @@
  * trailing slot) so every major section reads with the same rhythm and the
  * page becomes scannable instead of a stack of identical white cards.
  */
-import type { ComponentType, ReactNode } from "react";
+import type { LucideIcon } from "lucide-react";
+import type { ReactNode } from "react";
 
 type Tone = "blue" | "amber" | "emerald" | "violet";
 
@@ -33,7 +34,7 @@ const TONES: Record<Tone, { tile: string; icon: string; rule: string }> = {
 };
 
 export type SectionHeadingProps = {
-  icon: ComponentType<{ className?: string; "aria-hidden"?: boolean }>;
+  icon: LucideIcon;
   title: string;
   subtitle?: string;
   tone?: Tone;
