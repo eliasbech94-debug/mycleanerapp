@@ -18,13 +18,14 @@ export function LegalUpdateGate() {
   const { user } = useAuth();
   const scope = useLegalScope();
   const { t } = useTranslation("legal");
+  const { isProvider } = useUserRoles();
   const [index, setIndex] = useState(0);
   const [confirmed, setConfirmed] = useState(false);
   const [busy, setBusy] = useState(false);
   const [dismissedIds, setDismissedIds] = useState<string[]>([]);
 
   const { data } = useQuery({
-    queryKey: ["legal-pending", user?.id, scope.country, scope.language],
+    queryKey: ["legal-pending", user?.id, scope.country, scope.language, isProvider],
     queryFn: async () => {
       const docs = await fetchPendingRequired(user!.id, scope.country, scope.language);
       // Provider-only documents must not block customers.
