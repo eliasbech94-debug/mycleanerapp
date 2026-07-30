@@ -1,12 +1,32 @@
 /** Services & prices — one card per actively offered service, straight from the DB. */
 import { Sparkles } from "lucide-react";
-import type { PublicProviderProfile } from "./types";
+import type { PublicProviderProfile, Slot } from "./types";
 import { serviceLabel } from "./format";
-import { activeServices, minDurationLabel, priceLabel, surchargeLabel } from "./servicePricing";
+import {
+  activeServices,
+  minDurationLabel,
+  priceLabel,
+  startPriceLabel,
+  surchargeLabel,
+} from "./servicePricing";
 
-export function ProviderServices({ profile }: { profile: PublicProviderProfile }) {
+function nextSlotLabel(slot: Slot | null | undefined): string | null {
+  if (!slot) return null;
+  const d = new Date(slot.slot_date);
+  if (Number.isNaN(d.getTime())) return null;
+  return `Næste ledige: ${d.toLocaleDateString("da-DK", { weekday: "short", day: "numeric", month: "short" })} kl. ${String(slot.slot_hour).padStart(2, "0")}:00`;
+}
+
+export function ProviderServices({
+  profile,
+  nextSlot,
+}: {
+  profile: PublicProviderProfile;
+  nextSlot?: Slot | null;
+}) {
   const services = activeServices(profile.services);
   if (services.length === 0) return null;
+  const nextLabel = nextSlotLabel(nextSlot);
 
   return (
     <section data-testid="provider-services" className="space-y-3">
@@ -16,6 +36,7 @@ export function ProviderServices({ profile }: { profile: PublicProviderProfile }
       <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-1 sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 lg:grid-cols-3">
         {services.map((s) => {
           const minDuration = minDurationLabel(s);
+          const startPrice = startPriceLabel(s);
           return (
             <article
               key={s.service_code}
@@ -27,6 +48,14 @@ export function ProviderServices({ profile }: { profile: PublicProviderProfile }
               </h3>
               <p className="break-words text-lg font-bold text-[hsl(222_88%_42%)]">{priceLabel(s)}</p>
               {minDuration && <p className="text-xs text-[hsl(224_20%_45%)]">{minDuration}</p>}
+              {startPrice && (
+                <p className="text-sm font-semibold text-[hsl(224_72%_18%)]">{startPrice}</p>
+              )}
+              {s.description && (
+                <p className="break-words text-xs leading-relaxed text-[hsl(224_20%_45%)]">
+                  {s.description}
+                </p>
+              )}
               {s.surcharges.length > 0 && (
                 <ul className="mt-0.5 space-y-0.5 text-xs text-[hsl(224_20%_45%)]">
                   {s.surcharges.map((sc, i) => (
@@ -35,6 +64,9 @@ export function ProviderServices({ profile }: { profile: PublicProviderProfile }
                     </li>
                   ))}
                 </ul>
+              )}
+              {nextLabel && (
+                <p className="mt-auto pt-1.5 text-xs font-medium text-emerald-600">{nextLabel}</p>
               )}
             </article>
           );

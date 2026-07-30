@@ -22,7 +22,11 @@ const Footer = () => {
   const isMobileApp = useIsMobileApp();
   if (isMobileApp) return null;
   return (
-    <footer className="border-t border-border bg-secondary/50">
+    <footer
+      className="border-t border-border bg-secondary/50"
+      // Reserves room for any fixed mobile CTA bar (0px when none is mounted).
+      style={{ paddingBottom: "var(--provider-mobile-cta-height, 0px)" }}
+    >
       <div className="container-wide section-padding">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           <div className="col-span-2 md:col-span-1">

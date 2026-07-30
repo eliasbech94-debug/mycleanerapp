@@ -55,18 +55,27 @@ export function ProviderProfileView(props: ProviderProfileViewProps) {
     <div className="mx-auto max-w-4xl px-4 pt-4 sm:px-6">
       {props.header && <div className="mb-3">{props.header}</div>}
 
-      {/* Bottom padding keeps the fixed mobile CTA from covering the last section. */}
-      <div className="space-y-5 pb-[calc(104px+env(safe-area-inset-bottom))] sm:pb-6">
+      {/* Bottom padding keeps the fixed mobile CTA (and the tab bar it sits on)
+          from covering the last section, the footer or any link. */}
+      <div
+        className="space-y-5"
+        style={{
+          paddingBottom:
+            "calc(var(--provider-mobile-cta-height, 64px) + env(safe-area-inset-bottom) + 24px)",
+        }}
+      >
         <ProviderHero
           profile={profile}
           availabilityStatus={props.availabilityStatus}
           presenceStatus={props.presenceStatus}
           distanceKm={props.distanceKm}
           earlyAccess={props.earlyAccess}
+          isFollowing={props.isFollowing}
+          onFollow={props.onFollow}
         />
         <ProviderTrustBadges profile={profile} />
         <ProviderAbout profile={profile} />
-        <ProviderServices profile={profile} />
+        <ProviderServices profile={profile} nextSlot={props.nextSlot ?? props.slots?.[0] ?? null} />
         <ProviderAvailability
           slots={props.slots}
           nextSlot={props.nextSlot}
@@ -83,10 +92,10 @@ export function ProviderProfileView(props: ProviderProfileViewProps) {
         <button
           type="button"
           onClick={props.onSeeAlternatives}
-          className="w-full text-xs text-[hsl(224_20%_45%)] underline underline-offset-2 hover:text-[hsl(224_72%_18%)]"
+          className="w-full rounded-md text-xs text-[hsl(224_20%_45%)] underline underline-offset-2 hover:text-[hsl(224_72%_18%)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(222_88%_42%)]"
           data-testid="see-alternatives-btn"
         >
-          Se andre cleaners
+          Se lignende cleaners
         </button>
 
         <p className="text-center text-xs text-[hsl(224_20%_50%)]">

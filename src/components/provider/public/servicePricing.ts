@@ -30,6 +30,7 @@ export type NormalizedService = {
   min_duration_minutes: number | null;
   surcharges: { label: string; amount_minor?: number | null; percent?: number | null }[];
   is_active: boolean;
+  description: string | null;
   /** True while the row came from the legacy fallback rather than provider_service_prices. */
   is_fallback_pricing: boolean;
 };
@@ -45,6 +46,7 @@ export function normalizeService(s: PublicProviderService): NormalizedService {
     surcharges: Array.isArray(s.surcharges) ? s.surcharges : [],
     // Legacy rows have no active flag; they are only returned when offered.
     is_active: s.is_active ?? true,
+    description: s.description ?? null,
     is_fallback_pricing: !hasRealPricing,
   };
 }
@@ -64,8 +66,19 @@ export function priceLabel(s: NormalizedService, locale = "da-DK"): string {
 export function minDurationLabel(s: NormalizedService): string | null {
   const m = s.min_duration_minutes;
   if (!m || m <= 0) return null;
-  if (m % 60 === 0) return `Min. ${m / 60} time${m / 60 === 1 ? "" : "r"}`;
-  return `Min. ${m} min.`;
+  if (m % 60 === 0) return `Minimum ${m / 60} time${m / 60 === 1 ? "" : "r"}`;
+  return `Minimum ${m} min.`;
+}
+
+/**
+ * Start price = hourly rate × minimum duration. Only meaningful for hourly
+ * pricing with a minimum duration; otherwise the price label already says it.
+ */
+export function startPriceLabel(s: NormalizedService, locale = "da-DK"): string | null {
+  if (s.price_model !== "hourly") return null;
+  const m = s.min_duration_minutes;
+  if (!m || m <= 0) return null;
+  return `Fra ${formatMoney(Math.round((s.amount_minor * m) / 60), s.currency, locale)}`;
 }
 
 export function surchargeLabel(

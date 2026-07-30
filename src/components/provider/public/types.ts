@@ -22,6 +22,8 @@ export type PublicProviderService = {
   min_duration_minutes?: number | null;
   surcharges?: { label: string; amount_minor?: number | null; percent?: number | null }[] | null;
   is_active?: boolean | null;
+  /** Optional short public description of the service. */
+  description?: string | null;
 };
 
 export type PublicProviderProfile = {

@@ -137,7 +137,7 @@ describe("services render from provider pricing only", () => {
       />,
     );
     expect(screen.getByText("Erhvervsrengøring")).toBeTruthy();
-    expect(screen.getByText("Min. 2 timer")).toBeTruthy();
+    expect(screen.getByText("Minimum 2 timer")).toBeTruthy();
     expect(screen.getByText("Weekend +25%")).toBeTruthy();
     expect(screen.queryByText("Vinduespudsning")).toBeNull();
   });
