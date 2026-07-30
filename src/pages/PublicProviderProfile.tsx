@@ -25,6 +25,7 @@ import { useAppContext, type AcquisitionSource } from "@/context/AppContext";
 import BackButton from "@/components/BackButton";
 import { usePublicProviderProfileData } from "@/hooks/usePublicProviderProfile";
 import ProviderProfileView from "@/components/provider/public/ProviderProfileView";
+import { DEMO_MODE, getDemoProvider, isDemoProviderSlug } from "@/data/demo";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const rpc = (name: string, args?: Record<string, unknown>) => (supabase.rpc as any)(name, args);
@@ -78,6 +79,11 @@ export default function PublicProviderProfile() {
   // Slug resolution owns navigation, so it stays in the page.
   useEffect(() => {
     if (!slug) return;
+    // Demo slugs resolve locally — no RPC, no network.
+    if (DEMO_MODE && isDemoProviderSlug(slug)) {
+      setResolved(getDemoProvider(slug) ? "ok" : "not_found");
+      return;
+    }
     setResolved("pending");
     (async () => {
       const { data: res } = await rpc("resolve_slug_v1", { _slug: slug });

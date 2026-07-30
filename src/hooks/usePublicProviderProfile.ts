@@ -1,6 +1,17 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import {
+  DEMO_MODE,
+  getDemoProvider,
+  isDemoFullyBooked,
+  isDemoProviderSlug,
+  toDemoNextSlot,
+  toDemoPublicReviews,
+  toDemoSlots,
+  toDemoWorkHistory,
+  toPublicProviderProfile,
+} from "@/data/demo";
 import type {
   AvailabilityStatus,
   PresenceStatus,
@@ -9,6 +20,7 @@ import type {
   PublicWorkHistoryEntry,
   Slot,
 } from "@/components/provider/public/types";
+
 
 // The generated Supabase types lag behind newly added RPCs.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -72,9 +84,32 @@ export function usePublicProviderProfileData(slug: string | undefined, enabled =
   const [reviews, setReviews] = useState<PublicReview[] | null>(null);
   const reviewsRequested = useRef(false);
 
+  /**
+   * Demo mode: a `demo-*` slug is served entirely from local fixtures.
+   * No RPC, no writes, no network — the profile works fully offline.
+   */
+  const demoProvider = useMemo(
+    () => (DEMO_MODE && slug && isDemoProviderSlug(slug) ? getDemoProvider(slug) : null),
+    [slug],
+  );
+  const isDemo = demoProvider !== null;
+
+  useEffect(() => {
+    if (!demoProvider || !enabled) return;
+    reviewsRequested.current = false;
+    const slots = toDemoSlots(demoProvider, isDemoFullyBooked());
+    setState({
+      profile: toPublicProviderProfile(demoProvider),
+      workHistory: toDemoWorkHistory(demoProvider),
+      slots,
+      nextSlot: slots.length > 0 ? null : toDemoNextSlot(demoProvider),
+    });
+    setReviews(null);
+  }, [demoProvider, enabled]);
+
   // --- profile (v2, falls back to v1 while the function rolls out) ---
   useEffect(() => {
-    if (!slug || !enabled) return;
+    if (!slug || !enabled || isDemo) return;
     let alive = true;
     (async () => {
       const { data, error } = await rpc("get_public_provider_profile_v2", { _slug: slug });
@@ -89,11 +124,12 @@ export function usePublicProviderProfileData(slug: string | undefined, enabled =
     return () => {
       alive = false;
     };
-  }, [slug, enabled]);
+  }, [slug, enabled, isDemo]);
+
 
   // --- verified work history ---
   useEffect(() => {
-    if (!slug || !enabled) return;
+    if (!slug || !enabled || isDemo) return;
     let alive = true;
     (async () => {
       const { data } = await rpc("list_public_provider_work_history_v1", { _slug: slug });
@@ -103,11 +139,11 @@ export function usePublicProviderProfileData(slug: string | undefined, enabled =
     return () => {
       alive = false;
     };
-  }, [slug, enabled]);
+  }, [slug, enabled, isDemo]);
 
   // --- bookable availability (respects bookings, blocks, vacation, iCal) ---
   useEffect(() => {
-    if (!slug || !enabled) return;
+    if (!slug || !enabled || isDemo) return;
     let alive = true;
     (async () => {
       const iso = (d: Date) => d.toISOString().slice(0, 10);
@@ -142,11 +178,11 @@ export function usePublicProviderProfileData(slug: string | undefined, enabled =
     return () => {
       alive = false;
     };
-  }, [slug, enabled]);
+  }, [slug, enabled, isDemo]);
 
   // --- follow / favourite state ---
   useEffect(() => {
-    if (!user || !slug || !enabled) return;
+    if (!user || !slug || !enabled || isDemo) return;
     let alive = true;
     (async () => {
       const { data } = await rpc("list_favorite_providers_v1");
@@ -157,11 +193,16 @@ export function usePublicProviderProfileData(slug: string | undefined, enabled =
     return () => {
       alive = false;
     };
-  }, [user, slug, enabled]);
+  }, [user, slug, enabled, isDemo]);
 
   /** Optimistic follow toggle; reverts on failure. */
   const toggleFollow = useCallback(async () => {
     if (!slug) return { ok: false, reason: "no-slug" as const };
+    // Demo profiles never write: the toggle stays local.
+    if (isDemo) {
+      setIsFav((v) => !v);
+      return { ok: true as const };
+    }
     if (!user) return { ok: false, reason: "signed-out" as const };
     setIsFav((v) => !v);
     const { error } = await rpc("toggle_favorite_by_slug_v1", { _slug: slug });
@@ -170,7 +211,7 @@ export function usePublicProviderProfileData(slug: string | undefined, enabled =
       return { ok: false, reason: "error" as const, message: error.message };
     }
     return { ok: true as const };
-  }, [slug, user]);
+  }, [slug, user, isDemo]);
 
   /** Ask for the customer's location; silently ignore denial. */
   const requestCustomerLocation = useCallback(() => {
@@ -186,9 +227,13 @@ export function usePublicProviderProfileData(slug: string | undefined, enabled =
   const loadReviews = useCallback(async () => {
     if (reviewsRequested.current) return;
     reviewsRequested.current = true;
+    if (isDemo && slug) {
+      setReviews(toDemoPublicReviews(slug, 5));
+      return;
+    }
     const { data, error } = await rpc("list_public_provider_reviews_v1", { _slug: slug, _limit: 5 });
     setReviews(error ? [] : ((data as PublicReview[] | null) ?? []));
-  }, [slug]);
+  }, [slug, isDemo]);
 
   const distanceKm = useMemo(() => {
     const p = state.profile;

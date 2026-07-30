@@ -45,7 +45,7 @@ export default function DemoCollectionRails() {
           <ul className="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2">
             {collection.providers.map((p) => (
               <li key={`${collection.id}-${p.provider_slug}`} className="w-[240px] shrink-0 snap-start">
-                <ProviderCard provider={p} to={`/cleaner/${p.provider_slug}`} />
+                <ProviderCard provider={p} to={`/p/${p.provider_slug}?src=marketplace_pick`} />
               </li>
             ))}
           </ul>

@@ -11,6 +11,8 @@ export * from "./bookings";
 export * from "./conversations";
 export * from "./activity";
 export * from "./collections";
+export * from "./publicProfile";
+
 
 
 /**
