@@ -1,26 +1,40 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { useIsMobileApp } from "@/hooks/useIsMobileApp";
+
+const DESKTOP_BREAKPOINT = 1024;
+
+/** True below the desktop breakpoint (mobile + tablet). */
+function useBelowDesktop() {
+  const [below, setBelow] = useState(() =>
+    typeof window === "undefined" ? false : window.innerWidth < DESKTOP_BREAKPOINT,
+  );
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mql = window.matchMedia(`(max-width: ${DESKTOP_BREAKPOINT - 1}px)`);
+    const onChange = () => setBelow(window.innerWidth < DESKTOP_BREAKPOINT);
+    mql.addEventListener("change", onChange);
+    onChange();
+    return () => mql.removeEventListener("change", onChange);
+  }, []);
+  return below;
+}
 
 /**
  * Global website footer.
  *
  * Footer contract (central):
- *  - On any route that renders inside `MobileAppShell` AND at viewports
- *    <768px (see `useIsMobileApp`), the footer is NOT rendered — the node
- *    is completely removed from the DOM so no space is reserved and
+ *  - The footer is NEVER rendered below 1024px (mobile + tablet). The node is
+ *    completely removed from the DOM so no space is reserved and
  *    `MobileBottomNav` is the sole permanent bottom navigation.
- *  - On >=768px (tablet/desktop) the footer always renders, including on
- *    mobile-app-whitelisted routes, so the desktop layout is unchanged.
- *  - Public/document routes that are NOT in the mobile-app whitelist keep
- *    the footer on all viewports.
+ *  - On >=1024px (desktop) the footer always renders on public/document routes.
  *
  * This is the single source of truth for footer visibility. Do NOT add
- * per-page `hidden md:block` overrides or route-specific CSS hacks —
- * extend `MOBILE_APP_ROUTE_WHITELIST` in `useIsMobileApp` instead.
+ * per-page `hidden md:block` overrides or route-specific CSS hacks.
  */
 const Footer = () => {
-  const isMobileApp = useIsMobileApp();
-  if (isMobileApp) return null;
+  const hidden = useBelowDesktop();
+  if (hidden) return null;
+
   return (
     <footer
       className="border-t border-border bg-secondary/50"
