@@ -26,6 +26,8 @@ export type PublicProviderService = {
   description?: string | null;
 };
 
+import type { ProviderIntroVideo } from "./providerIntroVideoTypes";
+
 export type PublicProviderProfile = {
   provider_slug: string;
   display_name: string;
