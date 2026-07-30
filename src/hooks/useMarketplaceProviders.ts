@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { selectDemoProviders } from "@/data/demo";
+
 
 /**
  * Shared marketplace provider search.
@@ -76,11 +78,22 @@ export function useMarketplaceProviders(query: MarketplaceQuery, opts?: { realti
     if (error) {
       // Log for observability but never leak raw DB error text to the UI.
       if (typeof console !== "undefined") console.error("[marketplace] search_marketplace_providers_v1 failed", error);
+      // Development/preview only: keep the UI alive with local demo fixtures.
+      const demo = selectDemoProviders(query);
+      if (demo.length > 0) {
+        setState({ data: demo, total: demo[0]?.total_count ?? demo.length, loading: false, error: null });
+        return;
+      }
       setState({ data: null, total: 0, loading: false, error: { code: "rpc_failed", message: error.message } });
       return;
     }
-    const list = (data as MarketplaceProvider[] | null) ?? [];
+    let list = (data as MarketplaceProvider[] | null) ?? [];
+    if (list.length === 0) {
+      // Never show a blank marketplace during development.
+      list = selectDemoProviders(query);
+    }
     setState({ data: list, total: list[0]?.total_count ?? 0, loading: false, error: null });
+
   }, [query.countryCode, query.serviceCategory, query.minTier, query.language, query.maxHourlyRate, query.search, query.sort, query.limit, query.offset]);
 
   useEffect(() => {

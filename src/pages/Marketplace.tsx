@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
+import { selectDemoProviders } from "@/data/demo";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const rpc = (name: string, args?: Record<string, unknown>) => (supabase.rpc as any)(name, args);
@@ -82,8 +83,25 @@ export default function Marketplace() {
       _limit: PAGE,
       _offset: page * PAGE,
     });
-    if (error) { toast.error(error.message); setRows([]); return; }
-    const list = (data as Row[] | null) ?? [];
+    const demoQuery = {
+      countryCode: country || null,
+      serviceCategory: category === "all" ? null : category,
+      minTier: tier === "all" ? null : tier,
+      language: lang === "all" ? null : lang,
+      maxHourlyRate: maxRate ? Number(maxRate) : null,
+      search: search.trim() || null,
+      sort,
+      limit: PAGE,
+      offset: page * PAGE,
+    };
+    if (error) {
+      // Development/preview only: local demo fixtures keep the list alive.
+      const demo = selectDemoProviders(demoQuery) as unknown as Row[];
+      if (demo.length > 0) { setRows(demo); setTotal(demo[0]?.total_count ?? demo.length); return; }
+      toast.error(error.message); setRows([]); return;
+    }
+    let list = (data as Row[] | null) ?? [];
+    if (list.length === 0) list = selectDemoProviders(demoQuery) as unknown as Row[];
     setRows(list);
     setTotal(list[0]?.total_count ?? 0);
   }, [country, category, tier, lang, maxRate, search, sort, page]);
