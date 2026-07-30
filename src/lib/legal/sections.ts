@@ -3,9 +3,10 @@
 // UI components must not query the legal tables directly.
 import { supabase } from "@/integrations/supabase/client";
 import { sha256Hex } from "@/lib/legal/hash";
-import { bumpSectionVersion, bumpVersion, parseVersion, type VersionBump } from "@/lib/legal/version";
+import { bumpSectionVersion, bumpVersion, normalizeVersion, parseVersion, type VersionBump } from "@/lib/legal/version";
 import { detectSectionChanges, suggestBump, summarizeChanges, type ComparableSection, type SectionChange } from "@/lib/legal/diff";
 import { readingTimeMinutes } from "@/lib/legal/markdown";
+import { canPublish, canTransition, computeNextReview, type LegalStatus } from "@/lib/legal/lifecycle";
 
 export interface LegalSection {
   id: string;
