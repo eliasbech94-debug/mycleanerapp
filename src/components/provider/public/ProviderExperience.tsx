@@ -2,6 +2,7 @@
 import { Briefcase, Building2, Globe, Sparkles } from "lucide-react";
 import type { PublicProviderProfile, PublicWorkHistoryEntry } from "./types";
 import { formatPeriod, languageLabel, serviceLabel } from "./format";
+import SectionHeading from "./SectionHeading";
 
 type Props = {
   profile: PublicProviderProfile;
@@ -81,8 +82,8 @@ export function ProviderExperience({ profile, workHistory, variant = "section" }
   }
 
   return (
-    <section data-testid="provider-experience" className="space-y-3">
-      <h2 className="text-xl font-bold text-[hsl(224_72%_18%)]">Erfaring og baggrund</h2>
+    <section data-testid="provider-experience" className="space-y-4">
+      <SectionHeading icon={Briefcase} title="Erfaring og baggrund" tone="violet" />
 
       <div className="grid gap-4 rounded-2xl bg-white p-4 ring-1 ring-[hsl(222_60%_92%)] sm:grid-cols-2">
         <ul className="space-y-2 text-sm text-[hsl(224_45%_20%)]">

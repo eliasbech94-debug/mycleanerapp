@@ -81,7 +81,11 @@ export function ProviderProfileView(props: ProviderProfileViewProps) {
           />
           <ProviderTrustBadges profile={profile} />
           <ProviderAbout profile={profile} />
-          <ProviderServices profile={profile} nextSlot={props.nextSlot ?? props.slots?.[0] ?? null} />
+          <ProviderServices
+            profile={profile}
+            nextSlot={props.nextSlot ?? props.slots?.[0] ?? null}
+            onSelect={props.onBook}
+          />
           <ProviderAvailability
             slots={props.slots}
             nextSlot={props.nextSlot}

@@ -1,6 +1,7 @@
 /** Næste ledige tider — real bookable slots only (bookings, blocks, vacation, iCal respected). */
 import { useState } from "react";
-import { BellRing, CalendarPlus, ChevronRight, Loader2, Search } from "lucide-react";
+import { BellRing, CalendarDays, CalendarPlus, ChevronRight, Loader2, Search } from "lucide-react";
+import SectionHeading from "./SectionHeading";
 import { Button } from "@/components/ui/button";
 import type { Slot } from "./types";
 
@@ -29,8 +30,8 @@ export function ProviderAvailability({
   const days = Array.from(byDay.entries());
 
   return (
-    <section data-testid="provider-availability" className="space-y-3">
-      <h2 className="text-xl font-bold text-[hsl(224_72%_18%)]">Næste ledige tider</h2>
+    <section data-testid="provider-availability" className="space-y-4">
+      <SectionHeading icon={CalendarDays} title="Næste ledige tider" tone="blue" />
 
       {slots === null && (
         <p className="inline-flex items-center gap-2 text-sm text-[hsl(224_20%_45%)]">
