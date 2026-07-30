@@ -1,16 +1,18 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { Search, CalendarCheck, Sparkles, Truck } from "lucide-react";
+import { Search, CalendarCheck, Sparkles, Truck, Star } from "lucide-react";
 import findCleanerVideo from "@/assets/how-it-works-find-cleaner.mp4.asset.json";
 import bookVideo from "@/assets/how-it-works-book.mp4.asset.json";
 import enjoyVideo from "@/assets/how-it-works-enjoy.mp4.asset.json";
 import onwayVideo from "@/assets/how-it-works-onway.mp4.asset.json";
+import rateVideo from "@/assets/how-it-works-rate.mp4.asset.json";
 
 const STEP_VIDEOS: Record<string, string | undefined> = {
   search: findCleanerVideo.url,
   book: bookVideo.url,
   onway: onwayVideo.url,
   enjoy: enjoyVideo.url,
+  rate: rateVideo.url,
 };
 
 /**
@@ -51,6 +53,14 @@ export function HowItWorksSection() {
       },
     },
     { key: "enjoy", Icon: Sparkles, defaults: { title: "Nyd et rent hjem", body: "" } },
+    {
+      key: "rate",
+      Icon: Star,
+      defaults: {
+        title: "Godkend og bedøm cleaner",
+        body: "Godkend opgaven og giv din cleaner en bedømmelse.",
+      },
+    },
   ] as const;
 
   return (
@@ -63,10 +73,10 @@ export function HowItWorksSection() {
           id="how-it-works-title"
           className="mt-2 font-serif text-[28px] leading-tight tracking-[-0.02em] text-[hsl(var(--mkt-ink))] sm:text-[36px]"
         >
-          {t("how.heading", "Fire trin til et rent hjem")}
+          {t("how.heading", "Fem trin til et rent hjem")}
         </h2>
       </div>
-      <ol className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      <ol className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         {steps.map(({ key, Icon, defaults }, idx) => (
           <li
             key={key}
