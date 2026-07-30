@@ -38,6 +38,10 @@ export function ProviderHero({
   const status = AVAILABILITY_META[availabilityStatus];
   const distance = formatDistance(distanceKm);
   const isTopTier = ["top_rated", "elite", "partner"].includes(profile.provider_tier ?? "");
+  const introVideo = publicIntroVideo(profile.intro_video);
+  const [videoOpen, setVideoOpen] = useState(false);
+
+
 
   return (
     <section
