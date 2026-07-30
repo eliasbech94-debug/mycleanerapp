@@ -1,5 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { Search, CalendarCheck, Sparkles } from "lucide-react";
+import findCleanerVideo from "@/assets/how-it-works-find-cleaner.mp4.asset.json";
+
 
 /**
  * HowItWorksSection — three-step explainer, reusable across all service
