@@ -43,7 +43,7 @@ export function ProviderReviews({ profile, reviews, onVisible }: Props) {
               {profile.total_reviews != null && <span>· {profile.total_reviews} anmeldelser</span>}
             </p>
           )}
-          <ul className="grid gap-3 md:grid-cols-2 xl:gap-4">
+          <ul className="grid gap-3 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 xl:gap-4">
             {(reviews ?? []).map((r) => (
               <li key={r.id} className="rounded-2xl bg-white p-4 ring-1 ring-[hsl(222_60%_92%)]">
                 <div className="flex items-center gap-1 text-amber-400" aria-label={`${r.rating} af 5`}>
