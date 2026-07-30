@@ -94,9 +94,11 @@ export default function ProviderAccounting() {
           jurisdiction={payload.jurisdiction}
           period={payload.period}
           result={payload.result}
+          externalIncome={payload.externalIncome ?? []}
           monthlySummary={payload.monthlySummary}
           onCheckDetails={() => navigate("/provider/profile")}
         />
+
       ) : (
         <div className="space-y-4">
           <header>
