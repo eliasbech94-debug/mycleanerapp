@@ -68,8 +68,15 @@ export default function ProviderProfilePreview() {
           </div>
           <p className="mt-2 text-[11px] text-[hsl(224_20%_45%)]">
             Development preview · ingen rigtige data · {current.description} · {serviceCount} aktive
-            services
+            services · intro-video:{" "}
+            <strong data-testid="preview-video-status">
+              {current.profile.intro_video?.status ?? "ingen"}
+            </strong>
+            {current.profile.intro_video && current.profile.intro_video.status !== "approved" && (
+              <> (skjult offentligt)</>
+            )}
           </p>
+
         </details>
       </div>
 
