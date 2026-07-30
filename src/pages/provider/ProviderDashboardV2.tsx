@@ -516,7 +516,7 @@ function describeVerification(
     return {
       showBanner: true,
       title: "Fuldfør Stripe-onboarding",
-      description: "Tilslut din bankkonto for at kunne modtage udbetalinger.",
+      description: "Tilslut din bankkonto, så din indtjening kan udbetales.",
       actions: [{ label: "Åbn Stripe", to: "/provider/finance", primary: true }],
     };
   }
