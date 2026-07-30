@@ -14,6 +14,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
 import { LegalMarkdown } from "@/components/legal/LegalMarkdown";
+import { sha256Hex } from "@/lib/legal/hash";
 
 type Row = {
   id: string;
