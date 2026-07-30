@@ -200,7 +200,7 @@
       },
       {
         "q": "Hvordan er priserne fastsat?",
-        "a": "Cleaners sætter selv deres priser inden for lokale minimumssatser. Du ser totalprisen, før du bekræfter — ingen skjulte gebyrer."
+        "a": "Cleaners sætter selv deres priser inden for lokale minimumssatser. Du ser providerens pris, platformsgebyret og den samlede pris, før du bekræfter — ingen skjulte gebyrer."
       },
       {
         "q": "Er alle cleaners verificerede?",
@@ -220,15 +220,23 @@
       },
       {
         "q": "Hvornår trækkes betalingen?",
-        "a": "Beløbet reserveres ved bookingen og frigives til cleaneren, når opgaven er udført og godkendt."
+        "a": "Beløbet kan være reserveret på dit kort, mens bookingforespørgslen behandles. Det trækkes først, når provideren har accepteret bookingen, og udbetales til provideren, når servicen er udført."
       },
       {
         "q": "Kan jeg aflyse?",
-        "a": "Ja. Aflysning er gratis indtil 24 timer før. Se de fulde vilkår under Regler."
+        "a": "Ja. Du kan annullere en booking fra Mine bookinger. Hvad en annullering kan koste, og om en refundering er mulig, afhænger af, hvor tæt på starttidspunktet du annullerer — se de gældende vilkår under Regler."
       },
       {
         "q": "Hvilke lande er live?",
         "a": "Danmark, Sverige, Tyskland, Storbritannien og Spanien. Flere lande kommer løbende."
+      },
+      {
+        "q": "Hvordan får provideren adgang til min bolig?",
+        "a": "Du aftaler adgang direkte med din valgte provider. MyCleaner modtager ikke nøgler, opbevarer ikke nøgler og organiserer ikke nøgleoverdragelse. Du vælger selv adgangsløsningen og har ansvaret for den."
+      },
+      {
+        "q": "Hvad sker der, hvis der opstår en skade?",
+        "a": "Opret en supportsag med billeder og en beskrivelse. MyCleaner er platformen mellem kunden og provideren. Eventuelle krav vedrørende skade vurderes ud fra dokumentationen, providerens ansvar og de gældende vilkår."
       }
     ]
   },

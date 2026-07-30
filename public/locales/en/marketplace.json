@@ -200,7 +200,7 @@
       },
       {
         "q": "How are prices set?",
-        "a": "Cleaners set their own prices within local minimum rates. You see the total before you confirm — no hidden fees."
+        "a": "Cleaners set their own prices within local minimum rates. You see the provider's price, the platform fee and the total price before you confirm — no hidden fees."
       },
       {
         "q": "Are all cleaners verified?",
@@ -220,15 +220,23 @@
       },
       {
         "q": "When is payment charged?",
-        "a": "We reserve the amount at booking and release it to the cleaner once the job is completed and approved."
+        "a": "The amount may be held on your card while your booking request is processed. It is charged once the provider accepts the booking, and paid out to the provider after the service has been carried out."
       },
       {
         "q": "Can I cancel?",
-        "a": "Yes. Cancelling is free up to 24 hours before. Full terms are in our rules."
+        "a": "Yes. You can cancel a booking from My bookings. What a cancellation may cost, and whether a refund is possible, depends on how close to the start time you cancel — see the applicable terms in our rules."
       },
       {
         "q": "Which countries are live?",
         "a": "Denmark, Sweden, Germany, the United Kingdom and Spain, with more on the way."
+      },
+      {
+        "q": "How does the provider get access to my home?",
+        "a": "You arrange access directly with your chosen provider. MyCleaner does not receive keys, does not store keys and does not arrange key handovers. You choose the access solution and are responsible for it."
+      },
+      {
+        "q": "What happens if something is damaged?",
+        "a": "Create a support case with photos and a description. MyCleaner is the platform between the customer and the provider. Any damage claim is assessed based on the documentation, the provider's responsibility and the applicable terms."
       }
     ]
   },
