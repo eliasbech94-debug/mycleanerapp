@@ -10,6 +10,7 @@ import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Search, CalendarCheck, Sparkles, ChevronRight, ChevronLeft } from "lucide-react";
 import findCleanerVideo from "@/assets/how-it-works-find-cleaner.mp4.asset.json";
+import bookVideo from "@/assets/how-it-works-book.mp4.asset.json";
 
 const STEPS = [
   { key: "search", Icon: Search },
