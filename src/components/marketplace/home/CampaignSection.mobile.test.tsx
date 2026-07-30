@@ -53,7 +53,7 @@ describe("CampaignSection — mobile Founding Cleaner card", () => {
     expect(scoped.getByText(/3 måneder/i)).toBeInTheDocument();
     expect(scoped.getByText(/ÅBNER SNART/i)).toBeInTheDocument();
     // Fee scope is limited to the PROVIDER platform fee
-    expect(scoped.getByText(/provider-platformsgebyr/i)).toBeInTheDocument();
+    expect(scoped.getByText(/provider-platformgebyr/i)).toBeInTheDocument();
     // Safety copy: not opened yet + application does not reserve a spot
     expect(scoped.getByText(/reserverer ikke automatisk en plads/i)).toBeInTheDocument();
     // 2026 eligibility framing lives in the explain line
@@ -114,7 +114,7 @@ describe("CampaignSection — mobile Founding Cleaner card", () => {
 
   it("each locale communicates 'opens soon' and 'does not reserve a spot'", () => {
     const expectations: Record<"da" | "en" | "sv" | "es", RegExp[]> = {
-      da: [/åbner snart/i, /reserverer ikke/i, /provider-platformsgebyr/i],
+      da: [/åbner snart/i, /reserverer ikke/i, /provider-platformgebyr/i],
       en: [/opens soon/i, /does not (?:automatically )?reserve/i, /provider platform fee/i],
       sv: [/öppnar snart/i, /reserverar (?:inte|ingen)/i, /plattformsavgift/i],
       es: [/abre pronto/i, /no reserva/i, /comisión de plataforma/i],

@@ -177,7 +177,7 @@ export default function MyBookings() {
                       <div className="inline-flex items-start gap-2 opacity-80"><MapPin className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" /> {b.address}</div>
                     </div>
                     <div className="mt-3 border-t border-dashed pt-3 text-xs flex items-baseline justify-between" style={{ borderColor: `${C.ink}22` }}>
-                      <span className="opacity-60">Samlet pris inkl. platformsgebyr</span>
+                      <span className="opacity-60">Samlet pris inkl. platformgebyr</span>
                       <span className="font-display text-base">{b.customer_pays.toLocaleString("da-DK")} {b.currency}</span>
                     </div>
                   </>

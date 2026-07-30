@@ -30,7 +30,7 @@ const FAQS: Array<{ q: string; a: string }> = [
   },
   {
     q: "Hvad koster det at bruge MyCleaner?",
-    a: "Platformsgebyret er 28% og deles ligeligt: 14% lægges oveni kundens pris, og 14% trækkes fra cleanerens udbetaling. Du ser altid totalprisen, før du bekræfter.",
+    a: "Platformgebyret er 28% og deles ligeligt: 14% lægges oveni kundens pris, og 14% trækkes fra cleanerens udbetaling. Du ser altid totalprisen, før du bekræfter.",
   },
   {
     q: "Hvad er Provider Score?",

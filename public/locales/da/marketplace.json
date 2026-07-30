@@ -167,7 +167,7 @@
   "campaign": {
     "eyebrow": "FOUNDING CLEANER",
     "title": "Founding Cleaner-programmet åbner snart",
-    "body": "Planlagt fordel for de første 500 godkendte Cleaners, der indsender deres provideransøgning i 2026: 0 kr. i provider-platformsgebyr i tre kalendermåneder.",
+    "body": "Planlagt fordel for de første 500 godkendte Cleaners, der indsender deres provideransøgning i 2026: 0 kr. i provider-platformgebyr i tre kalendermåneder.",
     "note": "Programmet er endnu ikke åbnet. Din ansøgning reserverer ikke automatisk en plads.",
     "cta": "Læs om programmet",
     "href": "/founding-cleaner",
@@ -175,7 +175,7 @@
     "badgeSecondary": "ÅBNER SNART",
     "edition": "2026 EDITION",
     "amount": "0 KR.",
-    "amountSuffix1": "i provider-platformsgebyr",
+    "amountSuffix1": "i provider-platformgebyr",
     "amountSuffix2": "i 3 måneder",
     "explain": "Planlagt fordel for de første 500 godkendte Cleaners, der indsender deres provideransøgning i 2026.",
     "noteShort": "Programmet er endnu ikke åbnet. Din ansøgning reserverer ikke automatisk en plads.",
@@ -200,7 +200,7 @@
       },
       {
         "q": "Hvordan er priserne fastsat?",
-        "a": "Cleaners sætter selv deres priser inden for lokale minimumssatser. Du ser providerens pris, platformsgebyret og den samlede pris, før du bekræfter — ingen skjulte gebyrer."
+        "a": "Cleaners sætter selv deres priser inden for lokale minimumssatser. Du ser providerens pris, platformgebyret og den samlede pris, før du bekræfter — ingen skjulte gebyrer."
       },
       {
         "q": "Er alle cleaners verificerede?",
@@ -428,12 +428,12 @@
   "foundingCleaner": {
     "eyebrow": "FOUNDING CLEANER",
     "heading": "Founding Cleaner-programmet",
-    "intro": "Founding Cleaner-programmet planlægger at give de første 500 godkendte Cleaners, der indsender deres provideransøgning i 2026, 0 kr. i provider-platformsgebyr i tre kalendermåneder. Programmet er endnu ikke aktiveret, og en ansøgning reserverer ikke automatisk en plads.",
+    "intro": "Founding Cleaner-programmet planlægger at give de første 500 godkendte Cleaners, der indsender deres provideransøgning i 2026, 0 kr. i provider-platformgebyr i tre kalendermåneder. Programmet er endnu ikke aktiveret, og en ansøgning reserverer ikke automatisk en plads.",
     "status": {
       "title": "Programmet åbner snart",
       "body": "Founding Cleaner-programmet er endnu ikke aktiveret. Du kan indsende din Cleaner-ansøgning, men ansøgningen reserverer ikke en kampagneplads. Hvis programmet åbner, får kvalificerede ansøgere besked direkte fra MyCleaner."
     },
-    "plannedBenefit": "Den planlagte fordel er 0 kr. i provider-platformsgebyr i tre kalendermåneder. Kundens separate platformsgebyr, betalingsbehandling, skat, moms, forsikring og andre tredjepartsomkostninger ændres ikke.",
+    "plannedBenefit": "Den planlagte fordel er 0 kr. i provider-platformgebyr i tre kalendermåneder. Kundens separate platformgebyr, betalingsbehandling, skat, moms, forsikring og andre tredjepartsomkostninger ændres ikke.",
     "ctaPrimary": "Ansøg som Cleaner",
     "ctaPrimaryNote": "Ansøgningen er ikke en reservation af en kampagneplads.",
     "ctaSecondary": "Se vilkårene",
@@ -465,7 +465,7 @@
         "Kun færdiggjorte provideransøgninger indsendt i kalenderåret 2026 (fra 1. januar 2026 til og med 31. december 2026) kan komme i betragtning. Autoritativt tidspunkt er provider_profiles.submitted_at på serveren.",
         "Godkendelse må gerne ske efter 2026. En plads tildeles først server-side ved endelig godkendelse og aktivering.",
         "Der tildeles maksimalt én kampagnefordel pr. verificeret fysisk person, også hvis personen kontrollerer flere virksomheder. Duplikerede profiler medfører ikke flere fordele.",
-        "Den planlagte fordel er 0 kr. i MyCleaners provider-platformsgebyr i tre kalendermåneder. Kundens separate platformsgebyr påvirkes ikke.",
+        "Den planlagte fordel er 0 kr. i MyCleaners provider-platformgebyr i tre kalendermåneder. Kundens separate platformgebyr påvirkes ikke.",
         "Betalingsbehandlingsomkostninger, skat, moms, forsikring og andre tredjepartsomkostninger ændres ikke automatisk af kampagnen.",
         "Perioden varer tre kalendermåneder fra started_at + interval ‘3 months’ og opgøres ikke i 90 dage.",
         "Perioden starter først, når den første kvalificerende opgave er gennemført, betalt/captured, kundebekræftet eller behandlet efter eksisterende completionregel og godkendt til release efter MyCleaners eksisterende 24-timers hold og dispute-kontrol.",

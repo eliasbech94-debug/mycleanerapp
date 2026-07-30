@@ -84,9 +84,9 @@ export function InvoicesPanel({ scope }: { scope: "provider" | "admin" }) {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
-            <CardTitle>Fakturaer for platformsgebyr</CardTitle>
+            <CardTitle>Fakturaer for platformgebyr</CardTitle>
             <p className="text-xs text-muted-foreground mt-1">
-              MyCleaner er platformen mellem kunden og provideren og fakturerer alene sit eget platformsgebyr. Momsbehandlingen afhænger af providerens skatteoplysninger.
+              MyCleaner er platformen mellem kunden og provideren og fakturerer alene sit eget platformgebyr. Momsbehandlingen afhænger af providerens skatteoplysninger.
             </p>
           </div>
           {scope === "admin" && (
@@ -98,7 +98,7 @@ export function InvoicesPanel({ scope }: { scope: "provider" | "admin" }) {
         </CardHeader>
         <CardContent>
           {invoices.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Der er endnu ingen fakturaer for platformsgebyr.</p>
+            <p className="text-sm text-muted-foreground">Der er endnu ingen fakturaer for platformgebyr.</p>
           ) : (
             <Table>
               <TableHeader>
@@ -106,7 +106,7 @@ export function InvoicesPanel({ scope }: { scope: "provider" | "admin" }) {
                   <TableHead>Nummer</TableHead>
                   <TableHead>Udstedt</TableHead>
                   <TableHead>Booking</TableHead>
-                  <TableHead className="text-right">Platformsgebyr</TableHead>
+                  <TableHead className="text-right">Platformgebyr</TableHead>
                   <TableHead className="text-right">Moms</TableHead>
                   <TableHead className="text-right">Samlet pris</TableHead>
                   <TableHead>Momsbehandling</TableHead>
@@ -163,7 +163,7 @@ export function InvoicesPanel({ scope }: { scope: "provider" | "admin" }) {
                   <TableHead>Booking</TableHead>
                   <TableHead className="text-right">Brutto</TableHead>
                   <TableHead className="text-right">Refundering</TableHead>
-                  <TableHead className="text-right">Platformsgebyr</TableHead>
+                  <TableHead className="text-right">Platformgebyr</TableHead>
                   <TableHead className="text-right">Providerens udbetaling</TableHead>
                   <TableHead>Udbetalingsstatus</TableHead>
                   <TableHead></TableHead>

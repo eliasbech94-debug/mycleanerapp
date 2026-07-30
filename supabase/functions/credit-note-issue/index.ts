@@ -252,7 +252,7 @@ Deno.serve(monitored("credit-note-issue", async (req, _log) => {
         event_type: "credit_note.issued.provider",
         dedupe_key: `credit_note.issued.provider:${inserted?.id}`,
         subject: `Kreditnota ${creditNoteNumber} udstedt`,
-        body: `MyCleaner har udstedt en kreditnota for platformsgebyret på booking ${bookingRefStr}.`,
+        body: `MyCleaner har udstedt en kreditnota for platformgebyret på booking ${bookingRefStr}.`,
         related_booking_id: booking.id,
         action_label: "Se kreditnota", action_url: `/finance?tab=invoices`,
       });
