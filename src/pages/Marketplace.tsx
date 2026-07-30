@@ -143,7 +143,7 @@ export default function Marketplace() {
   }, [rows, showFavOnly, favIds]);
 
   return (
-    <main className="min-h-screen bg-background">
+    <main data-surface="marketplace" className="min-h-screen bg-background">
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         <header className="mb-6 flex flex-wrap items-end justify-between gap-3">
           <div>
