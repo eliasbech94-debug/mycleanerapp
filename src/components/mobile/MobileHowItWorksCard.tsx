@@ -136,23 +136,23 @@ export function MobileHowItWorksCard() {
                 n: idx + 1,
                 total: STEPS.length,
               })}
-              className="snap-start shrink-0 w-[calc(100vw-60px)] max-w-[360px] rounded-2xl border border-[hsl(var(--mkt-border))] bg-[hsl(var(--mkt-surface))] p-4 min-h-[168px]"
+              className="snap-start shrink-0 w-[calc(100vw-72px)] max-w-[320px] rounded-2xl border border-[hsl(var(--mkt-border))] bg-[hsl(var(--mkt-surface))] p-3.5 min-h-[150px]"
             >
-              <div className="flex items-center gap-3">
-                <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-[hsl(var(--mkt-brand-soft))] text-[hsl(var(--mkt-brand))]">
-                  <Icon className="h-5 w-5" strokeWidth={2.25} aria-hidden />
+              <div className="flex items-center gap-2.5">
+                <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-[hsl(var(--mkt-brand-soft))] text-[hsl(var(--mkt-brand))]">
+                  <Icon className="h-4 w-4" strokeWidth={2.25} aria-hidden />
                 </span>
                 <span
-                  className="text-[12px] font-semibold uppercase tracking-[0.14em] text-[hsl(var(--mkt-ink-muted))]"
+                  className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[hsl(var(--mkt-ink-muted))]"
                   aria-hidden
                 >
                   0{idx + 1}
                 </span>
               </div>
-              <h3 className="mt-3 text-[17px] font-semibold text-[hsl(var(--mkt-ink))]">
+              <h3 className="mt-2.5 text-[15px] font-semibold text-[hsl(var(--mkt-ink))]">
                 {t(`how.steps.${key}.title`, defaults.title)}
               </h3>
-              <p className="mt-1.5 text-[13.5px] leading-relaxed text-[hsl(var(--mkt-ink-muted))]">
+              <p className="mt-1 text-[12.5px] leading-relaxed text-[hsl(var(--mkt-ink-muted))]">
                 {t(`how.steps.${key}.body`, defaults.body)}
               </p>
               {STEP_VIDEOS[key] ? (
@@ -161,7 +161,7 @@ export function MobileHowItWorksCard() {
                     videoRefs.current[idx] = el;
                   }}
                   src={STEP_VIDEOS[key]}
-                  className="mt-3 aspect-video w-full rounded-xl border border-[hsl(var(--mkt-border))] object-cover"
+                  className="mt-2.5 h-24 w-full rounded-lg border border-[hsl(var(--mkt-border))] object-cover"
                   autoPlay={idx === 0}
                   muted
                   playsInline
