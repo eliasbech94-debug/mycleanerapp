@@ -887,7 +887,7 @@ function BookingsTab() {
                 <>
                   <div className="mt-3 border-t border-dashed pt-3 text-xs space-y-1" style={{ borderColor: `${C.ink}22` }}>
                     <div className="flex items-baseline justify-between">
-                      <span className="opacity-60">Total</span>
+                      <span className="opacity-60">Samlet pris</span>
                       <span className="font-display text-base">{b.customer_pays.toLocaleString("da-DK")} {b.currency}</span>
                     </div>
                     {(isPartial || isFull) && b.refund_amount != null && (
@@ -915,7 +915,7 @@ function BookingsTab() {
                           {isPartial ? "Delvis refundering" : "Fuld refundering"}
                         </div>
                         <div className="text-[10px] font-bold opacity-80">
-                          {(b.refunds?.length ?? 0)} {(b.refunds?.length ?? 0) === 1 ? "refund" : "refunds"}
+                          {(b.refunds?.length ?? 0)} {(b.refunds?.length ?? 0) === 1 ? "refundering" : "refunderinger"}
                         </div>
                       </div>
                       {(b.refunds && b.refunds.length > 0) ? (
@@ -932,7 +932,7 @@ function BookingsTab() {
                                   </span>
                                 </div>
                                 <div className="flex items-baseline justify-between gap-2 text-[10px] opacity-80">
-                                  <span>{REFUND_REASON_LABEL[r.reason ?? ""] || r.reason || (failed ? `Fejlet${r.failure_reason ? `: ${r.failure_reason}` : ""}` : "Refund")}</span>
+                                  <span>{REFUND_REASON_LABEL[r.reason ?? ""] || r.reason || (failed ? `Kunne ikke gennemføres${r.failure_reason ? `: ${r.failure_reason}` : ""}` : "Refundering")}</span>
                                   <span className="font-mono">{r.id}</span>
                                 </div>
                               </div>
@@ -953,7 +953,7 @@ function BookingsTab() {
                             <div className="flex justify-between"><span className="opacity-70">Årsag</span><span className="font-bold">{REFUND_REASON_LABEL[b.refund_reason] || b.refund_reason}</span></div>
                           )}
                           {b.refund_id && (
-                            <div className="flex justify-between"><span className="opacity-70">Refund ID</span><span className="font-mono">{b.refund_id}</span></div>
+                            <div className="flex justify-between"><span className="opacity-70">Refunderings-ID</span><span className="font-mono">{b.refund_id}</span></div>
                           )}
                         </>
                       )}
@@ -985,14 +985,14 @@ const PAYMENT_LABEL: Record<Booking["payment_status"], { label: string; bg: stri
   canceled: { label: "Annulleret", bg: "#e6e2d2", fg: C.ink },
   refunded: { label: "Refunderet", bg: "#ede4f5", fg: "#4a2a8a" },
   partially_refunded: { label: "Delvist refunderet", bg: "#fde9d1", fg: "#8a4a00" },
-  failed: { label: "Fejlet", bg: "#f5c2b8", fg: "#8a2e1c" },
+  failed: { label: "Ikke gennemført", bg: "#f5c2b8", fg: "#8a2e1c" },
 };
 
 const REFUND_REASON_LABEL: Record<string, string> = {
   duplicate: "Dobbeltbetaling",
   fraudulent: "Mistanke om svindel",
-  requested_by_customer: "Anmodet af kunde",
-  expired_uncaptured_charge: "Reservation udløb",
+  requested_by_customer: "Anmodet af kunden",
+  expired_uncaptured_charge: "Kortreservationen udløb",
 };
 
 /* ---------- CARDS TAB ---------- */
@@ -1067,11 +1067,11 @@ function CardsTab() {
       if (pkErr) throw pkErr;
       if (siErr) throw siErr;
       if (!pkData?.publishable_key) throw new Error("Stripe publiceringsnøgle mangler i konfigurationen");
-      if (!siData?.client_secret) throw new Error("Kunne ikke oprette sikker Stripe-session");
+      if (!siData?.client_secret) throw new Error("Vi kunne ikke starte den sikre betalingsside. Prøv igen om lidt.");
       setStripePromise(loadStripe(pkData.publishable_key));
       setClientSecret(siData.client_secret);
     } catch (e: any) {
-      const msg = e?.message || "Kunne ikke starte tilføj-kort";
+      const msg = e?.message || "Vi kunne ikke åbne formularen til betalingskort. Prøv igen.";
       setActionError(msg);
       toast.error(msg);
       setAdding(false);
@@ -1098,7 +1098,7 @@ function CardsTab() {
         });
         toast.success("Kort erstattet");
       } catch (e: any) {
-        toast.error(e?.message || "Kunne ikke erstatte kort");
+        toast.error(e?.message || "Kortet blev ikke erstattet. Prøv igen, eller brug en anden betalingsmetode.");
       }
     }
     closeAdd();
@@ -1119,7 +1119,7 @@ function CardsTab() {
     // Safety: don't allow silently deleting the default when other cards exist
     // without first picking a replacement default.
     if (card.is_default && others.length > 0 && !newDefaultId) {
-      toast.error("Vælg et nyt standardkort først");
+      toast.error("Vælg først et nyt standardkort, før du fjerner det nuværende.");
       return;
     }
     setBusyId(card.id);
@@ -1138,7 +1138,7 @@ function CardsTab() {
       setPendingDelete(null);
       loadCards();
     } catch (e: any) {
-      toast.error(e?.message || "Kunne ikke fjerne kort");
+      toast.error(e?.message || "Kortet blev ikke fjernet. Prøv igen om lidt.");
     } finally {
       setBusyId(null);
     }
@@ -1156,7 +1156,7 @@ function CardsTab() {
       toast.success("Standardkort opdateret");
       await loadCards();
     } catch (e: any) {
-      const msg = e?.message || "Kunne ikke sætte standardkort";
+      const msg = e?.message || "Vi kunne ikke opdatere dit standardkort. Prøv igen.";
       setActionError(msg);
       toast.error(msg);
     } finally {
@@ -1494,7 +1494,7 @@ function CardsTab() {
         <div className="flex items-start gap-2 rounded-xl border-2 p-3 text-xs" style={{ borderColor: `${C.orange}66`, background: `${C.orange}14`, color: C.ink }}>
           <ShieldAlert className="h-4 w-4 mt-0.5 shrink-0" style={{ color: C.orange }} />
           <div className="flex-1">
-            <div className="font-bold">Der opstod en fejl</div>
+            <div className="font-bold">Vi kunne ikke hente dine betalingsoplysninger</div>
             <div className="opacity-80">{actionError}</div>
           </div>
           <button onClick={() => setActionError(null)} className="opacity-60 hover:opacity-100" aria-label="Luk"><X className="h-3.5 w-3.5" /></button>
@@ -1623,7 +1623,7 @@ function AddCardForm({ clientSecret, onDone, onCancel }: { clientSecret: string;
     setBusy(true);
     const { error, setupIntent } = await stripe.confirmCardSetup(clientSecret, { payment_method: { card } });
     setBusy(false);
-    if (error) return toast.error(error.message || "Kunne ikke gemme kort");
+    if (error) return toast.error(error.message || "Kortet blev ikke gemt. Kontrollér oplysningerne, og prøv igen.");
     toast.success("Kort gemt");
     const pmId = typeof setupIntent?.payment_method === "string" ? setupIntent.payment_method : null;
     onDone(pmId);
@@ -1664,7 +1664,7 @@ function InvoicesTab() {
       <div className="rounded-2xl border-2 border-dashed bg-white p-8 text-center" style={{ borderColor: `${C.ink}33` }}>
         <Receipt className="mx-auto h-8 w-8 opacity-40" />
         <div className="mt-3 font-display text-xl">Ingen fakturaer endnu</div>
-        <p className="mt-2 text-sm opacity-70">Når en booking er gennemført og betalt, vises kvitteringen her.</p>
+        <p className="mt-2 text-sm opacity-70">Når en booking er gennemført og betalt, kan du se kvitteringen her.</p>
       </div>
     );
   }
@@ -1739,7 +1739,7 @@ const REFUND_REASON_LABEL_HIST: Record<string, string> = {
   requested_by_customer: "Kundens ønske",
   duplicate: "Dobbeltbetaling",
   fraudulent: "Mistanke om svindel",
-  expired_uncaptured_charge: "Reservation udløb",
+  expired_uncaptured_charge: "Kortreservationen udløb",
 };
 
 function buildHistory(bookings: Booking[]): HistoryEvent[] {
