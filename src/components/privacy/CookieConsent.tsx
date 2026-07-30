@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   Cookie,
@@ -84,9 +84,7 @@ function PreferenceSwitch({
       >
         <span
           className={`absolute top-1 h-[18px] w-[18px] rounded-full transition ${
-            checked
-              ? "left-6 bg-[#123c3a]"
-              : "left-1 bg-white/70"
+            checked ? "left-6 bg-[#123c3a]" : "left-1 bg-white/70"
           }`}
         />
       </button>
@@ -114,6 +112,7 @@ export default function CookieConsent() {
   const [showSettings, setShowSettings] = useState(false);
   const [analytics, setAnalytics] = useState(storedConsent?.analytics ?? false);
   const [marketing, setMarketing] = useState(storedConsent?.marketing ?? false);
+  const dialogRef = useRef<HTMLElement>(null);
 
   const saveConsent = (nextAnalytics: boolean, nextMarketing: boolean) => {
     const consent = createCookieConsent(nextAnalytics, nextMarketing);
@@ -139,6 +138,44 @@ export default function CookieConsent() {
     setIsOpen(true);
   };
 
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const dialog = dialogRef.current;
+    const focusable = dialog?.querySelector<HTMLElement>(
+      'button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+    );
+    focusable?.focus();
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && storedConsent) {
+        setIsOpen(false);
+        setShowSettings(false);
+      }
+
+      if (event.key !== "Tab" || !dialog) return;
+      const items = Array.from(
+        dialog.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        ),
+      );
+      if (items.length === 0) return;
+
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, storedConsent]);
+
   if (!isOpen) {
     return (
       <button
@@ -155,19 +192,14 @@ export default function CookieConsent() {
   return (
     <div className="fixed inset-0 z-[80] flex items-end justify-center bg-[#071d1c]/45 p-3 backdrop-blur-[2px] sm:p-5">
       <section
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby="cookie-consent-title"
         className="relative w-full max-w-4xl overflow-hidden rounded-[28px] border border-white/15 bg-[#123c3a] text-white shadow-[0_28px_90px_rgba(7,29,28,0.45)]"
       >
-        <div
-          className="pointer-events-none absolute -right-16 -top-20 h-52 w-52 rounded-full bg-primary/30 blur-2xl"
-          aria-hidden="true"
-        />
-        <div
-          className="pointer-events-none absolute -bottom-20 left-1/4 h-40 w-40 rounded-full bg-[#f2c879]/15 blur-2xl"
-          aria-hidden="true"
-        />
+        <div className="pointer-events-none absolute -right-16 -top-20 h-52 w-52 rounded-full bg-primary/30 blur-2xl" aria-hidden="true" />
+        <div className="pointer-events-none absolute -bottom-20 left-1/4 h-40 w-40 rounded-full bg-[#f2c879]/15 blur-2xl" aria-hidden="true" />
 
         <div className="relative grid gap-5 p-5 sm:p-7 lg:grid-cols-[1fr_auto] lg:items-end">
           <div>
@@ -181,33 +213,21 @@ export default function CookieConsent() {
                 <Cookie className="h-7 w-7" aria-hidden="true" />
               </div>
               <div>
-                <h2
-                  id="cookie-consent-title"
-                  className="font-heading text-4xl leading-[0.95] sm:text-5xl"
-                >
+                <h2 id="cookie-consent-title" className="font-heading text-4xl leading-[0.95] sm:text-5xl">
                   Må vi lige gøre rent bord?
                 </h2>
                 <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/75 sm:text-base">
-                  Du bestemmer, hvilke digitale krummer vi må samle op. Nødvendige
-                  cookies holder siden kørende; resten bruger vi kun, hvis du siger ja.
+                  Du bestemmer, hvilke digitale krummer vi må samle op. Nødvendige cookies holder siden kørende; resten bruger vi kun, hvis du siger ja.
                 </p>
               </div>
             </div>
           </div>
 
           <div className="flex flex-col gap-2 sm:flex-row lg:w-52 lg:flex-col">
-            <button
-              type="button"
-              onClick={() => saveConsent(true, true)}
-              className="min-h-11 rounded-full bg-primary-foreground px-5 py-2.5 text-sm font-bold text-[#123c3a] shadow-lg transition hover:-translate-y-0.5 hover:brightness-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
-            >
+            <button type="button" onClick={() => saveConsent(true, true)} className="min-h-11 rounded-full bg-primary-foreground px-5 py-2.5 text-sm font-bold text-[#123c3a] shadow-lg transition hover:-translate-y-0.5 hover:brightness-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-white">
               Accepter alle
             </button>
-            <button
-              type="button"
-              onClick={() => saveConsent(false, false)}
-              className="min-h-11 rounded-full border border-white/25 bg-white/[0.08] px-5 py-2.5 text-sm font-bold text-white transition hover:bg-white/[0.14] focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
-            >
+            <button type="button" onClick={() => saveConsent(false, false)} className="min-h-11 rounded-full border border-white/25 bg-white/[0.08] px-5 py-2.5 text-sm font-bold text-white transition hover:bg-white/[0.14] focus:outline-none focus-visible:ring-2 focus-visible:ring-white">
               Kun nødvendige
             </button>
           </div>
@@ -215,24 +235,9 @@ export default function CookieConsent() {
 
         {showSettings && (
           <div className="relative grid gap-3 border-t border-white/10 bg-black/10 px-5 py-5 sm:px-7 lg:grid-cols-3">
-            <PreferenceSwitch
-              checked
-              disabled
-              label="Nødvendige"
-              description="Login, sikkerhed og de grundlæggende funktioner. Dem kan siden ikke undvære."
-            />
-            <PreferenceSwitch
-              checked={analytics}
-              label="Statistik"
-              description="Hjælper os med at forstå, hvad der virker, så MyCleaner bliver lettere at bruge."
-              onChange={setAnalytics}
-            />
-            <PreferenceSwitch
-              checked={marketing}
-              label="Marketing"
-              description="Gør vores budskaber mere relevante. Vi tænder aldrig denne kategori på forhånd."
-              onChange={setMarketing}
-            />
+            <PreferenceSwitch checked disabled label="Nødvendige" description="Login, sikkerhed og de grundlæggende funktioner. Dem kan siden ikke undvære." />
+            <PreferenceSwitch checked={analytics} label="Statistik" description="Hjælper os med at forstå, hvad der virker, så MyCleaner bliver lettere at bruge." onChange={setAnalytics} />
+            <PreferenceSwitch checked={marketing} label="Marketing" description="Gør vores budskaber mere relevante. Vi tænder aldrig denne kategori på forhånd." onChange={setMarketing} />
           </div>
         )}
 
@@ -240,21 +245,23 @@ export default function CookieConsent() {
           <div className="flex items-center gap-2">
             <ShieldCheck className="h-4 w-4 text-primary-foreground" aria-hidden="true" />
             <span>Du kan ændre dit valg når som helst.</span>
-            <Link
-              to="/privatliv"
-              className="font-semibold text-white underline decoration-white/30 underline-offset-4 hover:decoration-white"
-            >
+            <Link to="/privatliv" className="font-semibold text-white underline decoration-white/30 underline-offset-4 hover:decoration-white">
               Privatliv
             </Link>
           </div>
 
           {showSettings ? (
-            <button
-              type="button"
-              onClick={() => saveConsent(analytics, marketing)}
-              className="rounded-full border border-white/20 bg-white/10 px-4 py-2 font-bold text-white transition hover:bg-white/[0.15] focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
-            >
+            <button type="button" onClick={() => saveConsent(analytics, marketing)} className="rounded-full border border-white/20 bg-white/10 px-4 py-2 font-bold text-white transition hover:bg-white/[0.15] focus:outline-none focus-visible:ring-2 focus-visible:ring-white">
               Gem mine valg
             </button>
           ) : (
-            <button
+            <button type="button" onClick={() => setShowSettings(true)} className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 font-bold text-white transition hover:bg-white/[0.15] focus:outline-none focus-visible:ring-2 focus-visible:ring-white">
+              <SlidersHorizontal className="h-3.5 w-3.5" aria-hidden="true" />
+              Tilpas
+            </button>
+          )}
+        </div>
+      </section>
+    </div>
+  );
+}
