@@ -67,9 +67,12 @@ export function LegalUpdateGate() {
           </DialogDescription>
         </DialogHeader>
 
+        <LegalUpdateChangelog documentId={doc.id} />
+
         <ScrollArea className="h-64 rounded-xl border border-border p-4">
           <LegalMarkdown content={doc.body_md} />
         </ScrollArea>
+
 
         <Link to={`/legal/${doc.slug}`} className="text-sm text-primary underline underline-offset-4">
           {t("update.readFull", "Læs hele dokumentet")}
