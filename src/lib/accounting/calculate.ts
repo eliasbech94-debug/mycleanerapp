@@ -5,6 +5,11 @@ import {
   findCategoryRule,
   resolveIndirectTaxRule,
 } from "./ruleEngine";
+import {
+  EXTERNAL_INCOME_SOURCE_LABELS,
+  evaluateExternalIncomeItem,
+  groupIncomeBySource,
+} from "./externalIncome";
 import type {
   AccountingItem,
   CalculationInput,
@@ -13,7 +18,7 @@ import type {
 } from "./types";
 import { showIndirectTaxModule } from "./jurisdiction";
 
-export const CALCULATION_VERSION = "accounting-calc-1.0.0";
+export const CALCULATION_VERSION = "accounting-calc-1.1.0";
 
 function emptyResult(
   status: CalculationResult["status"],
@@ -32,6 +37,13 @@ function emptyResult(
     includedIncomeMinor: 0,
     includedExpensesMinor: 0,
     includedMileageAmountMinor: 0,
+    myCleanerIncomeMinor: 0,
+    externalIncomeMinor: 0,
+    totalIncomeMinor: 0,
+    includedExternalIncomeItems: [],
+    excludedExternalIncomeItems: [],
+    reviewRequiredExternalIncomeItems: [],
+    incomeBySource: [],
     excludedItems: [],
     reviewRequiredItems: [],
     calculationVersion: CALCULATION_VERSION,
@@ -43,6 +55,7 @@ function emptyResult(
     explanationLines,
   };
 }
+
 
 /**
  * Authoritative preliminary calculation.
