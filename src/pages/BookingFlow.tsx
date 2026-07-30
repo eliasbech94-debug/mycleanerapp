@@ -195,7 +195,7 @@ function BookingFlowInner() {
         return;
       }
       if (!stripe || !elements) {
-        toast({ title: "Betalingen er ikke klar endnu", description: "Vent et øjeblik, og prøv igen.", variant: "destructive" });
+        toast({ title: "Betalingen er ikke klar endnu", description: "Betalingsfeltet indlæses stadig. Vent et øjeblik, og prøv igen.", variant: "destructive" });
         return;
       }
       const card = elements.getElement(CardElement);
@@ -227,7 +227,7 @@ function BookingFlowInner() {
             },
           });
           if (qErr || !quote?.quote_id) {
-            throw new Error(qErr?.message || quote?.error || "Kunne ikke beregne pris");
+            throw new Error(qErr?.message || quote?.error || "Vi kunne ikke beregne prisen lige nu. Prøv igen om lidt.");
           }
 
           const { data, error } = await supabase.functions.invoke("payment-create-intent", {
@@ -249,7 +249,7 @@ function BookingFlowInner() {
             },
           });
           if (error || !data?.client_secret) {
-            throw new Error(error?.message || data?.error || "Kunne ikke oprette betaling");
+            throw new Error(error?.message || data?.error || "Vi kunne ikke starte betalingen. Prøv igen, eller brug en anden betalingsmetode.");
           }
           secret = data.client_secret;
           bid = data.booking_id;
@@ -261,7 +261,7 @@ function BookingFlowInner() {
         const { error: confirmErr, paymentIntent } = await stripe.confirmCardPayment(secret!, {
           payment_method: { card, billing_details: { email: user.email ?? undefined, name: profile?.full_name ?? undefined } },
         });
-        if (confirmErr) throw new Error(confirmErr.message || "Betalingen blev afvist");
+        if (confirmErr) throw new Error(confirmErr.message || "Betalingen kunne ikke gennemføres. Kontrollér dine kortoplysninger, eller prøv en anden betalingsmetode.");
         if (paymentIntent && !["requires_capture", "succeeded"].includes(paymentIntent.status)) {
           throw new Error(`Uventet status: ${paymentIntent.status}`);
         }
@@ -275,7 +275,7 @@ function BookingFlowInner() {
         });
         setStep(4);
       } catch (e: any) {
-        toast({ title: "Betaling fejlede", description: e.message, variant: "destructive" });
+        toast({ title: "Betalingen kunne ikke gennemføres", description: e.message || "Kontrollér dine kortoplysninger, eller prøv en anden betalingsmetode.", variant: "destructive" });
       } finally {
         setSubmitting(false);
       }
@@ -966,7 +966,7 @@ function Step3({ address, setAddress, addressValid, setAddressValid, setAddressP
     <div>
       <h1 className="font-display text-3xl sm:text-4xl">Sidste detaljer</h1>
       <p className="mt-2 max-w-xl text-sm opacity-70">
-        Vi sender oplysningerne direkte til {provider.name.split(" ")[0]}. Du betaler først når hun bekræfter.
+        Vi sender oplysningerne direkte til {provider.name.split(" ")[0]}. Beløbet trækkes først, når provideren har accepteret din bookingforespørgsel.
       </p>
 
       <div className="mt-6 space-y-4">
@@ -1097,7 +1097,7 @@ function Step3({ address, setAddress, addressValid, setAddressValid, setAddressP
             />
           </div>
           <div className="mt-2 text-[10px] opacity-60">
-            Vi reserverer beløbet nu. Det trækkes først, når provideren accepterer din bookingforespørgsel (senest efter 24 timer).
+            Beløbet kan være reserveret på dit kort, mens bookingforespørgslen behandles. Det trækkes først, når provideren har accepteret bookingen.
           </div>
         </div>
 
@@ -1106,9 +1106,9 @@ function Step3({ address, setAddress, addressValid, setAddressValid, setAddressP
           <div className="flex items-start gap-3">
             <Shield className="mt-0.5 h-5 w-5" style={{ color: C.ink }} />
             <div className="text-sm">
-              <div className="font-bold">Beskyttet betaling</div>
+              <div className="font-bold">Sådan håndteres din betaling</div>
               <div className="opacity-70">
-                Vi reserverer {customerPays.toLocaleString("da-DK")} kr på dit kort. Beløbet frigives først til provideren, når opgaven er udført.
+                {customerPays.toLocaleString("da-DK")} kr kan blive reserveret på dit kort. Beløbet udbetales først til provideren, når servicen er udført og bookingen er afsluttet.
               </div>
             </div>
           </div>
@@ -1189,14 +1189,14 @@ function Summary({
 
       <div className="mt-5 space-y-2 border-t-2 border-dashed pt-4 text-sm" style={{ borderColor: `${C.ink}22` }}>
         <Line label={`${effectiveRate} kr/t × ${hours} t`} value={`${base.toLocaleString("da-DK")} kr`} />
-        <Line label="Platformsgebyr 14%" value={`+${(customerPays - base).toLocaleString("da-DK")} kr`} muted />
+        <Line label="Platformsgebyr" value={`+${(customerPays - base).toLocaleString("da-DK")} kr`} muted />
         <div className="flex items-baseline justify-between pt-2">
           <span className="text-[10px] font-black uppercase tracking-[0.22em]">Samlet pris</span>
           <span className="font-display text-2xl">
             {customerPays.toLocaleString("da-DK")} <span className="text-sm opacity-70">kr</span>
           </span>
         </div>
-        <div className="text-[10px] opacity-60">Provideren modtager {providerGets.toLocaleString("da-DK")} kr efter platformsgebyr. MyCleaner er en markedsplads — opgaven udføres af en selvstændig provider.</div>
+        <div className="text-[10px] opacity-60">Providerens pris efter platformsgebyr: {providerGets.toLocaleString("da-DK")} kr. MyCleaner er en platform, der forbinder kunder og selvstændige providere og håndterer booking og betaling. Servicen udføres af din valgte provider.</div>
       </div>
     </div>
   );

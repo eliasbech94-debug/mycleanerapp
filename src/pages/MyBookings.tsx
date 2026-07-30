@@ -51,13 +51,13 @@ const STATUS_LABEL: Record<
   },
   cancelled: {
     label: "Annulleret",
-    help: "Bookingen er annulleret. Er der reserveret et beløb, frigives det automatisk.",
+    help: "Bookingen er annulleret. Er der reserveret et beløb på dit kort, frigives reservationen. Hvor lang tid det tager at se beløbet igen, afhænger af din bank og betalingsmetode.",
     bg: "#e6e2d2",
     fg: C.ink,
   },
   completed: {
     label: "Udført",
-    help: "Opgaven er markeret som afsluttet. Skriv til support, hvis noget ikke stemmer.",
+    help: "Bookingen er markeret som udført. Passer noget ikke, kan du oprette en supportsag.",
     bg: C.teal,
     fg: C.cream,
   },
