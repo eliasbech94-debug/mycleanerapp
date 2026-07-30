@@ -255,6 +255,7 @@ export function RootRouteSwitch() {
           path={`/${country}/*`}
           element={
             <CountryProvider>
+              <LegalUpdateGate />
               <AppRoutes />
             </CountryProvider>
           }
@@ -264,6 +265,7 @@ export function RootRouteSwitch() {
         path="/*"
         element={
           <CountryProvider>
+            <LegalUpdateGate />
             <AppRoutes />
           </CountryProvider>
         }
