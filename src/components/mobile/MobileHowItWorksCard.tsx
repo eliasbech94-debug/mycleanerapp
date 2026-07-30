@@ -1,5 +1,5 @@
 /**
- * MobileHowItWorksCard — 3-step swipeable "How it works" card.
+ * MobileHowItWorksCard — 5-step swipeable "How it works" card.
  *
  * One step fully visible at a time inside a single rounded container.
  * Native horizontal scroll-snap for swipe; buttons + dots as fallback.
@@ -8,7 +8,16 @@
 import * as React from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Search, CalendarCheck, Sparkles, Truck, Star, ChevronRight, ChevronLeft } from "lucide-react";
+import {
+  Search,
+  CalendarCheck,
+  Sparkles,
+  Truck,
+  Star,
+  ChevronRight,
+  ChevronLeft,
+  Play,
+} from "lucide-react";
 import findCleanerVideo from "@/assets/how-it-works-find-cleaner.mp4.asset.json";
 import bookVideo from "@/assets/how-it-works-book.mp4.asset.json";
 import enjoyVideo from "@/assets/how-it-works-enjoy.mp4.asset.json";
@@ -48,7 +57,9 @@ const STEP_VIDEOS: Record<string, string | undefined> = {
 export function MobileHowItWorksCard() {
   const { t } = useTranslation("marketplace");
   const scrollerRef = React.useRef<HTMLDivElement | null>(null);
+  const sectionRef = React.useRef<HTMLElement | null>(null);
   const [active, setActive] = React.useState(0);
+  const [inView, setInView] = React.useState(false);
   const videoRefs = React.useRef<Array<HTMLVideoElement | null>>([]);
 
   React.useEffect(() => {
@@ -71,6 +82,18 @@ export function MobileHowItWorksCard() {
     return () => io.disconnect();
   }, []);
 
+  // Only play while the section is meaningfully on screen.
+  React.useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([entry]) => setInView(entry.isIntersecting && entry.intersectionRatio >= 0.5),
+      { threshold: [0, 0.5, 1] },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
   const goto = React.useCallback((idx: number) => {
     const el = scrollerRef.current;
     if (!el) return;
@@ -82,22 +105,21 @@ export function MobileHowItWorksCard() {
   React.useEffect(() => {
     videoRefs.current.forEach((v, i) => {
       if (!v) return;
-      if (i === active) {
+      if (i === active && inView) {
         void v.play().catch(() => undefined);
       } else {
         v.pause();
-        try {
-          v.currentTime = 0;
-        } catch {
-          /* ignore */
-        }
       }
     });
-  }, [active]);
+  }, [active, inView]);
 
   return (
-    <section aria-labelledby="mobile-how-heading" className="px-4 pt-8">
-      <div className="rounded-3xl border border-[hsl(var(--mkt-border))] bg-[hsl(var(--mkt-brand-soft))]/60 p-4 shadow-[var(--mkt-shadow-soft)]">
+    <section ref={sectionRef} aria-labelledby="mobile-how-heading" className="relative px-4 pt-8">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-56 bg-gradient-to-b from-[hsl(var(--mkt-brand))]/[0.07] to-transparent"
+      />
+      <div className="rounded-[28px] border border-[hsl(var(--mkt-border))] bg-[hsl(var(--mkt-brand-soft))]/60 p-4 shadow-[var(--mkt-shadow-soft)]">
         <div className="mb-3 flex items-end justify-between gap-3">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[hsl(var(--mkt-brand))]">
@@ -105,7 +127,7 @@ export function MobileHowItWorksCard() {
             </p>
             <h2
               id="mobile-how-heading"
-              className="mt-1 font-heading text-[20px] leading-tight tracking-[-0.01em] text-[hsl(var(--mkt-ink))]"
+              className="mt-1 font-heading text-[21px] leading-tight tracking-[-0.015em] text-[hsl(var(--mkt-ink))]"
             >
               {t("how.heading", "Fem trin til et rent hjem")}
             </h2>
@@ -119,6 +141,19 @@ export function MobileHowItWorksCard() {
               total: STEPS.length,
             })}
           </span>
+        </div>
+
+        <div
+          className="mb-3 h-1.5 w-full overflow-hidden rounded-full bg-[hsl(var(--mkt-border))]"
+          role="progressbar"
+          aria-valuemin={1}
+          aria-valuemax={STEPS.length}
+          aria-valuenow={active + 1}
+        >
+          <div
+            className="h-full w-full origin-left rounded-full bg-[hsl(var(--mkt-brand))] transition-transform duration-500 ease-out motion-reduce:transition-none"
+            style={{ transform: `scaleX(${(active + 1) / STEPS.length})` }}
+          />
         </div>
 
         <div
@@ -136,10 +171,20 @@ export function MobileHowItWorksCard() {
                 n: idx + 1,
                 total: STEPS.length,
               })}
-              className="snap-start shrink-0 w-[calc(100vw-72px)] max-w-[320px] rounded-2xl border border-[hsl(var(--mkt-border))] bg-[hsl(var(--mkt-surface))] p-3.5 min-h-[150px]"
+              className={`snap-start shrink-0 w-[calc(100vw-56px)] max-w-[360px] rounded-[24px] border bg-[hsl(var(--mkt-surface))] p-4 transition-[border-color,box-shadow,opacity] duration-400 ease-out motion-reduce:transition-none ${
+                active === idx
+                  ? "border-[hsl(var(--mkt-brand))]/45 opacity-100 shadow-[0_16px_40px_-24px_hsl(var(--mkt-brand)/0.5)]"
+                  : "border-[hsl(var(--mkt-border))] opacity-90"
+              }`}
             >
               <div className="flex items-center gap-2.5">
-                <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-[hsl(var(--mkt-brand-soft))] text-[hsl(var(--mkt-brand))]">
+                <span
+                  className={`inline-flex h-10 w-10 items-center justify-center rounded-2xl transition-colors duration-300 motion-reduce:transition-none ${
+                    active >= idx
+                      ? "bg-[hsl(var(--mkt-brand))] text-white"
+                      : "bg-[hsl(var(--mkt-brand-soft))] text-[hsl(var(--mkt-brand))]"
+                  }`}
+                >
                   <Icon className="h-4 w-4" strokeWidth={2.25} aria-hidden />
                 </span>
                 <span
@@ -149,26 +194,32 @@ export function MobileHowItWorksCard() {
                   0{idx + 1}
                 </span>
               </div>
-              <h3 className="mt-2.5 text-[15px] font-semibold text-[hsl(var(--mkt-ink))]">
+              <h3 className="mt-3 text-[16px] font-semibold tracking-[-0.01em] text-[hsl(var(--mkt-ink))]">
                 {t(`how.steps.${key}.title`, defaults.title)}
               </h3>
-              <p className="mt-1 text-[12.5px] leading-relaxed text-[hsl(var(--mkt-ink-muted))]">
+              <p className="mt-1.5 text-[13px] leading-relaxed text-[hsl(var(--mkt-ink-muted))]">
                 {t(`how.steps.${key}.body`, defaults.body)}
               </p>
               {STEP_VIDEOS[key] ? (
-                <video
-                  ref={(el) => {
-                    videoRefs.current[idx] = el;
-                  }}
-                  src={STEP_VIDEOS[key]}
-                  className="mt-2.5 h-24 w-full rounded-lg border border-[hsl(var(--mkt-border))] object-cover"
-                  autoPlay={idx === 0}
-                  muted
-                  playsInline
-                  preload="auto"
-                  onEnded={() => goto((idx + 1) % STEPS.length)}
-                  aria-label={t(`how.steps.${key}.videoLabel`, "Sådan virker det")}
-                />
+                <div className="relative mt-3 overflow-hidden rounded-[20px] border border-[hsl(var(--mkt-border))] shadow-[0_10px_28px_-20px_hsl(222_47%_11%/0.55)]">
+                  <video
+                    ref={(el) => {
+                      videoRefs.current[idx] = el;
+                    }}
+                    src={STEP_VIDEOS[key]}
+                    className="h-40 w-full object-cover"
+                    muted
+                    loop={false}
+                    playsInline
+                    preload="metadata"
+                    onEnded={() => goto((idx + 1) % STEPS.length)}
+                    aria-label={t(`how.steps.${key}.videoLabel`, "Sådan virker det")}
+                  />
+                  <span className="pointer-events-none absolute left-2.5 top-2.5 inline-flex items-center gap-1 rounded-full border border-white/30 bg-white/20 px-2 py-1 text-[10px] font-semibold text-white backdrop-blur-md">
+                    <Play className="h-2.5 w-2.5 fill-current" aria-hidden />
+                    {t("how.livePreview", "Live preview")}
+                  </span>
+                </div>
               ) : null}
             </article>
           ))}
@@ -206,7 +257,7 @@ export function MobileHowItWorksCard() {
               <span
                 key={idx}
                 aria-hidden
-                className={`h-1.5 rounded-full transition-all ${
+                className={`h-1.5 rounded-full transition-all duration-300 motion-reduce:transition-none ${
                   active === idx
                     ? "w-5 bg-[hsl(var(--mkt-brand))]"
                     : "w-1.5 bg-[hsl(var(--mkt-border-strong))]"
