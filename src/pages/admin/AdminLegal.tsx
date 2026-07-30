@@ -81,6 +81,8 @@ export default function AdminLegal() {
       const { publish, id, ...rest } = payload;
       const body = {
         ...rest,
+        // The hash identifies the exact accepted text; recompute on every save.
+        body_hash: await sha256Hex(rest.body_md ?? ""),
         status: publish ? "published" : rest.status ?? "draft",
         published_at: publish ? new Date().toISOString() : rest.published_at ?? null,
         effective_at: publish ? rest.effective_at ?? new Date().toISOString() : rest.effective_at ?? null,
