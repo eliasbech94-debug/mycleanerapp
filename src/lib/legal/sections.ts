@@ -27,6 +27,8 @@ export interface LegalSection {
   published_by: string | null;
   created_at: string;
   updated_at: string;
+  word_count?: number;
+  reading_minutes?: number;
 }
 
 export interface LegalChangelogEntry {
