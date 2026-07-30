@@ -49,8 +49,9 @@ export function ProviderHero({
       data-testid="provider-hero"
       className="relative overflow-hidden rounded-3xl bg-white shadow-[0_18px_40px_-28px_hsl(222_88%_42%/0.45)] ring-1 ring-[hsl(222_60%_92%)]"
     >
-      <div className="grid gap-0 sm:grid-cols-[minmax(0,220px)_1fr]">
+      <div className="grid gap-0 sm:grid-cols-[minmax(0,220px)_1fr] lg:grid-cols-[minmax(0,300px)_1fr] xl:grid-cols-[minmax(0,360px)_1fr]">
         <div className="relative aspect-[4/3] max-h-[42vh] w-full overflow-hidden bg-[hsl(210_60%_96%)] sm:aspect-[4/5] sm:max-h-none sm:h-full">
+
           {onFollow && (
             <button
               type="button"
@@ -87,7 +88,7 @@ export function ProviderHero({
         </div>
 
 
-        <div className="flex flex-col gap-2.5 p-5 sm:p-6">
+        <div className="flex flex-col gap-2.5 p-5 sm:p-6 lg:gap-3 lg:p-8 xl:justify-center xl:p-10">
           {earlyAccess && (
             <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-[hsl(222_88%_42%/0.08)] px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-[hsl(222_88%_42%)]">
               <Sparkles className="h-3 w-3" aria-hidden="true" />
@@ -95,7 +96,7 @@ export function ProviderHero({
             </span>
           )}
 
-          <h1 className="flex flex-wrap items-center gap-2 break-words text-3xl font-bold leading-tight text-[hsl(224_72%_18%)] sm:text-4xl">
+          <h1 className="flex flex-wrap items-center gap-2 break-words text-3xl font-bold leading-tight text-[hsl(224_72%_18%)] sm:text-4xl xl:text-5xl">
             <span className="min-w-0 break-words">{profile.display_name}</span>
             {profile.identity_verified_badge && (
               <BadgeCheck

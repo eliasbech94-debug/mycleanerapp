@@ -7,7 +7,7 @@ export function ProviderAbout({ profile }: { profile: PublicProviderProfile }) {
   return (
     <section
       data-testid="provider-about"
-      className="flex gap-3 rounded-2xl bg-white p-4 ring-1 ring-[hsl(222_60%_92%)]"
+      className="flex gap-3 rounded-2xl bg-white p-4 ring-1 ring-[hsl(222_60%_92%)] xl:gap-4 xl:p-6"
     >
       <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[hsl(222_88%_42%/0.08)]">
         <Sparkles className="h-5 w-5 text-[hsl(222_88%_42%)]" aria-hidden="true" />
