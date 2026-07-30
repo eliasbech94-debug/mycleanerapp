@@ -367,8 +367,27 @@ export interface CalculationResult {
   includedExpensesMinor: number;
   includedMileageAmountMinor: number;
 
+  /** Verified MyCleaner income (automatic). */
+  myCleanerIncomeMinor: number;
+  /** Manually registered income from outside MyCleaner that the rules include. */
+  externalIncomeMinor: number;
+  /** myCleanerIncomeMinor + externalIncomeMinor. Frontend never sums this itself. */
+  totalIncomeMinor: number;
+
+  includedExternalIncomeItems: string[];
+  excludedExternalIncomeItems: string[];
+  reviewRequiredExternalIncomeItems: string[];
+
+  incomeBySource: {
+    sourceType: string;
+    sourceName: string | null;
+    amountMinor: number;
+    currency: string;
+  }[];
+
   excludedItems: AccountingItem[];
   reviewRequiredItems: AccountingItem[];
+
 
   calculationVersion: string;
   rulePackVersion: string | null;
