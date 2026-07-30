@@ -1,7 +1,7 @@
 /**
  * Hero — provider identity. 100% database driven; the mockup only defines layout.
  */
-import { BadgeCheck, MapPin, Sparkles, Star } from "lucide-react";
+import { BadgeCheck, Heart, MapPin, Sparkles, Star } from "lucide-react";
 import type { AvailabilityStatus, PresenceStatus, PublicProviderProfile } from "./types";
 import { formatDistance } from "./format";
 
@@ -17,6 +17,9 @@ type Props = {
   presenceStatus?: PresenceStatus;
   distanceKm: number | null;
   earlyAccess?: boolean;
+  /** Mobile-only follow affordance (desktop keeps the CTA-bar button). */
+  isFollowing?: boolean;
+  onFollow?: () => void;
 };
 
 export function ProviderHero({
@@ -25,6 +28,8 @@ export function ProviderHero({
   presenceStatus = "unknown",
   distanceKm,
   earlyAccess,
+  isFollowing = false,
+  onFollow,
 }: Props) {
   const status = AVAILABILITY_META[availabilityStatus];
   const distance = formatDistance(distanceKm);
@@ -36,14 +41,26 @@ export function ProviderHero({
       className="relative overflow-hidden rounded-3xl bg-white shadow-[0_18px_40px_-28px_hsl(222_88%_42%/0.45)] ring-1 ring-[hsl(222_60%_92%)]"
     >
       <div className="grid gap-0 sm:grid-cols-[minmax(0,220px)_1fr]">
-        <div className="relative aspect-[4/5] w-full bg-[hsl(210_60%_96%)] sm:aspect-auto sm:h-full">
+        <div className="relative aspect-[4/3] max-h-[42vh] w-full overflow-hidden bg-[hsl(210_60%_96%)] sm:aspect-[4/5] sm:max-h-none sm:h-full">
+          {onFollow && (
+            <button
+              type="button"
+              onClick={onFollow}
+              aria-pressed={isFollowing}
+              aria-label={isFollowing ? `Følger ${profile.display_name}` : `Følg ${profile.display_name}`}
+              data-testid="provider-hero-follow"
+              className="absolute right-3 top-3 z-10 grid h-11 w-11 place-items-center rounded-full bg-white/90 text-[hsl(222_88%_42%)] shadow-sm backdrop-blur transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(222_88%_42%)] focus-visible:ring-offset-2 motion-reduce:transition-none sm:hidden"
+            >
+              <Heart className={`h-5 w-5 ${isFollowing ? "fill-current" : ""}`} aria-hidden="true" />
+            </button>
+          )}
           {profile.avatar_url ? (
             <img
               src={profile.avatar_url}
               alt={profile.display_name}
               loading="lazy"
               decoding="async"
-              className="h-full w-full object-cover"
+              className="h-full w-full object-cover object-[center_25%]"
             />
           ) : (
             <div className="grid h-full w-full place-items-center text-4xl font-semibold text-[hsl(222_88%_42%)]">
