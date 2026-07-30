@@ -54,6 +54,7 @@ import { isDevPreviewEnabled } from "@/lib/appEnv";
 // Development-only visual preview. Lazy so it never lands in the prod entry
 // bundle, and the route below is not registered at all in production.
 const ProviderProfilePreview = lazy(() => import("@/dev/ProviderProfilePreview"));
+const ProviderAccountingPreview = lazy(() => import("@/dev/ProviderAccountingPreview"));
 import FAQ from "./pages/FAQ";
 import Regler from "./pages/Regler";
 import FindCleaner from "./pages/FindCleaner";
