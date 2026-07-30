@@ -61,3 +61,40 @@ pack is marked `sampleOnly`, which renders a testdata warning.
   `accounting_rule_packs` and `accounting_periods` with GRANTs and RLS.
 - Migrated legacy rows get `profile_requires_review = true`, which blocks
   calculation until the provider re-confirms country and registration type.
+
+## External income (other platforms, own customers, cash)
+
+Providers can register income earned outside MyCleaner. The rules are rule-pack
+driven — nothing about recognition, documentation, cash or platform fees is
+hardcoded per country.
+
+| Layer | Location |
+| --- | --- |
+| Engine | `src/lib/accounting/externalIncome.ts` |
+| CSV import | `src/lib/accounting/externalIncomeImport.ts` |
+| UI | `src/components/accounting/income/` (tab, add dialog, import dialog) |
+| Tests | `src/lib/accounting/externalIncome.test.ts` |
+| Schema proposal | `scripts/staging-required/accounting/migration-002-external-income.proposed.sql` |
+
+Rules that hold regardless of country:
+
+1. MyCleaner income stays verified and automatic; external income is always
+   manually registered and clearly separated in the UI and in the result
+   (`myCleanerIncomeMinor`, `externalIncomeMinor`, `totalIncomeMinor`).
+2. Nothing is auto-approved. Imported rows, cash entries, undocumented rows,
+   unclear jurisdictions and mismatched payouts are `review_required` and are
+   excluded from the amount until the provider confirms them.
+3. A platform fee is counted exactly once — as an expense, or already netted —
+   depending on `platformFeeTreatment` in the rule pack.
+4. `gross - platform fee - withheld tax = net payout` must balance, otherwise
+   the row says "Beløbene kræver kontrol".
+5. Foreign currency needs a stored rate, rate date and converted minor amount;
+   a stored historical rate is never recomputed.
+6. Duplicates only warn ("Denne indkomst ligner en post, der allerede findes")
+   and require a reason to continue.
+7. `included` / `excluded` are backend-only statuses; the proposed trigger
+   rejects any client attempt to set them.
+
+Preview cases I–P in `/dev/provider-accounting-preview` cover combined income,
+own customers, cash without documentation, foreign currency, platform payouts
+with fees, duplicates, refunds and unclear jurisdictions.
