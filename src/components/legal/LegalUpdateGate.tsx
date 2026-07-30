@@ -11,6 +11,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useAuth } from "@/hooks/useAuth";
 import { useLegalScope } from "@/hooks/useLegalScope";
 import { acceptLegalDocument, fetchPendingRequired } from "@/lib/legal/api";
+import { fetchChangelog } from "@/lib/legal/sections";
 import { LegalMarkdown } from "@/components/legal/LegalMarkdown";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserRoles } from "@/hooks/useUserRoles";
