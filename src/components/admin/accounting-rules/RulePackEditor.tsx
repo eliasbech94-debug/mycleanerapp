@@ -189,7 +189,7 @@ export default function RulePackEditor({ pack, manager, onClose }: RulePackEdito
                   disabled={readOnly}
                   onClick={() => {
                     const result = importRulePack(json, draft.id);
-                    if (!result.ok) {
+                    if (result.ok === false) {
                       toast.error(result.errors.join(" "));
                       return;
                     }
