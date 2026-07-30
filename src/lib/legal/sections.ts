@@ -425,7 +425,7 @@ export async function createDraftVersion(
   bump: VersionBump = "minor",
   reason?: string,
 ): Promise<string> {
-  const version = bumpVersion(doc.version, bump);
+  const version = bumpVersion(normalizeVersion(doc.version), bump);
   const v = parseVersion(version);
   const { data: auth } = await supabase.auth.getUser();
 
@@ -448,6 +448,10 @@ export async function createDraftVersion(
       status: "draft",
       required: doc.required ?? true,
       doc_uid: doc.doc_uid ?? null,
+      category: doc.category ?? null,
+      original_language: doc.original_language ?? doc.language,
+      owner_id: doc.owner_id ?? auth.user?.id ?? null,
+      review_interval_months: doc.review_interval_months ?? 12,
       created_by: auth.user?.id ?? null,
     })
     .select("id")
