@@ -1189,14 +1189,14 @@ function Summary({
 
       <div className="mt-5 space-y-2 border-t-2 border-dashed pt-4 text-sm" style={{ borderColor: `${C.ink}22` }}>
         <Line label={`${effectiveRate} kr/t × ${hours} t`} value={`${base.toLocaleString("da-DK")} kr`} />
-        <Line label="Platformsgebyr" value={`+${(customerPays - base).toLocaleString("da-DK")} kr`} muted />
+        <Line label="Platformgebyr" value={`+${(customerPays - base).toLocaleString("da-DK")} kr`} muted />
         <div className="flex items-baseline justify-between pt-2">
           <span className="text-[10px] font-black uppercase tracking-[0.22em]">Samlet pris</span>
           <span className="font-display text-2xl">
             {customerPays.toLocaleString("da-DK")} <span className="text-sm opacity-70">kr</span>
           </span>
         </div>
-        <div className="text-[10px] opacity-60">Providerens pris efter platformsgebyr: {providerGets.toLocaleString("da-DK")} kr. MyCleaner er en platform, der forbinder kunder og selvstændige providere og håndterer booking og betaling. Servicen udføres af din valgte provider.</div>
+        <div className="text-[10px] opacity-60">Providerens pris efter platformgebyr: {providerGets.toLocaleString("da-DK")} kr. MyCleaner er en platform, der forbinder kunder og selvstændige providere og håndterer booking og betaling. Servicen udføres af din valgte provider.</div>
       </div>
     </div>
   );

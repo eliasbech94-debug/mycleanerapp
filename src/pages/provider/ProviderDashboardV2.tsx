@@ -76,7 +76,7 @@ export default function ProviderDashboardV2() {
     <DashboardLayout role="provider" title="Cleaner">
       <DashboardPage
         title="Dashboard"
-        description="Overblik over dine bookinger, indtjening og profilstatus."
+        description="Overblik over dine bookinger, din indtjening og din profilstatus som selvstændig provider."
       >
         <div className="grid gap-5 lg:gap-6">
           {data.error && (
@@ -148,7 +148,7 @@ export default function ProviderDashboardV2() {
               loading={data.loading}
             />
             <StatCard
-              label="Indtjening"
+              label="Din indtjening"
               value={earnings}
               hint={data.stats.completed ? "Fra gennemførte bookinger" : undefined}
               icon={Wallet}
@@ -271,7 +271,7 @@ export default function ProviderDashboardV2() {
                     />
                     <QuickActionCard
                       title="Økonomi"
-                      description="Udbetalinger og opgørelser"
+                      description="Udbetalinger og afregningsoversigter"
                       icon={CreditCard}
                       to="/provider/finance"
                     />
@@ -349,7 +349,7 @@ export default function ProviderDashboardV2() {
                     <EmptyState
                       icon={Wallet}
                       title="Ingen udbetalinger endnu"
-                      description="Din første udbetaling vises her, når en booking er afsluttet og beløbet er frigivet."
+                      description="Din første udbetaling vises her, når en booking er afsluttet. Det præcise tidspunkt, hvor beløbet er synligt på kontoen, afhænger af betalingsudbyderen og din bank."
                     />
                   }
                 >
@@ -459,10 +459,10 @@ function MiniStat({
 }
 
 const PAYOUT_META: Record<string, { label: string; variant: "default" | "secondary" | "outline" | "destructive" }> = {
-  paid: { label: "Udbetalt", variant: "default" },
-  in_transit: { label: "På vej til din konto", variant: "secondary" },
+  paid: { label: "Gennemført udbetaling", variant: "default" },
+  in_transit: { label: "Planlagt udbetaling", variant: "secondary" },
   pending: { label: "Afventer", variant: "secondary" },
-  failed: { label: "Mislykkedes", variant: "destructive" },
+  failed: { label: "Ikke gennemført", variant: "destructive" },
   canceled: { label: "Annulleret", variant: "outline" },
 };
 
@@ -516,7 +516,7 @@ function describeVerification(
     return {
       showBanner: true,
       title: "Fuldfør Stripe-onboarding",
-      description: "Tilslut din bankkonto for at kunne modtage udbetalinger.",
+      description: "Tilslut din bankkonto, så din indtjening kan udbetales.",
       actions: [{ label: "Åbn Stripe", to: "/provider/finance", primary: true }],
     };
   }

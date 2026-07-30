@@ -1,5 +1,5 @@
 /**
- * FoundingCleaner — public information page for the "0 kr. i platformsgebyr"
+ * FoundingCleaner — public information page for the "0 kr. i platformgebyr"
  * campaign. Frontend-only: no client-side eligibility, no countdown, no fake
  * remaining-spots counter. Server-authoritative activation is a separate
  * implementation.

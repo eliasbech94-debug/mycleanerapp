@@ -781,15 +781,15 @@ function StepIdentity({
 function StepStripe({ pp, patch }: { pp: ProviderProfile; patch: (u: Partial<ProviderProfile>) => void }) {
   return (
     <div className="space-y-4">
-      <h2 className="font-display text-2xl">Udbetaling & Skat</h2>
+      <h2 className="font-display text-2xl">Udbetaling og skat</h2>
       <p className="text-sm leading-relaxed opacity-80">
-        Opret din personlige Stripe Connect-konto, så MyCleaner kan sende dine udbetalinger sikkert. MyCleaner ser ikke dine fulde bankoplysninger, og en godkendt Stripe-konto aktiverer ikke automatisk din profil.
+        Du arbejder som selvstændig provider på MyCleaner-platformen. Opret din egen Stripe Connect-konto, så din indtjening kan udbetales sikkert. MyCleaner ser ikke dine fulde bankoplysninger, og en godkendt Stripe-konto aktiverer ikke automatisk din profil. Det præcise tidspunkt, hvor en udbetaling bliver synlig på kontoen, afhænger af betalingsudbyderen og din bank.
       </p>
       <StripeConnectStatusWidget />
       <div className="grid gap-2">
-        <StatusRow ok={!!pp.stripe_charges_enabled} label="Charges enabled" />
-        <StatusRow ok={!!pp.stripe_payouts_enabled} label="Payouts enabled" />
-        <StatusRow ok={!!pp.stripe_details_submitted} label="Detaljer indsendt (details_submitted)" />
+        <StatusRow ok={!!pp.stripe_charges_enabled} label="Betalinger aktiveret" />
+        <StatusRow ok={!!pp.stripe_payouts_enabled} label="Udbetaling aktiveret" />
+        <StatusRow ok={!!pp.stripe_details_submitted} label="Oplysninger indsendt til Stripe" />
       </div>
       <div className="mt-4 rounded-xl border-2 p-4" style={{ borderColor: `${C.ink}22` }}>
         <label className="flex items-start gap-3 text-sm">
@@ -946,8 +946,8 @@ export const ONBOARDING_STEP_LABELS: Record<OnboardingStepKey, string> = {
     "Udfyld serviceprofil (kategori, overskrift, bio ≥ 40 tegn, sprog, arbejdsradius, mindst én gemt servicepris)",
   insurance: "Upload forsikringspolice med gyldig udløbsdato",
   identity: "Bekræft email, SMS-verificér telefon og godkendt identitet",
-  stripe: "Fuldfør Stripe Connect (charges, payouts, details) og accepter provider-vilkår",
-  review: "Indsend ansøgning til godkendelse",
+  stripe: "Fuldfør Stripe Connect (betalinger, udbetaling og oplysninger) og accepter provider-vilkårene",
+  review: "Indsend din providerprofil til godkendelse",
 };
 
 /** Backend error codes from submit_provider_application() → Danish messages. */
@@ -955,9 +955,9 @@ export const SUBMIT_ERROR_MESSAGES: Record<string, string> = {
   requirements_incomplete: "Nogle krav mangler stadig — se listen over manglende trin.",
   phone_not_verified: "Dit telefonnummer er ikke SMS-verificeret.",
   identity_not_approved: "Din identitet er ikke godkendt endnu.",
-  stripe_not_ready: "Din Stripe Connect-konto er ikke helt klar (charges, payouts og details).",
+  stripe_not_ready: "Din Stripe Connect-konto er ikke klar endnu (betalinger, udbetaling og oplysninger).",
   provider_dob_missing: "Din fødselsdato mangler.",
-  provider_underage: "Providers skal være mindst 18 år.",
+  provider_underage: "Selvstændige providere skal være mindst 18 år.",
   invalid_status_transition: "Ansøgningen kan ikke indsendes i den nuværende status.",
   provider_profile_missing: "Providerprofilen findes ikke — kontakt support.",
   unauthorized: "Du skal være logget ind for at indsende.",
