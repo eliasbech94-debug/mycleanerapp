@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import {
   ACCOUNTING_PREVIEW_CASES,
+  EXTERNAL_INCOME_PREVIEW_CASES,
   FIXTURE_PERIOD,
   FIXTURE_RULE_PACKS,
   SALES_TAX_PREVIEW_CASE,
@@ -12,9 +13,14 @@ import { Button } from "@/components/ui/button";
 import {
   calculatePreliminaryRegistrationAmount,
   resolveAccountingJurisdiction,
+  type ExternalIncomeInput,
 } from "@/lib/accounting";
 
-const CASES: AccountingPreviewCase[] = [...ACCOUNTING_PREVIEW_CASES, SALES_TAX_PREVIEW_CASE];
+const CASES: AccountingPreviewCase[] = [
+  ...ACCOUNTING_PREVIEW_CASES,
+  SALES_TAX_PREVIEW_CASE,
+  ...EXTERNAL_INCOME_PREVIEW_CASES,
+];
 
 /**
  * Development-only preview. The route is not registered in production builds
@@ -25,6 +31,8 @@ const CASES: AccountingPreviewCase[] = [...ACCOUNTING_PREVIEW_CASES, SALES_TAX_P
 export default function ProviderAccountingPreview() {
   const [caseId, setCaseId] = useState(CASES[0].id);
   const active = CASES.find((c) => c.id === caseId) ?? CASES[0];
+  const externalIncome: ExternalIncomeInput[] =
+    (active as { externalIncome?: ExternalIncomeInput[] }).externalIncome ?? [];
 
   const model = useMemo(() => {
     const jurisdiction = resolveAccountingJurisdiction({
@@ -44,10 +52,12 @@ export default function ProviderAccountingPreview() {
       accountingPeriod: FIXTURE_PERIOD,
       rulePack,
       jurisdiction,
+      externalIncome,
       ...ledger,
     });
     return { jurisdiction, rulePack, result };
-  }, [active]);
+  }, [active, externalIncome]);
+
 
   return (
     <main className="mx-auto w-full max-w-3xl px-4 py-6">
