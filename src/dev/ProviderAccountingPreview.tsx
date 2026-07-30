@@ -90,12 +90,14 @@ export default function ProviderAccountingPreview() {
         jurisdiction={model.jurisdiction}
         period={FIXTURE_PERIOD}
         result={model.result}
+        externalIncome={externalIncome}
         monthlySummary={[
           { label: "April 2026", amountMinor: 1450000 },
           { label: "Maj 2026", amountMinor: 1680000 },
           { label: "Juni 2026", amountMinor: 0 },
         ]}
       />
+
     </main>
   );
 }
