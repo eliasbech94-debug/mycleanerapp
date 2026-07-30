@@ -20,10 +20,11 @@ export interface LegalDocument {
   effective_at: string | null;
   published_at: string | null;
   created_at: string;
+  doc_uid: string | null;
 }
 
 const SELECT =
-  "id,slug,kind,title,description,icon,country_code,language,version,body_md,body_hash,status,required,effective_at,published_at,created_at";
+  "id,slug,kind,title,description,icon,country_code,language,version,body_md,body_hash,status,required,effective_at,published_at,created_at,doc_uid";
 
 /** country+lang → country+en → GLOBAL+en, mirroring legalAcceptance.ts. */
 export function fallbackTiers(country: string, language: string) {
