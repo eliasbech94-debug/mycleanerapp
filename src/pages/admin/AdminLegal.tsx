@@ -121,6 +121,41 @@ export default function AdminLegal() {
     setDraft(row);
   }
 
+  const docRef: LegalDocumentRef | null = selectedId
+    ? {
+        id: selectedId,
+        slug: draft.slug ?? "",
+        kind: draft.kind ?? "policy",
+        title: draft.title ?? "",
+        description: draft.description ?? null,
+        icon: draft.icon ?? null,
+        country_code: draft.country_code ?? "DK",
+        language: draft.language ?? "da",
+        version: draft.version ?? "1.0.0",
+        body_md: draft.body_md ?? "",
+        body_hash: draft.body_hash ?? "",
+        status: draft.status ?? "draft",
+        required: Boolean(draft.required),
+        doc_uid: draft.doc_uid ?? null,
+        category: draft.category ?? null,
+        original_language: draft.original_language ?? null,
+        owner_id: draft.owner_id ?? null,
+        review_interval_months: draft.review_interval_months ?? null,
+        last_review_at: draft.last_review_at ?? null,
+        next_review_at: draft.next_review_at ?? null,
+        word_count: draft.word_count ?? null,
+        reading_minutes: draft.reading_minutes ?? null,
+        section_count: draft.section_count ?? null,
+        legacy_version: draft.legacy_version ?? null,
+      }
+    : null;
+
+  function refreshDocuments() {
+    void qc.invalidateQueries({ queryKey: ["admin-legal-documents"] });
+  }
+
+
+
   return (
     <main className="container-wide mx-auto max-w-7xl px-4 py-10">
       <header className="flex flex-wrap items-center justify-between gap-4">
