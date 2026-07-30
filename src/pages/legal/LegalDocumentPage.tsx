@@ -107,6 +107,13 @@ export default function LegalDocumentPage() {
     );
   }
 
+  const exportMeta = {
+    title: doc.title,
+    version: doc.version,
+    docUid: doc.doc_uid,
+    hash: doc.body_hash,
+  };
+
   return (
     <main className="bg-background">
       <div className="container-wide mx-auto max-w-6xl px-4 py-10 lg:py-16">
