@@ -6,24 +6,22 @@
  * the DOM). At >=768px the Footer renders on every route. Non-app
  * public routes render the Footer at every viewport.
  *
- * This suite deliberately mocks `useIsMobileApp` — the hook itself has
- * dedicated unit tests. Here we assert the Footer component honours the
- * hook's decision without any per-page CSS hack.
+ * The hook is replaced with a hoisted, file-local mock so other suites
+ * cannot leak an implementation into this contract test.
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
+
+const { useIsMobileAppMock } = vi.hoisted(() => ({
+  useIsMobileAppMock: vi.fn<() => boolean>(),
+}));
+
+vi.mock("@/hooks/useIsMobileApp", () => ({
+  useIsMobileApp: useIsMobileAppMock,
+}));
+
 import Footer from "./Footer";
-
-vi.mock("@/hooks/useIsMobileApp", async () => {
-  const actual = await vi.importActual<typeof import("@/hooks/useIsMobileApp")>(
-    "@/hooks/useIsMobileApp",
-  );
-  return { ...actual, useIsMobileApp: vi.fn() };
-});
-import { useIsMobileApp } from "@/hooks/useIsMobileApp";
-
-const useIsMobileAppMock = useIsMobileApp as unknown as ReturnType<typeof vi.fn>;
 
 function renderFooter(path: string) {
   return render(
@@ -34,7 +32,10 @@ function renderFooter(path: string) {
 }
 
 describe("Footer contract", () => {
-  beforeEach(() => useIsMobileAppMock.mockReset());
+  beforeEach(() => {
+    useIsMobileAppMock.mockReset();
+    useIsMobileAppMock.mockReturnValue(false);
+  });
 
   const mobileAppRoutes = [
     "/",
@@ -47,7 +48,6 @@ describe("Footer contract", () => {
     "/founding-cleaner",
     "/p/some-slug",
     "/find-cleaner",
-    // country-prefixed variants
     "/dk/marketplace",
     "/gb/inbox",
     "/se/profil",
@@ -66,7 +66,6 @@ describe("Footer contract", () => {
   it.each(mobileAppRoutes)(
     "renders the footer on mobile-app route %s at >=768px",
     (path) => {
-      // >=768px viewports never trigger useIsMobileApp → false
       useIsMobileAppMock.mockReturnValue(false);
       const { container } = renderFooter(path);
       expect(container.querySelector("footer")).not.toBeNull();
@@ -85,7 +84,6 @@ describe("Footer contract", () => {
   it("does not reserve any hidden footer height when suppressed", () => {
     useIsMobileAppMock.mockReturnValue(true);
     const { container } = renderFooter("/marketplace");
-    // Nothing rendered at all — no wrapper divs, no hidden node.
     expect(container.firstChild).toBeNull();
   });
 });
