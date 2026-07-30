@@ -33,6 +33,7 @@ type Row = {
   effective_at: string | null;
   published_at: string | null;
   body_hash?: string | null;
+  doc_uid?: string | null;
 };
 
 const EMPTY: Partial<Row> = {
