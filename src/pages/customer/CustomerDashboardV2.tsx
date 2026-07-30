@@ -59,7 +59,7 @@ export default function CustomerDashboardV2() {
     <DashboardLayout role="customer" title="Kunde">
       <DashboardPage
         title="Dashboard"
-        description="Overblik over dine bookinger, beskeder og konto."
+        description="Overblik over dine bookinger, beskeder og konto. Du vælger og booker selv en selvstændig provider gennem MyCleaner-platformen."
       >
         <div className="grid gap-5 lg:gap-6">
           {data.error && (
@@ -104,7 +104,7 @@ export default function CustomerDashboardV2() {
               loading={data.loading}
             />
             <StatCard
-              label="Betalt i alt"
+              label="Samlet pris betalt"
               value={totalSpent}
               icon={Wallet}
               loading={data.loading}
