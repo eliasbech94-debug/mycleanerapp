@@ -671,12 +671,15 @@ export async function transitionDocumentStatus(
   }
   const { data: auth } = await supabase.auth.getUser();
   const now = new Date().toISOString();
-  const patch: Record<string, unknown> = { status: to };
+  const patch: {
+    status: string;
+    approved_by?: string | null;
+    approved_at?: string | null;
+  } = { status: to };
   if (to === "approved") {
     patch.approved_by = auth.user?.id ?? null;
     patch.approved_at = now;
   }
-  if (to === "archived") patch.superseded_at = doc.status === "published" ? undefined : null;
 
   const { error } = await supabase.from("legal_documents").update(patch).eq("id", doc.id);
   if (error) throw error;
