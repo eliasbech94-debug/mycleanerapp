@@ -109,7 +109,8 @@ describe("intro video dialog", () => {
 
   it("opens on click, never autoplays and closes on Escape", async () => {
     hero({ ...base, intro_video: approved, average_rating: 4.9, completed_bookings: 241 });
-    const trigger = screen.getByTestId("intro-video-trigger");
+    const trigger = screen.getByTestId("intro-video-trigger") as HTMLButtonElement;
+    trigger.focus();
     fireEvent.click(trigger);
 
     const player = await screen.findByTestId("intro-video-player");
