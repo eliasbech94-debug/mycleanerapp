@@ -41,11 +41,11 @@ export function HowItWorksSection() {
           id="how-it-works-title"
           className="mt-2 font-serif text-[28px] leading-tight tracking-[-0.02em] text-[hsl(var(--mkt-ink))] sm:text-[36px]"
         >
-          {t("how.heading", "Tre trin til et rent hjem")}
+          {t("how.heading", "Fire trin til et rent hjem")}
         </h2>
       </div>
-      <ol className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-3">
-        {steps.map(({ key, Icon }, idx) => (
+      <ol className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        {steps.map(({ key, Icon, defaults }, idx) => (
           <li
             key={key}
             className="relative rounded-3xl border border-[hsl(var(--mkt-border))] bg-[hsl(var(--mkt-surface))] p-6 shadow-[var(--mkt-shadow-soft)]"
@@ -60,14 +60,14 @@ export function HowItWorksSection() {
               <Icon className="h-5 w-5" strokeWidth={2.25} aria-hidden="true" />
             </span>
             <h3 className="mt-4 text-[17px] font-semibold text-[hsl(var(--mkt-ink))]">
-              {t(`how.steps.${key}.title`, key)}
+              {t(`how.steps.${key}.title`, defaults.title)}
             </h3>
             <p className="mt-2 text-[14px] leading-relaxed text-[hsl(var(--mkt-ink-muted))]">
-              {t(`how.steps.${key}.body`, "")}
+              {t(`how.steps.${key}.body`, defaults.body)}
             </p>
-            {key === "search" || key === "book" ? (
+            {STEP_VIDEOS[key] ? (
               <video
-                src={key === "search" ? findCleanerVideo.url : bookVideo.url}
+                src={STEP_VIDEOS[key]}
                 className="mt-4 aspect-video w-full rounded-2xl border border-[hsl(var(--mkt-border))] object-cover"
                 autoPlay
                 muted
