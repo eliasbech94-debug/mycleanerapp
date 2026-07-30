@@ -1,14 +1,13 @@
--- Trust Engine Phase 1B: revised inert schema proposal.
+-- Trust Engine Phase 1B: v3 inert schema proposal.
 --
 -- IMPORTANT:
 -- - Intentionally outside supabase/migrations.
 -- - Review only; never run against production.
--- - No bucket, Edge Function, public RPC or deployment is created here.
+-- - No bucket, media worker, Edge Function, public RPC or deployment is created here.
 -- - All mutations are server-authoritative; authenticated clients receive SELECT only.
 
 begin;
 
--- Idempotent enum proposal.
 do $$
 begin
   create type public.provider_intro_video_status as enum (
@@ -33,9 +32,10 @@ create table if not exists public.provider_intro_videos (
   id uuid primary key default gen_random_uuid(),
   provider_user_id uuid not null references public.provider_profiles(user_id) on delete cascade,
 
-  -- Server-owned paths. Incoming objects are quarantined; final assets are immutable.
   incoming_storage_path text unique,
   final_storage_path text unique,
+  final_object_checksum text,
+  media_job_id text unique,
   thumbnail_storage_path text,
   captions_storage_path text,
 
@@ -81,7 +81,17 @@ create table if not exists public.provider_intro_videos (
   ),
   constraint provider_intro_videos_approved_state check (
     moderation_status not in ('approved', 'published')
-    or approved_at is not null
+    or (
+      approved_at is not null
+      and final_storage_path is not null
+      and nullif(btrim(final_object_checksum), '') is not null
+      and duration_seconds is not null
+      and file_size_bytes is not null
+      and width_pixels is not null
+      and height_pixels is not null
+      and has_audio is true
+      and frame_count is not null
+    )
   ),
   constraint provider_intro_videos_published_state check (
     moderation_status <> 'published'
@@ -89,6 +99,8 @@ create table if not exists public.provider_intro_videos (
       published_at is not null
       and approved_at is not null
       and final_storage_path is not null
+      and nullif(btrim(final_object_checksum), '') is not null
+      and consent_ledger_id is not null
       and deleted_at is null
       and unpublished_at is null
     )
@@ -107,6 +119,9 @@ create table if not exists public.provider_intro_videos (
   ),
   constraint provider_intro_videos_replacement_not_self check (
     replaces_video_id is null or replaces_video_id <> id
+  ),
+  constraint provider_intro_videos_replaced_by_not_self check (
+    replaced_by_id is null or replaced_by_id <> id
   )
 );
 
@@ -115,11 +130,13 @@ create unique index if not exists provider_intro_videos_one_published_per_provid
   on public.provider_intro_videos(provider_user_id)
   where moderation_status = 'published' and deleted_at is null;
 
--- One open replacement/draft per provider while an existing published video may remain live.
-create unique index if not exists provider_intro_videos_one_inflight_per_provider
+-- One total candidate, including approved, while an existing published video may remain live.
+create unique index if not exists provider_intro_videos_one_candidate_per_provider
   on public.provider_intro_videos(provider_user_id)
   where deleted_at is null
-    and moderation_status in ('draft', 'uploading', 'processing', 'in_review', 'changes_requested');
+    and moderation_status in (
+      'draft', 'uploading', 'processing', 'in_review', 'changes_requested', 'approved'
+    );
 
 create index if not exists provider_intro_videos_moderation_queue
   on public.provider_intro_videos(moderation_status, submitted_at)
@@ -131,7 +148,6 @@ create index if not exists provider_intro_videos_expiry_queue
 
 alter table public.provider_intro_videos enable row level security;
 
--- Proposal must be repeatable during review.
 drop policy if exists "Providers read own intro videos" on public.provider_intro_videos;
 drop policy if exists "Staff read intro videos" on public.provider_intro_videos;
 
@@ -139,7 +155,6 @@ revoke all on public.provider_intro_videos from anon, authenticated;
 grant select on public.provider_intro_videos to authenticated;
 grant all on public.provider_intro_videos to service_role;
 
--- Providers may read their own rows only. Mutation is server-only.
 create policy "Providers read own intro videos"
   on public.provider_intro_videos
   for select
@@ -149,7 +164,6 @@ create policy "Providers read own intro videos"
     and public.has_role(auth.uid(), 'provider')
   );
 
--- Support is read-only; admin and super_admin may read moderation records.
 create policy "Staff read intro videos"
   on public.provider_intro_videos
   for select
@@ -160,39 +174,48 @@ create policy "Staff read intro videos"
     or public.has_role(auth.uid(), 'super_admin')
   );
 
--- Direct INSERT/UPDATE/DELETE grants and policies are intentionally absent.
--- Exact state transitions, field immutability, audit logging, consent checks,
--- provider visibility checks and role checks must live in SECURITY DEFINER RPCs
--- or Edge Functions using service-role access.
+-- No direct INSERT/UPDATE/DELETE grants or policies.
+-- Exact transitions and replacement integrity must be enforced by fixed-search-path
+-- SECURITY DEFINER RPCs or service-role Edge Functions.
+--
+-- Every RPC must:
+--   * declare SECURITY DEFINER;
+--   * SET search_path = public, auth, storage;
+--   * REVOKE EXECUTE FROM PUBLIC;
+--   * GRANT EXECUTE only to the exact required role;
+--   * validate auth.uid() and application role;
+--   * reject client-supplied paths and technical metadata;
+--   * avoid dynamic SQL;
+--   * write immutable audit events;
+--   * fail closed on missing ownership, identity, visibility or consent.
 
--- Public exposure is intentionally NOT implemented as a standalone anon view.
--- Extend the existing server-controlled public provider profile RPC instead.
--- It must:
---   * join through provider_profiles.user_id internally;
---   * require provider_profiles visibility/publication gates;
---   * return only rows in moderation_status = 'published';
---   * never expose provider_user_id, storage paths, transcript or reviewer data;
---   * compute the identity/video badge server-side from the canonical identity source;
---   * expose only provider_slug plus safe metadata.
+-- Replacement publish transaction must verify:
+--   * old/new provider_user_id are identical;
+--   * neither link is self-referential;
+--   * no replacement cycle exists;
+--   * replaces_video_id/replaced_by_id are reciprocal;
+--   * immutable final object and checksum were verified before approval/publication.
 
--- Storage policy proposal:
---   * private bucket only;
---   * no general provider INSERT/UPDATE/DELETE policy on storage.objects;
---   * upload only through server-generated signed URL with upsert = false;
---   * server chooses the exact incoming path;
---   * finalize validates magic bytes/container/codec/duration/frames/audio/size;
---   * metadata is stripped and output transcoded to immutable final/video.mp4;
---   * approved/final assets cannot be overwritten by providers.
+-- Storage/database saga:
+--   1. signed upload to server-owned incoming path, upsert=false;
+--   2. isolated media worker validates/transcodes/strips metadata;
+--   3. worker writes immutable final asset and checksum;
+--   4. server verifies final object;
+--   5. database-only publish transaction archives old row and publishes new row;
+--   6. cleanup worker removes orphaned objects after failures.
+
+-- Public exposure is intentionally not implemented as an anon-readable view.
+-- Extend the existing public provider profile RPC and require provider visibility,
+-- published state, active consent, identity verification and safe slug-only output.
 
 -- Required follow-up before promotion:
---   1. updated_at trigger;
---   2. state-machine RPCs and column guards;
---   3. admin_audit_log integration;
---   4. consent_ledger FK/source confirmation and withdrawal flow;
---   5. account_deletion_requests/legal_holds integration;
---   6. rate limiting and enumeration-safe responses;
---   7. isolated staging RLS/storage/state-machine regression;
---   8. exact provider visibility and identity-verification joins.
+--   1. confirm consent_ledger FK and active-consent predicate;
+--   2. add updated_at trigger;
+--   3. implement fixed-search-path state-machine RPCs;
+--   4. implement media-worker callback authentication and checksum verification;
+--   5. implement replacement-cycle/same-provider validation;
+--   6. integrate admin_audit_log, deletion requests and legal holds;
+--   7. add rate limiting and enumeration-safe playback responses;
+--   8. add isolated staging RLS/storage/state-machine/saga regression.
 
--- Proposal verification only. Always roll back while this file remains here.
 rollback;
