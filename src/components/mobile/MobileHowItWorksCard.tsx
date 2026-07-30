@@ -8,11 +8,12 @@
 import * as React from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Search, CalendarCheck, Sparkles, Truck, ChevronRight, ChevronLeft } from "lucide-react";
+import { Search, CalendarCheck, Sparkles, Truck, Star, ChevronRight, ChevronLeft } from "lucide-react";
 import findCleanerVideo from "@/assets/how-it-works-find-cleaner.mp4.asset.json";
 import bookVideo from "@/assets/how-it-works-book.mp4.asset.json";
 import enjoyVideo from "@/assets/how-it-works-enjoy.mp4.asset.json";
 import onwayVideo from "@/assets/how-it-works-onway.mp4.asset.json";
+import rateVideo from "@/assets/how-it-works-rate.mp4.asset.json";
 
 const STEPS = [
   { key: "search", Icon: Search, defaults: { title: "Find cleaner", body: "" } },
@@ -26,6 +27,14 @@ const STEPS = [
     },
   },
   { key: "enjoy", Icon: Sparkles, defaults: { title: "Nyd et rent hjem", body: "" } },
+  {
+    key: "rate",
+    Icon: Star,
+    defaults: {
+      title: "Godkend og bedøm cleaner",
+      body: "Godkend opgaven og giv din cleaner en bedømmelse.",
+    },
+  },
 ] as const;
 
 const STEP_VIDEOS: Record<string, string | undefined> = {
@@ -33,6 +42,7 @@ const STEP_VIDEOS: Record<string, string | undefined> = {
   book: bookVideo.url,
   onway: onwayVideo.url,
   enjoy: enjoyVideo.url,
+  rate: rateVideo.url,
 };
 
 export function MobileHowItWorksCard() {
