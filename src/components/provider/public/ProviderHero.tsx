@@ -1,7 +1,7 @@
 /**
  * Hero — provider identity. 100% database driven; the mockup only defines layout.
  */
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { BadgeCheck, Heart, MapPin, Sparkles, Star } from "lucide-react";
 import type { AvailabilityStatus, PresenceStatus, PublicProviderProfile } from "./types";
 import { formatDistance } from "./format";
@@ -40,6 +40,7 @@ export function ProviderHero({
   const isTopTier = ["top_rated", "elite", "partner"].includes(profile.provider_tier ?? "");
   const introVideo = publicIntroVideo(profile.intro_video);
   const [videoOpen, setVideoOpen] = useState(false);
+  const videoTriggerRef = useRef<HTMLButtonElement | null>(null);
 
 
 
@@ -79,6 +80,7 @@ export function ProviderHero({
             <ProviderIntroVideoTrigger
               video={introVideo}
               providerName={profile.display_name}
+              triggerRef={videoTriggerRef}
               onOpen={() => setVideoOpen(true)}
             />
           )}
@@ -166,7 +168,11 @@ export function ProviderHero({
       {introVideo && (
         <ProviderIntroVideoDialog
           open={videoOpen}
-          onOpenChange={setVideoOpen}
+          onOpenChange={(next) => {
+            setVideoOpen(next);
+            // Focus always returns to the play button when the dialog closes.
+            if (!next) requestAnimationFrame(() => videoTriggerRef.current?.focus());
+          }}
           video={introVideo}
           providerName={profile.display_name}
           trust={{

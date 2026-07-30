@@ -2,6 +2,7 @@
  * "Mød din cleaner" — play trigger rendered on top of the provider photo.
  * Only rendered when an approved intro video exists (caller decides).
  */
+import type { RefObject } from "react";
 import { Play } from "lucide-react";
 import { formatVideoDuration, type ProviderIntroVideo } from "./providerIntroVideoTypes";
 
@@ -9,14 +10,16 @@ type Props = {
   video: ProviderIntroVideo;
   providerName: string;
   onOpen: () => void;
+  triggerRef?: RefObject<HTMLButtonElement>;
 };
 
-export function ProviderIntroVideoTrigger({ video, providerName, onOpen }: Props) {
+export function ProviderIntroVideoTrigger({ video, providerName, onOpen, triggerRef }: Props) {
   const firstName = providerName.split(" ")[0] || providerName;
   const duration = formatVideoDuration(video.durationSeconds);
 
   return (
     <button
+      ref={triggerRef}
       type="button"
       onClick={onOpen}
       data-testid="intro-video-trigger"
