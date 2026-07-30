@@ -161,6 +161,37 @@ export function selectDemoProviders(query: MarketplaceQuery = {}): DemoProvider[
 }
 
 /**
+ * Same as `selectDemoProviders`, but guarantees at least `minimum` rows in demo
+ * mode by progressively relaxing the narrowest filters (rating/availability →
+ * language/price/tier → service category → country). Used by surfaces that must
+ * never render an empty state during development, e.g. the homepage rails.
+ * Returns `[]` when demo mode is off, so production behaviour is unchanged.
+ */
+export function selectDemoProvidersWithMinimum(
+  query: MarketplaceQuery = {},
+  minimum = 4,
+): { rows: DemoProvider[]; relaxed: string[] } {
+  if (!DEMO_MODE) return { rows: [], relaxed: [] };
+
+  const steps: Array<{ label: string; q: MarketplaceQuery }> = [
+    { label: "none", q: query },
+    { label: "extras", q: { ...query, minTier: null, language: null, maxHourlyRate: null } },
+    { label: "service", q: { ...query, minTier: null, language: null, maxHourlyRate: null, serviceCategory: null } },
+    { label: "country", q: { sort: query.sort, limit: query.limit, offset: 0 } },
+  ];
+
+  const relaxed: string[] = [];
+  let rows: DemoProvider[] = [];
+  for (const step of steps) {
+    rows = selectDemoProviders(step.q);
+    if (step.label !== "none") relaxed.push(step.label);
+    if (rows.length >= minimum) break;
+  }
+  return { rows, relaxed };
+}
+
+
+/**
  * Fallback helper for list surfaces: returns live rows when present, and demo
  * rows only when demo mode is on and the live result would render empty.
  */

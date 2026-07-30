@@ -1,6 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { selectDemoProviders } from "@/data/demo";
+import {
+  DEMO_MODE,
+  DEMO_PROVIDERS_ALL,
+  selectDemoProviders,
+  selectDemoProvidersWithMinimum,
+} from "@/data/demo";
 
 
 /**
@@ -75,11 +80,28 @@ export function useMarketplaceProviders(query: MarketplaceQuery, opts?: { realti
     });
     // Drop stale response
     if (id !== reqIdRef.current) return;
+
+    /** Dev/preview only: local fixtures so a surface never renders empty. */
+    const demoFallback = (reason: string) => {
+      const { rows, relaxed } = selectDemoProvidersWithMinimum(query, 4);
+      if (DEMO_MODE && typeof console !== "undefined") {
+        console.debug("[demo] marketplace fallback", {
+          DEMO_MODE,
+          reason,
+          demoProvidersLoaded: DEMO_PROVIDERS_ALL.length,
+          demoProvidersAfterFilters: selectDemoProviders(query).length,
+          demoProvidersReturned: rows.length,
+          relaxedFilters: relaxed,
+          query,
+        });
+      }
+      return rows;
+    };
+
     if (error) {
       // Log for observability but never leak raw DB error text to the UI.
       if (typeof console !== "undefined") console.error("[marketplace] search_marketplace_providers_v1 failed", error);
-      // Development/preview only: keep the UI alive with local demo fixtures.
-      const demo = selectDemoProviders(query);
+      const demo = demoFallback("rpc_error");
       if (demo.length > 0) {
         setState({ data: demo, total: demo[0]?.total_count ?? demo.length, loading: false, error: null });
         return;
@@ -90,9 +112,11 @@ export function useMarketplaceProviders(query: MarketplaceQuery, opts?: { realti
     let list = (data as MarketplaceProvider[] | null) ?? [];
     if (list.length === 0) {
       // Never show a blank marketplace during development.
-      list = selectDemoProviders(query);
+      list = demoFallback("empty_live_result");
     }
-    setState({ data: list, total: list[0]?.total_count ?? 0, loading: false, error: null });
+    setState({ data: list, total: list[0]?.total_count ?? list.length, loading: false, error: null });
+
+
 
   }, [query.countryCode, query.serviceCategory, query.minTier, query.language, query.maxHourlyRate, query.search, query.sort, query.limit, query.offset]);
 
