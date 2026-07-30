@@ -11,6 +11,7 @@ import type {
   AccountingPeriod,
   AccountingRulePack,
   CalculationResult,
+  ExternalIncomeInput,
   JurisdictionResolution,
   ProviderAccountingProfile,
 } from "@/lib/accounting";
@@ -22,7 +23,9 @@ interface AccountingPayload {
   period: AccountingPeriod;
   result: CalculationResult;
   monthlySummary?: { label: string; amountMinor: number }[];
+  externalIncome?: ExternalIncomeInput[];
 }
+
 
 /**
  * /provider/accounting
