@@ -25,7 +25,11 @@ export function LegalUpdateGate() {
 
   const { data } = useQuery({
     queryKey: ["legal-pending", user?.id, scope.country, scope.language],
-    queryFn: () => fetchPendingRequired(user!.id, scope.country, scope.language),
+    queryFn: async () => {
+      const docs = await fetchPendingRequired(user!.id, scope.country, scope.language);
+      // Provider-only documents must not block customers.
+      return docs.filter((d) => d.kind !== "provider_agreement" || isProvider);
+    },
     enabled: Boolean(user?.id),
     staleTime: 5 * 60 * 1000,
   });
