@@ -4,7 +4,7 @@
 import { SUPPORTED_COUNTRIES, type CountryISO, type CountryPublic } from "./CountryContext";
 import type { SupportedLanguage } from "./index";
 
-export const BASE_URL = "https://mycleanerapp.lovable.app";
+export const BASE_URL = "https://mycleaner.dk";
 
 const LANG_BY_COUNTRY: Record<CountryISO, SupportedLanguage[]> = {
   DK: ["da", "en"],

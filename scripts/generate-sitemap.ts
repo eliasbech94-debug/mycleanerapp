@@ -4,7 +4,7 @@
 import { writeFileSync } from "fs";
 import { resolve } from "path";
 
-const BASE_URL = "https://mycleanerapp.lovable.app";
+const BASE_URL = "https://mycleaner.dk";
 
 // Public indexable routes (no auth). Keep this list explicit — do not scrape.
 const PUBLIC_ROUTES = ["/", "/faq", "/regler", "/find-cleaner"];

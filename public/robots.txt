@@ -17,4 +17,4 @@ Disallow: /privatliv
 Disallow: /profil
 Disallow: /task/
 
-Sitemap: https://mycleanerapp.lovable.app/sitemap.xml
+Sitemap: https://mycleaner.dk/sitemap.xml
