@@ -14,7 +14,7 @@ import type {
   Slot,
 } from "@/components/provider/public/types";
 
-export type PreviewCaseId = "a" | "b" | "c";
+export type PreviewCaseId = "a" | "b" | "c" | "d" | "e";
 
 export type PreviewCase = {
   id: PreviewCaseId;
@@ -87,6 +87,19 @@ const CASE_B: PreviewCase = {
     insurance_valid: true,
     equipment_badges: { mycleaner_test: true, background_check: true, professional_certificate: true },
     average_rating: 4.9,
+    repeat_booking_rate: 68,
+    mycleaner_recommended: true,
+    intro_video: {
+      id: "vid-b",
+      videoUrl: "https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/360/Big_Buck_Bunny_360_10s_1MB.mp4",
+      thumbnailUrl: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=600&q=70",
+      durationSeconds: 42,
+      status: "approved",
+      recordedInMyCleaner: true,
+      identityVerified: true,
+      approvedAt: "2026-06-20",
+      language: "da",
+    },
     total_reviews: 128,
     completed_bookings: 412,
     years_experience: 12,
@@ -119,6 +132,51 @@ const CASE_B: PreviewCase = {
   distanceKm: 3.2,
 };
 
+
+/** Case C — video afventer godkendelse: må ALDRIG vises offentligt. */
+const CASE_C: PreviewCase = {
+  ...CASE_B,
+  id: "c",
+  label: "C · Video afventer",
+  description: "Video med status 'pending' — trigger må ikke vises på den offentlige profil.",
+  profile: {
+    ...CASE_B.profile,
+    provider_slug: "preview-c",
+    display_name: "Nadia Hassan",
+    intro_video: {
+      id: "vid-c",
+      videoUrl: "https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/360/Big_Buck_Bunny_360_10s_1MB.mp4",
+      durationSeconds: 55,
+      status: "pending",
+      recordedInMyCleaner: true,
+      identityVerified: true,
+      language: "da",
+    },
+  },
+};
+
+/** Case D — godkendt video med manglende URL: skal vise pænt fallback. */
+const CASE_D: PreviewCase = {
+  ...CASE_B,
+  id: "d",
+  label: "D · Video fejler",
+  description: "Godkendt video uden brugbar URL — dialogen skal vise fallback uden crash.",
+  profile: {
+    ...CASE_B.profile,
+    provider_slug: "preview-d",
+    display_name: "Marek Nowak",
+    intro_video: {
+      id: "vid-d",
+      videoUrl: "",
+      durationSeconds: 38,
+      status: "approved",
+      recordedInMyCleaner: true,
+      identityVerified: false,
+      language: "da",
+    },
+  },
+};
+
 const LONG_NAME = "Alexandra-Katharina von Hohenzollern-Sigmaringen";
 const LONG_SERVICES = [
   "premium_dybderengoering_med_allergivenlige_midler",
@@ -133,13 +191,13 @@ const LONG_SERVICES = [
 ];
 
 /** Case C — extreme content: nothing may overflow or overlap. */
-const CASE_C: PreviewCase = {
-  id: "c",
-  label: "C · Ekstrem layout",
+const CASE_E: PreviewCase = {
+  id: "e",
+  label: "E · Ekstrem layout",
   description: "Meget langt navn, lang headline og bio, 9 services med lange navne og priser, 10 sprog, 4 arbejdsgivere.",
   profile: {
     ...BASE,
-    provider_slug: "preview-c",
+    provider_slug: "preview-e",
     display_name: LONG_NAME,
     avatar_url: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=600&q=70",
     city: "Frederiksberg",
@@ -150,6 +208,17 @@ const CASE_C: PreviewCase = {
     insurance_valid: true,
     equipment_badges: { mycleaner_test: true, background_check: true, professional_certificate: true },
     average_rating: 4.75,
+    repeat_booking_rate: 81,
+    mycleaner_recommended: true,
+    intro_video: {
+      id: "vid-e",
+      videoUrl: "https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/360/Big_Buck_Bunny_360_10s_1MB.mp4",
+      durationSeconds: 118,
+      status: "approved",
+      recordedInMyCleaner: true,
+      identityVerified: true,
+      language: "da",
+    },
     total_reviews: 1043,
     completed_bookings: 2841,
     years_experience: 21,
@@ -183,4 +252,4 @@ const CASE_C: PreviewCase = {
   distanceKm: 12.4,
 };
 
-export const PREVIEW_CASES: PreviewCase[] = [CASE_A, CASE_B, CASE_C];
+export const PREVIEW_CASES: PreviewCase[] = [CASE_A, CASE_B, CASE_C, CASE_D, CASE_E];
