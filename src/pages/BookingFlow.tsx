@@ -179,28 +179,28 @@ function BookingFlowInner() {
       if (guardFinancialAction(() => financialLock.setOpen(true))) return;
       if (!addressValid) {
         toast({
-          title: "Adresse mangler",
-          description: "Vælg en gyldig adresse fra listen, så cleaneren ved, hvor hun skal møde op.",
+          title: "Vælg din adresse",
+          description: "Vælg en gyldig adresse fra listen, så provideren ved, hvor opgaven skal udføres.",
           variant: "destructive",
         });
         return;
       }
       if (!user) {
         toast({
-          title: "Log ind for at booke",
-          description: "Du skal være logget ind, så cleaneren kan kontakte dig.",
+          title: "Log ind for at sende din bookingforespørgsel",
+          description: "Log ind, så provideren kan kontakte dig om bookingen.",
           variant: "destructive",
         });
         navigate(`/login?redirect=/book/${provider.id}`);
         return;
       }
       if (!stripe || !elements) {
-        toast({ title: "Betaling ikke klar endnu", description: "Vent et øjeblik og prøv igen.", variant: "destructive" });
+        toast({ title: "Betalingen er ikke klar endnu", description: "Vent et øjeblik, og prøv igen.", variant: "destructive" });
         return;
       }
       const card = elements.getElement(CardElement);
       if (!card) {
-        toast({ title: "Indtast kortoplysninger", variant: "destructive" });
+        toast({ title: "Indtast dine kortoplysninger", description: "Vi bruger kortet til at reservere beløbet — du betaler først, når bookingen er accepteret.", variant: "destructive" });
         return;
       }
 
@@ -389,7 +389,7 @@ function BookingFlowInner() {
                 className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-xs font-bold uppercase tracking-[0.18em] shadow-[6px_6px_0_rgba(0,0,0,0.18)] transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-40"
                 style={{ background: step === 3 ? C.orange : C.ink, color: step === 3 ? C.ink : C.cream }}
               >
-                {step === 3 ? (submitting ? <>Sender…</> : <>Bekræft booking <Check className="h-4 w-4" /></>) : <>Næste <ArrowRight className="h-4 w-4" /></>}
+                {step === 3 ? (submitting ? <>Sender…</> : <>Send bookingforespørgsel <Check className="h-4 w-4" /></>) : <>Næste <ArrowRight className="h-4 w-4" /></>}
               </button>
             </div>
           )}
@@ -417,7 +417,7 @@ function BookingFlowInner() {
 
 /* ---------------- Stepper ---------------- */
 function Stepper({ step }: { step: number }) {
-  const steps = ["Service", "Tidspunkt", "Bekræft"];
+  const steps = ["Service", "Tidspunkt", "Gennemse"];
   return (
     <div className="flex items-center gap-3">
       {steps.map((label, i) => {
@@ -524,7 +524,7 @@ function Step1({
 function Step2({ weekStart, setWeekStart, weekDays, today, date, setDate, slot, setSlot }: any) {
   return (
     <div>
-      <h1 className="font-display text-3xl sm:text-4xl">Vælg dato & tid</h1>
+      <h1 className="font-display text-3xl sm:text-4xl">Vælg dato og tidspunkt</h1>
       <p className="mt-2 max-w-xl text-sm opacity-70">
         Du booker direkte i cleanerens kalender. Grå tider er optagede.
       </p>
@@ -821,10 +821,10 @@ function EditAccessDialog({
         parking_info: parkingInfo.trim() || null,
         cleaning_supplies_available: supplies,
       });
-      toast({ title: "Opdateret", description: "Adgang og kæledyr er gemt på adressen." });
+      toast({ title: "Ændringer gemt", description: "Adgang og kæledyr er opdateret på adressen." });
       onSaved(updated);
     } catch (e: any) {
-      toast({ title: "Kunne ikke gemme", description: e?.message || "Prøv igen", variant: "destructive" });
+      toast({ title: "Vi kunne ikke gemme ændringerne", description: "Prøv igen om et øjeblik.", variant: "destructive" });
     } finally {
       setSaving(false);
     }
@@ -843,7 +843,7 @@ function EditAccessDialog({
 
         <div className="space-y-3 py-2">
           <div>
-            <label className={labelCls}>Sådan kommer cleaneren ind</label>
+            <label className={labelCls}>Sådan får provideren adgang</label>
             <select
               value={accessMethod}
               onChange={(e) => setAccessMethod(e.target.value as AccessMethod)}
@@ -1064,12 +1064,12 @@ function Step3({ address, setAddress, addressValid, setAddressValid, setAddressP
         />
 
         <label className="block rounded-2xl border-2 bg-white p-4" style={{ borderColor: `${C.ink}22` }}>
-          <div className="text-[10px] font-black uppercase tracking-[0.22em] opacity-70">Besked til cleaneren (valgfri)</div>
+          <div className="text-[10px] font-black uppercase tracking-[0.22em] opacity-70">Noter til provideren (valgfri)</div>
           <textarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             rows={4}
-            placeholder="Fx kæledyr, allergi, hvor nøglen ligger…"
+            placeholder="Fx kæledyr, allergi eller hvordan du aftaler adgang med provideren…"
             className="mt-2 w-full resize-none bg-transparent text-sm focus:outline-none"
           />
         </label>
@@ -1094,7 +1094,7 @@ function Step3({ address, setAddress, addressValid, setAddressValid, setAddressP
             />
           </div>
           <div className="mt-2 text-[10px] opacity-60">
-            Vi reserverer beløbet nu. Det hæves først, når cleaneren bekræfter (max 24 timer).
+            Vi reserverer beløbet nu. Det trækkes først, når provideren accepterer din bookingforespørgsel (senest efter 24 timer).
           </div>
         </div>
 
@@ -1105,7 +1105,7 @@ function Step3({ address, setAddress, addressValid, setAddressValid, setAddressP
             <div className="text-sm">
               <div className="font-bold">Beskyttet betaling</div>
               <div className="opacity-70">
-                Vi reserverer {customerPays.toLocaleString("da-DK")} kr på dit kort. Pengene frigives først til cleaneren efter opgaven er udført.
+                Vi reserverer {customerPays.toLocaleString("da-DK")} kr på dit kort. Beløbet frigives først til provideren, når opgaven er udført.
               </div>
             </div>
           </div>
@@ -1122,10 +1122,10 @@ function Step4({ provider, date, slot, customerPays }: any) {
       <div className="mx-auto grid h-16 w-16 place-items-center rounded-full" style={{ background: C.mint }}>
         <Check className="h-8 w-8" style={{ color: C.ink }} strokeWidth={3} />
       </div>
-      <h1 className="mt-6 font-display text-3xl sm:text-4xl">Booking bekræftet</h1>
+      <h1 className="mt-6 font-display text-3xl sm:text-4xl">Din bookingforespørgsel er sendt</h1>
       <p className="mt-3 mx-auto max-w-md text-sm opacity-70">
-        {provider.name.split(" ")[0]} har modtaget din anmodning og bekræfter typisk inden for {provider.responseTime}.
-        Du får en notifikation så snart hun siger ja.
+        {provider.name.split(" ")[0]} har modtaget din bookingforespørgsel og svarer typisk inden for {provider.responseTime}.
+        Du får besked, så snart forespørgslen er accepteret.
       </p>
 
       <div className="mt-6 inline-flex flex-col items-center gap-1 rounded-2xl border-2 px-6 py-4" style={{ borderColor: `${C.ink}22` }}>
@@ -1178,22 +1178,22 @@ function Summary({
       </div>
 
       <ul className="mt-4 space-y-2.5 text-sm">
-        <SummaryRow icon={<Sparkles className="h-4 w-4" />} label="Service" value={service || "—"} />
+        <SummaryRow icon={<Sparkles className="h-4 w-4" />} label="Service" value={service || "Ikke valgt"} />
         <SummaryRow icon={<Clock className="h-4 w-4" />} label="Varighed" value={`${hours} t`} />
-        <SummaryRow icon={<CalendarIcon className="h-4 w-4" />} label="Dato" value={date ? fmtLong(date) : "—"} />
-        <SummaryRow icon={<Clock className="h-4 w-4" />} label="Tidspunkt" value={slot || "—"} />
+        <SummaryRow icon={<CalendarIcon className="h-4 w-4" />} label="Dato" value={date ? fmtLong(date) : "Ikke valgt"} />
+        <SummaryRow icon={<Clock className="h-4 w-4" />} label="Tidspunkt" value={slot || "Ikke valgt"} />
       </ul>
 
       <div className="mt-5 space-y-2 border-t-2 border-dashed pt-4 text-sm" style={{ borderColor: `${C.ink}22` }}>
         <Line label={`${effectiveRate} kr/t × ${hours} t`} value={`${base.toLocaleString("da-DK")} kr`} />
         <Line label="Platformsgebyr 14%" value={`+${(customerPays - base).toLocaleString("da-DK")} kr`} muted />
         <div className="flex items-baseline justify-between pt-2">
-          <span className="text-[10px] font-black uppercase tracking-[0.22em]">Du betaler</span>
+          <span className="text-[10px] font-black uppercase tracking-[0.22em]">Samlet pris</span>
           <span className="font-display text-2xl">
             {customerPays.toLocaleString("da-DK")} <span className="text-sm opacity-70">kr</span>
           </span>
         </div>
-        <div className="text-[10px] opacity-60">Cleaneren får {providerGets.toLocaleString("da-DK")} kr efter gebyr</div>
+        <div className="text-[10px] opacity-60">Provideren modtager {providerGets.toLocaleString("da-DK")} kr efter platformsgebyr. MyCleaner er en markedsplads — opgaven udføres af en selvstændig provider.</div>
       </div>
     </div>
   );
