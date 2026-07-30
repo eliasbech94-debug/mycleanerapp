@@ -49,8 +49,9 @@ export function ProviderHero({
       data-testid="provider-hero"
       className="relative overflow-hidden rounded-3xl bg-white shadow-[0_18px_40px_-28px_hsl(222_88%_42%/0.45)] ring-1 ring-[hsl(222_60%_92%)]"
     >
-      <div className="grid gap-0 sm:grid-cols-[minmax(0,220px)_1fr]">
+      <div className="grid gap-0 sm:grid-cols-[minmax(0,220px)_1fr] lg:grid-cols-[minmax(0,300px)_1fr] xl:grid-cols-[minmax(0,360px)_1fr]">
         <div className="relative aspect-[4/3] max-h-[42vh] w-full overflow-hidden bg-[hsl(210_60%_96%)] sm:aspect-[4/5] sm:max-h-none sm:h-full">
+
           {onFollow && (
             <button
               type="button"
