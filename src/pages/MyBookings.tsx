@@ -170,13 +170,14 @@ export default function MyBookings() {
 
                 {activeTab === "overview" && (
                   <>
+                    <p className="mt-3 text-xs opacity-70">{s.help}</p>
                     <div className="mt-3 grid gap-1.5 text-xs">
                       <div className="inline-flex items-center gap-2 opacity-80"><Calendar className="h-3.5 w-3.5" /> {d}</div>
                       <div className="inline-flex items-center gap-2 opacity-80"><Clock className="h-3.5 w-3.5" /> kl. {b.slot}</div>
                       <div className="inline-flex items-start gap-2 opacity-80"><MapPin className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" /> {b.address}</div>
                     </div>
                     <div className="mt-3 border-t border-dashed pt-3 text-xs flex items-baseline justify-between" style={{ borderColor: `${C.ink}22` }}>
-                      <span className="opacity-60">Du betaler</span>
+                      <span className="opacity-60">Samlet pris inkl. platformsgebyr</span>
                       <span className="font-display text-base">{b.customer_pays.toLocaleString("da-DK")} {b.currency}</span>
                     </div>
                   </>
