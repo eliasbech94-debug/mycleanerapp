@@ -1,18 +1,21 @@
 import { useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import JurisdictionCard from "./JurisdictionCard";
 import PreliminaryResultCard from "./PreliminaryResultCard";
 import DeductionGuide from "./DeductionGuide";
 import IndirectTaxPanel from "./IndirectTaxPanel";
 import CountryRulesDialog from "./CountryRulesDialog";
 import AccountingDisclaimer from "./AccountingDisclaimer";
+import IncomeTab from "./income/IncomeTab";
 import {
   formatMinor,
   showIndirectTaxModule,
   type AccountingPeriod,
   type AccountingRulePack,
   type CalculationResult,
+  type ExternalIncomeInput,
   type JurisdictionResolution,
   type ProviderAccountingProfile,
 } from "@/lib/accounting";
@@ -26,6 +29,10 @@ export interface AccountingViewProps {
   result: CalculationResult;
   /** Month view figures, also produced by the backend. */
   monthlySummary?: { label: string; amountMinor: number }[];
+  /** Manually registered income from outside MyCleaner. */
+  externalIncome?: ExternalIncomeInput[];
+  onCreateExternalIncome?: (item: ExternalIncomeInput) => void;
+  onImportExternalIncome?: (items: ExternalIncomeInput[]) => void;
   onCheckDetails?: () => void;
 }
 
@@ -41,6 +48,9 @@ export default function AccountingView({
   period,
   result,
   monthlySummary,
+  externalIncome = [],
+  onCreateExternalIncome,
+  onImportExternalIncome,
   onCheckDetails,
 }: AccountingViewProps) {
   const [rulesOpen, setRulesOpen] = useState(false);
@@ -53,6 +63,7 @@ export default function AccountingView({
 
   const monthDiffersFromFiling = period.kind !== "monthly";
   const amountLabel = rulePack?.labels.preliminaryAmountLabel ?? "Foreløbigt beløb til registrering";
+
 
   return (
     <div className="space-y-4">
