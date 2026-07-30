@@ -75,7 +75,15 @@ export function ProviderHero({
               {profile.display_name.slice(0, 1)}
             </div>
           )}
+          {introVideo && (
+            <ProviderIntroVideoTrigger
+              video={introVideo}
+              providerName={profile.display_name}
+              onOpen={() => setVideoOpen(true)}
+            />
+          )}
         </div>
+
 
         <div className="flex flex-col gap-2.5 p-5 sm:p-6">
           {earlyAccess && (
