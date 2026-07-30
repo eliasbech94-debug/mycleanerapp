@@ -109,16 +109,16 @@ export function MobileHowItWorksCard() {
               <p className="mt-1.5 text-[13.5px] leading-relaxed text-[hsl(var(--mkt-ink-muted))]">
                 {t(`how.steps.${key}.body`, "")}
               </p>
-              {key === "search" ? (
+              {key === "search" || key === "book" ? (
                 <video
-                  src={findCleanerVideo.url}
+                  src={key === "search" ? findCleanerVideo.url : bookVideo.url}
                   className="mt-3 aspect-video w-full rounded-xl border border-[hsl(var(--mkt-border))] object-cover"
                   autoPlay
                   muted
                   loop
                   playsInline
                   preload="metadata"
-                  aria-label={t("how.steps.search.videoLabel", "Sådan finder du en cleaner")}
+                  aria-label={t(`how.steps.${key}.videoLabel`, "Sådan virker det")}
                 />
               ) : null}
             </article>
