@@ -26,6 +26,7 @@ export function serviceLabel(code: string): string {
 const LANGUAGE_LABELS: Record<string, string> = {
   da: "Dansk", en: "Engelsk", sv: "Svensk", no: "Norsk", de: "Tysk",
   es: "Spansk", fr: "Fransk", pl: "Polsk", ro: "Rumænsk", ar: "Arabisk",
+  pt: "Portugisisk", fi: "Finsk", nl: "Hollandsk", it: "Italiensk", uk: "Ukrainsk",
 };
 
 export function languageLabel(code: string): string {
