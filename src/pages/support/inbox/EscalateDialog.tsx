@@ -46,14 +46,14 @@ export function EscalateDialog({ conversation, onDone }: Props) {
       });
       if (error) throw error;
       if ((data as any)?.error) throw new Error((data as any).error);
-      toast.success("Sagen er eskaleret. Administratorerne er notificeret.");
+      toast.success("Sagen er sendt videre. Administratorerne er notificeret.");
       setOpen(false);
       setReason(""); setNote(""); setBookingRef("");
       onDone();
     } catch (e) {
-      const msg = (e as Error).message || "Eskalering afvist";
-      if (msg === "already_escalated") toast.error("Sagen er allerede eskaleret.");
-      else toast.error(msg);
+      const msg = (e as Error).message;
+      if (msg === "already_escalated") toast.error("Sagen er allerede sendt videre til en administrator.");
+      else toast.error("Sagen blev ikke sendt videre. Prøv igen om lidt.");
     } finally {
       setBusy(false);
     }
@@ -71,8 +71,7 @@ export function EscalateDialog({ conversation, onDone }: Props) {
         <DialogHeader>
           <DialogTitle>Eskalér sag til administrator</DialogTitle>
           <DialogDescription>
-            Alle administratorer notificeres straks. Angiv en tydelig årsag —
-            den gemmes uændret i sagens tidslinje.
+            Alle administratorer notificeres straks. Beskriv sagen neutralt og faktuelt — teksten gemmes uændret i sagens tidslinje og indgår i vurderingen af begge parters oplysninger.
           </DialogDescription>
         </DialogHeader>
 
@@ -82,7 +81,7 @@ export function EscalateDialog({ conversation, onDone }: Props) {
             <Textarea
               id="esc-reason" autoFocus rows={3} maxLength={1000}
               value={reason} onChange={(e) => setReason(e.target.value)}
-              placeholder="Fx. Kunden anmoder om refundering, provider svarer ikke…"
+              placeholder="Fx: Kunden har anmodet om refundering, og provideren har endnu ikke svaret."
             />
           </div>
 
@@ -112,21 +111,21 @@ export function EscalateDialog({ conversation, onDone }: Props) {
             <Textarea
               id="esc-note" rows={2} maxLength={4000}
               value={note} onChange={(e) => setNote(e.target.value)}
-              placeholder="Kontekst kun for support/admin — kunden ser den ikke."
+              placeholder="Kun synlig for support og admin — kunden og provideren ser den ikke."
             />
           </div>
         </div>
 
         <DialogFooter>
           <Button variant="outline" onClick={() => setOpen(false)} disabled={busy}>
-            Annullér
+            Luk vindue
           </Button>
           <Button
             onClick={submit}
             disabled={busy || reason.trim().length < 3}
             variant="destructive"
           >
-            {busy ? "Eskalerer…" : "Bekræft eskalering"}
+            {busy ? "Sender…" : "Send sagen videre"}
           </Button>
         </DialogFooter>
       </DialogContent>
