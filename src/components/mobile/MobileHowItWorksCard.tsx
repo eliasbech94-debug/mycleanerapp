@@ -39,6 +39,7 @@ export function MobileHowItWorksCard() {
   const { t } = useTranslation("marketplace");
   const scrollerRef = React.useRef<HTMLDivElement | null>(null);
   const [active, setActive] = React.useState(0);
+  const videoRefs = React.useRef<Array<HTMLVideoElement | null>>([]);
 
   React.useEffect(() => {
     const el = scrollerRef.current;
@@ -60,12 +61,29 @@ export function MobileHowItWorksCard() {
     return () => io.disconnect();
   }, []);
 
-  const goto = (idx: number) => {
+  const goto = React.useCallback((idx: number) => {
     const el = scrollerRef.current;
     if (!el) return;
     const slide = el.querySelector<HTMLElement>(`[data-slide="${idx}"]`);
     if (slide) el.scrollTo({ left: slide.offsetLeft - el.offsetLeft, behavior: "smooth" });
-  };
+  }, []);
+
+  // Play only the active step's video; auto-advance when it finishes.
+  React.useEffect(() => {
+    videoRefs.current.forEach((v, i) => {
+      if (!v) return;
+      if (i === active) {
+        void v.play().catch(() => undefined);
+      } else {
+        v.pause();
+        try {
+          v.currentTime = 0;
+        } catch {
+          /* ignore */
+        }
+      }
+    });
+  }, [active]);
 
   return (
     <section aria-labelledby="mobile-how-heading" className="px-4 pt-8">
@@ -129,13 +147,16 @@ export function MobileHowItWorksCard() {
               </p>
               {STEP_VIDEOS[key] ? (
                 <video
+                  ref={(el) => {
+                    videoRefs.current[idx] = el;
+                  }}
                   src={STEP_VIDEOS[key]}
                   className="mt-3 aspect-video w-full rounded-xl border border-[hsl(var(--mkt-border))] object-cover"
-                  autoPlay
+                  autoPlay={idx === 0}
                   muted
-                  loop
                   playsInline
-                  preload="metadata"
+                  preload="auto"
+                  onEnded={() => goto((idx + 1) % STEPS.length)}
                   aria-label={t(`how.steps.${key}.videoLabel`, "Sådan virker det")}
                 />
               ) : null}
