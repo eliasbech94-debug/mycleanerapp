@@ -497,10 +497,15 @@ export async function publishDocumentVersion(input: {
   document: LegalDocumentRef;
   bump?: VersionBump;
   reason?: string;
+  /** Escape hatch for legacy drafts created before the review workflow. */
+  allowUnapproved?: boolean;
 }): Promise<{ version: string; hash: string }> {
   const { document } = input;
   if (document.status === "published") {
     throw new Error("Publicerede versioner er uforanderlige — opret en ny kladdeversion først.");
+  }
+  if (!input.allowUnapproved && !canPublish(document.status)) {
+    throw new Error("Dokumentet skal gennem intern og juridisk gennemgang og være godkendt før publicering.");
   }
 
   const preview = await buildPublishPreview(document);
@@ -518,7 +523,9 @@ export async function publishDocumentVersion(input: {
     .maybeSingle();
 
   const previousVersion = currentPublished?.version ?? null;
-  const version = input.bump ? bumpVersion(previousVersion ?? document.version, input.bump) : document.version;
+  const version = input.bump
+    ? bumpVersion(normalizeVersion(previousVersion ?? document.version), input.bump)
+    : normalizeVersion(document.version);
   const v = parseVersion(version);
 
   if (currentPublished) {
@@ -540,10 +547,14 @@ export async function publishDocumentVersion(input: {
       version_patch: v.patch,
       status: "published",
       published_at: now,
+      published_by: auth.user?.id ?? null,
       effective_at: now,
+      last_review_at: now,
+      next_review_at: computeNextReview(new Date(now), document.review_interval_months ?? 12),
     })
     .eq("id", document.id);
   if (docError) throw docError;
+
 
   const { error: sectionError } = await supabase
     .from("legal_document_sections")
