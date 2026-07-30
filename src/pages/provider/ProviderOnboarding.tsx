@@ -797,13 +797,17 @@ function StepStripe({ pp, patch }: { pp: ProviderProfile; patch: (u: Partial<Pro
             type="checkbox"
             className="mt-1"
             checked={!!pp.terms_accepted_at}
-            onChange={(e) =>
-              patch({ terms_accepted_at: e.target.checked ? new Date().toISOString() : null })
-            }
+            onChange={(e) => {
+              patch({ terms_accepted_at: e.target.checked ? new Date().toISOString() : null });
+              if (e.target.checked) void recordProviderTermsAcceptance();
+            }}
           />
           <span>
-            Jeg accepterer <a href="/regler" className="underline">provider-vilkårene</a> og bekræfter,
-            at jeg er berettiget til at arbejde i det valgte land.
+            Jeg accepterer{" "}
+            <a href="/legal/provider-terms" target="_blank" rel="noopener noreferrer" className="underline">
+              providervilkårene
+            </a>{" "}
+            og bekræfter, at jeg er berettiget til at arbejde i det valgte land.
           </span>
         </label>
       </div>
