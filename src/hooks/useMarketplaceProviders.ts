@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { selectDemoProviders } from "@/data/demo";
+
 
 /**
  * Shared marketplace provider search.
