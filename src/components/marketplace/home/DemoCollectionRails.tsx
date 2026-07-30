@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Star, Clock, Heart } from "lucide-react";
 import { DEMO_MODE, getDemoFavoriteCount, hasDemoVideoIntro } from "@/data/demo";
 import { useDemoMarketplace } from "@/hooks/useDemoMarketplace";
-import { formatMoney } from "@/lib/markets";
+import { formatMoney, marketByCode, NEUTRAL_MARKET } from "@/lib/markets";
 
 /**
  * Homepage demo rails — development / preview only.
@@ -83,7 +83,7 @@ export default function DemoCollectionRails() {
 
                   <div className="flex items-center justify-between">
                     <span className="text-[13px] font-semibold text-[hsl(var(--mkt-ink))]">
-                      {formatMoney((p.price_from ?? 0) * 100, p.country_code ?? "DK")}
+                      {formatMoney(p.price_from ?? 0, marketByCode(p.country_code) ?? NEUTRAL_MARKET)}
                     </span>
                     {hasDemoVideoIntro(p.provider_slug) && (
                       <span className="rounded-full bg-[hsl(var(--mkt-surface-muted))] px-2 py-0.5 text-[10.5px] font-medium text-[hsl(var(--mkt-ink-muted))]">
