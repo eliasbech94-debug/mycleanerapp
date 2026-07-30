@@ -15,6 +15,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
 import { LegalMarkdown } from "@/components/legal/LegalMarkdown";
 import { LegalSectionManager } from "@/components/admin/legal/LegalSectionManager";
+import { LegalReviewWorkflow } from "@/components/admin/legal/LegalReviewWorkflow";
+import { LegalReviewDueWidget } from "@/components/admin/legal/LegalReviewDueWidget";
+import type { LegalDocumentRef } from "@/lib/legal/sections";
 import { sha256Hex } from "@/lib/legal/hash";
 
 type Row = {
