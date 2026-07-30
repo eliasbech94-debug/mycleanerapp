@@ -33,7 +33,7 @@ export function ProviderServices({
       <h2 className="text-xl font-bold text-[hsl(224_72%_18%)]">Ydelser og priser</h2>
       {/* Mobile: horizontal snap carousel (matches the app reference).
           >=640px: responsive grid. */}
-      <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-1 sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 lg:grid-cols-3">
+      <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-1 sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 lg:grid-cols-3 xl:gap-4 2xl:grid-cols-4">
         {services.map((s) => {
           const minDuration = minDurationLabel(s);
           const startPrice = startPriceLabel(s);
