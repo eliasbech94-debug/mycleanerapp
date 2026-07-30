@@ -1,258 +1,206 @@
 # Trust Engine Phase 1B — Provider intro video backend
 
-Status: v4 architecture proposal only. Nothing in this document is deployed or applied.
+Status: v5 architecture proposal only. Nothing in this document is deployed or applied.
 
 ## Boundary
 
-Phase 1B supports one introduction video for the person represented by a provider account. Company/team worker videos remain out of scope.
-
-The browser is never trusted to set ownership, paths, technical metadata, moderation fields, identity status, publication state, consent state or timestamps. Direct client INSERT/UPDATE/DELETE on intro-video tables and Storage objects is not part of the design.
+Phase 1B covers one introduction video for the person represented by a provider account. Company/team worker videos remain out of scope. Browsers never set ownership, paths, technical metadata, moderation fields, consent state, publication state or timestamps.
 
 ## Canonical identity
 
 - Owner key: `provider_profiles.user_id`.
-- FK: `provider_intro_videos.provider_user_id -> provider_profiles(user_id)`.
-- Every provider operation validates `auth.uid()`, provider role and profile ownership.
-- Public contracts expose provider slug and safe metadata only.
-- Identity/video badges are calculated server-side from the canonical identity source used by the public provider profile RPC.
-- A material identity relink or reverification unpublishes the video and returns it to review.
+- Every video, job, object and consent check is bound to the same provider user id.
+- Public contracts expose only provider slug and safe metadata.
+- Material identity relink/reverification immediately unpublishes the video and returns it to review.
 
-## State machine
+## State model
 
-Primary flow:
+Video flow:
 
 `draft -> uploading -> processing -> in_review -> approved -> published`
 
-Side states:
+Side states: `changes_requested`, `rejected`, `failed`, `archived`, `expired`.
 
-- `changes_requested`
-- `rejected`
-- `failed`
-- `archived`
-- `expired`
+Job flow:
+
+`queued -> leased -> processing -> retry_wait -> ready_to_publish -> completed`
+
+Terminal job states: `failed`, `dead_letter`, `cancelled`.
 
 Rules:
 
-- `processing` is mandatory after upload.
-- `failed` is a technical failure; `rejected` is a moderation decision.
-- `approved` is a short server-only state.
-- `published` is the only public state.
-- One provider may have at most one candidate across `draft`, `uploading`, `processing`, `in_review`, `changes_requested`, and `approved`.
-- Candidate rows have server-owned deadlines. Expired draft/upload/processing rows transition to `failed` or `expired` so they cannot lock a provider indefinitely.
-- Providers can withdraw their own non-published candidate through a server-authoritative endpoint.
+- One provider may have at most one published video and one active candidate.
+- Candidate states are `draft`, `uploading`, `processing`, `in_review`, `changes_requested`, `approved`.
+- Candidate expiry/withdrawal must free the slot.
+- `approved` is a short server-only transition immediately before publication.
+- A dead-letter job moves the linked video to `failed` in the same database transaction.
 
-## Persistent saga and recovery
+## Persistent saga and leases
 
-Storage and PostgreSQL cannot share one transaction. The workflow therefore uses a persistent saga record, not comments or best-effort cleanup.
+Storage and PostgreSQL cannot share one transaction. The workflow therefore uses persistent database records:
 
-Each processing/publication attempt has a row in `provider_intro_video_jobs` with:
+1. `provider_intro_videos` stores the product/moderation state.
+2. `provider_intro_video_jobs` stores processing and publish-reconciliation state.
+3. `provider_intro_video_objects` records every quarantine/final/thumbnail/caption object independently of the video row.
+4. `provider_intro_video_callback_nonces` records callback nonces with expiry.
+5. `provider_intro_video_callback_results` stores idempotent callback results.
 
-- video id and provider id;
-- immutable idempotency key;
-- worker job id;
-- job state;
-- attempt count;
-- next retry time;
-- processing deadline;
-- callback nonce digest;
-- final-object verification state;
-- publish-pending marker;
-- last error code;
-- timestamps.
+Workers claim jobs using a database function with `FOR UPDATE SKIP LOCKED`. A lease records `locked_by`, `lease_token`, `lease_expires_at` and `heartbeat_at`. Only the holder of the current lease token may update the job. Expired leases are reclaimable.
 
-Flow:
+Deletion of a provider/video does not delete the object registry immediately. Object rows are marked for cleanup and survive until the cleanup worker confirms physical deletion or legal retention.
 
-1. Server creates the candidate and saga job.
-2. Server creates an exact quarantine path and signed upload URL with `upsert = false`.
-3. Client uploads once.
-4. Orchestrator dispatches the media worker with a server-generated job id and idempotency key already bound to the candidate row.
-5. Worker writes a content-addressed immutable final object.
-6. Callback verifies signature, timestamp, nonce, idempotency key and expected job/video binding.
-7. Server independently verifies object existence, checksum and technical metadata.
-8. Job becomes `ready_to_publish` and the candidate receives a persistent `publish_pending_at` marker.
-9. A database-only publish RPC atomically archives the old row, publishes the new row, writes reciprocal replacement links and audit events, then marks the saga completed.
-10. A reconciliation worker retries jobs in `ready_to_publish` after crashes.
-11. A cleanup worker applies deterministic retention rules to abandoned quarantine objects and terminal final objects.
+## Reconciliation
 
-No verified final object is silently orphaned merely because the publish request crashed.
+A dedicated index covers `ready_to_publish`. Reconciliation:
 
-## Deterministic retention ownership
+1. claims one ready job under a lease;
+2. verifies the final object registry row is present, immutable and recently verified;
+3. invokes the database publish RPC;
+4. marks the job `completed` only after the video is `published`;
+5. returns the same result for a repeated idempotency key.
 
-- `published`: retain while published and while consent remains active.
-- `archived`: retain for the configured replacement retention window unless deletion is requested and no legal hold applies.
-- `rejected`: retain only for the moderation appeal window, then delete.
-- `failed`: delete quarantine and partial final objects after the short technical-failure window.
-- `expired`: delete after the configured expiry grace period.
-- account deletion or consent withdrawal: unpublish immediately; physical deletion follows legal-hold and retention rules.
+The job/video invariant is checked transactionally: a completed publish job must reference a published video; a ready job must have matching `publish_pending_at` on the video.
 
-Retention must be represented in `data_retention_policies` before promotion.
+## Retry, timeout and dead letter
 
-## Storage contract
+Default proposal:
+
+- processing timeout: 15 minutes;
+- lease: 60 seconds, heartbeat every 20 seconds;
+- maximum attempts: 5;
+- exponential backoff: `min(15 minutes, 30 seconds * 2^(attempt-1))` plus jitter;
+- dead-letter alert through the existing observability pipeline.
+
+`retry_wait` requires `next_attempt_at`. `dead_letter` requires an error code and timestamp. Attempt count may never exceed max attempts. Dead-lettering also changes the video to `failed`, records an audit event and frees the candidate slot.
+
+## Media worker callback security
+
+Callbacks are service-to-service only.
+
+Required headers:
+
+- `X-MyCleaner-Key-Id`
+- `X-MyCleaner-Timestamp`
+- `X-MyCleaner-Nonce`
+- `X-MyCleaner-Idempotency-Key`
+- `X-MyCleaner-Signature`
+
+Canonical signed bytes:
+
+`v1\n<key-id>\n<unix-seconds>\n<nonce>\n<idempotency-key>\n<job-id>\n<video-id>\n<sha256(body)>`
+
+Signature: lowercase hex HMAC-SHA256. Timestamp tolerance: 300 seconds. Key id supports rotation with overlapping active keys. Nonces are unique per key id and expire after 15 minutes. Callback results are persisted by idempotency key so identical retries return the original status/body without repeating transitions or audit events.
+
+## Media processing
+
+Supabase Edge Functions orchestrate only. Heavy processing runs in an isolated container worker or managed media service.
+
+Canonical public output:
+
+- MP4, H.264 video, AAC audio;
+- SHA-256 lowercase hex checksum;
+- content-addressed path: `<provider-user-id>/<video-id>/final/<sha256>.mp4`;
+- thumbnail/captions also use content-addressed paths and their own checksums;
+- maximum long side 1920 px;
+- maximum decoded pixels 2,150,400 to allow common 1920x1088 padding;
+- minimum short side 360 px;
+- 15–45 seconds recommended, 60 seconds hard maximum;
+- 25 MB upload maximum.
+
+Final objects are written with `upsert=false` and may never be overwritten. Object verification stores checksum, byte length, storage version/etag and `verified_at`. Publication requires verification no older than 10 minutes. A periodic integrity job re-verifies published objects.
+
+## Storage policies
 
 Private bucket: `provider-intro-videos`.
 
-Paths:
-
-- quarantine: `<provider-user-id>/<video-id>/incoming/<server-generated-name>`
-- immutable final: `<provider-user-id>/<video-id>/final/<sha256>.mp4`
-- thumbnail: `<provider-user-id>/<video-id>/final/<sha256>.jpg`
-- captions: `<provider-user-id>/<video-id>/final/<sha256>.vtt`
-
-Requirements:
-
-- no general provider INSERT/UPDATE/DELETE policy on `storage.objects`;
-- bucket is private;
-- signed upload URL is path-bound, single-use in application semantics, short-lived, and uses `upsert = false`;
-- final paths are content-addressed and never overwritten;
-- providers never supply paths;
-- playback endpoints never return bucket paths;
-- cleanup operates only from database-owned object references and retention state.
-
-## Media worker contract
-
-Supabase Edge Functions orchestrate but do not perform heavy FFmpeg processing.
-
-The selected worker/runtime must be decided before migration promotion and documented with:
-
-- checksum: SHA-256, lowercase hex;
-- canonical output: MP4 H.264 High/Main-compatible profile + AAC-LC;
-- maximum decoded pixels: 2,073,600;
-- maximum long side: 1920 px;
-- portrait and landscape supported;
-- metadata and GPS stripped;
-- retry policy: exponential backoff with bounded attempts;
-- processing timeout and dead-letter state;
-- deterministic idempotent output path.
-
-Worker callback authentication:
-
-- HMAC-SHA256 over canonical request bytes plus timestamp, nonce, job id and idempotency key;
-- maximum clock skew 5 minutes;
-- nonce stored as a digest and accepted once only;
-- constant-time signature comparison;
-- callback retries return the previous result for the same idempotency key;
-- mismatched video/job/provider binding fails closed;
-- no signed URLs, secrets or raw tokens in logs.
+- No general provider write/read policy on `storage.objects`.
+- Upload uses one exact short-lived signed URL to a server-generated quarantine path.
+- Public playback uses an enumeration-safe endpoint and a signed URL with TTL <= 300 seconds.
+- Bucket paths and checksums are never returned by client-facing table/view contracts.
 
 ## Replacement integrity
 
-A provider may have at most one published video and one total candidate.
+The publish RPC locks both candidate and predecessor rows with `FOR UPDATE` before validating.
 
-The publish RPC and a defensive trigger must enforce:
+It enforces:
 
-- old and new rows belong to the same provider;
-- neither replacement link points to itself;
-- no cycle exists;
-- links are reciprocal;
+- same provider for old/new rows;
+- predecessor was `published` immediately before replacement;
 - one successor per predecessor and one predecessor per successor;
-- only a currently published row may be replaced;
-- the old row is archived only after the new object is independently verified;
-- all database changes and audit events occur in one transaction.
+- reciprocal links;
+- no cycle using a recursive CTE with a visited UUID array and a hard depth limit of 32;
+- all row, job and audit updates in one database transaction.
 
-Service-role access is not treated as permission to violate these invariants.
+## Consent
 
-## Consent model
+A new allowed consent type is required: `provider_intro_video_publication`.
 
-The existing `consent_ledger` is append-only. Phase 1B requires a new allowed `consent_type`, for example `provider_intro_video_publication`, added in a separate reviewed migration.
+The referenced consent row must:
 
-Active consent means:
+- belong to the same `provider_user_id`;
+- be the newest row for that user/type;
+- use an accepted policy version;
+- have `granted=true`;
+- have no newer revoke row.
 
-- latest ledger row for the provider and consent type;
-- `granted = true`;
-- policy version matches an accepted version;
-- consent row belongs to the same provider;
-- no newer revoke row exists.
-
-`consent_ledger_id` must reference `public.consent_ledger(id)`. A publish RPC must verify the active-consent predicate; a not-null check is insufficient.
-
-A new consent-ledger INSERT trigger or event handler must immediately unpublish a published video when the newest row for this consent type has `granted = false`. Physical deletion then follows retention and legal-hold rules.
-
-## Checksum and object immutability
-
-- checksum algorithm is SHA-256;
-- format is lowercase 64-character hexadecimal;
-- final path includes the checksum;
-- database checks require the path suffix and stored checksum to agree;
-- final objects use `upsert = false` and cannot be replaced in place;
-- approval and publication require independent server verification of bytes at the exact path;
-- any later mismatch immediately unpublishes and raises a security audit event.
+A new consent ledger row with `granted=false` triggers immediate database unpublication and schedules object cleanup subject to legal hold. Publication cannot rely on a mere non-null FK.
 
 ## SECURITY DEFINER contract
 
-Every database RPC must:
+Every privileged RPC:
 
-- use `SECURITY DEFINER`;
-- use `SET search_path = public, pg_temp`;
-- fully qualify `auth.*`, `storage.*` and other cross-schema references;
-- follow `docs/security/DEFINER_FUNCTIONS.md` and be documented in the same migration;
-- revoke execute from `PUBLIC`;
-- grant execute only to exact required database roles;
-- validate `auth.uid()` and application role internally;
-- reject user-supplied paths and trusted metadata;
-- avoid dynamic SQL;
-- acquire row locks for state transitions;
-- enforce expected previous state;
-- write immutable audit events;
-- fail closed on missing ownership, identity, visibility, consent or object verification.
+- uses `SECURITY DEFINER`;
+- sets `search_path = public, pg_temp`;
+- fully qualifies `auth.*`, `storage.*` and extension references;
+- revokes execute from `PUBLIC`;
+- grants execute only to exact roles;
+- validates `auth.uid()` and application role internally;
+- rejects client paths and server-owned metadata;
+- avoids dynamic SQL;
+- documents the function in the same migration as required by `docs/security/DEFINER_FUNCTIONS.md`;
+- writes immutable audit events.
 
-A defensive trigger guards immutable/trusted columns and valid state transitions even when a service-role function is implemented incorrectly.
+State transitions and immutable fields are database-enforced by functions/triggers, not only application code.
 
-## Public profile integration
+## Client-safe exposure
 
-Do not expose an anon-readable base-table view.
+Authenticated providers read a safe view containing status, timestamps, public-safe technical summary and moderation guidance. It excludes:
 
-Extend the existing server-controlled public provider profile contract, preferably `get_public_provider_profile_v2`, and return safe video metadata only when:
+- incoming/final paths;
+- checksums and object versions;
+- worker/job identifiers;
+- transcript unless a separate product decision permits it;
+- internal moderation notes.
 
-- provider profile is active and publicly visible;
-- video state is `published`;
-- active consent exists;
-- identity verification passes;
-- final-object verification is current;
-- deletion/unpublication timestamps are null.
+Admin/super_admin use a privileged operational view. Support receives a deliberately limited support projection with job status/error code but no paths, secrets, transcript or checksum. `employee` has no access unless explicitly designed later.
 
-Playback uses a rate-limited endpoint accepting provider slug or opaque video id only. It rechecks all gates and returns a signed playback URL with TTL no longer than 300 seconds. Missing, unpublished, rejected and unauthorized records receive the same response.
+## Retention and cleanup
 
-## Technical limits
+Persistent object rows define deterministic cleanup:
 
-- recommended duration: 15–45 seconds;
-- hard maximum duration: 60 seconds;
-- file size: 50 kB–25 MB;
-- accepted uploads: MP4, WebM, QuickTime/MOV;
-- canonical output: MP4 H.264 + AAC;
-- maximum long side: 1920 px;
-- maximum decoded pixels: 2,073,600;
-- portrait and landscape allowed;
-- at least one decodable video frame and an audio track;
-- magic-byte/container/codec validation;
-- corrupt, truncated and polyglot files rejected;
-- metadata and location stripped;
-- upload creation limited to one per provider per 10 minutes plus abuse controls.
+- quarantine objects: delete after 24 hours when abandoned/failed;
+- rejected/failed final objects: delete after 30 days;
+- archived/replaced objects: delete after 90 days;
+- expired objects: delete after 30 days;
+- legal hold blocks physical deletion but never required unpublication;
+- account deletion schedules all objects while retaining required audit records.
 
-## Executable staging regression
+Seed corresponding `data_retention_policies` records. Cleanup uses object rows rather than inferring paths from video rows.
 
-The branch includes a review-only regression specification under:
+## Promotion gates
 
-`scripts/staging-required/trust-engine/provider-intro-video-regression.proposed.sql`
+Before migration/deployment:
 
-Before promotion it must be converted into an executable isolated-staging harness with fixtures and assertions for:
-
-- cross-provider denial;
-- no direct client mutation;
-- no self-approval;
-- one published and one candidate maximum;
-- stale candidate expiry and provider recovery;
-- callback replay, signature failure and idempotent retry;
-- worker timeout/dead-letter recovery;
-- crash after object verification but before publish;
-- reconciliation of `ready_to_publish` jobs;
-- replacement cross-provider, fork and cycle prevention;
-- active-consent enforcement and immediate revoke unpublish;
-- checksum format/path binding and object-swap prevention;
-- double-publish races;
-- visibility and identity gates;
-- retention, deletion and legal holds;
-- complete privileged audit coverage.
+1. implement lease claim/heartbeat/reconciliation RPCs;
+2. implement callback verification, nonce and idempotent result storage;
+3. implement active-consent predicate and revoke-unpublish trigger;
+4. implement safe provider/support/admin views and column grants;
+5. implement replacement/state/immutability guards;
+6. implement object registry and retention worker;
+7. implement executable isolated-staging regression with real fixtures, RPC calls, role impersonation and concurrency tests;
+8. wire dead-letter alerts into observability;
+9. obtain explicit approval before bucket creation, migration, function deployment or production changes.
 
 ## Current branch boundary
 
-This branch contains documentation and inert SQL proposals only. No migration, bucket, media worker, Edge Function, merge, deploy or production write is authorized.
+This branch contains documentation and inert SQL/regression proposals only. No migration, bucket, media worker, Edge Function, merge, deploy or production write is authorized.
