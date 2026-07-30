@@ -88,7 +88,7 @@ export function ProviderHero({
         </div>
 
 
-        <div className="flex flex-col gap-2.5 p-5 sm:p-6">
+        <div className="flex flex-col gap-2.5 p-5 sm:p-6 lg:gap-3 lg:p-8 xl:justify-center xl:p-10">
           {earlyAccess && (
             <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-[hsl(222_88%_42%/0.08)] px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-[hsl(222_88%_42%)]">
               <Sparkles className="h-3 w-3" aria-hidden="true" />
