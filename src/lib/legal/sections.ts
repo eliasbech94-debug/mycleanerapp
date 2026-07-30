@@ -379,29 +379,131 @@ export async function buildPublishPreview(doc: {
   };
 }
 
+export interface LegalDocumentRef {
+  id: string;
+  slug: string;
+  kind: string;
+  title: string;
+  description?: string | null;
+  icon?: string | null;
+  country_code: string;
+  language: string;
+  version: string;
+  body_md: string;
+  body_hash: string;
+  status: string;
+  required?: boolean;
+  doc_uid?: string | null;
+}
+
 /**
- * Publishes the current chapter set as a new document version.
- * The composed body is written back to `legal_documents.body_md` so the
- * public reader, hashing and acceptance flow keep working unchanged.
+ * Creates the next draft version of a published document as a NEW row
+ * (published rows are immutable in the database) and copies its chapters.
+ * The permanent document id (`doc_uid`) is carried over unchanged.
+ */
+export async function createDraftVersion(
+  doc: LegalDocumentRef,
+  bump: VersionBump = "minor",
+  reason?: string,
+): Promise<string> {
+  const version = bumpVersion(doc.version, bump);
+  const v = parseVersion(version);
+  const { data: auth } = await supabase.auth.getUser();
+
+  const { data: created, error } = await supabase
+    .from("legal_documents")
+    .insert({
+      slug: doc.slug,
+      kind: doc.kind,
+      title: doc.title,
+      description: doc.description ?? null,
+      icon: doc.icon ?? null,
+      country_code: doc.country_code,
+      language: doc.language,
+      version,
+      version_major: v.major,
+      version_minor: v.minor,
+      version_patch: v.patch,
+      body_md: doc.body_md,
+      body_hash: doc.body_hash,
+      status: "draft",
+      required: doc.required ?? true,
+      doc_uid: doc.doc_uid ?? null,
+      created_by: auth.user?.id ?? null,
+    })
+    .select("id")
+    .single();
+  if (error) throw error;
+
+  const sections = await fetchSections(doc.id, doc.language);
+  if (sections.length) {
+    const { error: copyError } = await supabase.from("legal_document_sections").insert(
+      sections.map((s) => ({
+        document_id: created.id,
+        section_key: s.section_key,
+        section_order: s.section_order,
+        title: s.title,
+        slug: s.slug,
+        content_md: s.content_md,
+        version: s.version,
+        status: "draft",
+        hash: s.hash,
+        language: s.language,
+        created_by: auth.user?.id ?? null,
+      })),
+    );
+    if (copyError) throw copyError;
+  }
+
+  await recordAudit({
+    documentId: created.id,
+    action: "document.draft_version_created",
+    oldHash: doc.body_hash,
+    reason: reason ?? null,
+    metadata: { from_document: doc.id, from_version: doc.version, version },
+  });
+  return created.id;
+}
+
+/**
+ * Publishes a draft document: composes chapters into `legal_documents.body_md`,
+ * recomputes the SHA-256 hash, supersedes the previously published version and
+ * writes the automatic changelog + audit entry.
  */
 export async function publishDocumentVersion(input: {
-  document: { id: string; doc_uid?: string | null; version: string; body_md: string; body_hash: string; language: string; status: string };
+  document: LegalDocumentRef;
   bump?: VersionBump;
   reason?: string;
-  createNewRow?: boolean;
 }): Promise<{ version: string; hash: string }> {
   const { document } = input;
+  if (document.status === "published") {
+    throw new Error("Publicerede versioner er uforanderlige — opret en ny kladdeversion først.");
+  }
+
   const preview = await buildPublishPreview(document);
-  const bump = input.bump ?? preview.bump;
-  const version = bumpVersion(document.version, bump);
   const now = new Date().toISOString();
   const { data: auth } = await supabase.auth.getUser();
+
+  // Previously published version of the same document scope is superseded.
+  const { data: currentPublished } = await supabase
+    .from("legal_documents")
+    .select("id,version,body_hash")
+    .eq("kind", document.kind)
+    .eq("country_code", document.country_code)
+    .eq("language", document.language)
+    .eq("status", "published")
+    .maybeSingle();
+
+  const previousVersion = currentPublished?.version ?? null;
+  const version = input.bump ? bumpVersion(previousVersion ?? document.version, input.bump) : document.version;
   const v = parseVersion(version);
 
-  const sections = await fetchSections(document.id, document.language);
-
-  if (input.createNewRow) {
-    throw new Error("createNewRow is handled by the admin document editor");
+  if (currentPublished) {
+    const { error: supersedeError } = await supabase
+      .from("legal_documents")
+      .update({ status: "superseded", superseded_at: now })
+      .eq("id", currentPublished.id);
+    if (supersedeError) throw supersedeError;
   }
 
   const { error: docError } = await supabase
@@ -432,7 +534,7 @@ export async function publishDocumentVersion(input: {
     document_id: document.id,
     doc_uid: document.doc_uid ?? null,
     version,
-    previous_version: document.version,
+    previous_version: previousVersion,
     summary: preview.summary,
     entries: preview.changes as never,
     created_by: auth.user?.id ?? null,
@@ -443,10 +545,10 @@ export async function publishDocumentVersion(input: {
   await recordAudit({
     documentId: document.id,
     action: "document.published",
-    oldHash: document.body_hash,
+    oldHash: currentPublished?.body_hash ?? document.body_hash,
     newHash: preview.nextHash,
     reason: input.reason ?? null,
-    metadata: { version, previous_version: document.version, sections: sections.length },
+    metadata: { version, previous_version: previousVersion },
   });
 
   return { version, hash: preview.nextHash };
