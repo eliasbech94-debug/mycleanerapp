@@ -40,8 +40,8 @@ const STATUS_LABEL: Record<string, string> = {
   warning_needs_response: "Afventer oplysninger",
   under_review: "Under gennemgang",
   warning_under_review: "Under gennemgang",
-  won: "Afgjort — medhold",
-  lost: "Afgjort — ikke medhold",
+  won: "Afgjort — kundens indsigelse afvist",
+  lost: "Afgjort — kundens indsigelse godkendt",
   charge_refunded: "Refundering gennemført",
   warning_closed: "Afsluttet",
   closed: "Afsluttet",
@@ -165,8 +165,8 @@ export default function AdminDisputes() {
           <TabsTrigger value="open">Åbne ({groups.open.length})</TabsTrigger>
           <TabsTrigger value="waiting">Afventer oplysninger ({groups.waiting.length})</TabsTrigger>
           <TabsTrigger value="escalated">Under gennemgang ({groups.escalated.length})</TabsTrigger>
-          <TabsTrigger value="won">Medhold ({groups.won.length})</TabsTrigger>
-          <TabsTrigger value="lost">Ikke medhold ({groups.lost.length})</TabsTrigger>
+          <TabsTrigger value="won">Indsigelse afvist ({groups.won.length})</TabsTrigger>
+          <TabsTrigger value="lost">Indsigelse godkendt ({groups.lost.length})</TabsTrigger>
         </TabsList>
         <TabsContent value="open"><Card><CardContent className="pt-4">{renderList(groups.open)}</CardContent></Card></TabsContent>
         <TabsContent value="waiting"><Card><CardContent className="pt-4">{renderList(groups.waiting)}</CardContent></Card></TabsContent>
