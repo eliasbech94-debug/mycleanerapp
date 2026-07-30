@@ -295,7 +295,7 @@ export const FIXTURE_RULE_PACKS: AccountingRulePack[] = [
   }),
 ];
 
-function profile(over: Partial<ProviderAccountingProfile>): ProviderAccountingProfile {
+export function profile(over: Partial<ProviderAccountingProfile>): ProviderAccountingProfile {
   return {
     providerUserId: "fixture-provider",
     registrationCountry: null,
