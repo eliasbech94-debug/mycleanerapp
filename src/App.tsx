@@ -199,6 +199,7 @@ export function AppRoutes() {
           }
         />
       )}
+
       <Route path="/not-found" element={<NotFound />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
