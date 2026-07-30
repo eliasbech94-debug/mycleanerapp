@@ -4415,14 +4415,17 @@ export type Database = {
           country_code: string
           created_at: string
           created_by: string | null
+          description: string | null
           effective_at: string | null
           fallback_to_english: boolean
+          icon: string | null
           id: string
           kind: string
           language: string
           published_at: string | null
           required: boolean
           scheduled_publish_at: string | null
+          slug: string
           status: string
           summary_md: string | null
           superseded_at: string | null
@@ -4435,14 +4438,17 @@ export type Database = {
           country_code: string
           created_at?: string
           created_by?: string | null
+          description?: string | null
           effective_at?: string | null
           fallback_to_english?: boolean
+          icon?: string | null
           id?: string
           kind: string
           language: string
           published_at?: string | null
           required?: boolean
           scheduled_publish_at?: string | null
+          slug: string
           status?: string
           summary_md?: string | null
           superseded_at?: string | null
@@ -4455,14 +4461,17 @@ export type Database = {
           country_code?: string
           created_at?: string
           created_by?: string | null
+          description?: string | null
           effective_at?: string | null
           fallback_to_english?: boolean
+          icon?: string | null
           id?: string
           kind?: string
           language?: string
           published_at?: string | null
           required?: boolean
           scheduled_publish_at?: string | null
+          slug?: string
           status?: string
           summary_md?: string | null
           superseded_at?: string | null

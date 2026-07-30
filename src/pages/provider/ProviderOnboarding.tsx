@@ -11,8 +11,22 @@ import { ProviderServicePricing } from "@/components/provider/ProviderServicePri
 import { StripeConnectStatusWidget } from "@/components/provider/StripeConnectStatusWidget";
 import { IdentityVerificationCard } from "@/components/identity/IdentityVerificationCard";
 import BackButton from "@/components/BackButton";
+import { acceptLegalDocument, fetchLegalDocument } from "@/lib/legal/api";
 
 const C = { ink: "#0a3d3a", orange: "#ff6b35", cream: "#f5f0e0", teal: "#168a7a", mint: "#c8e6c0" };
+
+/** Records a versioned, hash-stamped acceptance of the provider terms. */
+async function recordProviderTermsAcceptance() {
+  try {
+    const { data: auth } = await supabase.auth.getUser();
+    if (!auth.user) return;
+    const doc = await fetchLegalDocument("provider-terms", "DK", "da");
+    if (!doc) return;
+    await acceptLegalDocument(auth.user.id, doc, "provider_onboarding");
+  } catch {
+    // Acceptance audit is best-effort here; the checkbox timestamp is the gate.
+  }
+}
 
 const STEPS = [
   { key: "account", title: "Konto", Icon: User },
@@ -797,13 +811,17 @@ function StepStripe({ pp, patch }: { pp: ProviderProfile; patch: (u: Partial<Pro
             type="checkbox"
             className="mt-1"
             checked={!!pp.terms_accepted_at}
-            onChange={(e) =>
-              patch({ terms_accepted_at: e.target.checked ? new Date().toISOString() : null })
-            }
+            onChange={(e) => {
+              patch({ terms_accepted_at: e.target.checked ? new Date().toISOString() : null });
+              if (e.target.checked) void recordProviderTermsAcceptance();
+            }}
           />
           <span>
-            Jeg accepterer <a href="/regler" className="underline">provider-vilkårene</a> og bekræfter,
-            at jeg er berettiget til at arbejde i det valgte land.
+            Jeg accepterer{" "}
+            <a href="/legal/provider-terms" target="_blank" rel="noopener noreferrer" className="underline">
+              providervilkårene
+            </a>{" "}
+            og bekræfter, at jeg er berettiget til at arbejde i det valgte land.
           </span>
         </label>
       </div>

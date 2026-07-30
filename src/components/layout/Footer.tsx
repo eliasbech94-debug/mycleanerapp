@@ -75,7 +75,9 @@ const Footer = () => {
               <li><Link to="/regler" className="hover:text-foreground transition-colors">Regler</Link></li>
               <li><Link to="/faq" className="hover:text-foreground transition-colors">Hjælpecenter</Link></li>
               <li><a href="mailto:support@mycleaner.app" className="hover:text-foreground transition-colors">Kontakt</a></li>
-              <li><Link to="/regler" className="hover:text-foreground transition-colors">Privatlivspolitik</Link></li>
+              <li><Link to="/legal" className="hover:text-foreground transition-colors">Legal Center</Link></li>
+              <li><Link to="/legal/privacy-policy" className="hover:text-foreground transition-colors">Privatlivspolitik</Link></li>
+              <li><Link to="/legal/cookie-policy" className="hover:text-foreground transition-colors">Cookiepolitik</Link></li>
             </ul>
           </div>
         </div>
