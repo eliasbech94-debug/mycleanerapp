@@ -76,7 +76,7 @@ export default function ProviderDashboardV2() {
     <DashboardLayout role="provider" title="Cleaner">
       <DashboardPage
         title="Dashboard"
-        description="Overblik over dine jobs, indtjening og profilstatus."
+        description="Overblik over dine bookinger, indtjening og profilstatus."
       >
         <div className="grid gap-5 lg:gap-6">
           {data.error && (
@@ -98,7 +98,7 @@ export default function ProviderDashboardV2() {
                   ? `Næste job: ${formatDate(nextJob.booking_date)}${nextJob.slot ? ` kl. ${nextJob.slot}` : ""}.`
                   : data.openRequests.length
                     ? `Du har ${data.openRequests.length} åbne anmodning${data.openRequests.length === 1 ? "" : "er"} — svar hurtigt for bedre placering.`
-                    : "Ingen kommende jobs. Sørg for at din profil er komplet og synlig."
+                    : "Du har ingen kommende bookinger. Hold din profil komplet og synlig, så flere kunder kan finde dig."
               }
               actions={
                 <Button asChild size="sm" variant="outline">
@@ -142,7 +142,7 @@ export default function ProviderDashboardV2() {
           {/* Stats */}
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             <StatCard
-              label="Gennemførte jobs"
+              label="Gennemførte bookinger"
               value={data.stats.completed}
               icon={ListChecks}
               loading={data.loading}
@@ -150,7 +150,7 @@ export default function ProviderDashboardV2() {
             <StatCard
               label="Indtjening"
               value={earnings}
-              hint={data.stats.completed ? "Fra gennemførte jobs" : undefined}
+              hint={data.stats.completed ? "Fra gennemførte bookinger" : undefined}
               icon={Wallet}
               loading={data.loading}
             />
@@ -176,14 +176,14 @@ export default function ProviderDashboardV2() {
               <AppErrorBoundary>
                 <SectionCard
                   title="I dag"
-                  description="Dine planlagte jobs i dag."
+                  description="Dine bookinger i dag."
                   loading={data.loading}
                   empty={!data.loading && data.todaysSchedule.length === 0}
                   emptyState={
                     <EmptyState
                       icon={CalendarClock}
-                      title="Ingen jobs i dag"
-                      description="Nyd en pause — eller opdater din tilgængelighed for flere anmodninger."
+                      title="Ingen bookinger i dag"
+                      description="Nyd en pause — eller opdater din tilgængelighed, så flere kunder kan booke dig."
                     />
                   }
                 >
@@ -197,15 +197,15 @@ export default function ProviderDashboardV2() {
 
               <AppErrorBoundary>
                 <SectionCard
-                  title="Åbne anmodninger"
-                  description="Svar hurtigt for bedre placering i marketplace."
+                  title="Nye bookingforespørgsler"
+                  description="Svar hurtigt — det giver dig en bedre placering i marketplace."
                   loading={data.loading}
                   empty={!data.loading && data.openRequests.length === 0}
                   emptyState={
                     <EmptyState
                       icon={Inbox}
-                      title="Ingen åbne anmodninger"
-                      description="Nye anmodninger dukker op her i realtid."
+                      title="Ingen nye bookingforespørgsler"
+                      description="Nye bookingforespørgsler vises her, så snart en kunde sender en."
                     />
                   }
                 >
@@ -219,14 +219,14 @@ export default function ProviderDashboardV2() {
 
               <AppErrorBoundary>
                 <SectionCard
-                  title="Kommende jobs"
+                  title="Kommende bookinger"
                   loading={data.loading}
                   empty={!data.loading && data.upcoming.length === 0}
                   emptyState={
                     <EmptyState
                       icon={Calendar}
-                      title="Ingen kommende jobs"
-                      description="Accepterede jobs vises her indtil de er gennemført."
+                      title="Ingen kommende bookinger"
+                      description="Accepterede bookinger vises her, indtil de er gennemført."
                     />
                   }
                 >
@@ -245,7 +245,7 @@ export default function ProviderDashboardV2() {
                 >
                   <ComingSoonCard
                     title="Rating & anmeldelser"
-                    description="Vi aktiverer stjerner og skriftlige anmeldelser når review-motoren går live. Indtil da vises kun jobs og indtjening."
+                    description="Anmeldelser er på vej. Indtil da viser dashboardet kun bookinger og indtjening."
                   />
                 </SectionCard>
               </AppErrorBoundary>
@@ -271,13 +271,13 @@ export default function ProviderDashboardV2() {
                     />
                     <QuickActionCard
                       title="Økonomi"
-                      description="Payouts og statements"
+                      description="Udbetalinger og opgørelser"
                       icon={CreditCard}
                       to="/provider/finance"
                     />
                     <QuickActionCard
                       title="Bilag"
-                      description="Kvitteringer og udgifter"
+                      description="Kvitteringer og udgifter til regnskabet"
                       icon={FileText}
                       to="/provider/bilag"
                     />
@@ -334,7 +334,7 @@ export default function ProviderDashboardV2() {
 
               <AppErrorBoundary>
                 <SectionCard
-                  title="Payout status"
+                  title="Udbetalinger"
                   action={
                     <Link
                       to="/provider/finance"
@@ -348,8 +348,8 @@ export default function ProviderDashboardV2() {
                   emptyState={
                     <EmptyState
                       icon={Wallet}
-                      title="Ingen payouts endnu"
-                      description="Din første udbetaling vises her når et job er afsluttet og frigivet."
+                      title="Ingen udbetalinger endnu"
+                      description="Din første udbetaling vises her, når en booking er afsluttet og beløbet er frigivet."
                     />
                   }
                 >
@@ -382,7 +382,7 @@ const STATUS_META: Record<
   ProviderBooking["status"],
   { label: string; variant: "default" | "secondary" | "outline" | "destructive" }
 > = {
-  pending: { label: "Ny anmodning", variant: "secondary" },
+  pending: { label: "Ny forespørgsel", variant: "secondary" },
   accepted: { label: "Accepteret", variant: "default" },
   completed: { label: "Udført", variant: "outline" },
   declined: { label: "Afvist", variant: "destructive" },
@@ -460,9 +460,9 @@ function MiniStat({
 
 const PAYOUT_META: Record<string, { label: string; variant: "default" | "secondary" | "outline" | "destructive" }> = {
   paid: { label: "Udbetalt", variant: "default" },
-  in_transit: { label: "Undervejs", variant: "secondary" },
+  in_transit: { label: "På vej til din konto", variant: "secondary" },
   pending: { label: "Afventer", variant: "secondary" },
-  failed: { label: "Fejlet", variant: "destructive" },
+  failed: { label: "Mislykkedes", variant: "destructive" },
   canceled: { label: "Annulleret", variant: "outline" },
 };
 
@@ -508,7 +508,7 @@ function describeVerification(
     return {
       showBanner: true,
       title: "Verificér din identitet",
-      description: "Vi skal bekræfte din identitet før du kan modtage bookinger.",
+      description: "Vi skal bekræfte din identitet, før du kan modtage bookinger.",
       actions: [{ label: "Start verifikation", to: "/provider/profile", primary: true }],
     };
   }
@@ -532,7 +532,7 @@ function describeVerification(
     return {
       showBanner: true,
       title: `Din profil er ${pp.completion_pct}% færdig`,
-      description: "Fuldfør din profil for bedre placering i marketplace.",
+      description: "Gør din profil færdig — komplette profiler vises højere i marketplace.",
       actions: [{ label: "Færdiggør", to: "/provider/profile" }],
     };
   }

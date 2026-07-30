@@ -27,12 +27,40 @@ type Booking = {
 
 type TabKey = "overview" | "plan";
 
-const STATUS_LABEL: Record<Booking["status"], { label: string; bg: string; fg: string }> = {
-  pending: { label: "Afventer cleaner", bg: "#ffe9b8", fg: "#8a5a00" },
-  accepted: { label: "Accepteret", bg: C.mint, fg: C.ink },
-  declined: { label: "Afvist", bg: "#f5c2b8", fg: "#8a2e1c" },
-  cancelled: { label: "Annulleret", bg: "#e6e2d2", fg: C.ink },
-  completed: { label: "Udført", bg: C.teal, fg: C.cream },
+const STATUS_LABEL: Record<
+  Booking["status"],
+  { label: string; help: string; bg: string; fg: string }
+> = {
+  pending: {
+    label: "Afventer provider",
+    help: "Din bookingforespørgsel er sendt. Provideren svarer hurtigst muligt — du får besked her og i din indbakke.",
+    bg: "#ffe9b8",
+    fg: "#8a5a00",
+  },
+  accepted: {
+    label: "Accepteret",
+    help: "Provideren har accepteret din booking. Du behøver ikke gøre mere før dagen.",
+    bg: C.mint,
+    fg: C.ink,
+  },
+  declined: {
+    label: "Afvist",
+    help: "Provideren kunne ikke tage denne tid. Du kan vælge et andet tidspunkt eller finde en anden provider.",
+    bg: "#f5c2b8",
+    fg: "#8a2e1c",
+  },
+  cancelled: {
+    label: "Annulleret",
+    help: "Bookingen er annulleret. Er der reserveret et beløb, frigives det automatisk.",
+    bg: "#e6e2d2",
+    fg: C.ink,
+  },
+  completed: {
+    label: "Udført",
+    help: "Opgaven er markeret som afsluttet. Skriv til support, hvis noget ikke stemmer.",
+    bg: C.teal,
+    fg: C.cream,
+  },
 };
 
 export default function MyBookings() {
@@ -85,16 +113,16 @@ export default function MyBookings() {
 
       <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
         <h1 className="font-display text-3xl sm:text-4xl">Dine bookinger</h1>
-        <p className="mt-2 text-sm opacity-70">Følg status på dine cleaner-bookinger her.</p>
+        <p className="mt-2 text-sm opacity-70">Her følger du dine bookingforespørgsler og bekræftede bookinger.</p>
 
         <div className="mt-8 space-y-3">
-          {bookings === null && <div className="opacity-60 text-sm">Henter…</div>}
+          {bookings === null && <div className="opacity-60 text-sm">Henter dine bookinger…</div>}
           {bookings && bookings.length === 0 && (
             <div className="rounded-2xl border-2 border-dashed bg-white p-8 text-center" style={{ borderColor: `${C.ink}33` }}>
-              <div className="font-display text-xl">Ingen bookinger endnu</div>
-              <p className="mt-2 text-sm opacity-70">Find en cleaner og book direkte i kalenderen.</p>
+              <div className="font-display text-xl">Du har ingen bookinger endnu</div>
+              <p className="mt-2 text-sm opacity-70">Find en cleaner, og book direkte i providerens kalender.</p>
               <Link to="/" className="mt-4 inline-flex rounded-full px-5 py-2.5 text-xs font-bold uppercase tracking-[0.18em]" style={{ background: C.orange, color: C.ink }}>
-                Find cleaner
+                Find en cleaner
               </Link>
             </div>
           )}
@@ -142,13 +170,14 @@ export default function MyBookings() {
 
                 {activeTab === "overview" && (
                   <>
+                    <p className="mt-3 text-xs opacity-70">{s.help}</p>
                     <div className="mt-3 grid gap-1.5 text-xs">
                       <div className="inline-flex items-center gap-2 opacity-80"><Calendar className="h-3.5 w-3.5" /> {d}</div>
                       <div className="inline-flex items-center gap-2 opacity-80"><Clock className="h-3.5 w-3.5" /> kl. {b.slot}</div>
                       <div className="inline-flex items-start gap-2 opacity-80"><MapPin className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" /> {b.address}</div>
                     </div>
                     <div className="mt-3 border-t border-dashed pt-3 text-xs flex items-baseline justify-between" style={{ borderColor: `${C.ink}22` }}>
-                      <span className="opacity-60">Du betaler</span>
+                      <span className="opacity-60">Samlet pris inkl. platformsgebyr</span>
                       <span className="font-display text-base">{b.customer_pays.toLocaleString("da-DK")} {b.currency}</span>
                     </div>
                   </>

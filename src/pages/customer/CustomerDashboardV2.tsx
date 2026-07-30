@@ -59,7 +59,7 @@ export default function CustomerDashboardV2() {
     <DashboardLayout role="customer" title="Kunde">
       <DashboardPage
         title="Dashboard"
-        description="Overblik over dine bookinger, notifikationer og konto."
+        description="Overblik over dine bookinger, beskeder og konto."
       >
         <div className="grid gap-5 lg:gap-6">
           {data.error && (
@@ -79,7 +79,7 @@ export default function CustomerDashboardV2() {
               subtitle={
                 nextBooking
                   ? `Din næste booking er ${formatDate(nextBooking.booking_date)}${nextBooking.slot ? ` kl. ${nextBooking.slot}` : ""}.`
-                  : "Du har ingen kommende bookinger — book en cleaner når du er klar."
+                  : "Du har ingen kommende bookinger. Find en cleaner, når du er klar."
               }
               actions={
                 <Button asChild size="sm">
@@ -104,7 +104,7 @@ export default function CustomerDashboardV2() {
               loading={data.loading}
             />
             <StatCard
-              label="Brugt i alt"
+              label="Betalt i alt"
               value={totalSpent}
               icon={Wallet}
               loading={data.loading}
@@ -137,10 +137,10 @@ export default function CustomerDashboardV2() {
                     <EmptyState
                       icon={Calendar}
                       title="Ingen kommende bookinger"
-                      description="Find en cleaner og book direkte i deres kalender."
+                      description="Find en cleaner, og book direkte i providerens kalender."
                       action={
                         <Button asChild>
-                          <Link to="/find-cleaner">Find cleaner</Link>
+                          <Link to="/find-cleaner">Find en cleaner</Link>
                         </Button>
                       }
                     />
@@ -157,7 +157,7 @@ export default function CustomerDashboardV2() {
               <AppErrorBoundary>
                 <SectionCard
                   title="Tidligere bookinger"
-                  description="Din historik — se faktura eller book samme cleaner igen."
+                  description="Se kvittering, eller book den samme provider igen."
                   action={
                     <Link
                       to="/customer/bookings"
@@ -172,7 +172,7 @@ export default function CustomerDashboardV2() {
                     <EmptyState
                       icon={FileText}
                       title="Ingen historik endnu"
-                      description="Når du har gennemført en booking, vises den her."
+                      description="Dine gennemførte bookinger vises her."
                     />
                   }
                 >
@@ -187,7 +187,7 @@ export default function CustomerDashboardV2() {
               <AppErrorBoundary>
                 <ComingSoonCard
                   title="Personligt feed"
-                  description="AI-drevne anbefalinger, sæsontips og eksklusive tilbud baseret på din historik. Aktiveres når anbefalingsmotoren er live."
+                  description="Personlige anbefalinger baseret på din historik er på vej. Funktionen er endnu ikke aktiv."
                 />
               </AppErrorBoundary>
             </div>
@@ -211,20 +211,20 @@ export default function CustomerDashboardV2() {
                     />
                     <QuickActionCard
                       title="Beskeder"
-                      description="Chat med cleanere"
+                      description="Skriv med dine providere"
                       icon={MessageSquare}
                       to="/inbox"
                       badge={notifications.unread > 0 ? `${notifications.unread}` : undefined}
                     />
                     <QuickActionCard
                       title="Favoritter"
-                      description="Dine foretrukne cleanere"
+                      description="Dine foretrukne providere"
                       icon={Heart}
                       to="/find-cleaner"
                     />
                     <QuickActionCard
                       title="Fakturaer"
-                      description="Download kvitteringer"
+                      description="Se og hent kvitteringer"
                       icon={FileText}
                       to="/customer/invoices"
                     />
@@ -255,7 +255,7 @@ export default function CustomerDashboardV2() {
                     <EmptyState
                       icon={Bell}
                       title="Alt roligt her"
-                      description="Nye notifikationer om bookinger, beskeder og tilbud dukker op her."
+                      description="Beskeder om dine bookinger vises her."
                     />
                   }
                 >
@@ -303,8 +303,8 @@ const STATUS_META: Record<
   CustomerBooking["status"],
   { label: string; variant: "default" | "secondary" | "outline" | "destructive" }
 > = {
-  pending: { label: "Afventer", variant: "secondary" },
-  accepted: { label: "Bekræftet", variant: "default" },
+  pending: { label: "Afventer provider", variant: "secondary" },
+  accepted: { label: "Accepteret", variant: "default" },
   completed: { label: "Udført", variant: "outline" },
   declined: { label: "Afvist", variant: "destructive" },
   cancelled: { label: "Annulleret", variant: "outline" },
