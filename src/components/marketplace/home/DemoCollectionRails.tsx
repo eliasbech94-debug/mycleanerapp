@@ -1,39 +1,60 @@
 import { Link } from "react-router-dom";
 import { DEMO_MODE } from "@/data/demo";
 import { useDemoMarketplace } from "@/hooks/useDemoMarketplace";
-import { ProviderCard } from "@/components/marketplace/ProviderCard";
-
+import { CompactProviderCard } from "@/components/marketplace/CompactProviderCard";
 
 /**
- * Homepage demo rails — development / preview only.
+ * Homepage rails — development / preview only.
  *
- * Renders the fixture-derived collections (Featured, Most Booked, Top Rated,
- * Fast Response, New This Week, Recently Reviewed, Recommended Near You) plus
- * trending services, so the homepage never looks empty during development.
+ * Simplification pass: only three rails render here (Top Rated, Most Booked,
+ * New on MyCleaner). Together with the "Recommended near you" list rendered
+ * above them the homepage never shows more than four provider rails.
+ *
+ * Deduplication rules:
+ *  - a provider appears in at most TWO rails in total (the primary list above
+ *    counts as one via `primarySlugs`)
+ *  - never twice inside the same rail
+ * If a rail runs out of eligible providers it simply shows fewer cards.
  */
-export default function DemoCollectionRails() {
-  const { collections, trendingServices, scenario } = useDemoMarketplace(8);
+const RAIL_IDS = ["top_rated", "most_booked", "new_this_week"] as const;
+const MAX_RAILS_PER_PROVIDER = 2;
+const CARDS_PER_RAIL = 6;
+
+export default function DemoCollectionRails({ primarySlugs = [] }: { primarySlugs?: string[] }) {
+  const { collections } = useDemoMarketplace(12);
 
   if (!DEMO_MODE || collections.length === 0) return null;
 
-  return (
-    <section
-      aria-label="Demo marketplace-samlinger"
-      className="mx-auto max-w-[1400px] space-y-9 px-5 pb-10 pt-4 lg:px-8"
-    >
-      <div className="flex items-center gap-2">
-        <span className="rounded-full border border-[hsl(var(--mkt-border))] bg-[hsl(var(--mkt-surface-muted))] px-2 py-0.5 text-[10.5px] font-semibold uppercase tracking-wider text-[hsl(var(--mkt-ink-muted))]">
-          Demo · {scenario.label}
-        </span>
-      </div>
+  const usage = new Map<string, number>();
+  primarySlugs.forEach((slug) => usage.set(slug, 1));
 
-      {collections.map((collection) => (
-        <div key={collection.id}>
-          <div className="mb-3 flex items-end justify-between gap-3">
-            <div>
-              <h2 className="text-[18px] font-semibold text-[hsl(var(--mkt-ink))]">{collection.title}</h2>
-              <p className="text-[13px] text-[hsl(var(--mkt-ink-muted))]">{collection.subtitle}</p>
-            </div>
+  const rails = RAIL_IDS.map((id) => collections.find((c) => c.id === id))
+    .filter((c): c is NonNullable<typeof c> => Boolean(c))
+    .map((collection) => {
+      const seen = new Set<string>();
+      const providers = collection.providers
+        .filter((p) => {
+          if (seen.has(p.provider_slug)) return false;
+          if ((usage.get(p.provider_slug) ?? 0) >= MAX_RAILS_PER_PROVIDER) return false;
+          seen.add(p.provider_slug);
+          return true;
+        })
+        .slice(0, CARDS_PER_RAIL);
+      providers.forEach((p) => usage.set(p.provider_slug, (usage.get(p.provider_slug) ?? 0) + 1));
+      return { ...collection, providers };
+    })
+    .filter((c) => c.providers.length > 0);
+
+  if (rails.length === 0) return null;
+
+  return (
+    <div className="mx-auto max-w-[1400px] space-y-14 px-5 pb-20 pt-6 lg:px-8 lg:pt-10">
+      {rails.map((collection) => (
+        <section key={collection.id} aria-label={collection.title}>
+          <div className="mb-5 flex items-baseline justify-between gap-4">
+            <h2 className="text-[19px] font-semibold tracking-tight text-[hsl(var(--mkt-ink))] lg:text-[22px]">
+              {collection.title}
+            </h2>
             <Link
               to="/marketplace"
               className="shrink-0 text-[13.5px] font-semibold text-[hsl(var(--mkt-brand))] hover:underline"
@@ -42,36 +63,18 @@ export default function DemoCollectionRails() {
             </Link>
           </div>
 
-          <ul className="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2">
-            {collection.providers.map((p) => (
-              <li key={`${collection.id}-${p.provider_slug}`} className="w-[240px] shrink-0 snap-start">
-                <ProviderCard provider={p} to={`/p/${p.provider_slug}?src=marketplace_pick`} />
-              </li>
-            ))}
-          </ul>
-
-        </div>
-      ))}
-
-      {trendingServices.length > 0 && (
-        <div>
-          <h2 className="mb-3 text-[18px] font-semibold text-[hsl(var(--mkt-ink))]">Trending services</h2>
-          <ul className="flex flex-wrap gap-2">
-            {trendingServices.map((s) => (
+          <ul className="-mx-5 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-2 lg:mx-0 lg:grid lg:grid-cols-4 lg:overflow-visible lg:px-0">
+            {collection.providers.slice(0, CARDS_PER_RAIL).map((p, i) => (
               <li
-                key={s.service}
-                className="rounded-full border border-[hsl(var(--mkt-border))] bg-[hsl(var(--mkt-surface))] px-3 py-1.5 text-[12.5px] text-[hsl(var(--mkt-ink))]"
+                key={`${collection.id}-${p.provider_slug}`}
+                className={`w-[220px] shrink-0 snap-start lg:w-auto ${i >= 4 ? "lg:hidden" : ""}`}
               >
-                {s.service}
-                <span className="ml-2 text-[hsl(var(--mkt-ink-muted))]">
-                  {s.bookings_last_7_days} bookinger · {s.change_pct > 0 ? "+" : ""}
-                  {s.change_pct}%
-                </span>
+                <CompactProviderCard provider={p} to={`/p/${p.provider_slug}?src=marketplace_pick`} />
               </li>
             ))}
           </ul>
-        </div>
-      )}
-    </section>
+        </section>
+      ))}
+    </div>
   );
 }
