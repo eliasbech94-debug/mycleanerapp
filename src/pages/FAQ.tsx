@@ -26,7 +26,7 @@ const FAQS: Array<{ q: string; a: string }> = [
   },
   {
     q: "Hvornår trækkes betalingen?",
-    a: "Beløbet reserveres, når bookingen bekræftes, og hæves først, når opgaven er markeret som udført.",
+    a: "Beløbet kan være reserveret på dit kort, mens bookingforespørgslen behandles. Det trækkes først, når provideren har accepteret bookingen, og udbetales til provideren, når servicen er udført.",
   },
   {
     q: "Hvad koster det at bruge MyCleaner?",
@@ -50,7 +50,7 @@ const FAQS: Array<{ q: string; a: string }> = [
   },
   {
     q: "Bruger MyCleaner AI?",
-    a: "Vi bruger AI til at foreslå relevante cleaners, hjælpe med prisestimater og besvare almindelige spørgsmål i support. Beslutninger om verifikation, klager og refusion træffes altid af et menneske.",
+    a: "Vi bruger AI til at foreslå relevante cleaners, hjælpe med prisestimater og besvare almindelige spørgsmål i support. Beslutninger om verifikation, klager og refundering træffes altid af et menneske.",
   },
   {
     q: "Kan jeg se cleanerens kalender, før jeg booker?",
@@ -58,15 +58,15 @@ const FAQS: Array<{ q: string; a: string }> = [
   },
   {
     q: "Hvordan afbestiller jeg en booking?",
-    a: "Gå til Mine bookinger, vælg opgaven og tryk Afbestil. Gebyret afhænger af, hvor tæt på starttidspunktet du afbestiller — se Regler.",
+    a: "Gå til Mine bookinger, vælg bookingen og tryk Annuller booking. Hvad en annullering kan koste, og om en refundering er mulig, afhænger af, hvor tæt på starttidspunktet du annullerer — se de gældende vilkår under Regler.",
   },
   {
     q: "Hvordan får jeg refusion?",
-    a: "Åbn en sag via Support. Vi gennemgår forløbet sammen med dig og refunderer via Stripe, hvis sagen godkendes.",
+    a: "Opret en supportsag og beskriv, hvad der er sket. Din anmodning bliver vurderet ud fra bookingens status, dokumentationen på sagen og de gældende vilkår. Bliver en refundering gennemført, afhænger tiden, før beløbet er tilbage, af din bank og betalingsmetode.",
   },
   {
     q: "Hvornår får jeg som cleaner udbetaling?",
-    a: "Udbetalinger sker automatisk via Stripe, når en booking er udført og gennemløbstiden er passeret. Du følger status under Udbetalinger i dit dashboard.",
+    a: "Udbetalinger igangsættes, når bookingen er udført og den fastsatte periode er passeret. Hvornår beløbet står på din konto, afhænger af din bank og betalingsudbyder. Du følger status under Udbetalinger i dit dashboard.",
   },
   {
     q: "Hvad bruger jeg Bilag og regnskab til?",
@@ -83,6 +83,18 @@ const FAQS: Array<{ q: string; a: string }> = [
   {
     q: "Er mine oplysninger sikre?",
     a: "Ja. Data opbevares krypteret, betalinger håndteres af Stripe, og vi deler aldrig dine oplysninger uden dit samtykke.",
+  },
+  {
+    q: "Hvordan får provideren adgang til min bolig?",
+    a: "Du aftaler adgang direkte med din valgte provider — fx personlig åbning, nøgleboks eller dørkode. MyCleaner modtager ikke nøgler, opbevarer ikke nøgler og organiserer ikke nøgleoverdragelse. Du vælger selv adgangsløsningen og har ansvaret for den.",
+  },
+  {
+    q: "Hvad sker der, hvis der opstår en skade?",
+    a: "Opret en supportsag med billeder og en beskrivelse hurtigst muligt. MyCleaner er platformen mellem kunden og provideren. Eventuelle krav vedrørende skade vurderes ud fra dokumentationen, providerens ansvar og de gældende vilkår.",
+  },
+  {
+    q: "Hvad gør jeg, hvis provideren er forsinket eller ikke møder op?",
+    a: "Skriv først i chatten på bookingen — de fleste forsinkelser afklares hurtigt der. Får du ikke svar, kan du oprette en supportsag, så gennemgår support oplysningerne fra begge parter.",
   },
 ];
 
