@@ -176,7 +176,7 @@ export async function createSection(input: {
       title: input.title,
       slug: slugifyKey(input.title, key),
       content_md: content,
-      version: "1.0",
+      version: "1.0.0",
       status: "draft",
       hash: await sha256Hex(content),
       language: input.language,
