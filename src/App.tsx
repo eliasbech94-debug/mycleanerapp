@@ -199,6 +199,8 @@ export function AppRoutes() {
           }
         />
       )}
+      <Route path="/dev/pr46-roadmap" element={<PR46Roadmap />} />
+
       <Route path="/not-found" element={<NotFound />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
