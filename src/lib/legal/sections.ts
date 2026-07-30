@@ -397,6 +397,22 @@ export interface LegalDocumentRef {
   status: string;
   required?: boolean;
   doc_uid?: string | null;
+  category?: string | null;
+  original_language?: string | null;
+  owner_id?: string | null;
+  review_interval_months?: number | null;
+  next_review_at?: string | null;
+  last_review_at?: string | null;
+  word_count?: number | null;
+  reading_minutes?: number | null;
+  section_count?: number | null;
+  approved_by?: string | null;
+  approved_at?: string | null;
+  published_by?: string | null;
+  published_at?: string | null;
+  effective_at?: string | null;
+  created_at?: string | null;
+  legacy_version?: string | null;
 }
 
 /**
