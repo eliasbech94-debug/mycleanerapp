@@ -57,7 +57,7 @@ export function ProviderBookingSidebar({
   return (
     <aside
       data-testid="provider-booking-sidebar"
-      className="sticky top-24 flex flex-col gap-4 rounded-3xl bg-white p-6 shadow-[0_18px_40px_-28px_hsl(222_88%_42%/0.45)] ring-1 ring-[hsl(222_60%_92%)]"
+      className="flex flex-col gap-4 rounded-3xl bg-white p-6 shadow-[0_18px_40px_-28px_hsl(222_88%_42%/0.45)] ring-1 ring-[hsl(222_60%_92%)]"
     >
       {cheapest && (
         <div>
