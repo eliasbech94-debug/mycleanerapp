@@ -34,6 +34,16 @@ type Row = {
   published_at: string | null;
   body_hash?: string | null;
   doc_uid?: string | null;
+  category?: string | null;
+  original_language?: string | null;
+  owner_id?: string | null;
+  review_interval_months?: number | null;
+  last_review_at?: string | null;
+  next_review_at?: string | null;
+  word_count?: number | null;
+  reading_minutes?: number | null;
+  section_count?: number | null;
+  legacy_version?: string | null;
 };
 
 const EMPTY: Partial<Row> = {
@@ -44,7 +54,7 @@ const EMPTY: Partial<Row> = {
   icon: "FileText",
   country_code: "DK",
   language: "da",
-  version: "1.0",
+  version: "1.0.0",
   body_md: "## Overskrift\n\nSkriv indholdet her.",
   status: "draft",
   required: false,
