@@ -98,3 +98,49 @@ Rules that hold regardless of country:
 Preview cases I–P in `/dev/provider-accounting-preview` cover combined income,
 own customers, cash without documentation, foreign currency, platform payouts
 with fees, duplicates, refunds and unclear jurisdictions.
+
+## Monthly accounting report (PDF)
+
+Each provider gets one preliminary accounting report per calendar month,
+generated automatically by a backend job on the 1st of the following month.
+The report is a summary of registered data — **never** an official tax or VAT
+filing, and every rendered document repeats that in its disclaimer.
+
+| Layer | Location |
+| --- | --- |
+| Document model + rules | `src/lib/accounting/monthlyReport.ts` |
+| On-screen renderer | `src/components/accounting/reports/ReportDocumentView.tsx` |
+| Provider UI | `src/components/accounting/reports/MonthlyReportsSection.tsx` (tab "Rapporter") |
+| Admin operations view | `src/pages/admin/AdminAccountingReports.tsx` (`/admin/accounting-reports`) |
+| Preview (cases Q–Z) | `/dev/monthly-report-preview` |
+| Tests | `src/lib/accounting/monthlyReport.test.ts` |
+| Schema proposal | `scripts/staging-required/accounting/migration-003-monthly-reports.proposed.sql` |
+| Generator proposal | `scripts/staging-required/accounting/edge-functions/accounting-monthly-report-generate/index.ts` |
+
+Rules that hold regardless of country:
+
+1. **No frontend legal logic.** The document builder only formats what the
+   authoritative calculation returned. Labels, tax names, deduction guidance
+   and disclaimers come from the rule pack; when no pack is published the
+   report says that no tax guidance is available instead of guessing.
+2. **Frozen snapshot.** Inputs, result, rule-pack version, calculation version
+   and exchange rates are frozen into `snapshot` at generation time and never
+   recomputed. A historical report cannot silently change.
+3. **Corrections supersede, never overwrite.** A new version is inserted and a
+   trigger flips the previous row to `superseded`; the old PDF stays intact.
+4. **Idempotent generation.** `provider:year:month:version:kind` is unique, so
+   job retries cannot produce duplicate reports or duplicate PDFs.
+5. **Empty months produce no PDF** unless the provider explicitly asks for one.
+6. **Private storage only.** Files live in the private
+   `provider-accounting-reports` bucket under `providerId/year/month/vN/`;
+   providers read only their own folder, only the service role writes, and
+   every download is served through a short-lived signed URL and logged.
+7. **No sensitive identifiers in file names.** The file name carries the month
+   and MyCleaner ID only — never a tax, VAT or business registration number.
+8. **Admins see operations, not content.** The admin view lists status, country,
+   rule-pack version and error codes; report content is never exposed there.
+
+Preview cases Q–Z cover a normal month, an empty month, external income only,
+mixed sources, missing documentation, foreign currency, a sales-tax country, a
+country without a published rule pack, a corrected version 2 and a provisional
+mid-month report.
