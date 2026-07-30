@@ -8,6 +8,7 @@ import Header from "@/components/layout/Header";
 import MobileBottomNav from "@/components/layout/MobileBottomNav";
 import Footer from "@/components/layout/Footer";
 import CustomCursor from "@/components/CustomCursor";
+import CookieConsent from "@/components/privacy/CookieConsent";
 import { AuthProvider } from "@/hooks/useAuth";
 import Index from "./pages/Index";
 import MobileHomeGate from "./pages/mobile/MobileHomeGate";
@@ -291,7 +292,7 @@ const App = () => (
               </AppContextProvider>
             </ActiveMarketProvider>
           </AuthProvider>
-
+          <CookieConsent />
         </BrowserRouter>
       </TooltipProvider>
     </AppErrorBoundary>
