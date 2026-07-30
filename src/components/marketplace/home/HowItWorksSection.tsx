@@ -1,20 +1,34 @@
 import { useTranslation } from "react-i18next";
-import { Search, CalendarCheck, Sparkles } from "lucide-react";
+import { Search, CalendarCheck, Sparkles, Truck } from "lucide-react";
 import findCleanerVideo from "@/assets/how-it-works-find-cleaner.mp4.asset.json";
 import bookVideo from "@/assets/how-it-works-book.mp4.asset.json";
+import enjoyVideo from "@/assets/how-it-works-enjoy.mp4.asset.json";
 
+const STEP_VIDEOS: Record<string, string | undefined> = {
+  search: findCleanerVideo.url,
+  book: bookVideo.url,
+  enjoy: enjoyVideo.url,
+};
 
 /**
- * HowItWorksSection — three-step explainer, reusable across all service
+ * HowItWorksSection — four-step explainer, reusable across all service
  * categories. Copy is fully driven by the Localization Engine; icons are
  * the only visual constant.
  */
 export function HowItWorksSection() {
   const { t } = useTranslation("marketplace");
   const steps = [
-    { key: "search", Icon: Search },
-    { key: "book", Icon: CalendarCheck },
-    { key: "enjoy", Icon: Sparkles },
+    { key: "search", Icon: Search, defaults: { title: "Find cleaner", body: "" } },
+    { key: "book", Icon: CalendarCheck, defaults: { title: "Book", body: "" } },
+    {
+      key: "onway",
+      Icon: Truck,
+      defaults: {
+        title: "Cleaner på vej",
+        body: "Følg med når din cleaner er på vej til din adresse.",
+      },
+    },
+    { key: "enjoy", Icon: Sparkles, defaults: { title: "Nyd et rent hjem", body: "" } },
   ] as const;
 
   return (
