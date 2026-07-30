@@ -47,12 +47,14 @@ import {
 import ProviderDashboardV2 from "./pages/provider/ProviderDashboardV2";
 import ProviderProfileV2 from "./pages/provider/ProviderProfileV2";
 import ProviderReceipts from "./pages/ProviderReceipts";
+import ProviderAccounting from "./pages/provider/ProviderAccounting";
 import NotFound from "./pages/NotFound";
 import { isDevPreviewEnabled } from "@/lib/appEnv";
 
 // Development-only visual preview. Lazy so it never lands in the prod entry
 // bundle, and the route below is not registered at all in production.
 const ProviderProfilePreview = lazy(() => import("@/dev/ProviderProfilePreview"));
+const ProviderAccountingPreview = lazy(() => import("@/dev/ProviderAccountingPreview"));
 import FAQ from "./pages/FAQ";
 import Regler from "./pages/Regler";
 import FindCleaner from "./pages/FindCleaner";
@@ -182,6 +184,10 @@ export function AppRoutes() {
         path="/provider/bilag"
         element={<RoleGuard allow={["provider", "admin", "super_admin"]}><ProviderReceipts /></RoleGuard>}
       />
+      <Route
+        path="/provider/accounting"
+        element={<RoleGuard allow={["provider", "admin", "super_admin"]}><ProviderAccounting /></RoleGuard>}
+      />
       <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
       <Route path="/campaigns/verify" element={<CampaignVerify />} />
       <Route path="/campaigns/:slug" element={<CampaignPage />} />
@@ -195,6 +201,16 @@ export function AppRoutes() {
           element={
             <Suspense fallback={null}>
               <ProviderProfilePreview />
+            </Suspense>
+          }
+        />
+      )}
+      {isDevPreviewEnabled() && (
+        <Route
+          path="/dev/provider-accounting-preview"
+          element={
+            <Suspense fallback={null}>
+              <ProviderAccountingPreview />
             </Suspense>
           }
         />
