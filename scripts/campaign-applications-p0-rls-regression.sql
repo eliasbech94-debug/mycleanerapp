@@ -10,7 +10,7 @@
 -- Usage: psql -f scripts/campaign-applications-p0-rls-regression.sql
 -- ============================================================================
 
-\set ON_ERROR_STOP off
+\set ON_ERROR_STOP on
 
 BEGIN;
 
