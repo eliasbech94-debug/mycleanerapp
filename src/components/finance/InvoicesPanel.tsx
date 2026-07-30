@@ -9,6 +9,19 @@ import { formatMoney, formatDate } from "@/lib/finance";
 import { fetchInvoicesList, fetchInvoiceDownloadUrl, type PlatformFeeInvoice, type SettlementStatement } from "@/lib/invoices";
 import { supabase } from "@/integrations/supabase/client";
 
+const PAYOUT_STATUS_LABEL: Record<string, string> = {
+  pending: "Afventer",
+  scheduled: "Planlagt udbetaling",
+  in_transit: "Planlagt udbetaling",
+  paid: "Gennemført udbetaling",
+  failed: "Ikke gennemført",
+  reversed: "Tilbageført",
+};
+
+function payoutLabel(status: string) {
+  return PAYOUT_STATUS_LABEL[status] ?? status;
+}
+
 function TreatmentBadge({ t }: { t: PlatformFeeInvoice["vat_treatment"] }) {
   const label = t === "reverse_charge" ? "Reverse charge"
     : t === "outside_scope" ? "Uden for scope"
