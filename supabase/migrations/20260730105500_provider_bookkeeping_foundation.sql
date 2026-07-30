@@ -31,8 +31,13 @@ CREATE TABLE IF NOT EXISTS public.provider_expenses (
   updated_at timestamptz NOT NULL DEFAULT now(),
   CHECK (country_code = upper(country_code) AND char_length(country_code) = 2),
   CHECK (gross_amount >= 0),
-  CHECK (vat_amount IS NULL OR vat_amount >= 0),
-  CHECK (net_amount IS NULL OR net_amount >= 0),
+  CHECK (vat_amount IS NULL OR (vat_amount >= 0 AND vat_amount <= gross_amount)),
+  CHECK (net_amount IS NULL OR (net_amount >= 0 AND net_amount <= gross_amount)),
+  CHECK (
+    vat_amount IS NULL
+    OR net_amount IS NULL
+    OR abs((net_amount + vat_amount) - gross_amount) <= 0.01
+  ),
   CHECK (deductible_percentage >= 0 AND deductible_percentage <= 100),
   CHECK (extraction_confidence IS NULL OR (extraction_confidence >= 0 AND extraction_confidence <= 1)),
   CHECK ((status = 'approved' AND provider_confirmed_at IS NOT NULL) OR status <> 'approved')
@@ -75,8 +80,15 @@ BEGIN
     NEW.provider_confirmed_at := NULL;
   END IF;
 
-  IF NEW.net_amount IS NULL AND NEW.vat_amount IS NOT NULL THEN
-    NEW.net_amount := greatest(NEW.gross_amount - NEW.vat_amount, 0);
+  IF NEW.vat_amount IS NOT NULL THEN
+    IF NEW.vat_amount > NEW.gross_amount THEN
+      RAISE EXCEPTION 'vat_amount cannot exceed gross_amount';
+    END IF;
+    NEW.net_amount := round((NEW.gross_amount - NEW.vat_amount)::numeric, 2);
+  ELSIF NEW.net_amount IS NULL THEN
+    NEW.net_amount := NEW.gross_amount;
+  ELSIF NEW.net_amount > NEW.gross_amount THEN
+    RAISE EXCEPTION 'net_amount cannot exceed gross_amount';
   END IF;
 
   NEW.updated_at := now();
