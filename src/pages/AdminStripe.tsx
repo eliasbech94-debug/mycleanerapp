@@ -76,7 +76,7 @@ export default function AdminStripe() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="font-heading text-4xl text-foreground">Stripe konfiguration</h1>
-            <p className="text-muted-foreground mt-1">Automatisk test af publishable og secret key</p>
+            <p className="text-muted-foreground mt-1">Automatisk kontrol af publishable key og secret key</p>
           </div>
           <Button variant="outline" size="sm" onClick={load} disabled={loading}>
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} /> Opdater
@@ -152,8 +152,8 @@ export default function AdminStripe() {
         {status?.account && (
           <Card>
             <CardHeader>
-              <CardTitle className="text-xl">Konto detaljer</CardTitle>
-              <CardDescription>Information hentet fra din Stripe konto</CardDescription>
+              <CardTitle className="text-xl">Kontooplysninger</CardTitle>
+              <CardDescription>Oplysninger hentet fra platformens Stripe-konto</CardDescription>
             </CardHeader>
             <CardContent className="space-y-3 text-sm">
               <Row label="Account ID" value={status.account.id} />
@@ -162,7 +162,7 @@ export default function AdminStripe() {
               <Row label="Land" value={status.account.country ?? "—"} />
               <Row label="Standard valuta" value={status.account.default_currency?.toUpperCase() ?? "—"} />
               <Row label="Kan modtage betalinger" value={status.account.charges_enabled ? "Ja" : "Nej"} />
-              <Row label="Kan udbetale" value={status.account.payouts_enabled ? "Ja" : "Nej"} />
+              <Row label="Udbetaling aktiveret" value={status.account.payouts_enabled ? "Ja" : "Nej"} />
               <Row label="Onboarding fuldført" value={status.account.details_submitted ? "Ja" : "Nej"} />
               <a
                 href={secret?.mode === "live" ? "https://dashboard.stripe.com" : "https://dashboard.stripe.com/test"}
