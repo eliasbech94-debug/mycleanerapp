@@ -97,7 +97,7 @@ export function MobileHowItWorksCard() {
           aria-roledescription="carousel"
           className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-1 momentum-scroll [-ms-overflow-style:none] [scrollbar-width:none]"
         >
-          {STEPS.map(({ key, Icon }, idx) => (
+          {STEPS.map(({ key, Icon, defaults }, idx) => (
             <article
               key={key}
               data-slide={idx}
@@ -120,14 +120,14 @@ export function MobileHowItWorksCard() {
                 </span>
               </div>
               <h3 className="mt-3 text-[17px] font-semibold text-[hsl(var(--mkt-ink))]">
-                {t(`how.steps.${key}.title`, key)}
+                {t(`how.steps.${key}.title`, defaults.title)}
               </h3>
               <p className="mt-1.5 text-[13.5px] leading-relaxed text-[hsl(var(--mkt-ink-muted))]">
-                {t(`how.steps.${key}.body`, "")}
+                {t(`how.steps.${key}.body`, defaults.body)}
               </p>
-              {key === "search" || key === "book" ? (
+              {STEP_VIDEOS[key] ? (
                 <video
-                  src={key === "search" ? findCleanerVideo.url : bookVideo.url}
+                  src={STEP_VIDEOS[key]}
                   className="mt-3 aspect-video w-full rounded-xl border border-[hsl(var(--mkt-border))] object-cover"
                   autoPlay
                   muted
