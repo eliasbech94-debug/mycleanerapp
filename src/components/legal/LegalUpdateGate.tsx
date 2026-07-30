@@ -11,6 +11,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useAuth } from "@/hooks/useAuth";
 import { useLegalScope } from "@/hooks/useLegalScope";
 import { acceptLegalDocument, fetchPendingRequired } from "@/lib/legal/api";
+import { fetchChangelog } from "@/lib/legal/sections";
 import { LegalMarkdown } from "@/components/legal/LegalMarkdown";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserRoles } from "@/hooks/useUserRoles";
@@ -67,9 +68,12 @@ export function LegalUpdateGate() {
           </DialogDescription>
         </DialogHeader>
 
+        <LegalUpdateChangelog documentId={doc.id} />
+
         <ScrollArea className="h-64 rounded-xl border border-border p-4">
           <LegalMarkdown content={doc.body_md} />
         </ScrollArea>
+
 
         <Link to={`/legal/${doc.slug}`} className="text-sm text-primary underline underline-offset-4">
           {t("update.readFull", "Læs hele dokumentet")}
@@ -90,5 +94,38 @@ export function LegalUpdateGate() {
         </div>
       </DialogContent>
     </Dialog>
+  );
+}
+
+/** Shows the "what changed" summary from the published changelog, if any. */
+function LegalUpdateChangelog({ documentId }: { documentId: string }) {
+  const { t } = useTranslation("legal");
+  const { data } = useQuery({
+    queryKey: ["legal-changelog", documentId],
+    queryFn: () => fetchChangelog(documentId),
+    staleTime: 10 * 60 * 1000,
+  });
+  const latest = data?.[0];
+  if (!latest) return null;
+
+  return (
+    <section className="rounded-xl border border-border bg-muted/40 p-4">
+      <h3 className="text-sm font-semibold">{t("update.whatChanged", "Hvad er ændret")}</h3>
+      <p className="mt-1 text-sm text-muted-foreground">{latest.summary}</p>
+      {latest.entries.length > 0 && (
+        <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-muted-foreground">
+          {latest.entries.slice(0, 6).map((c, i) => (
+            <li key={i}>
+              {c.kind === "added"
+                ? t("update.changeAdded", "Nyt afsnit")
+                : c.kind === "removed"
+                  ? t("update.changeRemoved", "Fjernet afsnit")
+                  : t("update.changeModified", "Ændret afsnit")}
+              : {c.title}
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
   );
 }

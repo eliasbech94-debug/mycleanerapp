@@ -3,7 +3,8 @@ import { useMemo } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { ChevronRight, Clock, Download, Printer, Share2 } from "lucide-react";
+import { ChevronRight, Clock, Download, FileCode, Printer, Share2 } from "lucide-react";
+import { downloadHtml, printAsPdf } from "@/lib/legal/export";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/hooks/use-toast";
@@ -106,6 +107,13 @@ export default function LegalDocumentPage() {
     );
   }
 
+  const exportMeta = {
+    title: doc.title,
+    version: doc.version,
+    docUid: doc.doc_uid,
+    hash: doc.body_hash,
+  };
+
   return (
     <main className="bg-background">
       <div className="container-wide mx-auto max-w-6xl px-4 py-10 lg:py-16">
@@ -148,6 +156,12 @@ export default function LegalDocumentPage() {
                   <dt className="sr-only">{t("meta.readingTime", "Læsetid")}</dt>
                   <dd>{t("meta.readingTimeValue", "{{count}} min. læsetid", { count: minutes })}</dd>
                 </div>
+                {doc.doc_uid && (
+                  <div className="flex gap-1.5">
+                    <dt>{t("meta.documentId", "Dokument-ID")}:</dt>
+                    <dd className="font-mono text-foreground">{doc.doc_uid}</dd>
+                  </div>
+                )}
               </dl>
 
               <div className="mt-6 flex flex-wrap gap-2 print:hidden">
@@ -155,20 +169,20 @@ export default function LegalDocumentPage() {
                   <Printer className="mr-2 h-4 w-4" aria-hidden="true" />
                   {t("document.print", "Print")}
                 </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled
-                  title={t("document.pdfSoon", "PDF-download kommer snart")}
-                >
+                <Button variant="outline" size="sm" onClick={() => printAsPdf(exportMeta, doc.body_md)}>
                   <Download className="mr-2 h-4 w-4" aria-hidden="true" />
                   {t("document.pdf", "Download PDF")}
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => downloadHtml(exportMeta, doc.body_md, doc.slug)}>
+                  <FileCode className="mr-2 h-4 w-4" aria-hidden="true" />
+                  {t("document.html", "Download HTML")}
                 </Button>
                 <Button variant="outline" size="sm" onClick={share}>
                   <Share2 className="mr-2 h-4 w-4" aria-hidden="true" />
                   {t("document.share", "Del dokument")}
                 </Button>
               </div>
+
             </header>
 
             <LegalMarkdown content={doc.body_md} className="pt-2" />

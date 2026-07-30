@@ -14,6 +14,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
 import { LegalMarkdown } from "@/components/legal/LegalMarkdown";
+import { LegalSectionManager } from "@/components/admin/legal/LegalSectionManager";
 import { sha256Hex } from "@/lib/legal/hash";
 
 type Row = {
@@ -32,6 +33,7 @@ type Row = {
   effective_at: string | null;
   published_at: string | null;
   body_hash?: string | null;
+  doc_uid?: string | null;
 };
 
 const EMPTY: Partial<Row> = {
@@ -59,7 +61,7 @@ export default function AdminLegal() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("legal_documents")
-        .select("id,slug,kind,title,description,icon,country_code,language,version,body_md,body_hash,status,required,effective_at,published_at")
+        .select("id,slug,kind,title,description,icon,country_code,language,version,body_md,body_hash,doc_uid,status,required,effective_at,published_at")
         .order("slug")
         .order("version", { ascending: false });
       if (error) throw error;
@@ -163,10 +165,40 @@ export default function AdminLegal() {
           <Tabs defaultValue="edit">
             <TabsList>
               <TabsTrigger value="edit">{t("admin.edit", "Redigér")}</TabsTrigger>
+              <TabsTrigger value="sections">{t("admin.sections", "Kapitler")}</TabsTrigger>
               <TabsTrigger value="preview">{t("admin.preview", "Preview")}</TabsTrigger>
             </TabsList>
 
+            <TabsContent value="sections" className="mt-6">
+              {selectedId && draft.slug ? (
+                <LegalSectionManager
+                  key={selectedId}
+                  document={{
+                    id: selectedId,
+                    slug: draft.slug ?? "",
+                    kind: draft.kind ?? "policy",
+                    title: draft.title ?? "",
+                    description: draft.description ?? null,
+                    icon: draft.icon ?? null,
+                    country_code: draft.country_code ?? "DK",
+                    language: draft.language ?? "da",
+                    version: draft.version ?? "1.0",
+                    body_md: draft.body_md ?? "",
+                    body_hash: draft.body_hash ?? "",
+                    status: draft.status ?? "draft",
+                    required: Boolean(draft.required),
+                    doc_uid: draft.doc_uid ?? null,
+                  }}
+                />
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  {t("admin.selectDocument", "Vælg et dokument i listen for at arbejde med kapitler.")}
+                </p>
+              )}
+            </TabsContent>
+
             <TabsContent value="edit" className="mt-6 space-y-5">
+
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field id="slug" label={t("admin.slug", "Slug")} value={draft.slug ?? ""} onChange={(v) => setDraft({ ...draft, slug: v })} />
                 <Field id="kind" label={t("admin.kind", "Type")} value={draft.kind ?? ""} onChange={(v) => setDraft({ ...draft, kind: v })} />

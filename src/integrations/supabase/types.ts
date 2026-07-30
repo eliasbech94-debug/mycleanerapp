@@ -4408,6 +4408,185 @@ export type Database = {
           },
         ]
       }
+      legal_audit_log: {
+        Row: {
+          action: string
+          actor_id: string | null
+          created_at: string
+          document_id: string | null
+          id: string
+          metadata: Json
+          new_hash: string | null
+          old_hash: string | null
+          reason: string | null
+          section_id: string | null
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          created_at?: string
+          document_id?: string | null
+          id?: string
+          metadata?: Json
+          new_hash?: string | null
+          old_hash?: string | null
+          reason?: string | null
+          section_id?: string | null
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          created_at?: string
+          document_id?: string | null
+          id?: string
+          metadata?: Json
+          new_hash?: string | null
+          old_hash?: string | null
+          reason?: string | null
+          section_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "legal_audit_log_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "legal_documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "legal_audit_log_section_id_fkey"
+            columns: ["section_id"]
+            isOneToOne: false
+            referencedRelation: "legal_document_sections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      legal_document_changelog: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          doc_uid: string | null
+          document_id: string
+          entries: Json
+          id: string
+          previous_version: string | null
+          published_at: string
+          summary: string | null
+          version: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          doc_uid?: string | null
+          document_id: string
+          entries?: Json
+          id?: string
+          previous_version?: string | null
+          published_at?: string
+          summary?: string | null
+          version: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          doc_uid?: string | null
+          document_id?: string
+          entries?: Json
+          id?: string
+          previous_version?: string | null
+          published_at?: string
+          summary?: string | null
+          version?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "legal_document_changelog_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "legal_documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      legal_document_sections: {
+        Row: {
+          content_md: string
+          created_at: string
+          created_by: string | null
+          document_id: string
+          effective_date: string | null
+          hash: string
+          id: string
+          language: string
+          published_at: string | null
+          published_by: string | null
+          section_key: string
+          section_order: number
+          slug: string
+          status: string
+          title: string
+          translation_of: string | null
+          updated_at: string
+          version: string
+        }
+        Insert: {
+          content_md?: string
+          created_at?: string
+          created_by?: string | null
+          document_id: string
+          effective_date?: string | null
+          hash?: string
+          id?: string
+          language?: string
+          published_at?: string | null
+          published_by?: string | null
+          section_key: string
+          section_order?: number
+          slug: string
+          status?: string
+          title: string
+          translation_of?: string | null
+          updated_at?: string
+          version?: string
+        }
+        Update: {
+          content_md?: string
+          created_at?: string
+          created_by?: string | null
+          document_id?: string
+          effective_date?: string | null
+          hash?: string
+          id?: string
+          language?: string
+          published_at?: string | null
+          published_by?: string | null
+          section_key?: string
+          section_order?: number
+          slug?: string
+          status?: string
+          title?: string
+          translation_of?: string | null
+          updated_at?: string
+          version?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "legal_document_sections_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "legal_documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "legal_document_sections_translation_of_fkey"
+            columns: ["translation_of"]
+            isOneToOne: false
+            referencedRelation: "legal_document_sections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       legal_documents: {
         Row: {
           body_hash: string
@@ -4416,6 +4595,7 @@ export type Database = {
           created_at: string
           created_by: string | null
           description: string | null
+          doc_uid: string | null
           effective_at: string | null
           fallback_to_english: boolean
           icon: string | null
@@ -4430,7 +4610,11 @@ export type Database = {
           summary_md: string | null
           superseded_at: string | null
           title: string | null
+          updated_at: string
           version: string
+          version_major: number
+          version_minor: number
+          version_patch: number
         }
         Insert: {
           body_hash: string
@@ -4439,6 +4623,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           description?: string | null
+          doc_uid?: string | null
           effective_at?: string | null
           fallback_to_english?: boolean
           icon?: string | null
@@ -4453,7 +4638,11 @@ export type Database = {
           summary_md?: string | null
           superseded_at?: string | null
           title?: string | null
+          updated_at?: string
           version: string
+          version_major?: number
+          version_minor?: number
+          version_patch?: number
         }
         Update: {
           body_hash?: string
@@ -4462,6 +4651,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           description?: string | null
+          doc_uid?: string | null
           effective_at?: string | null
           fallback_to_english?: boolean
           icon?: string | null
@@ -4476,7 +4666,11 @@ export type Database = {
           summary_md?: string | null
           superseded_at?: string | null
           title?: string | null
+          updated_at?: string
           version?: string
+          version_major?: number
+          version_minor?: number
+          version_patch?: number
         }
         Relationships: []
       }
