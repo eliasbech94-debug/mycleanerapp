@@ -25,19 +25,35 @@ export * from "./collections";
  * The demo layer is read-only local fixture data: no network requests, no
  * database access, no writes, and therefore no RLS surface at all.
  */
+/** Hostnames that always serve real production data. */
+const PRODUCTION_HOSTS = ["mycleaner.dk", "www.mycleaner.dk", "mycleanerapp.lovable.app"];
+
+const isPreviewHost = (): boolean => {
+  if (typeof window === "undefined") return false;
+  const host = window.location.hostname;
+  if (PRODUCTION_HOSTS.includes(host)) return false;
+  if (host === "localhost" || host === "127.0.0.1" || host.endsWith(".local")) return true;
+  // Lovable sandbox / preview domains
+  if (host.startsWith("id-preview--") || host.endsWith(".lovableproject.com")) return true;
+  return false;
+};
+
 export function isDemoModeEnabled(): boolean {
   try {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const env = (import.meta as any)?.env ?? {};
     if (env.VITE_DEMO_MODE === "false") return false;
+    if (env.PROD === true && !isPreviewHost()) return false;
     if (env.DEV === true) return true;
     if (env.VITE_DEMO_MODE === "true") return true;
     if (env.VITE_ENABLE_DEMO_PROVIDERS === "true") return true;
+    return isPreviewHost();
   } catch {
     /* noop */
   }
   return false;
 }
+
 
 export const DEMO_MODE = isDemoModeEnabled();
 
