@@ -53,6 +53,14 @@ export function HowItWorksSection() {
       },
     },
     { key: "enjoy", Icon: Sparkles, defaults: { title: "Nyd et rent hjem", body: "" } },
+    {
+      key: "rate",
+      Icon: Star,
+      defaults: {
+        title: "Godkend og bedøm cleaner",
+        body: "Godkend opgaven og giv din cleaner en bedømmelse.",
+      },
+    },
   ] as const;
 
   return (
