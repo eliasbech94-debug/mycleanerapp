@@ -76,25 +76,25 @@ export function HowItWorksSection() {
           {t("how.heading", "Fem trin til et rent hjem")}
         </h2>
       </div>
-      <ol className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+      <ol className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         {steps.map(({ key, Icon, defaults }, idx) => (
           <li
             key={key}
-            className="relative rounded-3xl border border-[hsl(var(--mkt-border))] bg-[hsl(var(--mkt-surface))] p-6 shadow-[var(--mkt-shadow-soft)]"
+            className="relative rounded-2xl border border-[hsl(var(--mkt-border))] bg-[hsl(var(--mkt-surface))] p-4 shadow-[var(--mkt-shadow-soft)]"
           >
             <span
-              className="absolute -top-3 left-6 grid h-7 min-w-7 items-center rounded-full bg-[hsl(var(--mkt-brand))] px-2 text-[12px] font-semibold text-[hsl(var(--mkt-brand-on))]"
+              className="absolute -top-3 left-4 grid h-6 min-w-6 items-center rounded-full bg-[hsl(var(--mkt-brand))] px-2 text-[11px] font-semibold text-[hsl(var(--mkt-brand-on))]"
               aria-hidden="true"
             >
               {idx + 1}
             </span>
-            <span className="grid h-11 w-11 place-items-center rounded-2xl bg-[hsl(var(--mkt-brand-soft))] text-[hsl(var(--mkt-brand))]">
-              <Icon className="h-5 w-5" strokeWidth={2.25} aria-hidden="true" />
+            <span className="grid h-9 w-9 place-items-center rounded-xl bg-[hsl(var(--mkt-brand-soft))] text-[hsl(var(--mkt-brand))]">
+              <Icon className="h-4 w-4" strokeWidth={2.25} aria-hidden="true" />
             </span>
-            <h3 className="mt-4 text-[17px] font-semibold text-[hsl(var(--mkt-ink))]">
+            <h3 className="mt-3 text-[15px] font-semibold text-[hsl(var(--mkt-ink))]">
               {t(`how.steps.${key}.title`, defaults.title)}
             </h3>
-            <p className="mt-2 text-[14px] leading-relaxed text-[hsl(var(--mkt-ink-muted))]">
+            <p className="mt-1.5 text-[13px] leading-relaxed text-[hsl(var(--mkt-ink-muted))]">
               {t(`how.steps.${key}.body`, defaults.body)}
             </p>
             {STEP_VIDEOS[key] ? (
@@ -103,7 +103,7 @@ export function HowItWorksSection() {
                   videoRefs.current[idx] = el;
                 }}
                 src={STEP_VIDEOS[key]}
-                className={`mt-4 aspect-video w-full rounded-2xl border object-cover transition-opacity ${
+                className={`mt-3 h-24 w-full rounded-xl border object-cover transition-opacity ${
                   playing === idx
                     ? "border-[hsl(var(--mkt-brand))] opacity-100"
                     : "border-[hsl(var(--mkt-border))] opacity-70"
