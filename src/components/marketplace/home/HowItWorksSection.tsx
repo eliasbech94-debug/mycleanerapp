@@ -89,13 +89,20 @@ export function HowItWorksSection() {
             </p>
             {STEP_VIDEOS[key] ? (
               <video
+                ref={(el) => {
+                  videoRefs.current[idx] = el;
+                }}
                 src={STEP_VIDEOS[key]}
-                className="mt-4 aspect-video w-full rounded-2xl border border-[hsl(var(--mkt-border))] object-cover"
-                autoPlay
+                className={`mt-4 aspect-video w-full rounded-2xl border object-cover transition-opacity ${
+                  playing === idx
+                    ? "border-[hsl(var(--mkt-brand))] opacity-100"
+                    : "border-[hsl(var(--mkt-border))] opacity-70"
+                }`}
+                autoPlay={idx === 0}
                 muted
-                loop
                 playsInline
-                preload="metadata"
+                preload="auto"
+                onEnded={() => setPlaying((idx + 1) % steps.length)}
                 aria-label={t(`how.steps.${key}.videoLabel`, "Sådan virker det")}
               />
             ) : null}
