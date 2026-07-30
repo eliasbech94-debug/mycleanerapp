@@ -92,68 +92,93 @@ export default function AccountingView({
         onCheckDetails={onCheckDetails}
       />
 
-      <PreliminaryResultCard result={result} locale={locale} amountLabel={amountLabel} />
+      <Tabs defaultValue="overview" className="w-full">
+        <TabsList>
+          <TabsTrigger value="overview">Oversigt</TabsTrigger>
+          <TabsTrigger value="income">Indkomst</TabsTrigger>
+        </TabsList>
 
-      <Card>
-        <CardHeader className="pb-2">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <CardTitle className="text-base">Perioder</CardTitle>
-            {rulePack && (
-              <Badge variant="outline">{rulePack.labels.filingPeriodLabel}: {period.kind}</Badge>
-            )}
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-3 text-sm">
-          <div>
-            <h3 className="font-medium text-foreground">Aktuel indberetningsperiode</h3>
-            <p className="text-muted-foreground">
-              {period.periodStart} – {period.periodEnd}
-              {period.status === "closed" ? " (lukket)" : ""}
-            </p>
-          </div>
-          {monthDiffersFromFiling && (
-            <div>
-              <h3 className="font-medium text-foreground">Månedsoversigt</h3>
-              <p className="text-muted-foreground">
-                Månedstal er kun et overblik og er ikke nødvendigvis en officiel
-                indberetningsperiode.
-              </p>
-              {monthlySummary && monthlySummary.length > 0 && (
-                <ul className="mt-2 space-y-1">
-                  {monthlySummary.map((row) => (
-                    <li key={row.label} className="flex justify-between">
-                      <span className="text-muted-foreground">{row.label}</span>
-                      <span className="font-medium text-foreground">
-                        {formatMinor(row.amountMinor, result.accountingCurrency, locale)}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
+        <TabsContent value="overview" className="mt-4 space-y-4">
+          <PreliminaryResultCard result={result} locale={locale} amountLabel={amountLabel} />
+
+          <Card>
+            <CardHeader className="pb-2">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <CardTitle className="text-base">Perioder</CardTitle>
+                {rulePack && (
+                  <Badge variant="outline">
+                    {rulePack.labels.filingPeriodLabel}: {period.kind}
+                  </Badge>
+                )}
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-3 text-sm">
+              <div>
+                <h3 className="font-medium text-foreground">Aktuel indberetningsperiode</h3>
+                <p className="text-muted-foreground">
+                  {period.periodStart} – {period.periodEnd}
+                  {period.status === "closed" ? " (lukket)" : ""}
+                </p>
+              </div>
+              {monthDiffersFromFiling && (
+                <div>
+                  <h3 className="font-medium text-foreground">Månedsoversigt</h3>
+                  <p className="text-muted-foreground">
+                    Månedstal er kun et overblik og er ikke nødvendigvis en officiel
+                    indberetningsperiode.
+                  </p>
+                  {monthlySummary && monthlySummary.length > 0 && (
+                    <ul className="mt-2 space-y-1">
+                      {monthlySummary.map((row) => (
+                        <li key={row.label} className="flex justify-between">
+                          <span className="text-muted-foreground">{row.label}</span>
+                          <span className="font-medium text-foreground">
+                            {formatMinor(row.amountMinor, result.accountingCurrency, locale)}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
               )}
-            </div>
+            </CardContent>
+          </Card>
+
+          {showIndirectTax && rulePack && (
+            <IndirectTaxPanel result={result} rulePack={rulePack} locale={locale} />
           )}
-        </CardContent>
-      </Card>
 
-      {showIndirectTax && rulePack && (
-        <IndirectTaxPanel result={result} rulePack={rulePack} locale={locale} />
-      )}
+          {rulePack ? (
+            <DeductionGuide rulePack={rulePack} registrationType={provider.registrationType} />
+          ) : (
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base">Hvad kan jeg registrere?</CardTitle>
+              </CardHeader>
+              <CardContent className="text-sm text-muted-foreground">
+                <p>Bilagsopsamling og eksport understøttes.</p>
+                <p>Automatisk skattevejledning er endnu ikke aktiveret.</p>
+              </CardContent>
+            </Card>
+          )}
+        </TabsContent>
 
-      {rulePack ? (
-        <DeductionGuide rulePack={rulePack} registrationType={provider.registrationType} />
-      ) : (
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base">Hvad kan jeg registrere?</CardTitle>
-          </CardHeader>
-          <CardContent className="text-sm text-muted-foreground">
-            <p>Bilagsopsamling og eksport understøttes.</p>
-            <p>Automatisk skattevejledning er endnu ikke aktiveret.</p>
-          </CardContent>
-        </Card>
-      )}
+        <TabsContent value="income" className="mt-4">
+          <IncomeTab
+            provider={provider}
+            rulePack={rulePack}
+            period={period}
+            result={result}
+            externalIncome={externalIncome}
+            locale={locale}
+            onCreate={onCreateExternalIncome}
+            onImport={onImportExternalIncome}
+          />
+        </TabsContent>
+      </Tabs>
 
       <AccountingDisclaimer extra={rulePack?.disclaimers} />
+
 
       <CountryRulesDialog
         open={rulesOpen}
