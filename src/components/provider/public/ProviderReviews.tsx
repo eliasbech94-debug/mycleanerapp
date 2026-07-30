@@ -1,6 +1,7 @@
 /** Reviews — lazy-loaded, verified bookings only. Hidden when there is no data. */
 import { useEffect, useRef } from "react";
 import { Star } from "lucide-react";
+import SectionHeading from "./SectionHeading";
 import type { PublicProviderProfile, PublicReview } from "./types";
 
 type Props = {
@@ -32,16 +33,20 @@ export function ProviderReviews({ profile, reviews, onVisible }: Props) {
   return (
     <div ref={ref} data-testid="provider-reviews-anchor">
       {(hasReviews || hasAggregate) && (
-        <section className="space-y-3" data-testid="provider-reviews">
-          <h2 className="text-xl font-bold text-[hsl(224_72%_18%)]">Anmeldelser</h2>
+        <section className="space-y-4" data-testid="provider-reviews">
+          <SectionHeading icon={Star} title="Anmeldelser" tone="amber" />
           {hasAggregate && (
-            <p className="flex items-center gap-2 text-sm text-[hsl(224_20%_45%)]">
-              <Star className="h-4 w-4 fill-amber-400 text-amber-400" aria-hidden="true" />
-              <strong className="text-[hsl(224_72%_18%)]">
+            <div className="flex flex-wrap items-center gap-3 rounded-2xl bg-amber-400/10 px-4 py-3 ring-1 ring-amber-400/30">
+              <Star className="h-6 w-6 fill-amber-400 text-amber-400" aria-hidden="true" />
+              <span className="text-3xl font-extrabold leading-none text-[hsl(224_72%_18%)]">
                 {Number(profile.average_rating).toFixed(1)}
-              </strong>
-              {profile.total_reviews != null && <span>· {profile.total_reviews} anmeldelser</span>}
-            </p>
+              </span>
+              {profile.total_reviews != null && (
+                <span className="text-sm font-medium text-[hsl(224_45%_25%)]">
+                  {profile.total_reviews} anmeldelser
+                </span>
+              )}
+            </div>
           )}
           <ul className="grid gap-3 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 xl:gap-4">
             {(reviews ?? []).map((r) => (
