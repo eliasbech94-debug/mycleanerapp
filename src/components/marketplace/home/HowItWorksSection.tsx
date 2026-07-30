@@ -1,3 +1,4 @@
+import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { Search, CalendarCheck, Sparkles, Truck } from "lucide-react";
 import findCleanerVideo from "@/assets/how-it-works-find-cleaner.mp4.asset.json";
@@ -19,6 +20,25 @@ const STEP_VIDEOS: Record<string, string | undefined> = {
  */
 export function HowItWorksSection() {
   const { t } = useTranslation("marketplace");
+  const [playing, setPlaying] = React.useState(0);
+  const videoRefs = React.useRef<Array<HTMLVideoElement | null>>([]);
+
+  React.useEffect(() => {
+    videoRefs.current.forEach((v, i) => {
+      if (!v) return;
+      if (i === playing) {
+        void v.play().catch(() => undefined);
+      } else {
+        v.pause();
+        try {
+          v.currentTime = 0;
+        } catch {
+          /* ignore */
+        }
+      }
+    });
+  }, [playing]);
+
   const steps = [
     { key: "search", Icon: Search, defaults: { title: "Find cleaner", body: "" } },
     { key: "book", Icon: CalendarCheck, defaults: { title: "Book", body: "" } },
@@ -69,13 +89,20 @@ export function HowItWorksSection() {
             </p>
             {STEP_VIDEOS[key] ? (
               <video
+                ref={(el) => {
+                  videoRefs.current[idx] = el;
+                }}
                 src={STEP_VIDEOS[key]}
-                className="mt-4 aspect-video w-full rounded-2xl border border-[hsl(var(--mkt-border))] object-cover"
-                autoPlay
+                className={`mt-4 aspect-video w-full rounded-2xl border object-cover transition-opacity ${
+                  playing === idx
+                    ? "border-[hsl(var(--mkt-brand))] opacity-100"
+                    : "border-[hsl(var(--mkt-border))] opacity-70"
+                }`}
+                autoPlay={idx === 0}
                 muted
-                loop
                 playsInline
-                preload="metadata"
+                preload="auto"
+                onEnded={() => setPlaying((idx + 1) % steps.length)}
                 aria-label={t(`how.steps.${key}.videoLabel`, "Sådan virker det")}
               />
             ) : null}
