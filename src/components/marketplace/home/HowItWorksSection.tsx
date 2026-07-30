@@ -76,7 +76,7 @@ export function HowItWorksSection() {
           {t("how.heading", "Fire trin til et rent hjem")}
         </h2>
       </div>
-      <ol className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      <ol className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         {steps.map(({ key, Icon, defaults }, idx) => (
           <li
             key={key}
