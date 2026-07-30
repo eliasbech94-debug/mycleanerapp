@@ -205,10 +205,17 @@ export interface AccountingRulePack {
   disclaimers: string[];
   officialGuidanceLinks: { title: string; url: string }[];
 
+  /**
+   * External-income recognition policy. Optional: when absent the engine uses
+   * the conservative fallback in `externalIncome.ts` instead of guessing.
+   */
+  externalIncomeRules?: import("./externalIncome").ExternalIncomeRules;
+
   sources: RulePackSource[];
   verifiedAt: string | null;
   verifiedBy: string | null;
   sourceVersion: string | null;
+
 
   /**
    * Preview/fixture marker. Never true for a pack loaded from the database;
