@@ -163,11 +163,9 @@ describe("duplicates", () => {
 describe("import", () => {
   const csvText = [
     "dato,beskrivelse,beløb,valuta",
-    "2026-05-04,Opgave hos kunde,1.250\\,00,DKK",
+    '2026-05-04,Opgave hos kunde,"1.250,00",DKK',
     "not-a-date,Ugyldig,100,DKK",
-  ]
-    .join("\n")
-    .replace(/\\,/g, ",");
+  ].join("\n");
 
   it("parses amounts into minor units without floats", () => {
     expect(parseAmountToMinor("1.250,00")).toBe(125000);
