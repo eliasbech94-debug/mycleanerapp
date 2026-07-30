@@ -10,6 +10,7 @@ import { MarketplaceStats } from "@/components/marketplace/MarketplaceStats";
 import { CountryConfirmDialog } from "@/components/marketplace/CountryConfirmDialog";
 import { HomeSections } from "@/components/marketplace/home/HomeSections";
 import { DEMO_PROVIDERS, isDemoProvidersEnabled } from "@/data/demoProviders";
+import DemoCollectionRails from "@/components/marketplace/home/DemoCollectionRails";
 
 /**
  * MyCleaner — public homepage v2.2 (Premium Polish sprint).
@@ -66,6 +67,8 @@ export default function Index() {
           <BookingSidebar />
         </div>
       </div>
+
+      <DemoCollectionRails />
 
       <MarketplaceStats />
       <HomeSections slot="bottom" />
