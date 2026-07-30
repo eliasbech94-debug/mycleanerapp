@@ -43,7 +43,7 @@ export interface LegalChangelogEntry {
 }
 
 const SECTION_COLUMNS =
-  "id,document_id,section_key,section_order,title,slug,content_md,version,status,hash,language,translation_of,effective_date,published_at,created_by,published_by,created_at,updated_at";
+  "id,document_id,section_key,section_order,title,slug,content_md,version,status,hash,language,translation_of,effective_date,published_at,created_by,published_by,created_at,updated_at,word_count,reading_minutes";
 
 /* ------------------------------------------------------------------ */
 /* Reads                                                               */
