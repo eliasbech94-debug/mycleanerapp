@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Helmet } from "react-helmet-async";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
@@ -28,11 +27,6 @@ export default function AdminAccountingRules() {
 
   return (
     <main className="mx-auto max-w-7xl space-y-6 p-4 md:p-6">
-      <Helmet>
-        <title>Rule Pack Manager | MyCleaner Admin</title>
-        <meta name="description" content="Administrér internationale regnskabsregler pr. land i MyCleaner." />
-      </Helmet>
-
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold text-foreground">International Rule Pack Manager</h1>
@@ -45,7 +39,7 @@ export default function AdminAccountingRules() {
           onClick={() => {
             const pack = createEmptyRulePack(`draft-${Date.now()}`);
             manager.upsertPack(pack);
-            manager.record("created", pack, "Ny rule pack oprettet som draft.");
+            manager.record("rule_pack_created", pack, "Ny rule pack oprettet som draft.");
             setSelected(pack);
             toast.success("Ny draft oprettet.");
           }}

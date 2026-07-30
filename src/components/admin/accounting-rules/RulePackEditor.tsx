@@ -37,7 +37,7 @@ export interface RulePackEditorProps {
 
 export default function RulePackEditor({ pack, manager, onClose }: RulePackEditorProps) {
   const [draft, setDraft] = useState<AccountingRulePack>(pack);
-  const [json, setJson] = useState(() => exportRulePack(draft, "manual"));
+  const [json, setJson] = useState(() => JSON.stringify(exportRulePack(draft), null, 2));
   const [compareId, setCompareId] = useState("");
 
   const readOnly = draft.status === "published" || draft.status === "retired" || !manager.can("edit");
@@ -60,7 +60,7 @@ export default function RulePackEditor({ pack, manager, onClose }: RulePackEdito
 
   const save = () => {
     manager.upsertPack(draft);
-    manager.record("updated", draft, "Rule pack gemt som lokal arbejdskopi.");
+    manager.record("rule_pack_edited", draft, "Rule pack gemt som lokal arbejdskopi.");
     toast.success("Ændringer gemt i arbejdskopien.");
   };
 
@@ -70,7 +70,7 @@ export default function RulePackEditor({ pack, manager, onClose }: RulePackEdito
   ) => {
     manager.upsertPack(draft);
     const outcome = fn([...manager.packs.filter((p) => p.id !== draft.id), draft], draft.id, manager.actor);
-    if (!outcome.ok) {
+    if (outcome.ok !== true) {
       toast.error(outcome.reason);
       return;
     }
@@ -140,14 +140,14 @@ export default function RulePackEditor({ pack, manager, onClose }: RulePackEdito
           {report.blockingErrors.length > 0 && (
             <ul className="mt-2 space-y-1 rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
               {report.blockingErrors.map((issue) => (
-                <li key={issue.code + issue.path}>{issue.message}</li>
+                <li key={issue.code + issue.field}>{issue.message}</li>
               ))}
             </ul>
           )}
           {report.warnings.length > 0 && (
             <ul className="mt-2 space-y-1 rounded-md border border-border bg-muted/30 p-3 text-sm text-muted-foreground">
               {report.warnings.map((issue) => (
-                <li key={issue.code + issue.path}>{issue.message}</li>
+                <li key={issue.code + issue.field}>{issue.message}</li>
               ))}
             </ul>
           )}
@@ -181,7 +181,7 @@ export default function RulePackEditor({ pack, manager, onClose }: RulePackEdito
             <CardHeader className="flex-row items-center justify-between space-y-0">
               <CardTitle className="text-base">JSON import / eksport</CardTitle>
               <div className="flex gap-2">
-                <Button size="sm" variant="outline" onClick={() => setJson(exportRulePack(draft, "manual"))}>
+                <Button size="sm" variant="outline" onClick={() => setJson(JSON.stringify(exportRulePack(draft), null, 2))}>
                   Eksportér nuværende
                 </Button>
                 <Button
@@ -193,8 +193,8 @@ export default function RulePackEditor({ pack, manager, onClose }: RulePackEdito
                       toast.error(result.errors.join(" "));
                       return;
                     }
-                    setDraft({ ...result.pack, id: draft.id });
-                    manager.record("imported", draft, "Rule pack importeret fra JSON.");
+                    setDraft({ ...result.rulePack, id: draft.id });
+                    manager.record("imported_json", draft, "Rule pack importeret fra JSON.");
                     toast.success("JSON importeret til arbejdskopien.");
                   }}
                 >
