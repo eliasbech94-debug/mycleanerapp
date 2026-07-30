@@ -4,7 +4,7 @@
  * Verifies the real useIsMobileApp hook against route and viewport changes.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { act, render } from "@testing-library/react";
+import { render, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import Footer from "./Footer";
 
@@ -36,16 +36,11 @@ function installMatchMedia() {
 function renderFooter(path: string, width: number) {
   setViewport(width);
   installMatchMedia();
-
-  let result: ReturnType<typeof render>;
-  act(() => {
-    result = render(
-      <MemoryRouter initialEntries={[path]}>
-        <Footer />
-      </MemoryRouter>,
-    );
-  });
-  return result!;
+  return render(
+    <MemoryRouter initialEntries={[path]}>
+      <Footer />
+    </MemoryRouter>,
+  );
 }
 
 describe("Footer contract", () => {
@@ -77,30 +72,30 @@ describe("Footer contract", () => {
 
   it.each(mobileAppRoutes)(
     "removes the footer from the DOM on mobile-app route %s (<768px)",
-    (path) => {
+    async (path) => {
       const { container } = renderFooter(path, 390);
-      expect(container.querySelector("footer")).toBeNull();
+      await waitFor(() => expect(container.querySelector("footer")).toBeNull());
     },
   );
 
   it.each(mobileAppRoutes)(
     "renders the footer on mobile-app route %s at >=768px",
-    (path) => {
+    async (path) => {
       const { container } = renderFooter(path, 1024);
-      expect(container.querySelector("footer")).not.toBeNull();
+      await waitFor(() => expect(container.querySelector("footer")).not.toBeNull());
     },
   );
 
-  it("renders the footer on non-app public routes at every viewport", () => {
+  it("renders the footer on non-app public routes at every viewport", async () => {
     for (const path of ["/faq", "/regler", "/privacy"]) {
       const { container, unmount } = renderFooter(path, 390);
-      expect(container.querySelector("footer")).not.toBeNull();
+      await waitFor(() => expect(container.querySelector("footer")).not.toBeNull());
       unmount();
     }
   });
 
-  it("does not reserve any hidden footer height when suppressed", () => {
+  it("does not reserve any hidden footer height when suppressed", async () => {
     const { container } = renderFooter("/marketplace", 390);
-    expect(container.firstChild).toBeNull();
+    await waitFor(() => expect(container.firstChild).toBeNull());
   });
 });
