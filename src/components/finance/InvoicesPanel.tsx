@@ -99,7 +99,7 @@ export function InvoicesPanel({ scope }: { scope: "provider" | "admin" }) {
           <div>
             <CardTitle>Fakturaer for platformgebyr</CardTitle>
             <p className="text-xs text-muted-foreground mt-1">
-              MyCleaner er platformen mellem kunden og provideren og fakturerer alene sit eget platformgebyr. Momsbehandlingen afhænger af providerens skatteoplysninger.
+              MyCleaner-platformen formidler kontakten mellem kunden og den selvstændige provider og fakturerer alene sit eget platformgebyr. Momsbehandlingen afhænger af providerens skatteoplysninger.
             </p>
           </div>
           {scope === "admin" && (
@@ -152,9 +152,9 @@ export function InvoicesPanel({ scope }: { scope: "provider" | "admin" }) {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
-            <CardTitle>Afregningsoversigter til providere</CardTitle>
+            <CardTitle>Afregningsoversigter til selvstændige providere</CardTitle>
             <p className="text-xs text-muted-foreground mt-1">
-              Finansiel afregningsoversigt pr. booking. Dette er <strong>ikke</strong> en momsfaktura fra MyCleaner — provideren er selv ansvarlig for eventuel kundefakturering og momsafregning.
+              Afregningsoversigt pr. booking. Dette er <strong>ikke</strong> en momsfaktura fra MyCleaner — den selvstændige provider er selv ansvarlig for eventuel kundefakturering og momsafregning. Det præcise tidspunkt, hvor en udbetaling er synlig på kontoen, afhænger af betalingsudbyderen og providerens bank.
             </p>
           </div>
           {scope === "admin" && (
@@ -174,10 +174,10 @@ export function InvoicesPanel({ scope }: { scope: "provider" | "admin" }) {
                   <TableHead>Nummer</TableHead>
                   <TableHead>Udstedt</TableHead>
                   <TableHead>Booking</TableHead>
-                  <TableHead className="text-right">Brutto</TableHead>
+                  <TableHead className="text-right">Kundens betaling</TableHead>
                   <TableHead className="text-right">Refundering</TableHead>
                   <TableHead className="text-right">Platformgebyr</TableHead>
-                  <TableHead className="text-right">Providerens udbetaling</TableHead>
+                  <TableHead className="text-right">Providerens indtjening</TableHead>
                   <TableHead>Udbetalingsstatus</TableHead>
                   <TableHead></TableHead>
                 </TableRow>
@@ -192,7 +192,7 @@ export function InvoicesPanel({ scope }: { scope: "provider" | "admin" }) {
                     <TableCell className="text-right text-muted-foreground">{formatMoney(s.refund_amount, s.currency)}</TableCell>
                     <TableCell className="text-right">- {formatMoney(s.platform_fee_amount, s.currency)}</TableCell>
                     <TableCell className="text-right font-semibold">{formatMoney(s.provider_net_amount, s.currency)}</TableCell>
-                    <TableCell><Badge variant="secondary">{s.payout_status}</Badge></TableCell>
+                    <TableCell><Badge variant="secondary">{payoutLabel(s.payout_status)}</Badge></TableCell>
                     <TableCell>
                       <Button size="sm" variant="ghost" onClick={() => download("statement", s.id)}>
                         <FileText className="h-4 w-4 mr-1" /> PDF
