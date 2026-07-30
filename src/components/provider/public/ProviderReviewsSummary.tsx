@@ -37,14 +37,14 @@ export function ProviderReviewsSummary({ profile, reviews, fullListId }: Props) 
       <h2 className="text-base font-bold text-[hsl(224_72%_18%)]">Anmeldelser</h2>
 
       {hasAggregate && (
-        <div className="mt-2 flex items-baseline gap-2">
-          <Star className="h-5 w-5 self-center fill-amber-400 text-amber-400" aria-hidden="true" />
-          <span className="text-2xl font-bold text-[hsl(224_72%_18%)]">
+        <div className="mt-3 flex items-center gap-3 rounded-2xl bg-amber-400/10 px-3 py-2.5 ring-1 ring-amber-400/30">
+          <Star className="h-5 w-5 shrink-0 fill-amber-400 text-amber-400" aria-hidden="true" />
+          <span className="text-2xl font-extrabold leading-none text-[hsl(224_72%_18%)]">
             {Number(profile.average_rating).toFixed(1)}
           </span>
           {profile.total_reviews != null && (
-            <span className="text-sm text-[hsl(224_20%_45%)]">
-              · {profile.total_reviews} anmeldelser
+            <span className="text-sm font-medium text-[hsl(224_45%_25%)]">
+              {profile.total_reviews} anmeldelser
             </span>
           )}
         </div>

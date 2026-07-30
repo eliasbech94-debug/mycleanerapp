@@ -2,6 +2,7 @@
 import { Briefcase, Building2, Globe, Sparkles } from "lucide-react";
 import type { PublicProviderProfile, PublicWorkHistoryEntry } from "./types";
 import { formatPeriod, languageLabel, serviceLabel } from "./format";
+import SectionHeading from "./SectionHeading";
 
 type Props = {
   profile: PublicProviderProfile;
