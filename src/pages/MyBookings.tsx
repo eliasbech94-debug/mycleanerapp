@@ -27,12 +27,40 @@ type Booking = {
 
 type TabKey = "overview" | "plan";
 
-const STATUS_LABEL: Record<Booking["status"], { label: string; bg: string; fg: string }> = {
-  pending: { label: "Afventer cleaner", bg: "#ffe9b8", fg: "#8a5a00" },
-  accepted: { label: "Accepteret", bg: C.mint, fg: C.ink },
-  declined: { label: "Afvist", bg: "#f5c2b8", fg: "#8a2e1c" },
-  cancelled: { label: "Annulleret", bg: "#e6e2d2", fg: C.ink },
-  completed: { label: "Udført", bg: C.teal, fg: C.cream },
+const STATUS_LABEL: Record<
+  Booking["status"],
+  { label: string; help: string; bg: string; fg: string }
+> = {
+  pending: {
+    label: "Afventer provider",
+    help: "Din bookingforespørgsel er sendt. Provideren svarer hurtigst muligt — du får besked her og i din indbakke.",
+    bg: "#ffe9b8",
+    fg: "#8a5a00",
+  },
+  accepted: {
+    label: "Accepteret",
+    help: "Provideren har accepteret din booking. Du behøver ikke gøre mere før dagen.",
+    bg: C.mint,
+    fg: C.ink,
+  },
+  declined: {
+    label: "Afvist",
+    help: "Provideren kunne ikke tage denne tid. Du kan vælge et andet tidspunkt eller finde en anden provider.",
+    bg: "#f5c2b8",
+    fg: "#8a2e1c",
+  },
+  cancelled: {
+    label: "Annulleret",
+    help: "Bookingen er annulleret. Er der reserveret et beløb, frigives det automatisk.",
+    bg: "#e6e2d2",
+    fg: C.ink,
+  },
+  completed: {
+    label: "Udført",
+    help: "Opgaven er markeret som afsluttet. Skriv til support, hvis noget ikke stemmer.",
+    bg: C.teal,
+    fg: C.cream,
+  },
 };
 
 export default function MyBookings() {
