@@ -45,7 +45,6 @@ import {
 } from "./pages/support/SupportShell";
 
 import ProviderDashboardV2 from "./pages/provider/ProviderDashboardV2";
-import Pr46Preview from "./pages/__Pr46Preview";
 import ProviderProfileV2 from "./pages/provider/ProviderProfileV2";
 import ProviderReceipts from "./pages/ProviderReceipts";
 import NotFound from "./pages/NotFound";
@@ -166,7 +165,6 @@ export function AppRoutes() {
       <Route path="/mine-bookinger" element={<MobileBookingsGate />} />
       <Route path="/booking/:id/plan" element={<BookingPlan />} />
       <Route path="/provider-dashboard" element={<RoleGuard allow={["provider", "admin"]}><ProviderDashboardV2 /></RoleGuard>} />
-      <Route path="/__pr46" element={<Pr46Preview />} />
       <Route path="/provider" element={<RoleGuard allow={["provider", "admin"]}><ProviderDashboardV2 /></RoleGuard>} />
       <Route path="/provider/pricing" element={<RoleGuard allow={["provider", "admin"]}><ProviderPricing /></RoleGuard>} />
       <Route path="/admin/pricing" element={<RoleGuard allow={["admin"]}><AdminPricing /></RoleGuard>} />
