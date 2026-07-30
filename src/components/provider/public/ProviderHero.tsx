@@ -1,9 +1,13 @@
 /**
  * Hero — provider identity. 100% database driven; the mockup only defines layout.
  */
+import { useState } from "react";
 import { BadgeCheck, Heart, MapPin, Sparkles, Star } from "lucide-react";
 import type { AvailabilityStatus, PresenceStatus, PublicProviderProfile } from "./types";
 import { formatDistance } from "./format";
+import ProviderIntroVideoTrigger from "./ProviderIntroVideoTrigger";
+import ProviderIntroVideoDialog from "./ProviderIntroVideoDialog";
+import { publicIntroVideo } from "./providerIntroVideoTypes";
 
 const AVAILABILITY_META: Record<AvailabilityStatus, { dot: string; label: string; text: string }> = {
   available: { dot: "bg-emerald-500", label: "Tilgængelig", text: "text-emerald-600" },
