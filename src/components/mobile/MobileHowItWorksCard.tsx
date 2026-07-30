@@ -31,6 +31,7 @@ const STEPS = [
 const STEP_VIDEOS: Record<string, string | undefined> = {
   search: findCleanerVideo.url,
   book: bookVideo.url,
+  onway: onwayVideo.url,
   enjoy: enjoyVideo.url,
 };
 
