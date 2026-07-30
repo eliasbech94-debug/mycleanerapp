@@ -107,7 +107,7 @@ export function MobileHowItWorksCard() {
               id="mobile-how-heading"
               className="mt-1 font-heading text-[20px] leading-tight tracking-[-0.01em] text-[hsl(var(--mkt-ink))]"
             >
-              {t("how.heading", "Tre trin til et rent hjem")}
+              {t("how.heading", "Fem trin til et rent hjem")}
             </h2>
           </div>
           <span

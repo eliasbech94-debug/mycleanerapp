@@ -73,7 +73,7 @@ export function HowItWorksSection() {
           id="how-it-works-title"
           className="mt-2 font-serif text-[28px] leading-tight tracking-[-0.02em] text-[hsl(var(--mkt-ink))] sm:text-[36px]"
         >
-          {t("how.heading", "Fire trin til et rent hjem")}
+          {t("how.heading", "Fem trin til et rent hjem")}
         </h2>
       </div>
       <ol className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
