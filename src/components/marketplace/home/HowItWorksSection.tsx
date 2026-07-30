@@ -3,10 +3,12 @@ import { Search, CalendarCheck, Sparkles, Truck } from "lucide-react";
 import findCleanerVideo from "@/assets/how-it-works-find-cleaner.mp4.asset.json";
 import bookVideo from "@/assets/how-it-works-book.mp4.asset.json";
 import enjoyVideo from "@/assets/how-it-works-enjoy.mp4.asset.json";
+import onwayVideo from "@/assets/how-it-works-onway.mp4.asset.json";
 
 const STEP_VIDEOS: Record<string, string | undefined> = {
   search: findCleanerVideo.url,
   book: bookVideo.url,
+  onway: onwayVideo.url,
   enjoy: enjoyVideo.url,
 };
 

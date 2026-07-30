@@ -12,6 +12,7 @@ import { Search, CalendarCheck, Sparkles, Truck, ChevronRight, ChevronLeft } fro
 import findCleanerVideo from "@/assets/how-it-works-find-cleaner.mp4.asset.json";
 import bookVideo from "@/assets/how-it-works-book.mp4.asset.json";
 import enjoyVideo from "@/assets/how-it-works-enjoy.mp4.asset.json";
+import onwayVideo from "@/assets/how-it-works-onway.mp4.asset.json";
 
 const STEPS = [
   { key: "search", Icon: Search, defaults: { title: "Find cleaner", body: "" } },
@@ -30,6 +31,7 @@ const STEPS = [
 const STEP_VIDEOS: Record<string, string | undefined> = {
   search: findCleanerVideo.url,
   book: bookVideo.url,
+  onway: onwayVideo.url,
   enjoy: enjoyVideo.url,
 };
 
