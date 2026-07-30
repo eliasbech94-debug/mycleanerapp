@@ -30,10 +30,10 @@ interface RefundRow {
 }
 
 const REFUND_STATUS_LABEL: Record<string, string> = {
-  pending: "Afventer admin",
+  pending: "Under vurdering",
   approved: "Godkendt",
   rejected: "Afvist",
-  executed: "Udført",
+  executed: "Refundering gennemført",
   cancelled: "Annulleret",
 };
 
@@ -71,7 +71,7 @@ export function RefundRequestDialog({ conversation }: Props) {
     if (guardFinancialAction(() => setLockOpen(true))) return;
     const cents = Math.round(Number(amount) * 100);
     if (!Number.isFinite(cents) || cents <= 0) {
-      toast.error("Beløbet skal være større end 0.");
+      toast.error("Angiv et beløb større end 0.");
       return;
     }
     setBusy(true);
@@ -87,11 +87,11 @@ export function RefundRequestDialog({ conversation }: Props) {
       });
       if (error) throw error;
       if ((data as any)?.error) throw new Error(String((data as any).error));
-      toast.success("Refunderings-anmodning oprettet. Admin gennemgår den.");
+      toast.success("Anmodningen om refundering er modtaget og bliver vurderet.");
       setAmount(""); setReason("");
       qc.invalidateQueries({ queryKey: ["support", "refund-requests", convId] });
     } catch (e) {
-      toast.error((e as Error).message || "Kunne ikke oprette anmodning");
+      toast.error("Anmodningen blev ikke oprettet. Prøv igen om lidt.");
     } finally {
       setBusy(false);
     }
@@ -104,21 +104,20 @@ export function RefundRequestDialog({ conversation }: Props) {
       <DialogTrigger asChild>
         <Button variant="outline" size="sm" className="h-8">
           <Banknote className="h-3.5 w-3.5 mr-1" />
-          Refundering
+          Anmod om refundering
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle>Anmod om refundering</DialogTitle>
           <DialogDescription>
-            Support opretter kun en anmodning. Admin gennemgår og udfører den
-            faktiske refundering via Stripe.
+            Support opretter kun en anmodning. En eventuel refundering afhænger af bookingens status og de gældende vilkår, og gennemføres først efter admins vurdering. Udbetalingstiden afhænger af kundens bank og betalingsmetode.
           </DialogDescription>
         </DialogHeader>
 
         <div className="grid grid-cols-3 gap-3">
           <div className="col-span-2 space-y-1">
-            <Label htmlFor="rf-amount">Beløb</Label>
+            <Label htmlFor="rf-amount">Beløb til refundering</Label>
             <Input
               id="rf-amount" type="number" step="0.01" min="0"
               value={amount} onChange={(e) => setAmount(e.target.value)}
@@ -139,7 +138,7 @@ export function RefundRequestDialog({ conversation }: Props) {
           <Textarea
             id="rf-reason" rows={3} maxLength={1000}
             value={reason} onChange={(e) => setReason(e.target.value)}
-            placeholder="Fx. Provider mødte ikke op, kundeklage godkendt af QA."
+            placeholder="Beskriv kort, hvad der er sket, og hvilken dokumentation der ligger på sagen."
           />
         </div>
 
@@ -150,7 +149,7 @@ export function RefundRequestDialog({ conversation }: Props) {
               <Loader2 className="h-3 w-3 animate-spin" /> Henter…
             </div>
           ) : (refunds?.length ?? 0) === 0 ? (
-            <p className="text-xs text-muted-foreground">Ingen anmodninger endnu.</p>
+            <p className="text-xs text-muted-foreground">Der er endnu ikke anmodet om refundering på denne sag.</p>
           ) : (
             <ul className="space-y-1.5 max-h-40 overflow-y-auto text-sm">
               {refunds!.map((r) => (
@@ -174,10 +173,10 @@ export function RefundRequestDialog({ conversation }: Props) {
 
         <DialogFooter>
           <Button variant="outline" onClick={() => setOpen(false)} disabled={busy}>
-            Luk
+            Luk vindue
           </Button>
           <Button onClick={submit} disabled={busy || reason.trim().length < 3 || !amount}>
-            {busy ? "Sender…" : "Opret anmodning"}
+            {busy ? "Sender…" : "Anmod om refundering"}
           </Button>
         </DialogFooter>
       </DialogContent>
