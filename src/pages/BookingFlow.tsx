@@ -838,7 +838,10 @@ function EditAccessDialog({
       <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="font-display text-2xl">Rediger adgang & kæledyr</DialogTitle>
-          <div className="text-xs opacity-70">Ændringer gemmes på "{address.label}" i din adressebog.</div>
+          <div className="text-xs opacity-70">
+            Ændringer gemmes på "{address.label}" i din adressebog. Du aftaler selv adgang direkte
+            med provideren — MyCleaner modtager eller opbevarer ikke nøgler.
+          </div>
         </DialogHeader>
 
         <div className="space-y-3 py-2">
