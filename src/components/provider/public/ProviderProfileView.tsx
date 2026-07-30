@@ -16,6 +16,10 @@ import ProviderExperience from "./ProviderExperience";
 import ProviderReviews from "./ProviderReviews";
 import ProviderStickyCta from "./ProviderStickyCta";
 import ProviderBookingSidebar from "./ProviderBookingSidebar";
+import ProviderReviewsSummary from "./ProviderReviewsSummary";
+
+/** Anchor for the full review list, linked from the sidebar summary. */
+const FULL_REVIEWS_ID = "anmeldelser";
 import type {
   AvailabilityStatus,
   PresenceStatus,
