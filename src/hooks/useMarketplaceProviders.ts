@@ -1,6 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { selectDemoProviders } from "@/data/demo";
+import {
+  DEMO_MODE,
+  DEMO_PROVIDERS_ALL,
+  selectDemoProviders,
+  selectDemoProvidersWithMinimum,
+} from "@/data/demo";
 
 
 /**
