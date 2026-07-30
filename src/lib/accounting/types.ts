@@ -99,6 +99,13 @@ export interface ExpenseCategoryRule {
   localConditions: string[];
   warningText: string | null;
   officialGuidanceReference: string | null;
+  /** Authored in the Rule Pack Manager. Presentation + AI hints only. */
+  icon?: string | null;
+  sortOrder?: number | null;
+  mixedUseAllowed?: boolean;
+  capitalAsset?: boolean;
+  requiresManualReview?: boolean;
+  aiKeywords?: string[];
 }
 
 export interface IndirectTaxRateRule {

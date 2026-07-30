@@ -64,6 +64,7 @@ import { ProviderFinance, AdminFinance } from "./pages/finance/FinancePages";
 import AdminDisputes from "./pages/AdminDisputes";
 import ProviderDisputes from "./pages/ProviderDisputes";
 import { RoleGuard } from "@/components/RoleGuard";
+import AdminAccountingRules from "@/pages/admin/AdminAccountingRules";
 import CampaignPage from "./pages/campaigns/CampaignPage";
 import CampaignVerify from "./pages/campaigns/CampaignVerify";
 import AdminCampaigns from "./pages/admin/AdminCampaigns";
@@ -153,6 +154,7 @@ export function AppRoutes() {
       <Route path="/admin/stripe" element={<RoleGuard allow={["admin"]}><AdminStripe /></RoleGuard>} />
       <Route path="/admin/webhooks" element={<RoleGuard allow={["admin"]}><AdminWebhooks /></RoleGuard>} />
       <Route path="/admin/payments" element={<RoleGuard allow={["admin"]}><AdminPayments /></RoleGuard>} />
+      <Route path="/admin/accounting-rules" element={<RoleGuard allow={["admin", "super_admin"]}><AdminAccountingRules /></RoleGuard>} />
       <Route path="/admin/access-logs" element={<RoleGuard allow={["admin"]}><AdminAccessLogs /></RoleGuard>} />
       <Route path="/employee" element={<RoleGuard allow={["employee"]}><EmployeeDashboard /></RoleGuard>} />
       <Route path="/support" element={<RoleGuard allow={["support", "admin"]}><SupportHome /></RoleGuard>} />
