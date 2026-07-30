@@ -14,6 +14,8 @@ import {
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { selectDemoProviders } from "@/data/demo";
+import { ProviderCard as SharedProviderCard, type ProviderCardData } from "@/components/marketplace/ProviderCard";
+
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const rpc = (name: string, args?: Record<string, unknown>) => (supabase.rpc as any)(name, args);
@@ -228,55 +230,12 @@ export default function Marketplace() {
 
 function ProviderCard({ r, isFav, onToggleFav }: { r: Row; isFav: boolean; onToggleFav: () => void }) {
   return (
-    <Card className="group overflow-hidden transition-shadow hover:shadow-lg">
-      <div className="relative aspect-[4/3] bg-gradient-to-br from-primary/20 to-accent/20">
-        {r.avatar_url && (
-          <img src={r.avatar_url} alt={r.display_name} className="h-full w-full object-cover" loading="lazy" />
-        )}
-        <button
-          type="button"
-          onClick={(e) => { e.preventDefault(); onToggleFav(); }}
-          className="absolute right-2 top-2 rounded-full bg-background/80 p-2 shadow backdrop-blur transition hover:bg-background"
-          aria-label={isFav ? "Fjern favorit" : "Tilføj til favoritter"}
-        >
-          <Heart className={`h-4 w-4 ${isFav ? "fill-red-500 text-red-500" : ""}`} />
-        </button>
-        <div className="absolute left-2 top-2 flex gap-1">
-          {r.identity_verified_badge && <Badge className="bg-green-600 text-white">Verificeret</Badge>}
-          {r.provider_tier && <Badge variant="secondary" className="capitalize">{r.provider_tier}</Badge>}
-        </div>
-      </div>
-      <CardContent className="p-4">
-        <Link to={`/p/${r.provider_slug}?src=marketplace_pick`} className="block">
-          <div className="flex items-start justify-between gap-2">
-            <h3 className="font-serif text-lg leading-tight group-hover:underline">{r.display_name}</h3>
-            {r.marketplace_score !== null && (
-              <div className="flex items-center gap-1 text-sm">
-                <Sparkles className="h-4 w-4 text-primary" />{r.marketplace_score}
-              </div>
-            )}
-          </div>
-          {r.public_bio && <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{r.public_bio}</p>}
-          <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-            {r.country_code && <span className="inline-flex items-center gap-1"><MapPin className="h-3 w-3" />{r.country_code} · {r.service_radius_km ?? 10} km</span>}
-            {r.avg_response_minutes !== null && <span>Svar ~{r.avg_response_minutes} min</span>}
-            {r.completed_bookings > 0 && <span>{r.completed_bookings} bookinger</span>}
-          </div>
-          <div className="mt-3 flex flex-wrap gap-1">
-            {(r.service_categories ?? []).slice(0, 3).map((c) => <Badge key={c} variant="outline" className="capitalize">{c}</Badge>)}
-          </div>
-          <div className="mt-3 flex items-center justify-between">
-            <div className="text-sm">
-              {r.average_rating > 0 && (
-                <span className="inline-flex items-center gap-1"><Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />{r.average_rating.toFixed(1)} <span className="text-muted-foreground">({r.total_reviews})</span></span>
-              )}
-            </div>
-            <div className="text-right">
-              {r.price_from !== null && <div className="text-sm font-medium">fra {r.price_from} kr/t</div>}
-            </div>
-          </div>
-        </Link>
-      </CardContent>
-    </Card>
+    <SharedProviderCard
+      provider={r as unknown as ProviderCardData}
+      to={`/p/${r.provider_slug}?src=marketplace_pick`}
+      isFavorite={isFav}
+      onToggleFavorite={onToggleFav}
+    />
   );
 }
+

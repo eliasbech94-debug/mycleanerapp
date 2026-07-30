@@ -43,6 +43,8 @@ import { PullIndicator } from "@/components/mobile/PullIndicator";
 import { MobileServicesCarousel } from "@/components/mobile/MobileServicesCarousel";
 import { MobileHowItWorksCard } from "@/components/mobile/MobileHowItWorksCard";
 import { CampaignSection } from "@/components/marketplace/home/CampaignSection";
+import { ProviderCard } from "@/components/marketplace/ProviderCard";
+
 
 const HomeSections = lazy(() =>
   import("@/components/marketplace/home/HomeSections").then((m) => ({ default: m.HomeSections })),
@@ -240,45 +242,20 @@ function FeaturedCleanersCarousel({ refreshNonce = 0 }: { refreshNonce?: number 
           className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth px-4 pb-1 [-ms-overflow-style:none] [scrollbar-width:none]"
           style={{ WebkitOverflowScrolling: "touch" }}
         >
-          {data.map((p: any) => {
-            const slug = p.slug || p.public_slug || p.id;
+          {data.map((raw) => {
+            const p = raw as typeof raw & { slug?: string; public_slug?: string; id?: string; name?: string };
+            const slug = p.provider_slug || p.slug || p.public_slug || p.id || "";
+
             return (
-              <Link
-                key={p.id}
+              <ProviderCard
+                key={slug}
+                provider={{ ...p, provider_slug: slug, display_name: p.display_name || p.name || "Cleaner" }}
                 to={`/p/${slug}`}
-                className="tap-target block w-[160px] shrink-0 snap-start rounded-2xl border border-[hsl(var(--mkt-border))] bg-[hsl(var(--mkt-surface))] p-3 shadow-[var(--app-shadow-card,0_1px_2px_rgba(0,0,0,0.04))]"
-              >
-                <div className="mb-2 h-[92px] w-full overflow-hidden rounded-xl bg-[hsl(var(--mkt-brand-soft))]">
-                  {p.avatar_url ? (
-                    <img
-                      src={p.avatar_url}
-                      alt=""
-                      loading="lazy"
-                      className="h-full w-full object-cover"
-                    />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center text-[hsl(var(--mkt-brand))]">
-                      <Sparkles className="h-6 w-6" aria-hidden />
-                    </div>
-                  )}
-                </div>
-                <div className="truncate text-[13.5px] font-semibold text-[hsl(var(--mkt-ink))]">
-                  {p.display_name || p.name || "Cleaner"}
-                </div>
-                <div className="mt-0.5 flex items-center gap-1 text-[11.5px] text-[hsl(var(--mkt-ink-muted))]">
-                  {typeof p.rating === "number" ? (
-                    <>
-                      <Star className="h-3 w-3 fill-current text-[hsl(var(--mkt-brand))]" aria-hidden />
-                      {p.rating.toFixed(1)}
-                    </>
-                  ) : (
-                    <MapPin className="h-3 w-3" aria-hidden />
-                  )}
-                  <span className="truncate">{p.city || p.country_code || ""}</span>
-                </div>
-              </Link>
+                className="w-[212px] shrink-0 snap-start"
+              />
             );
           })}
+
         </div>
       )}
     </Section>
