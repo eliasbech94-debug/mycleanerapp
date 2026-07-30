@@ -54,28 +54,28 @@ function CurrencyBlock({
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <KPI
-          label={scope === "admin" ? "Netto omsætning" : "Netto omsætning (dig)"}
+          label={scope === "admin" ? "Netto omsætning" : "Din netto omsætning"}
           value={formatMoney(totals.gross_revenue, cur)}
           icon={TrendingUp}
-          hint={`${totals.bookings_count} bookinger • Refunderet ${formatMoney(totals.refunded_amount, cur)}`}
+          hint={`${totals.bookings_count} bookinger • Refundering ${formatMoney(totals.refunded_amount, cur)}`}
         />
         <KPI
-          label={scope === "admin" ? "Platform kommission" : "Platform-gebyr"}
+          label={scope === "admin" ? "Platformgebyr" : "Platformgebyr"}
           value={formatMoney(totals.platform_commission, cur)}
           icon={Percent}
           hint="Justeret for refunderinger"
         />
         <KPI
-          label={scope === "admin" ? "Provider netto" : "Din netto"}
+          label={scope === "admin" ? "Providerens indtjening" : "Din indtjening"}
           value={formatMoney(totals.provider_net, cur)}
           icon={Receipt}
           hint="Justeret for refunderinger"
         />
         <KPI
-          label="Udbetalt via Stripe"
+          label="Gennemført udbetaling"
           value={formatMoney(payouts?.paid ?? 0, cur)}
           icon={Wallet}
-          hint={`Undervejs: ${formatMoney(payouts?.in_transit ?? 0, cur)}`}
+          hint={`Planlagt udbetaling: ${formatMoney(payouts?.in_transit ?? 0, cur)}`}
         />
       </div>
     </section>
@@ -168,10 +168,10 @@ function FinanceView({ scope, title }: { scope: "provider" | "admin"; title: str
                       <TableHead>Måned</TableHead>
                       <TableHead>Valuta</TableHead>
                       <TableHead className="text-right">Bookinger</TableHead>
-                      <TableHead className="text-right">Brutto (netto af refund)</TableHead>
-                      <TableHead className="text-right">Refunderet</TableHead>
-                      <TableHead className="text-right">Kommission</TableHead>
-                      <TableHead className="text-right">Netto</TableHead>
+                      <TableHead className="text-right">Samlet pris (efter refundering)</TableHead>
+                      <TableHead className="text-right">Refundering</TableHead>
+                      <TableHead className="text-right">Platformgebyr</TableHead>
+                      <TableHead className="text-right">Providerens indtjening</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -197,7 +197,7 @@ function FinanceView({ scope, title }: { scope: "provider" | "admin"; title: str
             <CardContent>
               {data.payouts.items.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
-                  Ingen udbetalinger registreret endnu. Kommer automatisk via Stripe når transfers/payouts sker.
+                  Der er endnu ingen registrerede udbetalinger. En udbetaling vises her, når den er planlagt eller gennemført.
                 </p>
               ) : (
                 <Table>
@@ -206,8 +206,8 @@ function FinanceView({ scope, title }: { scope: "provider" | "admin"; title: str
                       <TableHead>Dato</TableHead>
                       <TableHead>Booking</TableHead>
                       <TableHead>Reference</TableHead>
-                      <TableHead className="text-right">Netto</TableHead>
-                      <TableHead className="text-right">Gebyr</TableHead>
+                      <TableHead className="text-right">Providerens indtjening</TableHead>
+                      <TableHead className="text-right">Platformgebyr</TableHead>
                       <TableHead>Valuta</TableHead>
                       <TableHead>Status</TableHead>
                     </TableRow>
@@ -241,8 +241,9 @@ function FinanceView({ scope, title }: { scope: "provider" | "admin"; title: str
 
           <p className="text-xs text-muted-foreground">
             Rapport til overblik. Totaler grupperes altid per valuta — vi kombinerer aldrig DKK, EUR, GBP m.fl. i én KPI.
-            MyCleaner opererer som marketplace/agent: platformgebyr-fakturaer udstedes af MyCleaner;
-            udbyderen er selv ansvarlig for kundefakturering og momsafregning.
+            MyCleaner-platformen formidler kontakten mellem kunder og selvstændige providere og fakturerer alene sit eget platformgebyr;
+            provideren er selv ansvarlig for kundefakturering og momsafregning. En planlagt udbetaling er ikke en garanti for et bestemt banktidspunkt —
+            hvornår beløbet er synligt på kontoen afhænger af betalingsudbyderen og providerens bank.
           </p>
         </>
       )}

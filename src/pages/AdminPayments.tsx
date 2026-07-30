@@ -203,7 +203,7 @@ export default function AdminPayments() {
           <div>
             <h1 className="text-3xl font-serif">Betalingsverifikation</h1>
             <p className="text-muted-foreground text-sm">
-              Auto split payments, platform-gebyr og markedspris pr. land
+              Betalingsopdeling, platformgebyr og markedspris pr. land
             </p>
           </div>
           <div className="flex gap-2">
@@ -226,7 +226,7 @@ export default function AdminPayments() {
             <p className="text-2xl font-serif text-emerald-600">{stats.okCount}</p>
           </CardContent></Card>
           <Card><CardContent className="pt-4">
-            <p className="text-xs uppercase text-muted-foreground">Gebyr afv.</p>
+            <p className="text-xs uppercase text-muted-foreground">Gebyrafvigelse</p>
             <p className="text-2xl font-serif text-orange-600">{stats.feeOff}</p>
           </CardContent></Card>
           <Card><CardContent className="pt-4">
@@ -248,13 +248,13 @@ export default function AdminPayments() {
           <CardHeader>
             <CardTitle>Konfiguration</CardTitle>
             <CardDescription>
-              Forventet platform-gebyr i procent af kundeprisen. Bookinger der afviger mere end ±{FEE_TOLERANCE_PCT} pp markeres.
+              Forventet platformgebyr i procent af den samlede pris. Bookinger der afviger mere end ±{FEE_TOLERANCE_PCT} pp markeres.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex flex-wrap items-end gap-4">
               <div className="space-y-1">
-                <Label htmlFor="fee">Forventet gebyr (%)</Label>
+                <Label htmlFor="fee">Forventet platformgebyr (%)</Label>
                 <Input
                   id="fee" type="number" step="0.5" min={0} max={100}
                   value={expectedFee}
@@ -266,15 +266,15 @@ export default function AdminPayments() {
                 Min/max timelønstærskler redigeres pr. land i tabellen nederst på siden.
               </div>
               <div className="text-sm text-muted-foreground">
-                Faktisk gns. gebyr:{" "}
+                Faktisk gns. platformgebyr:{" "}
                 <span className="font-semibold text-foreground">{stats.avgFeePct.toFixed(2)}%</span>
               </div>
             </div>
 
             <div className="text-sm space-y-1">
-              <p><span className="text-muted-foreground">Total kunde betalt:</span> {(stats.sumCustomer / 100).toLocaleString()} (cent enheder)</p>
-              <p><span className="text-muted-foreground">Total til providere:</span> {(stats.sumProvider / 100).toLocaleString()}</p>
-              <p><span className="text-muted-foreground">Total platform-gebyr:</span> {(stats.sumFee / 100).toLocaleString()}</p>
+              <p><span className="text-muted-foreground">Kundens betalinger i alt:</span> {(stats.sumCustomer / 100).toLocaleString()} (cent enheder)</p>
+              <p><span className="text-muted-foreground">Providernes indtjening i alt:</span> {(stats.sumProvider / 100).toLocaleString()}</p>
+              <p><span className="text-muted-foreground">Platformgebyr i alt:</span> {(stats.sumFee / 100).toLocaleString()}</p>
             </div>
           </CardContent>
         </Card>
@@ -293,9 +293,9 @@ export default function AdminPayments() {
                     <th className="py-2 pr-3">Valuta</th>
                     <th className="py-2 pr-3">Land</th>
                     <th className="py-2 pr-3">Bookinger</th>
-                    <th className="py-2 pr-3">Kunde i alt</th>
-                    <th className="py-2 pr-3">Provider i alt</th>
-                    <th className="py-2 pr-3">Gebyr</th>
+                    <th className="py-2 pr-3">Kundens betaling i alt</th>
+                    <th className="py-2 pr-3">Providerens indtjening i alt</th>
+                    <th className="py-2 pr-3">Platformgebyr</th>
                     <th className="py-2 pr-3">Markedsspænd (min–max)</th>
                     <th className="py-2 pr-3">Faktisk timeløn (gns)</th>
                     <th className="py-2 pr-3">Afvigelse vs. marked</th>
@@ -345,7 +345,7 @@ export default function AdminPayments() {
                     );
                   })}
                   {byCurrency.length === 0 && (
-                    <tr><td className="py-6 text-muted-foreground text-center" colSpan={11}>Ingen betalinger endnu</td></tr>
+                    <tr><td className="py-6 text-muted-foreground text-center" colSpan={11}>Ingen registrerede betalinger endnu</td></tr>
                   )}
                 </tbody>
               </table>
@@ -412,9 +412,9 @@ export default function AdminPayments() {
                             {r.b.payment_status && <Badge variant="outline">{r.b.payment_status}</Badge>}
                           </div>
                           <div className="text-xs text-muted-foreground mt-1 flex gap-3 flex-wrap">
-                            <span>Kunde: {fmtMoney(r.cp, r.b.currency)}</span>
-                            <span>Provider: {fmtMoney(r.pg, r.b.currency)}</span>
-                            <span>Gebyr: {fmtMoney(r.fee, r.b.currency)} ({r.effectiveFeePct.toFixed(1)}%)</span>
+                            <span>Kundens betaling: {fmtMoney(r.cp, r.b.currency)}</span>
+                            <span>Providerens indtjening: {fmtMoney(r.pg, r.b.currency)}</span>
+                            <span>Platformgebyr: {fmtMoney(r.fee, r.b.currency)} ({r.effectiveFeePct.toFixed(1)}%)</span>
                             {r.b.hours && <span>{r.b.hours}t</span>}
                           </div>
                         </div>
@@ -426,7 +426,7 @@ export default function AdminPayments() {
                         <div className="border-t bg-muted/30 p-3 text-xs space-y-3">
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                             <div>
-                              <p className="font-semibold mb-1">Split-check</p>
+                              <p className="font-semibold mb-1">Kontrol af betalingsopdeling</p>
                               <p>provider_gets + platform_fee = {fmtMoney(r.pg + r.fee, r.b.currency)}</p>
                               <p>customer_pays = {fmtMoney(r.cp, r.b.currency)}</p>
                               <p className={r.splitOk ? "text-emerald-600" : "text-orange-600"}>
@@ -434,7 +434,7 @@ export default function AdminPayments() {
                               </p>
                             </div>
                             <div>
-                              <p className="font-semibold mb-1">Gebyr-check</p>
+                              <p className="font-semibold mb-1">Kontrol af platformgebyr</p>
                               <p>Effektivt: {r.effectiveFeePct.toFixed(2)}%</p>
                               <p>Forventet: {expectedFee}% (±{FEE_TOLERANCE_PCT}pp)</p>
                               <p className={r.feeOk ? "text-emerald-600" : "text-orange-600"}>
@@ -443,8 +443,8 @@ export default function AdminPayments() {
                             </div>
                             <div>
                               <p className="font-semibold mb-1">Markedspris (overenskomst)</p>
-                              <p>Kunde pris/time: {r.hourlyToCustomer?.toFixed(2) ?? "—"} {r.b.currency?.toUpperCase()}</p>
-                              <p>Provider pris/time: {r.hourlyToProvider?.toFixed(2) ?? "—"} {r.b.currency?.toUpperCase()}</p>
+                              <p>Samlet pris/time: {r.hourlyToCustomer?.toFixed(2) ?? "—"} {r.b.currency?.toUpperCase()}</p>
+                              <p>Providerens pris/time: {r.hourlyToProvider?.toFixed(2) ?? "—"} {r.b.currency?.toUpperCase()}</p>
                               <p>Spænd ({r.country?.code ?? "?"}): {r.minRate ?? "—"}–{r.maxRate?.toFixed(0) ?? "—"} {r.country?.currencySymbol ?? ""}/t</p>
                               {r.marketDeviationPct != null && (
                                 <p>Afvigelse vs. min: <span className="font-semibold">{r.marketDeviationPct > 0 ? "+" : ""}{r.marketDeviationPct.toFixed(1)}%</span></p>
@@ -460,12 +460,12 @@ export default function AdminPayments() {
                               </p>
                             </div>
                             <div>
-                              <p className="font-semibold mb-1">Auto split / transfer</p>
+                              <p className="font-semibold mb-1">Betalingsopdeling og overførsel</p>
                               <p>Provider Stripe konto: {r.b.provider_stripe_account_id ?? "—"}</p>
                               <p>PaymentIntent: <code>{r.b.payment_intent_id}</code></p>
                               {r.transferEv ? (
                                 <>
-                                  <p>Transfer beløb: {fmtMoney(r.transferAmount, r.transferEv.currency)}</p>
+                                  <p>Overført beløb: {fmtMoney(r.transferAmount, r.transferEv.currency)}</p>
                                   <p className={r.transferMatchesProvider ? "text-emerald-600" : "text-orange-600"}>
                                     {r.transferMatchesProvider ? "✓ Matcher provider_gets" : "✗ Beløb mismatch"}
                                   </p>
