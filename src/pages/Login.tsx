@@ -16,8 +16,10 @@ import {
   GoogleButton,
   AuthTrustNote,
 } from "@/components/auth/AuthFields";
+import { useTranslation } from "react-i18next";
 
 export default function Login() {
+  const { t } = useTranslation("common");
   const [mode, setMode] = useState<"signin" | "signup" | "forgot">(() =>
     new URLSearchParams(typeof window === "undefined" ? "" : window.location.search).get("mode") === "signup"
       ? "signup"
@@ -199,14 +201,14 @@ export default function Login() {
             <div className="mt-5">
               <GoogleButton onClick={handleGoogle} disabled={loading} />
             </div>
-            <AuthDivider label="eller fortsæt med email" />
+            <AuthDivider label={t("ui.login.continueWithEmail")} />
           </>
         )}
 
         <form onSubmit={handleSubmit} className={`space-y-4 ${mode === "forgot" ? "mt-5" : ""}`} noValidate={false}>
           {mode === "signup" && (
             <AuthField
-              label="Fulde navn"
+              label={t("ui.login.fullName")}
               type="text"
               required
               autoComplete="name"
@@ -247,7 +249,7 @@ export default function Login() {
                 disabled={loading}
               >
                 <option value="DK">Danmark</option>
-                <option value="UK">United Kingdom</option>
+                <option value="UK">{t("ui.login.countryUK")}</option>
                 <option value="SE">Sverige</option>
                 <option value="ES">Spanien</option>
               </AuthSelect>
@@ -327,10 +329,10 @@ export default function Login() {
           className="mt-3 w-full text-center text-sm text-[hsl(224_20%_42%)]"
         >
           {mode === "signin" && (
-            <>Ny på MyCleaner? <span className="font-semibold text-[hsl(222_88%_42%)]">Opret konto</span></>
+            <>{t("ui.login.newHere")} <span className="font-semibold text-[hsl(222_88%_42%)]">{t("ui.login.createAccount")}</span></>
           )}
           {mode === "signup" && (
-            <>Har du allerede en konto? <span className="font-semibold text-[hsl(222_88%_42%)]">Log ind</span></>
+            <>{t("ui.login.alreadyHaveAccount")} <span className="font-semibold text-[hsl(222_88%_42%)]">{t("ui.login.signIn")}</span></>
           )}
           {mode === "forgot" && "Tilbage til login"}
         </button>

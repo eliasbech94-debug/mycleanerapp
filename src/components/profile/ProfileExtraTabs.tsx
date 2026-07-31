@@ -335,6 +335,7 @@ export function SmsTab() {
 
 /* ---------- SKATTEOPLYSNINGER (pgcrypto server-side) ---------- */
 export function TaxTab() {
+  const { t } = useTranslation("customer");
   const { user } = useAuth();
   const [taxId, setTaxId] = useState("");
   const [municipality, setMunicipality] = useState("");
@@ -365,14 +366,14 @@ export function TaxTab() {
   async function save() {
     if (!user) return;
     setError(null);
-    if (!municipality) { setError("Vælg din skattekommune"); return; }
-    if (!DK_MUNICIPALITIES.includes(municipality)) { setError("Ukendt kommune — vælg fra listen"); return; }
+    if (!municipality) { setError(t("surfaces.profileExtra.tax.selectMunicipality")); return; }
+    if (!DK_MUNICIPALITIES.includes(municipality)) { setError(t("surfaces.profileExtra.tax.unknownMunicipality")); return; }
 
     let normalized: string | undefined;
     if (taxId.trim() || !hasStored) {
-      if (!taxId.trim()) { setError(type === "private" ? "Indtast CPR-nummer" : "Indtast CVR-nummer"); return; }
+      if (!taxId.trim()) { setError(type === "private" ? t("surfaces.profileExtra.tax.enterCpr") : t("surfaces.profileExtra.tax.enterCvr")); return; }
       const v = type === "private" ? validateCPR(taxId) : validateCVR(taxId);
-      if (!v.ok || !v.normalized) { setError(v.error || "Ugyldigt nummer"); return; }
+      if (!v.ok || !v.normalized) { setError(v.error || t("surfaces.profileExtra.tax.invalidNumber")); return; }
       normalized = v.normalized;
     }
 
@@ -382,20 +383,20 @@ export function TaxTab() {
       body: { tax_id: normalized, tax_municipality: municipality, tax_type: type },
     });
     setSaving(false);
-    if (err || data?.error) { toast.error("Kunne ikke gemme skatteoplysninger"); return; }
-    toast.success("Skatteoplysninger gemt");
+    if (err || data?.error) { toast.error(t("surfaces.profileExtra.tax.saveFailed")); return; }
+    toast.success(t("surfaces.profileExtra.tax.saved"));
     setTaxId("");
     await load();
   }
 
   async function remove() {
     if (!user) return;
-    if (!window.confirm("Slet dine skatteoplysninger permanent?")) return;
+    if (!window.confirm(t("surfaces.profileExtra.tax.confirmDelete"))) return;
     setDeleting(true);
     const { error: err } = await supabase.functions.invoke("profile-tax-id", { method: "DELETE" });
     setDeleting(false);
-    if (err) { toast.error("Kunne ikke slette"); return; }
-    toast.success("Skatteoplysninger slettet");
+    if (err) { toast.error(t("surfaces.profileExtra.tax.deleteFailed")); return; }
+    toast.success(t("surfaces.profileExtra.tax.deleted"));
     setStoredLast4(null); setHasStored(false); setMunicipality(""); setType("private"); setTaxId("");
   }
 
@@ -404,13 +405,13 @@ export function TaxTab() {
   const stored = hasStored && storedLast4 ? `••••${storedLast4}` : "";
 
   return (
-    <Card title="Skatteoplysninger" icon={Receipt}>
+    <Card title={t("surfaces.profileExtra.tax.title")} icon={Receipt}>
       <p className="mb-5 text-sm opacity-75">
-        Bruges til årsopgørelse, servicefradrag og korrekt indberetning. Dine oplysninger gemmes krypteret og deles aldrig med tredjepart.
+        {t("surfaces.profileExtra.tax.description")}
       </p>
       <div className="space-y-4">
         <div>
-          <label className="mb-1 block text-xs font-bold uppercase tracking-wider opacity-70">Type</label>
+          <label className="mb-1 block text-xs font-bold uppercase tracking-wider opacity-70">{t("surfaces.profileExtra.tax.type")}</label>
           <div className="flex gap-2">
             {(["private", "business"] as const).map((t) => (
               <button
@@ -425,7 +426,7 @@ export function TaxTab() {
                   color: C.ink,
                 }}
               >
-                {t === "private" ? "Privatperson (CPR)" : "Virksomhed (CVR)"}
+                {t2 === "private" ? t("surfaces.profileExtra.tax.private") : t("surfaces.profileExtra.tax.business")}
               </button>
             ))}
           </div>
@@ -433,8 +434,8 @@ export function TaxTab() {
 
         <div>
           <label htmlFor="tax-id" className="mb-1 block text-xs font-bold uppercase tracking-wider opacity-70">
-            {type === "private" ? "CPR-nummer" : "CVR-nummer"}
-            {hasStored && <span className="ml-2 rounded-full px-2 py-0.5 text-[10px]" style={{ background: `${C.mint}88`, color: C.ink }}>Gemt: {stored}</span>}
+            {type === "private" ? t("surfaces.profileExtra.tax.cprNumber") : t("surfaces.profileExtra.tax.cvrNumber")}
+            {hasStored && <span className="ml-2 rounded-full px-2 py-0.5 text-[10px]" style={{ background: `${C.mint}88`, color: C.ink }}>{t("surfaces.profileExtra.tax.savedLabel")} {stored}</span>}
           </label>
           <input
             id="tax-id"
@@ -443,7 +444,7 @@ export function TaxTab() {
             autoComplete="off"
             value={taxId}
             onChange={(e) => { setTaxId(e.target.value); setError(null); }}
-            placeholder={hasStored ? "Udfyld for at ændre" : type === "private" ? "010190-1234" : "12345678"}
+            placeholder={hasStored ? t("surfaces.profileExtra.tax.fillToChange") : type === "private" ? "010190-1234" : "12345678"}
             maxLength={type === "private" ? 11 : 8}
             className="w-full rounded-xl border-2 bg-white px-4 py-3 text-sm"
             style={{ borderColor: `${C.ink}22`, color: C.ink }}
@@ -451,14 +452,14 @@ export function TaxTab() {
         </div>
 
         <div>
-          <label htmlFor="tax-muni" className="mb-1 block text-xs font-bold uppercase tracking-wider opacity-70">Skattekommune</label>
+          <label htmlFor="tax-muni" className="mb-1 block text-xs font-bold uppercase tracking-wider opacity-70">{t("surfaces.profileExtra.tax.municipality")}</label>
           <input
             id="tax-muni"
             list="dk-municipalities"
             type="text"
             value={municipality}
             onChange={(e) => { setMunicipality(e.target.value); setError(null); }}
-            placeholder="fx København"
+            placeholder={t("surfaces.profileExtra.tax.municipalityPlaceholder")}
             className="w-full rounded-xl border-2 bg-white px-4 py-3 text-sm"
             style={{ borderColor: `${C.ink}22`, color: C.ink }}
           />
@@ -474,7 +475,7 @@ export function TaxTab() {
         )}
 
         <div className="rounded-xl p-4 text-xs" style={{ background: `${C.mint}55`, color: C.ink }}>
-          Tip: Se din årsopgørelse og forskudsregistrering på{" "}
+          {t("surfaces.profileExtra.tax.tip")}{" "}
           <a href="https://skat.dk" target="_blank" rel="noreferrer" className="underline">skat.dk</a>.
         </div>
 
@@ -485,7 +486,7 @@ export function TaxTab() {
             className="rounded-xl px-5 py-3 text-sm font-bold uppercase tracking-wider disabled:opacity-50"
             style={{ background: C.ink, color: C.cream }}
           >
-            {saving ? "Gemmer…" : hasStored ? "Opdatér" : "Gem"}
+            {saving ? t("surfaces.profileExtra.tax.saving") : hasStored ? t("surfaces.profileExtra.tax.update") : t("surfaces.profileExtra.tax.save")}
           </button>
           {hasStored && (
             <button
@@ -494,7 +495,7 @@ export function TaxTab() {
               className="rounded-xl border-2 px-5 py-3 text-sm font-bold uppercase tracking-wider disabled:opacity-50"
               style={{ borderColor: `${C.orange}66`, color: C.orange, background: "#fff" }}
             >
-              {deleting ? "Sletter…" : "Slet"}
+              {deleting ? t("surfaces.profileExtra.tax.deleting") : t("surfaces.profileExtra.tax.delete")}
             </button>
           )}
         </div>

@@ -154,8 +154,8 @@ function FinanceView({ scope, title }: { scope: "provider" | "admin"; title: str
               {t("ui.financePages.noPaidBookings")}
             </CardContent></Card>
           ) : (
-            data.totals_by_currency.map((t) => (
-              <CurrencyBlock key={t.currency} scope={scope} totals={t} payouts={payoutsByCur.get(t.currency)} />
+            data.totals_by_currency.map((totals) => (
+              <CurrencyBlock key={totals.currency} scope={scope} totals={totals} payouts={payoutsByCur.get(totals.currency)} />
             ))
           )}
 
