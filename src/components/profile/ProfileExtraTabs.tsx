@@ -135,6 +135,7 @@ export function NotificationsTab() {
 
 /* ---------- SMS ---------- */
 export function SmsTab() {
+  const { t } = useTranslation("customer");
   const { user } = useAuth();
   const [phone, setPhone] = useState("");
   const [verifiedPhone, setVerifiedPhone] = useState<string | null>(null);
@@ -187,7 +188,7 @@ export function SmsTab() {
   }
 
   async function sendCode() {
-    if (!/^\+?[0-9\s\-()]{7,}$/.test(phone)) { toast.error("Ugyldigt telefonnummer"); return; }
+    if (!/^\+?[0-9\s\-()]{7,}$/.test(phone)) { toast.error(t("surfaces.profileExtra.sms.invalidPhone")); return; }
     setSending(true);
     // If the number differs from what's already verified, revoke the old
     // verification server-side BEFORE sending a new code. That way the old
@@ -195,29 +196,29 @@ export function SmsTab() {
     if (phoneChanged) await revokeStoredVerification();
     const { data, error } = await supabase.functions.invoke("sms-send-code", { body: { phone } });
     setSending(false);
-    if (error || (data as any)?.error) { toast.error((data as any)?.error || "Kunne ikke sende kode"); return; }
+    if (error || (data as any)?.error) { toast.error((data as any)?.error || t("surfaces.profileExtra.sms.sendFailed")); return; }
     setStep("sent");
     setDevCode((data as any)?.dev_code ?? null);
-    toast.success("Kode sendt");
+    toast.success(t("surfaces.profileExtra.sms.codeSent"));
   }
 
   async function verifyCode() {
     setVerifying(true);
     const { data, error } = await supabase.functions.invoke("sms-verify-code", { body: { phone, code } });
     setVerifying(false);
-    if (error || (data as any)?.error) { toast.error((data as any)?.error || "Verifikation fejlede"); return; }
+    if (error || (data as any)?.error) { toast.error((data as any)?.error || t("surfaces.profileExtra.sms.verifyFailed")); return; }
     setVerifiedPhone((data as any).phone);
     setVerifiedAt((data as any).verified_at);
     setStep("idle");
     setCode("");
     setDevCode(null);
-    toast.success("Telefonnummer verificeret");
+    toast.success(t("surfaces.profileExtra.sms.verified"));
   }
 
   async function savePrefs() {
     if (!user) return;
-    if (phoneChanged) { toast.error("Verificér det nye nummer først"); return; }
-    if (enabled && !isVerified) { toast.error("Verificér telefonnummeret først"); return; }
+    if (phoneChanged) { toast.error(t("surfaces.profileExtra.sms.verifyNewFirst")); return; }
+    if (enabled && !isVerified) { toast.error(t("surfaces.profileExtra.sms.verifyFirst")); return; }
     setSaving(true);
     const { data: current } = await supabase.from("profiles").select("notification_prefs").eq("id", user.id).maybeSingle();
     const prefs = { ...DEFAULT_PREFS, ...((current as any)?.notification_prefs || {}), sms: enabled };
@@ -229,13 +230,13 @@ export function SmsTab() {
   if (loading) return <div className="grid place-items-center py-16"><Loader2 className="h-6 w-6 animate-spin" /></div>;
 
   return (
-    <Card title="SMS-notifikationer" icon={MessageSquare}>
+    <Card title={t("surfaces.profileExtra.sms.title")} icon={MessageSquare}>
       <p className="mb-5 text-sm opacity-75">
-        Modtag SMS ved bookingbekræftelser, ændringer og påmindelser 24 timer før. Almindelige takster kan gælde.
+        {t("surfaces.profileExtra.sms.description")}
       </p>
       <div className="space-y-3">
         <div>
-          <label className="mb-1 block text-xs font-bold uppercase tracking-wider opacity-70">Telefonnummer</label>
+          <label className="mb-1 block text-xs font-bold uppercase tracking-wider opacity-70">{t("surfaces.profileExtra.sms.phone")}</label>
           <div className="flex gap-2">
             <input
               type="tel"
@@ -250,7 +251,7 @@ export function SmsTab() {
                 className="grid shrink-0 place-items-center rounded-xl px-4 text-xs font-bold uppercase tracking-wider"
                 style={{ background: `${C.mint}`, color: C.ink }}
               >
-                Verificeret
+                {t("surfaces.profileExtra.sms.verified")}
               </span>
             ) : (
               <button
@@ -259,12 +260,12 @@ export function SmsTab() {
                 className="shrink-0 rounded-xl px-4 py-3 text-xs font-bold uppercase tracking-wider disabled:opacity-50"
                 style={{ background: C.orange, color: "#fff" }}
               >
-                {sending ? "Sender…" : step === "sent" ? "Send igen" : "Send kode"}
+                {sending ? t("surfaces.profileExtra.sms.sending") : step === "sent" ? t("surfaces.profileExtra.sms.resend") : t("surfaces.profileExtra.sms.sendCode")}
               </button>
             )}
           </div>
           {verifiedAt && isVerified && (
-            <p className="mt-1 text-xs opacity-70">Verificeret {new Date(verifiedAt).toLocaleDateString("da-DK")}</p>
+            <p className="mt-1 text-xs opacity-70">{t("surfaces.profileExtra.sms.verified")} {new Date(verifiedAt).toLocaleDateString("da-DK")}</p>
           )}
           {phoneChanged && (
             <div
@@ -272,15 +273,14 @@ export function SmsTab() {
               className="mt-2 rounded-xl border-2 px-3 py-2 text-xs"
               style={{ borderColor: `${C.orange}66`, background: `${C.orange}14`, color: C.ink }}
             >
-              Du har ændret telefonnummer — det gamle nummer er ikke længere godkendt.
-              Send og indtast en ny kode for at aktivere det nye nummer.
+              {t("surfaces.profileExtra.sms.numberChanged")}
             </div>
           )}
         </div>
 
         {step === "sent" && !isVerified && (
           <div className="rounded-2xl border-2 p-4" style={{ borderColor: `${C.teal}55`, background: `${C.teal}0f` }}>
-            <label className="mb-1 block text-xs font-bold uppercase tracking-wider opacity-70">Indtast 6-cifret kode</label>
+            <label className="mb-1 block text-xs font-bold uppercase tracking-wider opacity-70">{t("surfaces.profileExtra.sms.enterCode")}</label>
             <div className="flex gap-2">
               <input
                 inputMode="numeric"
@@ -297,24 +297,24 @@ export function SmsTab() {
                 className="shrink-0 rounded-xl px-4 py-3 text-xs font-bold uppercase tracking-wider disabled:opacity-50"
                 style={{ background: C.ink, color: C.cream }}
               >
-                {verifying ? "Tjekker…" : "Bekræft"}
+                {verifying ? t("surfaces.profileExtra.sms.checking") : t("surfaces.profileExtra.sms.confirm")}
               </button>
             </div>
-            <p className="mt-2 text-xs opacity-70">Koden udløber om 10 minutter.</p>
+            <p className="mt-2 text-xs opacity-70">{t("surfaces.profileExtra.sms.codeExpires")}</p>
             {devCode && (
               <p className="mt-2 text-xs" style={{ color: C.orange }}>
-                Udvikling: kode = <strong>{devCode}</strong> (SMS-udbyder endnu ikke tilsluttet)
+                {t("surfaces.profileExtra.sms.devCode")} <strong>{devCode}</strong> {t("surfaces.profileExtra.sms.devCodeNote")}
               </p>
             )}
           </div>
         )}
 
         <Toggle
-          label="Aktivér SMS"
-          hint={isVerified ? "Kun kritiske beskeder — aldrig marketing." : "Verificér dit nummer for at kunne aktivere."}
+          label={t("surfaces.profileExtra.sms.enable")}
+          hint={isVerified ? t("surfaces.profileExtra.sms.criticalOnly") : t("surfaces.profileExtra.sms.verifyToEnable")}
           value={enabled}
           onChange={(v) => {
-            if (v && !isVerified) { toast.error("Verificér telefonnummeret først"); return; }
+            if (v && !isVerified) { toast.error(t("surfaces.profileExtra.sms.verifyFirst")); return; }
             setEnabled(v);
           }}
           disabled={saving || !isVerified}
@@ -326,7 +326,7 @@ export function SmsTab() {
           className="rounded-xl px-5 py-3 text-sm font-bold uppercase tracking-wider disabled:opacity-50"
           style={{ background: C.ink, color: C.cream }}
         >
-          {saving ? "Gemmer…" : "Gem SMS-indstillinger"}
+          {saving ? t("surfaces.profileExtra.sms.saving") : t("surfaces.profileExtra.sms.saveSettings")}
         </button>
       </div>
     </Card>

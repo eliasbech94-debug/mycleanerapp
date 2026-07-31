@@ -50,7 +50,7 @@ export function HowItWorksSection() {
       key: "onway",
       Icon: Truck,
       defaults: {
-        title: "Cleaner på vej",
+        titleFallback: "Cleaner på vej",
         body: "Følg med når din cleaner er på vej til din adresse.",
       },
     },
@@ -59,7 +59,7 @@ export function HowItWorksSection() {
       key: "rate",
       Icon: Star,
       defaults: {
-        title: "Godkend og bedøm cleaner",
+        titleFallback: "Godkend og bedøm cleaner",
         body: "Godkend opgaven og giv din cleaner en bedømmelse.",
       },
     },
