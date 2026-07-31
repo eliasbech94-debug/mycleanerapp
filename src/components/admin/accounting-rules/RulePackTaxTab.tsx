@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -11,11 +12,11 @@ type RateField = keyof Pick<
   "defaultIndirectTaxRates" | "reducedIndirectTaxRates" | "zeroRateRules" | "reverseChargeRules"
 >;
 
-const GROUPS: { field: RateField; title: string; hint: string }[] = [
-  { field: "defaultIndirectTaxRates", title: "Standardsatser", hint: "Angives i basispoint. 2500 = 25 %." },
-  { field: "reducedIndirectTaxRates", title: "Reducerede satser", hint: "Kun hvis landet har reducerede satser." },
-  { field: "zeroRateRules", title: "Nulsats", hint: "Rate skal være 0 basispoint." },
-  { field: "reverseChargeRules", title: "Reverse charge", hint: "Markér reverseCharge for hver regel." },
+const GROUPS: { field: RateField; titleKey: string; hintKey: string }[] = [
+  { field: "defaultIndirectTaxRates", titleKey: "rules.tax.groups.defaultIndirectTaxRates.title", hintKey: "rules.tax.groups.defaultIndirectTaxRates.hint" },
+  { field: "reducedIndirectTaxRates", titleKey: "rules.tax.groups.reducedIndirectTaxRates.title", hintKey: "rules.tax.groups.reducedIndirectTaxRates.hint" },
+  { field: "zeroRateRules", titleKey: "rules.tax.groups.zeroRateRules.title", hintKey: "rules.tax.groups.zeroRateRules.hint" },
+  { field: "reverseChargeRules", titleKey: "rules.tax.groups.reverseChargeRules.title", hintKey: "rules.tax.groups.reverseChargeRules.hint" },
 ];
 
 function emptyRate(): IndirectTaxRateRule {
@@ -30,6 +31,7 @@ function emptyRate(): IndirectTaxRateRule {
 }
 
 export default function RulePackTaxTab({ pack, readOnly, onChange }: TabProps) {
+  const { t } = useTranslation("admin");
   const update = (field: RateField, index: number, patch: Partial<IndirectTaxRateRule>) => {
     const next = pack[field].map((rate, i) => (i === index ? { ...rate, ...patch } : rate));
     onChange({ [field]: next } as Partial<AccountingRulePack>);
@@ -39,7 +41,7 @@ export default function RulePackTaxTab({ pack, readOnly, onChange }: TabProps) {
     <div className="space-y-4">
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Indirekte skat</CardTitle>
+          <CardTitle className="text-base">{t("rules.tax.title")}</CardTitle>
         </CardHeader>
         <CardContent className="grid gap-4 md:grid-cols-2">
           <label className="flex items-center gap-2 text-sm text-foreground md:col-span-2">
@@ -48,10 +50,10 @@ export default function RulePackTaxTab({ pack, readOnly, onChange }: TabProps) {
               disabled={readOnly}
               onCheckedChange={(v) => onChange({ indirectTaxEnabled: v === true })}
             />
-            Landet har et indirekte skattesystem
+            {t("rules.tax.hasSystemLabel")}
           </label>
           <div className="space-y-1">
-            <label htmlFor="tax-name" className="text-sm font-medium text-foreground">Lokalt navn</label>
+            <label htmlFor="tax-name" className="text-sm font-medium text-foreground">{t("rules.tax.localNameLabel")}</label>
             <Input
               id="tax-name"
               value={pack.indirectTaxName ?? ""}
@@ -60,7 +62,7 @@ export default function RulePackTaxTab({ pack, readOnly, onChange }: TabProps) {
             />
           </div>
           <div className="space-y-1">
-            <label htmlFor="tax-system" className="text-sm font-medium text-foreground">System</label>
+            <label htmlFor="tax-system" className="text-sm font-medium text-foreground">{t("rules.tax.systemLabel")}</label>
             <select
               id="tax-system"
               className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
@@ -72,14 +74,14 @@ export default function RulePackTaxTab({ pack, readOnly, onChange }: TabProps) {
                 })
               }
             >
-              <option value="">Ikke valgt</option>
+              <option value="">{t("rules.tax.notSelected")}</option>
               <option value="vat_like">vat_like</option>
               <option value="sales_tax_like">sales_tax_like</option>
             </select>
           </div>
           <div className="space-y-1">
             <label htmlFor="tax-threshold" className="text-sm font-medium text-foreground">
-              Registreringsgrænse (minor units)
+              {t("rules.tax.thresholdLabel")}
             </label>
             <Input
               id="tax-threshold"
@@ -96,7 +98,7 @@ export default function RulePackTaxTab({ pack, readOnly, onChange }: TabProps) {
           </div>
           <div className="space-y-1">
             <label htmlFor="tax-threshold-currency" className="text-sm font-medium text-foreground">
-              Grænsens valuta
+              {t("rules.tax.thresholdCurrencyLabel")}
             </label>
             <Input
               id="tax-threshold-currency"
@@ -110,12 +112,12 @@ export default function RulePackTaxTab({ pack, readOnly, onChange }: TabProps) {
         </CardContent>
       </Card>
 
-      {GROUPS.map(({ field, title, hint }) => (
+      {GROUPS.map(({ field, titleKey, hintKey }) => (
         <Card key={field}>
           <CardHeader className="flex-row items-center justify-between space-y-0">
             <div>
-              <CardTitle className="text-base">{title}</CardTitle>
-              <p className="text-xs text-muted-foreground">{hint}</p>
+              <CardTitle className="text-base">{t(titleKey)}</CardTitle>
+              <p className="text-xs text-muted-foreground">{t(hintKey)}</p>
             </div>
             {!readOnly && (
               <Button
@@ -126,18 +128,18 @@ export default function RulePackTaxTab({ pack, readOnly, onChange }: TabProps) {
                 }
               >
                 <Plus className="mr-1 h-4 w-4" aria-hidden />
-                Tilføj sats
+                {t("rules.tax.addRate")}
               </Button>
             )}
           </CardHeader>
           <CardContent className="space-y-3">
             {pack[field].length === 0 && (
-              <p className="text-sm text-muted-foreground">Ingen satser tilføjet.</p>
+              <p className="text-sm text-muted-foreground">{t("rules.tax.noRates")}</p>
             )}
             {pack[field].map((rate, index) => (
               <div key={`${field}-${index}`} className="grid gap-3 rounded-lg border border-border p-3 md:grid-cols-5">
                 <div className="space-y-1">
-                  <label htmlFor={`${field}-code-${index}`} className="text-xs text-muted-foreground">Tax code</label>
+                  <label htmlFor={`${field}-code-${index}`} className="text-xs text-muted-foreground">{t("rules.tax.taxCodeLabel")}</label>
                   <Input
                     id={`${field}-code-${index}`}
                     value={rate.taxCode}
@@ -146,7 +148,7 @@ export default function RulePackTaxTab({ pack, readOnly, onChange }: TabProps) {
                   />
                 </div>
                 <div className="space-y-1">
-                  <label htmlFor={`${field}-bp-${index}`} className="text-xs text-muted-foreground">Basispoint</label>
+                  <label htmlFor={`${field}-bp-${index}`} className="text-xs text-muted-foreground">{t("rules.tax.basisPointsLabel")}</label>
                   <Input
                     id={`${field}-bp-${index}`}
                     inputMode="numeric"
@@ -156,7 +158,7 @@ export default function RulePackTaxTab({ pack, readOnly, onChange }: TabProps) {
                   />
                 </div>
                 <div className="space-y-1 md:col-span-2">
-                  <label htmlFor={`${field}-desc-${index}`} className="text-xs text-muted-foreground">Beskrivelse</label>
+                  <label htmlFor={`${field}-desc-${index}`} className="text-xs text-muted-foreground">{t("rules.tax.descriptionLabel")}</label>
                   <Input
                     id={`${field}-desc-${index}`}
                     value={rate.description}
@@ -171,7 +173,7 @@ export default function RulePackTaxTab({ pack, readOnly, onChange }: TabProps) {
                       disabled={readOnly}
                       onCheckedChange={(v) => update(field, index, { reverseCharge: v === true })}
                     />
-                    RC
+                    {t("rules.tax.reverseChargeShort")}
                   </label>
                   <label className="flex items-center gap-2 text-xs text-foreground">
                     <Checkbox
@@ -179,13 +181,13 @@ export default function RulePackTaxTab({ pack, readOnly, onChange }: TabProps) {
                       disabled={readOnly}
                       onCheckedChange={(v) => update(field, index, { exempt: v === true })}
                     />
-                    Fritaget
+                    {t("rules.tax.exempt")}
                   </label>
                   {!readOnly && (
                     <Button
                       size="icon"
                       variant="ghost"
-                      aria-label={`Slet sats ${index + 1} i ${title}`}
+                      aria-label={t("rules.tax.deleteRateAria", { index: index + 1, title: t(titleKey) })}
                       onClick={() =>
                         onChange({
                           [field]: pack[field].filter((_, i) => i !== index),
