@@ -1,6 +1,7 @@
 # Koordineret aktivering — 18/8 cancellation policy
 
-**Activation instant (T):** `2026-08-01T06:00:00.000Z`
+**Activation instant (T):** `2026-08-01T06:00:00.000Z` (Europe/Copenhagen 2026-08-01 kl. 08.00)
+_Rettet 2026-07-31: tidligere planlagt T var 2026-08-03T06:00:00.000Z._
 **Kill switch:** edge-secret `CANCELLATION_POLICY_V2_ENABLED` (aktuelt `true`)
 **Fail-safe:** alt andet end nøjagtigt `"true"` → v1.0.0 (48/24)
 
