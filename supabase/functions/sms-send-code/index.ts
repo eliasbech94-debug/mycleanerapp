@@ -2,6 +2,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
 import { monitored } from "../_shared/logger.ts";
 import { maskPhone, sendSms } from "../_shared/gatewayapi.ts";
+import { renderSms, resolveUserLang } from "../_shared/smsTemplates.ts";
 import { isCodeLoggingAllowed, isSmsDevModeEnabled, readEnv } from "../_shared/env.ts";
 
 const corsHeaders = {
