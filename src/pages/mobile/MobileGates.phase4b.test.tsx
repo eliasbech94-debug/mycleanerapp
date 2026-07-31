@@ -10,7 +10,7 @@
  *  4. MobileSearch chip catalogue is cleaning-only.
  *  5. mobileSearch.chips localisations contain no non-cleaning keys.
  */
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, vi, afterEach } from "vitest";
 import { render, screen, cleanup } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import fs from "node:fs";
