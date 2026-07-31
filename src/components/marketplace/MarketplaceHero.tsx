@@ -78,7 +78,12 @@ export function MarketplaceHero() {
 
   const alt = t("hero.image_alt", { defaultValue: "MyCleaner" });
   const availabilityLabel = t("hero.availability_label", { defaultValue: "" });
+  const launchNotice = t("hero.launch_notice", { defaultValue: "" });
+  const comingSoonLabel = t("hero.coming_soon", { defaultValue: "" });
+  // Availability is server-driven — no hardcoded list of active markets here.
+  const { isBookable } = useMarketStatus();
   const countryCodes = ["dk", "se", "de", "gb", "es"] as const;
+
 
   return (
     <section className="relative isolate" aria-labelledby="mkt-hero-title">
