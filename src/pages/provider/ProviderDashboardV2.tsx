@@ -383,19 +383,21 @@ function formatDate(iso: string) {
   });
 }
 
-const STATUS_META: Record<
+const STATUS_VARIANT: Record<
   ProviderBooking["status"],
-  { label: string; variant: "default" | "secondary" | "outline" | "destructive" }
+  "default" | "secondary" | "outline" | "destructive"
 > = {
-  pending: { label: "Ny forespørgsel", variant: "secondary" },
-  accepted: { label: "Accepteret", variant: "default" },
-  completed: { label: "Udført", variant: "outline" },
-  declined: { label: "Afvist", variant: "destructive" },
-  cancelled: { label: "Annulleret", variant: "outline" },
+  pending: "secondary",
+  accepted: "default",
+  completed: "outline",
+  declined: "destructive",
+  cancelled: "outline",
 };
 
 function BookingRow({ booking, highlight }: { booking: ProviderBooking; highlight?: boolean }) {
-  const meta = STATUS_META[booking.status];
+  const { t } = useTranslation("provider");
+  const variant = STATUS_VARIANT[booking.status];
+  const label = t(`booking.status.${booking.status}`);
   return (
     <li>
       <Link
@@ -407,17 +409,17 @@ function BookingRow({ booking, highlight }: { booking: ProviderBooking; highligh
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <p className="truncate font-display text-base text-foreground">
-              {booking.service ?? "Rengøring"}
-              {booking.hours ? ` · ${booking.hours} t` : ""}
+              {booking.service ?? t("booking.defaultService")}
+              {booking.hours ? ` ${t("booking.hoursSuffix", { count: booking.hours })}` : ""}
             </p>
             <p className="mt-0.5 truncate text-xs text-muted-foreground">
               {booking.currency && typeof booking.provider_gets === "number"
-                ? `Du får ${formatMoney(booking.provider_gets, booking.currency)}`
+                ? t("booking.providerGets", { amount: formatMoney(booking.provider_gets, booking.currency) })
                 : ""}
             </p>
           </div>
-          <Badge variant={meta.variant} className="shrink-0">
-            {meta.label}
+          <Badge variant={variant} className="shrink-0">
+            {label}
           </Badge>
         </div>
         <dl className="mt-3 grid gap-1.5 text-xs text-muted-foreground sm:grid-cols-3">
@@ -428,7 +430,7 @@ function BookingRow({ booking, highlight }: { booking: ProviderBooking; highligh
           {booking.slot && (
             <div className="flex items-center gap-1.5">
               <Clock className="h-3.5 w-3.5" aria-hidden />
-              <span>kl. {booking.slot}</span>
+              <span>{t("booking.atSlot", { slot: booking.slot })}</span>
             </div>
           )}
           {booking.address && (
@@ -463,16 +465,20 @@ function MiniStat({
   );
 }
 
-const PAYOUT_META: Record<string, { label: string; variant: "default" | "secondary" | "outline" | "destructive" }> = {
-  paid: { label: "Gennemført udbetaling", variant: "default" },
-  in_transit: { label: "Planlagt udbetaling", variant: "secondary" },
-  pending: { label: "Afventer", variant: "secondary" },
-  failed: { label: "Ikke gennemført", variant: "destructive" },
-  canceled: { label: "Annulleret", variant: "outline" },
+const PAYOUT_VARIANT: Record<string, "default" | "secondary" | "outline" | "destructive"> = {
+  paid: "default",
+  in_transit: "secondary",
+  pending: "secondary",
+  failed: "destructive",
+  canceled: "outline",
 };
 
 function PayoutRow({ payout }: { payout: ProviderPayout }) {
-  const meta = PAYOUT_META[payout.status] ?? { label: payout.status, variant: "outline" as const };
+  const { t } = useTranslation("provider");
+  const variant = PAYOUT_VARIANT[payout.status] ?? ("outline" as const);
+  const label = PAYOUT_VARIANT[payout.status]
+    ? t(`payout.status.${payout.status}`)
+    : payout.status;
   const amount =
     payout.currency && typeof payout.net_amount === "number"
       ? formatMoney(payout.net_amount, payout.currency)
@@ -487,7 +493,7 @@ function PayoutRow({ payout }: { payout: ProviderPayout }) {
             : new Date(payout.created_at).toLocaleDateString("da-DK")}
         </p>
       </div>
-      <Badge variant={meta.variant}>{meta.label}</Badge>
+      <Badge variant={variant}>{label}</Badge>
     </li>
   );
 }
@@ -501,6 +507,7 @@ interface VerificationSummary {
 
 function describeVerification(
   pp: ReturnType<typeof useProviderDashboard>["profile"],
+  t: TFunction,
 ): VerificationSummary {
   if (!pp) {
     return { showBanner: false, title: "", description: "", actions: [] };
@@ -512,33 +519,33 @@ function describeVerification(
   if (needsIdentity) {
     return {
       showBanner: true,
-      title: "Verificér din identitet",
-      description: "Vi skal bekræfte din identitet, før du kan modtage bookinger.",
-      actions: [{ label: "Start verifikation", to: "/provider/profile", primary: true }],
+      title: t("verification.identity.title"),
+      description: t("verification.identity.description"),
+      actions: [{ label: t("verification.identity.action"), to: "/provider/profile", primary: true }],
     };
   }
   if (needsStripe) {
     return {
       showBanner: true,
-      title: "Fuldfør Stripe-onboarding",
-      description: "Tilslut din bankkonto, så din indtjening kan udbetales.",
-      actions: [{ label: "Åbn Stripe", to: "/provider/finance", primary: true }],
+      title: t("verification.stripe.title"),
+      description: t("verification.stripe.description"),
+      actions: [{ label: t("verification.stripe.action"), to: "/provider/finance", primary: true }],
     };
   }
   if (needsPublic) {
     return {
       showBanner: true,
-      title: "Din profil er ikke synlig",
-      description: "Aktivér offentlig visning for at modtage anmodninger fra kunder.",
-      actions: [{ label: "Rediger profil", to: "/provider/profile", primary: true }],
+      title: t("verification.public.title"),
+      description: t("verification.public.description"),
+      actions: [{ label: t("verification.public.action"), to: "/provider/profile", primary: true }],
     };
   }
   if (typeof pp.completion_pct === "number" && pp.completion_pct < 100) {
     return {
       showBanner: true,
-      title: `Din profil er ${pp.completion_pct}% færdig`,
-      description: "Gør din profil færdig — komplette profiler vises højere i marketplace.",
-      actions: [{ label: "Færdiggør", to: "/provider/profile" }],
+      title: t("verification.completion.title", { percent: pp.completion_pct }),
+      description: t("verification.completion.description"),
+      actions: [{ label: t("verification.completion.action"), to: "/provider/profile" }],
     };
   }
   return { showBanner: false, title: "", description: "", actions: [] };
