@@ -100,7 +100,7 @@ export const CANCELLATION_POLICY_VERSIONS: Readonly<Record<string, CancellationP
  * on any drift. Publishing MC-CANCELLATION-POLICY-001 v1.2.0 and
  * MC-REFUND-POLICY-001 v1.2.0 happens at the same instant.
  */
-export const CANCELLATION_POLICY_V2_ACTIVATION_AT = "2026-08-03T06:00:00.000Z";
+export const CANCELLATION_POLICY_V2_ACTIVATION_AT = "2026-08-01T06:00:00.000Z";
 export const CANCELLATION_POLICY_V2_ACTIVATION_MS = Date.parse(
   CANCELLATION_POLICY_V2_ACTIVATION_AT,
 );

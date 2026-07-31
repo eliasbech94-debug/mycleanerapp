@@ -1,6 +1,6 @@
 # Koordineret aktivering — 18/8 cancellation policy
 
-**Activation instant (T):** `2026-08-03T06:00:00.000Z`
+**Activation instant (T):** `2026-08-01T06:00:00.000Z`
 **Kill switch:** edge-secret `CANCELLATION_POLICY_V2_ENABLED` (aktuelt `true`)
 **Fail-safe:** alt andet end nøjagtigt `"true"` → v1.0.0 (48/24)
 
@@ -37,8 +37,8 @@ alt fra `export type CancellationTierKey` og frem).
 
 | Dokument | Version | Status | effective_at |
 |---|---|---|---|
-| MC-CANCELLATION-POLICY-001 | 1.2.0 | **draft** | 2026-08-03T06:00:00Z |
-| MC-REFUND-POLICY-001 | 1.2.0 | **draft** | 2026-08-03T06:00:00Z |
+| MC-CANCELLATION-POLICY-001 | 1.2.0 | **draft** | 2026-08-01T06:00:00Z |
+| MC-REFUND-POLICY-001 | 1.2.0 | **draft** | 2026-08-01T06:00:00Z |
 | MC-CANCELLATION-POLICY-001 | 1.0.0 | published | (nuværende) |
 | MC-REFUND-POLICY-001 | 1.0.0 | published | (nuværende) |
 
