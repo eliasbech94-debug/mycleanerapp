@@ -30,7 +30,7 @@ export default function FAQ() {
 
   // Built per render so the cancellation copy always reflects the policy in
   // force right now (48/24 before the v2 activation instant, 18/8 from it).
-  const ladder = cancellationLadderSentence(undefined, (key, vars) => t(key, vars as never) as string);
+  const ladder = cancellationLadderSentence(undefined, (key, vars) => String(t(key, vars as never)));
 
   return (
     <>

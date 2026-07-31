@@ -19,7 +19,7 @@ function Bullets({ items }: { items: string[] }) {
 export default function Regler() {
   const { t } = useTranslation("common");
   const translate = (key: string, vars: Record<string, string | number>) =>
-    t(key, vars as never) as string;
+    String(t(key, vars as never));
   const list = (key: string): string[] => {
     const value = t(key, { returnObjects: true }) as unknown;
     return Array.isArray(value) ? (value as string[]) : [];
