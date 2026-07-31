@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { AccountingRulePack, RulePackStatus } from "@/lib/accounting";
 import {
@@ -44,6 +45,7 @@ export function computeDashboardTotals(packs: AccountingRulePack[]): DashboardTo
 }
 
 export default function RulePackDashboard({ packs }: { packs: AccountingRulePack[] }) {
+  const { t } = useTranslation("admin");
   const totals = useMemo(() => computeDashboardTotals(packs), [packs]);
 
   const coverage = useMemo(() => {
@@ -62,7 +64,7 @@ export default function RulePackDashboard({ packs }: { packs: AccountingRulePack
     <div className="grid gap-4 lg:grid-cols-3">
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-base">Rule Packs</CardTitle>
+          <CardTitle className="text-base">{t("rules.dashboard.rulePacksTitle")}</CardTitle>
         </CardHeader>
         <CardContent>
           <dl className="grid grid-cols-2 gap-3">
@@ -78,11 +80,11 @@ export default function RulePackDashboard({ packs }: { packs: AccountingRulePack
 
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-base">Coverage</CardTitle>
+          <CardTitle className="text-base">{t("rules.dashboard.coverageTitle")}</CardTitle>
         </CardHeader>
         <CardContent>
           {coverage.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Ingen lande er dækket endnu.</p>
+            <p className="text-sm text-muted-foreground">{t("rules.dashboard.noCountries")}</p>
           ) : (
             <ul className="space-y-2">
               {coverage.map(([country, status]) => (
@@ -101,28 +103,28 @@ export default function RulePackDashboard({ packs }: { packs: AccountingRulePack
 
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-base">Validation</CardTitle>
+          <CardTitle className="text-base">{t("rules.dashboard.validationTitle")}</CardTitle>
         </CardHeader>
         <CardContent>
           <ul className="space-y-2 text-sm">
             <li className="flex justify-between">
-              <span className="text-muted-foreground">Warnings</span>
+              <span className="text-muted-foreground">{t("rules.dashboard.warnings")}</span>
               <span className="font-medium text-foreground" data-testid="total-warnings">
                 {totals.warnings}
               </span>
             </li>
             <li className="flex justify-between">
-              <span className="text-muted-foreground">Blocking errors</span>
+              <span className="text-muted-foreground">{t("rules.dashboard.blockingErrors")}</span>
               <span className="font-medium text-destructive" data-testid="total-blocking">
                 {totals.blockingErrors}
               </span>
             </li>
             <li className="flex justify-between">
-              <span className="text-muted-foreground">Verificerede kilder</span>
+              <span className="text-muted-foreground">{t("rules.dashboard.verifiedSources")}</span>
               <span className="font-medium text-foreground">{totals.verifiedSources}</span>
             </li>
             <li className="flex justify-between">
-              <span className="text-muted-foreground">Udløbne rule packs</span>
+              <span className="text-muted-foreground">{t("rules.dashboard.expiredPacks")}</span>
               <span className="font-medium text-foreground">{totals.expired}</span>
             </li>
           </ul>
