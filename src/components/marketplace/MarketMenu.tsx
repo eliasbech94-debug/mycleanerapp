@@ -16,14 +16,18 @@ import {
 import { Button } from "@/components/ui/button";
 import { useActiveMarket } from "@/context/ActiveMarketContext";
 import { MARKETS } from "@/lib/markets";
+import { useMarketStatus } from "@/hooks/useMarketStatus";
 import { setManualLanguage, SUPPORTED_LANGUAGES, type SupportedLanguage } from "@/i18n";
 
-const OFFERED = new Set(["DK", "SE", "DE", "ES", "GB"]);
+// Launch markets we communicate about. Whether each one is bookable is
+// resolved from the server-managed lifecycle status — never hardcoded here.
+const LAUNCH_MARKETS = new Set(["DK", "SE", "DE", "ES", "GB"]);
 
 export function MarketMenu({ align = "end" }: { align?: "start" | "end" }) {
   const { t, i18n } = useTranslation("common");
   const { market, setMarket } = useActiveMarket();
-  const offered = MARKETS.filter((m) => OFFERED.has(m.code));
+  const { isBookable } = useMarketStatus();
+  const offered = MARKETS.filter((m) => LAUNCH_MARKETS.has(m.code));
 
   return (
     <DropdownMenu>
@@ -38,14 +42,33 @@ export function MarketMenu({ align = "end" }: { align?: "start" | "end" }) {
           <span className="hidden sm:inline">{market.flag} {market.code}</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align={align} className="w-56">
+      <DropdownMenuContent align={align} className="w-64">
         <DropdownMenuLabel>{t("country.label", "Country")}</DropdownMenuLabel>
-        {offered.map((m) => (
-          <DropdownMenuItem key={m.code} onClick={() => setMarket(m)}>
-            <span className="mr-2">{m.flag}</span> {m.label}
-            {m.code === market.code ? <span className="ml-auto text-xs text-[hsl(var(--mkt-ink-soft))]">•</span> : null}
-          </DropdownMenuItem>
-        ))}
+        {offered.map((m) => {
+          const live = isBookable(m.code);
+          return (
+            <DropdownMenuItem
+              key={m.code}
+              data-testid={`market-option-${m.code}`}
+              data-market-status={live ? "active" : "coming_soon"}
+              disabled={!live}
+              aria-disabled={!live}
+              onSelect={(e) => {
+                if (!live) { e.preventDefault(); return; }
+                setMarket(m);
+              }}
+            >
+              <span className="mr-2">{m.flag}</span> {m.label}
+              {!live && (
+                <span className="ml-auto rounded-full bg-[hsl(var(--mkt-surface-muted))] px-1.5 py-0.5 text-[10px] font-semibold text-[hsl(var(--mkt-ink-soft))]">
+                  {t("country.coming_soon", "Kommer snart")}
+                </span>
+              )}
+              {live && m.code === market.code ? <span className="ml-auto text-xs text-[hsl(var(--mkt-ink-soft))]">•</span> : null}
+            </DropdownMenuItem>
+          );
+        })}
+
         <DropdownMenuSeparator />
         <DropdownMenuLabel>{t("language.label", "Language")}</DropdownMenuLabel>
         {SUPPORTED_LANGUAGES.map((lng) => (
