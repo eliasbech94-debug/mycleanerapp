@@ -89,6 +89,12 @@ const SHARED_LITERALS = new Set([
   // Cognate adjectives spelled identically across da/sv/de/es.
   "Normal",
   "Flexible",
+  // Stripe API object and event identifiers — technical names, never localised.
+  "PaymentIntent:",
+  "payout.paid / payout.failed",
+  "transfer.created / transfer.updated",
+  "Stripe",
+  "Webhooks",
 ]);
 
 /**
@@ -152,6 +158,22 @@ const PER_KEY_ALLOWED_IDENTICAL = new Set([
   "de/finance:ui.reports.section.versionLabel",
   // "Provisional" is spelled identically in Spanish.
   "es/finance:ui.reports.section.provisional",
+  "da/admin:console.legal.sections.version",
+  "sv/admin:console.legal.sections.version",
+  "de/admin:console.legal.sections.version",
+  "da/finance:ui.reports.section.versionLabel",
+  "da/admin:console.providers.drawer.score",
+  "sv/admin:console.providers.drawer.score",
+  "da/admin:pages.adminPricing.region",
+  "sv/admin:pages.adminPricing.region",
+  "de/admin:pages.adminPricing.region",
+  "da/admin:ops.webhooks.detail.booking",
+  "da/admin:support.cases.bookingLabel",
+  "es/admin:support.bookings.error",
+  "es/admin:support.cases.error",
+  "es/admin:support.composer.uploadError",
+  "es/admin:support.customers.error",
+  "es/admin:support.providers.error",
 ]);
 
 /** Keys whose values are machine-readable, not user-facing prose. */

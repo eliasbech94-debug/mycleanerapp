@@ -56,7 +56,7 @@
         "noChapters": "Ingen kapitler endnu — opret det første kapitel.",
         "noEvents": "Ingen hændelser endnu.",
         "noReleases": "Ingen udgivelser endnu.",
-        "pdfPrint": "PDF / print",
+        "pdfPrint": "PDF / udskrift",
         "preview": "Forhåndsvisning",
         "publish": "Publicér",
         "publishDialogTitle": "Publicér {{title}}",
@@ -66,7 +66,7 @@
         "publishedHashToast": "Hash: {{hash}}",
         "publishedToast": "Publiceret som version {{version}}",
         "reviewAndPublish": "Gennemgå og publicér",
-        "rollback": "Rollback",
+        "rollback": "Tilbagerulning",
         "saveChapter": "Gem kapitel",
         "savedToast": "Gemt",
         "split": "Opdel",
@@ -78,13 +78,13 @@
     },
     "providers": {
       "drawer": {
-        "actionFailed": "Handling fejlet",
+        "actionFailed": "Handlingen mislykkedes",
         "actionOk": "OK: {{action}}",
         "actions": {
           "approve": "Godkend",
           "archive": "Arkivér",
           "freezePayout": "Frys udbetaling",
-          "pause": "Pause",
+          "pause": "Sæt på pause",
           "reject": "Afvis",
           "restore": "Gendan",
           "setPartner": "Sæt Partner",
@@ -99,19 +99,19 @@
         "colReason": "Årsag",
         "colScore": "Score",
         "colTier": "Niveau",
-        "completionBadge": "completion: {{value}}%",
+        "completionBadge": "fuldførelse: {{value}}%",
         "completionLabel": "Fuldførelse: {{pct}}% ({{done}}/{{total}})",
         "confirm": "Bekræft",
         "confirmAction": "Bekræft {{action}}",
         "confirmDescription": "Denne handling registreres i audit-log. Begrundelse: {{reason}}",
         "fallbackName": "Provider",
-        "flags": "Flags: {{value}}",
-        "identity": "identity: {{value}}",
+        "flags": "Markeringer: {{value}}",
+        "identity": "identitet: {{value}}",
         "missing": "mangler",
         "noFlags": "ingen",
         "noHistory": "Ingen historik",
         "none": "Ingen",
-        "payoutFrozen": "payout frozen",
+        "payoutFrozen": "udbetaling frosset",
         "reasonInputLabel": "Begrundelse (påkrævet for destruktive handlinger)",
         "reasonLabel": "Årsag: {{value}}",
         "reasonMissing": "(mangler)",
@@ -120,20 +120,20 @@
         "recalcScore": "Genberegn score/tier",
         "reconcileStatus": "Reconciler status",
         "score": "score: {{value}}",
-        "stripeNotReady": "stripe: not-ready",
-        "stripeReady": "stripe: ready",
+        "stripeNotReady": "stripe: ikke klar",
+        "stripeReady": "stripe: klar",
         "tabActions": "Handlinger",
-        "tabCompletion": "Onboarding",
+        "tabCompletion": "Opstart",
         "tabScore": "Score-historik",
         "tabTimeline": "Tidslinje",
         "tier": "tier: {{value}}",
         "tierHistoryTitle": "Tier-historik (afledt af score-snapshots)",
         "trustLevel": "Niveau: {{value}}",
-        "trustScore": "Trust Score: {{value}}",
+        "trustScore": "Tillidsscore: {{value}}",
         "trustTitle": "Intern Trust Score (kun admin)",
         "updateFailed": "Opdatering fejlet",
         "updated": "Opdateret: {{kind}}",
-        "visibility": "visibility: {{value}}"
+        "visibility": "synlighed: {{value}}"
       }
     }
   },
@@ -142,19 +142,19 @@
   "loading": "Indlæser…",
   "ops": {
     "accessLogs": {
-      "adminLink": "Admin",
+      "adminLink": "Administration",
       "anonymous": "anonym",
       "filters": {
         "allResults": "Alle resultater",
         "allRoutes": "Alle ruter",
         "resultPlaceholder": "Resultat",
-        "routePlaceholder": "Rute"
+        "routePlaceholder": "Sti"
       },
       "headers": {
         "allowedRoles": "Krævede roller",
         "reason": "Årsag",
         "result": "Resultat",
-        "route": "Rute",
+        "route": "Sti",
         "timestamp": "Tidspunkt",
         "user": "Bruger",
         "userRoles": "Brugerens roller"
@@ -198,7 +198,7 @@
         },
         "kyc": {
           "delta": "Venter på godkendelse",
-          "label": "Pending KYC"
+          "label": "Afventende KYC"
         },
         "providers": {
           "delta": "+4.2% fra i går",
@@ -217,7 +217,7 @@
       "recentPayments": {
         "headers": {
           "amount": "Beløb",
-          "bookingId": "Booking ID",
+          "bookingId": "Booking-ID",
           "customer": "Kunde",
           "status": "Status"
         },
@@ -244,10 +244,10 @@
       },
       "title": "Admin Oversigt",
       "webhookHealth": {
-        "emailDelivery": "Email Delivery",
-        "smsGateway": "SMS Gateway",
-        "stripeEvents": "Stripe Events",
-        "title": "Webhook Health"
+        "emailDelivery": "E-maillevering",
+        "smsGateway": "SMS-gateway",
+        "stripeEvents": "Stripe-hændelser",
+        "title": "Webhook-tilstand"
       }
     },
     "opsDashboard": {
@@ -298,8 +298,8 @@
         "filters": {
           "all": "Alle",
           "feeOff": "Gebyr afviger",
-          "marketHigh": "Over max",
-          "marketLow": "Under min",
+          "marketHigh": "Over maksimum",
+          "marketLow": "Under minimum",
           "noTransfer": "Mangler transfer",
           "ok": "OK"
         },
@@ -319,7 +319,7 @@
           "customerTotal": "Kundens betaling i alt",
           "deviation": "Afvigelse vs. marked",
           "fee": "Platformgebyr",
-          "flagged": "Flagged",
+          "flagged": "Markeret",
           "marketSpread": "Markedsspænd (min–max)",
           "providerTotal": "Providerens indtjening i alt"
         },
@@ -337,7 +337,7 @@
         "totalProvider": "Providernes indtjening i alt:"
       },
       "detail": {
-        "customerPays": "customer_pays = {{value}}",
+        "customerPays": "kunden betaler = {{value}}",
         "deviates": "✗ Afviger",
         "deviationVsMin": "Afvigelse vs. min:",
         "effective": "Effektivt: {{value}}%",
@@ -364,8 +364,8 @@
       },
       "issues": {
         "feeIssue": "gebyr {{pct}}% (forventet {{expected}}%)",
-        "marketHigh": "provider {{value}} > max {{max}}",
-        "marketLow": "provider {{value}} < min {{min}}",
+        "marketHigh": "provider {{value}} over maksimum {{max}}",
+        "marketLow": "provider {{value}} under minimum {{min}}",
         "splitMismatch": "split ≠ kundepris",
         "transferIssue": "transfer mangler/forkert"
       },
@@ -381,8 +381,8 @@
         "feeOff": "Gebyrafvigelse",
         "noTransfer": "Ingen transfer",
         "ok": "OK",
-        "overMax": "Over max",
-        "underMin": "Under min"
+        "overMax": "Over maksimum",
+        "underMin": "Under minimum"
       },
       "subtitle": "Betalingsopdeling, platformgebyr og markedspris pr. land",
       "title": "Betalingsverifikation",
@@ -390,13 +390,13 @@
     },
     "stripe": {
       "account": {
-        "accountId": "Account ID",
+        "accountId": "Konto-ID",
         "business": "Virksomhed",
         "chargesEnabled": "Kan modtage betalinger",
         "country": "Land",
         "defaultCurrency": "Standard valuta",
         "description": "Oplysninger hentet fra platformens Stripe-konto",
-        "email": "Email",
+        "email": "E-mail",
         "no": "Nej",
         "onboardingComplete": "Onboarding fuldført",
         "openDashboard": "Åbn Stripe dashboard",
@@ -418,16 +418,16 @@
         "valid": "Gyldig"
       },
       "mode": {
-        "live": "LIVE MODE",
-        "test": "TEST MODE",
+        "live": "LIVETILSTAND",
+        "test": "TESTTILSTAND",
         "unknown": "UKENDT"
       },
       "publishableKey": {
-        "label": "Publishable key"
+        "label": "Offentlig nøgle"
       },
       "refresh": "Opdater",
       "secretKey": {
-        "label": "Secret key"
+        "label": "Hemmelig nøgle"
       },
       "subtitle": "Automatisk kontrol af publishable key og secret key",
       "switchGuide": {
@@ -444,21 +444,21 @@
       "back": "Tilbage",
       "detail": {
         "booking": "Booking:",
-        "charge": "Charge:",
-        "eventId": "Event ID:",
+        "charge": "Betaling:",
+        "eventId": "Hændelses-ID:",
         "paymentIntent": "PaymentIntent:",
-        "payout": "Payout:",
+        "payout": "Udbetaling:",
         "rawPayload": "Rå payload",
-        "refund": "Refund:",
+        "refund": "Refusion:",
         "status": "Status:",
-        "transfer": "Transfer:"
+        "transfer": "Overførsel:"
       },
       "endpoint": {
         "description": "Tilføj denne URL i Stripe Dashboard → Developers → Webhooks",
         "eventPayout": "payout.paid / payout.failed",
         "eventTransfer": "transfer.created / transfer.updated",
         "recommendedEvents": "Anbefalede events at lytte på:",
-        "title": "Webhook endpoint"
+        "title": "Webhook-endepunkt"
       },
       "recentEvents": {
         "empty": "Ingen events endnu. De vises her i realtid når Stripe sender dem.",
@@ -471,22 +471,22 @@
       "reload": "Genindlæs",
       "stripeKeysLink": "Stripe nøgler",
       "subtitle": "Live status på betalinger, refunds og split-payouts",
-      "title": "Stripe webhooks"
+      "title": "Stripe-webhooks"
     }
   },
   "pages": {
     "adminAccountingReports": {
       "columns": {
         "country": "Land",
-        "income": "Income",
-        "month": "Month",
+        "income": "Indtægt",
+        "month": "Måned",
         "provider": "Provider",
         "reviewPoints": "Review Points",
         "rulePack": "Rule Pack",
         "status": "Status",
         "version": "Version"
       },
-      "failedCount": "Failed Count",
+      "failedCount": "{{count}} mislykkedes",
       "failedHelp": "Failed Help",
       "fetchFailed": "Fetch Failed",
       "loadingStatus": "Loading Status",
@@ -503,20 +503,20 @@
       "createdLog": "Created Log",
       "createdToast": "Created Toast",
       "newRulePack": "New Rule Pack",
-      "noAccessBody": "No Access Body",
+      "noAccessBody": "Du skal have tilladelsen \"{{permission}}\" for at få adgang til denne side.",
       "noAccessTitle": "No Access Title",
       "notProvisioned": "Not Provisioned",
       "subtitle": "Undertitel",
       "title": "Titel"
     },
     "adminAppeals": {
-      "actionFailed": "Handling fejlede",
+      "actionFailed": "Handlingen mislykkedes",
       "additionalInfo": "Additional Info",
       "aiAssistedNote": "Ai Assisted Note",
       "cantOpenDocument": "Cant Open Document",
-      "caseCount": "Case Count",
+      "caseCount": "{{count}} sager",
       "closedCases": "Closed Cases",
-      "decision": "Decision",
+      "decision": "Afgørelse",
       "filterAriaLabel": "Filter Aria Label",
       "maintainDecision": "Maintain Decision",
       "noCasesInView": "No Cases In View",
@@ -533,9 +533,9 @@
       "upholdAppeal": "Uphold Appeal"
     },
     "adminCampaigns": {
-      "actionFailed": "Handling fejlede",
-      "applicationActionDone": "Application Action Done",
-      "applicationsCount": "Applications Count",
+      "actionFailed": "Handlingen mislykkedes",
+      "applicationActionDone": "Ansøgning {{action}}",
+      "applicationsCount": "{{count}} ansøgninger",
       "approve": "Godkend",
       "consoleDisabled": "Console Disabled",
       "csvExportFailed": "Csv Export Failed",
@@ -555,7 +555,7 @@
       "waitlist": "Venteliste"
     },
     "adminCareerVerification": {
-      "certificationTab": "Certification Tab",
+      "certificationTab": "Certificeringer ({{count}})",
       "city": "By",
       "country": "Land",
       "current": "Nuværende",
@@ -572,7 +572,7 @@
       "noWorkHistory": "No Work History",
       "open": "Åbn",
       "openDocFailed": "Open Doc Failed",
-      "pendingCount": "Pending Count",
+      "pendingCount": "{{count}} afventer",
       "reject": "Afvis",
       "requestMoreInfo": "Request More Info",
       "saveDecisionFailed": "Save Decision Failed",
@@ -583,7 +583,7 @@
       "title": "Titel",
       "to": "Til",
       "verify": "Verificér",
-      "workHistoryTab": "Work History Tab"
+      "workHistoryTab": "Joberfaring ({{count}})"
     },
     "adminDesignSystem": {
       "alertError": "Alert Error",
@@ -596,10 +596,10 @@
       "title": "Titel"
     },
     "adminKnowledge": {
-      "actionCompleted": "Handling gennemført",
-      "actionFailed": "Handling fejlede",
-      "actionFailedLabel": "fejlede",
-      "actionOk": "OK",
+      "actionCompleted": "{{action}} gennemført",
+      "actionFailed": "{{action}} mislykkedes",
+      "actionFailedLabel": "{{label}} mislykkedes",
+      "actionOk": "{{label}}: gennemført",
       "approve": "Godkend",
       "archive": "Arkivér",
       "archiveDescription": "Arkivering fjerner artiklen fra provider-visning. Handlingen skal godkendes af en super_admin.",
@@ -608,22 +608,22 @@
       "changeSummary": "Change summary (til versionshistorik)",
       "close": "Luk",
       "confirm": "Bekræft",
-      "confirmAction": "Bekræft",
+      "confirmAction": "Bekræft {{action}}",
       "contentField": "Indhold (markdown, ingen rå HTML)",
       "couldNotCreateArticle": "Kunne ikke oprette artikel",
       "couldNotFetchArticles": "Kunne ikke hente artikler",
       "couldNotSave": "Kunne ikke gemme",
       "edit": "Rediger",
       "emergency": "Nødsituation",
-      "emergencyInfoFor": "Emergency info",
+      "emergencyInfoFor": "Nødinformation for {{country}}",
       "emergencyInfoHint": "Verify og Publish er adskilte handlinger. Redigering af telefonnummer eller kilde nulstiller verifikationen. Placeholder-numre må aldrig publiceres.",
       "emergencyInfoTitle": "Country emergency info",
-      "emptyStatus": "Intet indhold. Ingen demoartikler.",
+      "emptyStatus": "Ingen artikler med status \"{{status}}\"",
       "fire": "Brand",
       "loading": "Henter…",
       "loadingRoles": "Henter roller…",
       "medical": "Ambulance",
-      "needsReverify": "publiceret artikel kræver reverifikation",
+      "needsReverify": "{{count}} publicerede artikler kræver ny verificering",
       "newArticle": "Ny artikel",
       "newArticleTitle": "Ny artikel",
       "noAccess": "Du har ikke adgang til Knowledge CMS. Kontakt en administrator.",
@@ -638,7 +638,7 @@
       "returnToDraft": "Retur til kladde",
       "reviewDate": "Review-dato",
       "riskField": "Risk",
-      "safetyCritical": "Safety-critical",
+      "safetyCritical": "Sikkerhedskritisk",
       "safetyEditWarning": "Ændringer i denne publicerede safety-critical artikel nulstiller workflowet automatisk (tilbage til draft). Providers ser først den nye version efter reverifikation, approval og publish.",
       "save": "Gem",
       "saveDraft": "Gem kladde",
@@ -655,11 +655,11 @@
       "verify": "Verificér",
       "verifyFailed": "Verify fejlede",
       "versionHistory": "Versionshistorik (read-only)",
-      "versionUpdated": "opdateret"
+      "versionUpdated": "v{{version}} · opdateret {{date}}"
     },
     "adminPricing": {
       "active": "Aktiv",
-      "activeRules": "Aktive regler",
+      "activeRules": "Aktive regler ({{count}})",
       "addMultiplier": "Tilføj multiplikator",
       "addRule": "Tilføj regel",
       "bps": "Bps",
@@ -668,7 +668,7 @@
       "cur": "Valuta",
       "currency": "Valuta",
       "key": "Nøgle",
-      "label": "Label",
+      "label": "Etiket",
       "marketRules": "Markedsregler",
       "max": "Maks",
       "maxMinor": "Max Minor",
@@ -678,7 +678,7 @@
       "multiplierBps": "Multiplikator (bps)",
       "multiplierRequiredFields": "Land, nøgle og bps påkrævet",
       "multipliers": "Multiplikatorer",
-      "multipliersCount": "Multiplikatorer",
+      "multipliersCount": "Multiplikatorer ({{count}})",
       "newMultiplier": "Ny multiplikator",
       "newRule": "Ny regel",
       "postcode": "Postnummer",
@@ -695,20 +695,20 @@
     },
     "adminProviders": {
       "accessDenied": "Adgang nægtet (403)",
-      "allOption": "Alle",
+      "allOption": "Alle {{option}}",
       "approve": "Godkend",
       "archive": "Arkivér",
-      "bulkActionResult": "ok, fejlet",
-      "completion": "Compl.",
-      "confirmBulkAction": "Bekræft handling",
+      "bulkActionResult": "{{ok}} lykkedes, {{fail}} mislykkedes",
+      "completion": "Fuldførelse",
+      "confirmBulkAction": "{{action}} {{count}} providere?",
       "identity": "Identitet",
-      "minScore": "Min. score",
-      "minScoreAria": "Minimum score",
+      "minScore": "Mindste score",
+      "minScoreAria": "Minimumsscore",
       "name": "Navn",
       "nextPage": "Næste side",
       "noName": "(uden navn)",
       "noProvidersMatch": "Ingen providere matcher",
-      "pageOf": "Side",
+      "pageOf": "Side {{page}} af {{pages}}",
       "previousPage": "Forrige side",
       "refreshScore": "Opdater score",
       "reviewQueue": "Review-kø",
@@ -717,9 +717,9 @@
       "searchAria": "Søg efter provider",
       "searchPlaceholder": "Søg navn…",
       "selectAllAria": "Vælg alle",
-      "selectRowAria": "Vælg",
-      "selectedCount": "valgt",
-      "showing": "Viser",
+      "selectRowAria": "Vælg {{name}}",
+      "selectedCount": "{{count}} valgt",
+      "showing": "Viser {{count}} af {{total}}",
       "status": "Status",
       "stripe": "Stripe",
       "suspend": "Suspendér",
@@ -731,14 +731,14 @@
       "cancel": "Annullér",
       "confirm": "Bekræft",
       "confirmRoleChangeTitle": "Confirm Role Change Title",
-      "giveRole": "Give Role",
-      "grant": "Grant",
+      "giveRole": "Tildel {{role}}",
+      "grant": "Tildel",
       "loggedPermanently": "Logged Permanently",
       "noName": "(uden navn)",
       "noUsersMatch": "No Users Match",
       "reasonPlaceholder": "Reason Placeholder",
-      "remove": "Remove",
-      "removeRole": "Remove Role",
+      "remove": "Fjern",
+      "removeRole": "Fjern {{role}}",
       "roleForUser": "Role For User",
       "roleGranted": "Role Granted",
       "roleRevoked": "Role Revoked",
@@ -754,10 +754,10 @@
       "confirmPublish": "Confirm Publish",
       "currency": "Valuta",
       "publishNewVersion": "Publicér ny version",
-      "publishVersionConfirm": "Publicér v",
+      "publishVersionConfirm": "Publicér version {{version}}?",
       "publishWarning": "Eksisterende bookinger, fakturaer og kreditnotaer bliver IKKE genberegnet. Den nuværende version bliver uforanderlig.",
       "publishedNewVersion": "Ny version publiceret",
-      "sectionManaged": "håndteres via dedikerede admin-endpoints (Stripe-status er read-only og viser aldrig hemmeligheder).",
+      "sectionManaged": "{{section}} håndteres et andet sted.",
       "subtitle": "Undertitel",
       "timezone": "Tidszone",
       "title": "Titel",
@@ -1065,7 +1065,7 @@
       "hint": "Ctrl/⌘+Enter for at sende · Max {{maxMb}} MB",
       "sendNoteAria": "Send intern note",
       "sendReplyAria": "Send svar",
-      "sendNote": "Send note",
+      "sendNote": "Send notat",
       "send": "Send",
       "discardConfirm": "Du har en ikke-sendt kladde. Vil du kassere den?"
     },
@@ -1092,7 +1092,7 @@
       "closedNotice": "Sagen er lukket. Genåbn for at kunne svare.",
       "live": "Live",
       "offlineTitle": "Genopretter forbindelse",
-      "offline": "Offline",
+      "offline": "Ikke online",
       "connecting": "Forbinder"
     },
     "inboxPage": {

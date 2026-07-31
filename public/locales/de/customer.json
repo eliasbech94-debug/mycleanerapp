@@ -578,10 +578,10 @@
       "clickToOpenProfile": "Klicken, um Profil zu öffnen",
       "filterByServiceArea": "Nach Servicegebiet filtern (Mehrfachauswahl)",
       "filterCleaners": "Reinigungskräfte filtern",
-      "instantBook": "Instant Book",
+      "instantBook": "Sofort buchen",
       "maxHourlyRate": "Max. Stundenpreis",
       "minExperience": "Min. Jahre Erfahrung",
-      "minRating": "Min. Bewertung",
+      "minRating": "Mindestbewertung",
       "moveMapToSeeProviders": "Bewege die Karte oder zoome heraus, um Anbieter zu sehen.",
       "somethingWentWrong": "Etwas ist schiefgelaufen",
       "title": "Finde deine Reinigungskraft"
@@ -602,7 +602,7 @@
         "dashboard": "Dashboard",
         "employeePortal": "Mitarbeiter",
         "faq": "FAQ",
-        "findCleaner": "Reinigungskraft finden",
+        "findCleaner": "Cleaner finden",
         "howItWorks": "So funktioniert's",
         "myBookings": "Meine Buchungen",
         "myProfile": "Mein Profil",
@@ -610,14 +610,14 @@
         "receipts": "Belege & Ausgaben",
         "rules": "Regeln"
       },
-      "toggleMenu": "Menü umschalten"
+      "toggleMenu": "Menü ein-/ausblenden"
     },
     "marketplace": {
       "allServices": "Alle Services",
       "allTiers": "Alle Stufen",
       "findCleaner": "Reinigungskraft finden",
       "maxHourlyRatePlaceholder": "Max. Stundenpreis",
-      "minTierPlaceholder": "Min. Stufe",
+      "minTierPlaceholder": "Mindeststufe",
       "next": "Weiter",
       "noneMatchFilters": "Keine Anbieter entsprechen deinen Filtern.",
       "subtitle": "Durchsuche verifizierte Anbieter. Buche direkt in deren Kalender."
