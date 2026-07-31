@@ -175,7 +175,7 @@ export function RootRouteSwitch() {
 
 function AppChrome() {
   const { pathname } = useLocation();
-  const isSupportWorkspace = /^\/(?:dk|gb|se|es\/)?support(?:\/|$)/.test(pathname);
+  const isSupportWorkspace = /^\/(?:(?:dk|gb|se|es)\/)?support(?:\/|$)/.test(pathname);
 
   return (
     <>
