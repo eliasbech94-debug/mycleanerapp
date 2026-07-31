@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useCallback, KeyboardEvent } from "react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
+import i18next from "i18next";
 import { Loader2, Lock, Paperclip, RotateCw, Send, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -325,5 +326,5 @@ function ModeTab({
 export function confirmDiscardIfDirty(conversationId: string): boolean {
   if (!hasAnyDraft(conversationId)) return true;
   // eslint-disable-next-line no-alert
-  return window.confirm(t("support.composer.discardConfirm"));
+  return window.confirm(i18next.t("support.composer.discardConfirm", { ns: "admin" }));
 }
