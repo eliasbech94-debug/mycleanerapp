@@ -48,9 +48,27 @@ export function nextOccurrenceAt(
   recurrence: BookingRecurrence,
 ): Date {
   if (Number.isNaN(current.getTime())) throw new Error("invalid_occurrence_date");
+
   const next = new Date(current.getTime());
-  if (recurrence === "weekly") next.setUTCDate(next.getUTCDate() + 7);
-  else if (recurrence === "biweekly") next.setUTCDate(next.getUTCDate() + 14);
-  else next.setUTCMonth(next.getUTCMonth() + 1);
+  if (recurrence === "weekly") {
+    next.setUTCDate(next.getUTCDate() + 7);
+    return next;
+  }
+  if (recurrence === "biweekly") {
+    next.setUTCDate(next.getUTCDate() + 14);
+    return next;
+  }
+
+  // Preserve the intended day-of-month where possible and clamp to the last
+  // valid day in shorter months. Jan 31 therefore becomes Feb 28/29, not Mar 3.
+  const originalDay = next.getUTCDate();
+  next.setUTCDate(1);
+  next.setUTCMonth(next.getUTCMonth() + 1);
+  const lastDayOfTargetMonth = new Date(Date.UTC(
+    next.getUTCFullYear(),
+    next.getUTCMonth() + 1,
+    0,
+  )).getUTCDate();
+  next.setUTCDate(Math.min(originalDay, lastDayOfTargetMonth));
   return next;
 }
