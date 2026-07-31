@@ -374,7 +374,16 @@
     "availableTimes": "Lediga tider",
     "servicesAndPrices": "Tjänster och priser",
     "understood": "Uppfattat",
-    "noConversationsInFilter": "Inga konversationer i det här filtret."
+    "noConversationsInFilter": "Inga konversationer i det här filtret.",
+    "login": {
+      "continueWithEmail": "eller fortsätt med e-post",
+      "fullName": "Fullständigt namn",
+      "countryUK": "Storbritannien",
+      "newHere": "Ny här?",
+      "createAccount": "Skapa konto",
+      "alreadyHaveAccount": "Har du redan ett konto?",
+      "signIn": "Logga in"
+    }
   },
   "welcome_video": {
     "title": "Välkommen till MyCleaner 🎉",

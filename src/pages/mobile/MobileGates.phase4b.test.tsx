@@ -10,11 +10,15 @@
  *  4. MobileSearch chip catalogue is cleaning-only.
  *  5. mobileSearch.chips localisations contain no non-cleaning keys.
  */
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, vi, afterEach } from "vitest";
 import { render, screen, cleanup } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import fs from "node:fs";
 import path from "node:path";
+// Static imports: `vi.mock` factories below are hoisted above them, so the
+// mocked modules are still what these components resolve.
+import Header from "@/components/layout/Header";
+import { shouldShowMobileNav } from "@/components/layout/MobileBottomNav";
 
 // ---- shared mocks ------------------------------------------------------
 
@@ -59,7 +63,17 @@ function setViewport(width: number) {
   })) as unknown as typeof window.matchMedia;
 }
 
-beforeEach(() => vi.resetModules());
+/**
+ * No `vi.resetModules()` here on purpose.
+ *
+ * The viewport is read during render (`useState(() => window.innerWidth < 768)`
+ * in Header, `window.matchMedia` inside an effect), never at module-evaluation
+ * time, so a fresh module registry buys nothing. It only forced every test to
+ * re-evaluate Header's whole transitive graph through a dynamic `import()`,
+ * which is what made the first case time out at 5s under full-suite load while
+ * passing in isolation. Static imports keep the graph loaded once and make the
+ * assertions deterministic.
+ */
 afterEach(() => cleanup());
 
 // ---- 1. Header hiding on mobile shell routes ---------------------------
@@ -68,9 +82,8 @@ const SHELL_PATHS = ["/marketplace", "/mine-bookinger", "/customer/bookings"];
 
 describe("Header — mobile shell duplicate-header suppression", () => {
   for (const p of SHELL_PATHS) {
-    it(`returns null at 390px on ${p}`, async () => {
+    it(`returns null at 390px on ${p}`, () => {
       setViewport(390);
-      const Header = (await import("@/components/layout/Header")).default;
       const { container } = render(
         <MemoryRouter initialEntries={[p]}>
           <Header />
@@ -79,9 +92,8 @@ describe("Header — mobile shell duplicate-header suppression", () => {
       expect(container.firstChild).toBeNull();
     });
 
-    it(`renders at 768px on ${p} (desktop preserved)`, async () => {
+    it(`renders at 768px on ${p} (desktop preserved)`, () => {
       setViewport(768);
-      const Header = (await import("@/components/layout/Header")).default;
       const { container } = render(
         <MemoryRouter initialEntries={[p]}>
           <Header />
@@ -90,9 +102,8 @@ describe("Header — mobile shell duplicate-header suppression", () => {
       expect(container.firstChild).not.toBeNull();
     });
 
-    it(`renders at 1440px on ${p} (desktop unchanged)`, async () => {
+    it(`renders at 1440px on ${p} (desktop unchanged)`, () => {
       setViewport(1440);
-      const Header = (await import("@/components/layout/Header")).default;
       const { container } = render(
         <MemoryRouter initialEntries={[p]}>
           <Header />
@@ -103,11 +114,11 @@ describe("Header — mobile shell duplicate-header suppression", () => {
   }
 });
 
+
 // ---- 2. MobileBottomNav route detection --------------------------------
 
 describe("MobileBottomNav — shouldShowMobileNav route matching", () => {
-  it("matches /marketplace and country-prefixed marketplace paths", async () => {
-    const { shouldShowMobileNav } = await import("@/components/layout/MobileBottomNav");
+  it("matches /marketplace and country-prefixed marketplace paths", () => {
     for (const p of [
       "/marketplace",
       "/marketplace/",
@@ -120,8 +131,7 @@ describe("MobileBottomNav — shouldShowMobileNav route matching", () => {
     }
   });
 
-  it("matches /customer/bookings and /mine-bookinger with country prefixes", async () => {
-    const { shouldShowMobileNav } = await import("@/components/layout/MobileBottomNav");
+  it("matches /customer/bookings and /mine-bookinger with country prefixes", () => {
     for (const p of [
       "/mine-bookinger",
       "/dk/mine-bookinger",
@@ -133,16 +143,14 @@ describe("MobileBottomNav — shouldShowMobileNav route matching", () => {
     }
   });
 
-  it("query parameters and deep links do not break detection", async () => {
-    const { shouldShowMobileNav } = await import("@/components/layout/MobileBottomNav");
+  it("query parameters and deep links do not break detection", () => {
     // useLocation().pathname never contains ?query, but guard anyway.
     expect(shouldShowMobileNav("/marketplace")).toBe(true);
     expect(shouldShowMobileNav("/dk/marketplace/")).toBe(true);
     expect(shouldShowMobileNav("/customer/bookings")).toBe(true);
   });
 
-  it("does not match admin / employee dashboards", async () => {
-    const { shouldShowMobileNav } = await import("@/components/layout/MobileBottomNav");
+  it("does not match admin / employee dashboards", () => {
     expect(shouldShowMobileNav("/admin")).toBe(false);
     expect(shouldShowMobileNav("/employee")).toBe(false);
   });

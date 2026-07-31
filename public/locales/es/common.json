@@ -374,7 +374,16 @@
     "availableTimes": "Horarios disponibles",
     "servicesAndPrices": "Servicios y precios",
     "understood": "Entendido",
-    "noConversationsInFilter": "No hay conversaciones en este filtro."
+    "noConversationsInFilter": "No hay conversaciones en este filtro.",
+    "login": {
+      "continueWithEmail": "o continúa con el correo electrónico",
+      "fullName": "Nombre completo",
+      "countryUK": "Reino Unido",
+      "newHere": "¿Eres nuevo por aquí?",
+      "createAccount": "Crear cuenta",
+      "alreadyHaveAccount": "¿Ya tienes una cuenta?",
+      "signIn": "Iniciar sesión"
+    }
   },
   "welcome_video": {
     "title": "Te damos la bienvenida a MyCleaner 🎉",

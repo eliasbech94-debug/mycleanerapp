@@ -5,9 +5,11 @@
  * contract: fields, legal consent, Turnstile, Google OAuth, submit path
  * and redirect behaviour, plus the no-hamburger rule on auth routes.
  */
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, act, waitFor } from "@testing-library/react";
+import { describe, it, expect, vi, beforeAll, beforeEach, afterEach } from "vitest";
+import { render, screen, fireEvent, act, waitFor, cleanup } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
+import type { i18n as I18nInstance } from "i18next";
+import { createTestI18n, I18nTestProvider } from "@/test/i18n";
 import { isAuthRoute } from "@/components/layout/Header";
 import { EARLY_ACCESS_MODE, isBookingLocked } from "@/config/launch";
 
@@ -53,11 +55,23 @@ vi.mock("@/components/Turnstile", () => ({
 
 import Login from "@/pages/Login";
 
+/**
+ * Login renders real `t("ui.login.*")` copy, so the tree needs a real i18next
+ * instance. A per-file isolated instance (see src/test/i18n.tsx) keeps the
+ * bundles identical to production without touching the global singleton.
+ */
+let i18n: I18nInstance;
+beforeAll(async () => {
+  i18n = await createTestI18n({ lng: "da", namespaces: ["common"] });
+});
+
 function renderLogin(path = "/login") {
   return render(
-    <MemoryRouter initialEntries={[path]}>
-      <Login />
-    </MemoryRouter>,
+    <I18nTestProvider i18n={i18n}>
+      <MemoryRouter initialEntries={[path]}>
+        <Login />
+      </MemoryRouter>
+    </I18nTestProvider>,
   );
 }
 
@@ -66,6 +80,11 @@ beforeEach(() => {
   turnstileToken = null;
   window.history.replaceState({}, "", "/login");
 });
+
+afterEach(() => {
+  cleanup();
+});
+
 
 describe("auth redesign — login", () => {
   it("renders the new login copy and CTA", async () => {
