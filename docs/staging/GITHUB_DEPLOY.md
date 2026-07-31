@@ -73,7 +73,7 @@ Expected duration: ~8–12 minutes.
 ## What this workflow does NOT do (yet)
 
 - Does not push edge function secrets (Stripe test keys, Sumsub sandbox,
-  Twilio, Resend, etc.). Add those in the Supabase dashboard → Edge Functions
+  GatewayAPI, Resend, etc.). Add those in the Supabase dashboard → Edge Functions
   → Manage secrets, using `staging.secrets.example` as the checklist.
 - Does not configure Auth providers. Do that in the dashboard →
   Authentication → Providers / URL Configuration.

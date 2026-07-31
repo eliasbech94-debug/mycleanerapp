@@ -82,7 +82,7 @@ load/
 - It does not run against production.
 - It does not create real Stripe transfers on live accounts (Connect test
   accounts only).
-- It does not send real SMS (Twilio test creds required, else scenario
+- It does not send real SMS (GatewayAPI credentials required, else scenario
   is skipped and marked SKIP, never PASS).
 - It does not touch `country_configs` or feature flags — those are
   environment state, not test state.

@@ -110,7 +110,7 @@ Supabase dashboard → **Authentication → Providers**:
 - **Google**: ON, staging OAuth client (create a new one in Google Cloud with
   redirect `https://staging.mycleaner.dk/auth/callback`).
 - **Apple**: ON (optional for staging).
-- **SMS (Twilio)**: ON with the sandbox credentials from `staging.secrets`.
+- **SMS (GatewayAPI)**: ON with the credentials from `staging.secrets`.
 
 **Authentication → URL Configuration** — add:
 
@@ -432,8 +432,8 @@ Copied from `staging.secrets.example` — see that file for placeholders.
 
 Runtime: `STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET`,
 `STRIPE_CONNECT_WEBHOOK_SECRET`, `SUMSUB_APP_TOKEN`, `SUMSUB_SECRET_KEY`,
-`SUMSUB_WEBHOOK_SECRET`, `SUMSUB_BASE_URL`, `TWILIO_ACCOUNT_SID`,
-`TWILIO_AUTH_TOKEN`, `TWILIO_MESSAGING_SERVICE_SID`, `GOOGLE_MAPS_SERVER_KEY`,
+`SUMSUB_WEBHOOK_SECRET`, `SUMSUB_BASE_URL`, `GATEWAYAPI_API_TOKEN`,
+`GATEWAYAPI_SENDER`, `GATEWAYAPI_BASE_URL`, `GOOGLE_MAPS_SERVER_KEY`,
 `TURNSTILE_SECRET_KEY`, `LOVABLE_API_KEY`, `SENTRY_DSN`, `SENTRY_ENVIRONMENT`,
 `RESEND_API_KEY`, `EMAIL_FROM_ADDRESS`, `TAX_ID_ENCRYPTION_KEY`,
 `APP_BASE_URL`, `APP_ENVIRONMENT`, `ALLOWED_ORIGINS`.
