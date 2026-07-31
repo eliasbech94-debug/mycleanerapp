@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -56,6 +57,7 @@ function fmtMoney(amount: number | null, currency: string | null) {
 }
 
 export default function AdminPayments() {
+  const { t } = useTranslation("admin");
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [events, setEvents] = useState<WebhookEvent[]>([]);
   const [thresholds, setThresholds] = useState<Threshold[]>([]);
@@ -196,21 +198,30 @@ export default function AdminPayments() {
     return Array.from(map.entries()).sort((a, b) => b[1].sumCustomer - a[1].sumCustomer);
   }, [rows]);
 
+  const filterOptions = [
+    ["all", t("ops.payments.bookings.filters.all")],
+    ["ok", t("ops.payments.bookings.filters.ok")],
+    ["fee_off", t("ops.payments.bookings.filters.feeOff")],
+    ["market_low", t("ops.payments.bookings.filters.marketLow")],
+    ["market_high", t("ops.payments.bookings.filters.marketHigh")],
+    ["no_transfer", t("ops.payments.bookings.filters.noTransfer")],
+  ] as const;
+
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
       <div className="max-w-6xl mx-auto space-y-6">
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div>
-            <h1 className="text-3xl font-serif">Betalingsverifikation</h1>
+            <h1 className="text-3xl font-serif">{t("ops.payments.title")}</h1>
             <p className="text-muted-foreground text-sm">
-              Betalingsopdeling, platformgebyr og markedspris pr. land
+              {t("ops.payments.subtitle")}
             </p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" asChild><Link to="/admin">Tilbage</Link></Button>
-            <Button variant="outline" asChild><Link to="/admin/webhooks">Webhooks</Link></Button>
+            <Button variant="outline" asChild><Link to="/admin">{t("ops.payments.back")}</Link></Button>
+            <Button variant="outline" asChild><Link to="/admin/webhooks">{t("ops.payments.webhooksLink")}</Link></Button>
             <Button onClick={load} disabled={loading}>
-              <RefreshCw className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`} />Genindlæs
+              <RefreshCw className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`} />{t("ops.payments.reload")}
             </Button>
           </div>
         </div>
@@ -218,27 +229,27 @@ export default function AdminPayments() {
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
           <Card><CardContent className="pt-4">
-            <p className="text-xs uppercase text-muted-foreground">Bookinger</p>
+            <p className="text-xs uppercase text-muted-foreground">{t("ops.payments.stats.bookings")}</p>
             <p className="text-2xl font-serif">{stats.total}</p>
           </CardContent></Card>
           <Card><CardContent className="pt-4">
-            <p className="text-xs uppercase text-muted-foreground">OK</p>
+            <p className="text-xs uppercase text-muted-foreground">{t("ops.payments.stats.ok")}</p>
             <p className="text-2xl font-serif text-emerald-600">{stats.okCount}</p>
           </CardContent></Card>
           <Card><CardContent className="pt-4">
-            <p className="text-xs uppercase text-muted-foreground">Gebyrafvigelse</p>
+            <p className="text-xs uppercase text-muted-foreground">{t("ops.payments.stats.feeOff")}</p>
             <p className="text-2xl font-serif text-orange-600">{stats.feeOff}</p>
           </CardContent></Card>
           <Card><CardContent className="pt-4">
-            <p className="text-xs uppercase text-muted-foreground">Under min</p>
+            <p className="text-xs uppercase text-muted-foreground">{t("ops.payments.stats.underMin")}</p>
             <p className="text-2xl font-serif text-amber-600">{stats.marketLow}</p>
           </CardContent></Card>
           <Card><CardContent className="pt-4">
-            <p className="text-xs uppercase text-muted-foreground">Over max</p>
+            <p className="text-xs uppercase text-muted-foreground">{t("ops.payments.stats.overMax")}</p>
             <p className="text-2xl font-serif text-fuchsia-600">{stats.marketHigh}</p>
           </CardContent></Card>
           <Card><CardContent className="pt-4">
-            <p className="text-xs uppercase text-muted-foreground">Ingen transfer</p>
+            <p className="text-xs uppercase text-muted-foreground">{t("ops.payments.stats.noTransfer")}</p>
             <p className="text-2xl font-serif text-red-600">{stats.noTransfer}</p>
           </CardContent></Card>
         </div>
@@ -246,15 +257,15 @@ export default function AdminPayments() {
         {/* Config + summary */}
         <Card>
           <CardHeader>
-            <CardTitle>Konfiguration</CardTitle>
+            <CardTitle>{t("ops.payments.config.title")}</CardTitle>
             <CardDescription>
-              Forventet platformgebyr i procent af den samlede pris. Bookinger der afviger mere end ±{FEE_TOLERANCE_PCT} pp markeres.
+              {t("ops.payments.config.description", { tolerance: FEE_TOLERANCE_PCT })}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex flex-wrap items-end gap-4">
               <div className="space-y-1">
-                <Label htmlFor="fee">Forventet platformgebyr (%)</Label>
+                <Label htmlFor="fee">{t("ops.payments.config.feeLabel")}</Label>
                 <Input
                   id="fee" type="number" step="0.5" min={0} max={100}
                   value={expectedFee}
@@ -263,18 +274,18 @@ export default function AdminPayments() {
                 />
               </div>
               <div className="text-xs text-muted-foreground max-w-md">
-                Min/max timelønstærskler redigeres pr. land i tabellen nederst på siden.
+                {t("ops.payments.config.thresholdsHint")}
               </div>
               <div className="text-sm text-muted-foreground">
-                Faktisk gns. platformgebyr:{" "}
+                {t("ops.payments.config.actualAvgFee")}{" "}
                 <span className="font-semibold text-foreground">{stats.avgFeePct.toFixed(2)}%</span>
               </div>
             </div>
 
             <div className="text-sm space-y-1">
-              <p><span className="text-muted-foreground">Kundens betalinger i alt:</span> {(stats.sumCustomer / 100).toLocaleString()} (cent enheder)</p>
-              <p><span className="text-muted-foreground">Providernes indtjening i alt:</span> {(stats.sumProvider / 100).toLocaleString()}</p>
-              <p><span className="text-muted-foreground">Platformgebyr i alt:</span> {(stats.sumFee / 100).toLocaleString()}</p>
+              <p><span className="text-muted-foreground">{t("ops.payments.config.totalCustomer")}</span> {(stats.sumCustomer / 100).toLocaleString()} {t("ops.payments.config.centUnits")}</p>
+              <p><span className="text-muted-foreground">{t("ops.payments.config.totalProvider")}</span> {(stats.sumProvider / 100).toLocaleString()}</p>
+              <p><span className="text-muted-foreground">{t("ops.payments.config.totalFee")}</span> {(stats.sumFee / 100).toLocaleString()}</p>
             </div>
           </CardContent>
         </Card>
@@ -282,32 +293,32 @@ export default function AdminPayments() {
         {/* Per currency */}
         <Card>
           <CardHeader>
-            <CardTitle>Pr. valuta / land</CardTitle>
-            <CardDescription>Aggregeret omsætning og min. timeløn pr. land</CardDescription>
+            <CardTitle>{t("ops.payments.byCurrency.title")}</CardTitle>
+            <CardDescription>{t("ops.payments.byCurrency.description")}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="text-left border-b">
-                    <th className="py-2 pr-3">Valuta</th>
-                    <th className="py-2 pr-3">Land</th>
-                    <th className="py-2 pr-3">Bookinger</th>
-                    <th className="py-2 pr-3">Kundens betaling i alt</th>
-                    <th className="py-2 pr-3">Providerens indtjening i alt</th>
-                    <th className="py-2 pr-3">Platformgebyr</th>
-                    <th className="py-2 pr-3">Markedsspænd (min–max)</th>
-                    <th className="py-2 pr-3">Faktisk timeløn (gns)</th>
-                    <th className="py-2 pr-3">Afvigelse vs. marked</th>
-                    <th className="py-2 pr-3">Flagged</th>
+                    <th className="py-2 pr-3">{t("ops.payments.byCurrency.headers.currency")}</th>
+                    <th className="py-2 pr-3">{t("ops.payments.byCurrency.headers.country")}</th>
+                    <th className="py-2 pr-3">{t("ops.payments.byCurrency.headers.bookings")}</th>
+                    <th className="py-2 pr-3">{t("ops.payments.byCurrency.headers.customerTotal")}</th>
+                    <th className="py-2 pr-3">{t("ops.payments.byCurrency.headers.providerTotal")}</th>
+                    <th className="py-2 pr-3">{t("ops.payments.byCurrency.headers.fee")}</th>
+                    <th className="py-2 pr-3">{t("ops.payments.byCurrency.headers.marketSpread")}</th>
+                    <th className="py-2 pr-3">{t("ops.payments.byCurrency.headers.actualHourly")}</th>
+                    <th className="py-2 pr-3">{t("ops.payments.byCurrency.headers.deviation")}</th>
+                    <th className="py-2 pr-3">{t("ops.payments.byCurrency.headers.flagged")}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {byCurrency.map(([cur, v]) => {
                     const c = countries.find((c) => c.currency === cur);
-                    const t = currencyThresholds.get(cur);
-                    const minR = t?.min ?? null;
-                    const maxR = t?.max ?? null;
+                    const t2 = currencyThresholds.get(cur);
+                    const minR = t2?.min ?? null;
+                    const maxR = t2?.max ?? null;
                     const actualHourly = v.sumHours > 0 ? (v.sumProvider / 100) / v.sumHours : null;
                     const deviationPct =
                       actualHourly != null && minR ? ((actualHourly - minR) / minR) * 100 : null;
@@ -322,7 +333,7 @@ export default function AdminPayments() {
                     return (
                       <tr key={cur} className="border-b last:border-0">
                         <td className="py-2 pr-3 font-mono">{cur}</td>
-                        <td className="py-2 pr-3">{c ? `${c.flag} ${c.name}` : (cur === "EUR" ? "EU (flere)" : "—")}</td>
+                        <td className="py-2 pr-3">{c ? `${c.flag} ${c.name}` : (cur === "EUR" ? t("ops.payments.byCurrency.euMultiple") : "—")}</td>
                         <td className="py-2 pr-3">{v.count}</td>
                         <td className="py-2 pr-3">{(v.sumCustomer / 100).toLocaleString()} {cur}</td>
                         <td className="py-2 pr-3">{(v.sumProvider / 100).toLocaleString()} {cur}</td>
@@ -345,7 +356,7 @@ export default function AdminPayments() {
                     );
                   })}
                   {byCurrency.length === 0 && (
-                    <tr><td className="py-6 text-muted-foreground text-center" colSpan={11}>Ingen registrerede betalinger endnu</td></tr>
+                    <tr><td className="py-6 text-muted-foreground text-center" colSpan={11}>{t("ops.payments.byCurrency.empty")}</td></tr>
                   )}
                 </tbody>
               </table>
@@ -356,16 +367,9 @@ export default function AdminPayments() {
         {/* Bookings list */}
         <Card>
           <CardHeader className="space-y-3">
-            <CardTitle>Bookinger med betaling</CardTitle>
+            <CardTitle>{t("ops.payments.bookings.title")}</CardTitle>
             <div className="flex flex-wrap gap-2">
-              {([
-                ["all", "Alle"],
-                ["ok", "OK"],
-                ["fee_off", "Gebyr afviger"],
-                ["market_low", "Under min"],
-                ["market_high", "Over max"],
-                ["no_transfer", "Mangler transfer"],
-              ] as const).map(([k, label]) => (
+              {filterOptions.map(([k, label]) => (
                 <Button
                   key={k}
                   size="sm"
@@ -377,19 +381,19 @@ export default function AdminPayments() {
           </CardHeader>
           <CardContent>
             {loading && bookings.length === 0 ? (
-              <p className="text-muted-foreground text-sm py-6 text-center">Henter...</p>
+              <p className="text-muted-foreground text-sm py-6 text-center">{t("ops.payments.bookings.loading")}</p>
             ) : filtered.length === 0 ? (
-              <p className="text-muted-foreground text-sm py-6 text-center">Ingen bookinger matcher filteret.</p>
+              <p className="text-muted-foreground text-sm py-6 text-center">{t("ops.payments.bookings.noneMatch")}</p>
             ) : (
               <div className="space-y-2">
                 {filtered.map((r) => {
                   const isOpen = expanded === r.b.id;
                   const issues: string[] = [];
-                  if (!r.splitOk) issues.push("split ≠ kundepris");
-                  if (!r.feeOk) issues.push(`gebyr ${r.effectiveFeePct.toFixed(1)}% (forventet ${expectedFee}%)`);
-                  if (r.marketLow) issues.push(`provider ${r.hourlyToProvider?.toFixed(0)} < min ${r.minRate}`);
-                  if (r.marketHigh) issues.push(`provider ${r.hourlyToProvider?.toFixed(0)} > max ${r.maxRate?.toFixed(0)}`);
-                  if (!r.transferOk) issues.push("transfer mangler/forkert");
+                  if (!r.splitOk) issues.push(t("ops.payments.issues.splitMismatch"));
+                  if (!r.feeOk) issues.push(t("ops.payments.issues.feeIssue", { pct: r.effectiveFeePct.toFixed(1), expected: expectedFee }));
+                  if (r.marketLow) issues.push(t("ops.payments.issues.marketLow", { value: r.hourlyToProvider?.toFixed(0), min: r.minRate }));
+                  if (r.marketHigh) issues.push(t("ops.payments.issues.marketHigh", { value: r.hourlyToProvider?.toFixed(0), max: r.maxRate?.toFixed(0) }));
+                  if (!r.transferOk) issues.push(t("ops.payments.issues.transferIssue"));
                   const ok = issues.length === 0;
                   return (
                     <div key={r.b.id} className="border rounded-lg overflow-hidden">
@@ -406,15 +410,15 @@ export default function AdminPayments() {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
                             <span className="font-semibold truncate">{r.b.service}</span>
-                            <span className="text-xs text-muted-foreground">· {r.b.provider_name ?? "?"}</span>
+                            <span className="text-xs text-muted-foreground">· {r.b.provider_name ?? t("ops.payments.row.unknownProvider")}</span>
                             {r.country && <Badge variant="outline">{r.country.flag} {r.country.code}</Badge>}
                             <Badge variant="secondary">{r.b.status}</Badge>
                             {r.b.payment_status && <Badge variant="outline">{r.b.payment_status}</Badge>}
                           </div>
                           <div className="text-xs text-muted-foreground mt-1 flex gap-3 flex-wrap">
-                            <span>Kundens betaling: {fmtMoney(r.cp, r.b.currency)}</span>
-                            <span>Providerens indtjening: {fmtMoney(r.pg, r.b.currency)}</span>
-                            <span>Platformgebyr: {fmtMoney(r.fee, r.b.currency)} ({r.effectiveFeePct.toFixed(1)}%)</span>
+                            <span>{t("ops.payments.row.customerPayment")} {fmtMoney(r.cp, r.b.currency)}</span>
+                            <span>{t("ops.payments.row.providerEarning")} {fmtMoney(r.pg, r.b.currency)}</span>
+                            <span>{t("ops.payments.row.platformFee")} {fmtMoney(r.fee, r.b.currency)} ({r.effectiveFeePct.toFixed(1)}%)</span>
                             {r.b.hours && <span>{r.b.hours}t</span>}
                           </div>
                         </div>
@@ -426,52 +430,52 @@ export default function AdminPayments() {
                         <div className="border-t bg-muted/30 p-3 text-xs space-y-3">
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                             <div>
-                              <p className="font-semibold mb-1">Kontrol af betalingsopdeling</p>
+                              <p className="font-semibold mb-1">{t("ops.payments.detail.splitCheckTitle")}</p>
                               <p>provider_gets + platform_fee = {fmtMoney(r.pg + r.fee, r.b.currency)}</p>
-                              <p>customer_pays = {fmtMoney(r.cp, r.b.currency)}</p>
+                              <p>{t("ops.payments.detail.customerPays", { value: fmtMoney(r.cp, r.b.currency) })}</p>
                               <p className={r.splitOk ? "text-emerald-600" : "text-orange-600"}>
-                                {r.splitOk ? "✓ Matcher" : "✗ Afviger"}
+                                {r.splitOk ? t("ops.payments.detail.matches") : t("ops.payments.detail.deviates")}
                               </p>
                             </div>
                             <div>
-                              <p className="font-semibold mb-1">Kontrol af platformgebyr</p>
-                              <p>Effektivt: {r.effectiveFeePct.toFixed(2)}%</p>
-                              <p>Forventet: {expectedFee}% (±{FEE_TOLERANCE_PCT}pp)</p>
+                              <p className="font-semibold mb-1">{t("ops.payments.detail.feeCheckTitle")}</p>
+                              <p>{t("ops.payments.detail.effective", { value: r.effectiveFeePct.toFixed(2) })}</p>
+                              <p>{t("ops.payments.detail.expected", { value: expectedFee, tolerance: FEE_TOLERANCE_PCT })}</p>
                               <p className={r.feeOk ? "text-emerald-600" : "text-orange-600"}>
-                                {r.feeOk ? "✓ OK" : `✗ Δ ${r.feeDelta > 0 ? "+" : ""}${r.feeDelta.toFixed(2)}pp`}
+                                {r.feeOk ? t("ops.payments.detail.feeOk") : t("ops.payments.detail.feeDeviation", { value: `${r.feeDelta > 0 ? "+" : ""}${r.feeDelta.toFixed(2)}` })}
                               </p>
                             </div>
                             <div>
-                              <p className="font-semibold mb-1">Markedspris (overenskomst)</p>
-                              <p>Samlet pris/time: {r.hourlyToCustomer?.toFixed(2) ?? "—"} {r.b.currency?.toUpperCase()}</p>
-                              <p>Providerens pris/time: {r.hourlyToProvider?.toFixed(2) ?? "—"} {r.b.currency?.toUpperCase()}</p>
-                              <p>Spænd ({r.country?.code ?? "?"}): {r.minRate ?? "—"}–{r.maxRate?.toFixed(0) ?? "—"} {r.country?.currencySymbol ?? ""}/t</p>
+                              <p className="font-semibold mb-1">{t("ops.payments.detail.marketTitle")}</p>
+                              <p>{t("ops.payments.detail.totalPricePerHour", { value: `${r.hourlyToCustomer?.toFixed(2) ?? "—"} ${r.b.currency?.toUpperCase() ?? ""}` })}</p>
+                              <p>{t("ops.payments.detail.providerPricePerHour", { value: `${r.hourlyToProvider?.toFixed(2) ?? "—"} ${r.b.currency?.toUpperCase() ?? ""}` })}</p>
+                              <p>{t("ops.payments.detail.spread", { code: r.country?.code ?? "?", min: r.minRate ?? "—", max: r.maxRate?.toFixed(0) ?? "—", symbol: r.country?.currencySymbol ?? "" })}</p>
                               {r.marketDeviationPct != null && (
-                                <p>Afvigelse vs. min: <span className="font-semibold">{r.marketDeviationPct > 0 ? "+" : ""}{r.marketDeviationPct.toFixed(1)}%</span></p>
+                                <p>{t("ops.payments.detail.deviationVsMin")} <span className="font-semibold">{r.marketDeviationPct > 0 ? "+" : ""}{r.marketDeviationPct.toFixed(1)}%</span></p>
                               )}
                               <p className={
                                 r.marketLow ? "text-amber-600"
                                 : r.marketHigh ? "text-fuchsia-600"
                                 : "text-emerald-600"
                               }>
-                                {r.marketLow ? "✗ Under min — overenskomstbrud"
-                                  : r.marketHigh ? "✗ Over max — pris-outlier"
-                                  : "✓ Inden for markedsspænd"}
+                                {r.marketLow ? t("ops.payments.detail.underMinBreach")
+                                  : r.marketHigh ? t("ops.payments.detail.overMaxOutlier")
+                                  : t("ops.payments.detail.withinSpread")}
                               </p>
                             </div>
                             <div>
-                              <p className="font-semibold mb-1">Betalingsopdeling og overførsel</p>
-                              <p>Provider Stripe konto: {r.b.provider_stripe_account_id ?? "—"}</p>
+                              <p className="font-semibold mb-1">{t("ops.payments.detail.transferTitle")}</p>
+                              <p>{t("ops.payments.detail.providerStripeAccount", { value: r.b.provider_stripe_account_id ?? "—" })}</p>
                               <p>PaymentIntent: <code>{r.b.payment_intent_id}</code></p>
                               {r.transferEv ? (
                                 <>
-                                  <p>Overført beløb: {fmtMoney(r.transferAmount, r.transferEv.currency)}</p>
+                                  <p>{t("ops.payments.detail.transferredAmount", { value: fmtMoney(r.transferAmount, r.transferEv.currency) })}</p>
                                   <p className={r.transferMatchesProvider ? "text-emerald-600" : "text-orange-600"}>
-                                    {r.transferMatchesProvider ? "✓ Matcher provider_gets" : "✗ Beløb mismatch"}
+                                    {r.transferMatchesProvider ? t("ops.payments.detail.transferMatches") : t("ops.payments.detail.transferMismatch")}
                                   </p>
                                 </>
                               ) : (
-                                <p className="text-red-600">Ingen transfer-event registreret</p>
+                                <p className="text-red-600">{t("ops.payments.detail.noTransferEvent")}</p>
                               )}
                             </div>
                           </div>

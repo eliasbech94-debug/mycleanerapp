@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { BadgeCheck, Eye, Loader2, ShieldAlert, ShieldCheck, XCircle } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import BackButton from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -59,31 +60,36 @@ const PENDING_STATUSES = [
 ] as const;
 
 function StatusBadge({ status }: { status: string }) {
-  const map: Record<string, { label: string; className: string }> = {
-    self_reported: { label: "Selv-rapporteret", className: "bg-slate-200 text-slate-900" },
-    pending: { label: "Afventer", className: "bg-amber-100 text-amber-900" },
-    under_review: { label: "Under review", className: "bg-blue-100 text-blue-900" },
-    more_information_required: { label: "Mere info", className: "bg-orange-100 text-orange-900" },
-    verified: { label: "Verificeret", className: "bg-emerald-100 text-emerald-900" },
-    rejected: { label: "Afvist", className: "bg-red-100 text-red-900" },
-    expired: { label: "Udløbet", className: "bg-slate-200 text-slate-900" },
+  const { t } = useTranslation("admin");
+  const classMap: Record<string, string> = {
+    self_reported: "bg-slate-200 text-slate-900",
+    pending: "bg-amber-100 text-amber-900",
+    under_review: "bg-blue-100 text-blue-900",
+    more_information_required: "bg-orange-100 text-orange-900",
+    verified: "bg-emerald-100 text-emerald-900",
+    rejected: "bg-red-100 text-red-900",
+    expired: "bg-slate-200 text-slate-900",
   };
-  const m = map[status] ?? map.self_reported;
-  return <Badge className={m.className}>{m.label}</Badge>;
+  const className = classMap[status] ?? classMap.self_reported;
+  const label = t(`pages.adminCareerVerification.status.${status}`, {
+    defaultValue: t("pages.adminCareerVerification.status.self_reported"),
+  });
+  return <Badge className={className}>{label}</Badge>;
 }
 
-async function openDocument(document_id: string) {
+async function openDocument(document_id: string, t: (key: string) => string) {
   const { data, error } = await db.functions.invoke("career-evidence-url", {
     body: { document_id },
   });
   if (error || !data?.url) {
-    toast.error("Kunne ikke åbne dokument", { description: error?.message });
+    toast.error(t("pages.adminCareerVerification.openDocFailed"), { description: error?.message });
     return;
   }
   window.open(data.url, "_blank", "noopener,noreferrer");
 }
 
 export default function AdminCareerVerification() {
+  const { t } = useTranslation("admin");
   const [tab, setTab] = useState<PendingKind>("work_history");
   const [work, setWork] = useState<WorkRow[]>([]);
   const [certs, setCerts] = useState<CertRow[]>([]);
@@ -174,10 +180,10 @@ export default function AdminCareerVerification() {
     });
     setSavingId(null);
     if (error) {
-      toast.error("Kunne ikke gemme afgørelse", { description: error.message });
+      toast.error(t("pages.adminCareerVerification.saveDecisionFailed"), { description: error.message });
       return;
     }
-    toast.success("Afgørelse gemt");
+    toast.success(t("pages.adminCareerVerification.decisionSaved"));
     await load();
   }
 
@@ -186,20 +192,20 @@ export default function AdminCareerVerification() {
   const DocsList = ({ docs }: { docs?: EvidenceDoc[] }) =>
     !docs || docs.length === 0 ? (
       <div className="text-xs text-amber-700 flex items-center gap-1">
-        <ShieldAlert className="h-3.5 w-3.5" /> Ingen dokumenter uploadet
+        <ShieldAlert className="h-3.5 w-3.5" /> {t("pages.adminCareerVerification.noDocuments")}
       </div>
     ) : (
       <div className="space-y-1.5">
         {docs.map((d) => (
           <div key={d.id} className="flex items-center justify-between rounded border bg-muted/40 px-2 py-1.5 text-xs">
             <div className="min-w-0">
-              <p className="truncate font-medium">{d.original_filename ?? "Dokument"}</p>
+              <p className="truncate font-medium">{d.original_filename ?? t("pages.adminCareerVerification.document")}</p>
               <p className="text-muted-foreground">
                 {d.mime_type} · {(d.size_bytes / 1024).toFixed(0)} KB · {d.status}
               </p>
             </div>
-            <Button size="sm" variant="outline" onClick={() => openDocument(d.id)}>
-              <Eye className="mr-1 h-3.5 w-3.5" /> Åbn
+            <Button size="sm" variant="outline" onClick={() => openDocument(d.id, t)}>
+              <Eye className="mr-1 h-3.5 w-3.5" /> {t("pages.adminCareerVerification.open")}
             </Button>
           </div>
         ))}
@@ -215,20 +221,20 @@ export default function AdminCareerVerification() {
           onClick={() => decide(kind, id, "more_information_required", docIds)}
           disabled={savingId === id}
         >
-          Bed om mere info
+          {t("pages.adminCareerVerification.requestMoreInfo")}
         </Button>
         <Button
           variant="outline"
           onClick={() => decide(kind, id, "rejected", docIds)}
           disabled={savingId === id}
         >
-          <XCircle className="h-4 w-4 mr-1" /> Afvis
+          <XCircle className="h-4 w-4 mr-1" /> {t("pages.adminCareerVerification.reject")}
         </Button>
         <Button
           onClick={() => decide(kind, id, "verified", docIds)}
           disabled={savingId === id}
         >
-          <BadgeCheck className="h-4 w-4 mr-1" /> Verificér
+          <BadgeCheck className="h-4 w-4 mr-1" /> {t("pages.adminCareerVerification.verify")}
         </Button>
       </div>
     );
@@ -241,32 +247,32 @@ export default function AdminCareerVerification() {
         <div>
           <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-2">
             <ShieldCheck className="h-7 w-7 text-primary" />
-            Career Verification Center
+            {t("pages.adminCareerVerification.title")}
           </h1>
           <p className="text-muted-foreground mt-1">
-            Manuel verifikation af cleaners' arbejdshistorik og certifikater.
+            {t("pages.adminCareerVerification.subtitle")}
           </p>
         </div>
         <Badge variant="secondary" className="text-sm">
-          {totalPending} afventer
+          {t("pages.adminCareerVerification.pendingCount", { count: totalPending })}
         </Badge>
       </header>
 
       <Tabs value={tab} onValueChange={(v) => setTab(v as PendingKind)}>
         <TabsList>
-          <TabsTrigger value="work_history">Arbejdshistorik ({work.length})</TabsTrigger>
-          <TabsTrigger value="certification">Certifikater ({certs.length})</TabsTrigger>
+          <TabsTrigger value="work_history">{t("pages.adminCareerVerification.workHistoryTab", { count: work.length })}</TabsTrigger>
+          <TabsTrigger value="certification">{t("pages.adminCareerVerification.certificationTab", { count: certs.length })}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="work_history" className="space-y-4">
           {loading ? (
             <div className="flex items-center gap-2 text-muted-foreground">
-              <Loader2 className="h-4 w-4 animate-spin" /> Indlæser…
+              <Loader2 className="h-4 w-4 animate-spin" /> {t("pages.adminCareerVerification.loading")}
             </div>
           ) : work.length === 0 ? (
             <Card>
               <CardContent className="py-10 text-center text-muted-foreground">
-                Ingen arbejdshistorik afventer verifikation.
+                {t("pages.adminCareerVerification.noWorkHistory")}
               </CardContent>
             </Card>
           ) : (
@@ -291,28 +297,28 @@ export default function AdminCareerVerification() {
                 <CardContent className="space-y-3 text-sm">
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                     <div>
-                      <div className="text-muted-foreground">Fra</div>
+                      <div className="text-muted-foreground">{t("pages.adminCareerVerification.from")}</div>
                       <div>{row.started_on}</div>
                     </div>
                     <div>
-                      <div className="text-muted-foreground">Til</div>
-                      <div>{row.currently_employed ? "Nuværende" : row.ended_on ?? "—"}</div>
+                      <div className="text-muted-foreground">{t("pages.adminCareerVerification.to")}</div>
+                      <div>{row.currently_employed ? t("pages.adminCareerVerification.current") : row.ended_on ?? "—"}</div>
                     </div>
                     <div>
-                      <div className="text-muted-foreground">By</div>
+                      <div className="text-muted-foreground">{t("pages.adminCareerVerification.city")}</div>
                       <div>{row.city ?? "—"}</div>
                     </div>
                     <div>
-                      <div className="text-muted-foreground">Land</div>
+                      <div className="text-muted-foreground">{t("pages.adminCareerVerification.country")}</div>
                       <div>{row.country_code ?? "—"}</div>
                     </div>
                   </div>
                   <div>
-                    <div className="text-muted-foreground text-xs mb-1">Dokumenter</div>
+                    <div className="text-muted-foreground text-xs mb-1">{t("pages.adminCareerVerification.documents")}</div>
                     <DocsList docs={row.documents} />
                   </div>
                   <Textarea
-                    placeholder="Intern note (gemmes med afgørelsen)"
+                    placeholder={t("pages.adminCareerVerification.internalNotePlaceholder")}
                     value={notes[row.id] ?? ""}
                     onChange={(e) => setNotes((n) => ({ ...n, [row.id]: e.target.value }))}
                     className="min-h-[70px]"
@@ -327,12 +333,12 @@ export default function AdminCareerVerification() {
         <TabsContent value="certification" className="space-y-4">
           {loading ? (
             <div className="flex items-center gap-2 text-muted-foreground">
-              <Loader2 className="h-4 w-4 animate-spin" /> Indlæser…
+              <Loader2 className="h-4 w-4 animate-spin" /> {t("pages.adminCareerVerification.loading")}
             </div>
           ) : certs.length === 0 ? (
             <Card>
               <CardContent className="py-10 text-center text-muted-foreground">
-                Ingen certifikater afventer verifikation.
+                {t("pages.adminCareerVerification.noCertifications")}
               </CardContent>
             </Card>
           ) : (
@@ -357,16 +363,16 @@ export default function AdminCareerVerification() {
                 <CardContent className="space-y-3 text-sm">
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <div className="text-muted-foreground">Udstedt</div>
+                      <div className="text-muted-foreground">{t("pages.adminCareerVerification.issued")}</div>
                       <div>{row.issued_on ?? "—"}</div>
                     </div>
                     <div>
-                      <div className="text-muted-foreground">Udløber</div>
+                      <div className="text-muted-foreground">{t("pages.adminCareerVerification.expires")}</div>
                       <div>{row.expires_on ?? "—"}</div>
                     </div>
                   </div>
                   <div>
-                    <div className="text-muted-foreground text-xs mb-1">Dokumenter</div>
+                    <div className="text-muted-foreground text-xs mb-1">{t("pages.adminCareerVerification.documents")}</div>
                     <DocsList docs={row.documents} />
                   </div>
                   <ActionRow kind="certification" id={row.id} docs={row.documents} />

@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react";
 import { formatMinor } from "@/lib/accounting";
 import { monthLabel, type MonthlyReportRecord } from "@/lib/accounting/monthlyReport";
+import { useTranslation } from "react-i18next";
 
 /**
  * /admin/accounting-reports
@@ -16,6 +17,7 @@ import { monthLabel, type MonthlyReportRecord } from "@/lib/accounting/monthlyRe
  * access to a report file is logged and handled by the backend.
  */
 export default function AdminAccountingReports() {
+  const { t } = useTranslation("admin");
   const [rows, setRows] = useState<MonthlyReportRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [unavailable, setUnavailable] = useState<string | null>(null);
@@ -32,7 +34,7 @@ export default function AdminAccountingReports() {
         if (cancelled) return;
         if (error || !data) {
           setRows([]);
-          setUnavailable("Rapportgeneratoren er endnu ikke aktiveret for dette miljø.");
+          setUnavailable(t("pages.adminAccountingReports.notEnabled"));
         } else {
           setRows((data as { reports?: MonthlyReportRecord[] }).reports ?? []);
           setUnavailable(null);
@@ -40,7 +42,7 @@ export default function AdminAccountingReports() {
       } catch {
         if (!cancelled) {
           setRows([]);
-          setUnavailable("Kunne ikke hente status for rapportgenereringen.");
+          setUnavailable(t("pages.adminAccountingReports.fetchFailed"));
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -69,25 +71,24 @@ export default function AdminAccountingReports() {
       <BackButton />
       <header className="mb-4">
         <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-          Månedlige regnskabsrapporter
+          {t("pages.adminAccountingReports.title")}
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Driftsoverblik over den automatiske rapportgenerering. Indholdet af providerens rapport
-          vises ikke her.
+          {t("pages.adminAccountingReports.subtitle")}
         </p>
       </header>
 
       {unavailable ? (
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-base">Ikke tilgængelig</CardTitle>
+            <CardTitle className="text-base">{t("pages.adminAccountingReports.unavailableTitle")}</CardTitle>
           </CardHeader>
           <CardContent className="text-sm text-muted-foreground">{unavailable}</CardContent>
         </Card>
       ) : loading ? (
         <div className="flex items-center gap-2 py-16 text-muted-foreground">
           <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
-          <span>Henter status…</span>
+          <span>{t("pages.adminAccountingReports.loadingStatus")}</span>
         </div>
       ) : (
         <div className="space-y-4">
@@ -95,11 +96,11 @@ export default function AdminAccountingReports() {
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-base">
-                  {failed.length} rapport(er) fejlede ved generering
+                  {t("pages.adminAccountingReports.failedCount", { count: failed.length })}
                 </CardTitle>
               </CardHeader>
               <CardContent className="text-sm text-muted-foreground">
-                Fejlede rapporter forsøges igen af jobkøen. Fejlkoder vises i tabellen.
+                {t("pages.adminAccountingReports.failedHelp")}
               </CardContent>
             </Card>
           )}
@@ -107,8 +108,8 @@ export default function AdminAccountingReports() {
           <Input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Søg på provider-id, land, jurisdiktion eller status"
-            aria-label="Søg i rapporter"
+            placeholder={t("pages.adminAccountingReports.searchPlaceholder")}
+            aria-label={t("pages.adminAccountingReports.searchAriaLabel")}
           />
 
           <Card>
@@ -117,14 +118,14 @@ export default function AdminAccountingReports() {
                 <thead>
                   <tr>
                     {[
-                      "Måned",
-                      "Provider",
-                      "Land",
-                      "Regelpakke",
-                      "Status",
-                      "Version",
-                      "Indkomst",
-                      "Kontrolpunkter",
+                      t("pages.adminAccountingReports.columns.month"),
+                      t("pages.adminAccountingReports.columns.provider"),
+                      t("pages.adminAccountingReports.columns.country"),
+                      t("pages.adminAccountingReports.columns.rulePack"),
+                      t("pages.adminAccountingReports.columns.status"),
+                      t("pages.adminAccountingReports.columns.version"),
+                      t("pages.adminAccountingReports.columns.income"),
+                      t("pages.adminAccountingReports.columns.reviewPoints"),
                     ].map((column) => (
                       <th key={column} className="border-b border-border py-2 pr-3 font-medium text-muted-foreground">
                         {column}
@@ -136,7 +137,7 @@ export default function AdminAccountingReports() {
                   {filtered.length === 0 ? (
                     <tr>
                       <td className="py-4 text-muted-foreground" colSpan={8}>
-                        Ingen rapporter matcher søgningen.
+                        {t("pages.adminAccountingReports.noResults")}
                       </td>
                     </tr>
                   ) : (
@@ -166,7 +167,7 @@ export default function AdminAccountingReports() {
                         </td>
                         <td className="border-b border-border/60 py-2 pr-3">
                           v{row.reportVersion}
-                          {!row.isCurrentVersion && " (erstattet)"}
+                          {!row.isCurrentVersion && ` (${t("pages.adminAccountingReports.replaced")})`}
                         </td>
                         <td className="border-b border-border/60 py-2 pr-3">
                           {formatMinor(row.totalIncomeMinor, row.accountingCurrency, null)}

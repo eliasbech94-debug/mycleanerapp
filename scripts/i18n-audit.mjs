@@ -35,6 +35,14 @@ const WORDY = /^[A-ZÆØÅÄÖÜa-zæøåäöüßáéíóúñ][\p{L}\p{N} ,.\-�
 const IDENTIFIER = /^[a-z0-9_.\-/]+$/i;              // slugs, keys, api values
 const URLISH = /^(https?:|mailto:|tel:|\/|#|data:)/;
 const CLASSY = /(^|\s)(flex|grid|text-|bg-|w-|h-|p-|m-|rounded|border|gap-|hsl\()/;
+// Code fragments accidentally caught by the ">...<" JSX-text pattern
+// (e.g. `setBelow(window.innerWidth < 1024)`), plus proper nouns/endonyms that
+// must stay identical in every language.
+const CODEISH = /[(){};=]|=>|\b(window|document|const|return|props)\b/;
+const ALLOWED_LITERALS = new Set([
+  "Dansk", "English", "Svenska", "Deutsch", "Español",
+  "MyCleaner", "Stripe", "Stripe Connect", "Google", "Sumsub",
+]);
 
 function walk(dir, out = []) {
   for (const entry of readdirSync(dir)) {
@@ -51,6 +59,7 @@ function walk(dir, out = []) {
 function isUserFacing(text) {
   const s = text.trim();
   if (s.length < 4) return false;
+  if (ALLOWED_LITERALS.has(s)) return false;
   if (!/\p{L}\p{L}/u.test(s)) return false;
   if (URLISH.test(s) || CLASSY.test(s)) return false;
   if (IDENTIFIER.test(s) && !/\s/.test(s)) return false;
@@ -85,7 +94,9 @@ for (const file of walk(SRC)) {
     // JSX text nodes: >Some text<
     for (const m of line.matchAll(/>\s*([^<>{}\n]{4,})\s*</g)) {
       if (localized) continue;
-      record("jsx-text", m[1]);
+      const raw = m[1].trim();
+      if (CODEISH.test(raw) || ALLOWED_LITERALS.has(raw)) continue;
+      record("jsx-text", raw);
     }
     // User-facing attributes with literal values
     for (const attr of ATTRS) {

@@ -132,7 +132,9 @@
         "checkContact": "Kontrollera dina kontaktuppgifter",
         "invalidAddress": "Välj en giltig adress från listan innan du sparar.",
         "saved": "Profil sparad"
-      }
+      },
+      "phonePlaceholder": "+46 70 123 45 67",
+      "providerIdHelpFull": "Ange ditt leverantörs-ID för att få tillgång till <dash>leverantörspanelen</dash>."
     },
     "addresses": {
       "title": "Mina adresser",

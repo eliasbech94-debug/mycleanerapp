@@ -132,7 +132,9 @@
         "checkContact": "Überprüfen Sie Ihre Kontaktdaten",
         "invalidAddress": "Wählen Sie vor dem Speichern eine gültige Adresse aus der Liste.",
         "saved": "Profil gespeichert"
-      }
+      },
+      "phonePlaceholder": "+49 151 23456789",
+      "providerIdHelpFull": "Gib deine Anbieter-ID ein, um Zugriff auf das <dash>Anbieter-Dashboard</dash> zu erhalten."
     },
     "addresses": {
       "title": "Meine Adressen",
