@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "@/hooks/use-toast";
 import { Loader2, Shield, AlertTriangle } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 type Status = "draft" | "in_review" | "approved" | "published" | "archived";
 type Risk = "info" | "caution" | "stop" | "emergency";
@@ -79,6 +80,7 @@ const statusBadge = (s: Status) => {
 };
 
 export default function AdminKnowledge() {
+  const { t } = useTranslation("admin");
   const { isAdmin, isSuperAdmin, loading: rolesLoading } = useUserRoles();
   const hasEditor = isAdmin; // admin/super_admin here; employee/support handled by RLS
   const hasPublisher = isAdmin;
@@ -105,7 +107,7 @@ export default function AdminKnowledge() {
     if (q.trim()) query = query.ilike("title", `%${q.trim()}%`);
     const { data, error } = await query;
     if (error) {
-      toast({ title: "Kunne ikke hente artikler", description: error.message, variant: "destructive" });
+      toast({ title: t("pages.adminKnowledge.couldNotFetchArticles"), description: error.message, variant: "destructive" });
     } else {
       setRows((data as Article[]) ?? []);
     }
@@ -128,7 +130,7 @@ export default function AdminKnowledge() {
   if (rolesLoading) {
     return (
       <div className="p-8 flex items-center gap-2 text-muted-foreground">
-        <Loader2 className="h-4 w-4 animate-spin" /> Henter roller…
+        <Loader2 className="h-4 w-4 animate-spin" /> {t("pages.adminKnowledge.loadingRoles")}
       </div>
     );
   }
@@ -138,7 +140,7 @@ export default function AdminKnowledge() {
         <Alert variant="destructive">
           <Shield className="h-4 w-4" />
           <AlertDescription>
-            Du har ikke adgang til Knowledge CMS. Kontakt en administrator.
+            {t("pages.adminKnowledge.noAccess")}
           </AlertDescription>
         </Alert>
       </div>
@@ -149,9 +151,9 @@ export default function AdminKnowledge() {
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
       <header className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-2xl font-semibold">Knowledge CMS</h1>
+          <h1 className="text-2xl font-semibold">{t("pages.adminKnowledge.title")}</h1>
           <p className="text-sm text-muted-foreground">
-            Approval ≠ publication. Safety-critical redigering nulstiller workflowet automatisk.
+            {t("pages.adminKnowledge.subtitle")}
           </p>
         </div>
         <Button
@@ -159,18 +161,18 @@ export default function AdminKnowledge() {
             const slug = `kb-${crypto.randomUUID().slice(0, 8)}`;
             const { data, error } = await supabase
               .from("knowledge_articles")
-              .insert({ slug, title: "Ny artikel", body_md: "" })
+              .insert({ slug, title: t("pages.adminKnowledge.newArticleTitle"), body_md: "" })
               .select("*")
               .single();
             if (error) {
-              toast({ title: "Kunne ikke oprette artikel", description: error.message, variant: "destructive" });
+              toast({ title: t("pages.adminKnowledge.couldNotCreateArticle"), description: error.message, variant: "destructive" });
               return;
             }
             setSelected(data as Article);
             load();
           }}
         >
-          Ny artikel
+          {t("pages.adminKnowledge.newArticle")}
         </Button>
       </header>
 
@@ -178,20 +180,20 @@ export default function AdminKnowledge() {
         <Alert>
           <AlertTriangle className="h-4 w-4" />
           <AlertDescription>
-            {needsReverify.length} publiceret artikel kræver reverifikation.
+            {t("pages.adminKnowledge.needsReverify", { count: needsReverify.length })}
           </AlertDescription>
         </Alert>
       )}
 
       <div className="flex gap-3 items-center">
         <Input
-          placeholder="Søg efter titel…"
+          placeholder={t("pages.adminKnowledge.searchByTitle")}
           value={q}
           onChange={(e) => setQ(e.target.value)}
           className="max-w-sm"
         />
         <Button variant="outline" onClick={load} disabled={loading}>
-          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Opdater"}
+          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : t("pages.adminKnowledge.refresh")}
         </Button>
       </div>
 
@@ -207,10 +209,10 @@ export default function AdminKnowledge() {
           <TabsContent key={s} value={s} className="mt-4">
             <div className="rounded-md border divide-y">
               {loading && rows.length === 0 ? (
-                <div className="p-6 text-sm text-muted-foreground">Henter…</div>
+                <div className="p-6 text-sm text-muted-foreground">{t("pages.adminKnowledge.loading")}</div>
               ) : rows.length === 0 ? (
                 <div className="p-6 text-sm text-muted-foreground">
-                  Intet indhold i {s}. Ingen demoartikler.
+                  {t("pages.adminKnowledge.emptyStatus", { status: s })}
                 </div>
               ) : rows.map((r) => (
                 <button
@@ -227,7 +229,7 @@ export default function AdminKnowledge() {
                       <Badge variant="outline" className="text-[10px] capitalize">{r.risk_level}</Badge>
                     </div>
                     <div className="text-xs text-muted-foreground truncate">
-                      v{r.current_version} · opdateret {new Date(r.updated_at).toLocaleString()}
+                      {t("pages.adminKnowledge.versionUpdated", { version: r.current_version, date: new Date(r.updated_at).toLocaleString() })}
                     </div>
                   </div>
                   {statusBadge(r.status)}
@@ -255,16 +257,16 @@ export default function AdminKnowledge() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              Bekræft {confirm?.action === "publish" ? "publish" : "archive"}
+              {t("pages.adminKnowledge.confirmAction", { action: confirm?.action === "publish" ? t("pages.adminKnowledge.publish") : t("pages.adminKnowledge.archive") })}
             </AlertDialogTitle>
             <AlertDialogDescription>
               {confirm?.action === "publish"
-                ? "Publicering gør artiklen synlig for providers. Approval er ikke det samme som publish."
-                : "Arkivering fjerner artiklen fra provider-visning. Handlingen skal godkendes af en super_admin."}
+                ? t("pages.adminKnowledge.publishDescription")
+                : t("pages.adminKnowledge.archiveDescription")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Annullér</AlertDialogCancel>
+            <AlertDialogCancel>{t("pages.adminKnowledge.cancel")}</AlertDialogCancel>
             <AlertDialogAction
               onClick={async () => {
                 if (!confirm) return;
@@ -275,16 +277,16 @@ export default function AdminKnowledge() {
                   _article_id: confirm.article.id,
                 });
                 if (error) {
-                  toast({ title: `Kunne ikke ${confirm.action}`, description: error.message, variant: "destructive" });
+                  toast({ title: t("pages.adminKnowledge.actionFailed", { action: confirm.action }), description: error.message, variant: "destructive" });
                 } else {
-                  toast({ title: `${confirm.action} gennemført` });
+                  toast({ title: t("pages.adminKnowledge.actionCompleted", { action: confirm.action }) });
                   setSelected(null);
                   load();
                 }
                 setConfirm(null);
               }}
             >
-              Bekræft
+              {t("pages.adminKnowledge.confirm")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

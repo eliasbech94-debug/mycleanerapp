@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { DashboardLayout } from "@/components/dashboard";
 import { Card, CardContent } from "@/components/ui/card";
@@ -45,6 +46,7 @@ const statusColor: Record<string, string> = {
 };
 
 export default function AdminProviders() {
+  const { t } = useTranslation("admin");
   const { isAdmin, loading: rolesLoading } = useUserRoles();
   const [rows, setRows] = useState<ProviderRow[] | null>(null);
   const [total, setTotal] = useState(0);
@@ -116,7 +118,7 @@ export default function AdminProviders() {
 
   async function bulkAction(action: "approve" | "suspend" | "archive" | "refresh_score") {
     if (selectedIds.size === 0) return;
-    if (!confirm(`Bekræft: ${action} på ${selectedIds.size} providere?`)) return;
+    if (!confirm(t("pages.adminProviders.confirmBulkAction", { action, count: selectedIds.size }))) return;
     setBulkBusy(true);
     const ids = [...selectedIds];
     let ok = 0, fail = 0;
@@ -129,7 +131,7 @@ export default function AdminProviders() {
       if (error || (data as any)?.error) fail++; else ok++;
     }
     setBulkBusy(false);
-    toast[fail === 0 ? "success" : "error"](`${ok} ok, ${fail} fejlet`);
+    toast[fail === 0 ? "success" : "error"](t("pages.adminProviders.bulkActionResult", { ok, fail }));
     await load();
   }
 
@@ -137,11 +139,11 @@ export default function AdminProviders() {
     return <main className="grid min-h-screen place-items-center"><Loader2 className="h-6 w-6 animate-spin" /></main>;
   }
   if (!isAdmin) {
-    return <main className="grid min-h-screen place-items-center"><Card><CardContent className="p-6">Adgang nægtet (403)</CardContent></Card></main>;
+    return <main className="grid min-h-screen place-items-center"><Card><CardContent className="p-6">{t("pages.adminProviders.accessDenied")}</CardContent></Card></main>;
   }
 
   return (
-    <DashboardLayout role="admin" title="Providere">
+    <DashboardLayout role="admin" title={t("pages.adminProviders.title")}>
       <main className="p-4 sm:p-6 space-y-4">
         <div className="flex flex-wrap items-center gap-2">
           <div className="relative">
@@ -150,31 +152,31 @@ export default function AdminProviders() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && (setPage(0), load())}
-              placeholder="Søg navn…"
+              placeholder={t("pages.adminProviders.searchPlaceholder")}
               className="w-56 pl-8"
-              aria-label="Søg efter provider"
+              aria-label={t("pages.adminProviders.searchAria")}
             />
           </div>
-          <FilterSelect value={statusFilter} onChange={(v) => { setStatusFilter(v); setPage(0); }} placeholder="Status" options={STATUS} disabled={reviewQueue} />
-          <FilterSelect value={tierFilter} onChange={(v) => { setTierFilter(v); setPage(0); }} placeholder="Tier" options={TIERS} />
-          <FilterSelect value={identityFilter} onChange={(v) => { setIdentityFilter(v); setPage(0); }} placeholder="Identitet" options={["not_started", "pending", "approved", "rejected"]} />
-          <Input type="number" placeholder="Min. score" value={minScore} onChange={(e) => { setMinScore(e.target.value); setPage(0); }} className="w-28" aria-label="Minimum score" />
+          <FilterSelect value={statusFilter} onChange={(v) => { setStatusFilter(v); setPage(0); }} placeholder={t("pages.adminProviders.status")} options={STATUS} disabled={reviewQueue} />
+          <FilterSelect value={tierFilter} onChange={(v) => { setTierFilter(v); setPage(0); }} placeholder={t("pages.adminProviders.tier")} options={TIERS} />
+          <FilterSelect value={identityFilter} onChange={(v) => { setIdentityFilter(v); setPage(0); }} placeholder={t("pages.adminProviders.identity")} options={["not_started", "pending", "approved", "rejected"]} />
+          <Input type="number" placeholder={t("pages.adminProviders.minScore")} value={minScore} onChange={(e) => { setMinScore(e.target.value); setPage(0); }} className="w-28" aria-label={t("pages.adminProviders.minScoreAria")} />
           <label className="inline-flex items-center gap-2 text-sm">
-            <Checkbox checked={reviewQueue} onCheckedChange={(v) => { setReviewQueue(!!v); setPage(0); }} /> Review-kø
+            <Checkbox checked={reviewQueue} onCheckedChange={(v) => { setReviewQueue(!!v); setPage(0); }} /> {t("pages.adminProviders.reviewQueue")}
           </label>
           <label className="inline-flex items-center gap-2 text-sm">
-            <Checkbox checked={riskOnly} onCheckedChange={(v) => { setRiskOnly(!!v); setPage(0); }} /> Risiko
+            <Checkbox checked={riskOnly} onCheckedChange={(v) => { setRiskOnly(!!v); setPage(0); }} /> {t("pages.adminProviders.risk")}
           </label>
           <Button size="sm" variant="outline" onClick={load}><RefreshCw className="h-4 w-4" /></Button>
         </div>
 
         {selectedIds.size > 0 && (
           <div className="flex flex-wrap items-center gap-2 rounded-md border bg-muted/40 p-2">
-            <span className="text-sm">{selectedIds.size} valgt</span>
-            <Button size="sm" disabled={bulkBusy} onClick={() => bulkAction("approve")}>Godkend</Button>
-            <Button size="sm" variant="destructive" disabled={bulkBusy} onClick={() => bulkAction("suspend")}>Suspendér</Button>
-            <Button size="sm" variant="outline" disabled={bulkBusy} onClick={() => bulkAction("archive")}>Arkivér</Button>
-            <Button size="sm" variant="outline" disabled={bulkBusy} onClick={() => bulkAction("refresh_score")}>Opdater score</Button>
+            <span className="text-sm">{t("pages.adminProviders.selectedCount", { count: selectedIds.size })}</span>
+            <Button size="sm" disabled={bulkBusy} onClick={() => bulkAction("approve")}>{t("pages.adminProviders.approve")}</Button>
+            <Button size="sm" variant="destructive" disabled={bulkBusy} onClick={() => bulkAction("suspend")}>{t("pages.adminProviders.suspend")}</Button>
+            <Button size="sm" variant="outline" disabled={bulkBusy} onClick={() => bulkAction("archive")}>{t("pages.adminProviders.archive")}</Button>
+            <Button size="sm" variant="outline" disabled={bulkBusy} onClick={() => bulkAction("refresh_score")}>{t("pages.adminProviders.refreshScore")}</Button>
           </div>
         )}
 
@@ -184,15 +186,15 @@ export default function AdminProviders() {
               <table className="w-full text-sm">
                 <thead className="bg-muted/50 text-left">
                   <tr>
-                    <th className="p-2 w-10"><Checkbox checked={!!rows && rows.length > 0 && selectedIds.size === rows.length} onCheckedChange={toggleAll} aria-label="Vælg alle" /></th>
-                    <th className="p-2">Navn</th>
-                    <th className="p-2">Status</th>
-                    <th className="p-2">Tier</th>
-                    <th className="p-2">Score</th>
-                    <th className="p-2">Compl.</th>
-                    <th className="p-2">Identitet</th>
-                    <th className="p-2">Stripe</th>
-                    <th className="p-2">Risiko</th>
+                    <th className="p-2 w-10"><Checkbox checked={!!rows && rows.length > 0 && selectedIds.size === rows.length} onCheckedChange={toggleAll} aria-label={t("pages.adminProviders.selectAllAria")} /></th>
+                    <th className="p-2">{t("pages.adminProviders.name")}</th>
+                    <th className="p-2">{t("pages.adminProviders.status")}</th>
+                    <th className="p-2">{t("pages.adminProviders.tier")}</th>
+                    <th className="p-2">{t("pages.adminProviders.score")}</th>
+                    <th className="p-2">{t("pages.adminProviders.completion")}</th>
+                    <th className="p-2">{t("pages.adminProviders.identity")}</th>
+                    <th className="p-2">{t("pages.adminProviders.stripe")}</th>
+                    <th className="p-2">{t("pages.adminProviders.risk")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -200,16 +202,16 @@ export default function AdminProviders() {
                     <tr><td colSpan={9} className="p-6 text-center"><Loader2 className="mx-auto h-5 w-5 animate-spin" /></td></tr>
                   )}
                   {rows && rows.length === 0 && (
-                    <tr><td colSpan={9} className="p-6 text-center opacity-60">Ingen providere matcher</td></tr>
+                    <tr><td colSpan={9} className="p-6 text-center opacity-60">{t("pages.adminProviders.noProvidersMatch")}</td></tr>
                   )}
                   {rows?.map((r) => {
                     const stripeOk = r.stripe_charges_enabled && r.stripe_payouts_enabled;
                     return (
                       <tr key={r.user_id} className="border-t hover:bg-muted/30">
-                        <td className="p-2"><Checkbox checked={selectedIds.has(r.user_id)} onCheckedChange={() => toggle(r.user_id)} aria-label={`Vælg ${r.display_name}`} /></td>
+                        <td className="p-2"><Checkbox checked={selectedIds.has(r.user_id)} onCheckedChange={() => toggle(r.user_id)} aria-label={t("pages.adminProviders.selectRowAria", { name: r.display_name })} /></td>
                         <td className="p-2">
                           <button onClick={() => setOpenId(r.user_id)} className="text-left font-medium hover:underline">
-                            {r.display_name || "(uden navn)"}
+                            {r.display_name || t("pages.adminProviders.noName")}
                           </button>
                           <div className="text-xs opacity-50">{r.user_id.slice(0, 8)}…</div>
                         </td>
@@ -232,11 +234,11 @@ export default function AdminProviders() {
         </Card>
 
         <div className="flex items-center justify-between text-sm">
-          <div>Viser {rows?.length ?? 0} af {total}</div>
+          <div>{t("pages.adminProviders.showing", { count: rows?.length ?? 0, total })}</div>
           <div className="flex items-center gap-2">
-            <Button size="sm" variant="outline" disabled={page === 0} onClick={() => setPage((p) => Math.max(0, p - 1))} aria-label="Forrige side"><ChevronLeft className="h-4 w-4" /></Button>
-            <span>Side {page + 1} / {Math.max(1, Math.ceil(total / PAGE))}</span>
-            <Button size="sm" variant="outline" disabled={(page + 1) * PAGE >= total} onClick={() => setPage((p) => p + 1)} aria-label="Næste side"><ChevronRight className="h-4 w-4" /></Button>
+            <Button size="sm" variant="outline" disabled={page === 0} onClick={() => setPage((p) => Math.max(0, p - 1))} aria-label={t("pages.adminProviders.previousPage")}><ChevronLeft className="h-4 w-4" /></Button>
+            <span>{t("pages.adminProviders.pageOf", { page: page + 1, pages: Math.max(1, Math.ceil(total / PAGE)) })}</span>
+            <Button size="sm" variant="outline" disabled={(page + 1) * PAGE >= total} onClick={() => setPage((p) => p + 1)} aria-label={t("pages.adminProviders.nextPage")}><ChevronRight className="h-4 w-4" /></Button>
           </div>
         </div>
 
@@ -249,11 +251,12 @@ export default function AdminProviders() {
 }
 
 function FilterSelect({ value, onChange, placeholder, options, disabled }: { value: string; onChange: (v: string) => void; placeholder: string; options: string[]; disabled?: boolean }) {
+  const { t } = useTranslation("admin");
   return (
     <Select value={value} onValueChange={onChange} disabled={disabled}>
       <SelectTrigger className="w-40"><SelectValue placeholder={placeholder} /></SelectTrigger>
       <SelectContent>
-        <SelectItem value="all">Alle {placeholder.toLowerCase()}</SelectItem>
+        <SelectItem value="all">{t("pages.adminProviders.allOption", { option: placeholder.toLowerCase() })}</SelectItem>
         {options.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}
       </SelectContent>
     </Select>
