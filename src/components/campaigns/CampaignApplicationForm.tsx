@@ -13,16 +13,19 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import Turnstile from "@/components/Turnstile";
 import { submitCampaignApplication, trackCampaignEvent } from "@/lib/campaigns/api";
 import { Loader2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
-const schema = z.object({
-  full_name: z.string().trim().min(2, "Indtast dit fulde navn").max(200),
-  email: z.string().trim().email("Ugyldig e-mail").max(255),
-  phone: z.string().trim().max(40).optional(),
-  city: z.string().trim().max(120).optional(),
-  country_code: z.string().length(2),
-  accepted_terms: z.literal(true, { errorMap: () => ({ message: "Du skal acceptere vilkårene" }) }),
-  accepted_privacy: z.literal(true, { errorMap: () => ({ message: "Du skal acceptere privatlivspolitikken" }) }),
-});
+function buildSchema(t: (key: string) => string) {
+  return z.object({
+    full_name: z.string().trim().min(2, "Indtast dit fulde navn").max(200),
+    email: z.string().trim().email("Ugyldig e-mail").max(255),
+    phone: z.string().trim().max(40).optional(),
+    city: z.string().trim().max(120).optional(),
+    country_code: z.string().length(2),
+    accepted_terms: z.literal(true, { errorMap: () => ({ message: t("ui.campaignApplicationForm.mustAcceptTerms") }) }),
+    accepted_privacy: z.literal(true, { errorMap: () => ({ message: t("ui.campaignApplicationForm.mustAcceptPrivacy") }) }),
+  });
+}
 
 interface Props {
   campaignSlug: string;
@@ -32,6 +35,8 @@ interface Props {
 }
 
 export function CampaignApplicationForm({ campaignSlug, defaultCountry, allowedCountries, onSubmitted }: Props) {
+  const { t } = useTranslation("common");
+  const schema = buildSchema(t);
   const [values, setValues] = useState({
     full_name: "",
     email: "",
@@ -90,7 +95,7 @@ export function CampaignApplicationForm({ campaignSlug, defaultCountry, allowedC
   return (
     <form onSubmit={onSubmit} className="space-y-4" noValidate>
       <div className="grid gap-2">
-        <Label htmlFor="ca-name">Fulde navn</Label>
+        <Label htmlFor="ca-name">{t("ui.campaignApplicationForm.fullName")}</Label>
         <Input id="ca-name" required autoComplete="name" value={values.full_name}
           onChange={(e) => setValues({ ...values, full_name: e.target.value })} />
       </div>
@@ -125,12 +130,12 @@ export function CampaignApplicationForm({ campaignSlug, defaultCountry, allowedC
       <label className="flex items-start gap-2 text-sm">
         <Checkbox checked={values.accepted_terms}
           onCheckedChange={(v) => setValues({ ...values, accepted_terms: v === true })} />
-        <span>Jeg accepterer <a className="underline" href="/regler" target="_blank" rel="noreferrer">vilkårene</a>.</span>
+        <span>{t("ui.campaignApplicationForm.acceptPrefix")} <a className="underline" href="/regler" target="_blank" rel="noreferrer">{t("ui.campaignApplicationForm.termsLink")}</a>.</span>
       </label>
       <label className="flex items-start gap-2 text-sm">
         <Checkbox checked={values.accepted_privacy}
           onCheckedChange={(v) => setValues({ ...values, accepted_privacy: v === true })} />
-        <span>Jeg accepterer <a className="underline" href="/privatliv" target="_blank" rel="noreferrer">privatlivspolitikken</a>.</span>
+        <span>{t("ui.campaignApplicationForm.acceptPrefix")} <a className="underline" href="/privatliv" target="_blank" rel="noreferrer">{t("ui.campaignApplicationForm.privacyLink")}</a>.</span>
       </label>
       <Turnstile onToken={setTurnstile} />
       {error && (
