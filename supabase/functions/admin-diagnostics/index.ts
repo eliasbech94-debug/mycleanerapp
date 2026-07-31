@@ -20,7 +20,7 @@ function json(body: unknown, status = 200) {
   });
 }
 
-async function timed<T>(fn: () => Promise<T>): Promise<[T | null, number, string | null]> {
+async function timed<T>(fn: () => PromiseLike<T>): Promise<[T | null, number, string | null]> {
   const t0 = performance.now();
   try {
     const v = await fn();

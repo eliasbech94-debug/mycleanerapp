@@ -2,6 +2,8 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
 import { monitored } from "../_shared/logger.ts";
 import { maskPhone, sendSms } from "../_shared/gatewayapi.ts";
+import { isCodeLoggingAllowed, isSmsDevModeEnabled, readEnv } from "../_shared/env.ts";
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -152,20 +154,20 @@ Deno.serve(monitored("sms-send-code", async (req, _log) => {
     }));
 
     // dev_code is ONLY returned when SMS_DEV_MODE=true is explicitly set AND the
-    // deployment is not production. In production this env var MUST be unset so
-    // codes never leak to the client — and no SMS is sent in dev mode.
-    const appEnv = (Deno.env.get("APP_ENV") ?? Deno.env.get("ENVIRONMENT") ?? "").toLowerCase();
-    const isProduction = appEnv === "production" || appEnv === "prod";
-    const devMode = !isProduction &&
-      (Deno.env.get("SMS_DEV_MODE") ?? "").toLowerCase() === "true";
-    if (devMode) {
+    // environment is explicitly non-production (development/dev/preview/staging/
+    // test/local). Unknown or production environments fail closed: the code is
+    // never returned and the SMS goes out via GatewayAPI.
+    const env = readEnv();
+    if (isSmsDevModeEnabled(env)) {
       console.log(JSON.stringify({
         evt: "sms.code.dev_mode",
         user_id: userId,
         phone_masked: maskPhone(phone),
+        ...(isCodeLoggingAllowed(env) ? { code } : {}),
       }));
       return json({ ok: true, phone, dev_code: code });
     }
+
 
     // Deliver via GatewayAPI (MyCleaner's only SMS provider).
     const sms = await sendSms({
