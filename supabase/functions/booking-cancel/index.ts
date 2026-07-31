@@ -8,7 +8,13 @@ import Stripe from "npm:stripe@17";
 import { authenticate } from "../_shared/auth.ts";
 import { writeAudit } from "../_shared/audit.ts";
 import { notifyUser } from "../_shared/notify.ts";
-import { refundPercentForHours, tierForHours } from "../_shared/cancellationPolicy.ts";
+import {
+  bookingStartInstant,
+  hoursUntilServiceStart,
+  policyForSnapshot,
+  refundPercentForHours,
+  tierForHours,
+} from "../_shared/cancellationPolicy.ts";
 
 
 import { monitored } from "../_shared/logger.ts";
@@ -41,15 +47,11 @@ function json(body: unknown, status = 200) {
   });
 }
 
-/**
- * Cancellation policy: hours until service start → % refunded of captured
- * amount. The ladder lives in `_shared/cancellationPolicy.ts` so backend,
- * frontend and the Legal Center quote the exact same numbers.
- * Behaviour is unchanged: >=48h → 100, >=24h → 50, otherwise 0.
- */
-function policyRefundPercent(hoursUntilService: number): number {
-  return refundPercentForHours(hoursUntilService);
-}
+// Cancellation ladder lives in `_shared/cancellationPolicy.ts` so backend,
+// frontend and the Legal Center quote the exact same numbers, and so each
+// booking can be evaluated with the policy version it was sold under.
+
+
 
 
 Deno.serve(monitored("booking-cancel", async (req, _log) => {
@@ -75,7 +77,7 @@ Deno.serve(monitored("booking-cancel", async (req, _log) => {
     // ── Load booking + provider profile ────────────────────────────────
     const { data: booking, error: bkErr } = await admin
       .from("bookings")
-      .select("id, customer_user_id, provider_id, service, booking_date, slot, currency, customer_pays, provider_gets, platform_fee_amount, status, payment_status, payment_intent_id, refund_amount")
+      .select("id, customer_user_id, provider_id, service, booking_date, slot, timezone, cancellation_policy_snapshot, currency, customer_pays, provider_gets, platform_fee_amount, status, payment_status, payment_intent_id, refund_amount")
       .eq("id", booking_id)
       .maybeSingle();
     if (bkErr || !booking) return json({ error: "booking_not_found" }, 404);
@@ -97,11 +99,20 @@ Deno.serve(monitored("booking-cancel", async (req, _log) => {
       return json({ error: "booking_not_cancellable", status: booking.status }, 409);
     }
 
-    // ── Compute cancellation policy snapshot ───────────────────────────
+    // ── Compute cancellation outcome ───────────────────────────────────
+    // The booking is evaluated with the policy version the customer accepted
+    // at booking time — never with the newest global ladder.
+    const acceptedSnapshot = (booking.cancellation_policy_snapshot ?? {}) as Record<string, unknown>;
+    const policy = policyForSnapshot(acceptedSnapshot);
+
     const nowMs = Date.now();
-    const serviceStartMs = booking.booking_date
-      ? new Date(`${booking.booking_date}T00:00:00Z`).getTime() : nowMs;
-    const hoursUntilService = Math.max(0, (serviceStartMs - nowMs) / 3_600_000);
+    // Exact start instant from date + slot + IANA timezone (DST-correct).
+    const serviceStart = bookingStartInstant(booking.booking_date, booking.slot, booking.timezone);
+    if (!serviceStart) {
+      return json({ error: "booking_start_unresolvable", booking_date: booking.booking_date, slot: booking.slot }, 422);
+    }
+    const serviceStartMs = serviceStart.getTime();
+    const hoursUntilService = hoursUntilServiceStart(serviceStartMs, nowMs);
 
     const captured = booking.payment_status === "captured"
       || booking.payment_status === "partially_refunded";
@@ -113,7 +124,10 @@ Deno.serve(monitored("booking-cancel", async (req, _log) => {
     // Admin can override policy and refund up to `refundable`. Others follow policy.
     let refundAmount = 0;
     let refundType: "none" | "partial" | "full" = "none";
-    let policySnapshot: Record<string, unknown> = {
+    const applied: Record<string, unknown> = {
+      policy_version: policy.version,
+      service_start: serviceStart.toISOString(),
+      booking_timezone: booking.timezone ?? null,
       hours_until_service: Math.round(hoursUntilService * 10) / 10,
       gross_paid: grossPaid,
       previously_refunded: previouslyRefunded,
@@ -123,27 +137,29 @@ Deno.serve(monitored("booking-cancel", async (req, _log) => {
     if (captured) {
       if (isAdmin && requested_refund_amount !== null) {
         refundAmount = Math.min(Math.max(0, requested_refund_amount), refundable);
-        policySnapshot.rule = "admin_override";
+        applied.rule = "admin_override";
       } else if (isProvider) {
         // Provider-initiated cancel = full refund of what customer paid.
         refundAmount = refundable;
-        policySnapshot.rule = "provider_cancels_full_refund";
+        applied.rule = "provider_cancels_full_refund";
       } else {
-        const pct = policyRefundPercent(hoursUntilService);
+        const pct = refundPercentForHours(hoursUntilService, policy);
         refundAmount = Math.round(refundable * (pct / 100));
-        policySnapshot.rule = "customer_policy_by_hours";
-        policySnapshot.refund_percent = pct;
-        policySnapshot.policy_tier = tierForHours(hoursUntilService).key;
-
+        applied.rule = "customer_policy_by_hours";
+        applied.refund_percent = pct;
+        applied.policy_tier = tierForHours(hoursUntilService, policy).key;
       }
       refundType = refundAmount === 0 ? "none"
         : refundAmount >= refundable ? "full" : "partial";
     } else if (authorized && booking.payment_intent_id) {
       // Not captured yet → cancel the PaymentIntent (no refund needed).
-      policySnapshot.rule = "cancel_uncaptured_intent";
+      applied.rule = "cancel_uncaptured_intent";
     } else {
-      policySnapshot.rule = "no_payment_action";
+      applied.rule = "no_payment_action";
     }
+
+    // Preserve the accepted terms; record the applied outcome alongside them.
+    const policySnapshot: Record<string, unknown> = { ...acceptedSnapshot, applied };
 
     // ── Idempotency: check for prior request with same key ─────────────
     const { data: existingReq } = await admin.from("refund_requests")

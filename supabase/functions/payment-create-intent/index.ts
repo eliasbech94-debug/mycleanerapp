@@ -8,6 +8,7 @@ import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { z } from "npm:zod@3.23.8";
 import { monitored } from "../_shared/logger.ts";
+import { cancellationPolicySnapshot } from "../_shared/cancellationPolicy.ts";
 
 const STRIPE = "https://api.stripe.com/v1";
 
@@ -237,6 +238,8 @@ Deno.serve(monitored("payment-create-intent", async (req, _log) => {
         tax_config_snapshot: taxSnapshot,
         commission_config_snapshot: commissionSnapshot,
         booking_rules_snapshot: bookingRulesSnapshot,
+        // Freeze the accepted cancellation terms — never re-evaluated later.
+        cancellation_policy_snapshot: cancellationPolicySnapshot(),
         pricing_calculation_id: quote.id,
         acquisition_source: acquisitionSource,
         acquisition_provider_id: acquisitionProviderId,

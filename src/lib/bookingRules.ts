@@ -5,7 +5,7 @@ import { CANCELLATION_TIERS } from "./cancellationPolicy";
 
 /**
  * Customer cancellation is governed by the tiered ladder in
- * `cancellationPolicy.ts` (48h → 100%, 24h → 50%, below → 0%), NOT by a single
+ * `cancellationPolicy.ts` (>18h → 100%, 8–18h → 50%, below → 0%), NOT by a single
  * deadline. The value below is only the point at which a cancellation stops
  * producing any refund, derived from the ladder so the two cannot drift.
  */
