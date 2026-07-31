@@ -4,7 +4,7 @@ import { DashboardLayout } from "@/components/dashboard";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { useSupportCounters } from "@/hooks/useSupportCounters";
-import { Inbox, LifeBuoy, UserSearch, Headphones, ListChecks, AlertTriangle } from "lucide-react";
+import { LayoutDashboard, Inbox, LifeBuoy, UserSearch, Headphones, ListChecks, AlertTriangle } from "lucide-react";
 
 interface Props {
   title: string;
@@ -14,6 +14,7 @@ interface Props {
 }
 
 const TABS = [
+  { to: "/support/dashboard", label: "Overblik",   icon: LayoutDashboard },
   { to: "/support/inbox",     label: "Indbakke",   icon: Inbox },
   { to: "/support/cases",     label: "Sager",      icon: LifeBuoy },
   { to: "/support/customers", label: "Kunder",     icon: UserSearch },
