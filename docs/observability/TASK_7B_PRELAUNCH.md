@@ -14,9 +14,10 @@ Task 7B replaces the placeholder providers with live ones and verifies end-to-en
 - [ ] **Email provider (Resend or equivalent)** — add secret `RESEND_API_KEY`,
       set verified sender domain, wire into `notification-outbox-worker`
       `sendEmail()`.
-- [ ] **SMS provider (GatewayAPI or Twilio)** — add secret `SMS_PROVIDER_KEY`
-      (or `TWILIO_AUTH_TOKEN` + `TWILIO_ACCOUNT_SID` + `TWILIO_FROM`), wire
-      into `notification-outbox-worker` `sendSms()` and `sms-send-code`.
+- [x] **SMS provider (GatewayAPI)** — add secrets `GATEWAYAPI_API_TOKEN`
+      (+ optional `GATEWAYAPI_SENDER`, `GATEWAYAPI_BASE_URL`); wired into
+      `supabase/functions/_shared/gatewayapi.ts`, used by
+      `notification-outbox-worker` and `sms-send-code`.
 - [ ] **Push provider (FCM)** — add secret `FCM_SERVER_KEY`, register device
       tokens on the profile, wire into `notification-outbox-worker`
       `sendPush()`.
