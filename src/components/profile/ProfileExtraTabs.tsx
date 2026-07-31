@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Bell, Loader2, MessageSquare, PiggyBank, Receipt, ShieldOff, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -56,6 +57,7 @@ const DEFAULT_PREFS: Prefs = { email: true, push: true, sms: false, marketing: f
 
 /* ---------- NOTIFIKATIONER ---------- */
 export function NotificationsTab() {
+  const { t } = useTranslation("customer");
   const { user } = useAuth();
   const [prefs, setPrefs] = useState<Prefs>(DEFAULT_PREFS);
   const [loading, setLoading] = useState(true);
@@ -80,37 +82,37 @@ export function NotificationsTab() {
     setSaving(true);
     const { error } = await supabase.from("profiles").update({ notification_prefs: next } as any).eq("id", user.id);
     setSaving(false);
-    if (error) toast.error("Kunne ikke gemme"); else toast.success("Gemt");
+    if (error) toast.error(t("surfaces.profileExtra.saveFailed")); else toast.success(t("surfaces.profileExtra.saved"));
   }
 
   async function enablePush() {
-    if (typeof Notification === "undefined") { toast.error("Push understøttes ikke i denne browser"); return; }
+    if (typeof Notification === "undefined") { toast.error(t("surfaces.profileExtra.pushUnsupported")); return; }
     const perm = await Notification.requestPermission();
     setPushStatus(perm);
     if (perm === "granted") save({ ...prefs, push: true });
-    else toast.error("Push blev afvist");
+    else toast.error(t("surfaces.profileExtra.pushDenied"));
   }
 
   if (loading) return <div className="grid place-items-center py-16"><Loader2 className="h-6 w-6 animate-spin" /></div>;
 
   return (
-    <Card title="Notifikationer" icon={Bell}>
+    <Card title={t("surfaces.profileExtra.notifications.title")} icon={Bell}>
       <div className="space-y-3">
         <Toggle
-          label="Email-notifikationer"
-          hint="Kvitteringer, bookingopdateringer og påmindelser."
+          label={t("surfaces.profileExtra.notifications.email")}
+          hint={t("surfaces.profileExtra.notifications.emailHint")}
           value={prefs.email}
           onChange={(v) => save({ ...prefs, email: v })}
           disabled={saving}
         />
         <Toggle
-          label="Push-notifikationer"
+          label={t("surfaces.profileExtra.notifications.push")}
           hint={
             pushStatus === "denied"
-              ? "Blokeret i browseren — aktivér i browser-indstillinger."
+              ? t("surfaces.profileExtra.notifications.pushBlocked")
               : pushStatus !== "granted"
-              ? "Tillad browseren at vise push."
-              : "Aktive i denne browser."
+              ? t("surfaces.profileExtra.notifications.pushAllow")
+              : t("surfaces.profileExtra.notifications.pushActive")
           }
           value={prefs.push && pushStatus === "granted"}
           onChange={(v) => {
@@ -120,8 +122,8 @@ export function NotificationsTab() {
           disabled={saving || pushStatus === "denied"}
         />
         <Toggle
-          label="Marketing & nyheder"
-          hint="Tilbud, tips og produktnyt. Maks 1× pr. måned."
+          label={t("surfaces.profileExtra.marketingNotifications")}
+          hint={t("surfaces.profileExtra.notifications.marketingHint")}
           value={prefs.marketing}
           onChange={(v) => save({ ...prefs, marketing: v })}
           disabled={saving}
@@ -221,7 +223,7 @@ export function SmsTab() {
     const prefs = { ...DEFAULT_PREFS, ...((current as any)?.notification_prefs || {}), sms: enabled };
     const { error } = await supabase.from("profiles").update({ notification_prefs: prefs } as any).eq("id", user.id);
     setSaving(false);
-    if (error) toast.error("Kunne ikke gemme"); else toast.success("Gemt");
+    if (error) toast.error(t("surfaces.profileExtra.saveFailed")); else toast.success(t("surfaces.profileExtra.saved"));
   }
 
   if (loading) return <div className="grid place-items-center py-16"><Loader2 className="h-6 w-6 animate-spin" /></div>;
