@@ -69,18 +69,18 @@ export default function ProviderDashboardV2() {
   const responseText = useMemo(() => {
     const s = data.stats.avgResponseSeconds;
     if (s == null) return "—";
-    if (s < 60) return `${s}s`;
-    if (s < 3600) return `${Math.round(s / 60)} min`;
-    return `${Math.round(s / 3600)} t`;
-  }, [data.stats.avgResponseSeconds]);
+    if (s < 60) return t("dashboard.time.seconds", { count: s });
+    if (s < 3600) return t("dashboard.time.minutes", { count: Math.round(s / 60) });
+    return t("dashboard.time.hours", { count: Math.round(s / 3600) });
+  }, [data.stats.avgResponseSeconds, t]);
 
   const verification = describeVerification(data.profile, t);
 
   return (
-    <DashboardLayout role="provider" title="Cleaner">
+    <DashboardLayout role="provider" title={t("dashboard.brandTitle")}>
       <DashboardPage
-        title="Dashboard"
-        description="Overblik over dine bookinger, din indtjening og din profilstatus som selvstændig provider."
+        title={t("dashboard.title")}
+        description={t("dashboard.description")}
       >
         <div className="grid gap-5 lg:gap-6">
           <AppErrorBoundary>
@@ -97,20 +97,22 @@ export default function ProviderDashboardV2() {
 
           <AppErrorBoundary>
             <WelcomeHeader
-              greeting="Cleaner-dashboard"
+              greeting={t("dashboard.greeting")}
               name={data.firstName}
               completion={data.profile?.completion_pct ?? null}
               loading={data.loading}
               subtitle={
                 nextJob
-                  ? `Næste job: ${formatDate(nextJob.booking_date)}${nextJob.slot ? ` kl. ${nextJob.slot}` : ""}.`
+                  ? nextJob.slot
+                    ? t("dashboard.subtitle.nextJobWithSlot", { date: formatDate(nextJob.booking_date), slot: nextJob.slot })
+                    : t("dashboard.subtitle.nextJob", { date: formatDate(nextJob.booking_date) })
                   : data.openRequests.length
-                    ? `Du har ${data.openRequests.length} åbne anmodning${data.openRequests.length === 1 ? "" : "er"} — svar hurtigt for bedre placering.`
-                    : "Du har ingen kommende bookinger. Hold din profil komplet og synlig, så flere kunder kan finde dig."
+                    ? t("dashboard.subtitle.openRequests", { count: data.openRequests.length })
+                    : t("dashboard.subtitle.noBookings")
               }
               actions={
                 <Button asChild size="sm" variant="outline">
-                  <Link to="/provider/profile">Rediger profil</Link>
+                  <Link to="/provider/profile">{t("dashboard.editProfile")}</Link>
                 </Button>
               }
             />
@@ -150,29 +152,29 @@ export default function ProviderDashboardV2() {
           {/* Stats */}
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             <StatCard
-              label="Gennemførte bookinger"
+              label={t("dashboard.stats.completedBookings")}
               value={data.stats.completed}
               icon={ListChecks}
               loading={data.loading}
             />
             <StatCard
-              label="Din indtjening"
+              label={t("dashboard.stats.earnings")}
               value={earnings}
-              hint={data.stats.completed ? "Fra gennemførte bookinger" : undefined}
+              hint={data.stats.completed ? t("dashboard.stats.earningsHint") : undefined}
               icon={Wallet}
               loading={data.loading}
             />
             <StatCard
-              label="Accept-rate"
+              label={t("dashboard.stats.acceptanceRate")}
               value={data.stats.acceptanceRate == null ? "—" : `${data.stats.acceptanceRate}%`}
-              hint={data.stats.acceptanceRate == null ? "Ingen tilbud endnu" : undefined}
+              hint={data.stats.acceptanceRate == null ? t("dashboard.stats.noOffersYet") : undefined}
               icon={TrendingUp}
               loading={data.loading}
             />
             <StatCard
-              label="Svartid"
+              label={t("dashboard.stats.responseTime")}
               value={responseText}
-              hint={data.stats.avgResponseSeconds == null ? "Ingen svar endnu" : "Gennemsnit"}
+              hint={data.stats.avgResponseSeconds == null ? t("dashboard.stats.noResponsesYet") : t("dashboard.stats.average")}
               icon={Clock}
               loading={data.loading}
             />
@@ -183,15 +185,15 @@ export default function ProviderDashboardV2() {
             <div className="space-y-5 lg:col-span-2 lg:space-y-6">
               <AppErrorBoundary>
                 <SectionCard
-                  title="I dag"
-                  description="Dine bookinger i dag."
+                  title={t("dashboard.sections.today.title")}
+                  description={t("dashboard.sections.today.description")}
                   loading={data.loading}
                   empty={!data.loading && data.todaysSchedule.length === 0}
                   emptyState={
                     <EmptyState
                       icon={CalendarClock}
-                      title="Ingen bookinger i dag"
-                      description="Nyd en pause — eller opdater din tilgængelighed, så flere kunder kan booke dig."
+                      title={t("dashboard.sections.today.emptyTitle")}
+                      description={t("dashboard.sections.today.emptyDescription")}
                     />
                   }
                 >
@@ -205,15 +207,15 @@ export default function ProviderDashboardV2() {
 
               <AppErrorBoundary>
                 <SectionCard
-                  title="Nye bookingforespørgsler"
-                  description="Svar hurtigt — det giver dig en bedre placering i marketplace."
+                  title={t("dashboard.sections.newRequests.title")}
+                  description={t("dashboard.sections.newRequests.description")}
                   loading={data.loading}
                   empty={!data.loading && data.openRequests.length === 0}
                   emptyState={
                     <EmptyState
                       icon={Inbox}
-                      title="Ingen nye bookingforespørgsler"
-                      description="Nye bookingforespørgsler vises her, så snart en kunde sender en."
+                      title={t("dashboard.sections.newRequests.emptyTitle")}
+                      description={t("dashboard.sections.newRequests.emptyDescription")}
                     />
                   }
                 >
@@ -227,14 +229,14 @@ export default function ProviderDashboardV2() {
 
               <AppErrorBoundary>
                 <SectionCard
-                  title="Kommende bookinger"
+                  title={t("dashboard.sections.upcoming.title")}
                   loading={data.loading}
                   empty={!data.loading && data.upcoming.length === 0}
                   emptyState={
                     <EmptyState
                       icon={Calendar}
-                      title="Ingen kommende bookinger"
-                      description="Accepterede bookinger vises her, indtil de er gennemført."
+                      title={t("dashboard.sections.upcoming.emptyTitle")}
+                      description={t("dashboard.sections.upcoming.emptyDescription")}
                     />
                   }
                 >
@@ -248,12 +250,12 @@ export default function ProviderDashboardV2() {
 
               <AppErrorBoundary>
                 <SectionCard
-                  title="Anmeldelser"
-                  description="Ratings og skriftlige anmeldelser fra dine kunder."
+                  title={t("dashboard.sections.reviews.title")}
+                  description={t("dashboard.sections.reviews.description")}
                 >
                   <ComingSoonCard
-                    title="Rating & anmeldelser"
-                    description="Anmeldelser er på vej. Indtil da viser dashboardet kun bookinger og indtjening."
+                    title={t("dashboard.sections.reviews.comingSoonTitle")}
+                    description={t("dashboard.sections.reviews.comingSoonDescription")}
                   />
                 </SectionCard>
               </AppErrorBoundary>
@@ -262,42 +264,42 @@ export default function ProviderDashboardV2() {
             {/* Right column */}
             <div className="space-y-5 lg:space-y-6">
               <AppErrorBoundary>
-                <SectionCard title="Genveje">
+                <SectionCard title={t("dashboard.shortcuts.title")}>
                   <div className="grid gap-3">
                     <QuickActionCard
-                      title="Beskeder"
-                      description="Chat med kunder"
+                      title={t("dashboard.shortcuts.messages.title")}
+                      description={t("dashboard.shortcuts.messages.description")}
                       icon={MessageSquare}
                       to="/inbox"
                       badge={notifications.unread > 0 ? `${notifications.unread}` : undefined}
                     />
                     <QuickActionCard
-                      title="Priser"
-                      description="Juster timepris og pakker"
+                      title={t("dashboard.shortcuts.pricing.title")}
+                      description={t("dashboard.shortcuts.pricing.description")}
                       icon={Sparkles}
                       to="/provider/pricing"
                     />
                     <QuickActionCard
-                      title="Økonomi"
-                      description="Udbetalinger og afregningsoversigter"
+                      title={t("dashboard.shortcuts.finance.title")}
+                      description={t("dashboard.shortcuts.finance.description")}
                       icon={CreditCard}
                       to="/provider/finance"
                     />
                     <QuickActionCard
-                      title="Bilag"
-                      description="Kvitteringer og udgifter til regnskabet"
+                      title={t("dashboard.shortcuts.receipts.title")}
+                      description={t("dashboard.shortcuts.receipts.description")}
                       icon={FileText}
                       to="/provider/bilag"
                     />
                     <QuickActionCard
-                      title="Profil"
-                      description="Rediger din offentlige profil"
+                      title={t("dashboard.shortcuts.profile.title")}
+                      description={t("dashboard.shortcuts.profile.description")}
                       icon={Settings}
                       to="/provider/profile"
                     />
                     <QuickActionCard
-                      title="Support"
-                      description="Vi hjælper dig"
+                      title={t("dashboard.shortcuts.support.title")}
+                      description={t("dashboard.shortcuts.support.description")}
                       icon={LifeBuoy}
                       to="/faq"
                     />
@@ -307,31 +309,31 @@ export default function ProviderDashboardV2() {
 
               <AppErrorBoundary>
                 <SectionCard
-                  title="Nøgletal"
-                  description="Baseret på reelle bookinger og tilbud."
+                  title={t("dashboard.keyFigures.title")}
+                  description={t("dashboard.keyFigures.description")}
                   loading={data.loading}
                 >
                   <dl className="grid grid-cols-2 gap-3 text-sm">
                     <MiniStat
                       icon={CheckCircle2}
-                      label="Accept"
+                      label={t("dashboard.keyFigures.accept")}
                       value={data.stats.acceptanceRate == null ? "—" : `${data.stats.acceptanceRate}%`}
                     />
                     <MiniStat
                       icon={AlertTriangle}
-                      label="Annullering"
+                      label={t("dashboard.keyFigures.cancellation")}
                       value={data.stats.cancellationRate == null ? "—" : `${data.stats.cancellationRate}%`}
                     />
-                    <MiniStat icon={Clock} label="Svartid" value={responseText} />
+                    <MiniStat icon={Clock} label={t("dashboard.keyFigures.responseTime")} value={responseText} />
                     <MiniStat
                       icon={Star}
-                      label="Rating"
+                      label={t("dashboard.keyFigures.rating")}
                       value={data.stats.ratingAvg == null ? "—" : data.stats.ratingAvg.toFixed(1)}
                     />
                   </dl>
                   {data.profile?.provider_tier && (
                     <div className="mt-4 flex items-center justify-between rounded-xl border border-border bg-background/50 px-3 py-2">
-                      <span className="text-xs uppercase tracking-wide text-muted-foreground">Tier</span>
+                      <span className="text-xs uppercase tracking-wide text-muted-foreground">{t("dashboard.keyFigures.tier")}</span>
                       <Badge variant="secondary" className="capitalize">
                         {data.profile.provider_tier.replace(/_/g, " ")}
                       </Badge>
@@ -342,13 +344,13 @@ export default function ProviderDashboardV2() {
 
               <AppErrorBoundary>
                 <SectionCard
-                  title="Udbetalinger"
+                  title={t("dashboard.payouts.title")}
                   action={
                     <Link
                       to="/provider/finance"
                       className="text-xs font-semibold uppercase tracking-wide text-primary hover:underline"
                     >
-                      Se alle
+                      {t("dashboard.payouts.seeAll")}
                     </Link>
                   }
                   loading={data.loading}
@@ -356,8 +358,8 @@ export default function ProviderDashboardV2() {
                   emptyState={
                     <EmptyState
                       icon={Wallet}
-                      title="Ingen udbetalinger endnu"
-                      description="Din første udbetaling vises her, når en booking er afsluttet. Det præcise tidspunkt, hvor beløbet er synligt på kontoen, afhænger af betalingsudbyderen og din bank."
+                      title={t("dashboard.payouts.emptyTitle")}
+                      description={t("dashboard.payouts.emptyDescription")}
                     />
                   }
                 >
