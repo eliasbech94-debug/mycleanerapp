@@ -416,8 +416,33 @@ function StepBasic({
       if (error) throw error;
 
       const { data } = supabase.storage.from("provider-photos").getPublicUrl(objectPath);
-      patch({ photo_path: `${data.publicUrl}?v=${Date.now()}` });
-      toast.success("Profilfoto uploadet");
+      const photoUrl = `${data.publicUrl}?v=${Date.now()}`;
+      // Persist immediately (bypassing the debounce) so the moderation
+      // function can verify the path belongs to this provider.
+      const { error: saveError } = await supabase
+        .from("provider_profiles")
+        .update({ photo_path: photoUrl } as any)
+        .eq("user_id", userId);
+      if (saveError) throw saveError;
+      patch({ photo_path: photoUrl });
+      toast.success("Profilfoto uploadet — vi tjekker det nu");
+
+      // Asynchronous quality/content moderation. Identity and liveness are
+      // handled exclusively by the ID verification step.
+      void supabase.functions
+        .invoke("provider-photo-moderate", { body: { photo_path: photoUrl } })
+        .then(({ data: mod }) => {
+          if (mod?.status === "approved") toast.success("Dit profilbillede er godkendt");
+          else if (mod?.status === "rejected") {
+            toast.error(mod?.message || "Billedet blev afvist. Prøv med et andet foto.");
+          } else {
+            toast.info("Dit profilbillede gennemgås manuelt.");
+          }
+        })
+        .catch(() => {
+          toast.info("Dit profilbillede gennemgås manuelt.");
+        });
+
     } catch (error: any) {
       toast.error(error?.message || "Fotoet kunne ikke uploades");
     } finally {
