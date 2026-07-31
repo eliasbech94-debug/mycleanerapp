@@ -9,8 +9,8 @@
  * uses the current policy.
  */
 import {
-  CURRENT_CANCELLATION_POLICY,
   cancellationCutoffs,
+  policyAt,
   policyForVersion,
   type CancellationPolicy,
 } from "@/lib/cancellationPolicy";
@@ -32,9 +32,12 @@ export function CancellationPolicyNotice({
   policyVersion?: string | null;
   className?: string;
 }) {
+  // An existing booking is always shown with the version frozen on it; a
+  // booking that does not exist yet uses the policy in force right now.
   const policy: CancellationPolicy = policyVersion
     ? policyForVersion(policyVersion)
-    : CURRENT_CANCELLATION_POLICY;
+    : policyAt(new Date());
+
   const start = new Date(serviceStart);
   if (Number.isNaN(start.getTime())) return null;
   const cutoffs = cancellationCutoffs(start, policy);

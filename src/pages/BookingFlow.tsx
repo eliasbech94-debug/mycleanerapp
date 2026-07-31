@@ -111,6 +111,10 @@ function BookingFlowInner() {
   const [submitting, setSubmitting] = useState(false);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [bookingId, setBookingId] = useState<string | null>(null);
+  // Cancellation-policy version frozen on the booking by the server. Used so
+  // the confirmation quotes the accepted terms even if the global policy
+  // switches over (time gate) between creation and render.
+  const [acceptedPolicyVersion, setAcceptedPolicyVersion] = useState<string | null>(null);
   const stripe = useStripe();
   const elements = useElements();
 
@@ -257,6 +261,7 @@ function BookingFlowInner() {
           bid = data.booking_id;
           setClientSecret(secret);
           setBookingId(bid);
+          setAcceptedPolicyVersion(data.cancellation_policy_version ?? null);
         }
 
         // 2) Confirm card (authorization only — manual capture)
@@ -371,7 +376,7 @@ function BookingFlowInner() {
                 />
               )}
               {step === 4 && (
-                <Step4 provider={provider} date={date!} slot={slot} customerPays={customerPays} />
+                <Step4 provider={provider} date={date!} slot={slot} customerPays={customerPays} policyVersion={acceptedPolicyVersion} />
               )}
             </motion.div>
           </AnimatePresence>
@@ -1121,7 +1126,7 @@ function Step3({ address, setAddress, addressValid, setAddressValid, setAddressP
 }
 
 /* ---------------- Step 4 — Success ---------------- */
-function Step4({ provider, date, slot, customerPays }: any) {
+function Step4({ provider, date, slot, customerPays, policyVersion }: any) {
   const serviceStart = date && slot ? new Date(`${fmtISO(date)}T${slot}:00`) : null;
   return (
     <div className="rounded-3xl border-2 bg-white p-8 text-center shadow-[8px_8px_0_rgba(10,61,58,0.15)]" style={{ borderColor: C.ink }}>
@@ -1143,6 +1148,8 @@ function Step4({ provider, date, slot, customerPays }: any) {
       {serviceStart && (
         <CancellationPolicyNotice
           serviceStart={serviceStart}
+          // The frozen version the customer accepted — not today's policy.
+          policyVersion={policyVersion}
           className="mx-auto mt-6 max-w-md rounded-2xl border-2 p-5 text-left"
         />
       )}

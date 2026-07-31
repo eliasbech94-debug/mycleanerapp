@@ -1,16 +1,18 @@
 // Booking-rule schema. This module is INPUT ONLY — algorithms live server-side.
 // Client validation from here is advisory; the server re-validates every write.
 import { z } from "zod";
-import { CANCELLATION_TIERS } from "./cancellationPolicy";
+import { currentCancellationTiers } from "./cancellationPolicy";
 
 /**
  * Customer cancellation is governed by the tiered ladder in
- * `cancellationPolicy.ts` (>18h → 100%, 8–18h → 50%, below → 0%), NOT by a single
+ * `cancellationPolicy.ts` (the ladder in force at booking time), NOT by a single
  * deadline. The value below is only the point at which a cancellation stops
  * producing any refund, derived from the ladder so the two cannot drift.
  */
-export const CUSTOMER_NO_REFUND_THRESHOLD_HOURS =
-  CANCELLATION_TIERS[CANCELLATION_TIERS.length - 2]?.minHoursBeforeStart ?? 24;
+export function customerNoRefundThresholdHours(): number {
+  const tiers = currentCancellationTiers();
+  return tiers[tiers.length - 2]?.minHoursBeforeStart ?? 24;
+}
 
 export const BookingRulesSchema = z.object({
   min_notice_minutes: z.number().int().min(0).default(120),
@@ -26,7 +28,7 @@ export const BookingRulesSchema = z.object({
    * @deprecated Informational only. The authoritative refund outcome comes from
    * `refundPercentForHours()` in `cancellationPolicy.ts`.
    */
-  customer_no_refund_below_hours: z.number().int().min(0).default(CUSTOMER_NO_REFUND_THRESHOLD_HOURS),
+  customer_no_refund_below_hours: z.number().int().min(0).default(customerNoRefundThresholdHours()),
 
   provider_cancel_consequence: z.enum(["none", "warning", "fee", "suspend"]).default("fee"),
   auto_accept: z.boolean().default(false),

@@ -10,8 +10,12 @@ import { MessageCircle, LifeBuoy } from "lucide-react";
 import { Link } from "react-router-dom";
 import SupportDialog from "@/components/SupportDialog";
 import { useAuth } from "@/hooks/useAuth";
+import { cancellationLadderSentence } from "@/lib/cancellationPolicyCopy";
 
-const FAQS: Array<{ q: string; a: string }> = [
+// Built per render so the cancellation copy always reflects the policy in
+// force right now (48/24 before the v2 activation instant, 18/8 from it).
+function buildFaqs(): Array<{ q: string; a: string }> {
+  return [
   {
     q: "Hvad er MyCleaner?",
     a: "MyCleaner-platformen er en digital markedsplads, der forbinder kunder med selvstændige providere. Du vælger og booker selv den provider, du ønsker. MyCleaner udfører ikke selv rengøringen og er ikke part i aftalen om udførelsen af opgaven.",
@@ -62,7 +66,7 @@ const FAQS: Array<{ q: string; a: string }> = [
   },
   {
     q: "Hvordan afbestiller jeg en booking?",
-    a: "Gå til Mine bookinger, vælg bookingen og tryk Annuller booking. Aflyser du mere end 18 timer før bookingens præcise starttidspunkt, er aflysningen gratis med 100 % refusion. Fra og med 8 og til og med 18 timer før start refunderes 50 %. Under 8 timer før start er der 0 % refusion, og der opkræves 100 % cancellation fee. De eksakte lokale tidspunkter står på din bookingbekræftelse. Bookinger oprettet før de nuværende regler afregnes efter de vilkår, du accepterede dengang.",
+    a: `Gå til Mine bookinger, vælg bookingen og tryk Annuller booking. ${cancellationLadderSentence()} De eksakte lokale tidspunkter står på din bookingbekræftelse. Bookinger oprettet før de nuværende regler afregnes efter de vilkår, du accepterede dengang.`,
   },
   {
     q: "Hvordan får jeg refusion?",
@@ -99,11 +103,13 @@ const FAQS: Array<{ q: string; a: string }> = [
   {
     q: "Hvad gør jeg, hvis provideren er forsinket eller ikke møder op?",
     a: "Skriv først i chatten på bookingen — de fleste forsinkelser afklares hurtigt der. Får du ikke svar, kan du oprette en supportsag, så gennemgår support oplysningerne fra begge parter.",
-  },
-];
+    },
+  ];
+}
 
 
 export default function FAQ() {
+  const FAQS = buildFaqs();
   const [chatOpen, setChatOpen] = useState(false);
   const { user } = useAuth();
 
