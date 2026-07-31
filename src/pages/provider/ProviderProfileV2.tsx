@@ -42,6 +42,7 @@ const formatMoney = (minor: number, currency: string, locale: string) => {
 };
 
 export default function ProviderProfileV2() {
+  const { t, i18n } = useTranslation("provider");
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const view = useProviderProfile();
@@ -63,10 +64,10 @@ export default function ProviderProfileV2() {
 
   const greeting = useMemo(() => {
     const h = new Date().getHours();
-    if (h < 10) return "Godmorgen";
-    if (h < 18) return "Goddag";
-    return "Godaften";
-  }, []);
+    if (h < 10) return t("profile.greeting.morning");
+    if (h < 18) return t("profile.greeting.day");
+    return t("profile.greeting.evening");
+  }, [t]);
 
   if (!authLoading && !user) { navigate("/login"); return null; }
 
@@ -84,9 +85,9 @@ export default function ProviderProfileV2() {
   if (!p) {
     return (
       <div className="mx-auto max-w-3xl p-6 text-center">
-        <h1 className="font-display text-2xl">Ingen provider-profil</h1>
-        <p className="mt-2 opacity-70">Du skal starte en cleaner-ansøgning først.</p>
-        <Button className="mt-4" onClick={() => navigate("/bliv-cleaner")}>Bliv cleaner</Button>
+        <h1 className="font-display text-2xl">{t("profile.noProfile.title")}</h1>
+        <p className="mt-2 opacity-70">{t("profile.noProfile.body")}</p>
+        <Button className="mt-4" onClick={() => navigate("/bliv-cleaner")}>{t("profile.noProfile.cta")}</Button>
       </div>
     );
   }
@@ -104,7 +105,7 @@ export default function ProviderProfileV2() {
   const stripeReady = !!p.stripe_charges_enabled && !!p.stripe_payouts_enabled;
   const snap = (p.performance_snapshot ?? {}) as Record<string, number | null>;
 
-  const editBtn = (key: EditorKey, label = "Redigér") => (
+  const editBtn = (key: EditorKey, label = t("profile.editButton")) => (
     <Button variant="ghost" size="sm" className="text-primary"
       aria-label={`${label} — ${key}`}
       onClick={() => setOpenEditor(key)}>
