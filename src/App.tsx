@@ -88,6 +88,7 @@ import OAuthConsent from "./pages/OAuthConsent";
 import { CountryProvider } from "@/i18n/CountryContext";
 import { LanguageAccountSync } from "@/i18n/LanguageAccountSync";
 import { ActiveMarketProvider } from "@/context/ActiveMarketContext";
+import { LocationProvider } from "@/context/LocationContext";
 import { AppContextProvider } from "@/context/AppContext";
 import { AuthGateProvider } from "@/context/AuthGateContext";
 import IdentityVerificationPage from "./pages/identity/IdentityVerificationPage";
@@ -297,6 +298,7 @@ const App = () => (
           <AuthProvider>
             <LanguageAccountSync />
             <ActiveMarketProvider>
+              <LocationProvider>
               <AppContextProvider>
                 <AuthGateProvider>
                   <ScrollToTop />
@@ -310,6 +312,7 @@ const App = () => (
 
                 </AuthGateProvider>
               </AppContextProvider>
+              </LocationProvider>
             </ActiveMarketProvider>
           </AuthProvider>
 
