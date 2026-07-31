@@ -1,8 +1,13 @@
 /**
- * Danish customer-facing copy for the cancellation ladder, DERIVED from the
- * canonical policy in `cancellationPolicy.ts`. Public pages must never
- * hardcode the hour thresholds — before the v2 activation instant these
- * helpers describe 48/24, from the activation instant they describe 18/8.
+ * Customer-facing copy for the cancellation ladder, DERIVED from the canonical
+ * policy in `cancellationPolicy.ts`. Public pages must never hardcode the hour
+ * thresholds — before the v2 activation instant these helpers describe 48/24,
+ * from the activation instant they describe 18/8.
+ *
+ * i18n: every sentence lives in the `common` namespace under
+ * `cancellation.ladder.*`. Callers pass a translator (`t` from
+ * react-i18next); when none is supplied the Danish source copy below is used,
+ * so non-React callers and policy parity tests keep working.
  */
 import {
   currentCancellationPolicy,
@@ -10,46 +15,99 @@ import {
   type CancellationTier,
 } from "./cancellationPolicy";
 
-function tier(policy: CancellationPolicy, key: CancellationTier["key"]): CancellationTier {
-  return policy.tiers.find((t) => t.key === key) ?? policy.tiers[policy.tiers.length - 1];
+/** Minimal translator shape — compatible with react-i18next's `t`. */
+export type LadderTranslate = (
+  key: string,
+  vars: Record<string, string | number>,
+) => string;
+
+/** Danish source strings; mirrored in public/locales/*/common.json. */
+const DA_SOURCE: Record<string, string> = {
+  "cancellation.ladder.when": "før bookingens præcise starttidspunkt",
+  "cancellation.ladder.bullet.fullExclusive":
+    "Mere end {{hours}} timer {{when}}: gratis aflysning og {{percent}} % refusion.",
+  "cancellation.ladder.bullet.fullInclusive":
+    "{{hours}} timer eller mere {{when}}: gratis aflysning og {{percent}} % refusion.",
+  "cancellation.ladder.bullet.partialExclusive":
+    "Fra og med {{from}} timer til og med {{to}} timer {{when}}: {{percent}} % refusion.",
+  "cancellation.ladder.bullet.partialInclusive":
+    "Fra og med {{from}} timer og under {{to}} timer {{when}}: {{percent}} % refusion.",
+  "cancellation.ladder.bullet.none":
+    "Under {{hours}} timer {{when}}: 0 % refusion — der opkræves 100 % cancellation fee.",
+  "cancellation.ladder.sentence.exclusive":
+    "Aflyser du mere end {{fullHours}} timer {{when}}, er aflysningen gratis med {{fullPercent}} % refusion. Fra og med {{partialHours}} og til og med {{fullHours}} timer før start refunderes {{partialPercent}} %. Under {{partialHours}} timer før start er der 0 % refusion, og der opkræves 100 % cancellation fee.",
+  "cancellation.ladder.sentence.inclusive":
+    "Aflyser du {{fullHours}} timer eller mere {{when}}, er aflysningen gratis med {{fullPercent}} % refusion. Fra og med {{partialHours}} og under {{fullHours}} timer før start refunderes {{partialPercent}} %. Under {{partialHours}} timer før start er der 0 % refusion, og der opkræves 100 % cancellation fee.",
+};
+
+function fallback(key: string, vars: Record<string, string | number>): string {
+  const template = DA_SOURCE[key] ?? key;
+  return template.replace(/\{\{(\w+)\}\}/g, (_, name: string) =>
+    String(vars[name] ?? ""),
+  );
 }
 
-const WHEN = "før bookingens præcise starttidspunkt";
+function translator(t?: LadderTranslate): LadderTranslate {
+  if (!t) return fallback;
+  return (key, vars) => t(key, { ...vars, defaultValue: fallback(key, vars) } as never);
+}
+
+function tier(policy: CancellationPolicy, key: CancellationTier["key"]): CancellationTier {
+  return policy.tiers.find((x) => x.key === key) ?? policy.tiers[policy.tiers.length - 1];
+}
 
 /** Three bullets describing the ladder, high → low. */
 export function cancellationLadderBullets(
   policy: CancellationPolicy = currentCancellationPolicy(),
+  t?: LadderTranslate,
 ): string[] {
+  const tr = translator(t);
+  const when = tr("cancellation.ladder.when", {});
   const full = tier(policy, "full");
   const partial = tier(policy, "partial");
-  const upper = full.boundExclusive
-    ? `Mere end ${full.minHoursBeforeStart} timer`
-    : `${full.minHoursBeforeStart} timer eller mere`;
-  const middleUpper = full.boundExclusive
-    ? `til og med ${full.minHoursBeforeStart} timer`
-    : `og under ${full.minHoursBeforeStart} timer`;
   return [
-    `${upper} ${WHEN}: gratis aflysning og ${full.refundPercent} % refusion.`,
-    `Fra og med ${partial.minHoursBeforeStart} timer ${middleUpper} ${WHEN}: ${partial.refundPercent} % refusion.`,
-    `Under ${partial.minHoursBeforeStart} timer ${WHEN}: 0 % refusion — der opkræves 100 % cancellation fee.`,
+    tr(
+      full.boundExclusive
+        ? "cancellation.ladder.bullet.fullExclusive"
+        : "cancellation.ladder.bullet.fullInclusive",
+      { hours: full.minHoursBeforeStart, percent: full.refundPercent, when },
+    ),
+    tr(
+      full.boundExclusive
+        ? "cancellation.ladder.bullet.partialExclusive"
+        : "cancellation.ladder.bullet.partialInclusive",
+      {
+        from: partial.minHoursBeforeStart,
+        to: full.minHoursBeforeStart,
+        percent: partial.refundPercent,
+        when,
+      },
+    ),
+    tr("cancellation.ladder.bullet.none", {
+      hours: partial.minHoursBeforeStart,
+      when,
+    }),
   ];
 }
 
 /** One-paragraph FAQ answer describing the same ladder. */
 export function cancellationLadderSentence(
   policy: CancellationPolicy = currentCancellationPolicy(),
+  t?: LadderTranslate,
 ): string {
+  const tr = translator(t);
   const full = tier(policy, "full");
   const partial = tier(policy, "partial");
-  const upper = full.boundExclusive
-    ? `mere end ${full.minHoursBeforeStart} timer`
-    : `${full.minHoursBeforeStart} timer eller mere`;
-  const middle = full.boundExclusive
-    ? `Fra og med ${partial.minHoursBeforeStart} og til og med ${full.minHoursBeforeStart} timer før start`
-    : `Fra og med ${partial.minHoursBeforeStart} og under ${full.minHoursBeforeStart} timer før start`;
-  return (
-    `Aflyser du ${upper} før bookingens præcise starttidspunkt, er aflysningen gratis med ${full.refundPercent} % refusion. ` +
-    `${middle} refunderes ${partial.refundPercent} %. ` +
-    `Under ${partial.minHoursBeforeStart} timer før start er der 0 % refusion, og der opkræves 100 % cancellation fee.`
+  return tr(
+    full.boundExclusive
+      ? "cancellation.ladder.sentence.exclusive"
+      : "cancellation.ladder.sentence.inclusive",
+    {
+      when: tr("cancellation.ladder.when", {}),
+      fullHours: full.minHoursBeforeStart,
+      fullPercent: full.refundPercent,
+      partialHours: partial.minHoursBeforeStart,
+      partialPercent: partial.refundPercent,
+    },
   );
 }
