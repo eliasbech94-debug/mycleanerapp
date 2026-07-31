@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -47,6 +48,7 @@ function Field({
 }
 
 export default function RulePackGeneralTab({ pack, readOnly, onChange }: TabProps) {
+  const { t } = useTranslation("admin");
   const toggle = <T,>(list: T[], value: T): T[] =>
     list.includes(value) ? list.filter((v) => v !== value) : [...list, value];
 
@@ -54,10 +56,10 @@ export default function RulePackGeneralTab({ pack, readOnly, onChange }: TabProp
     <div className="space-y-4">
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Generelt</CardTitle>
+          <CardTitle className="text-base">{t("rules.general.title")}</CardTitle>
         </CardHeader>
         <CardContent className="grid gap-4 md:grid-cols-2">
-          <Field id="general-country" label="Landekode (ISO 3166-1 alpha-2)">
+          <Field id="general-country" label={t("rules.general.countryLabel")}>
             <Input
               id="general-country"
               value={pack.countryCode}
@@ -65,7 +67,7 @@ export default function RulePackGeneralTab({ pack, readOnly, onChange }: TabProp
               onChange={(e) => onChange({ countryCode: e.target.value.toUpperCase() })}
             />
           </Field>
-          <Field id="general-region" label="Region / delstat" hint="Valgfrit. Bruges til fx US-TX.">
+          <Field id="general-region" label={t("rules.general.regionLabel")} hint={t("rules.general.regionHint")}>
             <Input
               id="general-region"
               value={pack.regionCode ?? ""}
@@ -73,7 +75,7 @@ export default function RulePackGeneralTab({ pack, readOnly, onChange }: TabProp
               onChange={(e) => onChange({ regionCode: e.target.value || null })}
             />
           </Field>
-          <Field id="general-version" label="Rule pack version">
+          <Field id="general-version" label={t("rules.general.versionLabel")}>
             <Input
               id="general-version"
               value={pack.rulePackVersion}
@@ -81,7 +83,7 @@ export default function RulePackGeneralTab({ pack, readOnly, onChange }: TabProp
               onChange={(e) => onChange({ rulePackVersion: e.target.value })}
             />
           </Field>
-          <Field id="general-source-version" label="Source version">
+          <Field id="general-source-version" label={t("rules.general.sourceVersionLabel")}>
             <Input
               id="general-source-version"
               value={pack.sourceVersion ?? ""}
@@ -89,7 +91,7 @@ export default function RulePackGeneralTab({ pack, readOnly, onChange }: TabProp
               onChange={(e) => onChange({ sourceVersion: e.target.value || null })}
             />
           </Field>
-          <Field id="general-from" label="Effective from">
+          <Field id="general-from" label={t("rules.general.effectiveFromLabel")}>
             <Input
               id="general-from"
               type="date"
@@ -98,7 +100,7 @@ export default function RulePackGeneralTab({ pack, readOnly, onChange }: TabProp
               onChange={(e) => onChange({ effectiveFrom: e.target.value })}
             />
           </Field>
-          <Field id="general-to" label="Effective to" hint="Tomt = gælder indtil videre.">
+          <Field id="general-to" label={t("rules.general.effectiveToLabel")} hint={t("rules.general.effectiveToHint")}>
             <Input
               id="general-to"
               type="date"
@@ -107,7 +109,7 @@ export default function RulePackGeneralTab({ pack, readOnly, onChange }: TabProp
               onChange={(e) => onChange({ effectiveTo: e.target.value || null })}
             />
           </Field>
-          <Field id="general-currency" label="Default currency (ISO 4217)">
+          <Field id="general-currency" label={t("rules.general.currencyLabel")}>
             <Input
               id="general-currency"
               value={pack.defaultCurrency}
@@ -115,7 +117,7 @@ export default function RulePackGeneralTab({ pack, readOnly, onChange }: TabProp
               onChange={(e) => onChange({ defaultCurrency: e.target.value.toUpperCase() })}
             />
           </Field>
-          <Field id="general-locale" label="Default locale" hint="Fx da-DK eller en-GB.">
+          <Field id="general-locale" label={t("rules.general.localeLabel")} hint={t("rules.general.localeHint")}>
             <Input
               id="general-locale"
               value={pack.defaultLocale}
@@ -125,8 +127,8 @@ export default function RulePackGeneralTab({ pack, readOnly, onChange }: TabProp
           </Field>
           <Field
             id="general-supported-currencies"
-            label="Supported currencies"
-            hint="Kommasepareret liste."
+            label={t("rules.general.supportedCurrenciesLabel")}
+            hint={t("rules.general.supportedCurrenciesHint")}
           >
             <Input
               id="general-supported-currencies"
@@ -147,7 +149,7 @@ export default function RulePackGeneralTab({ pack, readOnly, onChange }: TabProp
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Understøttede registreringstyper</CardTitle>
+          <CardTitle className="text-base">{t("rules.general.registrationTypesTitle")}</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-wrap gap-4">
           {REGISTRATION_TYPES.map((type) => (
@@ -169,7 +171,7 @@ export default function RulePackGeneralTab({ pack, readOnly, onChange }: TabProp
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Understøttede indirekte skattetyper</CardTitle>
+          <CardTitle className="text-base">{t("rules.general.taxTypesTitle")}</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-wrap gap-4">
           {TAX_TYPES.map((type) => (

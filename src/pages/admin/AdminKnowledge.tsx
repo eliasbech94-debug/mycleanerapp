@@ -481,6 +481,7 @@ function ArticleEditor({ article, onClose, onChanged, canPublish, canArchive, on
 
 // ------------------------- Emergency panel ---------------------------
 function EmergencyPanel({ canPublish }: { canPublish: boolean }) {
+  const { t } = useTranslation("admin");
   const [rows, setRows] = useState<EmergencyRow[]>([]);
   const [busy, setBusy] = useState(false);
   const [edit, setEdit] = useState<EmergencyRow | null>(null);
@@ -500,16 +501,15 @@ function EmergencyPanel({ canPublish }: { canPublish: boolean }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Country emergency info</CardTitle>
+        <CardTitle className="text-base">{t("pages.adminKnowledge.emergencyInfoTitle")}</CardTitle>
       </CardHeader>
       <CardContent>
         <p className="text-xs text-muted-foreground mb-3">
-          Verify og Publish er adskilte handlinger. Redigering af telefonnummer
-          eller kilde nulstiller verifikationen. Placeholder-numre må aldrig publiceres.
+          {t("pages.adminKnowledge.emergencyInfoHint")}
         </p>
         <div className="rounded-md border divide-y">
           {rows.length === 0 && (
-            <div className="p-4 text-sm text-muted-foreground">Ingen nødoplysninger registreret endnu.</div>
+            <div className="p-4 text-sm text-muted-foreground">{t("pages.adminKnowledge.noEmergencyInfo")}</div>
           )}
           {rows.map((r) => {
             const s = state(r);
@@ -517,8 +517,8 @@ function EmergencyPanel({ canPublish }: { canPublish: boolean }) {
               <div key={r.country_code} className="p-3 flex items-center gap-3 text-sm">
                 <span className="font-mono uppercase w-10">{r.country_code}</span>
                 <span className="flex-1">
-                  Emergency: <b>{r.emergency_number ?? "—"}</b>{" "}
-                  Police: {r.police_number ?? "—"} · Fire: {r.fire_number ?? "—"} · Medical: {r.medical_number ?? "—"}
+                  {t("pages.adminKnowledge.emergency")}: <b>{r.emergency_number ?? "—"}</b>{" "}
+                  {t("pages.adminKnowledge.police")}: {r.police_number ?? "—"} · {t("pages.adminKnowledge.fire")}: {r.fire_number ?? "—"} · {t("pages.adminKnowledge.medical")}: {r.medical_number ?? "—"}
                 </span>
                 <Badge
                   variant="outline"
@@ -530,17 +530,17 @@ function EmergencyPanel({ canPublish }: { canPublish: boolean }) {
                         : "bg-amber-500/15 text-amber-700 dark:text-amber-300"
                   }
                 >{s}</Badge>
-                <Button size="sm" variant="outline" onClick={() => setEdit(r)}>Rediger</Button>
+                <Button size="sm" variant="outline" onClick={() => setEdit(r)}>{t("pages.adminKnowledge.edit")}</Button>
                 <Button
                   size="sm" variant="outline" disabled={busy || !!r.verified_at}
                   onClick={async () => {
                     setBusy(true);
                     const { error } = await (supabase.rpc as any)("country_emergency_info_verify", { _country_code: r.country_code });
                     setBusy(false);
-                    if (error) toast({ title: "Verify fejlede", description: error.message, variant: "destructive" });
-                    else { toast({ title: "Verified" }); load(); }
+                    if (error) toast({ title: t("pages.adminKnowledge.verifyFailed"), description: error.message, variant: "destructive" });
+                    else { toast({ title: t("pages.adminKnowledge.verified") }); load(); }
                   }}
-                >Verify</Button>
+                >{t("pages.adminKnowledge.verify")}</Button>
                 {canPublish && (
                   <Button
                     size="sm" disabled={busy || !r.verified_at || r.published}
@@ -548,10 +548,10 @@ function EmergencyPanel({ canPublish }: { canPublish: boolean }) {
                       setBusy(true);
                       const { error } = await (supabase.rpc as any)("country_emergency_info_publish", { _country_code: r.country_code });
                       setBusy(false);
-                      if (error) toast({ title: "Publish fejlede", description: error.message, variant: "destructive" });
-                      else { toast({ title: "Published" }); load(); }
+                      if (error) toast({ title: t("pages.adminKnowledge.publishFailed"), description: error.message, variant: "destructive" });
+                      else { toast({ title: t("pages.adminKnowledge.published") }); load(); }
                     }}
-                  >Publish</Button>
+                  >{t("pages.adminKnowledge.publish")}</Button>
                 )}
               </div>
             );
@@ -569,6 +569,7 @@ function EmergencyPanel({ canPublish }: { canPublish: boolean }) {
 function EmergencyEditor({ row, onClose, onSaved }: {
   row: EmergencyRow; onClose: () => void; onSaved: () => void;
 }) {
+  const { t } = useTranslation("admin");
   const [f, setF] = useState<EmergencyRow>(row);
   const [busy, setBusy] = useState(false);
   const changed =
@@ -584,13 +585,13 @@ function EmergencyEditor({ row, onClose, onSaved }: {
     <Dialog open onOpenChange={(o) => !o && onClose()}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Emergency info — {row.country_code.toUpperCase()}</DialogTitle>
+          <DialogTitle>{t("pages.adminKnowledge.emergencyInfoFor", { code: row.country_code.toUpperCase() })}</DialogTitle>
         </DialogHeader>
         {changed && (
           <Alert>
             <AlertTriangle className="h-4 w-4" />
             <AlertDescription>
-              Ændringen nulstiller verifikationen. Feltet skal verificeres og publiceres igen.
+              {t("pages.adminKnowledge.changeResetsVerification")}
             </AlertDescription>
           </Alert>
         )}
@@ -605,12 +606,12 @@ function EmergencyEditor({ row, onClose, onSaved }: {
             </div>
           ))}
           <div className="col-span-2">
-            <label className="text-xs uppercase text-muted-foreground">Kilde-URL</label>
+            <label className="text-xs uppercase text-muted-foreground">{t("pages.adminKnowledge.sourceUrl")}</label>
             <Input value={f.source_url ?? ""} onChange={(e) => setF({ ...f, source_url: e.target.value || null })} />
           </div>
         </div>
         <DialogFooter>
-          <Button variant="ghost" onClick={onClose}>Annullér</Button>
+          <Button variant="ghost" onClick={onClose}>{t("pages.adminKnowledge.cancel")}</Button>
           <Button
             disabled={busy}
             onClick={async () => {
@@ -628,10 +629,10 @@ function EmergencyEditor({ row, onClose, onSaved }: {
                 })
                 .eq("country_code", row.country_code);
               setBusy(false);
-              if (error) toast({ title: "Kunne ikke gemme", description: error.message, variant: "destructive" });
-              else { toast({ title: "Gemt — husk at verificere og publicere igen" }); onSaved(); }
+              if (error) toast({ title: t("pages.adminKnowledge.couldNotSave"), description: error.message, variant: "destructive" });
+              else { toast({ title: t("pages.adminKnowledge.savedReminder") }); onSaved(); }
             }}
-          >Gem</Button>
+          >{t("pages.adminKnowledge.save")}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
