@@ -375,5 +375,18 @@
     "servicesAndPrices": "Ydelser og priser",
     "understood": "Forstået",
     "noConversationsInFilter": "Ingen samtaler i dette filter."
+  },
+  "welcome_video": {
+    "title": "Velkommen til MyCleaner 🎉",
+    "body_customer": "Din profil er oprettet. Se, hvordan MyCleaner gør det nemt at finde og booke den rette hjælp.",
+    "body_provider": "Din profil er oprettet. Se, hvordan MyCleaner forbinder dig med nye kunder og opgaver.",
+    "cta_customer": "Find din cleaner",
+    "cta_provider": "Gør min profil færdig",
+    "skip": "Spring over",
+    "close": "Luk",
+    "replay": "Se igen",
+    "mute": "Slå lyd fra",
+    "unmute": "Slå lyd til",
+    "video_label": "MyCleaner velkomstvideo"
   }
 }
