@@ -1,3 +1,5 @@
+import { cancellationLadderBullets } from "@/lib/cancellationPolicyCopy";
+
 export default function Regler() {
   return (
     <main className="container-wide py-12 max-w-3xl">
@@ -34,9 +36,9 @@ export default function Regler() {
             Refusionen afhænger af, hvor lang tid der er til bookingens præcise starttidspunkt, når aflysningen registreres:
           </p>
           <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
-            <li>Mere end 18 timer før bookingens præcise starttidspunkt: gratis aflysning og 100 % refusion.</li>
-            <li>Fra og med 8 timer til og med 18 timer før bookingens præcise starttidspunkt: 50 % refusion.</li>
-            <li>Under 8 timer før bookingens præcise starttidspunkt: 0 % refusion — der opkræves 100 % cancellation fee.</li>
+            {cancellationLadderBullets().map((line) => (
+              <li key={line}>{line}</li>
+            ))}
             <li>Tidspunkterne beregnes ud fra bookingens præcise start i bookingens tidszone. De eksakte tidspunkter vises på bookingbekræftelsen.</li>
             <li>Reglerne gælder bookinger oprettet efter policyens ikrafttrædelse. Eksisterende bookinger afregnes efter den version, kunden accepterede ved booking.</li>
             <li>

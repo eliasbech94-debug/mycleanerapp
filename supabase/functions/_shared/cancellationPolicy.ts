@@ -6,7 +6,21 @@
  *
  * The ladder itself is an ECONOMIC rule. Do not change the numbers without an
  * explicit, separately approved decision.
+ *
+ * ACTIVATION. v2 (18/8) only applies to bookings created at or after
+ * `CANCELLATION_POLICY_V2_ACTIVATION_AT`, and only while the kill switch is on.
+ * Fail-safe is always v1.0.0 (48/24).
  */
+
+/**
+ * Kill switch — AUTHORITATIVE. Server-only env var; a client can never change
+ * it. Set `CANCELLATION_POLICY_V2_ENABLED=false` to force every new booking
+ * back to v1.0.0 (48/24) instantly, without touching existing snapshots.
+ * Unset or any value other than "false" means enabled.
+ */
+const CANCELLATION_POLICY_V2_ENABLED_DEFAULT =
+  (globalThis as { Deno?: { env: { get(key: string): string | undefined } } })
+    .Deno?.env.get("CANCELLATION_POLICY_V2_ENABLED")?.trim().toLowerCase() !== "false";
 
 export type CancellationTierKey = "full" | "partial" | "none";
 
@@ -69,19 +83,59 @@ export const CANCELLATION_POLICY_VERSIONS: Readonly<Record<string, CancellationP
   [POLICY_V2.version]: POLICY_V2,
 };
 
-/** Version applied to bookings created from now on. */
-export const CURRENT_CANCELLATION_POLICY: CancellationPolicy = POLICY_V2;
-export const CANCELLATION_POLICY_VERSION = CURRENT_CANCELLATION_POLICY.version;
+/**
+ * Coordinated activation instant for the 18/8 ladder (v2.0.0).
+ * MUST stay byte-identical in the edge copy — the parity test fails the build
+ * on any drift. Publishing MC-CANCELLATION-POLICY-001 v1.2.0 and
+ * MC-REFUND-POLICY-001 v1.2.0 happens at the same instant.
+ */
+export const CANCELLATION_POLICY_V2_ACTIVATION_AT = "2026-08-03T06:00:00.000Z";
+export const CANCELLATION_POLICY_V2_ACTIVATION_MS = Date.parse(
+  CANCELLATION_POLICY_V2_ACTIVATION_AT,
+);
+
 /** Fallback for bookings created before snapshots existed. Never the newest. */
 export const LEGACY_CANCELLATION_POLICY_VERSION = POLICY_V1.version;
+/** The version v2 activation switches to. */
+export const NEXT_CANCELLATION_POLICY_VERSION = POLICY_V2.version;
 
-/** Convenience alias for the current ladder. */
-export const CANCELLATION_TIERS: readonly CancellationTier[] = CURRENT_CANCELLATION_POLICY.tiers;
+/**
+ * THE single policy selector for anything not yet frozen onto a booking.
+ *
+ *   instant  <  ACTIVATION_AT → v1.0.0 (48/24)
+ *   instant >=  ACTIVATION_AT → v2.0.0 (18/8), but only while the kill switch
+ *                               is on. Switch off → v1.0.0 (fail-safe).
+ *
+ * Never used to re-evaluate an existing booking — those always go through
+ * `policyForSnapshot()`.
+ */
+export function policyAt(
+  instant: Date | string | number = new Date(),
+  v2Enabled: boolean = CANCELLATION_POLICY_V2_ENABLED_DEFAULT,
+): CancellationPolicy {
+  const ms = new Date(instant).getTime();
+  if (!Number.isFinite(ms)) return POLICY_V1;
+  return v2Enabled && ms >= CANCELLATION_POLICY_V2_ACTIVATION_MS ? POLICY_V2 : POLICY_V1;
+}
 
-/** Hours after the planned or recorded end of a service to file a complaint. */
-export const COMPLAINT_WINDOW_HOURS = CURRENT_CANCELLATION_POLICY.complaintWindowHours;
+/** Policy that applies to a booking created right now. */
+export function currentCancellationPolicy(): CancellationPolicy {
+  return policyAt(new Date());
+}
+
+/** Tiers of the policy that applies right now. */
+export function currentCancellationTiers(): readonly CancellationTier[] {
+  return currentCancellationPolicy().tiers;
+}
+
+/**
+ * Hours after the planned or recorded end of a service to file a complaint.
+ * Identical across every published version, so it is safe as a constant.
+ */
+export const COMPLAINT_WINDOW_HOURS = POLICY_V1.complaintWindowHours;
 
 const MS_PER_HOUR = 3_600_000;
+
 
 /** Resolve a published policy by version. Unknown/missing → legacy, never newest. */
 export function policyForVersion(version?: string | null): CancellationPolicy {
@@ -104,7 +158,7 @@ export function policyForSnapshot(snapshot: unknown): CancellationPolicy {
  * accepted terms survive any later policy change.
  */
 export function cancellationPolicySnapshot(
-  policy: CancellationPolicy = CURRENT_CANCELLATION_POLICY,
+  policy: CancellationPolicy = currentCancellationPolicy(),
   acceptedAt: Date | string | number = new Date(),
 ): Record<string, unknown> {
   return {
@@ -136,7 +190,7 @@ export function hoursUntilServiceStart(serviceStart: Date | string | number, now
 /** Resolve the tier for a given number of hours before service start. */
 export function tierForHours(
   hoursUntilService: number,
-  policy: CancellationPolicy = CURRENT_CANCELLATION_POLICY,
+  policy: CancellationPolicy = currentCancellationPolicy(),
 ): CancellationTier {
   const hours = Number.isFinite(hoursUntilService) ? Math.max(0, hoursUntilService) : 0;
   for (const tier of policy.tiers) {
@@ -151,7 +205,7 @@ export function tierForHours(
  */
 export function refundPercentForHours(
   hoursUntilService: number,
-  policy: CancellationPolicy = CURRENT_CANCELLATION_POLICY,
+  policy: CancellationPolicy = currentCancellationPolicy(),
 ): number {
   return tierForHours(hoursUntilService, policy).refundPercent;
 }
@@ -160,7 +214,7 @@ export function refundPercentForHours(
 export function tierForBooking(
   serviceStart: Date | string | number,
   now: Date | string | number = new Date(),
-  policy: CancellationPolicy = CURRENT_CANCELLATION_POLICY,
+  policy: CancellationPolicy = currentCancellationPolicy(),
 ): CancellationTier {
   return tierForHours(hoursUntilServiceStart(serviceStart, now), policy);
 }
@@ -182,7 +236,7 @@ export interface CancellationDeadline {
  */
 export function cancellationDeadlines(
   serviceStart: Date | string | number,
-  policy: CancellationPolicy = CURRENT_CANCELLATION_POLICY,
+  policy: CancellationPolicy = currentCancellationPolicy(),
 ): CancellationDeadline[] {
   const startMs = new Date(serviceStart).getTime();
   return policy.tiers.map((tier, index) => {
@@ -214,7 +268,7 @@ export interface CancellationCutoffs {
  */
 export function cancellationCutoffs(
   serviceStart: Date | string | number,
-  policy: CancellationPolicy = CURRENT_CANCELLATION_POLICY,
+  policy: CancellationPolicy = currentCancellationPolicy(),
 ): CancellationCutoffs | null {
   const startMs = new Date(serviceStart).getTime();
   if (!Number.isFinite(startMs)) return null;

@@ -1,28 +1,43 @@
 import { describe, it, expect } from "vitest";
 import {
-  CANCELLATION_POLICY_VERSION,
-  CANCELLATION_TIERS,
   COMPLAINT_WINDOW_HOURS,
-  CURRENT_CANCELLATION_POLICY,
   LEGACY_CANCELLATION_POLICY_VERSION,
   bookingStartInstant,
-  cancellationCutoffs,
-  cancellationDeadlines,
-  cancellationPolicySnapshot,
-  hoursUntilServiceStart,
   policyForSnapshot,
   policyForVersion,
-  refundPercentForHours,
-  tierForBooking,
-  tierForHours,
+  hoursUntilServiceStart,
+  type CancellationPolicy,
+  cancellationCutoffs as _cancellationCutoffs,
+  cancellationDeadlines as _cancellationDeadlines,
+  cancellationPolicySnapshot as _cancellationPolicySnapshot,
+  refundPercentForHours as _refundPercentForHours,
+  tierForBooking as _tierForBooking,
+  tierForHours as _tierForHours,
 } from "./cancellationPolicy";
+
+// These suites describe the v2 (18/8) ladder itself, independently of the
+// coordinated activation instant. Activation behaviour is covered in
+// `cancellationPolicy.activation.test.ts`.
+const V2 = policyForVersion("2.0.0");
+const refundPercentForHours = (h: number, p: CancellationPolicy = V2) => _refundPercentForHours(h, p);
+const tierForHours = (h: number, p: CancellationPolicy = V2) => _tierForHours(h, p);
+const tierForBooking = (
+  start: Date | string | number,
+  now: Date | string | number,
+  p: CancellationPolicy = V2,
+) => _tierForBooking(start, now, p);
+const cancellationCutoffs = (start: Date | string | number, p: CancellationPolicy = V2) =>
+  _cancellationCutoffs(start, p);
+const cancellationDeadlines = (start: Date | string | number, p: CancellationPolicy = V2) =>
+  _cancellationDeadlines(start, p);
+const cancellationPolicySnapshot = (p: CancellationPolicy = V2) => _cancellationPolicySnapshot(p);
 
 const H = 3_600_000;
 
 describe("cancellation ladder (v2 — 18/8)", () => {
   it("is the current policy version", () => {
-    expect(CANCELLATION_POLICY_VERSION).toBe("2.0.0");
-    expect(CANCELLATION_TIERS).toBe(CURRENT_CANCELLATION_POLICY.tiers);
+    expect(V2.version).toBe("2.0.0");
+    expect(policyForVersion("2.0.0")).toBe(V2);
   });
 
   it("refunds 100% more than 18 hours before start", () => {
