@@ -1,6 +1,4 @@
 {
-  "_fallback_language": "en",
-  "_note": "Spanish bundle scaffolded; missing keys resolve via English fallback.",
   "mobileMessages": {
     "title": "Mensajes",
     "defaultTitle": "Conversación",
@@ -69,9 +67,112 @@
     "invalid_credentials": "Correo o contraseña no válidos"
   },
   "language": {
-    "de": "Deutsch"
+    "de": "Deutsch",
+    "label": "Idioma",
+    "da": "Dansk",
+    "en": "English",
+    "sv": "Svenska",
+    "es": "Español"
   },
   "country": {
-    "coming_soon": "Próximamente"
+    "coming_soon": "Próximamente",
+    "label": "País",
+    "DK": "Dinamarca",
+    "GB": "Reino Unido",
+    "SE": "Suecia",
+    "ES": "España",
+    "DE": "Alemania"
+  },
+  "app_name": "MyCleaner",
+  "actions": {
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "back": "Atrás",
+    "next": "Siguiente",
+    "continue": "Continuar",
+    "delete": "Eliminar",
+    "confirm": "Confirmar",
+    "close": "Cerrar",
+    "loading": "Cargando…"
+  },
+  "common": {
+    "loading": "Cargando…"
+  },
+  "nav": {
+    "home": "Inicio",
+    "bookings": "Reservas",
+    "inbox": "Bandeja de entrada",
+    "profile": "Perfil",
+    "logout": "Cerrar sesión"
+  },
+  "footer": {
+    "tagline": "La plataforma de servicios para el hogar más inteligente de Europa. Encuentra y reserva cleaners verificados directamente en su calendario.",
+    "platform": "Plataforma",
+    "forProviders": "Para providers",
+    "support": "Soporte",
+    "company": "Empresa",
+    "findCleaner": "Buscar un cleaner",
+    "howItWorks": "Cómo funciona",
+    "rules": "Precios y normas",
+    "becomeProvider": "Hazte provider",
+    "providerDashboard": "Panel del provider",
+    "receipts": "Recibos y gastos",
+    "faq": "Preguntas frecuentes",
+    "helpCenter": "Centro de ayuda",
+    "contact": "Contacto",
+    "legalCenter": "Legal Center",
+    "privacy": "Política de privacidad",
+    "cookies": "Política de cookies",
+    "companyNumber": "Número de sociedad (Reino Unido) {{number}}",
+    "registeredIn": "Inscrita en Companies House, Inglaterra y Gales",
+    "companiesHouse": "Ver el registro en Companies House",
+    "rights": "© {{year}} {{name}}. Todos los derechos reservados.",
+    "marketsNotice": "MyCleaner abre primero en Dinamarca. Suecia, Reino Unido, Alemania y España llegarán pronto."
+  },
+  "contact": {
+    "title": "Contacta con MyCleaner",
+    "subtitle": "Estamos aquí para ayudarte: elige el canal que mejor te venga.",
+    "backHome": "Volver a la página de inicio",
+    "chatTitle": "Habla con soporte",
+    "chatBody": "Abre el chat de soporte y escribe directamente con nuestro equipo.",
+    "chatCta": "Abrir el chat de soporte",
+    "emailTitle": "Envíanos un correo",
+    "emailBody": "Escribe a {{email}}: solemos responder en menos de 24 horas.",
+    "faqTitle": "Consulta las preguntas frecuentes",
+    "faqBody": "La mayoría de las respuestas ya están en nuestro centro de ayuda.",
+    "companyTitle": "Datos de la empresa",
+    "securityTitle": "Seguridad: lo que nunca necesitas enviar",
+    "securityBody": "No nos envíes nunca datos de tarjeta, códigos CVV, contraseñas ni códigos de un solo uso. Tampoco pedimos documentos de identidad por chat, salvo que estés completando una verificación que te hayamos solicitado claramente. Si tienes dudas, pregúntanos primero."
+  },
+  "seo": {
+    "default": {
+      "title": "MyCleaner — reserva un cleaner verificado",
+      "description": "Encuentra cleaners verificados y reserva directamente en su calendario. Consulta perfil, valoraciones y precio antes de confirmar."
+    },
+    "home": {
+      "title": "MyCleaner — reserva un cleaner verificado en España",
+      "description": "Reserva limpieza profesional con providers verificados. Consulta perfil, valoraciones y precio antes de confirmar. Sin subastas, con precios claros."
+    },
+    "faq": {
+      "title": "Preguntas frecuentes — MyCleaner",
+      "description": "Respuestas a las dudas más habituales sobre reservas, pagos, cancelaciones y seguridad en MyCleaner."
+    },
+    "rules": {
+      "title": "Normas y condiciones — MyCleaner",
+      "description": "Así funciona MyCleaner: derechos, responsabilidades, normas de cancelación y qué esperar como cliente y como provider."
+    },
+    "findCleaner": {
+      "title": "Encuentra un cleaner cerca de ti — MyCleaner",
+      "description": "Busca en el mapa cleaners verificados en tu zona. Compara perfiles, precios y horarios disponibles."
+    },
+    "contact": {
+      "title": "Contacta con MyCleaner — soporte e información de la empresa",
+      "description": "Habla con nuestro equipo de soporte o consulta los datos oficiales de la empresa y el correo de soporte."
+    },
+    "legal": {
+      "title": "Legal Center — MyCleaner",
+      "description": "Todos los documentos legales de MyCleaner en un solo sitio: condiciones, privacidad, política de cancelación y reembolso."
+    },
+    "comingSoonSuffix": "Próximamente"
   }
 }

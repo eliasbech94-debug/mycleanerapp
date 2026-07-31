@@ -146,6 +146,8 @@ export function AppRoutes() {
       <Route path="/house-rules" element={<Navigate to="/regler" replace />} />
       <Route path="/chat" element={<Navigate to="/inbox" replace />} />
       <Route path="/contact" element={<Contact />} />
+      <Route path="/kontakt" element={<Contact />} />
+
       <Route path="/provider/register" element={<Navigate to="/bliv-cleaner" replace />} />
       <Route path="/founding-cleaner" element={<MobileFoundingCleanerGate />} />
       {/* UUID-guarded internal provider route. Non-UUID falls through to NotFound. */}

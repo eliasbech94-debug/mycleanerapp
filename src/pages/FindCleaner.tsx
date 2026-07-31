@@ -14,6 +14,7 @@ import { formatPrice, countries, serviceCategories } from "@/lib/countries";
 import { getProvider, getCountry, deriveHourlyRate } from "@/lib/providers";
 import type { ProviderProfileData } from "@/lib/providers";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { MarketSeo } from "@/components/seo/MarketSeo";
 
 // Deterministic marketplace attributes (until the DB carries them).
 // Same provider id always resolves to the same flags across renders/sessions.
@@ -552,7 +553,9 @@ export default function FindCleaner() {
 
   return (
     <div className="relative h-[calc(100vh-64px)] w-full overflow-hidden bg-muted">
+      <MarketSeo titleKey="seo.findCleaner.title" descriptionKey="seo.findCleaner.description" />
       {/* Header overlay */}
+
       <div className="absolute left-0 right-0 top-0 z-20 flex flex-col gap-2 bg-background/90 px-4 py-3 backdrop-blur-md">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">

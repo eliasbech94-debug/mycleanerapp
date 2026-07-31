@@ -1,64 +1,115 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Mail, MessageCircle, HelpCircle, ArrowLeft } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { Mail, MessageCircle, HelpCircle, ArrowLeft, Building2, ShieldCheck } from "lucide-react";
+import SupportDialog from "@/components/SupportDialog";
+import { COMPANY, formatCompanyAddress } from "@/config/company";
+import { MarketSeo } from "@/components/seo/MarketSeo";
 
 /**
- * Simple MyCleaner contact page. No backend calls — routes users to the
- * appropriate channel (support email, help center, inbox).
+ * Public contact page.
+ *
+ * All copy is i18n-driven and all legal entity data comes from
+ * `@/config/company`. The "chat with support" action opens the existing
+ * SupportDialog — no separate chat implementation.
  */
 const Contact = () => {
+  const { t } = useTranslation("common");
+  const [supportOpen, setSupportOpen] = useState(false);
+
   return (
     <main className="relative min-h-screen bg-background">
+      <MarketSeo titleKey="seo.contact.title" descriptionKey="seo.contact.description" />
       <div className="max-w-2xl mx-auto px-6 py-12 sm:py-16">
+
         <Link
           to="/"
           className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6"
         >
           <ArrowLeft className="h-4 w-4" />
-          Tilbage til forsiden
+          {t("contact.backHome")}
         </Link>
 
         <h1 className="font-heading text-3xl sm:text-4xl font-semibold text-foreground">
-          Kontakt MyCleaner
+          {t("contact.title")}
         </h1>
-        <p className="text-muted-foreground mt-3 leading-relaxed">
-          Vi er her for at hjælpe — vælg den kanal, der passer bedst til dig.
-        </p>
+        <p className="text-muted-foreground mt-3 leading-relaxed">{t("contact.subtitle")}</p>
 
         <div className="mt-8 grid gap-4 sm:grid-cols-2">
+          <button
+            type="button"
+            onClick={() => setSupportOpen(true)}
+            className="group flex flex-col gap-2 rounded-2xl border border-border bg-card p-5 text-left hover:border-primary/50 hover:bg-secondary transition-colors"
+          >
+            <MessageCircle className="h-5 w-5 text-primary" />
+            <span className="font-medium text-foreground">{t("contact.chatTitle")}</span>
+            <span className="text-sm text-muted-foreground">{t("contact.chatBody")}</span>
+          </button>
+
           <a
-            href="mailto:support@mycleaner.app"
+            href={`mailto:${COMPANY.supportEmail}`}
             className="group flex flex-col gap-2 rounded-2xl border border-border bg-card p-5 hover:border-primary/50 hover:bg-secondary transition-colors"
           >
             <Mail className="h-5 w-5 text-primary" />
-            <span className="font-medium text-foreground">Send os en e-mail</span>
-            <span className="text-sm text-muted-foreground">
-              support@mycleaner.app — vi svarer normalt inden for 24 timer.
+            <span className="font-medium text-foreground">{t("contact.emailTitle")}</span>
+            <span className="text-sm text-muted-foreground break-words">
+              {t("contact.emailBody", { email: COMPANY.supportEmail })}
             </span>
           </a>
-
-          <Link
-            to="/inbox"
-            className="group flex flex-col gap-2 rounded-2xl border border-border bg-card p-5 hover:border-primary/50 hover:bg-secondary transition-colors"
-          >
-            <MessageCircle className="h-5 w-5 text-primary" />
-            <span className="font-medium text-foreground">Chat med support</span>
-            <span className="text-sm text-muted-foreground">
-              Log ind og åbn din indbakke for direkte samtale.
-            </span>
-          </Link>
 
           <Link
             to="/faq"
             className="group flex flex-col gap-2 rounded-2xl border border-border bg-card p-5 hover:border-primary/50 hover:bg-secondary transition-colors sm:col-span-2"
           >
             <HelpCircle className="h-5 w-5 text-primary" />
-            <span className="font-medium text-foreground">Se ofte stillede spørgsmål</span>
-            <span className="text-sm text-muted-foreground">
-              De fleste svar findes allerede i vores hjælpecenter.
-            </span>
+            <span className="font-medium text-foreground">{t("contact.faqTitle")}</span>
+            <span className="text-sm text-muted-foreground">{t("contact.faqBody")}</span>
           </Link>
         </div>
+
+        <section className="mt-8 rounded-2xl border border-border bg-card p-5">
+          <h2 className="flex items-center gap-2 font-medium text-foreground">
+            <Building2 className="h-5 w-5 text-primary" />
+            {t("contact.companyTitle")}
+          </h2>
+          <address className="not-italic mt-3 text-sm text-muted-foreground leading-relaxed space-y-1">
+            <div className="font-medium text-foreground/90">{COMPANY.legalName}</div>
+            <div>{t("footer.companyNumber", { number: COMPANY.companyNumber })}</div>
+            <div>{formatCompanyAddress()}</div>
+            <div>{t("footer.registeredIn")}</div>
+            <div>
+              <a
+                href={COMPANY.registryUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline underline-offset-2 hover:text-foreground transition-colors"
+              >
+                {t("footer.companiesHouse")}
+              </a>
+            </div>
+            <div>
+              <a
+                href={`mailto:${COMPANY.supportEmail}`}
+                className="underline underline-offset-2 hover:text-foreground transition-colors"
+              >
+                {COMPANY.supportEmail}
+              </a>
+            </div>
+          </address>
+        </section>
+
+        <section className="mt-4 rounded-2xl border border-border bg-secondary/40 p-5">
+          <h2 className="flex items-center gap-2 font-medium text-foreground">
+            <ShieldCheck className="h-5 w-5 text-primary" />
+            {t("contact.securityTitle")}
+          </h2>
+          <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
+            {t("contact.securityBody")}
+          </p>
+        </section>
       </div>
+
+      {supportOpen && <SupportDialog mode="support" onClose={() => setSupportOpen(false)} />}
     </main>
   );
 };
