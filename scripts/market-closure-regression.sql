@@ -13,7 +13,7 @@
 WITH checks AS (
 
   -- 1. Exactly one bookable market: DK.
-  SELECT '01 only DK is bookable' AS check,
+  SELECT '01 only DK is bookable' AS check_name,
          (SELECT array_agg(iso ORDER BY iso) FROM public.market_launch_status WHERE is_bookable)
            = ARRAY['DK'] AS ok
 
@@ -86,7 +86,7 @@ WITH checks AS (
             WHERE config::text ~* '(cvr|vat)[^a-z0-9]{0,3}[0-9]{6,}'
          )
 )
-SELECT check,
+SELECT check_name,
        CASE WHEN ok THEN 'PASS' ELSE 'FAIL' END AS result
   FROM checks
- ORDER BY check;
+ ORDER BY check_name;
