@@ -13,14 +13,17 @@
  */
 
 /**
- * Kill switch — AUTHORITATIVE. Server-only env var; a client can never change
- * it. Set `CANCELLATION_POLICY_V2_ENABLED=false` to force every new booking
- * back to v1.0.0 (48/24) instantly, without touching existing snapshots.
- * Unset or any value other than "false" means enabled.
+ * Kill switch — AUTHORITATIVE, server-only. A client can never influence it.
+ *
+ * v2 (18/8) is chosen ONLY when the secret `CANCELLATION_POLICY_V2_ENABLED`
+ * is exactly "true" AND the activation instant has passed. Any other value,
+ * or an unset secret, fails safe to v1.0.0 (48/24) for every NEW booking.
+ * Flipping the secret takes effect immediately and never touches existing
+ * booking snapshots.
  */
 const CANCELLATION_POLICY_V2_ENABLED_DEFAULT =
   (globalThis as { Deno?: { env: { get(key: string): string | undefined } } })
-    .Deno?.env.get("CANCELLATION_POLICY_V2_ENABLED")?.trim().toLowerCase() !== "false";
+    .Deno?.env.get("CANCELLATION_POLICY_V2_ENABLED")?.trim().toLowerCase() === "true";
 
 export type CancellationTierKey = "full" | "partial" | "none";
 

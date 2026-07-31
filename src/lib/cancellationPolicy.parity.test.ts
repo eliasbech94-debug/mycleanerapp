@@ -50,8 +50,8 @@ describe("cancellation policy parity", () => {
     expect(versions(body(FRONTEND))).toEqual(['version: "1.0.0"', 'version: "2.0.0"']);
   });
 
-  it("the kill switch is server-side only and defaults to enabled", () => {
-    expect(read(EDGE)).toContain('Deno?.env.get("CANCELLATION_POLICY_V2_ENABLED")');
+  it("the kill switch is server-side only and requires an explicit opt-in", () => {
+    expect(read(EDGE)).toContain('Deno?.env.get("CANCELLATION_POLICY_V2_ENABLED")?.trim().toLowerCase() === "true"');
     // The frontend copy must never read a client-controllable source.
     expect(read(FRONTEND)).not.toContain("localStorage");
     expect(read(FRONTEND)).not.toContain("import.meta.env");
