@@ -388,5 +388,15 @@
     "mute": "Slå lyd fra",
     "unmute": "Slå lyd til",
     "video_label": "MyCleaner velkomstvideo"
+  },
+  "first_job_popup": {
+    "title": "🎉 Tillykke!",
+    "body": "Du har nu gennemført din første betalte opgave på MyCleaner. Vi håber, at alt er gået godt.",
+    "support": "Har du spørgsmål eller brug for hjælp, er vi altid klar på chatten.",
+    "thanks": "Tak fordi du er en del af MyCleaner International. 🧡",
+    "cta_dashboard": "Fortsæt til dashboard",
+    "close": "Luk",
+    "replay": "Se igen",
+    "video_label": "MyCleaner fejringsvideo"
   }
 }
