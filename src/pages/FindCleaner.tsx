@@ -1,3 +1,4 @@
+import { useLocation } from "@/context/LocationContext";
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { loadGoogleMaps } from "@/lib/googleMaps";
@@ -44,7 +45,10 @@ type MapProvider = {
 };
 
 
-const DEFAULT_CENTER = { lat: 55.6761, lng: 12.5683 }; // Copenhagen
+// Map center is resolved from LocationContext (profile > manual > geolocation >
+// country). This constant is only a last-resort centroid used before the
+// location resolves — never a marketing default for a specific city.
+const FALLBACK_CENTER = { lat: 54.526, lng: 15.2551 }; // Europe centroid
 const DEFAULT_ZOOM = 11;
 const COVERAGE_RADIUS_M = 2200; // ~2.2km coverage area shown instead of exact location
 // Brand colors (MyCleaner)
@@ -146,6 +150,15 @@ function smoothFitBounds(
 export default function FindCleaner() {
   const navigate = useNavigate();
   const mapRef = useRef<HTMLDivElement>(null);
+  const { location: userLocation } = useLocation();
+  // Center follows the resolved user location; no hardcoded city.
+  const resolvedCenter = useMemo(
+    () =>
+      userLocation.lat != null && userLocation.lng != null
+        ? { lat: userLocation.lat, lng: userLocation.lng }
+        : FALLBACK_CENTER,
+    [userLocation.lat, userLocation.lng],
+  );
   const mapInstance = useRef<google.maps.Map | null>(null);
   const googleRef = useRef<typeof window.google | null>(null);
   const markersRef = useRef<google.maps.Marker[]>([]);
@@ -364,6 +377,12 @@ export default function FindCleaner() {
     }
   }, [filteredProviders, lastSearchBounds]);
 
+  // Re-center when the resolved location changes (manual pick, geolocation…).
+  useEffect(() => {
+    if (!mapInstance.current || resolvedCenter === FALLBACK_CENTER) return;
+    mapInstance.current.panTo(resolvedCenter);
+  }, [resolvedCenter]);
+
   useEffect(() => {
     if (!mapRef.current || providers.length === 0) return;
 
@@ -373,8 +392,8 @@ export default function FindCleaner() {
       .then((google) => {
         googleRef.current = google;
         const map = new google.maps.Map(mapRef.current!, {
-          center: DEFAULT_CENTER,
-          zoom: DEFAULT_ZOOM,
+          center: resolvedCenter,
+          zoom: resolvedCenter === FALLBACK_CENTER ? 5 : DEFAULT_ZOOM,
           mapTypeControl: false,
           streetViewControl: false,
           fullscreenControl: false,

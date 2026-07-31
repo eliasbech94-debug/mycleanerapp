@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { CleanerSearchBar } from "./CleanerSearchBar";
 import { ShieldCheck, Lock, Star, ArrowRight } from "lucide-react";
+import { useOptionalLocation } from "@/context/LocationContext";
 import { useAuth } from "@/hooks/useAuth";
 import { useHomeAudience, type HomeAudience } from "./home/useHomeAudience";
 import heroAsset from "@/assets/hero-europe-v7.jpg.asset.json";
@@ -66,14 +67,18 @@ export function MarketplaceHero() {
     return first || user?.email?.split("@")[0] || "";
   }, [user]);
 
+  // Location is dynamic — the headline never hardcodes a city or country.
+  const loc = useOptionalLocation();
+  const area = loc?.location.city ?? "";
+
   const vKey = variantKeyFor(audience, Boolean(name));
   const base = `hero.variants.${vKey}`;
 
   const variant: Variant = {
     eyebrow: t(`${base}.eyebrow`, { defaultValue: "" }),
-    title_line_1: t(`${base}.title_line_1`, { name, defaultValue: "" }),
-    title_line_2: t(`${base}.title_line_2`, { name, defaultValue: "" }),
-    subtitle: t(`${base}.subtitle`, { name, defaultValue: "" }),
+    title_line_1: t(`${base}.title_line_1`, { name, area, defaultValue: "" }),
+    title_line_2: t(`${base}.title_line_2`, { name, area, defaultValue: "" }),
+    subtitle: t(`${base}.subtitle`, { name, area, defaultValue: "" }),
     cta_secondary_label: t(`${base}.cta_secondary_label`, { defaultValue: "" }),
     cta_secondary_href: t(`${base}.cta_secondary_href`, { defaultValue: "" }),
   };

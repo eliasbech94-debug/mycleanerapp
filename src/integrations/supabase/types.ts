@@ -4782,6 +4782,108 @@ export type Database = {
         }
         Relationships: []
       }
+      market_notices: {
+        Row: {
+          body: string
+          city_slug: string | null
+          country_code: string
+          created_at: string
+          created_by: string | null
+          expires_at: string | null
+          id: string
+          is_active: boolean
+          kind: string
+          locale: string | null
+          published_at: string
+          source_name: string | null
+          source_url: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          body: string
+          city_slug?: string | null
+          country_code: string
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          kind: string
+          locale?: string | null
+          published_at?: string
+          source_name?: string | null
+          source_url?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          city_slug?: string | null
+          country_code?: string
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          kind?: string
+          locale?: string | null
+          published_at?: string
+          source_name?: string | null
+          source_url?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      market_places: {
+        Row: {
+          country_code: string
+          created_at: string
+          default_radius_km: number
+          id: string
+          is_active: boolean
+          lat: number | null
+          lng: number | null
+          municipality: string | null
+          name: string
+          postcode_prefixes: string[]
+          slug: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          country_code: string
+          created_at?: string
+          default_radius_km?: number
+          id?: string
+          is_active?: boolean
+          lat?: number | null
+          lng?: number | null
+          municipality?: string | null
+          name: string
+          postcode_prefixes?: string[]
+          slug: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          country_code?: string
+          created_at?: string
+          default_radius_km?: number
+          id?: string
+          is_active?: boolean
+          lat?: number | null
+          lng?: number | null
+          municipality?: string | null
+          name?: string
+          postcode_prefixes?: string[]
+          slug?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       market_pricing_multipliers: {
         Row: {
           active: boolean
@@ -4917,6 +5019,42 @@ export type Database = {
           notes?: string | null
           updated_at?: string
           updated_by?: string | null
+        }
+        Relationships: []
+      }
+      market_waitlist: {
+        Row: {
+          city: string | null
+          country_code: string
+          created_at: string
+          email: string
+          id: string
+          locale: string | null
+          postcode: string | null
+          role_intent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          city?: string | null
+          country_code: string
+          created_at?: string
+          email: string
+          id?: string
+          locale?: string | null
+          postcode?: string | null
+          role_intent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          city?: string | null
+          country_code?: string
+          created_at?: string
+          email?: string
+          id?: string
+          locale?: string | null
+          postcode?: string | null
+          role_intent?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -5829,6 +5967,12 @@ export type Database = {
           lat: number | null
           legal_acceptance_required: boolean
           lng: number | null
+          location_city: string | null
+          location_consent_at: string | null
+          location_postcode: string | null
+          location_precision: string | null
+          location_radius_km: number | null
+          location_updated_at: string | null
           marketplace_country: string | null
           notification_prefs: Json
           phone: string | null
@@ -5864,6 +6008,12 @@ export type Database = {
           lat?: number | null
           legal_acceptance_required?: boolean
           lng?: number | null
+          location_city?: string | null
+          location_consent_at?: string | null
+          location_postcode?: string | null
+          location_precision?: string | null
+          location_radius_km?: number | null
+          location_updated_at?: string | null
           marketplace_country?: string | null
           notification_prefs?: Json
           phone?: string | null
@@ -5899,6 +6049,12 @@ export type Database = {
           lat?: number | null
           legal_acceptance_required?: boolean
           lng?: number | null
+          location_city?: string | null
+          location_consent_at?: string | null
+          location_postcode?: string | null
+          location_precision?: string | null
+          location_radius_km?: number | null
+          location_updated_at?: string | null
           marketplace_country?: string | null
           notification_prefs?: Json
           phone?: string | null
