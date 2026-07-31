@@ -19,7 +19,12 @@
     "bookings": "Bookings",
     "inbox": "Inbox",
     "profile": "Profile",
-    "logout": "Log out"
+    "logout": "Log out",
+    "find_cleaner": "Find a Cleaner",
+    "how": "How it works",
+    "become_cleaner": "Become a Cleaner",
+    "sign_in": "Log in",
+    "get_started": "Get started"
   },
   "language": {
     "label": "Language",

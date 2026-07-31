@@ -19,7 +19,12 @@
     "bookings": "Buchungen",
     "inbox": "Postfach",
     "profile": "Profil",
-    "logout": "Abmelden"
+    "logout": "Abmelden",
+    "find_cleaner": "Cleaner finden",
+    "how": "So funktioniert es",
+    "become_cleaner": "Cleaner werden",
+    "sign_in": "Anmelden",
+    "get_started": "Loslegen"
   },
   "language": {
     "label": "Sprache",

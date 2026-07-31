@@ -103,7 +103,12 @@
     "bookings": "Reservas",
     "inbox": "Bandeja de entrada",
     "profile": "Perfil",
-    "logout": "Cerrar sesión"
+    "logout": "Cerrar sesión",
+    "find_cleaner": "Encontrar un Cleaner",
+    "how": "Cómo funciona",
+    "become_cleaner": "Hazte Cleaner",
+    "sign_in": "Iniciar sesión",
+    "get_started": "Empezar"
   },
   "footer": {
     "tagline": "La plataforma de servicios para el hogar más inteligente de Europa. Encuentra y reserva cleaners verificados directamente en su calendario.",

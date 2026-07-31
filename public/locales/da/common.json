@@ -19,7 +19,12 @@
     "bookings": "Bookinger",
     "inbox": "Indbakke",
     "profile": "Profil",
-    "logout": "Log ud"
+    "logout": "Log ud",
+    "find_cleaner": "Find en Cleaner",
+    "how": "Sådan virker det",
+    "become_cleaner": "Bliv Cleaner",
+    "sign_in": "Log ind",
+    "get_started": "Kom i gang"
   },
   "language": {
     "label": "Sprog",
