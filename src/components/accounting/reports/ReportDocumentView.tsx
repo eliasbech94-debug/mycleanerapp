@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -9,6 +10,7 @@ import mycleanerLogo from "@/assets/mycleaner-logo.png";
  * the on-screen report and the generated PDF can never drift apart.
  */
 export default function ReportDocumentView({ document }: { document: ReportDocument }) {
+  const { t } = useTranslation("finance");
   return (
     <article className="space-y-4" aria-label={`${document.title} — ${document.periodLabel}`}>
       <header className="rounded-lg border border-border bg-card p-4">
@@ -16,7 +18,7 @@ export default function ReportDocumentView({ document }: { document: ReportDocum
           <img src={mycleanerLogo} alt="MyCleaner" className="h-8 w-auto" />
           <span className="text-lg font-semibold text-foreground">{document.brandName}</span>
           {document.provisional && (
-            <Badge variant="outline">Foreløbig rapport — måneden er ikke afsluttet</Badge>
+            <Badge variant="outline">{t("ui.reports.document.provisionalBadge")}</Badge>
           )}
         </div>
         <h2 className="mt-3 text-xl font-semibold text-foreground">{document.title}</h2>
@@ -33,7 +35,7 @@ export default function ReportDocumentView({ document }: { document: ReportDocum
 
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-base">Vigtigt</CardTitle>
+          <CardTitle className="text-base">{t("ui.reports.document.importantTitle")}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2 text-sm text-muted-foreground">
           {document.disclaimer.map((line) => (
@@ -48,6 +50,7 @@ export default function ReportDocumentView({ document }: { document: ReportDocum
 }
 
 function SectionCard({ section }: { section: ReportSection }) {
+  const { t } = useTranslation("finance");
   return (
     <Card>
       <CardHeader className="pb-2">
@@ -89,7 +92,7 @@ function SectionCard({ section }: { section: ReportSection }) {
                 {section.table.rows.length === 0 ? (
                   <tr>
                     <td className="py-2 text-muted-foreground" colSpan={section.table.columns.length}>
-                      Ingen poster registreret i denne periode.
+                      {t("ui.reports.document.noEntriesInPeriod")}
                     </td>
                   </tr>
                 ) : (
