@@ -10,6 +10,7 @@
 import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -30,8 +31,8 @@ export {
 
 /* ----------------------------- Personal ----------------------------- */
 const personalSchema = z.object({
-  full_name: z.string().trim().max(100, "Maks. 100 tegn").nullable(),
-  country_code: z.string().trim().length(2, "2-bogstavs landekode").nullable().optional(),
+  full_name: z.string().trim().max(100, "Max 100").nullable(),
+  country_code: z.string().trim().length(2, "CC").nullable().optional(),
   ui_language: z.string().trim().max(5).nullable().optional(),
 });
 
@@ -43,6 +44,7 @@ export interface PersonalEditorProps {
 }
 
 export function PersonalEditor({ initial, onSaved, registerSave, registerDirty }: PersonalEditorProps) {
+  const { t } = useTranslation("customer");
   const { user } = useAuth();
   const [full, setFull] = useState(initial.full_name ?? "");
   const [cc, setCc] = useState(initial.country_code ?? "");
@@ -64,36 +66,41 @@ export function PersonalEditor({ initial, onSaved, registerSave, registerDirty }
         ui_language: lang.trim().toLowerCase() || null,
       });
       if (!parsed.success) {
-        const msg = parsed.error.issues[0]?.message ?? "Ugyldigt";
+        const field = parsed.error.issues[0]?.path[0];
+        const msg = field === "full_name"
+          ? t("profileV2.editors.personalFields.errors.charLimit")
+          : field === "country_code"
+          ? t("profileV2.editors.personalFields.errors.countryCode")
+          : t("profileV2.editors.common.invalid");
         setError(msg); toast.error(msg); return false;
       }
       if (!user) return false;
       const { error: err } = await supabase.from("profiles")
         .update(parsed.data).eq("id", user.id);
       if (err) { toast.error(err.message); return false; }
-      toast.success("Gemt"); onSaved(); return true;
+      toast.success(t("profileV2.editors.common.saved")); onSaved(); return true;
     });
-  }, [full, cc, lang, user, registerSave, onSaved]);
+  }, [full, cc, lang, user, registerSave, onSaved, t]);
 
   return (
     <div className="grid gap-4 sm:grid-cols-2">
       <div className="sm:col-span-2">
-        <Label htmlFor="full">Fulde navn</Label>
+        <Label htmlFor="full">{t("profileV2.editors.personalFields.fullNameLabel")}</Label>
         <Input id="full" value={full} maxLength={100}
           onChange={(e) => setFull(e.target.value)} />
       </div>
       <div>
-        <Label htmlFor="cc">Land (ISO 3166-1)</Label>
+        <Label htmlFor="cc">{t("profileV2.editors.personalFields.countryLabel")}</Label>
         <Input id="cc" value={cc} maxLength={2}
           onChange={(e) => setCc(e.target.value.toUpperCase())}
-          placeholder="DK" />
+          placeholder={t("profileV2.editors.personalFields.countryPlaceholder")} />
       </div>
       <div>
-        <Label htmlFor="lang">Sprog</Label>
+        <Label htmlFor="lang">{t("profileV2.editors.personalFields.languageLabel")}</Label>
         <select id="lang" value={lang}
           onChange={(e) => setLang(e.target.value)}
           className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm">
-          <option value="">—</option>
+          <option value="">{t("profileV2.editors.personalFields.languageNone")}</option>
           <option value="da">Dansk</option>
           <option value="en">English</option>
           <option value="sv">Svenska</option>
@@ -107,7 +114,7 @@ export function PersonalEditor({ initial, onSaved, registerSave, registerDirty }
 
 /* ------------------------------ Contact ----------------------------- */
 const contactSchema = z.object({
-  phone: z.string().trim().max(32).regex(/^[+0-9 \-()]*$/i, "Ugyldigt nummer").nullable(),
+  phone: z.string().trim().max(32).regex(/^[+0-9 \-()]*$/i, "invalid").nullable(),
 });
 
 export interface ContactEditorProps {
@@ -118,6 +125,7 @@ export interface ContactEditorProps {
 }
 
 export function ContactEditor({ initial, onSaved, registerSave, registerDirty }: ContactEditorProps) {
+  const { t } = useTranslation("customer");
   const { user } = useAuth();
   const [phone, setPhone] = useState(initial.phone ?? "");
   const [error, setError] = useState<string | null>(null);
@@ -129,31 +137,31 @@ export function ContactEditor({ initial, onSaved, registerSave, registerDirty }:
     registerSave(async () => {
       const parsed = contactSchema.safeParse({ phone: phone.trim() || null });
       if (!parsed.success) {
-        const msg = parsed.error.issues[0]?.message ?? "Ugyldigt";
+        const msg = t("profileV2.editors.contactFields.errors.phone");
         setError(msg); toast.error(msg); return false;
       }
       if (!user) return false;
       const { error: err } = await supabase.from("profiles")
         .update(parsed.data).eq("id", user.id);
       if (err) { toast.error(err.message); return false; }
-      toast.success("Gemt"); onSaved(); return true;
+      toast.success(t("profileV2.editors.common.saved")); onSaved(); return true;
     });
-  }, [phone, user, registerSave, onSaved]);
+  }, [phone, user, registerSave, onSaved, t]);
 
   return (
     <div className="space-y-4">
       <div>
-        <Label>E-mail</Label>
+        <Label>{t("profileV2.editors.contactFields.emailLabel")}</Label>
         <Input value={initial.email ?? ""} disabled />
         <p className="mt-1 text-xs text-muted-foreground">
-          E-mail ændres via kontoindstillinger.
+          {t("profileV2.editors.contactFields.emailNote")}
         </p>
       </div>
       <div>
-        <Label htmlFor="phone">Telefon</Label>
+        <Label htmlFor="phone">{t("profileV2.editors.contactFields.phoneLabel")}</Label>
         <Input id="phone" value={phone} maxLength={32}
           onChange={(e) => setPhone(e.target.value)}
-          placeholder="+45 12 34 56 78" />
+          placeholder={t("profileV2.editors.contactFields.phonePlaceholder")} />
       </div>
       {error && <p className="text-sm text-destructive" role="alert">{error}</p>}
     </div>
@@ -188,6 +196,7 @@ export function AccessInstructionsEditor(props: PrimaryPrefsProps) {
 function PrimaryAddressForm({
   address, onSaved, registerSave, registerDirty, scope,
 }: PrimaryPrefsProps & { scope: "prefs" | "access" }) {
+  const { t } = useTranslation("customer");
   const [hasPets, setHasPets] = useState(!!address?.has_pets);
   const [petDetails, setPetDetails] = useState(address?.pet_details ?? "");
   const [hasChildren, setHasChildren] = useState(!!address?.has_children);
@@ -212,7 +221,7 @@ function PrimaryAddressForm({
 
   useEffect(() => {
     registerSave(async () => {
-      if (!address) { toast.error("Tilføj en primær adresse først"); return false; }
+      if (!address) { toast.error(t("profileV2.editors.common.addPrimaryFirst")); return false; }
       const payload: Record<string, unknown> = scope === "prefs"
         ? {
             has_pets: hasPets,
@@ -230,15 +239,15 @@ function PrimaryAddressForm({
       const { error } = await (supabase.from("customer_addresses" as any))
         .update(payload).eq("id", address.id);
       if (error) { toast.error(error.message); return false; }
-      toast.success("Gemt"); onSaved(); return true;
+      toast.success(t("profileV2.editors.common.saved")); onSaved(); return true;
     });
   }, [address, hasPets, petDetails, hasChildren, supplies, parking,
-      method, code, instr, scope, registerSave, onSaved]);
+      method, code, instr, scope, registerSave, onSaved, t]);
 
   if (!address) {
     return (
       <p className="rounded-md border border-dashed border-border p-4 text-sm text-muted-foreground">
-        Tilføj en primær adresse først i "Gemte adresser".
+        {t("profileV2.editors.common.addPrimaryFirstInline")}
       </p>
     );
   }
@@ -246,19 +255,19 @@ function PrimaryAddressForm({
   if (scope === "prefs") {
     return (
       <div className="space-y-3">
-        <ToggleRow label="Kæledyr" checked={hasPets} onChange={setHasPets} />
+        <ToggleRow label={t("profileV2.editors.prefsFields.petsLabel")} checked={hasPets} onChange={setHasPets} />
         {hasPets && (
           <div>
-            <Label htmlFor="pet">Detaljer</Label>
+            <Label htmlFor="pet">{t("profileV2.editors.prefsFields.petDetailsLabel")}</Label>
             <Input id="pet" value={petDetails} maxLength={200}
               onChange={(e) => setPetDetails(e.target.value)}
-              placeholder="F.eks. 'Hund, ikke aggressiv'" />
+              placeholder={t("profileV2.editors.prefsFields.petDetailsPlaceholder")} />
           </div>
         )}
-        <ToggleRow label="Børn i hjemmet" checked={hasChildren} onChange={setHasChildren} />
-        <ToggleRow label="Rengøringsmidler er klar" checked={supplies} onChange={setSupplies} />
+        <ToggleRow label={t("profileV2.editors.prefsFields.childrenLabel")} checked={hasChildren} onChange={setHasChildren} />
+        <ToggleRow label={t("profileV2.editors.prefsFields.suppliesLabel")} checked={supplies} onChange={setSupplies} />
         <div>
-          <Label htmlFor="park">Parkering</Label>
+          <Label htmlFor="park">{t("profileV2.editors.prefsFields.parkingLabel")}</Label>
           <Input id="park" value={parking} maxLength={200}
             onChange={(e) => setParking(e.target.value)} />
         </div>
@@ -269,7 +278,7 @@ function PrimaryAddressForm({
   return (
     <div className="space-y-3">
       <div>
-        <Label htmlFor="method">Adgangsmetode</Label>
+        <Label htmlFor="method">{t("profileV2.editors.accessFields.methodLabel")}</Label>
         <select id="method" value={method}
           onChange={(e) => setMethod(e.target.value as AccessMethod)}
           className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm">
@@ -279,12 +288,12 @@ function PrimaryAddressForm({
         </select>
       </div>
       <div>
-        <Label htmlFor="code">Kode (valgfri)</Label>
+        <Label htmlFor="code">{t("profileV2.editors.accessFields.codeLabel")}</Label>
         <Input id="code" value={code} maxLength={64}
           onChange={(e) => setCode(e.target.value)} />
       </div>
       <div>
-        <Label htmlFor="instr">Instruktioner</Label>
+        <Label htmlFor="instr">{t("profileV2.editors.accessFields.instructionsLabel")}</Label>
         <Textarea id="instr" value={instr} rows={4} maxLength={1000}
           onChange={(e) => setInstr(e.target.value)} />
       </div>

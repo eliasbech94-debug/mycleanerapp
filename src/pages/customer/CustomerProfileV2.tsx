@@ -5,6 +5,7 @@
 // "Redigér" opens a SectionEditDialog with a native V2 form.
 import { useCallback, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   Bell, Calendar, CreditCard, FileText, Inbox, LifeBuoy, Lock, Mail,
   MapPin, MessageSquare, Pencil, Phone, Receipt, ShieldOff, Sparkles,
@@ -32,10 +33,10 @@ type EditorKey =
   | "personal" | "contact" | "addresses" | "notifications"
   | "prefs" | "access" | "deactivate" | "tax";
 
-const formatDate = (iso: string | null) => {
+const formatDate = (iso: string | null, locale: string) => {
   if (!iso) return "—";
   try {
-    return new Intl.DateTimeFormat("da-DK", { dateStyle: "long" }).format(new Date(iso));
+    return new Intl.DateTimeFormat(locale, { dateStyle: "long" }).format(new Date(iso));
   } catch {
     return "—";
   }
@@ -57,21 +58,28 @@ function Initials({ name, email }: { name: string | null; email: string | null }
 }
 
 function AddressRow({ a }: { a: CustomerAddress }) {
+  const { t } = useTranslation("customer");
+  const placeType = t(`profileV2.addressLabels.placeType.${a.place_type}`, {
+    defaultValue: PLACE_TYPE_LABEL[a.place_type] ?? a.place_type,
+  });
+  const accessMethod = t(`profileV2.addressLabels.accessMethod.${a.access_method}`, {
+    defaultValue: ACCESS_METHOD_LABEL[a.access_method] ?? a.access_method,
+  });
   return (
     <li className="flex flex-col gap-1 rounded-xl border border-border p-3 text-sm sm:flex-row sm:items-start sm:justify-between">
       <div className="min-w-0">
         <div className="flex items-center gap-2">
           <span className="truncate font-medium">{a.label || a.address}</span>
-          {a.is_primary && <Badge variant="secondary" className="text-[10px]">Primær</Badge>}
-          <Badge variant="outline" className="text-[10px]">
-            {PLACE_TYPE_LABEL[a.place_type] ?? a.place_type}
-          </Badge>
+          {a.is_primary && (
+            <Badge variant="secondary" className="text-[10px]">{t("profileV2.addresses.primary")}</Badge>
+          )}
+          <Badge variant="outline" className="text-[10px]">{placeType}</Badge>
         </div>
         <p className="truncate text-xs text-muted-foreground">{a.address}</p>
         <p className="mt-1 text-[11px] text-muted-foreground">
-          Adgang: {ACCESS_METHOD_LABEL[a.access_method] ?? a.access_method}
-          {a.size_sqm ? ` · ${a.size_sqm} m²` : ""}
-          {a.rooms ? ` · ${a.rooms} vær.` : ""}
+          {t("profileV2.addresses.accessPrefix")}: {accessMethod}
+          {a.size_sqm ? ` · ${a.size_sqm} ${t("profileV2.addresses.sizeSuffix")}` : ""}
+          {a.rooms ? ` · ${a.rooms} ${t("profileV2.addresses.roomsSuffix")}` : ""}
         </p>
       </div>
     </li>
@@ -79,6 +87,7 @@ function AddressRow({ a }: { a: CustomerAddress }) {
 }
 
 export default function CustomerProfileV2() {
+  const { t, i18n } = useTranslation("customer");
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const data = useCustomerProfile();
@@ -111,10 +120,10 @@ export default function CustomerProfileV2() {
 
   const greeting = useMemo(() => {
     const h = new Date().getHours();
-    if (h < 10) return "Godmorgen";
-    if (h < 18) return "Goddag";
-    return "Godaften";
-  }, []);
+    if (h < 10) return t("greeting.morning");
+    if (h < 18) return t("greeting.day");
+    return t("greeting.evening");
+  }, [t]);
 
   if (!authLoading && !user) {
     navigate("/login?redirect=/customer/profile");
@@ -137,7 +146,7 @@ export default function CustomerProfileV2() {
   const notifCount = Object.values(notifPrefs).filter(Boolean).length;
   const smsVerified = !!p?.sms_verified_at;
 
-  const openBtn = (key: EditorKey, label = "Redigér", ariaLabel?: string) => (
+  const openBtn = (key: EditorKey, label = t("profileV2.edit"), ariaLabel?: string) => (
     <Button variant="ghost" size="sm"
       aria-label={ariaLabel ?? `${label} — ${key}`}
       onClick={() => setOpenEditor(key)}>
@@ -154,12 +163,12 @@ export default function CustomerProfileV2() {
         <div className="flex items-center gap-3">
           <BackButton />
           <div>
-            <h1 className="sr-only">Min profil</h1>
-            <div className="text-xs opacity-70">Din konto og oplysninger</div>
+            <h1 className="sr-only">{t("profileV2.title")}</h1>
+            <div className="text-xs opacity-70">{t("profileV2.subtitle")}</div>
           </div>
         </div>
         <Button size="sm" onClick={() => setOpenEditor("personal")}>
-          <Pencil className="mr-1 h-4 w-4" /> Redigér profil
+          <Pencil className="mr-1 h-4 w-4" /> {t("profileV2.editProfile")}
         </Button>
       </div>
 
@@ -168,32 +177,33 @@ export default function CustomerProfileV2() {
         name={firstName}
         subtitle={
           data.bookings.total > 0
-            ? `Du har ${data.bookings.total} booking${data.bookings.total === 1 ? "" : "er"} i alt.`
-            : "Velkommen — book din første rengøring når du er klar."
+            ? t("profileV2.bookingsSummary", { count: data.bookings.total })
+            : t("profileV2.welcomeSubtitle")
         }
         completion={data.completion}
         actions={
           <Badge variant="outline" className="gap-1">
-            <Sparkles className="h-3 w-3" /> Medlem siden {formatDate(data.memberSince)}
+            <Sparkles className="h-3 w-3" />
+            {t("profileV2.memberSince", { date: formatDate(data.memberSince, i18n.language) })}
           </Badge>
         }
       />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Bookinger i alt" value={data.bookings.total} icon={Calendar} />
-        <StatCard label="Kommende" value={data.bookings.upcoming} icon={Calendar} />
-        <StatCard label="Fuldførte" value={data.bookings.completed} icon={Sparkles} />
-        <StatCard label="Sidste booking"
-          value={data.bookings.lastBookingAt ? formatDate(data.bookings.lastBookingAt) : "—"} />
+        <StatCard label={t("profileV2.stats.totalBookings")} value={data.bookings.total} icon={Calendar} />
+        <StatCard label={t("profileV2.stats.upcoming")} value={data.bookings.upcoming} icon={Calendar} />
+        <StatCard label={t("profileV2.stats.completed")} value={data.bookings.completed} icon={Sparkles} />
+        <StatCard label={t("profileV2.stats.lastBooking")}
+          value={data.bookings.lastBookingAt ? formatDate(data.bookings.lastBookingAt, i18n.language) : "—"} />
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <SectionCard title="Personlige oplysninger" action={openBtn("personal")}>
+        <SectionCard title={t("profileV2.personal.title")} action={openBtn("personal")}>
           <div className="flex items-center gap-4">
             <Initials name={p?.full_name ?? null} email={data.email} />
             <div className="min-w-0 flex-1 space-y-1">
               <p className="truncate font-display text-lg">
-                {p?.full_name || "Ingen navn angivet"}
+                {p?.full_name || t("profileV2.personal.noName")}
               </p>
               <p className="truncate text-sm text-muted-foreground">{data.email ?? "—"}</p>
               <div className="flex flex-wrap gap-1.5 pt-1">
@@ -208,7 +218,7 @@ export default function CustomerProfileV2() {
           </div>
         </SectionCard>
 
-        <SectionCard title="Kontakt" action={openBtn("contact")}>
+        <SectionCard title={t("profileV2.contact.title")} action={openBtn("contact")}>
           <ul className="space-y-3 text-sm">
             <li className="flex items-center gap-3">
               <Mail className="h-4 w-4 shrink-0 text-muted-foreground" />
@@ -216,28 +226,28 @@ export default function CustomerProfileV2() {
             </li>
             <li className="flex items-center gap-3">
               <Phone className="h-4 w-4 shrink-0 text-muted-foreground" />
-              <span className="truncate">{p?.phone || "Ingen telefon"}</span>
+              <span className="truncate">{p?.phone || t("profileV2.contact.noPhone")}</span>
             </li>
             <li className="flex items-center gap-3">
               <MessageSquare className="h-4 w-4 shrink-0 text-muted-foreground" />
-              <span className="truncate">{p?.sms_phone ? p.sms_phone : "Ingen SMS-nummer"}</span>
+              <span className="truncate">{p?.sms_phone ? p.sms_phone : t("profileV2.contact.noSms")}</span>
               {smsVerified ? (
-                <Badge variant="secondary" className="ml-auto text-[10px]">Verificeret</Badge>
+                <Badge variant="secondary" className="ml-auto text-[10px]">{t("profileV2.contact.verified")}</Badge>
               ) : p?.sms_phone ? (
-                <Badge variant="outline" className="ml-auto text-[10px]">Ikke verificeret</Badge>
+                <Badge variant="outline" className="ml-auto text-[10px]">{t("profileV2.contact.unverified")}</Badge>
               ) : null}
             </li>
           </ul>
         </SectionCard>
       </div>
 
-      <SectionCard title="Gemte adresser"
-        description="Adgang, størrelse, kæledyr og noter pr. adresse."
-        action={openBtn("addresses", "Administrér")}>
+      <SectionCard title={t("profileV2.addresses.title")}
+        description={t("profileV2.addresses.description")}
+        action={openBtn("addresses", t("profileV2.addresses.manage"))}>
         {data.addresses.length === 0 ? (
-          <EmptyState icon={MapPin} title="Ingen gemte adresser endnu"
-            description="Tilføj en adresse for at gøre booking hurtigere."
-            action={<Button size="sm" onClick={() => setOpenEditor("addresses")}>Tilføj adresse</Button>} />
+          <EmptyState icon={MapPin} title={t("profileV2.addresses.emptyTitle")}
+            description={t("profileV2.addresses.emptyDescription")}
+            action={<Button size="sm" onClick={() => setOpenEditor("addresses")}>{t("profileV2.addresses.addAddress")}</Button>} />
         ) : (
           <ul className="space-y-2">
             {data.addresses.map((a) => <AddressRow key={a.id} a={a} />)}
@@ -246,14 +256,14 @@ export default function CustomerProfileV2() {
       </SectionCard>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <SectionCard title="Notifikationer" action={openBtn("notifications")}>
+        <SectionCard title={t("profileV2.notifications.title")} action={openBtn("notifications")}>
           {notifCount === 0 ? (
-            <EmptyState icon={Bell} title="Ingen kanaler aktive"
-              description="Vælg hvordan vi må kontakte dig om bookinger og beskeder." />
+            <EmptyState icon={Bell} title={t("profileV2.notifications.emptyTitle")}
+              description={t("profileV2.notifications.emptyDescription")} />
           ) : (
             <div className="space-y-2 text-sm">
               <p className="text-muted-foreground">
-                {notifCount} kanal{notifCount === 1 ? "" : "er"} aktiveret.
+                {t("profileV2.notifications.channelsActive", { count: notifCount })}
               </p>
               <div className="flex flex-wrap gap-1.5">
                 {Object.entries(notifPrefs).filter(([, v]) => !!v).map(([k]) => (
@@ -264,45 +274,53 @@ export default function CustomerProfileV2() {
           )}
         </SectionCard>
 
-        <SectionCard title="Rengøringspræferencer" action={openBtn("prefs")}>
+        <SectionCard title={t("profileV2.preferences.title")} action={openBtn("prefs")}>
           {data.primaryAddress ? (
             <ul className="space-y-2 text-sm">
               <li className="flex items-center justify-between">
-                <span className="text-muted-foreground">Kæledyr</span>
-                <span>{data.primaryAddress.has_pets ? (data.primaryAddress.pet_details || "Ja") : "Nej"}</span>
+                <span className="text-muted-foreground">{t("profileV2.preferences.pets")}</span>
+                <span>
+                  {data.primaryAddress.has_pets
+                    ? (data.primaryAddress.pet_details || t("profileV2.preferences.yes"))
+                    : t("profileV2.preferences.no")}
+                </span>
               </li>
               <li className="flex items-center justify-between">
-                <span className="text-muted-foreground">Børn</span>
-                <span>{data.primaryAddress.has_children ? "Ja" : "Nej"}</span>
+                <span className="text-muted-foreground">{t("profileV2.preferences.children")}</span>
+                <span>{data.primaryAddress.has_children ? t("profileV2.preferences.yes") : t("profileV2.preferences.no")}</span>
               </li>
               <li className="flex items-center justify-between">
-                <span className="text-muted-foreground">Rengøringsmidler klar</span>
-                <span>{data.primaryAddress.cleaning_supplies_available ? "Ja" : "Nej"}</span>
+                <span className="text-muted-foreground">{t("profileV2.preferences.suppliesReady")}</span>
+                <span>{data.primaryAddress.cleaning_supplies_available ? t("profileV2.preferences.yes") : t("profileV2.preferences.no")}</span>
               </li>
               <li className="flex items-center justify-between">
-                <span className="text-muted-foreground">Parkering</span>
+                <span className="text-muted-foreground">{t("profileV2.preferences.parking")}</span>
                 <span className="truncate max-w-[55%] text-right">
                   {data.primaryAddress.parking_info || "—"}
                 </span>
               </li>
             </ul>
           ) : (
-            <EmptyState icon={Sparkles} title="Ingen præferencer endnu"
-              description="Tilføj en primær adresse for at sætte dine præferencer." />
+            <EmptyState icon={Sparkles} title={t("profileV2.preferences.emptyTitle")}
+              description={t("profileV2.preferences.emptyDescription")} />
           )}
         </SectionCard>
       </div>
 
-      <SectionCard title="Adgangsinstruktioner" action={openBtn("access")}>
+      <SectionCard title={t("profileV2.access.title")} action={openBtn("access")}>
         {data.primaryAddress ? (
           <div className="space-y-2 text-sm">
             <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">Adgangsmetode</span>
-              <span>{ACCESS_METHOD_LABEL[data.primaryAddress.access_method] ?? data.primaryAddress.access_method}</span>
+              <span className="text-muted-foreground">{t("profileV2.access.method")}</span>
+              <span>
+                {t(`profileV2.addressLabels.accessMethod.${data.primaryAddress.access_method}`, {
+                  defaultValue: ACCESS_METHOD_LABEL[data.primaryAddress.access_method] ?? data.primaryAddress.access_method,
+                })}
+              </span>
             </div>
             {data.primaryAddress.access_code && (
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Kode</span>
+                <span className="text-muted-foreground">{t("profileV2.access.code")}</span>
                 <span className="font-mono">••••</span>
               </div>
             )}
@@ -313,34 +331,34 @@ export default function CustomerProfileV2() {
             )}
           </div>
         ) : (
-          <EmptyState icon={Lock} title="Ingen adgangsinstruktioner"
-            description="Tilføj en primær adresse for at gemme adgangsinstruktioner." />
+          <EmptyState icon={Lock} title={t("profileV2.access.emptyTitle")}
+            description={t("profileV2.access.emptyDescription")} />
         )}
       </SectionCard>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <SectionCard title="Privatliv" action={
+        <SectionCard title={t("profileV2.privacy.title")} action={
           <Button asChild variant="ghost" size="sm">
-            <Link to="/privatliv"><Pencil className="mr-1 h-4 w-4" /> Åbn</Link>
+            <Link to="/privatliv"><Pencil className="mr-1 h-4 w-4" /> {t("profileV2.open")}</Link>
           </Button>
         }>
           <p className="text-sm text-muted-foreground">
-            Se, download eller anmod om sletning af dine data i Privatlivscenteret.
+            {t("profileV2.privacy.description")}
           </p>
         </SectionCard>
 
-        <SectionCard title="Konto" action={openBtn("deactivate", "Deaktivér")}>
+        <SectionCard title={t("profileV2.account.title")} action={openBtn("deactivate", t("profileV2.account.deactivate"))}>
           <div className="flex items-start gap-3 text-sm">
             <ShieldOff className="h-4 w-4 shrink-0 text-muted-foreground" />
             <div>
               {p?.deactivated_at ? (
                 <>
-                  <p className="font-medium text-destructive">Konto er deaktiveret</p>
-                  <p className="text-xs text-muted-foreground">{formatDate(p.deactivated_at)}</p>
+                  <p className="font-medium text-destructive">{t("profileV2.account.deactivated")}</p>
+                  <p className="text-xs text-muted-foreground">{formatDate(p.deactivated_at, i18n.language)}</p>
                 </>
               ) : (
                 <p className="text-muted-foreground">
-                  Din konto er aktiv. Du kan altid deaktivere den fra kontoindstillinger.
+                  {t("profileV2.account.activeDescription")}
                 </p>
               )}
             </div>
@@ -348,13 +366,13 @@ export default function CustomerProfileV2() {
         </SectionCard>
       </div>
 
-      <SectionCard title="Genveje">
+      <SectionCard title={t("profileV2.shortcuts.title")}>
         <div className="grid gap-3 sm:grid-cols-2">
-          <QuickActionCard title="Mine bookinger" description="Se og administrér" icon={Calendar} to="/customer/bookings" />
-          <QuickActionCard title="Beskeder" description="Din indbakke" icon={Inbox} to="/customer/notifications" />
-          <QuickActionCard title="Kort & betalinger" description="Betalingsmetoder" icon={CreditCard} to="/customer/cards" />
-          <QuickActionCard title="Fakturaer" description="Kvitteringer og bilag" icon={FileText} to="/customer/invoices" />
-          <QuickActionCard title="Support" description="Få hjælp" icon={LifeBuoy} to="/faq" />
+          <QuickActionCard title={t("profileV2.shortcuts.myBookings")} description={t("profileV2.shortcuts.myBookingsDescription")} icon={Calendar} to="/customer/bookings" />
+          <QuickActionCard title={t("profileV2.shortcuts.messages")} description={t("profileV2.shortcuts.messagesDescription")} icon={Inbox} to="/customer/notifications" />
+          <QuickActionCard title={t("profileV2.shortcuts.cards")} description={t("profileV2.shortcuts.cardsDescription")} icon={CreditCard} to="/customer/cards" />
+          <QuickActionCard title={t("profileV2.shortcuts.invoices")} description={t("profileV2.shortcuts.invoicesDescription")} icon={FileText} to="/customer/invoices" />
+          <QuickActionCard title={t("profileV2.shortcuts.support")} description={t("profileV2.shortcuts.supportDescription")} icon={LifeBuoy} to="/faq" />
           <button type="button" onClick={() => setOpenEditor("tax")}
             className="group flex min-h-[88px] items-center gap-4 rounded-2xl border border-border bg-card p-4 text-left transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:p-5">
             <span aria-hidden
@@ -362,24 +380,24 @@ export default function CustomerProfileV2() {
               <Receipt className="h-5 w-5" />
             </span>
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-semibold text-foreground">Skatteoplysninger</p>
-              <p className="mt-0.5 truncate text-xs text-muted-foreground">Servicefradrag</p>
+              <p className="truncate text-sm font-semibold text-foreground">{t("profileV2.shortcuts.tax")}</p>
+              <p className="mt-0.5 truncate text-xs text-muted-foreground">{t("profileV2.shortcuts.taxDescription")}</p>
             </div>
           </button>
         </div>
       </SectionCard>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <ComingSoonCard title="Familiemedlemmer"
-          description="Del konto og bookinger med resten af husstanden." />
-        <ComingSoonCard title="Foretrukne produkter"
-          description="Gem ønskede rengøringsmidler og allergier." />
+        <ComingSoonCard title={t("profileV2.comingSoon.familyTitle")}
+          description={t("profileV2.comingSoon.familyDescription")} />
+        <ComingSoonCard title={t("profileV2.comingSoon.productsTitle")}
+          description={t("profileV2.comingSoon.productsDescription")} />
       </div>
 
       {/* Native V2 editors */}
       <SectionEditDialog
         open={openEditor === "personal"} onOpenChange={(o) => o || closeEditor()}
-        title="Personlige oplysninger" dirty={dirty} saving={saving} onSave={handleSave}>
+        title={t("profileV2.editors.personal")} dirty={dirty} saving={saving} onSave={handleSave}>
         {openEditor === "personal" && (
           <PersonalEditor
             initial={{
@@ -396,7 +414,7 @@ export default function CustomerProfileV2() {
 
       <SectionEditDialog
         open={openEditor === "contact"} onOpenChange={(o) => o || closeEditor()}
-        title="Kontakt" dirty={dirty} saving={saving} onSave={handleSave}>
+        title={t("profileV2.editors.contact")} dirty={dirty} saving={saving} onSave={handleSave}>
         {openEditor === "contact" && (
           <ContactEditor
             initial={{ phone: p?.phone ?? null, email: data.email }}
@@ -409,19 +427,19 @@ export default function CustomerProfileV2() {
 
       <SectionEditDialog
         open={openEditor === "addresses"} onOpenChange={(o) => o || closeEditor()}
-        title="Gemte adresser" showFooter={false}>
+        title={t("profileV2.editors.addresses")} showFooter={false}>
         {openEditor === "addresses" && <AddressesEditor />}
       </SectionEditDialog>
 
       <SectionEditDialog
         open={openEditor === "notifications"} onOpenChange={(o) => o || closeEditor()}
-        title="Notifikationer" showFooter={false}>
+        title={t("profileV2.editors.notifications")} showFooter={false}>
         {openEditor === "notifications" && <NotificationsEditor />}
       </SectionEditDialog>
 
       <SectionEditDialog
         open={openEditor === "prefs"} onOpenChange={(o) => o || closeEditor()}
-        title="Rengøringspræferencer" dirty={dirty} saving={saving} onSave={handleSave}
+        title={t("profileV2.editors.preferences")} dirty={dirty} saving={saving} onSave={handleSave}
         saveDisabled={!data.primaryAddress}>
         {openEditor === "prefs" && (
           <CleaningPreferencesEditor
@@ -435,7 +453,7 @@ export default function CustomerProfileV2() {
 
       <SectionEditDialog
         open={openEditor === "access"} onOpenChange={(o) => o || closeEditor()}
-        title="Adgangsinstruktioner" dirty={dirty} saving={saving} onSave={handleSave}
+        title={t("profileV2.editors.access")} dirty={dirty} saving={saving} onSave={handleSave}
         saveDisabled={!data.primaryAddress}>
         {openEditor === "access" && (
           <AccessInstructionsEditor
@@ -449,13 +467,13 @@ export default function CustomerProfileV2() {
 
       <SectionEditDialog
         open={openEditor === "deactivate"} onOpenChange={(o) => o || closeEditor()}
-        title="Deaktivér konto" showFooter={false}>
+        title={t("profileV2.editors.deactivate")} showFooter={false}>
         {openEditor === "deactivate" && <DeactivateEditor />}
       </SectionEditDialog>
 
       <SectionEditDialog
         open={openEditor === "tax"} onOpenChange={(o) => o || closeEditor()}
-        title="Skatteoplysninger" showFooter={false}>
+        title={t("profileV2.editors.tax")} showFooter={false}>
         {openEditor === "tax" && <TaxEditor />}
       </SectionEditDialog>
     </div>

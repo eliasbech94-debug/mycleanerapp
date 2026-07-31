@@ -406,7 +406,62 @@
       "preferences": "Reinigungspräferenzen",
       "access": "Zugangshinweise",
       "deactivate": "Konto deaktivieren",
-      "tax": "Steuerangaben"
+      "tax": "Steuerangaben",
+      "common": {
+        "saved": "Gespeichert",
+        "addPrimaryFirst": "Fügen Sie zuerst eine primäre Adresse hinzu",
+        "addPrimaryFirstInline": "Fügen Sie zuerst eine primäre Adresse unter \"Gespeicherte Adressen\" hinzu.",
+        "invalid": "Ungültig"
+      },
+      "personalFields": {
+        "fullNameLabel": "Vollständiger Name",
+        "countryLabel": "Land (ISO 3166-1)",
+        "countryPlaceholder": "DE",
+        "languageLabel": "Sprache",
+        "languageNone": "—",
+        "errors": {
+          "charLimit": "Max. 100 Zeichen",
+          "countryCode": "2-stelliger Ländercode"
+        }
+      },
+      "contactFields": {
+        "emailLabel": "E-Mail",
+        "emailNote": "E-Mail wird über die Kontoeinstellungen geändert.",
+        "phoneLabel": "Telefon",
+        "phonePlaceholder": "+49 151 23456789",
+        "errors": {
+          "phone": "Ungültige Nummer"
+        }
+      },
+      "prefsFields": {
+        "petsLabel": "Haustiere",
+        "petDetailsLabel": "Angaben",
+        "petDetailsPlaceholder": "z. B. 'Hund, nicht aggressiv'",
+        "childrenLabel": "Kinder im Haushalt",
+        "suppliesLabel": "Reinigungsmittel vorhanden",
+        "parkingLabel": "Parken"
+      },
+      "accessFields": {
+        "methodLabel": "Zugangsmethode",
+        "codeLabel": "Zugangscode (optional)",
+        "instructionsLabel": "Anweisungen"
+      }
+    },
+    "addressLabels": {
+      "placeType": {
+        "private": "Privat",
+        "business": "Gewerbe",
+        "vacation": "Ferienhaus",
+        "other": "Sonstiges"
+      },
+      "accessMethod": {
+        "home": "Ich bin zu Hause",
+        "key_box": "Schlüsselbox",
+        "key_under_mat": "Versteckter Schlüssel (unter Matte / Topf)",
+        "doorman": "Hausmeister / Pförtner",
+        "code": "Türcode",
+        "other": "Sonstiges"
+      }
     }
   }
 }

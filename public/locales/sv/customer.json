@@ -406,7 +406,62 @@
       "preferences": "Städpreferenser",
       "access": "Tillträdesinstruktioner",
       "deactivate": "Avaktivera konto",
-      "tax": "Skatteuppgifter"
+      "tax": "Skatteuppgifter",
+      "common": {
+        "saved": "Sparat",
+        "addPrimaryFirst": "Lägg till en primär adress först",
+        "addPrimaryFirstInline": "Lägg till en primär adress först under \"Sparade adresser\".",
+        "invalid": "Ogiltigt"
+      },
+      "personalFields": {
+        "fullNameLabel": "Fullständigt namn",
+        "countryLabel": "Land (ISO 3166-1)",
+        "countryPlaceholder": "SE",
+        "languageLabel": "Språk",
+        "languageNone": "—",
+        "errors": {
+          "charLimit": "Max 100 tecken",
+          "countryCode": "2-bokstavs landskod"
+        }
+      },
+      "contactFields": {
+        "emailLabel": "E-post",
+        "emailNote": "E-post ändras via kontoinställningar.",
+        "phoneLabel": "Telefon",
+        "phonePlaceholder": "+46 70 123 45 67",
+        "errors": {
+          "phone": "Ogiltigt nummer"
+        }
+      },
+      "prefsFields": {
+        "petsLabel": "Husdjur",
+        "petDetailsLabel": "Detaljer",
+        "petDetailsPlaceholder": "T.ex. 'Hund, inte aggressiv'",
+        "childrenLabel": "Barn i hemmet",
+        "suppliesLabel": "Städmaterial finns",
+        "parkingLabel": "Parkering"
+      },
+      "accessFields": {
+        "methodLabel": "Åtkomstmetod",
+        "codeLabel": "Kod (valfritt)",
+        "instructionsLabel": "Instruktioner"
+      }
+    },
+    "addressLabels": {
+      "placeType": {
+        "private": "Privat",
+        "business": "Företag",
+        "vacation": "Fritidshus",
+        "other": "Annat"
+      },
+      "accessMethod": {
+        "home": "Jag är hemma",
+        "key_box": "Nyckelbox",
+        "key_under_mat": "Gömd nyckel (under mattan / krukan)",
+        "doorman": "Vaktmästare / portvakt",
+        "code": "Portkod",
+        "other": "Annat"
+      }
     }
   }
 }

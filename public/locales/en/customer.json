@@ -406,7 +406,62 @@
       "preferences": "Cleaning preferences",
       "access": "Access instructions",
       "deactivate": "Deactivate account",
-      "tax": "Tax information"
+      "tax": "Tax information",
+      "common": {
+        "saved": "Saved",
+        "addPrimaryFirst": "Add a primary address first",
+        "addPrimaryFirstInline": "Add a primary address first in \"Saved addresses\".",
+        "invalid": "Invalid"
+      },
+      "personalFields": {
+        "fullNameLabel": "Full name",
+        "countryLabel": "Country (ISO 3166-1)",
+        "countryPlaceholder": "DK",
+        "languageLabel": "Language",
+        "languageNone": "—",
+        "errors": {
+          "charLimit": "Max 100 characters",
+          "countryCode": "2-letter country code"
+        }
+      },
+      "contactFields": {
+        "emailLabel": "Email",
+        "emailNote": "Email is changed via account settings.",
+        "phoneLabel": "Phone",
+        "phonePlaceholder": "+45 12 34 56 78",
+        "errors": {
+          "phone": "Invalid number"
+        }
+      },
+      "prefsFields": {
+        "petsLabel": "Pets",
+        "petDetailsLabel": "Details",
+        "petDetailsPlaceholder": "E.g. 'Dog, not aggressive'",
+        "childrenLabel": "Children at home",
+        "suppliesLabel": "Cleaning supplies ready",
+        "parkingLabel": "Parking"
+      },
+      "accessFields": {
+        "methodLabel": "Access method",
+        "codeLabel": "Code (optional)",
+        "instructionsLabel": "Instructions"
+      }
+    },
+    "addressLabels": {
+      "placeType": {
+        "private": "Private",
+        "business": "Business",
+        "vacation": "Vacation home",
+        "other": "Other"
+      },
+      "accessMethod": {
+        "home": "I'm home",
+        "key_box": "Key box",
+        "key_under_mat": "Hidden key (under mat / pot)",
+        "doorman": "Doorman / caretaker",
+        "code": "Entry code",
+        "other": "Other"
+      }
     }
   }
 }

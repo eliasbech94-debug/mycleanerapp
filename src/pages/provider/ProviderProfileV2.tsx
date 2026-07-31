@@ -186,39 +186,41 @@ export default function ProviderProfileV2() {
           </div>
         </SectionCard>
 
-        <SectionCard title="Om mig" action={editBtn("business")}>
+        <SectionCard title={t("profile.sections.about.title")} action={editBtn("business")}>
           {p.public_bio ? (
             <p className="whitespace-pre-line text-sm text-foreground">{p.public_bio}</p>
           ) : (
-            <EmptyState icon={UserIcon} title="Ingen offentlig bio endnu"
-              description="Fortæl kunderne hvem du er, og hvorfor de skal vælge dig." />
+            <EmptyState icon={UserIcon} title={t("profile.sections.about.emptyTitle")}
+              description={t("profile.sections.about.emptyDescription")} />
           )}
         </SectionCard>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <SectionCard title="Sprog" action={editBtn("languages")}>
+        <SectionCard title={t("profile.sections.languages.title")} action={editBtn("languages")}>
           <div className="flex flex-wrap gap-2">
             {langs.length === 0 ? (
-              <EmptyState icon={Languages} title="Ingen sprog valgt" />
+              <EmptyState icon={Languages} title={t("profile.sections.languages.empty")} />
             ) : langs.map((l) => (
-              <Badge key={l} variant="secondary">{LANG_LABEL[l] ?? l}</Badge>
+              <Badge key={l} variant="secondary">{t(`catalog.languages.${l}`, { defaultValue: l })}</Badge>
             ))}
           </div>
         </SectionCard>
 
-        <SectionCard title="Erfaring & udstyr" action={editBtn("equipment")}>
+        <SectionCard title={t("profile.sections.experienceEquipment.title")} action={editBtn("equipment")}>
           <div className="space-y-3">
             <div className="text-sm">
-              <span className="text-muted-foreground">Erfaring: </span>
-              <b>{p.years_experience != null ? `${p.years_experience} år` : "—"}</b>
+              <span className="text-muted-foreground">{t("profile.sections.experienceEquipment.experienceLabel")} </span>
+              <b>{p.years_experience != null
+                ? t("profile.sections.experienceEquipment.yearsValue", { count: p.years_experience })
+                : "—"}</b>
             </div>
             <div className="flex flex-wrap gap-2">
               {equip.length === 0
-                ? <span className="text-sm text-muted-foreground">Ingen udstyr markeret.</span>
+                ? <span className="text-sm text-muted-foreground">{t("profile.sections.experienceEquipment.noEquipment")}</span>
                 : equip.map((k) => (
                   <Badge key={k} variant="outline" className="gap-1">
-                    <Wrench className="h-3 w-3" /> {EQUIP_LABEL[k] ?? k}
+                    <Wrench className="h-3 w-3" /> {t(`catalog.equipment.${k}`, { defaultValue: k })}
                   </Badge>
                 ))}
             </div>
@@ -226,38 +228,39 @@ export default function ProviderProfileV2() {
         </SectionCard>
       </div>
 
-      <SectionCard title="Ydelser & priser"
-        description="Hver service har sin egen timepris. Endelige priser beregnes altid server-side."
+      <SectionCard title={t("profile.sections.servicesPricing.title")}
+        description={t("profile.sections.servicesPricing.description")}
         action={
           <div className="flex gap-1">
-            {editBtn("services", "Kategorier")}
-            {editBtn("pricing", "Priser")}
+            {editBtn("services", t("profile.sections.servicesPricing.categoriesButton"))}
+            {editBtn("pricing", t("profile.sections.servicesPricing.pricesButton"))}
           </div>
         }>
         <div className="space-y-4">
           <div className="flex flex-wrap gap-2">
             {cats.length === 0
-              ? <span className="text-sm text-muted-foreground">Ingen kategorier valgt.</span>
+              ? <span className="text-sm text-muted-foreground">{t("profile.sections.servicesPricing.noCategories")}</span>
               : cats.map((c) => (
                 <Badge key={c} className="bg-primary/10 text-primary hover:bg-primary/15">
-                  {CATEGORY_LABEL[c] ?? c}
+                  {t(`catalog.categories.${c}`, { defaultValue: c })}
                 </Badge>
               ))}
           </div>
 
           {activePrices.length === 0 ? (
-            <EmptyState icon={Briefcase} title="Ingen individuelle serviceprises endnu"
-              description="Sæt priser pr. service så kunderne ved præcis hvad det koster."
-              action={<Button size="sm" onClick={() => setOpenEditor("pricing")}>Tilføj priser</Button>} />
+            <EmptyState icon={Briefcase} title={t("profile.sections.servicesPricing.emptyPricesTitle")}
+              description={t("profile.sections.servicesPricing.emptyPricesDescription")}
+              action={<Button size="sm" onClick={() => setOpenEditor("pricing")}>{t("profile.sections.servicesPricing.addPrices")}</Button>} />
           ) : (
             <ul className="divide-y divide-border rounded-xl border border-border">
               {activePrices.map((row) => (
                 <li key={row.service_code} className="flex items-center justify-between px-4 py-3">
                   <span className="text-sm font-medium">
-                    {SERVICE_LABEL[row.service_code] ?? row.service_code}
+                    {t(`catalog.services.${row.service_code}`, { defaultValue: row.service_code })}
                   </span>
                   <span className="text-sm font-semibold">
-                    {formatMoney(row.amount_minor, row.currency)}<span className="opacity-60"> /t.</span>
+                    {formatMoney(row.amount_minor, row.currency, i18n.language)}
+                    <span className="opacity-60"> {t("profile.sections.servicesPricing.perHour")}</span>
                   </span>
                 </li>
               ))}
