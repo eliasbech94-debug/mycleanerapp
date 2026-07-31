@@ -212,6 +212,11 @@ Deno.serve(monitored("payment-create-intent", async (req, _log) => {
     const commissionSnapshot = { commission_bps: cfg.commission_bps, config_version: cfg.config_version };
     const bookingRulesSnapshot = { rules: (cfgJson as any)?.booking_public ?? {}, config_version: cfg.config_version };
 
+    // Freeze the accepted cancellation terms once, at server time. Time-gated
+    // by `policyAt` and the CANCELLATION_POLICY_V2_ENABLED kill switch; never
+    // re-evaluated for this booking afterwards.
+    const acceptedCancellationSnapshot = cancellationPolicySnapshot(policyAt(new Date()));
+
     let bookingId: string;
     const { data: booking, error: insErr } = await admin
       .from("bookings")
