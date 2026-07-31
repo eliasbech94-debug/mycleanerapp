@@ -79,7 +79,11 @@ export function resolveInitialLanguage(input?: {
  */
 const IS_DEV = import.meta.env.DEV;
 
-export const missingKeyFallback = (key: string): string => (IS_DEV ? `⟪${key}⟫` : "");
+export const missingKeyFallback = (key: string, defaultValue?: string): string => {
+  // An inline default (t("a.b", "Fallback")) is intentional copy — use it.
+  if (typeof defaultValue === "string" && defaultValue.length) return defaultValue;
+  return IS_DEV ? `⟪${key}⟫` : "";
+};
 
 let started = false;
 export async function initI18n() {
