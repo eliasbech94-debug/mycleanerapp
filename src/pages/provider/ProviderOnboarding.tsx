@@ -11,6 +11,9 @@ import { ProviderServicePricing } from "@/components/provider/ProviderServicePri
 import { StripeConnectStatusWidget } from "@/components/provider/StripeConnectStatusWidget";
 import { IdentityVerificationCard } from "@/components/identity/IdentityVerificationCard";
 import BackButton from "@/components/BackButton";
+import { ProviderQuizCard } from "@/components/provider/ProviderQuizCard";
+import { ProviderApprovalChecklist } from "@/components/provider/ProviderApprovalChecklist";
+
 import { acceptLegalDocument, fetchLegalDocument } from "@/lib/legal/api";
 
 const C = { ink: "#0a3d3a", orange: "#ff6b35", cream: "#f5f0e0", teal: "#168a7a", mint: "#c8e6c0" };
