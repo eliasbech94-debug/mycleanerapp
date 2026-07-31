@@ -9,6 +9,7 @@ import { monitored } from "../_shared/logger.ts";
 import { startJobRun } from "../_shared/jobrun.ts";
 import { requireServiceOrAdmin } from "../_shared/auth.ts";
 import { isSmsConfigured, sendSms as sendSmsViaGatewayApi } from "../_shared/gatewayapi.ts";
+import { renderSmsForNotification } from "../_shared/smsTemplates.ts";
 
 const admin = createClient(
   Deno.env.get("SUPABASE_URL")!,
