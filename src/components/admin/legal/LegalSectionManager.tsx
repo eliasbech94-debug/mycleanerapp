@@ -1,6 +1,7 @@
 // Admin chapter manager for a legal document: tree, ordering, editing,
 // duplicate / split / merge, diff + publish, changelog, audit trail.
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ArrowDown,
@@ -52,6 +53,7 @@ import { cn } from "@/lib/utils";
 const TRANSLATION_LANGUAGES = ["en", "da", "sv", "de", "es"];
 
 export function LegalSectionManager({ document: doc }: { document: LegalDocumentRef }) {
+  const { t } = useTranslation("admin");
   const qc = useQueryClient();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [dragId, setDragId] = useState<string | null>(null);
@@ -93,9 +95,9 @@ export function LegalSectionManager({ document: doc }: { document: LegalDocument
     mutationFn: async (action: () => Promise<unknown>) => action(),
     onSuccess: () => {
       refresh();
-      toast({ title: "Gemt" });
+      toast({ title: t("console.legal.sections.savedToast") });
     },
-    onError: (e: Error) => toast({ title: "Handlingen fejlede", description: e.message, variant: "destructive" }),
+    onError: (e: Error) => toast({ title: t("console.legal.sections.actionFailedToast"), description: e.message, variant: "destructive" }),
   });
 
   const publish = useMutation({
@@ -104,9 +106,9 @@ export function LegalSectionManager({ document: doc }: { document: LegalDocument
       refresh();
       setPublishOpen(false);
       setReason("");
-      toast({ title: `Publiceret som version ${r.version}`, description: `Hash: ${r.hash.slice(0, 16)}…` });
+      toast({ title: t("console.legal.sections.publishedToast", { version: r.version }), description: t("console.legal.sections.publishedHashToast", { hash: `${r.hash.slice(0, 16)}…` }) });
     },
-    onError: (e: Error) => toast({ title: "Publicering fejlede", description: e.message, variant: "destructive" }),
+    onError: (e: Error) => toast({ title: t("console.legal.sections.publishFailedToast"), description: e.message, variant: "destructive" }),
   });
 
   function move(section: LegalSection, delta: number) {
@@ -142,8 +144,8 @@ export function LegalSectionManager({ document: doc }: { document: LegalDocument
             <Badge variant={isPublished ? "default" : "secondary"}>{doc.status}</Badge>
           </p>
           <p className="text-muted-foreground">
-            {scoped.length} kapitler · {minutes} min. læsetid · {translations.length} oversættelser
-            {stale.length > 0 && <span className="ml-2 text-destructive">{stale.length} forældede oversættelser</span>}
+            {t("console.legal.sections.chaptersSummary", { count: scoped.length, minutes, translations: translations.length })}
+            {stale.length > 0 && <span className="ml-2 text-destructive">{t("console.legal.sections.staleTranslations", { count: stale.length })}</span>}
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -152,34 +154,34 @@ export function LegalSectionManager({ document: doc }: { document: LegalDocument
             variant="outline"
             onClick={() =>
               run.mutate(() =>
-                createSection({ documentId: doc.id, title: `Kapitel ${scoped.length + 1}`, language: doc.language, sections }),
+                createSection({ documentId: doc.id, title: t("console.legal.sections.newChapterTitle", { n: scoped.length + 1 }), language: doc.language, sections }),
               )
             }
             disabled={isPublished}
           >
             <Plus className="mr-2 h-4 w-4" aria-hidden="true" />
-            Nyt kapitel
+            {t("console.legal.sections.newChapter")}
           </Button>
           <Button size="sm" variant="outline" onClick={() => downloadHtml({ title: doc.title, version: doc.version, docUid: doc.doc_uid, hash: doc.body_hash }, composed, doc.slug)}>
-            HTML
+            {t("console.legal.sections.html")}
           </Button>
           <Button size="sm" variant="outline" onClick={() => printAsPdf({ title: doc.title, version: doc.version, docUid: doc.doc_uid, hash: doc.body_hash }, composed)}>
-            PDF / print
+            {t("console.legal.sections.pdfPrint")}
           </Button>
           {isPublished ? (
             <>
               <Button size="sm" onClick={() => run.mutate(() => createDraftVersion(doc, "minor"))}>
-                Ny kladdeversion
+                {t("console.legal.sections.newDraftVersion")}
               </Button>
               <Button size="sm" variant="outline" onClick={() => run.mutate(() => rollbackToVersion(doc, "rollback"))}>
                 <History className="mr-2 h-4 w-4" aria-hidden="true" />
-                Rollback
+                {t("console.legal.sections.rollback")}
               </Button>
             </>
           ) : (
             <Button size="sm" onClick={() => setPublishOpen(true)}>
               <UploadCloud className="mr-2 h-4 w-4" aria-hidden="true" />
-              Gennemgå og publicér
+              {t("console.legal.sections.reviewAndPublish")}
             </Button>
           )}
         </div>
@@ -187,7 +189,7 @@ export function LegalSectionManager({ document: doc }: { document: LegalDocument
 
       <div className="grid gap-6 xl:grid-cols-[300px_minmax(0,1fr)]">
         <div>
-          <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Dokumenttræ</h3>
+          <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t("console.legal.sections.documentTree")}</h3>
           {sectionsQuery.isLoading && <Skeleton className="h-40 w-full rounded-xl" />}
           <ul className="space-y-1">
             {scoped.map((s, i) => (
@@ -214,13 +216,13 @@ export function LegalSectionManager({ document: doc }: { document: LegalDocument
                 <Badge variant={s.status === "published" ? "default" : "secondary"} className="text-[10px]">
                   {s.status}
                 </Badge>
-                <Button size="icon" variant="ghost" aria-label={`Flyt ${s.title} op`} disabled={isPublished || i === 0} onClick={() => move(s, -1)}>
+                <Button size="icon" variant="ghost" aria-label={t("console.legal.sections.moveUp", { title: s.title })} disabled={isPublished || i === 0} onClick={() => move(s, -1)}>
                   <ArrowUp className="h-3.5 w-3.5" aria-hidden="true" />
                 </Button>
                 <Button
                   size="icon"
                   variant="ghost"
-                  aria-label={`Flyt ${s.title} ned`}
+                  aria-label={t("console.legal.sections.moveDown", { title: s.title })}
                   disabled={isPublished || i === scoped.length - 1}
                   onClick={() => move(s, 1)}
                 >
@@ -232,7 +234,7 @@ export function LegalSectionManager({ document: doc }: { document: LegalDocument
 
           {translations.length > 0 && (
             <>
-              <h3 className="mb-2 mt-6 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Oversættelser</h3>
+              <h3 className="mb-2 mt-6 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t("console.legal.sections.translations")}</h3>
               <ul className="space-y-1 text-sm">
                 {translations.map((s) => (
                   <li key={s.id}>
@@ -242,7 +244,7 @@ export function LegalSectionManager({ document: doc }: { document: LegalDocument
                       className="w-full truncate rounded-lg px-2 py-1.5 text-left hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                     >
                       [{s.language}] {s.title}
-                      {stale.some((x) => x.id === s.id) && <span className="ml-2 text-xs text-destructive">forældet</span>}
+                      {stale.some((x) => x.id === s.id) && <span className="ml-2 text-xs text-destructive">{t("console.legal.sections.stale")}</span>}
                     </button>
                   </li>
                 ))}
@@ -271,27 +273,27 @@ export function LegalSectionManager({ document: doc }: { document: LegalDocument
               }}
             />
           ) : (
-            <p className="text-sm text-muted-foreground">Ingen kapitler endnu — opret det første kapitel.</p>
+            <p className="text-sm text-muted-foreground">{t("console.legal.sections.noChapters")}</p>
           )}
 
           <section className="rounded-xl border border-border p-4">
-            <h3 className="text-sm font-semibold">Ændringslog</h3>
+            <h3 className="text-sm font-semibold">{t("console.legal.sections.changelog")}</h3>
             <ul className="mt-3 space-y-2 text-sm">
               {(changelogQuery.data ?? []).map((c) => (
                 <li key={c.id} className="rounded-lg bg-muted/40 px-3 py-2">
                   <p className="font-medium">
-                    Version {c.version}
-                    {c.previous_version && <span className="text-muted-foreground"> (fra {c.previous_version})</span>}
+                    {t("console.legal.sections.version", { version: c.version })}
+                    {c.previous_version && <span className="text-muted-foreground"> {t("console.legal.sections.fromVersion", { version: c.previous_version })}</span>}
                   </p>
                   <p className="text-muted-foreground">{c.summary}</p>
                 </li>
               ))}
-              {!changelogQuery.data?.length && <li className="text-muted-foreground">Ingen udgivelser endnu.</li>}
+              {!changelogQuery.data?.length && <li className="text-muted-foreground">{t("console.legal.sections.noReleases")}</li>}
             </ul>
           </section>
 
           <section className="rounded-xl border border-border p-4">
-            <h3 className="text-sm font-semibold">Revisionsspor</h3>
+            <h3 className="text-sm font-semibold">{t("console.legal.sections.auditTrail")}</h3>
             <ul className="mt-3 space-y-1 text-xs text-muted-foreground">
               {(auditQuery.data ?? []).slice(0, 20).map((a) => (
                 <li key={a.id}>
@@ -300,7 +302,7 @@ export function LegalSectionManager({ document: doc }: { document: LegalDocument
                   {a.reason ? ` · ${a.reason}` : ""}
                 </li>
               ))}
-              {!auditQuery.data?.length && <li>Ingen hændelser endnu.</li>}
+              {!auditQuery.data?.length && <li>{t("console.legal.sections.noEvents")}</li>}
             </ul>
           </section>
         </div>
@@ -309,14 +311,17 @@ export function LegalSectionManager({ document: doc }: { document: LegalDocument
       <Dialog open={publishOpen} onOpenChange={setPublishOpen}>
         <DialogContent className="max-w-5xl">
           <DialogHeader>
-            <DialogTitle>Publicér {doc.title}</DialogTitle>
+            <DialogTitle>{t("console.legal.sections.publishDialogTitle", { title: doc.title })}</DialogTitle>
           </DialogHeader>
           {preview.isLoading && <Skeleton className="h-48 w-full" />}
           {preview.data && (
             <div className="space-y-4">
               <p className="text-sm text-muted-foreground">
-                Ny version: <span className="font-medium text-foreground">{preview.data.nextVersion}</span> · anbefalet bump:{" "}
-                {preview.data.bump} · nyt hash: <code className="text-xs">{preview.data.nextHash.slice(0, 24)}…</code>
+                {t("console.legal.sections.publishSummary", {
+                  version: preview.data.nextVersion,
+                  bump: preview.data.bump,
+                  hash: `${preview.data.nextHash.slice(0, 24)}…`,
+                })}
               </p>
               <ul className="space-y-1 text-sm">
                 {preview.data.changes.map((c, i) => (
@@ -325,21 +330,21 @@ export function LegalSectionManager({ document: doc }: { document: LegalDocument
                     {c.title}
                   </li>
                 ))}
-                {!preview.data.changes.length && <li className="text-muted-foreground">Ingen indholdsændringer.</li>}
+                {!preview.data.changes.length && <li className="text-muted-foreground">{t("console.legal.sections.noChanges")}</li>}
               </ul>
               <LegalDiffViewer oldText={preview.data.previousBody} newText={preview.data.nextBody} />
               <div className="space-y-2">
-                <Label htmlFor="publish-reason">Begrundelse (gemmes i revisionssporet)</Label>
+                <Label htmlFor="publish-reason">{t("console.legal.sections.publishReasonLabel")}</Label>
                 <Input id="publish-reason" value={reason} onChange={(e) => setReason(e.target.value)} />
               </div>
             </div>
           )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setPublishOpen(false)}>
-              Annullér
+              {t("console.legal.sections.cancel")}
             </Button>
             <Button disabled={publish.isPending} onClick={() => publish.mutate()}>
-              Publicér
+              {t("console.legal.sections.publish")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -373,6 +378,7 @@ function SectionEditor({
   mergeSourceId: string | null;
   setMergeSourceId: (id: string | null) => void;
 }) {
+  const { t } = useTranslation("admin");
   const [title, setTitle] = useState(section.title);
   const [content, setContent] = useState(section.content_md);
   const mergeable = sections.filter((s) => s.id !== section.id && s.language === section.language);
@@ -382,11 +388,11 @@ function SectionEditor({
       <div className="grid gap-4 lg:grid-cols-2">
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="section-title">Kapiteltitel</Label>
+            <Label htmlFor="section-title">{t("console.legal.sections.chapterTitleLabel")}</Label>
             <Input id="section-title" value={title} onChange={(e) => setTitle(e.target.value)} disabled={disabled} />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="section-content">Indhold (Markdown)</Label>
+            <Label htmlFor="section-content">{t("console.legal.sections.contentLabel")}</Label>
             <Textarea
               id="section-content"
               rows={16}
@@ -398,28 +404,28 @@ function SectionEditor({
           </div>
           <div className="flex flex-wrap gap-2">
             <Button size="sm" disabled={disabled} onClick={() => onSave({ title, content_md: content })}>
-              Gem kapitel
+              {t("console.legal.sections.saveChapter")}
             </Button>
             <Button size="sm" variant="outline" disabled={disabled} onClick={onDuplicate}>
               <Copy className="mr-2 h-4 w-4" aria-hidden="true" />
-              Duplikér
+              {t("console.legal.sections.duplicate")}
             </Button>
             <Button size="sm" variant="outline" disabled={disabled} onClick={onSplit}>
               <Scissors className="mr-2 h-4 w-4" aria-hidden="true" />
-              Opdel
+              {t("console.legal.sections.split")}
             </Button>
             <Button size="sm" variant="outline" disabled={disabled || !mergeSourceId} onClick={() => mergeSourceId && onMerge(mergeSourceId)}>
               <GitMerge className="mr-2 h-4 w-4" aria-hidden="true" />
-              Flet ind
+              {t("console.legal.sections.merge")}
             </Button>
             <Button size="sm" variant="outline" disabled={disabled} onClick={onDelete}>
               <Trash2 className="mr-2 h-4 w-4" aria-hidden="true" />
-              Slet
+              {t("console.legal.sections.delete")}
             </Button>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="space-y-1">
-              <Label htmlFor="merge-source" className="text-xs">Flet dette kapitel ind i det valgte</Label>
+              <Label htmlFor="merge-source" className="text-xs">{t("console.legal.sections.mergeIntoLabel")}</Label>
               <select
                 id="merge-source"
                 className="h-9 w-full rounded-md border border-input bg-background px-2 text-sm"
@@ -427,7 +433,7 @@ function SectionEditor({
                 onChange={(e) => setMergeSourceId(e.target.value || null)}
                 disabled={disabled}
               >
-                <option value="">Vælg kapitel…</option>
+                <option value="">{t("console.legal.sections.chooseChapter")}</option>
                 {mergeable.map((s) => (
                   <option key={s.id} value={s.id}>
                     {s.title}
@@ -438,7 +444,7 @@ function SectionEditor({
             <div className="space-y-1">
               <Label htmlFor="translate-lang" className="text-xs">
                 <Languages className="mr-1 inline h-3.5 w-3.5" aria-hidden="true" />
-                Opret oversættelse
+                {t("console.legal.sections.createTranslation")}
               </Label>
               <select
                 id="translate-lang"
@@ -447,7 +453,7 @@ function SectionEditor({
                 onChange={(e) => e.target.value && onTranslate(e.target.value)}
                 disabled={disabled}
               >
-                <option value="">Vælg sprog…</option>
+                <option value="">{t("console.legal.sections.chooseLanguage")}</option>
                 {TRANSLATION_LANGUAGES.filter((l) => l !== section.language).map((l) => (
                   <option key={l} value={l}>
                     {l.toUpperCase()}
@@ -459,7 +465,7 @@ function SectionEditor({
         </div>
 
         <div>
-          <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Preview</h3>
+          <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t("console.legal.sections.preview")}</h3>
           <div className="max-h-[32rem] overflow-y-auto rounded-xl border border-border p-4">
             <LegalMarkdown content={content} />
           </div>

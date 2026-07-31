@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { Link, useSearchParams } from "react-router-dom";
 import {
   Calendar,
@@ -43,6 +44,7 @@ import { formatMoney } from "@/i18n/money";
  * reaches the customer.
  */
 export default function CustomerDashboardV2() {
+  const { t } = useTranslation("customer");
   const { user } = useAuth();
   const data = useCustomerDashboard();
   const notifications = useNotifications();
@@ -59,7 +61,7 @@ export default function CustomerDashboardV2() {
     <DashboardLayout role="customer" title="Kunde">
       <DashboardPage
         title="Dashboard"
-        description="Overblik over dine bookinger, beskeder og konto. Du vælger og booker selv en selvstændig provider gennem MyCleaner-platformen."
+        description={t("surfaces.dashboard.description")}
       >
         <div className="grid gap-5 lg:gap-6">
           {data.error && (
@@ -83,7 +85,7 @@ export default function CustomerDashboardV2() {
               }
               actions={
                 <Button asChild size="sm">
-                  <Link to="/book">Book rengøring</Link>
+                  <Link to="/book">{t("surfaces.dashboard.bookCleaning")}</Link>
                 </Button>
               }
             />
@@ -98,19 +100,19 @@ export default function CustomerDashboardV2() {
               loading={data.loading}
             />
             <StatCard
-              label="Gennemførte"
+              label={t("surfaces.dashboard.stats.completed")}
               value={data.stats.completed}
               icon={ListChecks}
               loading={data.loading}
             />
             <StatCard
-              label="Samlet pris betalt"
+              label={t("surfaces.dashboard.stats.totalSpent")}
               value={totalSpent}
               icon={Wallet}
               loading={data.loading}
             />
             <StatCard
-              label="Medlem siden"
+              label={t("surfaces.dashboard.stats.memberSince")}
               value={memberSince(user?.created_at)}
               icon={UserCircle}
               loading={data.loading}
@@ -122,7 +124,7 @@ export default function CustomerDashboardV2() {
             <div className="space-y-5 lg:col-span-2 lg:space-y-6">
               <AppErrorBoundary>
                 <SectionCard
-                  title="Kommende bookinger"
+                  title={t("surfaces.dashboard.upcoming.title")}
                   action={
                     <Link
                       to="/customer/bookings"
@@ -136,11 +138,11 @@ export default function CustomerDashboardV2() {
                   emptyState={
                     <EmptyState
                       icon={Calendar}
-                      title="Ingen kommende bookinger"
-                      description="Find en cleaner, og book direkte i providerens kalender."
+                      title={t("surfaces.dashboard.upcoming.emptyTitle")}
+                      description={t("surfaces.dashboard.upcoming.emptyDescription")}
                       action={
                         <Button asChild>
-                          <Link to="/find-cleaner">Find en cleaner</Link>
+                          <Link to="/find-cleaner">{t("surfaces.dashboard.upcoming.findCleaner")}</Link>
                         </Button>
                       }
                     />
@@ -156,8 +158,8 @@ export default function CustomerDashboardV2() {
 
               <AppErrorBoundary>
                 <SectionCard
-                  title="Tidligere bookinger"
-                  description="Se kvittering, eller book den samme provider igen."
+                  title={t("surfaces.dashboard.history.title")}
+                  description={t("surfaces.dashboard.history.description")}
                   action={
                     <Link
                       to="/customer/bookings"
@@ -171,8 +173,8 @@ export default function CustomerDashboardV2() {
                   emptyState={
                     <EmptyState
                       icon={FileText}
-                      title="Ingen historik endnu"
-                      description="Dine gennemførte bookinger vises her."
+                      title={t("surfaces.dashboard.history.emptyTitle")}
+                      description={t("surfaces.dashboard.history.emptyDescription")}
                     />
                   }
                 >
@@ -186,8 +188,8 @@ export default function CustomerDashboardV2() {
 
               <AppErrorBoundary>
                 <ComingSoonCard
-                  title="Personligt feed"
-                  description="Personlige anbefalinger baseret på din historik er på vej. Funktionen er endnu ikke aktiv."
+                  title={t("surfaces.dashboard.feed.title")}
+                  description={t("surfaces.dashboard.feed.description")}
                 />
               </AppErrorBoundary>
             </div>
@@ -198,39 +200,39 @@ export default function CustomerDashboardV2() {
                 <SectionCard title="Genveje">
                   <div className="grid gap-3">
                     <QuickActionCard
-                      title="Book rengøring"
-                      description="Vælg tid og cleaner"
+                      title={t("surfaces.dashboard.quickActions.book.title")}
+                      description={t("surfaces.dashboard.quickActions.book.description")}
                       icon={Sparkles}
                       to="/book"
                     />
                     <QuickActionCard
-                      title="Mine bookinger"
-                      description="Se og administrer"
+                      title={t("surfaces.dashboard.quickActions.bookings.title")}
+                      description={t("surfaces.dashboard.quickActions.bookings.description")}
                       icon={ListChecks}
                       to="/customer/bookings"
                     />
                     <QuickActionCard
                       title="Beskeder"
-                      description="Skriv med dine providere"
+                      description={t("surfaces.dashboard.quickActions.messages.description")}
                       icon={MessageSquare}
                       to="/inbox"
                       badge={notifications.unread > 0 ? `${notifications.unread}` : undefined}
                     />
                     <QuickActionCard
                       title="Favoritter"
-                      description="Dine foretrukne providere"
+                      description={t("surfaces.dashboard.quickActions.favorites.description")}
                       icon={Heart}
                       to="/find-cleaner"
                     />
                     <QuickActionCard
                       title="Fakturaer"
-                      description="Se og hent kvitteringer"
+                      description={t("surfaces.dashboard.quickActions.invoices.description")}
                       icon={FileText}
                       to="/customer/invoices"
                     />
                     <QuickActionCard
                       title="Support"
-                      description="Vi hjælper dig"
+                      description={t("surfaces.dashboard.quickActions.support.description")}
                       icon={LifeBuoy}
                       to="/faq"
                     />
@@ -254,8 +256,8 @@ export default function CustomerDashboardV2() {
                   emptyState={
                     <EmptyState
                       icon={Bell}
-                      title="Alt roligt her"
-                      description="Beskeder om dine bookinger vises her."
+                      title={t("surfaces.dashboard.notifications.emptyTitle")}
+                      description={t("surfaces.dashboard.notifications.emptyDescription")}
                     />
                   }
                 >

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -54,6 +55,7 @@ function formatAmount(amount: number | null, currency: string | null) {
 }
 
 export default function AdminWebhooks() {
+  const { t } = useTranslation("admin");
   const [events, setEvents] = useState<WebhookEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>("all");
@@ -117,14 +119,14 @@ export default function AdminWebhooks() {
       <div className="max-w-6xl mx-auto space-y-6">
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div>
-            <h1 className="text-3xl font-serif">Stripe webhooks</h1>
-            <p className="text-muted-foreground text-sm">Live status på betalinger, refunds og split-payouts</p>
+            <h1 className="text-3xl font-serif">{t("ops.webhooks.title")}</h1>
+            <p className="text-muted-foreground text-sm">{t("ops.webhooks.subtitle")}</p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" asChild><Link to="/admin">Tilbage</Link></Button>
-            <Button variant="outline" asChild><Link to="/admin/stripe">Stripe nøgler</Link></Button>
+            <Button variant="outline" asChild><Link to="/admin">{t("ops.webhooks.back")}</Link></Button>
+            <Button variant="outline" asChild><Link to="/admin/stripe">{t("ops.webhooks.stripeKeysLink")}</Link></Button>
             <Button onClick={load} disabled={loading}>
-              <RefreshCw className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`} />Genindlæs
+              <RefreshCw className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`} />{t("ops.webhooks.reload")}
             </Button>
         </div>
 
@@ -134,8 +136,8 @@ export default function AdminWebhooks() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Webhook endpoint</CardTitle>
-            <CardDescription>Tilføj denne URL i Stripe Dashboard → Developers → Webhooks</CardDescription>
+            <CardTitle>{t("ops.webhooks.endpoint.title")}</CardTitle>
+            <CardDescription>{t("ops.webhooks.endpoint.description")}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="flex items-center gap-2">
@@ -145,7 +147,7 @@ export default function AdminWebhooks() {
               </Button>
             </div>
             <div className="text-xs text-muted-foreground">
-              <p className="font-semibold mb-1">Anbefalede events at lytte på:</p>
+              <p className="font-semibold mb-1">{t("ops.webhooks.endpoint.recommendedEvents")}</p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4">
                 <ul className="list-disc pl-5 space-y-0.5">
                   <li>payment_intent.succeeded</li>
@@ -177,7 +179,7 @@ export default function AdminWebhooks() {
 
         <Card>
           <CardHeader className="space-y-3">
-            <CardTitle>Seneste events</CardTitle>
+            <CardTitle>{t("ops.webhooks.recentEvents.title")}</CardTitle>
             <div className="flex flex-wrap gap-2">
               {["all", "payment", "refund", "transfer", "payout"].map((c) => (
                 <Button
@@ -188,7 +190,7 @@ export default function AdminWebhooks() {
                 >{c}</Button>
               ))}
               <Input
-                placeholder="Søg event id, pi_..., booking..."
+                placeholder={t("ops.webhooks.recentEvents.searchPlaceholder")}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="md:ml-auto md:w-64"
@@ -197,9 +199,9 @@ export default function AdminWebhooks() {
           </CardHeader>
           <CardContent>
             {loading && events.length === 0 ? (
-              <p className="text-muted-foreground text-sm py-6 text-center">Henter events...</p>
+              <p className="text-muted-foreground text-sm py-6 text-center">{t("ops.webhooks.recentEvents.loading")}</p>
             ) : filtered.length === 0 ? (
-              <p className="text-muted-foreground text-sm py-6 text-center">Ingen events endnu. De vises her i realtid når Stripe sender dem.</p>
+              <p className="text-muted-foreground text-sm py-6 text-center">{t("ops.webhooks.recentEvents.empty")}</p>
             ) : (
               <div className="space-y-2">
                 {filtered.map((e) => {
@@ -216,9 +218,9 @@ export default function AdminWebhooks() {
                         <span className="font-mono text-xs truncate flex-1">{e.event_type}</span>
                         <span className="text-xs text-muted-foreground hidden md:inline">{formatAmount(e.amount, e.currency)}</span>
                         {e.livemode ? (
-                          <Badge variant="default" className="bg-orange-500">LIVE</Badge>
+                          <Badge variant="default" className="bg-orange-500">{t("ops.webhooks.recentEvents.live")}</Badge>
                         ) : (
-                          <Badge variant="secondary">TEST</Badge>
+                          <Badge variant="secondary">{t("ops.webhooks.recentEvents.test")}</Badge>
                         )}
                         <span className="text-xs text-muted-foreground hidden sm:inline">
                           {new Date(e.created_at).toLocaleString("da-DK")}
@@ -227,17 +229,17 @@ export default function AdminWebhooks() {
                       {isOpen && (
                         <div className="border-t bg-muted/30 p-3 space-y-2 text-xs">
                           <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                            <div><span className="text-muted-foreground">Event ID:</span> <code>{e.stripe_event_id}</code></div>
-                            {e.payment_intent_id && <div><span className="text-muted-foreground">PaymentIntent:</span> <code>{e.payment_intent_id}</code></div>}
-                            {e.charge_id && <div><span className="text-muted-foreground">Charge:</span> <code>{e.charge_id}</code></div>}
-                            {e.refund_id && <div><span className="text-muted-foreground">Refund:</span> <code>{e.refund_id}</code></div>}
-                            {e.transfer_id && <div><span className="text-muted-foreground">Transfer:</span> <code>{e.transfer_id}</code></div>}
-                            {e.payout_id && <div><span className="text-muted-foreground">Payout:</span> <code>{e.payout_id}</code></div>}
-                            {e.booking_id && <div><span className="text-muted-foreground">Booking:</span> <code>{e.booking_id}</code></div>}
-                            {e.status && <div><span className="text-muted-foreground">Status:</span> {e.status}</div>}
+                            <div><span className="text-muted-foreground">{t("ops.webhooks.detail.eventId")}</span> <code>{e.stripe_event_id}</code></div>
+                            {e.payment_intent_id && <div><span className="text-muted-foreground">{t("ops.webhooks.detail.paymentIntent")}</span> <code>{e.payment_intent_id}</code></div>}
+                            {e.charge_id && <div><span className="text-muted-foreground">{t("ops.webhooks.detail.charge")}</span> <code>{e.charge_id}</code></div>}
+                            {e.refund_id && <div><span className="text-muted-foreground">{t("ops.webhooks.detail.refund")}</span> <code>{e.refund_id}</code></div>}
+                            {e.transfer_id && <div><span className="text-muted-foreground">{t("ops.webhooks.detail.transfer")}</span> <code>{e.transfer_id}</code></div>}
+                            {e.payout_id && <div><span className="text-muted-foreground">{t("ops.webhooks.detail.payout")}</span> <code>{e.payout_id}</code></div>}
+                            {e.booking_id && <div><span className="text-muted-foreground">{t("ops.webhooks.detail.booking")}</span> <code>{e.booking_id}</code></div>}
+                            {e.status && <div><span className="text-muted-foreground">{t("ops.webhooks.detail.status")}</span> {e.status}</div>}
                           </div>
                           <details>
-                            <summary className="cursor-pointer text-muted-foreground">Rå payload</summary>
+                            <summary className="cursor-pointer text-muted-foreground">{t("ops.webhooks.detail.rawPayload")}</summary>
                             <pre className="mt-2 bg-background p-2 rounded overflow-x-auto max-h-80 text-[10px]">
                               {JSON.stringify(e.payload, null, 2)}
                             </pre>
