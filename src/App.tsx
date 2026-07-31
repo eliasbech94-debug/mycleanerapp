@@ -42,7 +42,7 @@ import AdminProviders from "./pages/admin/AdminProviders";
 import AdminAppeals from "./pages/admin/AdminAppeals";
 import ProviderDecisions from "./pages/provider/ProviderDecisions";
 import {
-  SupportHome, SupportInbox, SupportCases,
+  SupportHome, SupportDashboard, SupportInbox, SupportCases,
   SupportCustomers, SupportProviders, SupportBookings,
 } from "./pages/support/SupportShell";
 
@@ -182,6 +182,7 @@ export function AppRoutes() {
       <Route path="/admin/access-logs" element={<RoleGuard allow={["admin"]}><AdminAccessLogs /></RoleGuard>} />
       <Route path="/employee" element={<RoleGuard allow={["employee"]}><EmployeeDashboard /></RoleGuard>} />
       <Route path="/support" element={<RoleGuard allow={["support", "admin"]}><SupportHome /></RoleGuard>} />
+      <Route path="/support/dashboard" element={<RoleGuard allow={["support", "admin"]}><SupportDashboard /></RoleGuard>} />
       <Route path="/support/inbox" element={<RoleGuard allow={["support", "admin"]}><SupportInbox /></RoleGuard>} />
       <Route path="/support/inbox/:conversationId" element={<RoleGuard allow={["support", "admin"]}><SupportInbox /></RoleGuard>} />
       <Route path="/support/cases" element={<RoleGuard allow={["support", "admin"]}><SupportCases /></RoleGuard>} />

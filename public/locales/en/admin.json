@@ -1082,6 +1082,21 @@
       "deactivated": "Deactivated",
       "active": "Active"
     },
+    "dashboard": {
+      "title": "Overview",
+      "description": "Today's support status and recent activity.",
+      "mineOpen": "My open",
+      "unassigned": "Unassigned",
+      "urgent": "Urgent",
+      "escalated": "Escalated",
+      "unread": "Unread",
+      "recentActivity": "Recent activity",
+      "recentEmpty": "No activity yet.",
+      "error": "Error: {{message}}",
+      "assignedToMe": "Assigned to me",
+      "openConversation": "Open conversation",
+      "noSubject": "(No subject)"
+    },
     "detail": {
       "selectPrompt": "Select a conversation to see details.",
       "loadFailed": "Could not load the conversation.",
@@ -1111,6 +1126,25 @@
       },
       "detailAria": "Conversation details",
       "contextAria": "Context"
+    },
+    "notes": {
+      "title": "Private notes",
+      "staffOnly": "Visible only to MyCleaner staff",
+      "placeholder": "Write an internal note…",
+      "add": "Add note",
+      "save": "Save",
+      "cancel": "Cancel",
+      "edit": "Edit",
+      "pin": "Pin",
+      "unpin": "Unpin",
+      "pinned": "Pinned",
+      "empty": "No notes yet.",
+      "error": "Error: {{message}}",
+      "saved": "Note saved",
+      "loading": "Loading notes…",
+      "toggle": "Show private notes",
+      "counter": "{{count}} notes",
+      "authorOnly": "Only the author can edit this note"
     },
     "providers": {
       "title": "Providers",

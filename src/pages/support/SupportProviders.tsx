@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Search } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { SupportPrivateNotes } from "@/components/support/SupportPrivateNotes";
 
 type Provider = {
   id: string;
@@ -23,6 +24,7 @@ export default function SupportProvidersPage() {
   const { t } = useTranslation("admin");
   const [q, setQ] = useState("");
   const [committed, setCommitted] = useState("");
+  const [notesFor, setNotesFor] = useState<string | null>(null);
 
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["support", "providers", committed],
@@ -82,7 +84,21 @@ export default function SupportProvidersPage() {
                 {p.deactivated_at
                   ? <Badge variant="destructive">{t("support.providers.deactivated")}</Badge>
                   : <Badge variant="secondary">{t("support.providers.active")}</Badge>}
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="ghost"
+                  aria-expanded={notesFor === p.id}
+                  onClick={() => setNotesFor(notesFor === p.id ? null : p.id)}
+                >
+                  {t("support.notes.toggle")}
+                </Button>
               </CardContent>
+              {notesFor === p.id && (
+                <CardContent className="pt-0">
+                  <SupportPrivateNotes subjectType="provider" subjectUserId={p.id} />
+                </CardContent>
+              )}
             </Card>
           </li>
         ))}

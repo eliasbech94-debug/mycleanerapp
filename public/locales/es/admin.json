@@ -1082,6 +1082,21 @@
       "deactivated": "Desactivado",
       "active": "Activo"
     },
+    "dashboard": {
+      "title": "Resumen",
+      "description": "Estado del soporte de hoy y actividad reciente.",
+      "mineOpen": "Mis abiertos",
+      "unassigned": "Sin asignar",
+      "urgent": "Urgentes",
+      "escalated": "Escalados",
+      "unread": "Sin leer",
+      "recentActivity": "Actividad reciente",
+      "recentEmpty": "Todavía no hay actividad.",
+      "error": "No se pudo cargar el panel: {{message}}",
+      "assignedToMe": "Asignado a mí",
+      "openConversation": "Abrir conversación",
+      "noSubject": "(Sin asunto)"
+    },
     "detail": {
       "selectPrompt": "Selecciona una conversación para ver los detalles.",
       "loadFailed": "No se pudo cargar la conversación.",
@@ -1111,6 +1126,25 @@
       },
       "detailAria": "Detalles de la conversación",
       "contextAria": "Contexto"
+    },
+    "notes": {
+      "title": "Notas privadas",
+      "staffOnly": "Visible solo para el personal de MyCleaner",
+      "placeholder": "Escribe una nota interna…",
+      "add": "Añadir nota",
+      "save": "Guardar",
+      "cancel": "Cancelar",
+      "edit": "Editar",
+      "pin": "Fijar",
+      "unpin": "Desfijar",
+      "pinned": "Fijada",
+      "empty": "Todavía no hay notas.",
+      "error": "No se pudieron cargar las notas: {{message}}",
+      "saved": "Nota guardada",
+      "loading": "Cargando notas…",
+      "toggle": "Mostrar notas privadas",
+      "counter": "{{count}} notas",
+      "authorOnly": "Solo el autor puede editar esta nota"
     },
     "providers": {
       "title": "Proveedores",
