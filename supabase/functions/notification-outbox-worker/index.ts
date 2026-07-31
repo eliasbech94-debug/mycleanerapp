@@ -30,11 +30,11 @@ async function sendPush(_userId: string, _subject: string, _body: string): Promi
   if (!Deno.env.get("FCM_SERVER_KEY")) return { ok: false, note: "push_provider_not_configured" };
   return { ok: true };
 }
-async function sendSms(_phone: string, _body: string): Promise<{ ok: boolean; note?: string }> {
-  if (!Deno.env.get("SMS_PROVIDER_KEY") && !Deno.env.get("TWILIO_AUTH_TOKEN")) {
-    return { ok: false, note: "sms_provider_not_configured" };
-  }
-  return { ok: true };
+async function sendSmsChannel(phone: string, body: string, reference: string): Promise<{ ok: boolean; note?: string }> {
+  if (!isSmsConfigured()) return { ok: false, note: "sms_provider_not_configured" };
+  const res = await sendSmsViaGatewayApi({ to: phone, message: body, reference });
+  if (res.ok) return { ok: true };
+  return { ok: false, note: res.reason };
 }
 
 Deno.serve(monitored("notification-outbox-worker", async (req, log) => {
