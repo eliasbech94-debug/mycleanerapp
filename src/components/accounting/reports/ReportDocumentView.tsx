@@ -25,7 +25,7 @@ export default function ReportDocumentView({ document }: { document: ReportDocum
         <p className="text-sm text-muted-foreground">{document.subtitle}</p>
         <p className="mt-2 text-sm text-foreground">{document.periodLabel}</p>
         <p className="text-sm text-muted-foreground">
-          {document.providerName} · {document.myCleanerId} · genereret {document.generatedAtLabel}
+          {document.providerName} · {document.myCleanerId} · {t("ui.reports.document.generatedLabel", { date: document.generatedAtLabel })}
         </p>
       </header>
 
