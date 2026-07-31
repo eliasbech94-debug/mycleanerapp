@@ -34,8 +34,10 @@ WITH checks AS (
   -- 4. The edge-function gate rejects every closed market.
   UNION ALL
   SELECT '04 country config gate blocks SE/GB/DE/ES',
-         (SELECT bool_and(public.get_published_country_config(iso) IS NULL)
-            FROM public.country_configs WHERE iso <> 'DK')
+         (SELECT bool_and(g.iso IS NULL)
+            FROM public.country_configs c
+            LEFT JOIN LATERAL public.get_published_country_config(c.iso) g ON true
+           WHERE c.iso <> 'DK')
 
   -- 5. DK pricing is untouched and still resolves.
   UNION ALL
