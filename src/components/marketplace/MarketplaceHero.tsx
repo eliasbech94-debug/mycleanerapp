@@ -216,7 +216,7 @@ export function MarketplaceHero() {
           </ul>
         </div>
 
-        {/* 4. Country availability — clean chip row, no dot separators (which wrap awkwardly on narrow screens). */}
+        {/* 4. Country availability — DK is live, others are explicitly "coming soon". */}
         <div className="px-4 pt-3">
           {availabilityLabel && (
             <p className="mb-1.5 text-[10.5px] font-semibold uppercase tracking-[0.16em] text-[hsl(var(--mkt-ink-soft))]">
@@ -227,8 +227,14 @@ export function MarketplaceHero() {
             {countryCodes.map((code) => {
               const name = t(`hero.countries.${code}`, { defaultValue: "" });
               if (!name) return null;
+              const live = isBookable(code);
               return (
-                <li key={code} className="inline-flex items-center gap-1.5 rounded-full border border-[hsl(var(--mkt-border))] bg-[hsl(var(--mkt-surface))] px-2.5 py-1 text-[11.5px] font-medium text-[hsl(var(--mkt-ink))]">
+                <li
+                  key={code}
+                  data-testid={`hero-market-${code}`}
+                  data-market-status={live ? "active" : "coming_soon"}
+                  className={`inline-flex items-center gap-1.5 rounded-full border border-[hsl(var(--mkt-border))] bg-[hsl(var(--mkt-surface))] px-2.5 py-1 text-[11.5px] font-medium text-[hsl(var(--mkt-ink))] ${live ? "" : "opacity-70"}`}
+                >
                   <img
                     src={`https://flagcdn.com/${code}.svg`}
                     alt=""
@@ -239,16 +245,27 @@ export function MarketplaceHero() {
                     className="inline-block h-3 w-4 rounded-[2px] object-cover"
                   />
                   {name}
+                  {!live && comingSoonLabel && (
+                    <span className="rounded-full bg-[hsl(var(--mkt-surface-muted))] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[hsl(var(--mkt-ink-soft))]">
+                      {comingSoonLabel}
+                    </span>
+                  )}
                 </li>
               );
             })}
           </ul>
+          {launchNotice && (
+            <p className="mt-2 text-[12px] leading-relaxed text-[hsl(var(--mkt-ink-muted))]">
+              {launchNotice}
+            </p>
+          )}
           {variant.cta_secondary_label && variant.cta_secondary_href && (
             <div className="mt-3">
               <SecondaryCta label={variant.cta_secondary_label} href={variant.cta_secondary_href} />
             </div>
           )}
         </div>
+
       </div>
     </section>
   );
