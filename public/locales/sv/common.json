@@ -67,5 +67,8 @@
     "captcha_required": "Slutför captcha-utmaningen först",
     "captcha_failed": "Captcha misslyckades — försök igen",
     "invalid_credentials": "Ogiltig e-post eller lösenord"
+  },
+  "language": {
+    "de": "Deutsch"
   }
 }

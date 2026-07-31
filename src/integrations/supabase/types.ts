@@ -2163,6 +2163,9 @@ export type Database = {
           created_at: string
           created_by: string | null
           customer_user_id: string | null
+          expected_response_minutes: number | null
+          human_takeover_at: string | null
+          human_takeover_by: string | null
           id: string
           kind: string
           last_ai_summary_at: string | null
@@ -2185,6 +2188,9 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           customer_user_id?: string | null
+          expected_response_minutes?: number | null
+          human_takeover_at?: string | null
+          human_takeover_by?: string | null
           id?: string
           kind: string
           last_ai_summary_at?: string | null
@@ -2207,6 +2213,9 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           customer_user_id?: string | null
+          expected_response_minutes?: number | null
+          human_takeover_at?: string | null
+          human_takeover_by?: string | null
           id?: string
           kind?: string
           last_ai_summary_at?: string | null
@@ -4936,6 +4945,10 @@ export type Database = {
       }
       messages: {
         Row: {
+          ai_draft_reviewed_at: string | null
+          ai_draft_reviewed_by: string | null
+          ai_drafted: boolean
+          ai_model: string | null
           body: string | null
           conversation_id: string
           created_at: string
@@ -4946,9 +4959,14 @@ export type Database = {
           message_type: string
           reply_to_message_id: string | null
           sender_role: string
+          sender_type: string
           sender_user_id: string | null
         }
         Insert: {
+          ai_draft_reviewed_at?: string | null
+          ai_draft_reviewed_by?: string | null
+          ai_drafted?: boolean
+          ai_model?: string | null
           body?: string | null
           conversation_id: string
           created_at?: string
@@ -4959,9 +4977,14 @@ export type Database = {
           message_type?: string
           reply_to_message_id?: string | null
           sender_role: string
+          sender_type?: string
           sender_user_id?: string | null
         }
         Update: {
+          ai_draft_reviewed_at?: string | null
+          ai_draft_reviewed_by?: string | null
+          ai_drafted?: boolean
+          ai_model?: string | null
           body?: string | null
           conversation_id?: string
           created_at?: string
@@ -4972,6 +4995,7 @@ export type Database = {
           message_type?: string
           reply_to_message_id?: string | null
           sender_role?: string
+          sender_type?: string
           sender_user_id?: string | null
         }
         Relationships: [

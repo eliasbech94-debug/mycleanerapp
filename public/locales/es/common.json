@@ -67,5 +67,8 @@
     "captcha_required": "Completa el desafío captcha primero",
     "captcha_failed": "Verificación captcha fallida — inténtalo de nuevo",
     "invalid_credentials": "Correo o contraseña no válidos"
+  },
+  "language": {
+    "de": "Deutsch"
   }
 }

@@ -2,6 +2,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
+import type { SenderType } from "@/lib/conversations/senderType";
+
 export type MessageRole = "customer" | "provider" | "support" | "admin" | "system";
 export type MessageType = "text" | "system" | "attachment" | "note";
 
@@ -17,6 +19,14 @@ export interface ConversationMessage {
   id: string;
   sender_user_id: string | null;
   sender_role: MessageRole;
+  /**
+   * Authoritative, immutable sender classification. AI labelling in the UI is
+   * driven by this field only — never by analysing `body`.
+   */
+  sender_type?: SenderType | null;
+  /** AI wrote the draft; a human reviewed and sent it (audit only, not shown as AI). */
+  ai_drafted?: boolean | null;
+  ai_draft_reviewed_by?: string | null;
   message_type: MessageType;
   body: string | null;
   is_internal_note: boolean;
