@@ -6099,6 +6099,7 @@ export type Database = {
           tax_type: string | null
           ui_language: string | null
           updated_at: string
+          welcome_video_seen_at: string | null
         }
         Insert: {
           address?: string | null
@@ -6140,6 +6141,7 @@ export type Database = {
           tax_type?: string | null
           ui_language?: string | null
           updated_at?: string
+          welcome_video_seen_at?: string | null
         }
         Update: {
           address?: string | null
@@ -6181,6 +6183,7 @@ export type Database = {
           tax_type?: string | null
           ui_language?: string | null
           updated_at?: string
+          welcome_video_seen_at?: string | null
         }
         Relationships: []
       }
@@ -9922,6 +9925,7 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      mark_welcome_video_seen: { Args: never; Returns: string }
       migrate_legacy_support_threads: {
         Args: never
         Returns: {

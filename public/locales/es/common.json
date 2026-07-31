@@ -375,5 +375,18 @@
     "servicesAndPrices": "Servicios y precios",
     "understood": "Entendido",
     "noConversationsInFilter": "No hay conversaciones en este filtro."
+  },
+  "welcome_video": {
+    "title": "Te damos la bienvenida a MyCleaner 🎉",
+    "body_customer": "Tu perfil está creado. Descubre cómo MyCleaner facilita encontrar y reservar la ayuda adecuada.",
+    "body_provider": "Tu perfil está creado. Descubre cómo MyCleaner te conecta con nuevos clientes y trabajos.",
+    "cta_customer": "Encuentra tu cleaner",
+    "cta_provider": "Completar mi perfil",
+    "skip": "Omitir",
+    "close": "Cerrar",
+    "replay": "Ver de nuevo",
+    "mute": "Silenciar",
+    "unmute": "Activar sonido",
+    "video_label": "Vídeo de bienvenida de MyCleaner"
   }
 }
