@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import ProviderApprovalPanel from "@/components/admin/ProviderApprovalPanel";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
@@ -137,6 +138,7 @@ export default function ProviderDetailDrawer({ userId, onClose, onChanged }: Pro
                 <TabsTrigger value="timeline">{t("console.providers.drawer.tabTimeline")}</TabsTrigger>
                 <TabsTrigger value="score">{t("console.providers.drawer.tabScore")}</TabsTrigger>
                 <TabsTrigger value="completion">{t("console.providers.drawer.tabCompletion")}</TabsTrigger>
+                <TabsTrigger value="approval">Godkendelse</TabsTrigger>
               </TabsList>
 
               <TabsContent value="actions" className="space-y-3">
@@ -230,6 +232,9 @@ export default function ProviderDetailDrawer({ userId, onClose, onChanged }: Pro
                     ))}
                   </ul>
                 </div>
+              </TabsContent>
+              <TabsContent value="approval">
+                <ProviderApprovalPanel userId={userId} onChanged={onChanged} />
               </TabsContent>
             </Tabs>
           </div>
