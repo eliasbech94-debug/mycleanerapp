@@ -23,28 +23,30 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Trans, useTranslation } from "react-i18next";
 
 const C = { ink: "#0a3d3a", orange: "#ff6b35", cream: "#f5f0e0", teal: "#168a7a", mint: "#c8e6c0" };
 
 type TabKey = "overview" | "inbox" | "info" | "addresses" | "bookings" | "cards" | "invoices" | "history" | "notifications" | "sms" | "tax" | "deduction" | "deactivate";
 
-const TABS: { key: TabKey; label: string; icon: typeof UserIcon }[] = [
-  { key: "overview", label: "Oversigt", icon: LayoutDashboard },
-  { key: "inbox", label: "Indbakke", icon: Inbox },
-  { key: "info", label: "Mine oplysninger", icon: UserIcon },
-  { key: "addresses", label: "Adresser", icon: Home },
-  { key: "bookings", label: "Bookinger", icon: Calendar },
-  { key: "cards", label: "Kort & betalinger", icon: CreditCard },
-  { key: "invoices", label: "Fakturaer", icon: FileText },
-  { key: "history", label: "Betalingshistorik", icon: History },
-  { key: "notifications", label: "Notifikationer", icon: Bell },
-  { key: "sms", label: "SMS", icon: MessageSquare },
-  { key: "tax", label: "Skatteoplysninger", icon: Receipt },
-  { key: "deduction", label: "Servicefradrag", icon: PiggyBank },
-  { key: "deactivate", label: "Deaktivér konto", icon: ShieldOff },
+const TABS: { key: TabKey; icon: typeof UserIcon }[] = [
+  { key: "overview", icon: LayoutDashboard },
+  { key: "inbox", icon: Inbox },
+  { key: "info", icon: UserIcon },
+  { key: "addresses", icon: Home },
+  { key: "bookings", icon: Calendar },
+  { key: "cards", icon: CreditCard },
+  { key: "invoices", icon: FileText },
+  { key: "history", icon: History },
+  { key: "notifications", icon: Bell },
+  { key: "sms", icon: MessageSquare },
+  { key: "tax", icon: Receipt },
+  { key: "deduction", icon: PiggyBank },
+  { key: "deactivate", icon: ShieldOff },
 ];
 
 export default function Profile() {
+  const { t } = useTranslation("customer");
   const { user, loading } = useAuth();
   const { isAdmin, isEmployee, loading: rolesLoading } = useUserRoles();
   const navigate = useNavigate();
@@ -88,13 +90,13 @@ export default function Profile() {
         {/* Desktop sidebar */}
         <aside className="hidden lg:block lg:w-64 lg:flex-shrink-0">
           <nav className="sticky top-6 space-y-1">
-            {TABS.map((t) => {
-              const active = tab === t.key;
-              const Icon = t.icon;
+            {TABS.map((item) => {
+              const active = tab === item.key;
+              const Icon = item.icon;
               return (
                 <button
-                  key={t.key}
-                  onClick={() => setParams({ tab: t.key })}
+                  key={item.key}
+                  onClick={() => setParams({ tab: item.key })}
                   className="group flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm font-bold uppercase tracking-[0.12em] transition"
                   style={{
                     background: active ? C.ink : "transparent",
@@ -110,7 +112,7 @@ export default function Profile() {
                   >
                     <Icon className="h-4 w-4" />
                   </span>
-                  <span>{t.label}</span>
+                  <span>{t(`profile.tabs.${item.key}`)}</span>
                   {active && (
                     <span className="ml-auto h-1.5 w-1.5 rounded-full" style={{ background: C.orange }} />
                   )}
@@ -124,14 +126,14 @@ export default function Profile() {
               className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-[11px] font-bold uppercase tracking-[0.16em] opacity-60 hover:opacity-100"
               style={{ color: C.ink }}
             >
-              <LifeBuoy className="h-3.5 w-3.5" /> Hjælp & support
+              <LifeBuoy className="h-3.5 w-3.5" /> {t("profile.nav.help")}
             </button>
             <button
               onClick={() => setSupportOpen("complaint")}
               className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-[11px] font-bold uppercase tracking-[0.16em] opacity-60 hover:opacity-100"
               style={{ color: C.ink }}
             >
-              <ShieldAlert className="h-3.5 w-3.5" /> Indsend klage
+              <ShieldAlert className="h-3.5 w-3.5" /> {t("profile.nav.complaint")}
             </button>
           </div>
         </aside>
@@ -145,12 +147,12 @@ export default function Profile() {
               style={{ borderColor: `${C.ink}33`, color: C.ink }}
             >
               <Menu className="h-4 w-4" />
-              {TABS.find((t) => t.key === tab)?.label}
+              {t(`profile.tabs.${tab}`)}
             </button>
             <div
               className="text-[10px] font-black uppercase tracking-[0.22em] opacity-50"
             >
-              {TABS.find((t) => t.key === tab)?.label}
+              {t(`profile.tabs.${tab}`)}
             </div>
           </div>
 
@@ -167,7 +169,7 @@ export default function Profile() {
                 style={{ background: C.cream }}
               >
                 <div className="mb-4 flex items-center justify-between">
-                  <span className="text-xs font-black uppercase tracking-[0.22em] opacity-70">Menu</span>
+                  <span className="text-xs font-black uppercase tracking-[0.22em] opacity-70">{t("profile.nav.menu")}</span>
                   <button
                     onClick={() => setMobileMenuOpen(false)}
                     className="grid h-8 w-8 place-items-center rounded-lg"
@@ -177,14 +179,14 @@ export default function Profile() {
                   </button>
                 </div>
                 <nav className="space-y-1">
-                  {TABS.map((t) => {
-                    const active = tab === t.key;
-                    const Icon = t.icon;
+                  {TABS.map((item) => {
+                    const active = tab === item.key;
+                    const Icon = item.icon;
                     return (
                       <button
-                        key={t.key}
+                        key={item.key}
                         onClick={() => {
-                          setParams({ tab: t.key });
+                          setParams({ tab: item.key });
                           setMobileMenuOpen(false);
                         }}
                         className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-bold uppercase tracking-[0.12em] transition"
@@ -202,7 +204,7 @@ export default function Profile() {
                         >
                           <Icon className="h-4 w-4" />
                         </span>
-                        <span>{t.label}</span>
+                        <span>{t(`profile.tabs.${item.key}`)}</span>
                         {active && (
                           <span className="ml-auto h-1.5 w-1.5 rounded-full" style={{ background: C.orange }} />
                         )}
@@ -216,14 +218,14 @@ export default function Profile() {
                     className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-[11px] font-bold uppercase tracking-[0.16em] opacity-70"
                     style={{ color: C.ink }}
                   >
-                    <LifeBuoy className="h-3.5 w-3.5" /> Hjælp & support
+                    <LifeBuoy className="h-3.5 w-3.5" /> {t("profile.nav.help")}
                   </button>
                   <button
                     onClick={() => { setMobileMenuOpen(false); setSupportOpen("complaint"); }}
                     className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-[11px] font-bold uppercase tracking-[0.16em] opacity-70"
                     style={{ color: C.ink }}
                   >
-                    <ShieldAlert className="h-3.5 w-3.5" /> Indsend klage
+                    <ShieldAlert className="h-3.5 w-3.5" /> {t("profile.nav.complaint")}
                   </button>
                 </div>
               </div>
@@ -256,6 +258,7 @@ export default function Profile() {
 
 
 function ProfileHeader() {
+  const { t } = useTranslation("customer");
   const { user, profile, signOut } = useAuth();
   const navigate = useNavigate();
   const [, setParams] = useSearchParams();
@@ -264,16 +267,16 @@ function ProfileHeader() {
       <header className="border-b-2" style={{ background: C.ink, color: C.cream, borderColor: C.ink }}>
         <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-4 sm:px-6">
           <Link to="/" className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em]">
-            <ArrowLeft className="h-4 w-4" /> Tilbage
+            <ArrowLeft className="h-4 w-4" /> {t("profile.nav.back")}
           </Link>
-          <div className="text-[10px] font-black uppercase tracking-[0.28em] opacity-70">Min profil</div>
+          <div className="text-[10px] font-black uppercase tracking-[0.28em] opacity-70">{t("profile.nav.title")}</div>
           <div className="flex items-center gap-1">
             <NotificationBell onOpen={() => setParams({ tab: "inbox" })} />
             <button
               onClick={() => { signOut(); navigate("/"); }}
               className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.18em] opacity-80 hover:opacity-100"
             >
-              <LogOut className="h-3.5 w-3.5" /> Log ud
+              <LogOut className="h-3.5 w-3.5" /> {t("profile.nav.signOut")}
             </button>
           </div>
         </div>
@@ -284,7 +287,7 @@ function ProfileHeader() {
             <UserIcon className="h-7 w-7" />
           </div>
           <div>
-            <h1 className="font-display text-3xl sm:text-4xl">{profile?.full_name || "Din profil"}</h1>
+            <h1 className="font-display text-3xl sm:text-4xl">{profile?.full_name || t("profile.header.defaultName")}</h1>
             <p className="text-sm opacity-70">{user?.email}</p>
           </div>
         </div>
@@ -295,6 +298,7 @@ function ProfileHeader() {
 
 /* ---------- OVERVIEW (DASHBOARD) TAB ---------- */
 function OverviewTab({ goTo }: { goTo: (k: TabKey) => void }) {
+  const { t, i18n } = useTranslation("customer");
   const { user, profile } = useAuth();
   const bookings = useBookings();
   const [primaryAddress, setPrimaryAddress] = useState<any | null>(null);
@@ -348,9 +352,9 @@ function OverviewTab({ goTo }: { goTo: (k: TabKey) => void }) {
 
   const recent = useMemo(() => (bookings || []).slice(0, 3), [bookings]);
 
-  const firstName = (profile?.full_name || user?.email || "").split(" ")[0]?.split("@")[0] || "der";
+  const firstName = (profile?.full_name || user?.email || "").split(" ")[0]?.split("@")[0] || t("profile.overview.defaultName");
   const hour = new Date().getHours();
-  const greet = hour < 10 ? "Godmorgen" : hour < 17 ? "Goddag" : "Godaften";
+  const greet = hour < 10 ? t("greeting.morning") : hour < 17 ? t("greeting.day") : t("greeting.evening");
 
   const checklist: ChecklistItem[] = useMemo(() => {
     const emailVerified = !!(user as any)?.email_confirmed_at || !!(user as any)?.confirmed_at;
@@ -367,7 +371,7 @@ function OverviewTab({ goTo }: { goTo: (k: TabKey) => void }) {
           lat: primaryAddress.lat ?? NaN,
           lng: primaryAddress.lng ?? NaN,
         })
-      : { ok: false, error: "Ingen primær adresse" } as const;
+      : { ok: false, error: t("profile.overview.checklist.address.missing") } as const;
     const propertyV = primaryAddress
       ? validateProperty({
           place_type: primaryAddress.place_type,
@@ -375,61 +379,61 @@ function OverviewTab({ goTo }: { goTo: (k: TabKey) => void }) {
           rooms: primaryAddress.rooms ?? null,
           access_method: primaryAddress.access_method,
         })
-      : { ok: false, error: "Mangler boligoplysninger" } as const;
+      : { ok: false, error: t("profile.overview.checklist.property.missing") } as const;
 
     return [
       {
         key: "profile",
-        title: "Kontaktoplysninger",
+        title: t("profile.overview.checklist.contact.title"),
         description: contactV.ok
-          ? "Navn, telefon og land er valideret."
-          : contactV.error || "Udfyld navn, telefon og land.",
+          ? t("profile.overview.checklist.contact.done")
+          : contactV.error || t("profile.overview.checklist.contact.fill"),
         status: statusFrom(contactV),
-        actionLabel: "Udfyld",
+        actionLabel: t("profile.overview.checklist.contact.action"),
         onAction: () => goTo("info"),
       },
       {
         key: "email",
-        title: "Bekræft email",
-        description: emailVerified ? "Din email er bekræftet." : "Vi har sendt et bekræftelses-link til din indbakke.",
+        title: t("profile.overview.checklist.email.title"),
+        description: emailVerified ? t("profile.overview.checklist.email.done") : t("profile.overview.checklist.email.pending"),
         status: emailVerified ? "complete" : "pending",
       },
       {
         key: "address",
-        title: "Primær adresse",
+        title: t("profile.overview.checklist.address.title"),
         description: addressV.ok
           ? `${primaryAddress.label} · ${primaryAddress.address}`
-          : addressLoading ? "Henter…" : (addressV.error || "Vælg adresse fra forslagene."),
+          : addressLoading ? t("profile.overview.checklist.address.loading") : (addressV.error || t("profile.overview.checklist.address.fallback")),
         status: statusFrom(addressV, { loading: addressLoading }),
-        actionLabel: "Tilføj",
+        actionLabel: t("profile.overview.checklist.address.action"),
         onAction: () => goTo("addresses"),
       },
       {
         key: "property",
-        title: "Bolig-oplysninger",
+        title: t("profile.overview.checklist.property.title"),
         description: propertyV.ok
-          ? `${primaryAddress.size_sqm} m² · ${primaryAddress.place_type} · adgang: ${primaryAddress.access_method}`
-          : addressLoading ? "Henter…" : (propertyV.error || "Angiv størrelse, type og adgang."),
+          ? t("profile.overview.checklist.property.summary", { size: primaryAddress.size_sqm, type: primaryAddress.place_type, access: primaryAddress.access_method })
+          : addressLoading ? t("profile.overview.checklist.address.loading") : (propertyV.error || t("profile.overview.checklist.property.fallback")),
         status: statusFrom(propertyV, { loading: addressLoading }),
-        actionLabel: "Udfyld",
+        actionLabel: t("profile.overview.checklist.property.action"),
         onAction: () => goTo("addresses"),
       },
       {
         key: "card",
-        title: "Betalingskort",
-        description: cardCount === null ? "Henter…" : cardCount > 0 ? `${cardCount} kort gemt til hurtig booking.` : "Gem et kort for at booke med et enkelt klik.",
+        title: t("profile.overview.checklist.card.title"),
+        description: cardCount === null ? t("profile.overview.checklist.card.loading") : cardCount > 0 ? t("profile.overview.checklist.card.saved", { count: cardCount }) : t("profile.overview.checklist.card.fallback"),
         status: cardCount === null ? "pending" : cardCount > 0 ? "complete" : "incomplete",
-        actionLabel: "Tilføj kort",
+        actionLabel: t("profile.overview.checklist.card.action"),
         onAction: () => goTo("cards"),
       },
       {
         key: "first-booking",
-        title: "Første booking",
-        description: (bookings && bookings.length > 0) ? "Du har sendt din første anmodning." : "Find en cleaner og book på under 2 minutter.",
+        title: t("profile.overview.checklist.firstBooking.title"),
+        description: (bookings && bookings.length > 0) ? t("profile.overview.checklist.firstBooking.done") : t("profile.overview.checklist.firstBooking.pending"),
         status: (bookings && bookings.length > 0) ? "complete" : "pending",
       },
     ];
-  }, [profile, user, primaryAddress, addressLoading, cardCount, bookings, goTo]);
+  }, [profile, user, primaryAddress, addressLoading, cardCount, bookings, goTo, t]);
 
   return (
     <div className="space-y-6">
@@ -446,9 +450,9 @@ function OverviewTab({ goTo }: { goTo: (k: TabKey) => void }) {
         <div className="absolute -bottom-16 -left-10 h-44 w-44 rounded-full opacity-10" style={{ background: C.mint }} />
         <div className="relative">
           <div className="text-[10px] font-black uppercase tracking-[0.28em] opacity-70">{greet}</div>
-          <h2 className="mt-1 font-display text-3xl sm:text-4xl">Velkommen, {firstName}</h2>
+          <h2 className="mt-1 font-display text-3xl sm:text-4xl">{t("profile.overview.welcome", { name: firstName })}</h2>
           <p className="mt-2 max-w-md text-sm opacity-80">
-            Her er et hurtigt overblik over dine kommende rengøringer, adresser og betalinger.
+            {t("profile.overview.heroSubtitle")}
           </p>
           <div className="mt-5 flex flex-wrap gap-2">
             <Link
@@ -456,14 +460,14 @@ function OverviewTab({ goTo }: { goTo: (k: TabKey) => void }) {
               className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-xs font-bold uppercase tracking-[0.18em] shadow-[4px_4px_0_rgba(0,0,0,0.25)] transition hover:-translate-y-0.5"
               style={{ background: C.orange, color: C.ink }}
             >
-              <Plus className="h-4 w-4" /> Book ny cleaner
+              <Plus className="h-4 w-4" /> {t("profile.overview.bookNewCleaner")}
             </Link>
             <button
               onClick={() => goTo("bookings")}
               className="inline-flex items-center gap-2 rounded-full border-2 px-5 py-2.5 text-xs font-bold uppercase tracking-[0.18em] transition hover:bg-white/10"
               style={{ borderColor: C.cream, color: C.cream }}
             >
-              <Calendar className="h-4 w-4" /> Mine bookinger
+              <Calendar className="h-4 w-4" /> {t("profile.overview.myBookings")}
             </button>
           </div>
         </div>
@@ -471,17 +475,17 @@ function OverviewTab({ goTo }: { goTo: (k: TabKey) => void }) {
 
       {/* Onboarding checklist */}
       <OnboardingChecklist
-        title="Gør din profil komplet"
-        subtitle="Færdiggør disse trin for at få det bedste match og hurtigste booking."
+        title={t("profile.overview.checklistTitle")}
+        subtitle={t("profile.overview.checklistSubtitle")}
         items={checklist}
       />
 
       {/* Stat cards */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <DashStat icon={Calendar} label="Kommende" value={String(upcoming.length)} tint={C.mint} />
-        <DashStat icon={CheckCircle2} label="Gennemført" value={String(stats.completed)} tint="#e6f5ec" />
-        <DashStat icon={Receipt} label="Betalt i alt" value={`${stats.paid.toLocaleString("da-DK")} ${stats.currency}`} tint="#fff1e1" />
-        <DashStat icon={Home} label="Adresser" value={String(addressCount)} tint="#ede7d6" />
+        <DashStat icon={Calendar} label={t("profile.overview.stats.upcoming")} value={String(upcoming.length)} tint={C.mint} />
+        <DashStat icon={CheckCircle2} label={t("profile.overview.stats.completed")} value={String(stats.completed)} tint="#e6f5ec" />
+        <DashStat icon={Receipt} label={t("profile.overview.stats.paidTotal")} value={`${stats.paid.toLocaleString(i18n.language)} ${stats.currency}`} tint="#fff1e1" />
+        <DashStat icon={Home} label={t("profile.overview.stats.addresses")} value={String(addressCount)} tint="#ede7d6" />
       </div>
 
       {/* Two columns */}
@@ -489,25 +493,25 @@ function OverviewTab({ goTo }: { goTo: (k: TabKey) => void }) {
         {/* Next booking */}
         <div className="rounded-2xl border-2 bg-white p-5" style={{ borderColor: `${C.ink}22` }}>
           <div className="flex items-center justify-between">
-            <div className="text-[10px] font-black uppercase tracking-[0.22em] opacity-70">Næste booking</div>
+            <div className="text-[10px] font-black uppercase tracking-[0.22em] opacity-70">{t("profile.overview.nextBooking.title")}</div>
             <button onClick={() => goTo("bookings")} className="inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-[0.16em] opacity-70 hover:opacity-100">
-              Se alle <ArrowRight className="h-3 w-3" />
+              {t("profile.overview.nextBooking.seeAll")} <ArrowRight className="h-3 w-3" />
             </button>
           </div>
           {bookings === null ? (
-            <div className="mt-4 text-sm opacity-60">Henter…</div>
+            <div className="mt-4 text-sm opacity-60">{t("profile.overview.nextBooking.loading")}</div>
           ) : nextBooking ? (
             <div className="mt-3">
               <div className="font-display text-xl leading-tight">{nextBooking.provider_name}</div>
               <div className="mt-1 text-xs opacity-70 inline-flex items-center gap-1.5">
-                <Sparkles className="h-3 w-3" /> {nextBooking.service} · {nextBooking.hours} t
+                <Sparkles className="h-3 w-3" /> {nextBooking.service} · {nextBooking.hours} {t("profile.overview.nextBooking.hoursSuffix")}
               </div>
               <div className="mt-3 grid gap-1.5 text-xs">
                 <div className="inline-flex items-center gap-2 opacity-80">
                   <Calendar className="h-3.5 w-3.5" />
-                  {new Date(nextBooking.booking_date).toLocaleDateString("da-DK", { weekday: "long", day: "numeric", month: "long" })}
+                  {new Date(nextBooking.booking_date).toLocaleDateString(i18n.language, { weekday: "long", day: "numeric", month: "long" })}
                 </div>
-                <div className="inline-flex items-center gap-2 opacity-80"><Clock className="h-3.5 w-3.5" /> kl. {nextBooking.slot}</div>
+                <div className="inline-flex items-center gap-2 opacity-80"><Clock className="h-3.5 w-3.5" /> {t("profile.overview.nextBooking.timePrefix")} {nextBooking.slot}</div>
                 <div className="inline-flex items-start gap-2 opacity-80"><MapPin className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" /> {nextBooking.address}</div>
               </div>
               <div className="mt-3 flex items-center justify-between border-t border-dashed pt-3 text-xs" style={{ borderColor: `${C.ink}22` }}>
@@ -515,15 +519,15 @@ function OverviewTab({ goTo }: { goTo: (k: TabKey) => void }) {
                   className="inline-flex items-center rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em]"
                   style={{ background: STATUS_LABEL[nextBooking.status].bg, color: STATUS_LABEL[nextBooking.status].fg }}
                 >
-                  {STATUS_LABEL[nextBooking.status].label}
+                  {t(`profile.bookings.status.${nextBooking.status}`)}
                 </span>
-                <span className="font-display text-base">{nextBooking.customer_pays.toLocaleString("da-DK")} {nextBooking.currency}</span>
+                <span className="font-display text-base">{nextBooking.customer_pays.toLocaleString(i18n.language)} {nextBooking.currency}</span>
               </div>
             </div>
           ) : (
             <div className="mt-3 text-sm opacity-70">
-              Ingen kommende bookinger.{" "}
-              <Link to="/" className="font-bold underline" style={{ color: C.teal }}>Find en cleaner</Link>.
+              {t("profile.overview.nextBooking.empty")}{" "}
+              <Link to="/" className="font-bold underline" style={{ color: C.teal }}>{t("profile.overview.nextBooking.findCleaner")}</Link>.
             </div>
           )}
         </div>
@@ -532,9 +536,9 @@ function OverviewTab({ goTo }: { goTo: (k: TabKey) => void }) {
         <div className="space-y-4">
           <div className="rounded-2xl border-2 bg-white p-5" style={{ borderColor: `${C.ink}22` }}>
             <div className="flex items-center justify-between">
-              <div className="text-[10px] font-black uppercase tracking-[0.22em] opacity-70">Primær adresse</div>
+              <div className="text-[10px] font-black uppercase tracking-[0.22em] opacity-70">{t("profile.overview.primaryAddress.title")}</div>
               <button onClick={() => goTo("addresses")} className="inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-[0.16em] opacity-70 hover:opacity-100">
-                Administrer <ArrowRight className="h-3 w-3" />
+                {t("profile.overview.primaryAddress.manage")} <ArrowRight className="h-3 w-3" />
               </button>
             </div>
             {primaryAddress ? (
@@ -546,17 +550,17 @@ function OverviewTab({ goTo }: { goTo: (k: TabKey) => void }) {
               </div>
             ) : (
               <div className="mt-3 text-sm opacity-70">
-                Du har ingen adresser endnu.{" "}
-                <button onClick={() => goTo("addresses")} className="font-bold underline" style={{ color: C.teal }}>Tilføj én</button>.
+                {t("profile.overview.primaryAddress.empty")}{" "}
+                <button onClick={() => goTo("addresses")} className="font-bold underline" style={{ color: C.teal }}>{t("profile.overview.primaryAddress.addOne")}</button>.
               </div>
             )}
           </div>
 
           <div className="rounded-2xl border-2 bg-white p-5" style={{ borderColor: `${C.ink}22` }}>
             <div className="flex items-center justify-between">
-              <div className="text-[10px] font-black uppercase tracking-[0.22em] opacity-70">Kort & betalinger</div>
+              <div className="text-[10px] font-black uppercase tracking-[0.22em] opacity-70">{t("profile.overview.cards.title")}</div>
               <button onClick={() => goTo("cards")} className="inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-[0.16em] opacity-70 hover:opacity-100">
-                Administrér <ArrowRight className="h-3 w-3" />
+                {t("profile.overview.cards.manage")} <ArrowRight className="h-3 w-3" />
               </button>
             </div>
             <div className="mt-3 flex items-center gap-3">
@@ -564,10 +568,10 @@ function OverviewTab({ goTo }: { goTo: (k: TabKey) => void }) {
                 <CreditCard className="h-5 w-5" style={{ color: C.ink }} />
               </div>
               <div className="text-sm">
-                {cardCount === null ? "Henter…" : cardCount === 0 ? (
-                  <span className="opacity-70">Ingen gemte kort endnu.</span>
+                {cardCount === null ? t("profile.overview.cards.loading") : cardCount === 0 ? (
+                  <span className="opacity-70">{t("profile.overview.cards.empty")}</span>
                 ) : (
-                  <span><b>{cardCount}</b> {cardCount === 1 ? "kort gemt" : "kort gemt"} til hurtig booking.</span>
+                  <Trans t={t} i18nKey="profile.overview.cards.saved" count={cardCount} components={{ b: <b /> }} />
                 )}
               </div>
             </div>
@@ -578,15 +582,15 @@ function OverviewTab({ goTo }: { goTo: (k: TabKey) => void }) {
       {/* Recent activity */}
       <div className="rounded-2xl border-2 bg-white p-5" style={{ borderColor: `${C.ink}22` }}>
         <div className="flex items-center justify-between">
-          <div className="text-[10px] font-black uppercase tracking-[0.22em] opacity-70">Seneste aktivitet</div>
+          <div className="text-[10px] font-black uppercase tracking-[0.22em] opacity-70">{t("profile.overview.recent.title")}</div>
           <button onClick={() => goTo("history")} className="inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-[0.16em] opacity-70 hover:opacity-100">
-            Hele historikken <ArrowRight className="h-3 w-3" />
+            {t("profile.overview.recent.fullHistory")} <ArrowRight className="h-3 w-3" />
           </button>
         </div>
         {bookings === null ? (
-          <div className="mt-3 text-sm opacity-60">Henter…</div>
+          <div className="mt-3 text-sm opacity-60">{t("profile.overview.recent.loading")}</div>
         ) : recent.length === 0 ? (
-          <div className="mt-3 text-sm opacity-70">Ingen aktivitet endnu.</div>
+          <div className="mt-3 text-sm opacity-70">{t("profile.overview.recent.empty")}</div>
         ) : (
           <ul className="mt-3 divide-y" style={{ borderColor: `${C.ink}22` }}>
             {recent.map((b) => {
@@ -596,11 +600,11 @@ function OverviewTab({ goTo }: { goTo: (k: TabKey) => void }) {
                   <div className="min-w-0">
                     <div className="truncate text-sm font-bold">{b.provider_name}</div>
                     <div className="text-[11px] opacity-60">
-                      {new Date(b.booking_date).toLocaleDateString("da-DK", { day: "2-digit", month: "short" })} · {b.service}
+                      {new Date(b.booking_date).toLocaleDateString(i18n.language, { day: "2-digit", month: "short" })} · {b.service}
                     </div>
                   </div>
                   <span className="flex-shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-black uppercase tracking-[0.16em]" style={{ background: s.bg, color: s.fg }}>
-                    {s.label}
+                    {t(`profile.bookings.status.${b.status}`)}
                   </span>
                 </li>
               );

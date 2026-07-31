@@ -1,0 +1,6 @@
+{
+  "title": "Finance",
+  "loading": "Loading financial data…",
+  "empty": "No financial records yet.",
+  "error": "Financial data could not be loaded."
+}

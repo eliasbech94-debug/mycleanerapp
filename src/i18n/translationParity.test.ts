@@ -18,10 +18,30 @@ import { readFileSync } from "node:fs";
 
 const SOURCE = "en";
 const TARGETS = ["da", "sv", "de", "es"] as const;
-const NAMESPACES = ["common", "marketplace", "legal", "ai"] as const;
+/**
+ * Derived from the runtime namespace list in `src/i18n/index.ts` so a namespace
+ * can never be declared without shipping a bundle: a missing file is served as
+ * index.html by the SPA fallback, which i18next silently parses as an empty
+ * bundle and every key in it falls back to the raw key string.
+ */
+const NAMESPACES: readonly string[] = (() => {
+  const src = readFileSync("src/i18n/index.ts", "utf8");
+  const m = src.match(/const NAMESPACES = \[([^\]]+)\]/);
+  if (!m) throw new Error("Could not read the namespace list from src/i18n/index.ts");
+  return [...m[1].matchAll(/"([^"]+)"/g)].map((x) => x[1]);
+})();
+
 
 /** Values that are intentionally identical in every language. */
 const SHARED_LITERALS = new Set([
+  // Identical across da/sv/de/es — translating them would be wrong.
+  "Administration",
+  "Filter",
+  "Radius:",
+  "Upload",
+  "Score",
+  "Reference",
+  "Booking · MyCleaner",
   "MyCleaner",
   "MyCleaner Support",
   "MyCleaner Legal Center",
@@ -74,8 +94,27 @@ const PROPER_NOUNS = /(^|\.)(name|city|firstName|lastName)$/;
 // Note: `version` is intentionally absent — it is a UI label ("Version") in
 // several namespaces. Actual version numbers carry no letters and are skipped
 // by the leakage rule below.
-const NON_CONTENT =
+const NON_CONTENT_KEY =
   /(^|\.)(href|url|route|path|slug|id|code|locale|currency|lastUpdated|date)$|_(href|url|route|path|slug|id)$/i;
+
+/**
+ * A key name alone is ambiguous: `summary.date` and `verify.code` are UI labels
+ * ("Date", "Code"), while `locale` and `privacy_href` hold machine values. Only
+ * treat an entry as machine-readable when the English value looks machine-readable
+ * too: a URL/route, an all-lowercase token, a locale tag, or anything with a digit.
+ */
+function isMachineValue(v: string): boolean {
+  const s = v.trim();
+  if (s === "") return true;
+  if (/^(https?:\/\/|\/|#|mailto:|tel:)/.test(s)) return true;
+  if (/^[a-z]{2}-[A-Z]{2}$/.test(s)) return true;
+  if (/^[a-z0-9._:+-]+$/.test(s)) return true;
+  return /\d/.test(s);
+}
+
+const NON_CONTENT = (key: string, enValue: string): boolean =>
+  NON_CONTENT_KEY.test(key) && isMachineValue(enValue);
+
 
 function load(lang: string, ns: string): Record<string, unknown> {
   return JSON.parse(readFileSync(`public/locales/${lang}/${ns}.json`, "utf8"));
@@ -95,8 +134,56 @@ function flatten(value: unknown, prefix = "", out: Record<string, string> = {}) 
   return out;
 }
 
+/**
+ * JSON.parse silently keeps the LAST of two identical keys, so a duplicate is
+ * invisible after parsing and quietly shadows a translation. This walks the raw
+ * text with a parent stack and reports any key declared twice in the same
+ * object.
+ */
+function duplicateKeyPaths(raw: string): string[] {
+  const stack: string[] = [];
+  const seen = new Map<string, Set<string>>();
+  const dupes: string[] = [];
+  let lastKey = "";
+  const tokens = raw.matchAll(/"(?:[^"\\]|\\.)*"\s*:|[{}]/g);
+  for (const [tok] of tokens) {
+    if (tok === "{") {
+      stack.push(lastKey);
+      continue;
+    }
+    if (tok === "}") {
+      seen.delete(stack.join("."));
+      stack.pop();
+      continue;
+    }
+    const key = tok.slice(1, tok.lastIndexOf('"'));
+    const path = stack.join(".");
+    const bucket = seen.get(path) ?? new Set<string>();
+    if (bucket.has(key)) dupes.push(`${path}.${key}`);
+    bucket.add(key);
+    seen.set(path, bucket);
+    lastKey = key;
+  }
+  return dupes;
+}
+
+describe("translation bundles exist for every declared namespace", () => {
+
+  for (const ns of NAMESPACES) {
+    for (const lang of [SOURCE, ...TARGETS]) {
+      it(`${lang}/${ns}.json ships as valid JSON without duplicate keys`, () => {
+        const raw = readFileSync(`public/locales/${lang}/${ns}.json`, "utf8");
+        expect(() => JSON.parse(raw), `${lang}/${ns}.json is not valid JSON`).not.toThrow();
+        expect(duplicateKeyPaths(raw), `duplicate keys in ${lang}/${ns}`).toEqual([]);
+      });
+
+    }
+  }
+});
+
 describe("translation parity", () => {
   for (const ns of NAMESPACES) {
+
     const source = flatten(load(SOURCE, ns));
 
     for (const lang of TARGETS) {
@@ -122,7 +209,7 @@ describe("translation parity", () => {
 
       it(`${lang}/${ns}.json keeps machine-readable values identical`, () => {
         const drifted = Object.keys(source).filter(
-          (k) => NON_CONTENT.test(k) && k in target && target[k] !== source[k],
+          (k) => NON_CONTENT(k, source[k]) && k in target && target[k] !== source[k],
         );
         expect(drifted, `translated a non-content value in ${lang}/${ns}`).toEqual([]);
       });
@@ -149,7 +236,7 @@ describe("translation parity", () => {
         const leaked = Object.entries(target)
           .filter(([k, v]) => {
             if (!(k in en)) return false;
-            if (NON_CONTENT.test(k)) return false;
+            if (NON_CONTENT(k, en[k])) return false;
             if (PROPER_NOUNS.test(k)) return false;
             if (SHARED_LITERALS.has(v.trim())) return false;
             // Single tokens shorter than 5 chars are too noisy to judge.

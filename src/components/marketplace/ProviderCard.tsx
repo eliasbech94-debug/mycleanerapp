@@ -5,6 +5,7 @@
  * Presentation only: it renders data it is given (existing demo fixtures or
  * the live `search_marketplace_providers_v1` rows). No fetching, no writes.
  */
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { Heart, MapPin, ShieldCheck, Star, Trophy, Zap } from "lucide-react";
 import { formatMoney, marketByCode, NEUTRAL_MARKET } from "@/lib/markets";
@@ -46,6 +47,7 @@ export function ProviderCard({
   onToggleFavorite,
   className = "",
 }: ProviderCardProps) {
+  const { t } = useTranslation("common");
   const market = marketByCode(p.country_code ?? undefined) ?? NEUTRAL_MARKET;
   const services = (p.services?.length ? p.services : p.service_categories) ?? [];
   const shown = services.slice(0, 3);
@@ -162,7 +164,7 @@ export function ProviderCard({
                   </div>
                 </>
               ) : (
-                <span className="text-[13px] font-medium text-[hsl(var(--mkt-ink-muted))]">Se profil for pris</span>
+                <span className="text-[13px] font-medium text-[hsl(var(--mkt-ink-muted))]">{t("ui.seeProfileForPrice")}</span>
               )}
             </div>
             <span className="shrink-0 rounded-xl bg-[hsl(var(--mkt-brand))] px-3 py-1.5 text-[12.5px] font-semibold text-[hsl(var(--mkt-brand-on,0_0%_100%))] transition-colors group-hover:bg-[hsl(var(--mkt-brand-hover,var(--mkt-brand)))]">

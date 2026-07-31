@@ -367,5 +367,13 @@
       "noneWhen": "si cancelas después de {{time}}",
       "detail": "La reserva comienza {{start}}. La cancelación gratuita finaliza {{freeUntil}} ({{fullHours}} horas antes del inicio) y, a partir de {{feeFrom}} ({{partialHours}} horas antes del inicio), se cobra una tarifa de cancelación del 100 %. Las horas se muestran en tu hora local. Si el importe aún no se ha cobrado, en su lugar se libera la reserva y no se cobra nada. Las reclamaciones deben presentarse como máximo {{complaintHours}} horas después del final previsto o registrado del servicio."
     }
+  },
+  "ui": {
+    "noAccess": "Sin acceso",
+    "seeProfileForPrice": "Ver el precio en el perfil",
+    "availableTimes": "Horarios disponibles",
+    "servicesAndPrices": "Servicios y precios",
+    "understood": "Entendido",
+    "noConversationsInFilter": "No hay conversaciones en este filtro."
   }
 }

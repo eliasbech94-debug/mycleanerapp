@@ -1,0 +1,328 @@
+{
+  "profile": {
+    "pageTitle": "Min profil",
+    "pageSubtitle": "Din offentlige profil og oplysninger",
+    "viewPublicProfile": "Se offentlig profil",
+    "editProfile": "Redigér profil",
+    "editButton": "Redigér",
+    "welcomeSubtitleDefault": "Din profil styrer hvordan kunder ser dig på marketplace.",
+    "greeting": {
+      "morning": "Godmorgen",
+      "day": "Goddag",
+      "evening": "Godaften"
+    },
+    "noProfile": {
+      "title": "Ingen provider-profil",
+      "body": "Du skal starte en Cleaner-ansøgning først.",
+      "cta": "Bliv Cleaner"
+    },
+    "status": {
+      "label": "Status"
+    },
+    "visibility": {
+      "label": "Synlighed",
+      "public": "Offentlig",
+      "hidden": "Skjult"
+    },
+    "stats": {
+      "completedJobs": "Fuldførte jobs",
+      "yearsExperience": "Års erfaring",
+      "responseTime": "Svartid",
+      "responseTimeHint": "Sidste 30 dage",
+      "acceptanceRate": "Accept-rate"
+    },
+    "time": {
+      "minutes": "{{count}} min"
+    },
+    "sections": {
+      "photoIdentity": {
+        "title": "Profilbillede & identitet",
+        "noName": "Uden navn"
+      },
+      "about": {
+        "title": "Om mig",
+        "emptyTitle": "Ingen offentlig bio endnu",
+        "emptyDescription": "Fortæl kunderne hvem du er, og hvorfor de skal vælge dig."
+      },
+      "languages": {
+        "title": "Sprog",
+        "empty": "Ingen sprog valgt"
+      },
+      "experienceEquipment": {
+        "title": "Erfaring & udstyr",
+        "experienceLabel": "Erfaring:",
+        "yearsValue": "{{count}} år",
+        "noEquipment": "Ingen udstyr markeret."
+      },
+      "servicesPricing": {
+        "title": "Ydelser & priser",
+        "description": "Hver service har sin egen timepris. Endelige priser beregnes altid server-side.",
+        "categoriesButton": "Kategorier",
+        "pricesButton": "Priser",
+        "noCategories": "Ingen kategorier valgt.",
+        "emptyPricesTitle": "Ingen individuelle serviceprises endnu",
+        "emptyPricesDescription": "Sæt priser pr. service så kunderne ved præcis hvad det koster.",
+        "addPrices": "Tilføj priser",
+        "perHour": "/t."
+      },
+      "area": {
+        "title": "Serviceområde",
+        "noAddress": "Ingen adresse valgt",
+        "publicNotice": "Kun et cirkelområde vises offentligt — aldrig præcis adresse.",
+        "radiusLabel": "Radius:",
+        "radiusValue": "{{count}} km"
+      },
+      "availability": {
+        "title": "Tilgængelighed",
+        "description": "Dit ugeskema og bookingvinduer.",
+        "openCalendar": "Åbn kalender-editor"
+      },
+      "verification": {
+        "title": "Verifikation",
+        "identityLabel": "Identitet",
+        "verified": "Verificeret",
+        "missing": "Mangler",
+        "stripeLabel": "Stripe udbetaling",
+        "ready": "Klar",
+        "notReady": "Ikke klar",
+        "openStripeStatus": "Åbn Stripe-status"
+      },
+      "insurance": {
+        "title": "Forsikring",
+        "policyLabel": "Police",
+        "expiresLabel": "Udløber"
+      },
+      "documents": {
+        "title": "Dokumenter",
+        "uploadButton": "Upload",
+        "insuranceDocLabel": "Forsikringsdokument",
+        "uploaded": "Uploadet",
+        "missing": "Mangler"
+      },
+      "performance": {
+        "title": "Ydeevne",
+        "detailsButton": "Se detaljer",
+        "score": "Score",
+        "tier": "Tier",
+        "completed": "Fuldførte"
+      },
+      "reviews": {
+        "title": "Kundeanmeldelser",
+        "description": "Vises her når kunder afgiver anmeldelser på fuldførte bookings."
+      },
+      "tax": {
+        "title": "Skat",
+        "openButton": "Åbn skatteprofil",
+        "body": "CVR/CPR og skatte-indstillinger opdateres i sin egen editor."
+      },
+      "settings": {
+        "title": "Indstillinger & synlighed",
+        "description": "Del din profil, synlighed, konto-status og GDPR.",
+        "openButton": "Åbn",
+        "publicUrlLabel": "Offentlig URL",
+        "notAssigned": "Ikke tildelt endnu",
+        "hidden": "Skjult",
+        "pending": "Afventer"
+      }
+    },
+    "editors": {
+      "personal": "Personlige oplysninger",
+      "business": "Om mig",
+      "languages": "Sprog",
+      "equipment": "Udstyr",
+      "services": "Servicekategorier",
+      "pricing": "Priser",
+      "area": "Serviceområde",
+      "insurance": "Forsikring",
+      "settings": "Indstillinger",
+      "availability": "Tilgængelighed",
+      "identity": "Verifikation",
+      "stripe": "Stripe & udbetaling",
+      "documents": "Dokumenter",
+      "tax": "Skatteoplysninger",
+      "performance": {
+        "title": "Ydeevne & score",
+        "rating": "Bedømmelse",
+        "completionRate": "Fuldførelse",
+        "cancellations": "Aflysninger",
+        "repeatCustomers": "Gengangere",
+        "note": "Score og tier opdateres automatisk baseret på dine seneste 30 dage."
+      }
+    },
+    "identityBadge": {
+      "verified": "Verificeret",
+      "pending": "Under behandling",
+      "unverified": "Ikke verificeret"
+    }
+  },
+  "catalog": {
+    "categories": {
+      "cleaning": "Rengøring",
+      "handyman": "Håndværker",
+      "garden": "Have",
+      "moving": "Flytning"
+    },
+    "languages": {
+      "da": "Dansk",
+      "en": "Engelsk",
+      "sv": "Svensk",
+      "de": "Tysk",
+      "es": "Spansk",
+      "pl": "Polsk"
+    },
+    "equipment": {
+      "own_vacuum": "Egen støvsuger",
+      "eco_products": "Miljøvenlige midler",
+      "own_mop": "Egen mop/gulvsæt",
+      "car": "Egen bil",
+      "ladder": "Stige"
+    },
+    "services": {
+      "home_cleaning": "Almindelig rengøring",
+      "deep_cleaning": "Hovedrengøring",
+      "move_out_cleaning": "Flytterengøring",
+      "office_cleaning": "Erhvervsrengøring",
+      "window_cleaning": "Vinduespudsning"
+    }
+  },
+  "dashboard": {
+    "brandTitle": "Cleaner",
+    "greeting": "Cleaner-dashboard",
+    "title": "Dashboard",
+    "description": "Overblik over dine bookinger, din indtjening og din profilstatus som selvstændig provider.",
+    "editProfile": "Redigér profil",
+    "subtitle": {
+      "nextJobWithSlot": "Næste job: {{date}} kl. {{slot}}.",
+      "nextJob": "Næste job: {{date}}.",
+      "openRequests_one": "Du har {{count}} åben anmodning — svar hurtigt for bedre placering.",
+      "openRequests_other": "Du har {{count}} åbne anmodninger — svar hurtigt for bedre placering.",
+      "noBookings": "Du har ingen kommende bookinger. Hold din profil komplet og synlig, så flere kunder kan finde dig."
+    },
+    "stats": {
+      "completedBookings": "Gennemførte bookinger",
+      "earnings": "Din indtjening",
+      "earningsHint": "Fra gennemførte bookinger",
+      "acceptanceRate": "Accept-rate",
+      "noOffersYet": "Ingen tilbud endnu",
+      "responseTime": "Svartid",
+      "noResponsesYet": "Ingen svar endnu",
+      "average": "Gennemsnit"
+    },
+    "time": {
+      "seconds": "{{count}}s",
+      "minutes": "{{count}} min",
+      "hours": "{{count}} t"
+    },
+    "sections": {
+      "today": {
+        "title": "I dag",
+        "description": "Dine bookinger i dag.",
+        "emptyTitle": "Ingen bookinger i dag",
+        "emptyDescription": "Nyd en pause — eller opdater din tilgængelighed, så flere kunder kan booke dig."
+      },
+      "newRequests": {
+        "title": "Nye bookingforespørgsler",
+        "description": "Svar hurtigt — det giver dig en bedre placering i marketplace.",
+        "emptyTitle": "Ingen nye bookingforespørgsler",
+        "emptyDescription": "Nye bookingforespørgsler vises her, så snart en kunde sender en."
+      },
+      "upcoming": {
+        "title": "Kommende bookinger",
+        "emptyTitle": "Ingen kommende bookinger",
+        "emptyDescription": "Accepterede bookinger vises her, indtil de er gennemført."
+      },
+      "reviews": {
+        "title": "Anmeldelser",
+        "description": "Ratings og skriftlige anmeldelser fra dine kunder.",
+        "comingSoonTitle": "Rating & anmeldelser",
+        "comingSoonDescription": "Anmeldelser er på vej. Indtil da viser dashboardet kun bookinger og indtjening."
+      }
+    },
+    "shortcuts": {
+      "title": "Genveje",
+      "messages": {
+        "title": "Beskeder",
+        "description": "Chat med kunder"
+      },
+      "pricing": {
+        "title": "Priser",
+        "description": "Juster timepris og pakker"
+      },
+      "finance": {
+        "title": "Økonomi",
+        "description": "Udbetalinger og afregningsoversigter"
+      },
+      "receipts": {
+        "title": "Bilag",
+        "description": "Kvitteringer og udgifter til regnskabet"
+      },
+      "profile": {
+        "title": "Profil",
+        "description": "Rediger din offentlige profil"
+      },
+      "support": {
+        "title": "Support",
+        "description": "Vi hjælper dig"
+      }
+    },
+    "keyFigures": {
+      "title": "Nøgletal",
+      "description": "Baseret på reelle bookinger og tilbud.",
+      "accept": "Accepter",
+      "cancellation": "Annullering",
+      "responseTime": "Svartid",
+      "rating": "Bedømmelse",
+      "tier": "Tier"
+    },
+    "payouts": {
+      "title": "Udbetalinger",
+      "seeAll": "Se alle",
+      "emptyTitle": "Ingen udbetalinger endnu",
+      "emptyDescription": "Din første udbetaling vises her, når en booking er afsluttet. Det præcise tidspunkt, hvor beløbet er synligt på kontoen, afhænger af betalingsudbyderen og din bank."
+    }
+  },
+  "booking": {
+    "status": {
+      "pending": "Ny forespørgsel",
+      "accepted": "Accepteret",
+      "completed": "Fuldførte",
+      "declined": "Afvist",
+      "cancelled": "Annulleret"
+    },
+    "defaultService": "Rengøring",
+    "hoursSuffix": "· {{count}} t",
+    "providerGets": "Du får {{amount}}",
+    "atSlot": "kl. {{slot}}"
+  },
+  "payout": {
+    "status": {
+      "paid": "Gennemført udbetaling",
+      "in_transit": "Planlagt udbetaling",
+      "pending": "Afventer",
+      "failed": "Ikke gennemført",
+      "canceled": "Annulleret"
+    }
+  },
+  "verification": {
+    "identity": {
+      "title": "Verificér din identitet",
+      "description": "Vi skal bekræfte din identitet, før du kan modtage bookinger.",
+      "action": "Start verifikation"
+    },
+    "stripe": {
+      "title": "Fuldfør Stripe-onboarding",
+      "description": "Tilslut din bankkonto, så din indtjening kan udbetales.",
+      "action": "Åbn Stripe"
+    },
+    "public": {
+      "title": "Din profil er ikke synlig",
+      "description": "Aktivér offentlig visning for at modtage anmodninger fra kunder.",
+      "action": "Redigér profil"
+    },
+    "completion": {
+      "title": "Din profil er {{percent}}% færdig",
+      "description": "Gør din profil færdig — komplette profiler vises højere i marketplace.",
+      "action": "Færdiggør"
+    }
+  }
+}

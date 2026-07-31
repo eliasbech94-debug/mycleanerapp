@@ -1,0 +1,6 @@
+{
+  "title": "Ekonomi",
+  "loading": "Laddar ekonomiska data…",
+  "empty": "Inga ekonomiska poster ännu.",
+  "error": "De ekonomiska uppgifterna kunde inte laddas."
+}

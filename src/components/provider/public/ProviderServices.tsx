@@ -1,4 +1,5 @@
 /** Services & prices — one card per actively offered service, straight from the DB. */
+import { useTranslation } from "react-i18next";
 import { ArrowRight, Clock, Sparkles, Wallet } from "lucide-react";
 import type { PublicProviderProfile, Slot } from "./types";
 import { serviceLabel } from "./format";
@@ -28,6 +29,7 @@ export function ProviderServices({
   /** Optional primary action on a service card. Reuses the page's booking entry point. */
   onSelect?: () => void;
 }) {
+  const { t } = useTranslation("common");
   const services = activeServices(profile.services);
   if (services.length === 0) return null;
   const nextLabel = nextSlotLabel(nextSlot);
@@ -37,7 +39,7 @@ export function ProviderServices({
     <section data-testid="provider-services" className="space-y-4">
       <SectionHeading
         icon={Wallet}
-        title="Ydelser og priser"
+        title={t("ui.servicesAndPrices")}
         tone="emerald"
         subtitle={`${services.length} ${services.length === 1 ? "ydelse" : "ydelser"}`}
       />

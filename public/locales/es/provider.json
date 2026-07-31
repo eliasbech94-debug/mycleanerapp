@@ -1,0 +1,310 @@
+{
+  "profile": {
+    "pageTitle": "Mi perfil",
+    "pageSubtitle": "Tu perfil público e información",
+    "viewPublicProfile": "Ver perfil público",
+    "editProfile": "Editar perfil",
+    "editButton": "Editar",
+    "welcomeSubtitleDefault": "Tu perfil determina cómo te ven los clientes en el marketplace.",
+    "greeting": {
+      "morning": "Buenos días",
+      "day": "Buen día",
+      "evening": "Buenas tardes"
+    },
+    "noProfile": {
+      "title": "Sin perfil de provider",
+      "body": "Primero debes iniciar una solicitud como Cleaner.",
+      "cta": "Conviértete en Cleaner"
+    },
+    "status": {
+      "label": "Estado"
+    },
+    "visibility": {
+      "label": "Visibilidad",
+      "public": "Público",
+      "hidden": "Oculto"
+    },
+    "stats": {
+      "completedJobs": "Trabajos completados",
+      "yearsExperience": "Años de experiencia",
+      "responseTime": "Tiempo de respuesta",
+      "responseTimeHint": "Últimos 30 días",
+      "acceptanceRate": "Tasa de aceptación"
+    },
+    "time": {
+      "minutes": "{{count}} min"
+    },
+    "sections": {
+      "photoIdentity": {
+        "title": "Foto e identidad",
+        "noName": "Sin nombre"
+      },
+      "about": {
+        "title": "Sobre mí",
+        "emptyTitle": "Todavía no hay una biografía pública",
+        "emptyDescription": "Cuéntales a los clientes quién eres y por qué deberían elegirte."
+      },
+      "languages": {
+        "title": "Idiomas",
+        "empty": "No hay idiomas seleccionados"
+      },
+      "experienceEquipment": {
+        "title": "Experiencia y equipo",
+        "experienceLabel": "Experiencia:",
+        "yearsValue": "{{count}} años",
+        "noEquipment": "No se ha marcado ningún equipo."
+      },
+      "servicesPricing": {
+        "title": "Servicios y precios",
+        "description": "Cada servicio tiene su propio precio por hora. Los precios finales siempre se calculan en el servidor.",
+        "categoriesButton": "Categorías",
+        "pricesButton": "Precios",
+        "noCategories": "No hay categorías seleccionadas.",
+        "emptyPricesTitle": "Todavía no hay precios individuales por servicio",
+        "emptyPricesDescription": "Define precios por servicio para que los clientes sepan exactamente cuánto cuesta.",
+        "addPrices": "Añadir precios",
+        "perHour": "/h"
+      },
+      "area": {
+        "title": "Zona de servicio",
+        "noAddress": "No hay dirección seleccionada",
+        "publicNotice": "Solo se muestra públicamente una zona circular, nunca tu dirección exacta.",
+        "radiusLabel": "Radio:",
+        "radiusValue": "{{count}} km"
+      },
+      "availability": {
+        "title": "Disponibilidad",
+        "description": "Tu horario semanal y franjas de reserva.",
+        "openCalendar": "Abrir editor de calendario"
+      },
+      "verification": {
+        "title": "Verificación",
+        "identityLabel": "Identidad",
+        "verified": "Verificado",
+        "missing": "Falta",
+        "stripeLabel": "Pago con Stripe",
+        "ready": "Listo",
+        "notReady": "No está listo",
+        "openStripeStatus": "Ver estado de Stripe"
+      },
+      "insurance": {
+        "title": "Seguro",
+        "policyLabel": "Póliza",
+        "expiresLabel": "Vence"
+      },
+      "documents": {
+        "title": "Documentos",
+        "uploadButton": "Subir",
+        "insuranceDocLabel": "Documento del seguro",
+        "uploaded": "Subido",
+        "missing": "Falta"
+      },
+      "performance": {
+        "title": "Rendimiento",
+        "detailsButton": "Ver detalles",
+        "score": "Puntuación",
+        "tier": "Nivel",
+        "completed": "Completados"
+      },
+      "reviews": {
+        "title": "Opiniones de clientes",
+        "description": "Aparecerán aquí cuando los clientes dejen opiniones en reservas completadas."
+      },
+      "tax": {
+        "title": "Impuestos",
+        "openButton": "Abrir perfil fiscal",
+        "body": "El NIF/IVA y la configuración fiscal se actualizan en su propio editor."
+      },
+      "settings": {
+        "title": "Ajustes y visibilidad",
+        "description": "Comparte tu perfil, visibilidad, estado de la cuenta y RGPD.",
+        "openButton": "Abrir",
+        "publicUrlLabel": "URL pública",
+        "notAssigned": "Aún no asignada",
+        "hidden": "Oculto",
+        "pending": "Pendiente"
+      }
+    },
+    "editors": {
+      "personal": "Datos personales",
+      "business": "Sobre mí",
+      "languages": "Idiomas",
+      "equipment": "Equipo",
+      "services": "Categorías de servicio",
+      "pricing": "Precios",
+      "area": "Zona de servicio",
+      "insurance": "Seguro",
+      "settings": "Ajustes",
+      "availability": "Disponibilidad",
+      "identity": "Verificación",
+      "stripe": "Stripe y pagos",
+      "documents": "Documentos",
+      "tax": "Datos fiscales",
+      "performance": {
+        "title": "Rendimiento y puntuación",
+        "rating": "Valoración",
+        "completionRate": "Finalización",
+        "cancellations": "Cancelaciones",
+        "repeatCustomers": "Clientes recurrentes",
+        "note": "La puntuación y el nivel se actualizan automáticamente según tus últimos 30 días."
+      }
+    },
+    "identityBadge": {
+      "verified": "Verificado",
+      "pending": "En revisión",
+      "unverified": "No verificado"
+    }
+  },
+  "catalog": {
+    "categories": {
+      "cleaning": "Limpieza",
+      "handyman": "Mantenimiento",
+      "garden": "Jardín",
+      "moving": "Mudanza"
+    },
+    "languages": {
+      "da": "Danés",
+      "en": "Inglés",
+      "sv": "Sueco",
+      "de": "Alemán",
+      "es": "Español",
+      "pl": "Polaco"
+    },
+    "equipment": {
+      "own_vacuum": "Aspiradora propia",
+      "eco_products": "Productos ecológicos",
+      "own_mop": "Fregona/kit de suelo propio",
+      "car": "Coche propio",
+      "ladder": "Escalera"
+    },
+    "services": {
+      "home_cleaning": "Limpieza regular",
+      "deep_cleaning": "Limpieza a fondo",
+      "move_out_cleaning": "Limpieza de mudanza",
+      "office_cleaning": "Limpieza de oficinas",
+      "window_cleaning": "Limpieza de cristales"
+    }
+  },
+  "dashboard": {
+    "brandTitle": "Cleaner",
+    "greeting": "Panel de Cleaner",
+    "title": "Panel",
+    "description": "Resumen de tus reservas, tus ingresos y el estado de tu perfil como provider independiente.",
+    "editProfile": "Editar perfil",
+    "subtitle": {
+      "nextJobWithSlot": "Próximo trabajo: {{date}} a las {{slot}}.",
+      "nextJob": "Próximo trabajo: {{date}}.",
+      "openRequests_one": "Tienes {{count}} solicitud abierta — responde rápido para una mejor posición.",
+      "openRequests_other": "Tienes {{count}} solicitudes abiertas — responde rápido para una mejor posición.",
+      "noBookings": "No tienes reservas próximas. Mantén tu perfil completo y visible para que más clientes puedan encontrarte."
+    },
+    "stats": {
+      "completedBookings": "Reservas completadas",
+      "earnings": "Tus ingresos",
+      "earningsHint": "De reservas completadas",
+      "acceptanceRate": "Tasa de aceptación",
+      "noOffersYet": "Todavía no hay ofertas",
+      "responseTime": "Tiempo de respuesta",
+      "noResponsesYet": "Todavía no hay respuestas",
+      "average": "Promedio"
+    },
+    "time": {
+      "seconds": "{{count}} s",
+      "minutes": "{{count}} min",
+      "hours": "{{count}} h"
+    },
+    "sections": {
+      "today": {
+        "title": "Hoy",
+        "description": "Tus reservas de hoy.",
+        "emptyTitle": "No hay reservas hoy",
+        "emptyDescription": "Aprovecha para descansar, o actualiza tu disponibilidad para que más clientes puedan reservarte."
+      },
+      "newRequests": {
+        "title": "Nuevas solicitudes de reserva",
+        "description": "Responde rápido: te da una mejor posición en el marketplace.",
+        "emptyTitle": "No hay nuevas solicitudes de reserva",
+        "emptyDescription": "Las nuevas solicitudes de reserva aparecerán aquí en cuanto un cliente envíe una."
+      },
+      "upcoming": {
+        "title": "Próximas reservas",
+        "emptyTitle": "No hay próximas reservas",
+        "emptyDescription": "Las reservas aceptadas aparecen aquí hasta que se completan."
+      },
+      "reviews": {
+        "title": "Opiniones",
+        "description": "Valoraciones y opiniones escritas de tus clientes.",
+        "comingSoonTitle": "Valoraciones y opiniones",
+        "comingSoonDescription": "Las opiniones llegarán pronto. Mientras tanto, el panel solo muestra reservas e ingresos."
+      }
+    },
+    "shortcuts": {
+      "title": "Accesos directos",
+      "messages": { "title": "Mensajes", "description": "Chatea con clientes" },
+      "pricing": { "title": "Precios", "description": "Ajusta tu tarifa por hora y tus paquetes" },
+      "finance": { "title": "Finanzas", "description": "Pagos y resúmenes de liquidación" },
+      "receipts": { "title": "Recibos", "description": "Recibos y gastos para tu contabilidad" },
+      "profile": { "title": "Perfil", "description": "Edita tu perfil público" },
+      "support": { "title": "Soporte", "description": "Estamos aquí para ayudarte" }
+    },
+    "keyFigures": {
+      "title": "Cifras clave",
+      "description": "Basado en reservas y ofertas reales.",
+      "accept": "Aceptación",
+      "cancellation": "Cancelación",
+      "responseTime": "Tiempo de respuesta",
+      "rating": "Valoración",
+      "tier": "Nivel"
+    },
+    "payouts": {
+      "title": "Pagos",
+      "seeAll": "Ver todos",
+      "emptyTitle": "Todavía no hay pagos",
+      "emptyDescription": "Tu primer pago aparecerá aquí en cuanto se complete una reserva. El momento exacto en que el importe se ve reflejado en tu cuenta depende del proveedor de pagos y de tu banco."
+    }
+  },
+  "booking": {
+    "status": {
+      "pending": "Nueva solicitud",
+      "accepted": "Aceptada",
+      "completed": "Completada",
+      "declined": "Rechazada",
+      "cancelled": "Cancelada"
+    },
+    "defaultService": "Limpieza",
+    "hoursSuffix": "· {{count}} h",
+    "providerGets": "Recibes {{amount}}",
+    "atSlot": "a las {{slot}}"
+  },
+  "payout": {
+    "status": {
+      "paid": "Pago completado",
+      "in_transit": "Pago programado",
+      "pending": "Pendiente",
+      "failed": "No completado",
+      "canceled": "Cancelado"
+    }
+  },
+  "verification": {
+    "identity": {
+      "title": "Verifica tu identidad",
+      "description": "Necesitamos confirmar tu identidad antes de que puedas recibir reservas.",
+      "action": "Iniciar verificación"
+    },
+    "stripe": {
+      "title": "Completa el registro en Stripe",
+      "description": "Conecta tu cuenta bancaria para que puedan pagarte tus ingresos.",
+      "action": "Abrir Stripe"
+    },
+    "public": {
+      "title": "Tu perfil no es visible",
+      "description": "Activa la visibilidad pública para recibir solicitudes de clientes.",
+      "action": "Editar perfil"
+    },
+    "completion": {
+      "title": "Tu perfil está completo al {{percent}}%",
+      "description": "Completa tu perfil: los perfiles completos aparecen mejor posicionados en el marketplace.",
+      "action": "Completar"
+    }
+  }
+}

@@ -18,6 +18,7 @@ import { Elements, CardElement, useStripe, useElements } from "@stripe/react-str
 import { loadStripe, type Stripe as StripeJS } from "@stripe/stripe-js";
 import BookingsOpenSoonDialog, { guardFinancialAction, useFinancialActionLock } from "@/components/launch/BookingsOpenSoonDialog";
 import { CancellationPolicyNotice } from "@/components/booking/CancellationPolicyNotice";
+import { useTranslation } from "react-i18next";
 
 
 let _stripePromise: Promise<StripeJS | null> | null = null;
@@ -62,11 +63,11 @@ function addDays(d: Date, n: number) {
 function fmtISO(d: Date) {
   return d.toISOString().slice(0, 10);
 }
-function fmtDay(d: Date) {
-  return d.toLocaleDateString("da-DK", { weekday: "short" });
+function fmtDay(d: Date, locale: string) {
+  return d.toLocaleDateString(locale, { weekday: "short" });
 }
-function fmtLong(d: Date) {
-  return d.toLocaleDateString("da-DK", { weekday: "long", day: "numeric", month: "long" });
+function fmtLong(d: Date, locale: string) {
+  return d.toLocaleDateString(locale, { weekday: "long", day: "numeric", month: "long" });
 }
 
 export default function BookingFlow() {
@@ -79,6 +80,7 @@ export default function BookingFlow() {
 }
 
 function BookingFlowInner() {
+  const { t } = useTranslation("booking");
   const financialLock = useFinancialActionLock();
   const { id } = useParams();
   const [params] = useSearchParams();
@@ -185,28 +187,28 @@ function BookingFlowInner() {
       if (guardFinancialAction(() => financialLock.setOpen(true))) return;
       if (!addressValid) {
         toast({
-          title: "Vælg din adresse",
-          description: "Vælg en gyldig adresse fra listen, så provideren ved, hvor opgaven skal udføres.",
+          title: t("toast.selectAddress.title"),
+          description: t("toast.selectAddress.description"),
           variant: "destructive",
         });
         return;
       }
       if (!user) {
         toast({
-          title: "Log ind for at sende din bookingforespørgsel",
-          description: "Log ind, så provideren kan kontakte dig om bookingen.",
+          title: t("toast.loginRequired.title"),
+          description: t("toast.loginRequired.description"),
           variant: "destructive",
         });
         navigate(`/login?redirect=/book/${provider.id}`);
         return;
       }
       if (!stripe || !elements) {
-        toast({ title: "Betalingen er ikke klar endnu", description: "Betalingsfeltet indlæses stadig. Vent et øjeblik, og prøv igen.", variant: "destructive" });
+        toast({ title: t("toast.paymentNotReady.title"), description: t("toast.paymentNotReady.description"), variant: "destructive" });
         return;
       }
       const card = elements.getElement(CardElement);
       if (!card) {
-        toast({ title: "Indtast dine kortoplysninger", description: "Vi bruger kortet til at reservere beløbet — du betaler først, når bookingen er accepteret.", variant: "destructive" });
+        toast({ title: t("toast.enterCard.title"), description: t("toast.enterCard.description"), variant: "destructive" });
         return;
       }
 
@@ -233,7 +235,7 @@ function BookingFlowInner() {
             },
           });
           if (qErr || !quote?.quote_id) {
-            throw new Error(qErr?.message || quote?.error || "Vi kunne ikke beregne prisen lige nu. Prøv igen om lidt.");
+            throw new Error(qErr?.message || quote?.error || t("toast.priceError"));
           }
 
           const { data, error } = await supabase.functions.invoke("payment-create-intent", {
@@ -255,7 +257,7 @@ function BookingFlowInner() {
             },
           });
           if (error || !data?.client_secret) {
-            throw new Error(error?.message || data?.error || "Vi kunne ikke starte betalingen. Prøv igen, eller brug en anden betalingsmetode.");
+            throw new Error(error?.message || data?.error || t("toast.paymentStartError"));
           }
           secret = data.client_secret;
           bid = data.booking_id;
@@ -268,21 +270,21 @@ function BookingFlowInner() {
         const { error: confirmErr, paymentIntent } = await stripe.confirmCardPayment(secret!, {
           payment_method: { card, billing_details: { email: user.email ?? undefined, name: profile?.full_name ?? undefined } },
         });
-        if (confirmErr) throw new Error(confirmErr.message || "Betalingen kunne ikke gennemføres. Kontrollér dine kortoplysninger, eller prøv en anden betalingsmetode.");
+        if (confirmErr) throw new Error(confirmErr.message || t("toast.confirmError"));
         if (paymentIntent && !["requires_capture", "succeeded"].includes(paymentIntent.status)) {
-          throw new Error(`Uventet status: ${paymentIntent.status}`);
+          throw new Error(t("toast.unexpectedStatus", { status: paymentIntent.status }));
         }
 
         // 3) Mark authorized in DB
         await supabase.functions.invoke("payment-mark-authorized", { body: { booking_id: bid } });
 
         toast({
-          title: "Booking sendt ✓",
-          description: `${provider.name.split(" ")[0]} har 24 timer til at bekræfte. Først da hæves beløbet.`,
+          title: t("toast.bookingSent.title"),
+          description: t("toast.bookingSent.description", { name: provider.name.split(" ")[0] }),
         });
         setStep(4);
       } catch (e: any) {
-        toast({ title: "Betalingen kunne ikke gennemføres", description: e.message || "Kontrollér dine kortoplysninger, eller prøv en anden betalingsmetode.", variant: "destructive" });
+        toast({ title: t("toast.paymentFailed.title"), description: e.message || t("toast.paymentFailed.description"), variant: "destructive" });
       } finally {
         setSubmitting(false);
       }
@@ -302,13 +304,13 @@ function BookingFlowInner() {
       <header className="sticky top-0 z-20 border-b-2" style={{ background: C.ink, color: C.cream, borderColor: C.ink }}>
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3 sm:px-6">
           <button onClick={back} className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em]">
-            <ArrowLeft className="h-4 w-4" /> {step === 1 ? "Tilbage" : "Forrige"}
+            <ArrowLeft className="h-4 w-4" /> {step === 1 ? t("nav.back") : t("nav.previous")}
           </button>
           <div className="text-[10px] font-black uppercase tracking-[0.28em] opacity-70">
-            Booking · MyCleaner
+            {t("header.title")}
           </div>
           <Link to="/" className="text-xs font-bold uppercase tracking-[0.18em] opacity-80 hover:opacity-100">
-            Annullér
+            {t("nav.cancel")}
           </Link>
         </div>
         {/* Stepper */}
@@ -388,7 +390,7 @@ function BookingFlowInner() {
                 className="inline-flex items-center gap-2 rounded-full border-2 px-5 py-3 text-xs font-bold uppercase tracking-[0.18em]"
                 style={{ borderColor: C.ink }}
               >
-                <ChevronLeft className="h-4 w-4" /> {step === 1 ? "Tilbage" : "Forrige"}
+                <ChevronLeft className="h-4 w-4" /> {step === 1 ? t("nav.back") : t("nav.previous")}
               </button>
               <button
                 disabled={!canNext || submitting}
@@ -396,7 +398,7 @@ function BookingFlowInner() {
                 className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-xs font-bold uppercase tracking-[0.18em] shadow-[6px_6px_0_rgba(0,0,0,0.18)] transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-40"
                 style={{ background: step === 3 ? C.orange : C.ink, color: step === 3 ? C.ink : C.cream }}
               >
-                {step === 3 ? (submitting ? <>Sender…</> : <>Send bookingforespørgsel <Check className="h-4 w-4" /></>) : <>Næste <ArrowRight className="h-4 w-4" /></>}
+                {step === 3 ? (submitting ? <>{t("nav.sending")}</> : <>{t("actions.sendRequest")} <Check className="h-4 w-4" /></>) : <>{t("nav.next")} <ArrowRight className="h-4 w-4" /></>}
               </button>
             </div>
           )}
@@ -424,7 +426,8 @@ function BookingFlowInner() {
 
 /* ---------------- Stepper ---------------- */
 function Stepper({ step }: { step: number }) {
-  const steps = ["Service", "Tidspunkt", "Gennemse"];
+  const { t } = useTranslation("booking");
+  const steps = [t("stepper.service"), t("stepper.dateTime"), t("stepper.review")];
   return (
     <div className="flex items-center gap-3">
       {steps.map((label, i) => {
@@ -460,13 +463,14 @@ function Stepper({ step }: { step: number }) {
 function Step1({
   services, country, serviceKey, setServiceKey, hours, setHours, providerName,
 }: any) {
-  const firstName = providerName ? String(providerName).split(" ")[0] : "din cleaner";
+  const { t } = useTranslation("booking");
+  const firstName = providerName ? String(providerName).split(" ")[0] : "";
   return (
     <div>
-      <h1 className="font-display text-3xl sm:text-4xl">Hvad skal {firstName} tage sig af?</h1>
+      <h1 className="font-display text-3xl sm:text-4xl">{t("step1.title", { name: firstName })}</h1>
 
       <p className="mt-2 max-w-xl text-sm opacity-70">
-        Vælg en service hos din cleaner. Du kan justere varigheden — det påvirker prisen direkte.
+        {t("step1.subtitle")}
       </p>
 
       <div className="mt-6 grid gap-3 sm:grid-cols-2">
@@ -494,12 +498,12 @@ function Step1({
                     {formatPrice(s.price, country)}
                     <span className="text-xs opacity-60">{unit}</span>
                   </div>
-                  <div className="text-[10px] opacity-60">fra {formatPrice(s.minPrice, country)}</div>
+                  <div className="text-[10px] opacity-60">{t("step1.fromPrice", { price: formatPrice(s.minPrice, country) })}</div>
                 </div>
               </div>
               {active && (
                 <div className="mt-3 inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-[0.18em]" style={{ color: C.orange }}>
-                  <Check className="h-3 w-3" /> Valgt
+                  <Check className="h-3 w-3" /> {t("step1.selected")}
                 </div>
               )}
             </button>
@@ -509,8 +513,8 @@ function Step1({
 
       <div className="mt-8 rounded-2xl border-2 bg-white p-5" style={{ borderColor: `${C.ink}22` }}>
         <div className="flex items-baseline justify-between">
-          <div className="text-[10px] font-black uppercase tracking-[0.22em] opacity-70">Antal timer</div>
-          <div className="font-display text-2xl">{hours} t</div>
+          <div className="text-[10px] font-black uppercase tracking-[0.22em] opacity-70">{t("step1.hoursLabel")}</div>
+          <div className="font-display text-2xl">{t("summary.hoursShort", { count: hours })}</div>
         </div>
         <input
           type="range" min={1.5} max={8} step={0.5}
@@ -520,7 +524,7 @@ function Step1({
           style={{ accentColor: C.orange }}
         />
         <div className="mt-1 flex justify-between text-[10px] opacity-60">
-          <span>1,5 t</span><span>4 t</span><span>8 t</span>
+          <span>{t("step1.hoursMin")}</span><span>{t("step1.hoursMid")}</span><span>{t("step1.hoursMax")}</span>
         </div>
       </div>
     </div>
@@ -529,24 +533,25 @@ function Step1({
 
 /* ---------------- Step 2 ---------------- */
 function Step2({ weekStart, setWeekStart, weekDays, today, date, setDate, slot, setSlot }: any) {
+  const { t, i18n } = useTranslation("booking");
   return (
     <div>
-      <h1 className="font-display text-3xl sm:text-4xl">Vælg dato og tidspunkt</h1>
+      <h1 className="font-display text-3xl sm:text-4xl">{t("step2.title")}</h1>
       <p className="mt-2 max-w-xl text-sm opacity-70">
-        Du booker direkte i cleanerens kalender. Grå tider er optagede.
+        {t("step2.subtitle")}
       </p>
 
       <div className="mt-6 rounded-3xl border-2 bg-white p-5" style={{ borderColor: `${C.ink}22` }}>
         <div className="flex items-center justify-between">
           <div className="font-display text-lg">
-            {weekStart.toLocaleDateString("da-DK", { month: "long", year: "numeric" })}
+            {weekStart.toLocaleDateString(i18n.language, { month: "long", year: "numeric" })}
           </div>
           <div className="flex gap-2">
             <button
               onClick={() => setWeekStart(addDays(weekStart, -7))}
               className="grid h-9 w-9 place-items-center rounded-full border-2"
               style={{ borderColor: `${C.ink}22` }}
-              aria-label="Forrige uge"
+              aria-label={t("step2.prevWeekAria")}
             >
               <ChevronLeft className="h-4 w-4" />
             </button>
@@ -554,7 +559,7 @@ function Step2({ weekStart, setWeekStart, weekDays, today, date, setDate, slot, 
               onClick={() => setWeekStart(addDays(weekStart, 7))}
               className="grid h-9 w-9 place-items-center rounded-full border-2"
               style={{ borderColor: `${C.ink}22` }}
-              aria-label="Næste uge"
+              aria-label={t("step2.nextWeekAria")}
             >
               <ChevronRight className="h-4 w-4" />
             </button>
@@ -577,7 +582,7 @@ function Step2({ weekStart, setWeekStart, weekDays, today, date, setDate, slot, 
                   color: active ? C.cream : C.ink,
                 }}
               >
-                <div className="text-[10px] font-bold uppercase tracking-wider opacity-70">{fmtDay(d)}</div>
+                <div className="text-[10px] font-bold uppercase tracking-wider opacity-70">{fmtDay(d, i18n.language)}</div>
                 <div className="mt-1 font-display text-xl leading-none">{d.getDate()}</div>
               </button>
             );
@@ -587,7 +592,7 @@ function Step2({ weekStart, setWeekStart, weekDays, today, date, setDate, slot, 
         {date && (
           <div className="mt-6">
             <div className="text-[10px] font-black uppercase tracking-[0.22em] opacity-70">
-              Ledige tider · {fmtLong(date)}
+              {t("step2.availableTimes", { date: fmtLong(date, i18n.language) })}
             </div>
             <div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-6">
               {TIME_SLOTS.map((s) => {
@@ -622,6 +627,7 @@ function AddressVerifyCard({
   address, addressValid, savedAddresses, selectedAddressId, usingNewAddress, usingProfileAddress, profile,
   onSavedUpdated, setNotes, setNotesAutoFilled,
 }: any) {
+  const { t } = useTranslation("booking");
   const [editOpen, setEditOpen] = useState(false);
   if (!addressValid || !address) return null;
 
@@ -632,11 +638,11 @@ function AddressVerifyCard({
 
   const badge = isSaved
     ? saved.is_primary
-      ? { text: "Primær adresse", bg: C.orange }
-      : { text: "Gemt adresse", bg: C.teal }
+      ? { text: t("step3.verify.badgePrimary"), bg: C.orange }
+      : { text: t("step3.verify.badgeSaved"), bg: C.teal }
     : isProfile
-      ? { text: "Fra profil", bg: C.ink }
-      : { text: "Engangsadresse", bg: `${C.ink}55` };
+      ? { text: t("step3.verify.badgeProfile"), bg: C.ink }
+      : { text: t("step3.verify.badgeOneTime"), bg: `${C.ink}55` };
 
   return (
     <div
@@ -645,7 +651,7 @@ function AddressVerifyCard({
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.22em]" style={{ color: C.ink }}>
-          <MapPin className="h-3.5 w-3.5" /> Adressebekræftelse
+          <MapPin className="h-3.5 w-3.5" /> {t("step3.verify.title")}
         </div>
         <span
           className="rounded-full px-2.5 py-0.5 text-[9px] font-black uppercase tracking-[0.18em]"
@@ -658,7 +664,7 @@ function AddressVerifyCard({
       <div className="mt-3 rounded-xl border-2 bg-white p-3" style={{ borderColor: `${C.ink}18` }}>
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
-            <div className="font-display text-lg leading-tight">{isSaved ? saved.label : isProfile ? "Fra din profil" : "Manuel indtastning"}</div>
+            <div className="font-display text-lg leading-tight">{isSaved ? saved.label : isProfile ? t("step3.verify.profileLabel") : t("step3.verify.manualLabel")}</div>
             <div className="mt-0.5 text-sm opacity-80">{address}</div>
           </div>
           {isSaved && (
@@ -668,7 +674,7 @@ function AddressVerifyCard({
               className="shrink-0 inline-flex items-center gap-1 rounded-full border-2 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.18em] transition hover:bg-white"
               style={{ borderColor: C.orange, color: C.orange }}
             >
-              <Pencil className="h-3 w-3" /> Rediger
+              <Pencil className="h-3 w-3" /> {t("step3.verify.edit")}
             </button>
           )}
         </div>
@@ -681,12 +687,12 @@ function AddressVerifyCard({
               </span>
               {saved.size_sqm && (
                 <span className="rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.16em]" style={{ background: C.mint, color: C.ink }}>
-                  {saved.size_sqm} m²
+                  {saved.size_sqm} {t("step3.verify.sqm")}
                 </span>
               )}
               {saved.rooms && (
                 <span className="rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.16em]" style={{ background: C.mint, color: C.ink }}>
-                  {saved.rooms} vær.
+                  {saved.rooms} {t("step3.verify.rooms")}
                 </span>
               )}
               {saved.floor && (
@@ -699,46 +705,46 @@ function AddressVerifyCard({
             <div className="grid gap-2 sm:grid-cols-2">
               {saved.access_method !== "home" && (
                 <div className="rounded-lg border p-2 text-[11px]" style={{ borderColor: `${C.ink}18` }}>
-                  <div className="font-bold">Adgang</div>
+                  <div className="font-bold">{t("step3.verify.access")}</div>
                   <div className="opacity-80">{ACCESS_METHOD_LABEL[saved.access_method]}</div>
                   {saved.access_code && (
-                    <div className="mt-0.5 font-mono text-[11px]" style={{ color: C.orange }}>Kode: {saved.access_code}</div>
+                    <div className="mt-0.5 font-mono text-[11px]" style={{ color: C.orange }}>{t("step3.verify.code")}: {saved.access_code}</div>
                   )}
                 </div>
               )}
               {saved.access_instructions && (
                 <div className="rounded-lg border p-2 text-[11px]" style={{ borderColor: `${C.ink}18` }}>
-                  <div className="font-bold">Instruktioner</div>
+                  <div className="font-bold">{t("step3.verify.instructions")}</div>
                   <div className="opacity-80">{saved.access_instructions}</div>
                 </div>
               )}
               {saved.has_pets && (
                 <div className="rounded-lg border p-2 text-[11px]" style={{ borderColor: `${C.ink}18` }}>
-                  <div className="font-bold">Kæledyr</div>
-                  <div className="opacity-80">{saved.pet_details || "Ja"}</div>
+                  <div className="font-bold">{t("step3.verify.pets")}</div>
+                  <div className="opacity-80">{saved.pet_details || t("step3.verify.petsYes")}</div>
                 </div>
               )}
               {saved.has_children && (
                 <div className="rounded-lg border p-2 text-[11px]" style={{ borderColor: `${C.ink}18` }}>
-                  <div className="font-bold">Børn</div>
-                  <div className="opacity-80">Børn i hjemmet</div>
+                  <div className="font-bold">{t("step3.verify.children")}</div>
+                  <div className="opacity-80">{t("step3.verify.childrenPresent")}</div>
                 </div>
               )}
               {saved.parking_info && (
                 <div className="rounded-lg border p-2 text-[11px]" style={{ borderColor: `${C.ink}18` }}>
-                  <div className="font-bold">Parkering</div>
+                  <div className="font-bold">{t("step3.verify.parking")}</div>
                   <div className="opacity-80">{saved.parking_info}</div>
                 </div>
               )}
               {saved.cleaning_supplies_available && (
                 <div className="rounded-lg border p-2 text-[11px]" style={{ borderColor: `${C.ink}18` }}>
-                  <div className="font-bold">Rengøringsmidler</div>
-                  <div className="opacity-80">Står klar</div>
+                  <div className="font-bold">{t("step3.verify.cleaningSupplies")}</div>
+                  <div className="opacity-80">{t("step3.verify.cleaningSuppliesReady")}</div>
                 </div>
               )}
               {saved.wifi_name && (
                 <div className="rounded-lg border p-2 text-[11px]" style={{ borderColor: `${C.ink}18` }}>
-                  <div className="font-bold">WiFi</div>
+                  <div className="font-bold">{t("step3.verify.wifi")}</div>
                   <div className="opacity-80">{saved.wifi_name}</div>
                 </div>
               )}
@@ -746,7 +752,7 @@ function AddressVerifyCard({
 
             {saved.notes && (
               <div className="rounded-lg border p-2 text-[11px]" style={{ borderColor: `${C.ink}18` }}>
-                <div className="font-bold">Andre bemærkninger</div>
+                <div className="font-bold">{t("step3.verify.otherNotes")}</div>
                 <div className="opacity-80 whitespace-pre-line">{saved.notes}</div>
               </div>
             )}
@@ -755,12 +761,12 @@ function AddressVerifyCard({
 
         {isProfile && profile?.address && (
           <div className="mt-2 text-[11px] opacity-60">
-            Vi bruger adressen fra din profil. Gem den i din adressebog for at tilføje adgangsinfo og kæledyr.
+            {t("step3.verify.profileHint")}
           </div>
         )}
         {isOneTime && (
           <div className="mt-2 text-[11px] opacity-60">
-            Du bruger en manuel adresse. Skriv adgangsinfo og kæledyr direkte i beskeden til cleaneren nedenfor.
+            {t("step3.verify.oneTimeHint")}
           </div>
         )}
       </div>
@@ -801,6 +807,7 @@ function EditAccessDialog({
   const [parkingInfo, setParkingInfo] = useState(address.parking_info || "");
   const [supplies, setSupplies] = useState(address.cleaning_supplies_available);
   const [saving, setSaving] = useState(false);
+  const { t } = useTranslation("booking");
 
   useEffect(() => {
     if (open) {
@@ -828,10 +835,10 @@ function EditAccessDialog({
         parking_info: parkingInfo.trim() || null,
         cleaning_supplies_available: supplies,
       });
-      toast({ title: "Ændringer gemt", description: "Adgang og kæledyr er opdateret på adressen." });
+      toast({ title: t("toast.changesSaved.title"), description: t("toast.changesSaved.description") });
       onSaved(updated);
     } catch (e: any) {
-      toast({ title: "Vi kunne ikke gemme ændringerne", description: "Prøv igen om et øjeblik.", variant: "destructive" });
+      toast({ title: t("toast.saveFailed.title"), description: t("toast.saveFailed.description"), variant: "destructive" });
     } finally {
       setSaving(false);
     }
@@ -844,16 +851,15 @@ function EditAccessDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="font-display text-2xl">Rediger adgang & kæledyr</DialogTitle>
+          <DialogTitle className="font-display text-2xl">{t("editDialog.title")}</DialogTitle>
           <div className="text-xs opacity-70">
-            Ændringer gemmes på "{address.label}" i din adressebog. Du aftaler selv adgang direkte
-            med provideren — MyCleaner modtager eller opbevarer ikke nøgler.
+            {t("editDialog.description", { label: address.label })}
           </div>
         </DialogHeader>
 
         <div className="space-y-3 py-2">
           <div>
-            <label className={labelCls}>Sådan får provideren adgang</label>
+            <label className={labelCls}>{t("editDialog.accessMethodLabel")}</label>
             <select
               value={accessMethod}
               onChange={(e) => setAccessMethod(e.target.value as AccessMethod)}
@@ -868,11 +874,11 @@ function EditAccessDialog({
 
           {(accessMethod === "key_box" || accessMethod === "code") && (
             <div>
-              <label className={labelCls}>Kode</label>
+              <label className={labelCls}>{t("editDialog.codeLabel")}</label>
               <input
                 value={accessCode}
                 onChange={(e) => setAccessCode(e.target.value)}
-                placeholder="Fx 1234"
+                placeholder={t("editDialog.codePlaceholder")}
                 className={inputCls}
                 style={{ borderColor: `${C.ink}22` }}
               />
@@ -880,12 +886,12 @@ function EditAccessDialog({
           )}
 
           <div>
-            <label className={labelCls}>Instruktioner</label>
+            <label className={labelCls}>{t("editDialog.instructionsLabel")}</label>
             <textarea
               value={accessInstructions}
               onChange={(e) => setAccessInstructions(e.target.value)}
               rows={2}
-              placeholder="Fx nøgleboks ved postkasse, ring på 3. sal…"
+              placeholder={t("editDialog.instructionsPlaceholder")}
               className={inputCls}
               style={{ borderColor: `${C.ink}22` }}
             />
@@ -894,13 +900,13 @@ function EditAccessDialog({
           <div className="rounded-xl border-2 p-3" style={{ borderColor: `${C.ink}22` }}>
             <label className="flex items-center gap-2 text-sm font-bold">
               <input type="checkbox" checked={hasPets} onChange={(e) => setHasPets(e.target.checked)} />
-              Kæledyr i hjemmet
+              {t("editDialog.petsLabel")}
             </label>
             {hasPets && (
               <input
                 value={petDetails}
                 onChange={(e) => setPetDetails(e.target.value)}
-                placeholder="Fx 1 hund (venlig), 2 katte"
+                placeholder={t("editDialog.petsPlaceholder")}
                 className={inputCls}
                 style={{ borderColor: `${C.ink}22` }}
               />
@@ -909,15 +915,15 @@ function EditAccessDialog({
 
           <label className="flex items-center gap-2 text-sm font-bold">
             <input type="checkbox" checked={hasChildren} onChange={(e) => setHasChildren(e.target.checked)} />
-            Børn i hjemmet
+            {t("editDialog.childrenLabel")}
           </label>
 
           <div>
-            <label className={labelCls}>Parkering</label>
+            <label className={labelCls}>{t("editDialog.parkingLabel")}</label>
             <input
               value={parkingInfo}
               onChange={(e) => setParkingInfo(e.target.value)}
-              placeholder="Fx gratis på vejen, p-licens påkrævet"
+              placeholder={t("editDialog.parkingPlaceholder")}
               className={inputCls}
               style={{ borderColor: `${C.ink}22` }}
             />
@@ -925,7 +931,7 @@ function EditAccessDialog({
 
           <label className="flex items-center gap-2 text-sm font-bold">
             <input type="checkbox" checked={supplies} onChange={(e) => setSupplies(e.target.checked)} />
-            Rengøringsmidler står klar
+            {t("editDialog.suppliesLabel")}
           </label>
         </div>
 
@@ -936,7 +942,7 @@ function EditAccessDialog({
             className="rounded-full border-2 px-4 py-2 text-sm font-bold"
             style={{ borderColor: `${C.ink}33` }}
           >
-            Annullér
+            {t("editDialog.cancel")}
           </button>
           <button
             type="button"
@@ -945,7 +951,7 @@ function EditAccessDialog({
             className="rounded-full px-5 py-2 text-sm font-black uppercase tracking-[0.16em] disabled:opacity-60"
             style={{ background: C.orange, color: C.cream }}
           >
-            {saving ? "Gemmer…" : "Gem ændringer"}
+            {saving ? t("editDialog.saving") : t("editDialog.save")}
           </button>
         </DialogFooter>
       </DialogContent>
@@ -956,6 +962,7 @@ function EditAccessDialog({
 
 /* ---------------- Step 3 ---------------- */
 function Step3({ address, setAddress, addressValid, setAddressValid, setAddressPlaceId, setAddressLat, setAddressLng, usingProfileAddress, setUsingProfileAddress, profile, notes, setNotes, provider, date, slot, service, hours, customerPays, savedAddresses, selectedAddressId, pickSavedAddress, usingNewAddress, setUsingNewAddress, setSavedAddresses, setNotesAutoFilled }: any) {
+  const { t, i18n } = useTranslation("booking");
   const hasProfileAddress = !!profile?.address;
   const hasSaved = (savedAddresses?.length ?? 0) > 0;
 
@@ -971,9 +978,9 @@ function Step3({ address, setAddress, addressValid, setAddressValid, setAddressP
 
   return (
     <div>
-      <h1 className="font-display text-3xl sm:text-4xl">Sidste detaljer</h1>
+      <h1 className="font-display text-3xl sm:text-4xl">{t("step3.title")}</h1>
       <p className="mt-2 max-w-xl text-sm opacity-70">
-        Vi sender oplysningerne direkte til {provider.name.split(" ")[0]}. Beløbet trækkes først, når provideren har accepteret din bookingforespørgsel.
+        {t("step3.subtitle", { name: provider.name.split(" ")[0] })}
       </p>
 
       <div className="mt-6 space-y-4">
@@ -981,14 +988,14 @@ function Step3({ address, setAddress, addressValid, setAddressValid, setAddressP
         {hasSaved && !usingNewAddress ? (
           <div className="rounded-2xl border-2 bg-white p-4" style={{ borderColor: `${C.ink}22` }}>
             <div className="mb-3 flex items-center justify-between">
-              <div className="text-[10px] font-black uppercase tracking-[0.22em] opacity-70">Vælg adresse</div>
+              <div className="text-[10px] font-black uppercase tracking-[0.22em] opacity-70">{t("step3.address.chooseAddress")}</div>
               <button
                 type="button"
                 onClick={chooseNew}
                 className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.18em] hover:underline"
                 style={{ color: C.teal }}
               >
-                <Pencil className="h-3 w-3" /> Brug en anden adresse
+                <Pencil className="h-3 w-3" /> {t("step3.address.useAnotherAddress")}
               </button>
             </div>
             <AddressBook
@@ -1001,7 +1008,7 @@ function Step3({ address, setAddress, addressValid, setAddressValid, setAddressP
         ) : (
           <div className="block rounded-2xl border-2 bg-white p-4" style={{ borderColor: `${C.ink}22` }}>
             <div className="flex items-center justify-between">
-              <div className="text-[10px] font-black uppercase tracking-[0.22em] opacity-70">Adresse</div>
+              <div className="text-[10px] font-black uppercase tracking-[0.22em] opacity-70">{t("step3.address.addressLabel")}</div>
               {hasSaved && (
                 <button
                   type="button"
@@ -1009,7 +1016,7 @@ function Step3({ address, setAddress, addressValid, setAddressValid, setAddressP
                   className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.18em] hover:underline"
                   style={{ color: C.teal }}
                 >
-                  <Home className="h-3 w-3" /> Brug en gemt
+                  <Home className="h-3 w-3" /> {t("step3.address.useSaved")}
                 </button>
               )}
             </div>
@@ -1027,29 +1034,29 @@ function Step3({ address, setAddress, addressValid, setAddressValid, setAddressP
                 }}
                 onValidityChange={setAddressValid}
                 isValid={addressValid}
-                placeholder="Vej, nr., etage, by"
+                placeholder={t("step3.address.placeholder")}
                 countries={[(profile?.country_code || "DK").toLowerCase()]}
               />
             </div>
             {addressValid ? (
               <div className="mt-2 flex items-center gap-1.5 text-[10px] font-bold" style={{ color: C.teal }}>
-                <CheckCircle2 className="h-3.5 w-3.5" /> Adresse valideret — cleaneren kan finde stedet
+                <CheckCircle2 className="h-3.5 w-3.5" /> {t("step3.address.validated")}
               </div>
             ) : (
               <div className="mt-2 text-[10px] opacity-60">
-                Begynd at skrive og vælg din adresse fra listen. Vi tjekker, at den er reel.
+                {t("step3.address.hint")}
               </div>
             )}
             {!profile && (
               <div className="mt-3 rounded-xl border border-dashed p-2.5 text-[11px]" style={{ borderColor: `${C.ink}33` }}>
-                <Link to="/login?redirect=/profil" className="font-bold underline" style={{ color: C.orange }}>Log ind</Link>
-                <span className="opacity-70"> og gem dine adresser med adgangsinfo, så cleaneren får alt at vide automatisk.</span>
+                <Link to="/login?redirect=/profil" className="font-bold underline" style={{ color: C.orange }}>{t("step3.address.loginPrompt")}</Link>
+                <span className="opacity-70"> {t("step3.address.loginPromptTail")}</span>
               </div>
             )}
             {profile && !hasSaved && (
               <div className="mt-3 rounded-xl border border-dashed p-2.5 text-[11px]" style={{ borderColor: `${C.ink}33` }}>
-                <Link to="/profil?tab=addresses" className="font-bold underline" style={{ color: C.orange }}>Gem denne adresse</Link>
-                <span className="opacity-70"> i din adressebog med dyr, parkering og adgangsinfo — så er det auto-udfyldt næste gang.</span>
+                <Link to="/profil?tab=addresses" className="font-bold underline" style={{ color: C.orange }}>{t("step3.address.saveAddressPrompt")}</Link>
+                <span className="opacity-70"> {t("step3.address.saveAddressPromptTail")}</span>
               </div>
             )}
           </div>
@@ -1074,19 +1081,19 @@ function Step3({ address, setAddress, addressValid, setAddressValid, setAddressP
         />
 
         <label className="block rounded-2xl border-2 bg-white p-4" style={{ borderColor: `${C.ink}22` }}>
-          <div className="text-[10px] font-black uppercase tracking-[0.22em] opacity-70">Noter til provideren (valgfri)</div>
+          <div className="text-[10px] font-black uppercase tracking-[0.22em] opacity-70">{t("step3.notes.label")}</div>
           <textarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             rows={4}
-            placeholder="Fx kæledyr, allergi eller hvordan du aftaler adgang med provideren…"
+            placeholder={t("step3.notes.placeholder")}
             className="mt-2 w-full resize-none bg-transparent text-sm focus:outline-none"
           />
         </label>
 
         <div className="rounded-2xl border-2 bg-white p-4" style={{ borderColor: `${C.ink}22` }}>
           <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.22em] opacity-70">
-            <CreditCard className="h-3.5 w-3.5" /> Betalingskort
+            <CreditCard className="h-3.5 w-3.5" /> {t("step3.payment.label")}
           </div>
           <div className="mt-3 rounded-xl border p-3" style={{ borderColor: `${C.ink}22` }}>
             <CardElement
@@ -1104,7 +1111,7 @@ function Step3({ address, setAddress, addressValid, setAddressValid, setAddressP
             />
           </div>
           <div className="mt-2 text-[10px] opacity-60">
-            Beløbet kan være reserveret på dit kort, mens bookingforespørgslen behandles. Det trækkes først, når provideren har accepteret bookingen.
+            {t("step3.payment.disclaimer")}
           </div>
         </div>
 
@@ -1113,9 +1120,9 @@ function Step3({ address, setAddress, addressValid, setAddressValid, setAddressP
           <div className="flex items-start gap-3">
             <Shield className="mt-0.5 h-5 w-5" style={{ color: C.ink }} />
             <div className="text-sm">
-              <div className="font-bold">Sådan håndteres din betaling</div>
+              <div className="font-bold">{t("step3.paymentHandling.title")}</div>
               <div className="opacity-70">
-                {customerPays.toLocaleString("da-DK")} kr kan blive reserveret på dit kort. Beløbet udbetales først til provideren, når servicen er udført og bookingen er afsluttet.
+                {t("step3.paymentHandling.body", { amount: `${customerPays.toLocaleString(i18n.language)} kr` })}
               </div>
             </div>
           </div>
@@ -1127,22 +1134,22 @@ function Step3({ address, setAddress, addressValid, setAddressValid, setAddressP
 
 /* ---------------- Step 4 — Success ---------------- */
 function Step4({ provider, date, slot, customerPays, policyVersion }: any) {
+  const { t, i18n } = useTranslation("booking");
   const serviceStart = date && slot ? new Date(`${fmtISO(date)}T${slot}:00`) : null;
   return (
     <div className="rounded-3xl border-2 bg-white p-8 text-center shadow-[8px_8px_0_rgba(10,61,58,0.15)]" style={{ borderColor: C.ink }}>
       <div className="mx-auto grid h-16 w-16 place-items-center rounded-full" style={{ background: C.mint }}>
         <Check className="h-8 w-8" style={{ color: C.ink }} strokeWidth={3} />
       </div>
-      <h1 className="mt-6 font-display text-3xl sm:text-4xl">Din bookingforespørgsel er sendt</h1>
+      <h1 className="mt-6 font-display text-3xl sm:text-4xl">{t("step4.title")}</h1>
       <p className="mt-3 mx-auto max-w-md text-sm opacity-70">
-        {provider.name.split(" ")[0]} har modtaget din bookingforespørgsel og svarer typisk inden for {provider.responseTime}.
-        Du får besked, så snart forespørgslen er accepteret.
+        {t("step4.description", { name: provider.name.split(" ")[0], responseTime: provider.responseTime })}
       </p>
 
       <div className="mt-6 inline-flex flex-col items-center gap-1 rounded-2xl border-2 px-6 py-4" style={{ borderColor: `${C.ink}22` }}>
-        <div className="text-[10px] font-black uppercase tracking-[0.22em] opacity-70">Din tid</div>
-        <div className="font-display text-xl">{fmtLong(date)}</div>
-        <div className="font-display text-2xl" style={{ color: C.orange }}>kl. {slot}</div>
+        <div className="text-[10px] font-black uppercase tracking-[0.22em] opacity-70">{t("step4.yourTime")}</div>
+        <div className="font-display text-xl">{fmtLong(date, i18n.language)}</div>
+        <div className="font-display text-2xl" style={{ color: C.orange }}>{t("step4.at", { slot })}</div>
       </div>
 
       {serviceStart && (
@@ -1161,14 +1168,14 @@ function Step4({ provider, date, slot, customerPays, policyVersion }: any) {
           className="inline-flex items-center gap-2 rounded-full border-2 px-5 py-3 text-xs font-bold uppercase tracking-[0.18em]"
           style={{ borderColor: C.ink }}
         >
-          Se {provider.name.split(" ")[0]}s profil
+          {t("step4.viewProfile", { name: provider.name.split(" ")[0] })}
         </Link>
         <Link
           to="/"
           className="inline-flex items-center gap-2 rounded-full px-5 py-3 text-xs font-bold uppercase tracking-[0.18em]"
           style={{ background: C.ink, color: C.cream }}
         >
-          Til forsiden <ArrowRight className="h-4 w-4" />
+          {t("step4.home")} <ArrowRight className="h-4 w-4" />
         </Link>
       </div>
     </div>
@@ -1179,6 +1186,7 @@ function Step4({ provider, date, slot, customerPays, policyVersion }: any) {
 function Summary({
   provider, country, service, hours, date, slot, base, customerPays, providerGets, effectiveRate,
 }: any) {
+  const { t, i18n } = useTranslation("booking");
   const initials = provider.name.split(" ").map((n: string) => n[0]).join("").slice(0, 2);
   return (
     <div className="rounded-3xl border-2 bg-white p-5 shadow-[6px_6px_0_rgba(10,61,58,0.12)]" style={{ borderColor: C.ink }}>
@@ -1199,22 +1207,22 @@ function Summary({
       </div>
 
       <ul className="mt-4 space-y-2.5 text-sm">
-        <SummaryRow icon={<Sparkles className="h-4 w-4" />} label="Service" value={service || "Ikke valgt"} />
-        <SummaryRow icon={<Clock className="h-4 w-4" />} label="Varighed" value={`${hours} t`} />
-        <SummaryRow icon={<CalendarIcon className="h-4 w-4" />} label="Dato" value={date ? fmtLong(date) : "Ikke valgt"} />
-        <SummaryRow icon={<Clock className="h-4 w-4" />} label="Tidspunkt" value={slot || "Ikke valgt"} />
+        <SummaryRow icon={<Sparkles className="h-4 w-4" />} label={t("summary.service")} value={service || t("summary.notSelected")} />
+        <SummaryRow icon={<Clock className="h-4 w-4" />} label={t("summary.duration")} value={t("summary.hoursShort", { count: hours })} />
+        <SummaryRow icon={<CalendarIcon className="h-4 w-4" />} label={t("summary.date")} value={date ? fmtLong(date, i18n.language) : t("summary.notSelected")} />
+        <SummaryRow icon={<Clock className="h-4 w-4" />} label={t("summary.slot")} value={slot || t("summary.notSelected")} />
       </ul>
 
       <div className="mt-5 space-y-2 border-t-2 border-dashed pt-4 text-sm" style={{ borderColor: `${C.ink}22` }}>
-        <Line label={`${effectiveRate} kr/t × ${hours} t`} value={`${base.toLocaleString("da-DK")} kr`} />
-        <Line label="Platformgebyr" value={`+${(customerPays - base).toLocaleString("da-DK")} kr`} muted />
+        <Line label={t("summary.ratePerHour", { rate: effectiveRate, hours })} value={`${base.toLocaleString(i18n.language)} kr`} />
+        <Line label={t("summary.platformFee")} value={`+${(customerPays - base).toLocaleString(i18n.language)} kr`} muted />
         <div className="flex items-baseline justify-between pt-2">
-          <span className="text-[10px] font-black uppercase tracking-[0.22em]">Samlet pris</span>
+          <span className="text-[10px] font-black uppercase tracking-[0.22em]">{t("summary.total")}</span>
           <span className="font-display text-2xl">
-            {customerPays.toLocaleString("da-DK")} <span className="text-sm opacity-70">kr</span>
+            {customerPays.toLocaleString(i18n.language)} <span className="text-sm opacity-70">kr</span>
           </span>
         </div>
-        <div className="text-[10px] opacity-60">Providerens pris efter platformgebyr: {providerGets.toLocaleString("da-DK")} kr. MyCleaner er en platform, der forbinder kunder og selvstændige providere og håndterer booking og betaling. Servicen udføres af din valgte provider.</div>
+        <div className="text-[10px] opacity-60">{t("summary.providerNet", { amount: `${providerGets.toLocaleString(i18n.language)} kr` })}</div>
       </div>
     </div>
   );

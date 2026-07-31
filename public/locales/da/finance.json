@@ -1,0 +1,6 @@
+{
+  "title": "Økonomi",
+  "loading": "Indlæser økonomiske data…",
+  "empty": "Ingen økonomiske posteringer endnu.",
+  "error": "De økonomiske data kunne ikke indlæses."
+}

@@ -75,7 +75,14 @@ export function buildSeoTags(input: {
     { tag: "meta", attrs: { property: "og:title", content: title } },
     { tag: "meta", attrs: { property: "og:description", content: description } },
     { tag: "meta", attrs: { property: "og:type", content: "website" } },
+    // Twitter mirrors the localised og pair so shared links are never English
+    // on a Danish/Swedish/German/Spanish page. No og:image is emitted here —
+    // hosting injects the social preview at serve time.
+    { tag: "meta", attrs: { name: "twitter:card", content: "summary_large_image" } },
+    { tag: "meta", attrs: { name: "twitter:title", content: title } },
+    { tag: "meta", attrs: { name: "twitter:description", content: description } },
   ];
+
 
   const indexable = activeCountries; // caller already filtered to bookable
   const iso = currentIso && indexable.find(c => c.iso === currentIso) ? currentIso : null;

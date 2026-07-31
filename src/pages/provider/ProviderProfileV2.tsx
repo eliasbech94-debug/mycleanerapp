@@ -10,6 +10,7 @@ import {
   ExternalLink, Pencil, ShieldCheck, MapPin, Languages, Wrench,
   FileBadge, CalendarClock, Sparkles, Star, User as UserIcon, Briefcase,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/hooks/useAuth";
 import { useProviderProfile } from "@/hooks/useProviderProfile";
 import { useProviderProfileEditor } from "@/hooks/useProviderProfileEditor";
@@ -33,30 +34,15 @@ type EditorKey =
   | "pricing" | "area" | "availability" | "identity" | "insurance"
   | "documents" | "performance" | "settings" | "stripe" | "tax";
 
-const CATEGORY_LABEL: Record<string, string> = {
-  cleaning: "Rengøring", handyman: "Handyman", garden: "Have", moving: "Flytning",
-};
-const LANG_LABEL: Record<string, string> = {
-  da: "Dansk", en: "Engelsk", sv: "Svensk", de: "Tysk", es: "Spansk", pl: "Polsk",
-};
-const EQUIP_LABEL: Record<string, string> = {
-  own_vacuum: "Egen støvsuger", eco_products: "Miljøvenlige midler",
-  own_mop: "Egen mop/gulvsæt", car: "Egen bil", ladder: "Stige",
-};
-const SERVICE_LABEL: Record<string, string> = {
-  home_cleaning: "Almindelig rengøring", deep_cleaning: "Hovedrengøring",
-  move_out_cleaning: "Flytterengøring", office_cleaning: "Erhvervsrengøring",
-  window_cleaning: "Vinduespudsning",
-};
-
-const formatMoney = (minor: number, currency: string) => {
+const formatMoney = (minor: number, currency: string, locale: string) => {
   try {
-    return new Intl.NumberFormat("da-DK", { style: "currency", currency, maximumFractionDigits: 0 })
+    return new Intl.NumberFormat(locale, { style: "currency", currency, maximumFractionDigits: 0 })
       .format(minor / 100);
   } catch { return `${Math.round(minor / 100)} ${currency}`; }
 };
 
 export default function ProviderProfileV2() {
+  const { t, i18n } = useTranslation("provider");
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const view = useProviderProfile();
@@ -78,10 +64,10 @@ export default function ProviderProfileV2() {
 
   const greeting = useMemo(() => {
     const h = new Date().getHours();
-    if (h < 10) return "Godmorgen";
-    if (h < 18) return "Goddag";
-    return "Godaften";
-  }, []);
+    if (h < 10) return t("profile.greeting.morning");
+    if (h < 18) return t("profile.greeting.day");
+    return t("profile.greeting.evening");
+  }, [t]);
 
   if (!authLoading && !user) { navigate("/login"); return null; }
 
@@ -99,9 +85,9 @@ export default function ProviderProfileV2() {
   if (!p) {
     return (
       <div className="mx-auto max-w-3xl p-6 text-center">
-        <h1 className="font-display text-2xl">Ingen provider-profil</h1>
-        <p className="mt-2 opacity-70">Du skal starte en cleaner-ansøgning først.</p>
-        <Button className="mt-4" onClick={() => navigate("/bliv-cleaner")}>Bliv cleaner</Button>
+        <h1 className="font-display text-2xl">{t("profile.noProfile.title")}</h1>
+        <p className="mt-2 opacity-70">{t("profile.noProfile.body")}</p>
+        <Button className="mt-4" onClick={() => navigate("/bliv-cleaner")}>{t("profile.noProfile.cta")}</Button>
       </div>
     );
   }
@@ -119,7 +105,7 @@ export default function ProviderProfileV2() {
   const stripeReady = !!p.stripe_charges_enabled && !!p.stripe_payouts_enabled;
   const snap = (p.performance_snapshot ?? {}) as Record<string, number | null>;
 
-  const editBtn = (key: EditorKey, label = "Redigér") => (
+  const editBtn = (key: EditorKey, label = t("profile.editButton")) => (
     <Button variant="ghost" size="sm" className="text-primary"
       aria-label={`${label} — ${key}`}
       onClick={() => setOpenEditor(key)}>
