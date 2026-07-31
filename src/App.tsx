@@ -312,6 +312,7 @@ const App = () => (
                   <MobileBottomNav />
                   <DemoControlPanel />
                   <WelcomeVideoGate />
+                  <FirstJobCelebrationGate />
 
 
                 </AuthGateProvider>
