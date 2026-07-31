@@ -13,14 +13,28 @@ export interface SumsubEnvDecision {
 
 const SANDBOX_HOST_HINTS = ["test-api", "sandbox", "api-test"];
 
+/**
+ * Sumsub serves sandbox and production from the SAME host (api.sumsub.com);
+ * the environment is selected by the credential, not the URL. App tokens are
+ * prefixed `sbx:` for sandbox and `prd:` for production, so the token prefix is
+ * the authoritative signal and the host hints are only a secondary fallback.
+ * Detecting on URL alone reports a sandbox key against api.sumsub.com as
+ * "production", which is exactly the misconfiguration we must catch.
+ */
+export function isSandboxAppToken(appToken: string | null | undefined): boolean {
+  return (appToken ?? "").toLowerCase().startsWith("sbx:");
+}
+
 export function resolveSumsubEnv(
   baseUrl: string | null | undefined = Deno.env.get("SUMSUB_BASE_URL"),
+  appToken: string | null | undefined = Deno.env.get("SUMSUB_APP_TOKEN"),
 ): SumsubEnvDecision {
   const environment = resolveEnvironment(readEnv());
   const isProduction = environment === "production" || environment === "unknown";
 
   const url = (baseUrl ?? "").toLowerCase();
-  const sandboxBaseUrl = SANDBOX_HOST_HINTS.some((h) => url.includes(h));
+  const sandboxBaseUrl =
+    isSandboxAppToken(appToken) || SANDBOX_HOST_HINTS.some((h) => url.includes(h));
   return {
     environment,
     isProduction,

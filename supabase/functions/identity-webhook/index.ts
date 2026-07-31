@@ -1,7 +1,8 @@
 // POST /identity-webhook — Sumsub → MyCleaner
 // Signature: HMAC-SHA256(webhookSecret, rawBody) in `x-payload-digest`.
 // Idempotent: identity_webhook_events UNIQUE(provider, event_id).
-// Replay-protected: rejects events > 5min skew from `createdAtMs`.
+// Freshness-guarded: 48h past / 10min future window on `createdAtMs`; replay
+// safety itself comes from the HMAC signature + UNIQUE(provider, event_id).
 // Never trusts client claims — only this handler flips status to approved/rejected.
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import {
@@ -86,9 +87,15 @@ Deno.serve(async (req) => {
     .from("identity_webhook_events")
     .select("id, result")
     .eq("provider", "sumsub").eq("event_id", eventId).maybeSingle();
-  if (existing && existing.result === "processed") {
-    await admin.from("identity_webhook_events")
-      .update({ result: "duplicate" }).eq("id", existing.id);
+  // Do NOT rewrite the row to "duplicate": that erases the only record that
+  // this event was processed, so a third delivery would read "duplicate",
+  // fall through, and re-apply the state change. Keep "processed" sticky and
+  // treat a pre-existing "duplicate" (written by the earlier buggy path) as
+  // processed too, so already-corrupted rows cannot be reprocessed either.
+  if (existing && (existing.result === "processed" || existing.result === "duplicate")) {
+    console.log(JSON.stringify({
+      evt: "identity.webhook_duplicate", event_id: eventId, event_type: parsed.type ?? null,
+    }));
     return json({ ok: true, duplicate: true });
   }
 
@@ -126,8 +133,12 @@ Deno.serve(async (req) => {
       return json({ ok: true, unmatched: true });
     }
 
-    const status = mapSumsubStatus(parsed.reviewStatus, parsed.reviewResult?.reviewAnswer);
-    const envDecision = resolveSumsubEnv(cfg.baseUrl);
+    const status = mapSumsubStatus(
+      parsed.reviewStatus,
+      parsed.reviewResult?.reviewAnswer,
+      parsed.reviewResult?.reviewRejectType,
+    );
+    const envDecision = resolveSumsubEnv(cfg.baseUrl, cfg.appToken);
     const sandbox = isSandboxResult(parsed.sandboxMode ?? null, envDecision);
     const nowIso = new Date().toISOString();
     const patch: Record<string, unknown> = {
