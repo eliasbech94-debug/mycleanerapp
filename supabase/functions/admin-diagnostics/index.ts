@@ -111,7 +111,7 @@ Deno.serve(monitored("admin-diagnostics", async (req, log) => {
   });
   checks.push({
     name: "sms",
-    status: Deno.env.get("TWILIO_AUTH_TOKEN") || Deno.env.get("SMS_PROVIDER_KEY") ? "healthy" : "degraded",
+    status: Deno.env.get("GATEWAYAPI_API_TOKEN") ? "healthy" : "degraded",
     note: "config_only_check",
   });
 
