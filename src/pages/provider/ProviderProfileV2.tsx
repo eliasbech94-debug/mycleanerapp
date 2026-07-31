@@ -10,6 +10,7 @@ import {
   ExternalLink, Pencil, ShieldCheck, MapPin, Languages, Wrench,
   FileBadge, CalendarClock, Sparkles, Star, User as UserIcon, Briefcase,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/hooks/useAuth";
 import { useProviderProfile } from "@/hooks/useProviderProfile";
 import { useProviderProfileEditor } from "@/hooks/useProviderProfileEditor";
@@ -33,25 +34,9 @@ type EditorKey =
   | "pricing" | "area" | "availability" | "identity" | "insurance"
   | "documents" | "performance" | "settings" | "stripe" | "tax";
 
-const CATEGORY_LABEL: Record<string, string> = {
-  cleaning: "Rengøring", handyman: "Handyman", garden: "Have", moving: "Flytning",
-};
-const LANG_LABEL: Record<string, string> = {
-  da: "Dansk", en: "Engelsk", sv: "Svensk", de: "Tysk", es: "Spansk", pl: "Polsk",
-};
-const EQUIP_LABEL: Record<string, string> = {
-  own_vacuum: "Egen støvsuger", eco_products: "Miljøvenlige midler",
-  own_mop: "Egen mop/gulvsæt", car: "Egen bil", ladder: "Stige",
-};
-const SERVICE_LABEL: Record<string, string> = {
-  home_cleaning: "Almindelig rengøring", deep_cleaning: "Hovedrengøring",
-  move_out_cleaning: "Flytterengøring", office_cleaning: "Erhvervsrengøring",
-  window_cleaning: "Vinduespudsning",
-};
-
-const formatMoney = (minor: number, currency: string) => {
+const formatMoney = (minor: number, currency: string, locale: string) => {
   try {
-    return new Intl.NumberFormat("da-DK", { style: "currency", currency, maximumFractionDigits: 0 })
+    return new Intl.NumberFormat(locale, { style: "currency", currency, maximumFractionDigits: 0 })
       .format(minor / 100);
   } catch { return `${Math.round(minor / 100)} ${currency}`; }
 };
