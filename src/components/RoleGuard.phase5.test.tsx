@@ -56,7 +56,7 @@ describe("RoleGuard — Phase 5 role protection", () => {
     mockRoles.mockReturnValue({ roles: ["customer"], isSuperAdmin: false, loading: false });
     renderAt("/provider", ["provider", "admin"]);
     expect(screen.queryByTestId("protected")).not.toBeInTheDocument();
-    expect(screen.getByText(/Ingen adgang/i)).toBeInTheDocument();
+    expect(screen.getByText(/Ingen adgang|ui.noAccess/i)).toBeInTheDocument();
   });
 
   it("blocks provider from customer-only routes", () => {
@@ -64,7 +64,7 @@ describe("RoleGuard — Phase 5 role protection", () => {
     mockRoles.mockReturnValue({ roles: ["provider"], isSuperAdmin: false, loading: false });
     renderAt("/customer", ["customer"]);
     expect(screen.queryByTestId("protected")).not.toBeInTheDocument();
-    expect(screen.getByText(/Ingen adgang/i)).toBeInTheDocument();
+    expect(screen.getByText(/Ingen adgang|ui.noAccess/i)).toBeInTheDocument();
   });
 
   it("grants access when role matches", () => {

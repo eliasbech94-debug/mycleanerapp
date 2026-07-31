@@ -406,7 +406,62 @@
       "preferences": "Preferencias de limpieza",
       "access": "Instrucciones de acceso",
       "deactivate": "Desactivar cuenta",
-      "tax": "Datos fiscales"
+      "tax": "Datos fiscales",
+      "common": {
+        "saved": "Guardado",
+        "addPrimaryFirst": "Añade primero una dirección principal",
+        "addPrimaryFirstInline": "Añade primero una dirección principal en \"Direcciones guardadas\".",
+        "invalid": "No válido"
+      },
+      "personalFields": {
+        "fullNameLabel": "Nombre completo",
+        "countryLabel": "País (ISO 3166-1)",
+        "countryPlaceholder": "ES",
+        "languageLabel": "Idioma",
+        "languageNone": "—",
+        "errors": {
+          "charLimit": "Máx. 100 caracteres",
+          "countryCode": "Código de país de 2 letras"
+        }
+      },
+      "contactFields": {
+        "emailLabel": "Correo electrónico",
+        "emailNote": "El correo electrónico se cambia en la configuración de la cuenta.",
+        "phoneLabel": "Teléfono",
+        "phonePlaceholder": "+34 612 34 56 78",
+        "errors": {
+          "phone": "Número no válido"
+        }
+      },
+      "prefsFields": {
+        "petsLabel": "Mascotas",
+        "petDetailsLabel": "Detalles",
+        "petDetailsPlaceholder": "P. ej. 'Perro, no agresivo'",
+        "childrenLabel": "Niños en casa",
+        "suppliesLabel": "Productos de limpieza disponibles",
+        "parkingLabel": "Aparcamiento"
+      },
+      "accessFields": {
+        "methodLabel": "Método de acceso",
+        "codeLabel": "Código (opcional)",
+        "instructionsLabel": "Instrucciones"
+      }
+    },
+    "addressLabels": {
+      "placeType": {
+        "private": "Privada",
+        "business": "Comercial",
+        "vacation": "Casa de vacaciones",
+        "other": "Otro"
+      },
+      "accessMethod": {
+        "home": "Estoy en casa",
+        "key_box": "Caja de llaves",
+        "key_under_mat": "Llave escondida (bajo el felpudo / maceta)",
+        "doorman": "Portero / conserje",
+        "code": "Código de acceso",
+        "other": "Otro"
+      }
     }
   }
 }

@@ -406,7 +406,62 @@
       "preferences": "Rengøringspræferencer",
       "access": "Adgangsinstruktioner",
       "deactivate": "Deaktiver konto",
-      "tax": "Skatteoplysninger"
+      "tax": "Skatteoplysninger",
+      "common": {
+        "saved": "Gemt",
+        "addPrimaryFirst": "Tilføj en primær adresse først",
+        "addPrimaryFirstInline": "Tilføj en primær adresse først i \"Gemte adresser\".",
+        "invalid": "Ugyldigt"
+      },
+      "personalFields": {
+        "fullNameLabel": "Fulde navn",
+        "countryLabel": "Land (ISO 3166-1)",
+        "countryPlaceholder": "DK",
+        "languageLabel": "Sprog",
+        "languageNone": "—",
+        "errors": {
+          "charLimit": "Maks. 100 tegn",
+          "countryCode": "2-bogstavs landekode"
+        }
+      },
+      "contactFields": {
+        "emailLabel": "E-mail",
+        "emailNote": "E-mail ændres via kontoindstillinger.",
+        "phoneLabel": "Telefon",
+        "phonePlaceholder": "+45 12 34 56 78",
+        "errors": {
+          "phone": "Ugyldigt nummer"
+        }
+      },
+      "prefsFields": {
+        "petsLabel": "Kæledyr",
+        "petDetailsLabel": "Detaljer",
+        "petDetailsPlaceholder": "F.eks. 'Hund, ikke aggressiv'",
+        "childrenLabel": "Børn i hjemmet",
+        "suppliesLabel": "Rengøringsmidler er klar",
+        "parkingLabel": "Parkering"
+      },
+      "accessFields": {
+        "methodLabel": "Adgangsmetode",
+        "codeLabel": "Kode (valgfri)",
+        "instructionsLabel": "Instruktioner"
+      }
+    },
+    "addressLabels": {
+      "placeType": {
+        "private": "Privat",
+        "business": "Erhverv",
+        "vacation": "Sommerhus",
+        "other": "Andet"
+      },
+      "accessMethod": {
+        "home": "Jeg er hjemme",
+        "key_box": "Nøgleboks",
+        "key_under_mat": "Nøgle gemt (under måtte / krukke)",
+        "doorman": "Vicevært / portner",
+        "code": "Adgangskode til opgang",
+        "other": "Andet"
+      }
     }
   }
 }
