@@ -6069,6 +6069,7 @@ export type Database = {
           deactivated_at: string | null
           deactivation_reason: string | null
           encryption_version: number
+          first_completed_job_popup_seen_at: string | null
           full_name: string | null
           id: string
           language_manual: boolean
@@ -6111,6 +6112,7 @@ export type Database = {
           deactivated_at?: string | null
           deactivation_reason?: string | null
           encryption_version?: number
+          first_completed_job_popup_seen_at?: string | null
           full_name?: string | null
           id: string
           language_manual?: boolean
@@ -6153,6 +6155,7 @@ export type Database = {
           deactivated_at?: string | null
           deactivation_reason?: string | null
           encryption_version?: number
+          first_completed_job_popup_seen_at?: string | null
           full_name?: string | null
           id?: string
           language_manual?: boolean
@@ -9321,6 +9324,7 @@ export type Database = {
         Args: { _booking_id: string }
         Returns: number
       }
+      get_first_completed_job_popup_state: { Args: never; Returns: Json }
       get_lifecycle_public_isos: {
         Args: never
         Returns: {
@@ -9925,6 +9929,7 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      mark_first_completed_job_popup_seen: { Args: never; Returns: string }
       mark_welcome_video_seen: { Args: never; Returns: string }
       migrate_legacy_support_threads: {
         Args: never
