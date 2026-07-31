@@ -154,7 +154,33 @@ Deno.serve(async (req) => {
     };
   }
 
+  // 3) Enumerate the levels that DO exist, so a misconfigured level name can be
+  //    corrected against reality instead of guesswork.
+  const listing = await probe(host, appToken, secretKey, "GET", "/resources/applicantLevels");
+  let availableLevels: unknown = { http_status: listing.status, note: listing.note };
+  if (listing.ok) {
+    try {
+      const headers = await signSumsubRequest({
+        appToken, secretKey, method: "GET", path: "/resources/applicantLevels", body: "",
+      });
+      const res = await fetch(host + "/resources/applicantLevels", {
+        method: "GET", headers: { ...headers, Accept: "application/json" },
+        signal: AbortSignal.timeout(10_000),
+      });
+      const j = await res.json();
+      const arr = Array.isArray(j) ? j : (j.list?.items ?? j.items ?? []);
+      availableLevels = {
+        http_status: listing.status,
+        // Level names are configuration, not secrets.
+        names: (arr as Array<{ name?: string }>).map((x) => x?.name).filter(Boolean),
+      };
+    } catch (e) {
+      availableLevels = { http_status: listing.status, parse_error: (e as Error).message };
+    }
+  }
+
   result.probes = {
+    available_levels: availableLevels,
     credentials: {
       http_status: credProbe.status,
       credentials_valid: credProbe.status === 404 || credProbe.ok,
