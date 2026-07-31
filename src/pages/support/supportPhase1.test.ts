@@ -114,7 +114,7 @@ describe("support note edge functions — staff gate, validation, audit", () => 
 
 describe("support note validation helpers", () => {
   it("enforces subject types, uuids and body limits", async () => {
-    const mod = await import("../../supabase/functions/_shared/supportNotes.ts");
+    const mod = await import("../../../supabase/functions/_shared/supportNotes.ts");
     expect(mod.isSubjectType("customer")).toBe(true);
     expect(mod.isSubjectType("provider")).toBe(true);
     expect(mod.isSubjectType("employee")).toBe(false);
@@ -130,7 +130,7 @@ describe("support note validation helpers", () => {
   });
 
   it("shapes notes to the necessary fields only", async () => {
-    const mod = await import("../../supabase/functions/_shared/supportNotes.ts");
+    const mod = await import("../../../supabase/functions/_shared/supportNotes.ts");
     const shaped = mod.shapeNote({
       id: "1",
       subject_type: "customer",
@@ -146,7 +146,7 @@ describe("support note validation helpers", () => {
   });
 
   it("rejects a provider subject that has no provider profile", async () => {
-    const mod = await import("../../supabase/functions/_shared/supportNotes.ts");
+    const mod = await import("../../../supabase/functions/_shared/supportNotes.ts");
     const admin = {
       from: (table: string) => ({
         select: () => ({
