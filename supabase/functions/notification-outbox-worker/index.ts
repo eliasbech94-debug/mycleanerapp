@@ -8,6 +8,7 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 import { monitored } from "../_shared/logger.ts";
 import { startJobRun } from "../_shared/jobrun.ts";
 import { requireServiceOrAdmin } from "../_shared/auth.ts";
+import { isSmsConfigured, sendSms as sendSmsViaGatewayApi } from "../_shared/gatewayapi.ts";
 
 const admin = createClient(
   Deno.env.get("SUPABASE_URL")!,
