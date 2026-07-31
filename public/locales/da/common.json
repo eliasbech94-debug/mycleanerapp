@@ -367,5 +367,13 @@
       "noneWhen": "hvis du aflyser efter {{time}}",
       "detail": "Bookingen starter {{start}}. Gratis aflysning udløber {{freeUntil}} ({{fullHours}} timer før start), og fra {{feeFrom}} ({{partialHours}} timer før start) opkræves 100 % cancellation fee. Tidspunkterne vises i din lokale tid. Er beløbet endnu ikke hævet, annulleres reservationen i stedet, og der opkræves intet. Klager skal indgives senest {{complaintHours}} timer efter opgavens planlagte eller registrerede afslutning."
     }
+  },
+  "ui": {
+    "noAccess": "Ingen adgang",
+    "seeProfileForPrice": "Se profil for pris",
+    "availableTimes": "Ledige tider",
+    "servicesAndPrices": "Ydelser og priser",
+    "understood": "Forstået",
+    "noConversationsInFilter": "Ingen samtaler i dette filter."
   }
 }

@@ -1,0 +1,328 @@
+{
+  "profile": {
+    "pageTitle": "Min profil",
+    "pageSubtitle": "Din offentliga profil och information",
+    "viewPublicProfile": "Visa offentlig profil",
+    "editProfile": "Redigera profil",
+    "editButton": "Redigera",
+    "welcomeSubtitleDefault": "Din profil styr hur kunder ser dig på marketplace.",
+    "greeting": {
+      "morning": "God morgon",
+      "day": "God dag",
+      "evening": "God kväll"
+    },
+    "noProfile": {
+      "title": "Ingen providerprofil",
+      "body": "Du behöver först starta en Cleaner-ansökan.",
+      "cta": "Bli Cleaner"
+    },
+    "status": {
+      "label": "Status"
+    },
+    "visibility": {
+      "label": "Synlighet",
+      "public": "Offentlig",
+      "hidden": "Dold"
+    },
+    "stats": {
+      "completedJobs": "Genomförda jobb",
+      "yearsExperience": "Års erfarenhet",
+      "responseTime": "Svarstid",
+      "responseTimeHint": "Senaste 30 dagarna",
+      "acceptanceRate": "Acceptansgrad"
+    },
+    "time": {
+      "minutes": "{{count}} min"
+    },
+    "sections": {
+      "photoIdentity": {
+        "title": "Foto & identitet",
+        "noName": "Inget namn"
+      },
+      "about": {
+        "title": "Om mig",
+        "emptyTitle": "Ingen offentlig presentation ännu",
+        "emptyDescription": "Berätta för kunderna vem du är och varför de ska välja dig."
+      },
+      "languages": {
+        "title": "Språk",
+        "empty": "Inga språk valda"
+      },
+      "experienceEquipment": {
+        "title": "Erfarenhet & utrustning",
+        "experienceLabel": "Erfarenhet:",
+        "yearsValue": "{{count}} år",
+        "noEquipment": "Ingen utrustning markerad."
+      },
+      "servicesPricing": {
+        "title": "Tjänster & priser",
+        "description": "Varje tjänst har sitt eget timpris. Slutpriser beräknas alltid server-side.",
+        "categoriesButton": "Kategorier",
+        "pricesButton": "Priser",
+        "noCategories": "Inga kategorier valda.",
+        "emptyPricesTitle": "Inga enskilda tjänstepriser ännu",
+        "emptyPricesDescription": "Ange priser per tjänst så att kunderna vet exakt vad det kostar.",
+        "addPrices": "Lägg till priser",
+        "perHour": "/tim"
+      },
+      "area": {
+        "title": "Serviceområde",
+        "noAddress": "Ingen adress vald",
+        "publicNotice": "Endast ett cirkulärt område visas offentligt — aldrig din exakta adress.",
+        "radiusLabel": "Radie:",
+        "radiusValue": "{{count}} km"
+      },
+      "availability": {
+        "title": "Tillgänglighet",
+        "description": "Ditt veckoschema och bokningsfönster.",
+        "openCalendar": "Öppna kalenderredigeraren"
+      },
+      "verification": {
+        "title": "Verifiering",
+        "identityLabel": "Identitet",
+        "verified": "Verifierad",
+        "missing": "Saknas",
+        "stripeLabel": "Stripe-utbetalning",
+        "ready": "Klar",
+        "notReady": "Inte klar",
+        "openStripeStatus": "Öppna Stripe-status"
+      },
+      "insurance": {
+        "title": "Försäkring",
+        "policyLabel": "Försäkringsnummer",
+        "expiresLabel": "Går ut"
+      },
+      "documents": {
+        "title": "Dokument",
+        "uploadButton": "Ladda upp",
+        "insuranceDocLabel": "Försäkringsdokument",
+        "uploaded": "Uppladdat",
+        "missing": "Saknas"
+      },
+      "performance": {
+        "title": "Prestation",
+        "detailsButton": "Se detaljer",
+        "score": "Poäng",
+        "tier": "Nivå",
+        "completed": "Genomförda"
+      },
+      "reviews": {
+        "title": "Kundrecensioner",
+        "description": "Visas här när kunder lämnar recensioner på genomförda bokningar."
+      },
+      "tax": {
+        "title": "Skatt",
+        "openButton": "Öppna skatteprofil",
+        "body": "Momsregistreringsnummer och skatteinställningar uppdateras i en egen redigerare."
+      },
+      "settings": {
+        "title": "Inställningar & synlighet",
+        "description": "Dela din profil, synlighet, kontostatus och GDPR.",
+        "openButton": "Öppna",
+        "publicUrlLabel": "Offentlig URL",
+        "notAssigned": "Inte tilldelad än",
+        "hidden": "Dold",
+        "pending": "Väntar"
+      }
+    },
+    "editors": {
+      "personal": "Personuppgifter",
+      "business": "Om mig",
+      "languages": "Språk",
+      "equipment": "Utrustning",
+      "services": "Tjänstekategorier",
+      "pricing": "Priser",
+      "area": "Serviceområde",
+      "insurance": "Försäkring",
+      "settings": "Inställningar",
+      "availability": "Tillgänglighet",
+      "identity": "Verifiering",
+      "stripe": "Stripe & utbetalning",
+      "documents": "Dokument",
+      "tax": "Skatteuppgifter",
+      "performance": {
+        "title": "Prestation & poäng",
+        "rating": "Betyg",
+        "completionRate": "Genomförandegrad",
+        "cancellations": "Avbokningar",
+        "repeatCustomers": "Återkommande kunder",
+        "note": "Poäng och nivå uppdateras automatiskt baserat på dina senaste 30 dagar."
+      }
+    },
+    "identityBadge": {
+      "verified": "Verifierad",
+      "pending": "Under granskning",
+      "unverified": "Inte verifierad"
+    }
+  },
+  "catalog": {
+    "categories": {
+      "cleaning": "Städning",
+      "handyman": "Hantverkare",
+      "garden": "Trädgård",
+      "moving": "Flytt"
+    },
+    "languages": {
+      "da": "Danska",
+      "en": "Engelska",
+      "sv": "Svenska",
+      "de": "Tyska",
+      "es": "Spanska",
+      "pl": "Polska"
+    },
+    "equipment": {
+      "own_vacuum": "Egen dammsugare",
+      "eco_products": "Miljövänliga produkter",
+      "own_mop": "Egen mopp/golvset",
+      "car": "Egen bil",
+      "ladder": "Stege"
+    },
+    "services": {
+      "home_cleaning": "Vanlig städning",
+      "deep_cleaning": "Storstädning",
+      "move_out_cleaning": "Flyttstädning",
+      "office_cleaning": "Kontorsstädning",
+      "window_cleaning": "Fönsterputsning"
+    }
+  },
+  "dashboard": {
+    "brandTitle": "Cleaner",
+    "greeting": "Cleaner-dashboard",
+    "title": "Dashboard",
+    "description": "Överblick över dina bokningar, din intjäning och din profilstatus som egenföretagande provider.",
+    "editProfile": "Redigera profil",
+    "subtitle": {
+      "nextJobWithSlot": "Nästa jobb: {{date}} kl. {{slot}}.",
+      "nextJob": "Nästa jobb: {{date}}.",
+      "openRequests_one": "Du har {{count}} öppen förfrågan — svara snabbt för bättre placering.",
+      "openRequests_other": "Du har {{count}} öppna förfrågningar — svara snabbt för bättre placering.",
+      "noBookings": "Du har inga kommande bokningar. Håll din profil komplett och synlig så att fler kunder kan hitta dig."
+    },
+    "stats": {
+      "completedBookings": "Genomförda bokningar",
+      "earnings": "Din intjäning",
+      "earningsHint": "Från genomförda bokningar",
+      "acceptanceRate": "Acceptansgrad",
+      "noOffersYet": "Inga erbjudanden ännu",
+      "responseTime": "Svarstid",
+      "noResponsesYet": "Inga svar ännu",
+      "average": "Genomsnitt"
+    },
+    "time": {
+      "seconds": "{{count}}s",
+      "minutes": "{{count}} min",
+      "hours": "{{count}} tim"
+    },
+    "sections": {
+      "today": {
+        "title": "Idag",
+        "description": "Dina bokningar idag.",
+        "emptyTitle": "Inga bokningar idag",
+        "emptyDescription": "Njut av en paus — eller uppdatera din tillgänglighet så att fler kunder kan boka dig."
+      },
+      "newRequests": {
+        "title": "Nya bokningsförfrågningar",
+        "description": "Svara snabbt — det ger dig en bättre placering på marketplace.",
+        "emptyTitle": "Inga nya bokningsförfrågningar",
+        "emptyDescription": "Nya bokningsförfrågningar visas här så snart en kund skickar en."
+      },
+      "upcoming": {
+        "title": "Kommande bokningar",
+        "emptyTitle": "Inga kommande bokningar",
+        "emptyDescription": "Accepterade bokningar visas här tills de är genomförda."
+      },
+      "reviews": {
+        "title": "Recensioner",
+        "description": "Betyg och skriftliga recensioner från dina kunder.",
+        "comingSoonTitle": "Betyg & recensioner",
+        "comingSoonDescription": "Recensioner kommer snart. Fram tills dess visar dashboarden bara bokningar och intjäning."
+      }
+    },
+    "shortcuts": {
+      "title": "Genvägar",
+      "messages": {
+        "title": "Meddelanden",
+        "description": "Chatta med kunder"
+      },
+      "pricing": {
+        "title": "Priser",
+        "description": "Justera ditt timpris och paket"
+      },
+      "finance": {
+        "title": "Ekonomi",
+        "description": "Utbetalningar och avräkningsöversikter"
+      },
+      "receipts": {
+        "title": "Kvitton",
+        "description": "Kvitton och utgifter för din bokföring"
+      },
+      "profile": {
+        "title": "Profil",
+        "description": "Redigera din offentliga profil"
+      },
+      "support": {
+        "title": "Support",
+        "description": "Vi hjälper dig gärna"
+      }
+    },
+    "keyFigures": {
+      "title": "Nyckeltal",
+      "description": "Baserat på verkliga bokningar och erbjudanden.",
+      "accept": "Acceptans",
+      "cancellation": "Avbokning",
+      "responseTime": "Svarstid",
+      "rating": "Betyg",
+      "tier": "Nivå"
+    },
+    "payouts": {
+      "title": "Utbetalningar",
+      "seeAll": "Se alla",
+      "emptyTitle": "Inga utbetalningar ännu",
+      "emptyDescription": "Din första utbetalning visas här när en bokning är genomförd. Exakt när beloppet syns på kontot beror på betalningsleverantören och din bank."
+    }
+  },
+  "booking": {
+    "status": {
+      "pending": "Ny förfrågan",
+      "accepted": "Accepterad",
+      "completed": "Genomförd",
+      "declined": "Avvisad",
+      "cancelled": "Avbokad"
+    },
+    "defaultService": "Städning",
+    "hoursSuffix": "· {{count}} tim",
+    "providerGets": "Du får {{amount}}",
+    "atSlot": "kl. {{slot}}"
+  },
+  "payout": {
+    "status": {
+      "paid": "Utbetalning genomförd",
+      "in_transit": "Utbetalning planerad",
+      "pending": "Väntar",
+      "failed": "Inte genomförd",
+      "canceled": "Avbokad"
+    }
+  },
+  "verification": {
+    "identity": {
+      "title": "Verifiera din identitet",
+      "description": "Vi behöver bekräfta din identitet innan du kan ta emot bokningar.",
+      "action": "Starta verifiering"
+    },
+    "stripe": {
+      "title": "Slutför Stripe-registreringen",
+      "description": "Anslut ditt bankkonto så att din intjäning kan betalas ut.",
+      "action": "Öppna Stripe"
+    },
+    "public": {
+      "title": "Din profil syns inte",
+      "description": "Aktivera offentlig synlighet för att ta emot förfrågningar från kunder.",
+      "action": "Redigera profil"
+    },
+    "completion": {
+      "title": "Din profil är {{percent}}% klar",
+      "description": "Slutför din profil — kompletta profiler rankas högre på marketplace.",
+      "action": "Slutför"
+    }
+  }
+}

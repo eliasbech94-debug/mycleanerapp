@@ -5,6 +5,7 @@
  * Everything shown here comes from the same DB-driven props the page already
  * received; nothing is hardcoded.
  */
+import { useTranslation } from "react-i18next";
 import { CalendarCheck, BellRing, Clock3, Heart, Star } from "lucide-react";
 import type { PublicProviderProfile, Slot } from "./types";
 import { activeServices, priceLabel } from "./servicePricing";
@@ -38,6 +39,7 @@ export function ProviderBookingSidebar({
   onFollow,
   onPickSlot,
 }: Props) {
+  const { t } = useTranslation("common");
   const services = activeServices(profile.services);
   const cheapest = services.length
     ? services.reduce((a, b) => (a.amount_minor <= b.amount_minor ? a : b))
@@ -97,7 +99,7 @@ export function ProviderBookingSidebar({
 
       {days.length > 0 && (
         <div>
-          <h2 className="text-sm font-semibold text-[hsl(224_72%_18%)]">Ledige tider</h2>
+          <h2 className="text-sm font-semibold text-[hsl(224_72%_18%)]">{t("ui.availableTimes")}</h2>
           <div className="mt-2 space-y-2">
             {days.map(([day, hours]) => (
               <div key={day}>

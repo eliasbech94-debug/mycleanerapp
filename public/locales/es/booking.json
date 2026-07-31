@@ -1,0 +1,169 @@
+{
+  "nav": {
+    "back": "Atrás",
+    "previous": "Anterior",
+    "cancel": "Cancelar",
+    "next": "Siguiente",
+    "sending": "Enviando…"
+  },
+  "header": {
+    "title": "Reserva · MyCleaner"
+  },
+  "stepper": {
+    "service": "Servicio",
+    "dateTime": "Fecha y hora",
+    "review": "Revisar"
+  },
+  "step1": {
+    "title": "¿De qué se encargará {{name}}?",
+    "subtitle": "Elige un servicio con tu limpiador/a. Puedes ajustar la duración — afecta directamente al precio.",
+    "hoursLabel": "Número de horas",
+    "hoursUnit": "h",
+    "hoursMin": "1,5 h",
+    "hoursMid": "4 h",
+    "hoursMax": "8 h",
+    "selected": "Seleccionado",
+    "fromPrice": "desde {{price}}"
+  },
+  "step2": {
+    "title": "Elige fecha y hora",
+    "subtitle": "Reservas directamente en el calendario del profesional. Los horarios en gris ya están ocupados.",
+    "prevWeekAria": "Semana anterior",
+    "nextWeekAria": "Semana siguiente",
+    "availableTimes": "Horarios disponibles · {{date}}"
+  },
+  "step3": {
+    "title": "Últimos detalles",
+    "subtitle": "Enviamos los datos directamente a {{name}}. El importe solo se cobra cuando el profesional acepta tu solicitud de reserva.",
+    "address": {
+      "chooseAddress": "Elegir dirección",
+      "useAnotherAddress": "Usar otra dirección",
+      "addressLabel": "Dirección",
+      "useSaved": "Usar una guardada",
+      "validated": "Dirección validada — el profesional puede encontrar el lugar",
+      "hint": "Empieza a escribir y elige tu dirección de la lista. Comprobamos que sea real.",
+      "placeholder": "Calle, número, piso, ciudad",
+      "loginPrompt": "Inicia sesión",
+      "loginPromptTail": "y guarda tus direcciones con info de acceso para que el profesional lo sepa todo automáticamente.",
+      "saveAddressPrompt": "Guarda esta dirección",
+      "saveAddressPromptTail": "en tu libreta de direcciones con mascotas, aparcamiento e info de acceso — se autocompletará la próxima vez."
+    },
+    "verify": {
+      "title": "Confirmación de dirección",
+      "badgePrimary": "Dirección principal",
+      "badgeSaved": "Dirección guardada",
+      "badgeProfile": "Del perfil",
+      "badgeOneTime": "Dirección puntual",
+      "profileLabel": "De tu perfil",
+      "manualLabel": "Entrada manual",
+      "edit": "Editar",
+      "sqm": "m²",
+      "rooms": "habitaciones",
+      "access": "Acceso",
+      "code": "Código",
+      "instructions": "Instrucciones",
+      "pets": "Mascotas",
+      "petsYes": "Sí",
+      "children": "Niños",
+      "childrenPresent": "Niños en casa",
+      "parking": "Aparcamiento",
+      "cleaningSupplies": "Productos de limpieza",
+      "cleaningSuppliesReady": "Disponibles en el lugar",
+      "wifi": "WiFi",
+      "otherNotes": "Otras notas",
+      "profileHint": "Usamos la dirección de tu perfil. Guárdala en tu libreta de direcciones para añadir info de acceso y mascotas.",
+      "oneTimeHint": "Estás usando una dirección manual. Escribe la info de acceso y mascotas directamente en el mensaje al profesional a continuación."
+    },
+    "notes": {
+      "label": "Notas para el profesional (opcional)",
+      "placeholder": "Ej. mascotas, alergias o cómo acuerdas el acceso con el profesional…"
+    },
+    "payment": {
+      "label": "Tarjeta de pago",
+      "disclaimer": "El importe puede quedar retenido en tu tarjeta mientras se procesa la solicitud de reserva. Solo se cobra cuando el profesional acepta la reserva."
+    },
+    "paymentHandling": {
+      "title": "Cómo se gestiona tu pago",
+      "body": "{{amount}} pueden quedar retenidos en tu tarjeta. El importe solo se abona al profesional cuando el servicio se ha completado y la reserva se ha cerrado."
+    }
+  },
+  "editDialog": {
+    "title": "Editar acceso y mascotas",
+    "description": "Los cambios se guardan en \"{{label}}\" en tu libreta de direcciones. Tú acuerdas el acceso directamente con el profesional — MyCleaner no recibe ni conserva llaves.",
+    "accessMethodLabel": "Cómo accede el profesional",
+    "codeLabel": "Código",
+    "codePlaceholder": "Ej. 1234",
+    "instructionsLabel": "Instrucciones",
+    "instructionsPlaceholder": "Ej. caja de llaves junto al buzón, llamar al 3.º piso…",
+    "petsLabel": "Mascotas en casa",
+    "petsPlaceholder": "Ej. 1 perro (amigable), 2 gatos",
+    "childrenLabel": "Niños en casa",
+    "parkingLabel": "Aparcamiento",
+    "parkingPlaceholder": "Ej. gratis en la calle, se requiere permiso de aparcamiento",
+    "suppliesLabel": "Productos de limpieza disponibles en el lugar",
+    "cancel": "Cancelar",
+    "save": "Guardar cambios",
+    "saving": "Guardando…"
+  },
+  "toast": {
+    "selectAddress": {
+      "title": "Elige tu dirección",
+      "description": "Elige una dirección válida de la lista para que el profesional sepa dónde se realizará el trabajo."
+    },
+    "loginRequired": {
+      "title": "Inicia sesión para enviar tu solicitud de reserva",
+      "description": "Inicia sesión para que el profesional pueda contactarte sobre la reserva."
+    },
+    "paymentNotReady": {
+      "title": "El pago aún no está listo",
+      "description": "El campo de pago todavía se está cargando. Espera un momento e inténtalo de nuevo."
+    },
+    "enterCard": {
+      "title": "Introduce los datos de tu tarjeta",
+      "description": "Usamos la tarjeta para retener el importe — solo se cobra cuando la reserva ha sido aceptada."
+    },
+    "priceError": "No hemos podido calcular el precio ahora mismo. Inténtalo de nuevo en breve.",
+    "paymentStartError": "No hemos podido iniciar el pago. Inténtalo de nuevo o usa otro método de pago.",
+    "confirmError": "El pago no se pudo completar. Revisa los datos de tu tarjeta o prueba con otro método de pago.",
+    "unexpectedStatus": "Estado inesperado: {{status}}",
+    "bookingSent": {
+      "title": "Reserva enviada ✓",
+      "description": "{{name}} tiene 24 horas para confirmar. El importe solo se cobra entonces."
+    },
+    "paymentFailed": {
+      "title": "El pago no se pudo completar",
+      "description": "Revisa los datos de tu tarjeta o prueba con otro método de pago."
+    },
+    "changesSaved": {
+      "title": "Cambios guardados",
+      "description": "La info de acceso y mascotas se ha actualizado en la dirección."
+    },
+    "saveFailed": {
+      "title": "No hemos podido guardar los cambios",
+      "description": "Inténtalo de nuevo en breve."
+    }
+  },
+  "actions": {
+    "sendRequest": "Enviar solicitud de reserva"
+  },
+  "step4": {
+    "title": "Tu solicitud de reserva ha sido enviada",
+    "description": "{{name}} ha recibido tu solicitud de reserva y suele responder en {{responseTime}}. Te avisaremos en cuanto se acepte la solicitud.",
+    "yourTime": "Tu horario",
+    "at": "a las {{slot}}",
+    "viewProfile": "Ver perfil de {{name}}",
+    "home": "Ir al inicio"
+  },
+  "summary": {
+    "service": "Servicio",
+    "duration": "Duración",
+    "date": "Fecha",
+    "slot": "Hora",
+    "notSelected": "No seleccionado",
+    "hoursShort": "{{count}} h",
+    "ratePerHour": "{{rate}}/h × {{hours}} h",
+    "platformFee": "Comisión de la plataforma",
+    "total": "Precio total",
+    "providerNet": "Precio del profesional tras la comisión de la plataforma: {{amount}}. MyCleaner es una plataforma que conecta a clientes con profesionales independientes y gestiona la reserva y el pago. El servicio lo realiza el profesional que has elegido."
+  }
+}

@@ -367,5 +367,13 @@
       "noneWhen": "if you cancel after {{time}}",
       "detail": "The booking starts {{start}}. Free cancellation ends {{freeUntil}} ({{fullHours}} hours before the start), and from {{feeFrom}} ({{partialHours}} hours before the start) a 100 % cancellation fee applies. Times are shown in your local time. If the amount has not been charged yet, the reservation is released instead and nothing is charged. Complaints must be submitted no later than {{complaintHours}} hours after the scheduled or recorded end of the job."
     }
+  },
+  "ui": {
+    "noAccess": "No access",
+    "seeProfileForPrice": "See profile for price",
+    "availableTimes": "Available times",
+    "servicesAndPrices": "Services and prices",
+    "understood": "Got it",
+    "noConversationsInFilter": "No conversations in this filter."
   }
 }

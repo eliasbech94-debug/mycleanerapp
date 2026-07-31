@@ -1,0 +1,6 @@
+{
+  "title": "Finanzas",
+  "loading": "Cargando datos financieros…",
+  "empty": "Aún no hay registros financieros.",
+  "error": "No se han podido cargar los datos financieros."
+}

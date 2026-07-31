@@ -1,0 +1,169 @@
+{
+  "nav": {
+    "back": "Tillbaka",
+    "previous": "Föregående",
+    "cancel": "Avbryt",
+    "next": "Nästa",
+    "sending": "Skickar…"
+  },
+  "header": {
+    "title": "Bokning · MyCleaner"
+  },
+  "stepper": {
+    "service": "Tjänst",
+    "dateTime": "Tid",
+    "review": "Granska"
+  },
+  "step1": {
+    "title": "Vad ska {{name}} ta hand om?",
+    "subtitle": "Välj en tjänst hos din städare. Du kan justera längden — det påverkar priset direkt.",
+    "hoursLabel": "Antal timmar",
+    "hoursUnit": "h",
+    "hoursMin": "1,5 h",
+    "hoursMid": "4 h",
+    "hoursMax": "8 h",
+    "selected": "Vald",
+    "fromPrice": "från {{price}}"
+  },
+  "step2": {
+    "title": "Välj datum och tid",
+    "subtitle": "Du bokar direkt i städarens kalender. Grå tider är redan bokade.",
+    "prevWeekAria": "Föregående vecka",
+    "nextWeekAria": "Nästa vecka",
+    "availableTimes": "Lediga tider · {{date}}"
+  },
+  "step3": {
+    "title": "Sista detaljerna",
+    "subtitle": "Vi skickar uppgifterna direkt till {{name}}. Beloppet dras först när leverantören har accepterat din bokningsförfrågan.",
+    "address": {
+      "chooseAddress": "Välj adress",
+      "useAnotherAddress": "Använd en annan adress",
+      "addressLabel": "Adress",
+      "useSaved": "Använd en sparad",
+      "validated": "Adress verifierad — städaren kan hitta platsen",
+      "hint": "Börja skriva och välj din adress från listan. Vi kontrollerar att den är verklig.",
+      "placeholder": "Gata, nummer, våning, stad",
+      "loginPrompt": "Logga in",
+      "loginPromptTail": "och spara dina adresser med tillträdesinfo så att städaren får allt automatiskt.",
+      "saveAddressPrompt": "Spara den här adressen",
+      "saveAddressPromptTail": "i din adressbok med husdjur, parkering och tillträdesinfo — automatiskt ifylld nästa gång."
+    },
+    "verify": {
+      "title": "Adressbekräftelse",
+      "badgePrimary": "Primär adress",
+      "badgeSaved": "Sparad adress",
+      "badgeProfile": "Från profil",
+      "badgeOneTime": "Engångsadress",
+      "profileLabel": "Från din profil",
+      "manualLabel": "Manuell inmatning",
+      "edit": "Redigera",
+      "sqm": "m²",
+      "rooms": "rum",
+      "access": "Tillträde",
+      "code": "Kod",
+      "instructions": "Instruktioner",
+      "pets": "Husdjur",
+      "petsYes": "Ja",
+      "children": "Barn",
+      "childrenPresent": "Barn i hemmet",
+      "parking": "Parkering",
+      "cleaningSupplies": "Städmaterial",
+      "cleaningSuppliesReady": "Finns på plats",
+      "wifi": "WiFi",
+      "otherNotes": "Övriga anteckningar",
+      "profileHint": "Vi använder adressen från din profil. Spara den i din adressbok för att lägga till tillträdesinfo och husdjur.",
+      "oneTimeHint": "Du använder en manuell adress. Skriv tillträdesinfo och husdjur direkt i meddelandet till städaren nedan."
+    },
+    "notes": {
+      "label": "Anteckningar till leverantören (valfritt)",
+      "placeholder": "T.ex. husdjur, allergi eller hur du kommer överens om tillträde med leverantören…"
+    },
+    "payment": {
+      "label": "Betalkort",
+      "disclaimer": "Beloppet kan reserveras på ditt kort medan bokningsförfrågan behandlas. Det dras först när leverantören har accepterat bokningen."
+    },
+    "paymentHandling": {
+      "title": "Så hanteras din betalning",
+      "body": "{{amount}} kan reserveras på ditt kort. Beloppet betalas ut till leverantören först när tjänsten är utförd och bokningen är avslutad."
+    }
+  },
+  "editDialog": {
+    "title": "Redigera tillträde & husdjur",
+    "description": "Ändringar sparas på \"{{label}}\" i din adressbok. Du kommer själv överens om tillträde direkt med leverantören — MyCleaner tar inte emot eller förvarar nycklar.",
+    "accessMethodLabel": "Så här får leverantören tillträde",
+    "codeLabel": "Kod",
+    "codePlaceholder": "T.ex. 1234",
+    "instructionsLabel": "Instruktioner",
+    "instructionsPlaceholder": "T.ex. nyckelbox vid brevlådan, ring på plan 3…",
+    "petsLabel": "Husdjur i hemmet",
+    "petsPlaceholder": "T.ex. 1 hund (snäll), 2 katter",
+    "childrenLabel": "Barn i hemmet",
+    "parkingLabel": "Parkering",
+    "parkingPlaceholder": "T.ex. gratis på gatan, p-tillstånd krävs",
+    "suppliesLabel": "Städmaterial finns på plats",
+    "cancel": "Avbryt",
+    "save": "Spara ändringar",
+    "saving": "Sparar…"
+  },
+  "toast": {
+    "selectAddress": {
+      "title": "Välj din adress",
+      "description": "Välj en giltig adress från listan så att leverantören vet var uppdraget ska utföras."
+    },
+    "loginRequired": {
+      "title": "Logga in för att skicka din bokningsförfrågan",
+      "description": "Logga in så att leverantören kan kontakta dig om bokningen."
+    },
+    "paymentNotReady": {
+      "title": "Betalningen är inte klar än",
+      "description": "Betalningsfältet laddas fortfarande. Vänta en stund och försök igen."
+    },
+    "enterCard": {
+      "title": "Ange dina kortuppgifter",
+      "description": "Vi använder kortet för att reservera beloppet — du betalar först när bokningen har accepterats."
+    },
+    "priceError": "Vi kunde inte beräkna priset just nu. Försök igen om en stund.",
+    "paymentStartError": "Vi kunde inte starta betalningen. Försök igen, eller använd en annan betalningsmetod.",
+    "confirmError": "Betalningen kunde inte genomföras. Kontrollera dina kortuppgifter, eller försök med en annan betalningsmetod.",
+    "unexpectedStatus": "Oväntad status: {{status}}",
+    "bookingSent": {
+      "title": "Bokning skickad ✓",
+      "description": "{{name}} har 24 timmar på sig att bekräfta. Beloppet dras först då."
+    },
+    "paymentFailed": {
+      "title": "Betalningen kunde inte genomföras",
+      "description": "Kontrollera dina kortuppgifter, eller försök med en annan betalningsmetod."
+    },
+    "changesSaved": {
+      "title": "Ändringar sparade",
+      "description": "Tillträde och husdjursinfo har uppdaterats på adressen."
+    },
+    "saveFailed": {
+      "title": "Vi kunde inte spara ändringarna",
+      "description": "Försök igen om en stund."
+    }
+  },
+  "actions": {
+    "sendRequest": "Skicka bokningsförfrågan"
+  },
+  "step4": {
+    "title": "Din bokningsförfrågan har skickats",
+    "description": "{{name}} har tagit emot din bokningsförfrågan och svarar oftast inom {{responseTime}}. Du får besked så fort förfrågan har accepterats.",
+    "yourTime": "Din tid",
+    "at": "kl. {{slot}}",
+    "viewProfile": "Se {{name}}s profil",
+    "home": "Till startsidan"
+  },
+  "summary": {
+    "service": "Tjänst",
+    "duration": "Längd",
+    "date": "Datum",
+    "slot": "Tid",
+    "notSelected": "Inte vald",
+    "hoursShort": "{{count}} h",
+    "ratePerHour": "{{rate}}/h × {{hours}} h",
+    "platformFee": "Plattformsavgift",
+    "total": "Totalpris",
+    "providerNet": "Leverantörens pris efter plattformsavgift: {{amount}}. MyCleaner är en plattform som kopplar samman kunder och egenföretagare och hanterar bokning och betalning. Tjänsten utförs av din valda leverantör."
+  }
+}

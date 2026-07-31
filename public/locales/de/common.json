@@ -367,5 +367,13 @@
       "noneWhen": "wenn Sie nach {{time}} stornieren",
       "detail": "Die Buchung beginnt {{start}}. Die kostenlose Stornierung endet {{freeUntil}} ({{fullHours}} Stunden vor dem Start), und ab {{feeFrom}} ({{partialHours}} Stunden vor dem Start) wird eine Stornogebühr von 100 % berechnet. Die Zeiten werden in Ihrer lokalen Zeit angezeigt. Wurde der Betrag noch nicht abgebucht, wird stattdessen die Reservierung freigegeben und nichts berechnet. Beschwerden müssen spätestens {{complaintHours}} Stunden nach dem geplanten oder erfassten Ende des Auftrags eingereicht werden."
     }
+  },
+  "ui": {
+    "noAccess": "Kein Zugriff",
+    "seeProfileForPrice": "Preis im Profil ansehen",
+    "availableTimes": "Verfügbare Zeiten",
+    "servicesAndPrices": "Leistungen und Preise",
+    "understood": "Verstanden",
+    "noConversationsInFilter": "Keine Konversationen in diesem Filter."
   }
 }

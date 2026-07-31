@@ -367,5 +367,13 @@
       "noneWhen": "om du avbokar efter {{time}}",
       "detail": "Bokningen börjar {{start}}. Kostnadsfri avbokning gäller till {{freeUntil}} ({{fullHours}} timmar före start), och från {{feeFrom}} ({{partialHours}} timmar före start) tas en avbokningsavgift på 100 % ut. Tiderna visas i din lokala tid. Om beloppet ännu inte har dragits släpps reservationen i stället och inget debiteras. Reklamationer måste lämnas in senast {{complaintHours}} timmar efter uppdragets planerade eller registrerade slut."
     }
+  },
+  "ui": {
+    "noAccess": "Ingen åtkomst",
+    "seeProfileForPrice": "Se profil för pris",
+    "availableTimes": "Lediga tider",
+    "servicesAndPrices": "Tjänster och priser",
+    "understood": "Uppfattat",
+    "noConversationsInFilter": "Inga konversationer i det här filtret."
   }
 }

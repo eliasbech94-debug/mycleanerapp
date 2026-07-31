@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useEffect, useRef } from "react";
 import { formatDistanceToNow } from "date-fns";
 import { da } from "date-fns/locale";
@@ -46,6 +47,7 @@ export function ConversationList({
   rows, activeId, onSelect, loading, error,
   hasNextPage, isFetchingNextPage, fetchNextPage,
 }: Props) {
+  const { t } = useTranslation("common");
   const sentinelRef = useRef<HTMLLIElement | null>(null);
 
   useEffect(() => {
@@ -89,7 +91,7 @@ export function ConversationList({
     return (
       <div className="p-8 flex flex-col items-center text-center text-muted-foreground gap-2">
         <InboxIcon className="h-10 w-10 opacity-40" aria-hidden />
-        <p className="text-sm">Ingen samtaler i dette filter.</p>
+        <p className="text-sm">{t("ui.noConversationsInFilter")}</p>
       </div>
     );
   }

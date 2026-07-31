@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useCallback, useState } from "react";
 import {
   Dialog,
@@ -17,6 +18,7 @@ export function BookingsOpenSoonDialog({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
+  const { t } = useTranslation("common");
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent data-testid="bookings-open-soon-dialog" className="max-w-md">
@@ -25,7 +27,7 @@ export function BookingsOpenSoonDialog({
           <DialogDescription>{EARLY_ACCESS_COPY.lockedBody}</DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <Button onClick={() => onOpenChange(false)}>Forstået</Button>
+          <Button onClick={() => onOpenChange(false)}>{t("ui.understood")}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

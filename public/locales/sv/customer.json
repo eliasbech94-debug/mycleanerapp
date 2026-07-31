@@ -1,0 +1,412 @@
+{
+  "greeting": {
+    "morning": "God morgon",
+    "day": "God dag",
+    "evening": "God kväll"
+  },
+  "profile": {
+    "nav": {
+      "back": "Tillbaka",
+      "title": "Min profil",
+      "signOut": "Logga ut",
+      "help": "Hjälp & support",
+      "complaint": "Lämna ett klagomål",
+      "menu": "Meny"
+    },
+    "header": {
+      "defaultName": "Din profil"
+    },
+    "tabs": {
+      "overview": "Översikt",
+      "inbox": "Inkorg",
+      "info": "Mina uppgifter",
+      "addresses": "Adresser",
+      "bookings": "Bokningar",
+      "cards": "Kort & betalningar",
+      "invoices": "Fakturor",
+      "history": "Betalningshistorik",
+      "notifications": "Notiser",
+      "sms": "SMS",
+      "tax": "Skatteuppgifter",
+      "deduction": "RUT-avdrag",
+      "deactivate": "Avaktivera konto"
+    },
+    "overview": {
+      "welcome": "Välkommen, {{name}}",
+      "heroSubtitle": "Här är en snabb översikt över dina kommande städningar, adresser och betalningar.",
+      "bookNewCleaner": "Boka en ny Cleaner",
+      "myBookings": "Mina bokningar",
+      "checklistTitle": "Slutför din profil",
+      "checklistSubtitle": "Slutför dessa steg för att få den bästa matchningen och snabbaste bokningen.",
+      "checklist": {
+        "contact": {
+          "title": "Kontaktuppgifter",
+          "done": "Namn, telefon och land är verifierade.",
+          "fill": "Fyll i namn, telefon och land.",
+          "action": "Fyll i"
+        },
+        "email": {
+          "title": "Bekräfta e-post",
+          "done": "Din e-postadress är bekräftad.",
+          "pending": "Vi har skickat en bekräftelselänk till din inkorg."
+        },
+        "address": {
+          "title": "Primär adress",
+          "loading": "Läser in…",
+          "missing": "Ingen primär adress",
+          "fallback": "Välj en adress bland förslagen.",
+          "action": "Lägg till"
+        },
+        "property": {
+          "title": "Bostadsuppgifter",
+          "missing": "Bostadsuppgifter saknas",
+          "fallback": "Ange storlek, typ och tillträde.",
+          "action": "Fyll i",
+          "summary": "{{size}} m² · {{type}} · tillträde: {{access}}"
+        },
+        "card": {
+          "title": "Betalkort",
+          "loading": "Läser in…",
+          "saved_one": "{{count}} kort sparat för snabb bokning.",
+          "saved_other": "{{count}} kort sparade för snabb bokning.",
+          "fallback": "Spara ett kort för att boka med ett enda klick.",
+          "action": "Lägg till kort"
+        },
+        "firstBooking": {
+          "title": "Första bokningen",
+          "done": "Du har skickat din första förfrågan.",
+          "pending": "Hitta en Cleaner och boka på under 2 minuter."
+        }
+      },
+      "stats": {
+        "upcoming": "Kommande",
+        "completed": "Genomförda",
+        "paidTotal": "Totalt betalt",
+        "addresses": "Adresser"
+      },
+      "nextBooking": {
+        "title": "Nästa bokning",
+        "seeAll": "Se alla",
+        "loading": "Läser in…",
+        "hoursSuffix": "h",
+        "timePrefix": "kl.",
+        "empty": "Inga kommande bokningar.",
+        "findCleaner": "Hitta en Cleaner"
+      },
+      "primaryAddress": {
+        "title": "Primär adress",
+        "manage": "Hantera",
+        "empty": "Du har inga adresser ännu.",
+        "addOne": "Lägg till en"
+      },
+      "cards": {
+        "title": "Kort & betalningar",
+        "manage": "Hantera",
+        "loading": "Läser in…",
+        "empty": "Inga sparade kort ännu.",
+        "saved_one": "<b>{{count}}</b> kort sparat för snabb bokning.",
+        "saved_other": "<b>{{count}}</b> kort sparade för snabb bokning."
+      },
+      "recent": {
+        "title": "Senaste aktivitet",
+        "fullHistory": "Fullständig historik",
+        "loading": "Läser in…",
+        "empty": "Ingen aktivitet ännu."
+      }
+    },
+    "info": {
+      "helperBanner": "Dina kontaktuppgifter skapades under registreringen och hämtas automatiskt här — du kan ändra dem när som helst.",
+      "emailLabel": "E-post (din inloggningsadress)",
+      "fullNameLabel": "Fullständigt namn",
+      "fullNamePlaceholder": "t.ex. Mette Hansen",
+      "phoneLabel": "Telefon",
+      "countryLabel": "Land",
+      "providerIdLabel": "Provider-ID (endast om du själv är Cleaner)",
+      "providerIdPlaceholder": "t.ex. p_002",
+      "providerIdHelp": "Ange ditt Provider-ID för att få tillgång till",
+      "providerIdHelpLink": "provider-dashboarden",
+      "addressTitle": "Min adress",
+      "addressPlaceholder": "Gata, nr, våning, stad",
+      "saveButton": "Spara profil",
+      "toast": {
+        "checkContact": "Kontrollera dina kontaktuppgifter",
+        "invalidAddress": "Välj en giltig adress från listan innan du sparar.",
+        "saved": "Profil sparad"
+      }
+    },
+    "addresses": {
+      "title": "Mina adresser",
+      "subtitle": "Lägg till flera adresser med information om tillträde, husdjur, parkering med mera. Den primära adressen väljs automatiskt vid bokning."
+    },
+    "bookings": {
+      "loading": "Läser in…",
+      "emptyTitle": "Inga bokningar ännu",
+      "emptySubtitle": "Hitta en Cleaner och boka direkt i kalendern.",
+      "findCleaner": "Hitta Cleaner",
+      "hoursSuffix": "h",
+      "timePrefix": "kl.",
+      "cardFallback": "Kort",
+      "totalPrice": "Totalpris",
+      "refunded": "Återbetalt",
+      "youPaid": "Du betalade",
+      "youStillPay": "Du har kvar att betala",
+      "paidStatus": "Betald",
+      "reservedStatus": "Reserverad",
+      "pendingPaymentStatus": "Väntar på betalning",
+      "partialRefund": "Delvis återbetalning",
+      "fullRefund": "Full återbetalning",
+      "refundCount_one": "{{count}} återbetalning",
+      "refundCount_other": "{{count}} återbetalningar",
+      "refundFailed": "Kunde inte slutföras",
+      "refundFailedReason": "Kunde inte slutföras: {{reason}}",
+      "refundDefault": "Återbetalning",
+      "totalRefunded": "Totalt återbetalt",
+      "remaining": "Kvarstående",
+      "reason": "Anledning",
+      "refundId": "Återbetalnings-ID",
+      "seeReceipt": "Se kvitto",
+      "status": {
+        "pending": "Väntar på Cleaner",
+        "accepted": "Accepterad",
+        "declined": "Nekad",
+        "cancelled": "Avbokad",
+        "completed": "Genomförd"
+      },
+      "payment": {
+        "authorized": "Reserverad",
+        "captured": "Betald",
+        "canceled": "Avbruten",
+        "refunded": "Återbetald",
+        "partially_refunded": "Delvis återbetald",
+        "failed": "Ej genomförd"
+      },
+      "refundReason": {
+        "duplicate": "Dubbel betalning",
+        "fraudulent": "Misstänkt bedrägeri",
+        "requested_by_customer": "Begärt av kunden",
+        "expired_uncaptured_charge": "Kortreservation upphörde"
+      }
+    },
+    "cards": {
+      "filters": {
+        "all": "Alla",
+        "default": "Standard",
+        "active": "Aktiva",
+        "expired": "Utgångna"
+      },
+      "filterLabel": "Filter",
+      "noneMatch": "Inga kort matchar det valda filtret.",
+      "loading": "Läser in…",
+      "emptyTitle": "Inga sparade kort",
+      "emptySubtitle": "Lägg till ett kort för att göra bokningen snabbare nästa gång.",
+      "status": {
+        "expired": "Utgånget",
+        "default": "Standard – används nästa gång",
+        "active": "Aktivt"
+      },
+      "expiresLabel": "Går ut {{date}}",
+      "soonSuffix": "(snart)",
+      "statusLabel": "Status",
+      "expiresColLabel": "Går ut",
+      "lastUsedLabel": "Senast använt",
+      "neverUsed": "Aldrig använt",
+      "hideDetails": "Dölj detaljer",
+      "showDetails": "Visa detaljer",
+      "dateLabel": "Datum",
+      "referenceLabel": "Referens",
+      "expiresThisMonth": "Går ut denna månad",
+      "expiresInMonth": "Går ut om cirka 1 månad",
+      "expiresSoonTitle": "Går ut snart",
+      "expiresSoonBodyDefault": " – det är ditt standardkort och används för din nästa betalning",
+      "expiresSoonBody": "Vi rekommenderar att du byter kort i god tid{{defaultNote}}, så att kommande betalningar inte nekas.",
+      "replaceNow": "Byt kort nu",
+      "updating": "Uppdaterar…",
+      "setDefault": "Ange som standard",
+      "replace": "Byt",
+      "removeAria": "Ta bort",
+      "nextPaymentTitle": "Nästa planerade betalning",
+      "chargedFor": "Kommer att debiteras för {{service}} hos {{provider}} · {{date}} {{slot}} · {{amount}}",
+      "noUpcoming": "Inga kommande bokningar planerade. Kortet används automatiskt vid din nästa bokning.",
+      "defaultExpired": "Ditt standardkort har gått ut — byt det innan nästa betalning.",
+      "expiringCount_one": "1 kort går snart ut",
+      "expiringCount_other": "{{count}} kort går snart ut",
+      "expiringDefaultWarning": "Ditt standardkort går ut inom 2 månader. Lägg till ett nytt kort nu så att din nästa betalning inte nekas.",
+      "expiringOtherWarning": "Byt korten i god tid för att undvika nekade betalningar.",
+      "expiringDoNow": " Vi rekommenderar att du gör det direkt.",
+      "replaceDefaultNow": "Byt standardkort nu",
+      "replaceCardNow": "Byt kort nu",
+      "errorTitle": "Vi kunde inte hämta dina betalningsuppgifter",
+      "closeAria": "Stäng",
+      "addCard": "Lägg till betalkort",
+      "replaceCardTitle": "Byt kort",
+      "newCardTitle": "Nytt kort",
+      "preparingForm": "Förbereder säkert Stripe-formulär…",
+      "replaceNote": "Det nya kortet sätts som standard, och {{brand}} •••• {{last4}} tas bort automatiskt.",
+      "deleteDefaultTitle": "Ta bort standardkort?",
+      "deleteCardTitle": "Ta bort betalkort?",
+      "pickNewDefault": "Det här är ditt standardkort. Välj ett nytt standardkort innan du tar bort det:",
+      "onlyCardWarning": "Det här är ditt enda sparade kort. Du behöver ange kortuppgifter manuellt vid din nästa bokning.",
+      "deleting": "Tar bort…",
+      "deleteCard": "Ta bort kort",
+      "saveCard": "Spara kort",
+      "savingCardError": "Kortet kunde inte sparas. Kontrollera uppgifterna och försök igen.",
+      "cardSaved": "Kort sparat",
+      "cardReplaced": "Kort utbytt",
+      "cardReplacedError": "Kortet kunde inte bytas ut. Försök igen eller använd en annan betalningsmetod.",
+      "pickDefaultFirst": "Välj först ett nytt standardkort innan du tar bort det nuvarande.",
+      "cardRemoved": "Kort borttaget",
+      "cardRemovedError": "Kortet kunde inte tas bort. Försök igen om en stund.",
+      "defaultUpdated": "Standardkort uppdaterat",
+      "defaultUpdateError": "Vi kunde inte uppdatera ditt standardkort. Försök igen.",
+      "formOpenError": "Vi kunde inte öppna formuläret för betalkort. Försök igen.",
+      "stripeKeyMissing": "Stripes publika nyckel saknas i konfigurationen",
+      "setupIntentMissing": "Vi kunde inte öppna den säkra betalningssidan. Försök igen om en stund."
+    },
+    "invoices": {
+      "loading": "Läser in…",
+      "emptyTitle": "Inga fakturor ännu",
+      "emptySubtitle": "När en bokning är genomförd och betald visas kvittot här.",
+      "service": "Tjänst",
+      "date": "Datum",
+      "address": "Adress",
+      "provider": "Provider",
+      "status": "Status",
+      "paid": "Betald",
+      "completed": "Genomförd",
+      "total": "Totalt"
+    },
+    "history": {
+      "loading": "Läser in…",
+      "emptyTitle": "Inga betalningar ännu",
+      "emptySubtitle": "När du har genomfört bokningar visas din fullständiga betalningshistorik här.",
+      "totalPaid": "Totalt betalt",
+      "refunded": "Återbetalt",
+      "reservedNow": "Reserverat nu",
+      "net": "Netto",
+      "events": {
+        "reserved": "Reserverat",
+        "charged": "Debiterat kortet",
+        "reservationReleased": "Reservation frisläppt",
+        "paymentFailed": "Betalning misslyckades",
+        "refundedToCard": "Återbetalt till kortet",
+        "refundFailed": "Återbetalning misslyckades",
+        "refundPending": "Återbetalning pågår"
+      },
+      "cardFallback": "Betalkort",
+      "refundReason": {
+        "customer": "Kundens önskemål",
+        "duplicate": "Dubbel betalning",
+        "fraudulent": "Misstänkt bedrägeri",
+        "expired": "Kortreservation upphörde",
+        "default": "Återbetalning"
+      }
+    }
+  },
+  "profileV2": {
+    "title": "Min profil",
+    "subtitle": "Ditt konto och dina uppgifter",
+    "editProfile": "Redigera profil",
+    "edit": "Redigera",
+    "manage": "Hantera",
+    "open": "Öppna",
+    "memberSince": "Medlem sedan {{date}}",
+    "bookingsSummary_one": "Du har {{count}} bokning totalt.",
+    "bookingsSummary_other": "Du har {{count}} bokningar totalt.",
+    "welcomeSubtitle": "Välkommen — boka din första städning när du är redo.",
+    "stats": {
+      "totalBookings": "Bokningar totalt",
+      "upcoming": "Kommande",
+      "completed": "Genomförda",
+      "lastBooking": "Senaste bokning"
+    },
+    "personal": {
+      "title": "Personuppgifter",
+      "noName": "Inget namn angivet"
+    },
+    "contact": {
+      "title": "Kontakt",
+      "noPhone": "Inget telefonnummer",
+      "noSms": "Inget SMS-nummer",
+      "verified": "Verifierad",
+      "unverified": "Ej verifierad"
+    },
+    "addresses": {
+      "title": "Sparade adresser",
+      "description": "Tillträde, storlek, husdjur och anteckningar per adress.",
+      "manage": "Hantera",
+      "primary": "Primär",
+      "emptyTitle": "Inga sparade adresser ännu",
+      "emptyDescription": "Lägg till en adress för att göra bokningen snabbare.",
+      "addAddress": "Lägg till adress",
+      "accessPrefix": "Tillträde",
+      "sizeSuffix": "m²",
+      "roomsSuffix": "rum"
+    },
+    "notifications": {
+      "title": "Notiser",
+      "emptyTitle": "Inga kanaler aktiva",
+      "emptyDescription": "Välj hur vi får kontakta dig om bokningar och meddelanden.",
+      "channelsActive_one": "{{count}} kanal aktiverad.",
+      "channelsActive_other": "{{count}} kanaler aktiverade."
+    },
+    "preferences": {
+      "title": "Städpreferenser",
+      "pets": "Husdjur",
+      "children": "Barn",
+      "suppliesReady": "Städmaterial redo",
+      "parking": "Parkering",
+      "yes": "Ja",
+      "no": "Nej",
+      "emptyTitle": "Inga preferenser ännu",
+      "emptyDescription": "Lägg till en primär adress för att ange dina preferenser"
+    },
+    "access": {
+      "title": "Tillträdesinstruktioner",
+      "method": "Tillträdesmetod",
+      "code": "Kod",
+      "emptyTitle": "Inga tillträdesinstruktioner",
+      "emptyDescription": "Lägg till en primär adress för att spara tillträdesinstruktioner."
+    },
+    "privacy": {
+      "title": "Integritet",
+      "description": "Visa, ladda ner eller begär radering av dina uppgifter i Privacy Center."
+    },
+    "account": {
+      "title": "Konto",
+      "deactivate": "Avaktivera",
+      "deactivated": "Kontot är avaktiverat",
+      "activeDescription": "Ditt konto är aktivt. Du kan alltid avaktivera det från kontoinställningarna."
+    },
+    "shortcuts": {
+      "title": "Genvägar",
+      "myBookings": "Mina bokningar",
+      "myBookingsDescription": "Visa och hantera",
+      "messages": "Meddelanden",
+      "messagesDescription": "Din inkorg",
+      "cards": "Kort & betalningar",
+      "cardsDescription": "Betalningsmetoder",
+      "invoices": "Fakturor",
+      "invoicesDescription": "Kvitton och dokument",
+      "support": "Support",
+      "supportDescription": "Få hjälp",
+      "tax": "Skatteuppgifter",
+      "taxDescription": "RUT-avdrag"
+    },
+    "comingSoon": {
+      "familyTitle": "Familjemedlemmar",
+      "familyDescription": "Dela ditt konto och dina bokningar med resten av hushållet.",
+      "productsTitle": "Föredragna produkter",
+      "productsDescription": "Spara föredragna städprodukter och allergier."
+    },
+    "editors": {
+      "personal": "Personuppgifter",
+      "contact": "Kontakt",
+      "addresses": "Sparade adresser",
+      "notifications": "Notiser",
+      "preferences": "Städpreferenser",
+      "access": "Tillträdesinstruktioner",
+      "deactivate": "Avaktivera konto",
+      "tax": "Skatteuppgifter"
+    }
+  }
+}

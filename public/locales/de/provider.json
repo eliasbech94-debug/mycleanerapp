@@ -1,0 +1,310 @@
+{
+  "profile": {
+    "pageTitle": "Mein Profil",
+    "pageSubtitle": "Ihr öffentliches Profil und Ihre Informationen",
+    "viewPublicProfile": "Öffentliches Profil ansehen",
+    "editProfile": "Profil bearbeiten",
+    "editButton": "Bearbeiten",
+    "welcomeSubtitleDefault": "Ihr Profil bestimmt, wie Kunden Sie im Marketplace sehen.",
+    "greeting": {
+      "morning": "Guten Morgen",
+      "day": "Guten Tag",
+      "evening": "Guten Abend"
+    },
+    "noProfile": {
+      "title": "Kein Provider-Profil",
+      "body": "Sie müssen zunächst eine Cleaner-Bewerbung starten.",
+      "cta": "Cleaner werden"
+    },
+    "status": {
+      "label": "Status"
+    },
+    "visibility": {
+      "label": "Sichtbarkeit",
+      "public": "Öffentlich",
+      "hidden": "Verborgen"
+    },
+    "stats": {
+      "completedJobs": "Abgeschlossene Aufträge",
+      "yearsExperience": "Jahre Erfahrung",
+      "responseTime": "Antwortzeit",
+      "responseTimeHint": "Letzte 30 Tage",
+      "acceptanceRate": "Annahmequote"
+    },
+    "time": {
+      "minutes": "{{count}} Min."
+    },
+    "sections": {
+      "photoIdentity": {
+        "title": "Foto & Identität",
+        "noName": "Kein Name"
+      },
+      "about": {
+        "title": "Über mich",
+        "emptyTitle": "Noch keine öffentliche Beschreibung",
+        "emptyDescription": "Erzählen Sie Kunden, wer Sie sind und warum sie Sie wählen sollten."
+      },
+      "languages": {
+        "title": "Sprachen",
+        "empty": "Keine Sprachen ausgewählt"
+      },
+      "experienceEquipment": {
+        "title": "Erfahrung & Ausrüstung",
+        "experienceLabel": "Erfahrung:",
+        "yearsValue": "{{count}} Jahre",
+        "noEquipment": "Keine Ausrüstung markiert."
+      },
+      "servicesPricing": {
+        "title": "Leistungen & Preise",
+        "description": "Jede Leistung hat ihren eigenen Stundenpreis. Endpreise werden immer serverseitig berechnet.",
+        "categoriesButton": "Kategorien",
+        "pricesButton": "Preise",
+        "noCategories": "Keine Kategorien ausgewählt.",
+        "emptyPricesTitle": "Noch keine individuellen Leistungspreise",
+        "emptyPricesDescription": "Legen Sie Preise pro Leistung fest, damit Kunden genau wissen, was es kostet.",
+        "addPrices": "Preise hinzufügen",
+        "perHour": "/Std."
+      },
+      "area": {
+        "title": "Einsatzgebiet",
+        "noAddress": "Keine Adresse ausgewählt",
+        "publicNotice": "Öffentlich wird nur ein kreisförmiges Gebiet angezeigt — niemals Ihre genaue Adresse.",
+        "radiusLabel": "Radius:",
+        "radiusValue": "{{count}} km"
+      },
+      "availability": {
+        "title": "Verfügbarkeit",
+        "description": "Ihr Wochenplan und Ihre Buchungszeiten.",
+        "openCalendar": "Kalendereditor öffnen"
+      },
+      "verification": {
+        "title": "Verifizierung",
+        "identityLabel": "Identität",
+        "verified": "Verifiziert",
+        "missing": "Fehlt",
+        "stripeLabel": "Stripe-Auszahlung",
+        "ready": "Bereit",
+        "notReady": "Nicht bereit",
+        "openStripeStatus": "Stripe-Status öffnen"
+      },
+      "insurance": {
+        "title": "Versicherung",
+        "policyLabel": "Policennummer",
+        "expiresLabel": "Läuft ab"
+      },
+      "documents": {
+        "title": "Dokumente",
+        "uploadButton": "Hochladen",
+        "insuranceDocLabel": "Versicherungsdokument",
+        "uploaded": "Hochgeladen",
+        "missing": "Fehlt"
+      },
+      "performance": {
+        "title": "Leistung",
+        "detailsButton": "Details ansehen",
+        "score": "Punktzahl",
+        "tier": "Stufe",
+        "completed": "Abgeschlossen"
+      },
+      "reviews": {
+        "title": "Kundenbewertungen",
+        "description": "Wird hier angezeigt, sobald Kunden Bewertungen zu abgeschlossenen Buchungen abgeben."
+      },
+      "tax": {
+        "title": "Steuern",
+        "openButton": "Steuerprofil öffnen",
+        "body": "USt-IdNr./Steuernummer und Steuereinstellungen werden in einem eigenen Editor aktualisiert."
+      },
+      "settings": {
+        "title": "Einstellungen & Sichtbarkeit",
+        "description": "Teilen Sie Ihr Profil, Ihre Sichtbarkeit, Ihren Kontostatus und DSGVO-Einstellungen.",
+        "openButton": "Öffnen",
+        "publicUrlLabel": "Öffentliche URL",
+        "notAssigned": "Noch nicht vergeben",
+        "hidden": "Verborgen",
+        "pending": "Ausstehend"
+      }
+    },
+    "editors": {
+      "personal": "Persönliche Daten",
+      "business": "Über mich",
+      "languages": "Sprachen",
+      "equipment": "Ausrüstung",
+      "services": "Leistungskategorien",
+      "pricing": "Preise",
+      "area": "Einsatzgebiet",
+      "insurance": "Versicherung",
+      "settings": "Einstellungen",
+      "availability": "Verfügbarkeit",
+      "identity": "Verifizierung",
+      "stripe": "Stripe & Auszahlung",
+      "documents": "Dokumente",
+      "tax": "Steuerdaten",
+      "performance": {
+        "title": "Leistung & Punktzahl",
+        "rating": "Bewertung",
+        "completionRate": "Abschlussquote",
+        "cancellations": "Stornierungen",
+        "repeatCustomers": "Stammkunden",
+        "note": "Punktzahl und Stufe werden automatisch anhand Ihrer letzten 30 Tage aktualisiert."
+      }
+    },
+    "identityBadge": {
+      "verified": "Verifiziert",
+      "pending": "In Prüfung",
+      "unverified": "Nicht verifiziert"
+    }
+  },
+  "catalog": {
+    "categories": {
+      "cleaning": "Reinigung",
+      "handyman": "Handwerker",
+      "garden": "Garten",
+      "moving": "Umzug"
+    },
+    "languages": {
+      "da": "Dänisch",
+      "en": "Englisch",
+      "sv": "Schwedisch",
+      "de": "Deutsch",
+      "es": "Spanisch",
+      "pl": "Polnisch"
+    },
+    "equipment": {
+      "own_vacuum": "Eigener Staubsauger",
+      "eco_products": "Umweltfreundliche Produkte",
+      "own_mop": "Eigenes Wischset",
+      "car": "Eigenes Auto",
+      "ladder": "Leiter"
+    },
+    "services": {
+      "home_cleaning": "Regelmäßige Reinigung",
+      "deep_cleaning": "Grundreinigung",
+      "move_out_cleaning": "Umzugsreinigung",
+      "office_cleaning": "Büroreinigung",
+      "window_cleaning": "Fensterreinigung"
+    }
+  },
+  "dashboard": {
+    "brandTitle": "Cleaner",
+    "greeting": "Cleaner-Dashboard",
+    "title": "Dashboard",
+    "description": "Übersicht über Ihre Buchungen, Ihre Einnahmen und Ihren Profilstatus als selbstständiger Provider.",
+    "editProfile": "Profil bearbeiten",
+    "subtitle": {
+      "nextJobWithSlot": "Nächster Auftrag: {{date}} um {{slot}}.",
+      "nextJob": "Nächster Auftrag: {{date}}.",
+      "openRequests_one": "Sie haben {{count}} offene Anfrage — antworten Sie schnell für eine bessere Platzierung.",
+      "openRequests_other": "Sie haben {{count}} offene Anfragen — antworten Sie schnell für eine bessere Platzierung.",
+      "noBookings": "Sie haben keine anstehenden Buchungen. Halten Sie Ihr Profil vollständig und sichtbar, damit mehr Kunden Sie finden."
+    },
+    "stats": {
+      "completedBookings": "Abgeschlossene Buchungen",
+      "earnings": "Ihre Einnahmen",
+      "earningsHint": "Aus abgeschlossenen Buchungen",
+      "acceptanceRate": "Annahmequote",
+      "noOffersYet": "Noch keine Angebote",
+      "responseTime": "Antwortzeit",
+      "noResponsesYet": "Noch keine Antworten",
+      "average": "Durchschnitt"
+    },
+    "time": {
+      "seconds": "{{count}} s",
+      "minutes": "{{count}} Min.",
+      "hours": "{{count}} Std."
+    },
+    "sections": {
+      "today": {
+        "title": "Heute",
+        "description": "Ihre heutigen Buchungen.",
+        "emptyTitle": "Heute keine Buchungen",
+        "emptyDescription": "Genießen Sie eine Pause — oder aktualisieren Sie Ihre Verfügbarkeit, damit mehr Kunden Sie buchen können."
+      },
+      "newRequests": {
+        "title": "Neue Buchungsanfragen",
+        "description": "Antworten Sie schnell — das verschafft Ihnen eine bessere Platzierung im Marketplace.",
+        "emptyTitle": "Keine neuen Buchungsanfragen",
+        "emptyDescription": "Neue Buchungsanfragen erscheinen hier, sobald ein Kunde eine sendet."
+      },
+      "upcoming": {
+        "title": "Anstehende Buchungen",
+        "emptyTitle": "Keine anstehenden Buchungen",
+        "emptyDescription": "Angenommene Buchungen erscheinen hier, bis sie abgeschlossen sind."
+      },
+      "reviews": {
+        "title": "Bewertungen",
+        "description": "Bewertungen und schriftliches Feedback Ihrer Kunden.",
+        "comingSoonTitle": "Bewertungen",
+        "comingSoonDescription": "Bewertungen kommen bald. Bis dahin zeigt das Dashboard nur Buchungen und Einnahmen."
+      }
+    },
+    "shortcuts": {
+      "title": "Kurzbefehle",
+      "messages": { "title": "Nachrichten", "description": "Mit Kunden chatten" },
+      "pricing": { "title": "Preise", "description": "Ihren Stundensatz und Ihre Pakete anpassen" },
+      "finance": { "title": "Finanzen", "description": "Auszahlungen und Abrechnungsübersichten" },
+      "receipts": { "title": "Belege", "description": "Belege und Ausgaben für Ihre Buchhaltung" },
+      "profile": { "title": "Profil", "description": "Ihr öffentliches Profil bearbeiten" },
+      "support": { "title": "Support", "description": "Wir helfen Ihnen gerne" }
+    },
+    "keyFigures": {
+      "title": "Kennzahlen",
+      "description": "Basierend auf tatsächlichen Buchungen und Angeboten.",
+      "accept": "Annahme",
+      "cancellation": "Stornierung",
+      "responseTime": "Antwortzeit",
+      "rating": "Bewertung",
+      "tier": "Stufe"
+    },
+    "payouts": {
+      "title": "Auszahlungen",
+      "seeAll": "Alle anzeigen",
+      "emptyTitle": "Noch keine Auszahlungen",
+      "emptyDescription": "Ihre erste Auszahlung erscheint hier, sobald eine Buchung abgeschlossen ist. Wann genau der Betrag im Konto sichtbar wird, hängt vom Zahlungsanbieter und Ihrer Bank ab."
+    }
+  },
+  "booking": {
+    "status": {
+      "pending": "Neue Anfrage",
+      "accepted": "Angenommen",
+      "completed": "Abgeschlossen",
+      "declined": "Abgelehnt",
+      "cancelled": "Storniert"
+    },
+    "defaultService": "Reinigung",
+    "hoursSuffix": "· {{count}} Std.",
+    "providerGets": "Sie erhalten {{amount}}",
+    "atSlot": "um {{slot}}"
+  },
+  "payout": {
+    "status": {
+      "paid": "Auszahlung abgeschlossen",
+      "in_transit": "Auszahlung geplant",
+      "pending": "Ausstehend",
+      "failed": "Nicht abgeschlossen",
+      "canceled": "Storniert"
+    }
+  },
+  "verification": {
+    "identity": {
+      "title": "Bestätigen Sie Ihre Identität",
+      "description": "Wir müssen Ihre Identität bestätigen, bevor Sie Buchungen erhalten können.",
+      "action": "Verifizierung starten"
+    },
+    "stripe": {
+      "title": "Stripe-Onboarding abschließen",
+      "description": "Verbinden Sie Ihr Bankkonto, damit Ihre Einnahmen ausgezahlt werden können.",
+      "action": "Stripe öffnen"
+    },
+    "public": {
+      "title": "Ihr Profil ist nicht sichtbar",
+      "description": "Aktivieren Sie die öffentliche Sichtbarkeit, um Anfragen von Kunden zu erhalten.",
+      "action": "Profil bearbeiten"
+    },
+    "completion": {
+      "title": "Ihr Profil ist zu {{percent}}% vollständig",
+      "description": "Vervollständigen Sie Ihr Profil — vollständige Profile werden im Marketplace höher eingestuft.",
+      "action": "Fertigstellen"
+    }
+  }
+}
