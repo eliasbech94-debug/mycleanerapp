@@ -306,6 +306,7 @@ interface EditorProps {
 }
 
 function ArticleEditor({ article, onClose, onChanged, canPublish, canArchive, onConfirm }: EditorProps) {
+  const { t } = useTranslation("admin");
   const [title, setTitle] = useState(article.title);
   const [summary, setSummary] = useState(article.summary ?? "");
   const [body, setBody] = useState(article.body_md);
@@ -332,10 +333,10 @@ function ArticleEditor({ article, onClose, onChanged, canPublish, canArchive, on
     try {
       const { error } = await (supabase.rpc as any)(fn, args);
       if (error) throw error;
-      toast({ title: `${label} OK` });
+      toast({ title: t("pages.adminKnowledge.actionOk", { label }) });
       onChanged();
     } catch (e) {
-      toast({ title: `${label} fejlede`, description: (e as Error).message, variant: "destructive" });
+      toast({ title: t("pages.adminKnowledge.actionFailedLabel", { label }), description: (e as Error).message, variant: "destructive" });
     } finally {
       setBusy(false);
     }
@@ -358,29 +359,27 @@ function ArticleEditor({ article, onClose, onChanged, canPublish, canArchive, on
           <Alert>
             <AlertTriangle className="h-4 w-4" />
             <AlertDescription>
-              Ændringer i denne publicerede safety-critical artikel nulstiller
-              workflowet automatisk (tilbage til draft). Providers ser først den
-              nye version efter reverifikation, approval og publish.
+              {t("pages.adminKnowledge.safetyEditWarning")}
             </AlertDescription>
           </Alert>
         )}
 
         <div className="grid gap-4">
           <div className="grid gap-2">
-            <label className="text-xs uppercase text-muted-foreground">Titel</label>
+            <label className="text-xs uppercase text-muted-foreground">{t("pages.adminKnowledge.titleField")}</label>
             <Input value={title} disabled={!canEdit} onChange={(e) => setTitle(e.target.value)} />
           </div>
           <div className="grid gap-2">
-            <label className="text-xs uppercase text-muted-foreground">Resumé</label>
+            <label className="text-xs uppercase text-muted-foreground">{t("pages.adminKnowledge.summaryField")}</label>
             <Textarea value={summary} disabled={!canEdit} onChange={(e) => setSummary(e.target.value)} rows={2} />
           </div>
           <div className="grid gap-2">
-            <label className="text-xs uppercase text-muted-foreground">Indhold (markdown, ingen rå HTML)</label>
+            <label className="text-xs uppercase text-muted-foreground">{t("pages.adminKnowledge.contentField")}</label>
             <Textarea value={body} disabled={!canEdit} onChange={(e) => setBody(e.target.value)} rows={10} className="font-mono text-sm" />
           </div>
           <div className="grid grid-cols-3 gap-3">
             <div>
-              <label className="text-xs uppercase text-muted-foreground">Risk</label>
+              <label className="text-xs uppercase text-muted-foreground">{t("pages.adminKnowledge.riskField")}</label>
               <select
                 value={risk}
                 disabled={!canEdit}
@@ -397,22 +396,22 @@ function ArticleEditor({ article, onClose, onChanged, canPublish, canArchive, on
                 id="sc" type="checkbox" checked={safety} disabled={!canEdit}
                 onChange={(e) => setSafety(e.target.checked)}
               />
-              <label htmlFor="sc" className="text-sm">Safety-critical</label>
+              <label htmlFor="sc" className="text-sm">{t("pages.adminKnowledge.safetyCritical")}</label>
             </div>
             <div>
-              <label className="text-xs uppercase text-muted-foreground">Review-dato</label>
+              <label className="text-xs uppercase text-muted-foreground">{t("pages.adminKnowledge.reviewDate")}</label>
               <Input type="date" value={expected} disabled={!canEdit} onChange={(e) => setExpected(e.target.value)} />
             </div>
           </div>
           <div className="grid gap-2">
-            <label className="text-xs uppercase text-muted-foreground">Change summary (til versionshistorik)</label>
+            <label className="text-xs uppercase text-muted-foreground">{t("pages.adminKnowledge.changeSummary")}</label>
             <Input value={changeSummary} onChange={(e) => setChangeSummary(e.target.value)} />
           </div>
 
           <Card>
-            <CardHeader className="pb-2"><CardTitle className="text-sm">Versionshistorik (read-only)</CardTitle></CardHeader>
+            <CardHeader className="pb-2"><CardTitle className="text-sm">{t("pages.adminKnowledge.versionHistory")}</CardTitle></CardHeader>
             <CardContent className="text-xs space-y-1 max-h-40 overflow-y-auto">
-              {versions.length === 0 && <div className="text-muted-foreground">Ingen versioner endnu.</div>}
+              {versions.length === 0 && <div className="text-muted-foreground">{t("pages.adminKnowledge.noVersionsYet")}</div>}
               {versions.map((v) => (
                 <div key={v.id} className="flex justify-between gap-2">
                   <span>v{v.version}</span>
@@ -441,39 +440,39 @@ function ArticleEditor({ article, onClose, onChanged, canPublish, canArchive, on
                   },
                   _change_summary: changeSummary || null,
                 },
-                "Save draft",
+                t("pages.adminKnowledge.saveDraft"),
               )}
-            >Save draft</Button>
+            >{t("pages.adminKnowledge.saveDraft")}</Button>
             <Button
               variant="outline"
               disabled={busy || article.status !== "draft"}
-              onClick={() => call("knowledge_article_submit_for_review", { _article_id: article.id }, "Submit")}
-            >Submit for review</Button>
+              onClick={() => call("knowledge_article_submit_for_review", { _article_id: article.id }, t("pages.adminKnowledge.submit"))}
+            >{t("pages.adminKnowledge.submitForReview")}</Button>
             {canPublish && (
               <>
                 <Button
                   variant="outline"
                   disabled={busy || article.status !== "in_review"}
-                  onClick={() => call("knowledge_article_approve", { _article_id: article.id }, "Approve")}
-                >Approve</Button>
+                  onClick={() => call("knowledge_article_approve", { _article_id: article.id }, t("pages.adminKnowledge.approve"))}
+                >{t("pages.adminKnowledge.approve")}</Button>
                 <Button
                   variant="outline"
                   disabled={busy || !["in_review", "approved"].includes(article.status)}
-                  onClick={() => call("knowledge_article_return_to_draft", { _article_id: article.id, _reason: changeSummary || null }, "Return to draft")}
-                >Return to draft</Button>
+                  onClick={() => call("knowledge_article_return_to_draft", { _article_id: article.id, _reason: changeSummary || null }, t("pages.adminKnowledge.returnToDraft"))}
+                >{t("pages.adminKnowledge.returnToDraft")}</Button>
                 <Button
                   disabled={busy || article.status !== "approved"}
                   onClick={() => onConfirm({ action: "publish", article })}
-                >Publish</Button>
+                >{t("pages.adminKnowledge.publish")}</Button>
               </>
             )}
             {canArchive && article.status !== "archived" && (
               <Button variant="destructive" disabled={busy} onClick={() => onConfirm({ action: "archive", article })}>
-                Archive
+                {t("pages.adminKnowledge.archive")}
               </Button>
             )}
           </div>
-          <Button variant="ghost" onClick={onClose}>Luk</Button>
+          <Button variant="ghost" onClick={onClose}>{t("pages.adminKnowledge.close")}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
