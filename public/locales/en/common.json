@@ -341,5 +341,31 @@
       "title": "7. Suspension and termination",
       "text": "MyCleaner reserves the right to suspend or terminate accounts that violate these rules. Serious violations may result in permanent exclusion and a possible police report."
     }
+  },
+  "cancellation": {
+    "ladder": {
+      "bullet": {
+        "fullExclusive": "More than {{hours}} hours {{when}}: free cancellation and a {{percent}} % refund.",
+        "fullInclusive": "{{hours}} hours or more {{when}}: free cancellation and a {{percent}} % refund.",
+        "partialExclusive": "From {{from}} hours up to and including {{to}} hours {{when}}: {{percent}} % refund.",
+        "partialInclusive": "From {{from}} hours and under {{to}} hours {{when}}: {{percent}} % refund.",
+        "none": "Less than {{hours}} hours {{when}}: 0 % refund — a 100 % cancellation fee applies."
+      },
+      "sentence": {
+        "exclusive": "If you cancel more than {{fullHours}} hours {{when}}, cancellation is free with a {{fullPercent}} % refund. From {{partialHours}} up to and including {{fullHours}} hours before the start, {{partialPercent}} % is refunded. Under {{partialHours}} hours before the start there is no refund and a 100 % cancellation fee applies.",
+        "inclusive": "If you cancel {{fullHours}} hours or more {{when}}, cancellation is free with a {{fullPercent}} % refund. From {{partialHours}} and under {{fullHours}} hours before the start, {{partialPercent}} % is refunded. Under {{partialHours}} hours before the start there is no refund and a 100 % cancellation fee applies."
+      },
+      "when": "before the exact start time of the booking"
+    },
+    "notice": {
+      "heading": "Cancellation",
+      "free": "Free cancellation — 100 % refund",
+      "freeWhen": "if you cancel before {{time}}",
+      "partial": "{{percent}} % refund",
+      "partialWhen": "from {{from}} up to and including {{to}}",
+      "none": "0 % refund — 100 % cancellation fee",
+      "noneWhen": "if you cancel after {{time}}",
+      "detail": "The booking starts {{start}}. Free cancellation ends {{freeUntil}} ({{fullHours}} hours before the start), and from {{feeFrom}} ({{partialHours}} hours before the start) a 100 % cancellation fee applies. Times are shown in your local time. If the amount has not been charged yet, the reservation is released instead and nothing is charged. Complaints must be submitted no later than {{complaintHours}} hours after the scheduled or recorded end of the job."
+    }
   }
 }

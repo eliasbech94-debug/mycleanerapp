@@ -4,24 +4,20 @@
  * fee begins. Reads the canonical policy from `src/lib/cancellationPolicy.ts` —
  * never hardcode the numbers or the wording thresholds here.
  *
+ * All copy comes from the `common` namespace (`cancellation.notice.*`) and the
+ * date/time formatting follows the active UI language.
+ *
  * `policyVersion` comes from the booking's frozen
  * `cancellation_policy_snapshot`; omitting it means "a booking made now", which
  * uses the current policy.
  */
+import { useTranslation } from "react-i18next";
 import {
   cancellationCutoffs,
   policyAt,
   policyForVersion,
   type CancellationPolicy,
 } from "@/lib/cancellationPolicy";
-
-const dtf = new Intl.DateTimeFormat("da-DK", {
-  weekday: "long",
-  day: "numeric",
-  month: "long",
-  hour: "2-digit",
-  minute: "2-digit",
-});
 
 export function CancellationPolicyNotice({
   serviceStart,
@@ -32,6 +28,8 @@ export function CancellationPolicyNotice({
   policyVersion?: string | null;
   className?: string;
 }) {
+  const { t, i18n } = useTranslation("common");
+
   // An existing booking is always shown with the version frozen on it; a
   // booking that does not exist yet uses the policy in force right now.
   const policy: CancellationPolicy = policyVersion
@@ -43,41 +41,52 @@ export function CancellationPolicyNotice({
   const cutoffs = cancellationCutoffs(start, policy);
   if (!cutoffs) return null;
 
-  const full = policy.tiers.find((t) => t.key === "full") ?? policy.tiers[0];
-  const partial = policy.tiers.find((t) => t.key === "partial") ?? policy.tiers[1];
+  const dtf = new Intl.DateTimeFormat(i18n.language || "en", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
+  const full = policy.tiers.find((x) => x.key === "full") ?? policy.tiers[0];
+  const partial = policy.tiers.find((x) => x.key === "partial") ?? policy.tiers[1];
+
+  const freeUntil = dtf.format(cutoffs.freeUntil);
+  const feeFrom = dtf.format(cutoffs.fullFeeFrom);
 
   return (
     <section className={className} aria-labelledby="cancellation-policy-heading">
       <h2 id="cancellation-policy-heading" className="text-[10px] font-black uppercase tracking-[0.22em] opacity-70">
-        Afbestilling
+        {t("cancellation.notice.heading")}
       </h2>
       <ul className="mt-3 space-y-2 text-sm">
         <li className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-          <span className="font-semibold">Gratis aflysning — 100 % refusion</span>
+          <span className="font-semibold">{t("cancellation.notice.free")}</span>
+          <span className="opacity-70">{t("cancellation.notice.freeWhen", { time: freeUntil })}</span>
+        </li>
+        <li className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+          <span className="font-semibold">
+            {t("cancellation.notice.partial", { percent: partial.refundPercent })}
+          </span>
           <span className="opacity-70">
-            hvis du aflyser før {dtf.format(cutoffs.freeUntil)}
+            {t("cancellation.notice.partialWhen", { from: freeUntil, to: feeFrom })}
           </span>
         </li>
         <li className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-          <span className="font-semibold">{partial.refundPercent} % refusion</span>
-          <span className="opacity-70">
-            fra {dtf.format(cutoffs.freeUntil)} til og med {dtf.format(cutoffs.fullFeeFrom)}
-          </span>
-        </li>
-        <li className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-          <span className="font-semibold">0 % refusion — 100 % cancellation fee</span>
-          <span className="opacity-70">
-            hvis du aflyser efter {dtf.format(cutoffs.fullFeeFrom)}
-          </span>
+          <span className="font-semibold">{t("cancellation.notice.none")}</span>
+          <span className="opacity-70">{t("cancellation.notice.noneWhen", { time: feeFrom })}</span>
         </li>
       </ul>
       <p className="mt-3 text-xs opacity-60">
-        Bookingen starter {dtf.format(start)}. Gratis aflysning udløber{" "}
-        <strong>{dtf.format(cutoffs.freeUntil)}</strong> ({full.minHoursBeforeStart} timer før start), og fra{" "}
-        <strong>{dtf.format(cutoffs.fullFeeFrom)}</strong> ({partial.minHoursBeforeStart} timer før start)
-        opkræves 100 % cancellation fee. Tidspunkterne vises i din lokale tid. Er beløbet endnu ikke hævet,
-        annulleres reservationen i stedet, og der opkræves intet. Klager skal indgives senest{" "}
-        {policy.complaintWindowHours} timer efter opgavens planlagte eller registrerede afslutning.
+        {t("cancellation.notice.detail", {
+          start: dtf.format(start),
+          freeUntil,
+          feeFrom,
+          fullHours: full.minHoursBeforeStart,
+          partialHours: partial.minHoursBeforeStart,
+          complaintHours: policy.complaintWindowHours,
+        })}
       </p>
     </section>
   );

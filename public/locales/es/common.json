@@ -341,5 +341,31 @@
       "title": "7. Suspensión y cese",
       "text": "MyCleaner se reserva el derecho de suspender o cancelar cuentas que incumplan estas reglas. Las infracciones graves pueden derivar en exclusión permanente y una posible denuncia policial."
     }
+  },
+  "cancellation": {
+    "ladder": {
+      "bullet": {
+        "fullExclusive": "Más de {{hours}} horas {{when}}: cancelación gratuita y {{percent}} % de reembolso.",
+        "fullInclusive": "{{hours}} horas o más {{when}}: cancelación gratuita y {{percent}} % de reembolso.",
+        "partialExclusive": "Desde {{from}} horas hasta {{to}} horas incluidas {{when}}: {{percent}} % de reembolso.",
+        "partialInclusive": "Desde {{from}} horas y menos de {{to}} horas {{when}}: {{percent}} % de reembolso.",
+        "none": "Menos de {{hours}} horas {{when}}: 0 % de reembolso — se cobra una tarifa de cancelación del 100 %."
+      },
+      "sentence": {
+        "exclusive": "Si cancelas con más de {{fullHours}} horas {{when}}, la cancelación es gratuita con un {{fullPercent}} % de reembolso. Desde {{partialHours}} hasta {{fullHours}} horas incluidas antes del inicio se reembolsa el {{partialPercent}} %. Con menos de {{partialHours}} horas antes del inicio no hay reembolso y se cobra una tarifa de cancelación del 100 %.",
+        "inclusive": "Si cancelas con {{fullHours}} horas o más {{when}}, la cancelación es gratuita con un {{fullPercent}} % de reembolso. Desde {{partialHours}} y menos de {{fullHours}} horas antes del inicio se reembolsa el {{partialPercent}} %. Con menos de {{partialHours}} horas antes del inicio no hay reembolso y se cobra una tarifa de cancelación del 100 %."
+      },
+      "when": "antes de la hora exacta de inicio de la reserva"
+    },
+    "notice": {
+      "heading": "Cancelación",
+      "free": "Cancelación gratuita — 100 % de reembolso",
+      "freeWhen": "si cancelas antes de {{time}}",
+      "partial": "{{percent}} % de reembolso",
+      "partialWhen": "desde {{from}} hasta {{to}} incluido",
+      "none": "0 % de reembolso — 100 % de tarifa de cancelación",
+      "noneWhen": "si cancelas después de {{time}}",
+      "detail": "La reserva comienza {{start}}. La cancelación gratuita finaliza {{freeUntil}} ({{fullHours}} horas antes del inicio) y, a partir de {{feeFrom}} ({{partialHours}} horas antes del inicio), se cobra una tarifa de cancelación del 100 %. Las horas se muestran en tu hora local. Si el importe aún no se ha cobrado, en su lugar se libera la reserva y no se cobra nada. Las reclamaciones deben presentarse como máximo {{complaintHours}} horas después del final previsto o registrado del servicio."
+    }
   }
 }
