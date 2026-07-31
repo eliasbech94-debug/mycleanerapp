@@ -9,6 +9,7 @@ import { monitored } from "../_shared/logger.ts";
 import { startJobRun } from "../_shared/jobrun.ts";
 import { requireServiceOrAdmin } from "../_shared/auth.ts";
 import { isSmsConfigured, sendSms as sendSmsViaGatewayApi } from "../_shared/gatewayapi.ts";
+import { renderSmsForNotification } from "../_shared/smsTemplates.ts";
 
 const admin = createClient(
   Deno.env.get("SUPABASE_URL")!,
@@ -38,6 +39,24 @@ async function sendSmsChannel(phone: string, body: string, reference: string): P
   return { ok: false, note: res.reason };
 }
 
+/**
+ * Resolves the SMS body from the central template layer.
+ * The outbox row stores template_key + vars + lang in `payload`, so SMS copy is
+ * localized here rather than hardcoded. Falls back to the stored body.
+ */
+function resolveSmsBody(row: {
+  event_type?: string | null;
+  body?: string | null;
+  payload?: Record<string, unknown> | null;
+}): string {
+  const payload = (row.payload ?? {}) as Record<string, unknown>;
+  const key = (payload.template_key as string | undefined) ?? row.event_type ?? "";
+  const lang = (payload.lang as string | undefined) ?? null;
+  const vars = (payload.vars as Record<string, never> | undefined) ?? {};
+  const rendered = key ? renderSmsForNotification(key, lang, vars) : null;
+  return rendered?.text || (row.body ?? "");
+}
+
 Deno.serve(monitored("notification-outbox-worker", async (req, log) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   const guard = await requireServiceOrAdmin(req, corsHeaders);
@@ -61,7 +80,7 @@ Deno.serve(monitored("notification-outbox-worker", async (req, log) => {
         let result: { ok: boolean; note?: string } = { ok: false, note: "unknown_channel" };
         if (row.channel === "email") result = await sendEmail(row.recipient ?? "", row.subject ?? "", row.body ?? "");
         else if (row.channel === "push") result = await sendPush(row.user_id, row.subject ?? "", row.body ?? "");
-        else if (row.channel === "sms") result = await sendSmsChannel(row.recipient ?? "", row.body ?? "", `outbox:${row.id}`);
+        else if (row.channel === "sms") result = await sendSmsChannel(row.recipient ?? "", resolveSmsBody(row), `outbox:${row.id}`);
 
         if (result.ok) {
           counters.success += 1;
