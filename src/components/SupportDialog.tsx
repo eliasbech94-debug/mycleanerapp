@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, LifeBuoy, Loader2, MessageCircle, Plus, Send, ShieldAlert, Trash2, X } from "lucide-react";
+import { ArrowLeft, LifeBuoy, Loader2, MessageCircle, Plus, RefreshCw, Send, ShieldAlert, Trash2, X } from "lucide-react";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport, type UIMessage } from "ai";
 import ReactMarkdown from "react-markdown";
@@ -36,33 +36,75 @@ export default function SupportDialog({
   const isComplaint = mode === "complaint";
   const [threads, setThreads] = useState<Thread[]>([]);
   const [loadingList, setLoadingList] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [creating, setCreating] = useState(false);
   const [activeId, setActiveId] = useState<string | null>(null);
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
+  const autoOpened = useRef(false);
 
   const loadThreads = async () => {
     setLoadingList(true);
-    const { data, error } = await supabase
+    setLoadError(null);
+
+    // Hard 10s ceiling — the dialog must never spin forever.
+    const timeout = new Promise<{ timedOut: true }>((resolve) =>
+      setTimeout(() => resolve({ timedOut: true }), 10_000),
+    );
+    const request = supabase
       .from("support_threads")
       .select("id, topic, subject, status, last_message_at, created_at")
       .eq("topic", mode)
-      .order("last_message_at", { ascending: false });
-    if (error) toast.error("Vi kunne ikke hente dine sager. Prøv igen om lidt.");
-    setThreads((data ?? []) as Thread[]);
-    setLoadingList(false);
+      .order("last_message_at", { ascending: false })
+      .then((r) => r);
+
+    try {
+      const res = await Promise.race([request, timeout]);
+      if ((res as any).timedOut) {
+        setLoadError("Det tog for lang tid at hente dine sager.");
+        return;
+      }
+      const { data, error } = res as Awaited<typeof request>;
+      if (error) {
+        setLoadError("Vi kunne ikke hente dine sager.");
+        return;
+      }
+      setThreads((data ?? []) as Thread[]);
+    } catch {
+      setLoadError("Vi kunne ikke hente dine sager.");
+    } finally {
+      setLoadingList(false);
+    }
   };
 
   useEffect(() => {
-    if (user) loadThreads();
+    if (authLoading) return;
+    if (!user) {
+      setThreads([]);
+      setLoadError(null);
+      setLoadingList(false);
+      return;
+    }
+    loadThreads();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, mode]);
+  }, [user, authLoading, mode]);
+
+  // Land the user directly in their most recent conversation.
+  useEffect(() => {
+    if (autoOpened.current || loadingList || loadError) return;
+    autoOpened.current = true;
+    const recent = threads.find((t) => t.status !== "closed") ?? threads[0];
+    if (recent) setActiveId(recent.id);
+  }, [threads, loadingList, loadError]);
 
   const startNewThread = async () => {
-    if (!user) return;
+    if (!user || creating) return;
+    setCreating(true);
     const { data, error } = await supabase
       .from("support_threads")
       .insert({ user_id: user.id, topic: mode, subject: "Ny sag" })
       .select("id, topic, subject, status, last_message_at, created_at")
       .single();
+    setCreating(false);
     if (error || !data) {
       toast.error("Din sag blev ikke oprettet. Kontrollér forbindelsen, og prøv igen.");
       return;
@@ -80,6 +122,7 @@ export default function SupportDialog({
   };
 
   const active = threads.find((t) => t.id === activeId) ?? null;
+
 
   return (
     <div
@@ -140,10 +183,44 @@ export default function SupportDialog({
         </div>
 
         {/* Body */}
-        {!active ? (
+        {authLoading ? (
+          <div className="grid flex-1 place-items-center gap-2 p-6 text-center">
+            <Loader2 className="h-5 w-5 animate-spin opacity-60" />
+          </div>
+        ) : !user ? (
+          <div className="grid flex-1 place-items-center p-8 text-center">
+            <p className="max-w-xs text-sm opacity-70">
+              Log ind for at starte en chat med MyCleaner support.
+            </p>
+          </div>
+        ) : loadError ? (
+          <div className="grid flex-1 place-items-center p-8 text-center">
+            <div>
+              <p className="text-sm opacity-70">{loadError}</p>
+              <div className="mt-4 flex flex-wrap justify-center gap-2">
+                <button
+                  onClick={loadThreads}
+                  className="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold uppercase tracking-[0.14em]"
+                  style={{ background: C.ink, color: C.cream }}
+                >
+                  <RefreshCw className="h-4 w-4" /> Prøv igen
+                </button>
+                <button
+                  onClick={startNewThread}
+                  disabled={creating}
+                  className="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold uppercase tracking-[0.14em] disabled:opacity-50"
+                  style={{ background: C.orange, color: "#fff" }}
+                >
+                  <MessageCircle className="h-4 w-4" /> Start ny chat
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : !active ? (
           <ThreadList
             threads={threads}
             loading={loadingList}
+            creating={creating}
             isComplaint={isComplaint}
             onPick={(id) => setActiveId(id)}
             onNew={startNewThread}
@@ -161,6 +238,7 @@ export default function SupportDialog({
             }
           />
         )}
+
       </div>
     </div>
   );
@@ -169,6 +247,7 @@ export default function SupportDialog({
 function ThreadList({
   threads,
   loading,
+  creating,
   isComplaint,
   onPick,
   onNew,
@@ -176,6 +255,7 @@ function ThreadList({
 }: {
   threads: Thread[];
   loading: boolean;
+  creating: boolean;
   isComplaint: boolean;
   onPick: (id: string) => void;
   onNew: () => void;
@@ -185,14 +265,15 @@ function ThreadList({
     <div className="flex min-h-0 flex-1 flex-col">
       <div className="flex items-center justify-between px-5 py-3">
         <p className="text-[11px] font-bold uppercase tracking-[0.16em] opacity-60">
-          Dine {isComplaint ? "klagesager" : "supportsager"}
+          Dine {isComplaint ? "klagesager" : "samtaler"}
         </p>
         <button
           onClick={onNew}
-          className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold uppercase tracking-[0.14em]"
+          disabled={creating}
+          className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold uppercase tracking-[0.14em] disabled:opacity-50"
           style={{ background: C.ink, color: C.cream }}
         >
-          <Plus className="h-3.5 w-3.5" /> Opret sag
+          <Plus className="h-3.5 w-3.5" /> Start ny chat
         </button>
       </div>
       <div className="min-h-0 flex-1 space-y-1 overflow-y-auto px-3 pb-3">
@@ -207,13 +288,15 @@ function ThreadList({
             </p>
             <button
               onClick={onNew}
-              className="mt-4 inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold uppercase tracking-[0.14em]"
+              disabled={creating}
+              className="mt-4 inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold uppercase tracking-[0.14em] disabled:opacity-50"
               style={{ background: C.orange, color: "#fff" }}
             >
-              <MessageCircle className="h-4 w-4" /> Opret supportsag
+              {creating ? <Loader2 className="h-4 w-4 animate-spin" /> : <MessageCircle className="h-4 w-4" />} Start ny chat
             </button>
           </div>
         ) : (
+
           threads.map((t) => (
             <div
               key={t.id}
@@ -276,27 +359,40 @@ function ChatPane({
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
-  // Load historic messages
+  // Load historic messages — never block the composer for more than 10s.
   useEffect(() => {
+    let cancelled = false;
+    const fallback = setTimeout(() => {
+      if (!cancelled) setInitialMessages((p) => p ?? []);
+    }, 10_000);
     (async () => {
-      const { data } = await supabase
-        .from("support_messages")
-        .select("id, role, content, parts, created_at")
-        .eq("thread_id", thread.id)
-        .order("created_at", { ascending: true });
-      const msgs: UIMessage[] = ((data ?? []) as DBMessage[])
-        .filter((m) => m.role === "user" || m.role === "assistant")
-        .map((m) => ({
-          id: m.id,
-          role: m.role as "user" | "assistant",
-          parts:
-            Array.isArray(m.parts) && m.parts.length > 0
-              ? m.parts
-              : [{ type: "text" as const, text: m.content }],
-        }));
-      setInitialMessages(msgs);
+      try {
+        const { data } = await supabase
+          .from("support_messages")
+          .select("id, role, content, parts, created_at")
+          .eq("thread_id", thread.id)
+          .order("created_at", { ascending: true });
+        const msgs: UIMessage[] = ((data ?? []) as DBMessage[])
+          .filter((m) => m.role === "user" || m.role === "assistant")
+          .map((m) => ({
+            id: m.id,
+            role: m.role as "user" | "assistant",
+            parts:
+              Array.isArray(m.parts) && m.parts.length > 0
+                ? m.parts
+                : [{ type: "text" as const, text: m.content }],
+          }));
+        if (!cancelled) setInitialMessages(msgs);
+      } catch {
+        if (!cancelled) setInitialMessages([]);
+      }
     })();
+    return () => {
+      cancelled = true;
+      clearTimeout(fallback);
+    };
   }, [thread.id]);
+
 
   const transport = useMemo(() => {
     const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/support-chat`;
