@@ -332,11 +332,15 @@ function AvailabilityRow({
   codes,
   t,
   className,
+  isBookable,
+  comingSoonLabel,
 }: {
   label: string;
   codes: readonly string[];
   t: any;
   className?: string;
+  isBookable: (code?: string | null) => boolean;
+  comingSoonLabel?: string;
 }) {
   if (!label || codes.length === 0) return null;
   return (
@@ -346,8 +350,14 @@ function AvailabilityRow({
         {codes.map((code, i) => {
           const name = t(`hero.countries.${code}`, { defaultValue: "" });
           if (!name) return null;
+          const live = isBookable(code);
           return (
-            <span key={code} className="inline-flex items-center gap-1.5 align-middle">
+            <span
+              key={code}
+              data-testid={`hero-market-desktop-${code}`}
+              data-market-status={live ? "active" : "coming_soon"}
+              className={`inline-flex items-center gap-1.5 align-middle ${live ? "" : "opacity-70"}`}
+            >
               {i > 0 && <span aria-hidden="true" className="opacity-40">·</span>}
               <img
                 src={`https://flagcdn.com/${code}.svg`}
@@ -359,9 +369,15 @@ function AvailabilityRow({
                 className="inline-block h-[13px] w-[18px] rounded-[2px] shadow-[0_0_0_1px_hsl(var(--mkt-border))] object-cover"
               />
               <span>{name}</span>
+              {!live && comingSoonLabel && (
+                <span className="rounded-full bg-[hsl(var(--mkt-surface-muted))] px-1.5 py-0.5 text-[9.5px] font-semibold normal-case tracking-normal text-[hsl(var(--mkt-ink-soft))]">
+                  {comingSoonLabel}
+                </span>
+              )}
             </span>
           );
         })}
+
       </span>
     </p>
   );
