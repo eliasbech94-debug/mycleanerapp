@@ -1,0 +1,29 @@
+{
+  "disclosure": {
+    "title": "Response from MyCleaner AI Assistant",
+    "body": "AI can make mistakes. You can always ask for help from a human.",
+    "talkToHuman": "Talk to a person",
+    "requesting": "Handing over …",
+    "requestFailed": "We couldn't hand the conversation over. Please try again."
+  },
+  "system": {
+    "automated": "Automated message from MyCleaner"
+  },
+  "handover": {
+    "confirmation": "Of course — I'm handing this conversation over to MyCleaner Support so a person can help you.",
+    "active": "You are now talking to {{firstName}} from MyCleaner Support.",
+    "pending": "This conversation has been handed over to MyCleaner Support. A person will take it from here.",
+    "expectedResponse": "Expected response time: about {{minutes}} minutes.",
+    "expectedResponseUnknown": "We'll reply as soon as we can."
+  },
+  "sender": {
+    "customer": "Customer",
+    "provider": "Provider",
+    "support_agent": "MyCleaner Support",
+    "ai_assistant": "MyCleaner AI Assistant",
+    "system": "MyCleaner"
+  },
+  "audit": {
+    "aiAssistedDraft": "AI helped with the draft — reviewed and sent by a team member."
+  }
+}

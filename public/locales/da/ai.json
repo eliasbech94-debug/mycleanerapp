@@ -1,0 +1,29 @@
+{
+  "disclosure": {
+    "title": "Svar fra MyCleaner AI-assistent",
+    "body": "AI kan tage fejl. Du kan altid bede om hjælp fra et menneske.",
+    "talkToHuman": "Tal med et menneske",
+    "requesting": "Sender videre …",
+    "requestFailed": "Kunne ikke sende samtalen videre. Prøv igen."
+  },
+  "system": {
+    "automated": "Automatisk besked fra MyCleaner"
+  },
+  "handover": {
+    "confirmation": "Selvfølgelig — jeg sender samtalen videre til MyCleaner Support, så et menneske kan hjælpe dig.",
+    "active": "Du taler nu med {{firstName}} fra MyCleaner Support.",
+    "pending": "Samtalen er sendt videre til MyCleaner Support. Et menneske overtager herfra.",
+    "expectedResponse": "Forventet svartid: cirka {{minutes}} minutter.",
+    "expectedResponseUnknown": "Vi svarer, så hurtigt vi kan."
+  },
+  "sender": {
+    "customer": "Kunde",
+    "provider": "Provider",
+    "support_agent": "MyCleaner Support",
+    "ai_assistant": "MyCleaner AI-assistent",
+    "system": "MyCleaner"
+  },
+  "audit": {
+    "aiAssistedDraft": "AI hjalp med kladden — gennemgået og sendt af en medarbejder."
+  }
+}

@@ -18,6 +18,10 @@ import { toast } from "sonner";
 import { useCustomerConversations, type InboxConversationRow } from "@/hooks/useCustomerConversations";
 import { useConversationDetail } from "@/hooks/useConversationDetail";
 import { MobileAppShell } from "@/components/layout/MobileAppShell";
+import { AiDisclosure } from "@/components/conversation/AiDisclosure";
+import { HumanTakeoverNotice } from "@/components/conversation/HumanTakeoverNotice";
+import { useHumanHandover } from "@/hooks/useHumanHandover";
+import { isAiGenerated, isAutomatedSystemMessage } from "@/lib/conversations/senderType";
 
 function formatTimestamp(iso: string | null, locale: string): string {
   if (!iso) return "";
@@ -154,6 +158,8 @@ export function MobileConversationView() {
     confirmOptimistic,
     failOptimistic,
   } = useConversationDetail(id ?? null);
+  const { t: tAi } = useTranslation("ai");
+  const { requestHuman, pending: handoverPending, result: handover } = useHumanHandover(id ?? null);
   const [value, setValue] = useState("");
   const [sending, setSending] = useState(false);
   const bottomRef = useRef<HTMLDivElement | null>(null);
@@ -246,19 +252,29 @@ export function MobileConversationView() {
           <ul className="space-y-2">
             {(detail?.messages ?? []).map((m) => {
               const mine = m.sender_user_id === user?.id;
+              // Labelling is driven by the persisted sender_type only.
+              const ai = isAiGenerated(m);
+              const automated = !ai && isAutomatedSystemMessage(m);
+              const handedOver = !!(handover?.human_takeover_at ?? (detail?.conversation as any)?.human_takeover_at);
               return (
                 <li
                   key={m.id}
+                  data-sender-type={ai ? "ai_assistant" : automated ? "system" : undefined}
                   className={`flex ${mine ? "justify-end" : "justify-start"}`}
                 >
                   <div
                     className={
-                      "max-w-[78%] rounded-2xl px-3 py-2 text-sm break-words " +
+                      "max-w-[78%] min-w-0 rounded-2xl px-3 py-2 text-sm break-words " +
                       (mine
                         ? "bg-[hsl(var(--mkt-brand))] text-white"
                         : "bg-[hsl(var(--mkt-surface))] text-[hsl(var(--mkt-ink))] border border-[hsl(var(--mkt-border))]")
                     }
                   >
+                    {automated ? (
+                      <span className="mb-1 block text-[11px] font-semibold text-[hsl(var(--mkt-ink-muted))]">
+                        {tAi("system.automated")}
+                      </span>
+                    ) : null}
                     {m.body ?? ""}
                     {m._failed ? (
                       <span className="ml-2 text-[11px] opacity-80">
@@ -268,10 +284,25 @@ export function MobileConversationView() {
                     <span className={"ml-2 text-[10px] opacity-70"}>
                       {formatTimestamp(m.created_at, i18n.language)}
                     </span>
+                    {ai ? (
+                      <AiDisclosure
+                        showAction={!handedOver}
+                        pending={handoverPending}
+                        onTalkToHuman={() => void requestHuman()}
+                      />
+                    ) : null}
                   </div>
                 </li>
               );
             })}
+            {(handover?.human_takeover_at ?? (detail?.conversation as any)?.human_takeover_at) ? (
+              <li>
+                <HumanTakeoverNotice
+                  firstName={handover?.agent_first_name ?? null}
+                  expectedResponseMinutes={handover?.expected_response_minutes ?? null}
+                />
+              </li>
+            ) : null}
             <div ref={bottomRef} />
           </ul>
         )}

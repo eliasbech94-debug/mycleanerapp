@@ -54,6 +54,11 @@ Deno.serve(async (req) => {
         conversation_id,
         sender_user_id: user.id,
         sender_role,
+        // Authoritative sender_type. Humans only — an AI-sent message is never
+        // written through this endpoint (see conversation-request-human).
+        sender_type: sender_role === "support" || sender_role === "admin"
+          ? "support_agent"
+          : sender_role,
         message_type: message_type ?? (has_attachment ? "attachment" : "text"),
         body: text || null,
         is_internal_note: !!is_internal_note,

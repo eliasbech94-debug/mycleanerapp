@@ -5,11 +5,11 @@ import i18n from "i18next";
 import HttpBackend from "i18next-http-backend";
 import { initReactI18next } from "react-i18next";
 
-export const SUPPORTED_LANGUAGES = ["da", "en", "sv", "es"] as const;
+export const SUPPORTED_LANGUAGES = ["da", "en", "sv", "de", "es"] as const;
 export type SupportedLanguage = typeof SUPPORTED_LANGUAGES[number];
 export const FALLBACK_LANGUAGE: SupportedLanguage = "en";
 
-const NAMESPACES = ["common", "booking", "finance", "admin", "legal", "provider", "customer", "marketplace"] as const;
+const NAMESPACES = ["common", "booking", "finance", "admin", "legal", "provider", "customer", "marketplace", "ai"] as const;
 
 const MANUAL_KEY = "mc.language.manual"; // "true" once the user picked one explicitly
 const CHOICE_KEY = "mc.language.choice";
