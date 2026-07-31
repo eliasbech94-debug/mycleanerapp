@@ -80,7 +80,7 @@ Deno.serve(monitored("notification-outbox-worker", async (req, log) => {
         let result: { ok: boolean; note?: string } = { ok: false, note: "unknown_channel" };
         if (row.channel === "email") result = await sendEmail(row.recipient ?? "", row.subject ?? "", row.body ?? "");
         else if (row.channel === "push") result = await sendPush(row.user_id, row.subject ?? "", row.body ?? "");
-        else if (row.channel === "sms") result = await sendSmsChannel(row.recipient ?? "", row.body ?? "", `outbox:${row.id}`);
+        else if (row.channel === "sms") result = await sendSmsChannel(row.recipient ?? "", resolveSmsBody(row), `outbox:${row.id}`);
 
         if (result.ok) {
           counters.success += 1;
