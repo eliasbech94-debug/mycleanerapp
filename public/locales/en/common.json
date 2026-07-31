@@ -34,7 +34,8 @@
     "DK": "Denmark",
     "GB": "United Kingdom",
     "SE": "Sweden",
-    "ES": "Spain"
+    "ES": "Spain",
+    "coming_soon": "Coming soon"
   },
   "mobileMessages": {
     "title": "Messages",
