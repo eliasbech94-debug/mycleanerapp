@@ -3,6 +3,7 @@
 // per Sumsub docs. Feature-flag gated by callers.
 import { createClient, SupabaseClient } from "npm:@supabase/supabase-js@2";
 import { signSumsubRequest, verifySumsubWebhookSignature } from "./sumsub-signing.ts";
+import { toAlpha3 } from "./iso3.ts";
 
 export interface SumsubConfig {
   appToken: string;
