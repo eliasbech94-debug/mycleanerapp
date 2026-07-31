@@ -55,8 +55,8 @@ describe("FirstJobCelebrationDialog", () => {
   });
 
   it("plays muted, inline, without loop and with metadata preload", () => {
-    const { container } = render(<FirstJobCelebrationDialog open onClose={vi.fn()} />);
-    const video = container.querySelector("video") as HTMLVideoElement;
+    render(<FirstJobCelebrationDialog open onClose={vi.fn()} />);
+    const video = document.querySelector("video") as HTMLVideoElement;
     expect(video.muted).toBe(true);
     expect(video.hasAttribute("playsinline")).toBe(true);
     expect(video.loop).toBe(false);
@@ -65,17 +65,17 @@ describe("FirstJobCelebrationDialog", () => {
   });
 
   it("shows a replay button after the video ends and tracks completion", () => {
-    const { container } = render(<FirstJobCelebrationDialog open onClose={vi.fn()} />);
-    const video = container.querySelector("video") as HTMLVideoElement;
+    render(<FirstJobCelebrationDialog open onClose={vi.fn()} />);
+    const video = document.querySelector("video") as HTMLVideoElement;
     fireEvent.ended(video);
     expect(tracked).toContain("first_job_video_completed");
     expect(screen.getByText("Se igen")).toBeTruthy();
   });
 
   it("still renders the popup when the video fails to load", () => {
-    const { container } = render(<FirstJobCelebrationDialog open onClose={vi.fn()} />);
-    fireEvent.error(container.querySelector("video") as HTMLVideoElement);
-    expect(container.querySelector("video")).toBeNull();
+    render(<FirstJobCelebrationDialog open onClose={vi.fn()} />);
+    fireEvent.error(document.querySelector("video") as HTMLVideoElement);
+    expect(document.querySelector("video")).toBeNull();
     expect(screen.getByText("Fortsæt til dashboard")).toBeTruthy();
   });
 
