@@ -5,9 +5,11 @@
  * contract: fields, legal consent, Turnstile, Google OAuth, submit path
  * and redirect behaviour, plus the no-hamburger rule on auth routes.
  */
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, act, waitFor } from "@testing-library/react";
+import { describe, it, expect, vi, beforeAll, beforeEach, afterEach } from "vitest";
+import { render, screen, fireEvent, act, waitFor, cleanup } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
+import type { i18n as I18nInstance } from "i18next";
+import { createTestI18n, I18nTestProvider } from "@/test/i18n";
 import { isAuthRoute } from "@/components/layout/Header";
 import { EARLY_ACCESS_MODE, isBookingLocked } from "@/config/launch";
 
