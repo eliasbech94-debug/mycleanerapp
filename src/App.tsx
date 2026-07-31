@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -173,6 +173,19 @@ export function RootRouteSwitch() {
   );
 }
 
+function AppChrome() {
+  const { pathname } = useLocation();
+  const isSupportWorkspace = /^\/(?:dk|gb|se|es\/)?support(?:\/|$)/.test(pathname);
+
+  return (
+    <>
+      {!isSupportWorkspace && <Header />}
+      <RootRouteSwitch />
+      {!isSupportWorkspace && <Footer />}
+    </>
+  );
+}
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AppErrorBoundary>
@@ -185,9 +198,7 @@ const App = () => (
           <AuthProvider>
             <ScrollToTop />
             <RouteLoadingBar />
-            <Header />
-            <RootRouteSwitch />
-            <Footer />
+            <AppChrome />
           </AuthProvider>
         </BrowserRouter>
       </TooltipProvider>
