@@ -388,5 +388,15 @@
     "mute": "Mute",
     "unmute": "Unmute",
     "video_label": "MyCleaner welcome video"
+  },
+  "first_job_popup": {
+    "title": "🎉 Congratulations!",
+    "body": "You have now completed your first paid job on MyCleaner. We hope everything went well.",
+    "support": "If you have questions or need help, we're always available in the chat.",
+    "thanks": "Thank you for being part of MyCleaner International. 🧡",
+    "cta_dashboard": "Continue to dashboard",
+    "close": "Close",
+    "replay": "Watch again",
+    "video_label": "MyCleaner celebration video"
   }
 }

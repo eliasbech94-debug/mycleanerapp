@@ -388,5 +388,15 @@
     "mute": "Silenciar",
     "unmute": "Activar sonido",
     "video_label": "Vídeo de bienvenida de MyCleaner"
+  },
+  "first_job_popup": {
+    "title": "🎉 ¡Enhorabuena!",
+    "body": "Has completado tu primer trabajo remunerado en MyCleaner. Esperamos que todo haya ido bien.",
+    "support": "Si tienes preguntas o necesitas ayuda, siempre estamos disponibles en el chat.",
+    "thanks": "Gracias por formar parte de MyCleaner International. 🧡",
+    "cta_dashboard": "Ir al panel",
+    "close": "Cerrar",
+    "replay": "Ver de nuevo",
+    "video_label": "Vídeo de celebración de MyCleaner"
   }
 }

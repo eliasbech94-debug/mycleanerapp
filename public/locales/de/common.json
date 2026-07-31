@@ -388,5 +388,15 @@
     "mute": "Ton aus",
     "unmute": "Ton an",
     "video_label": "MyCleaner Willkommensvideo"
+  },
+  "first_job_popup": {
+    "title": "🎉 Herzlichen Glückwunsch!",
+    "body": "Du hast deinen ersten bezahlten Auftrag auf MyCleaner abgeschlossen. Wir hoffen, alles ist gut gelaufen.",
+    "support": "Bei Fragen oder wenn du Hilfe brauchst, sind wir jederzeit im Chat für dich da.",
+    "thanks": "Danke, dass du Teil von MyCleaner International bist. 🧡",
+    "cta_dashboard": "Weiter zum Dashboard",
+    "close": "Schließen",
+    "replay": "Erneut ansehen",
+    "video_label": "MyCleaner Feiervideo"
   }
 }
