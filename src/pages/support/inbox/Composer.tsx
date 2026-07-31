@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useCallback, KeyboardEvent } from "react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { Loader2, Lock, Paperclip, RotateCw, Send, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -47,6 +48,7 @@ interface PendingUpload {
 export function Composer({
   conversationId, isStaff, onOptimistic, onConfirmed, onFailed, disabled,
 }: Props) {
+  const { t } = useTranslation("admin");
   const [mode, setMode] = useState<ComposerMode>("reply");
   const [value, setValue] = useState<string>(() => getDraft(conversationId, mode));
   const [upload, setUpload] = useState<PendingUpload | null>(null);
@@ -161,7 +163,7 @@ export function Composer({
             size_bytes: attachment.file.size,
           });
         } catch (e) {
-          toast.error("Kunne ikke gemme vedhæftning: " + (e as Error).message);
+          toast.error(t("support.composer.attachmentSaveError", { message: (e as Error).message }));
         }
       }
 
@@ -172,7 +174,7 @@ export function Composer({
       setValue(snapshotValue);
       setDraft(conversationId, mode, snapshotValue);
       if (snapshotUpload) setUpload(snapshotUpload);
-      toast.error("Kunne ikke sende: " + (e as Error).message);
+      toast.error(t("support.composer.sendError", { message: (e as Error).message }));
     } finally {
       setSending(false);
     }
@@ -194,12 +196,12 @@ export function Composer({
     >
       {/* Mode switch */}
       <div className="flex items-center gap-1 px-3 pt-2">
-        <ModeTab active={mode === "reply"} onClick={() => setMode("reply")} label="Svar" />
+        <ModeTab active={mode === "reply"} onClick={() => setMode("reply")} label={t("support.composer.replyTab")} />
         {isStaff && (
           <ModeTab
             active={mode === "note"}
             onClick={() => setMode("note")}
-            label="Intern note"
+            label={t("support.composer.noteTab")}
             tone="warning"
           />
         )}
@@ -208,7 +210,7 @@ export function Composer({
       {mode === "note" && (
         <div className="mx-3 mt-2 flex items-start gap-2 rounded-md border border-amber-300 dark:border-amber-800 bg-amber-100/60 dark:bg-amber-900/40 p-2 text-xs text-amber-900 dark:text-amber-100">
           <Lock className="h-3.5 w-3.5 mt-0.5" aria-hidden />
-          <span>Kun synlig for support og administrator.</span>
+          <span>{t("support.composer.noteVisibilityHint")}</span>
         </div>
       )}
 
@@ -218,10 +220,10 @@ export function Composer({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           onKeyDown={onKey}
-          placeholder={mode === "note" ? "Skriv en intern note…" : "Skriv et svar…"}
+          placeholder={mode === "note" ? t("support.composer.notePlaceholder") : t("support.composer.replyPlaceholder")}
           rows={3}
           disabled={disabled || sending}
-          aria-label={mode === "note" ? "Intern note" : "Svar"}
+          aria-label={mode === "note" ? t("support.composer.noteTab") : t("support.composer.replyTab")}
           className="resize-none text-sm"
         />
 
@@ -231,11 +233,11 @@ export function Composer({
             <div className="flex-1 min-w-0">
               <div className="truncate font-medium">{upload.file.name}</div>
               <div className="text-muted-foreground">
-                {upload.status === "uploading" && `Uploader… ${upload.progress}%`}
-                {upload.status === "ready" && "Klar til at sende"}
+                {upload.status === "uploading" && t("support.composer.uploading", { progress: upload.progress })}
+                {upload.status === "ready" && t("support.composer.uploadReady")}
                 {upload.status === "error" && (
                   <span className="text-destructive">
-                    Fejl: {upload.error ?? "ukendt"}
+                    {t("support.composer.uploadError", { message: upload.error ?? t("support.composer.uploadErrorUnknown") })}
                   </span>
                 )}
               </div>
@@ -243,14 +245,14 @@ export function Composer({
             {upload.status === "error" && (
               <Button
                 size="sm" variant="ghost" onClick={() => onFile(upload.file)}
-                aria-label="Prøv upload igen"
+                aria-label={t("support.composer.retryUploadAria")}
               >
                 <RotateCw className="h-3.5 w-3.5" />
               </Button>
             )}
             <Button
               size="sm" variant="ghost" onClick={removeUpload}
-              aria-label="Fjern vedhæftning"
+              aria-label={t("support.composer.removeAttachmentAria")}
             >
               <X className="h-3.5 w-3.5" />
             </Button>
@@ -272,22 +274,22 @@ export function Composer({
             />
             <Button
               size="sm" variant="ghost" onClick={pickFile} disabled={disabled || sending || !!upload}
-              aria-label="Vedhæft fil"
+              aria-label={t("support.composer.attachAria")}
             >
               <Paperclip className="h-4 w-4" />
             </Button>
             <span className="text-[10px] text-muted-foreground hidden sm:inline">
-              Ctrl/⌘+Enter for at sende · Max {(MAX_BYTES / 1024 / 1024).toFixed(0)} MB
+              {t("support.composer.hint", { maxMb: (MAX_BYTES / 1024 / 1024).toFixed(0) })}
             </span>
           </div>
           <Button
             size="sm"
             onClick={doSend}
             disabled={!canSend}
-            aria-label={mode === "note" ? "Send intern note" : "Send svar"}
+            aria-label={mode === "note" ? t("support.composer.sendNoteAria") : t("support.composer.sendReplyAria")}
           >
             {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-            <span className="ml-2">{mode === "note" ? "Send note" : "Send"}</span>
+            <span className="ml-2">{mode === "note" ? t("support.composer.sendNote") : t("support.composer.send")}</span>
           </Button>
         </div>
       </div>
@@ -323,5 +325,5 @@ function ModeTab({
 export function confirmDiscardIfDirty(conversationId: string): boolean {
   if (!hasAnyDraft(conversationId)) return true;
   // eslint-disable-next-line no-alert
-  return window.confirm("Du har en ikke-sendt kladde. Vil du kassere den?");
+  return window.confirm(t("support.composer.discardConfirm"));
 }
