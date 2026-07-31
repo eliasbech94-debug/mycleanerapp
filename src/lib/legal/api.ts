@@ -107,6 +107,19 @@ export async function fetchPendingRequired(
   return required.filter((d) => !accepted.has(d.body_hash));
 }
 
+/**
+ * The `source` column is constrained to acceptance channels
+ * ('web' | 'mobile' | 'api' | 'admin'), so callers passing a UI context label
+ * (e.g. "legal_update_gate") are normalised to the channel they came from.
+ */
+const ACCEPTANCE_CHANNELS = ["web", "mobile", "api", "admin"] as const;
+
+function normaliseAcceptanceSource(source: string): string {
+  if ((ACCEPTANCE_CHANNELS as readonly string[]).includes(source)) return source;
+  const ua = typeof navigator !== "undefined" ? navigator.userAgent : "";
+  return /Android|iPhone|iPad|iPod|Mobile/i.test(ua) ? "mobile" : "web";
+}
+
 /** Append-only acceptance record. Never stores credentials. */
 export async function acceptLegalDocument(
   userId: string,
@@ -120,8 +133,9 @@ export async function acceptLegalDocument(
     language: doc.language,
     version: doc.version,
     document_hash: doc.body_hash,
-    source,
+    source: normaliseAcceptanceSource(source),
     user_agent: typeof navigator !== "undefined" ? navigator.userAgent.slice(0, 500) : null,
   });
   if (error && !/duplicate key|unique/i.test(error.message)) throw error;
 }
+
