@@ -17,7 +17,9 @@
     "readingTime": "Læsetid",
     "readingTimeValue": "{{count}} min. læsetid"
   },
-  "toc": { "title": "Indhold" },
+  "toc": {
+    "title": "Indhold"
+  },
   "document": {
     "print": "Print",
     "pdf": "Download PDF",
@@ -59,7 +61,7 @@
     "new": "Nyt dokument",
     "save": "Gem kladde",
     "publish": "Publicér",
-    "preview": "Preview",
+    "preview": "Forhåndsvisning",
     "edit": "Redigér",
     "history": "Versionshistorik",
     "slug": "Slug",

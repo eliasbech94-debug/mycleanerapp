@@ -272,7 +272,14 @@
     "helpText": "Öppna FAQ-chatten och få hjälp av vår AI. Blir ärendet komplext skickar vi det vidare till en människa.",
     "startChat": "Starta FAQ-chatt",
     "loginToChat": "Logga in för att chatta",
-    "seeRules": "Se regler"
+    "seeRules": "Se regler",
+    "cta": {
+      "heading": "Hittade du inget svar?",
+      "body": "Öppna FAQ-chatten och få hjälp av vår AI. Blir ärendet komplext skickar vi det vidare till en människa.",
+      "start": "Starta FAQ-chatt",
+      "login": "Logga in för att chatta",
+      "rules": "Se regler"
+    }
   },
   "rules": {
     "heading": "Regler och villkor",

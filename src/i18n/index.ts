@@ -30,6 +30,17 @@ export function setManualLanguage(lng: SupportedLanguage) {
   void i18n.changeLanguage(lng);
 }
 
+/**
+ * Apply a language that came from the signed-in account. Treated as an
+ * explicit user choice (the user picked it on some device), so it is mirrored
+ * into local storage and locks out auto-detection on this device too.
+ */
+export function applyAccountLanguage(lng: SupportedLanguage) {
+  localStorage.setItem(CHOICE_KEY, lng);
+  localStorage.setItem(MANUAL_KEY, "true");
+  if (i18n.language?.slice(0, 2) !== lng) void i18n.changeLanguage(lng);
+}
+
 function browserLanguage(): SupportedLanguage | null {
   const raw = (typeof navigator !== "undefined" ? navigator.language : "en").slice(0, 2).toLowerCase();
   return (SUPPORTED_LANGUAGES as readonly string[]).includes(raw) ? (raw as SupportedLanguage) : null;
@@ -56,6 +67,20 @@ export function resolveInitialLanguage(input?: {
   return FALLBACK_LANGUAGE;
 }
 
+/**
+ * Missing-key policy.
+ *
+ * English is the source language, so i18next already falls back to English for
+ * any key a target bundle lacks. This handler only fires when a key is missing
+ * in EVERY bundle (a code/bundle mismatch).
+ *
+ * Production: render nothing — a raw dotted key must never reach a user.
+ * Development/test: render a loud marker and log, so the gap is caught early.
+ */
+const IS_DEV = import.meta.env.DEV;
+
+export const missingKeyFallback = (key: string): string => (IS_DEV ? `⟪${key}⟫` : "");
+
 let started = false;
 export async function initI18n() {
   if (started) return i18n;
@@ -65,8 +90,12 @@ export async function initI18n() {
     .use(initReactI18next)
     .init({
       lng: resolveInitialLanguage(),
-      fallbackLng: FALLBACK_LANGUAGE,
+      fallbackLng: FALLBACK_LANGUAGE, // English is the source language
       supportedLngs: SUPPORTED_LANGUAGES as unknown as string[],
+      // Adding a language = adding SUPPORTED_LANGUAGES entry + /locales/<lng>/
+      // bundle. No component code changes required.
+      nonExplicitSupportedLngs: true,
+      cleanCode: true,
       ns: NAMESPACES as unknown as string[],
       defaultNS: "common",
       load: "languageOnly",
@@ -74,6 +103,15 @@ export async function initI18n() {
       react: { useSuspense: false },
       backend: { loadPath: "/locales/{{lng}}/{{ns}}.json" },
       returnNull: false,
+      returnEmptyString: false, // an empty translation falls through to English
+      saveMissing: false, // never write back to the server
+      parseMissingKeyHandler: missingKeyFallback,
+      missingKeyHandler: IS_DEV
+        ? (lngs, ns, key) => {
+            // eslint-disable-next-line no-console
+            console.error(`[i18n] missing key ${ns}:${key} for ${lngs.join(",")}`);
+          }
+        : undefined,
     });
   return i18n;
 }

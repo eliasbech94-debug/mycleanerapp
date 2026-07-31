@@ -11,10 +11,30 @@
  * so it verifies the component's own breakpoint decision rather than an
  * indirection that the component no longer uses.
  */
-import { describe, it, expect, afterEach } from "vitest";
+import { describe, it, expect, afterEach, beforeAll } from "vitest";
 import { render, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
+import { readFileSync } from "node:fs";
+import i18n from "i18next";
+import { initReactI18next } from "react-i18next";
 import Footer from "./Footer";
+import { COMPANY } from "@/config/company";
+
+// The footer is fully i18n-driven. Load the real Danish bundle so the
+// contract is asserted against shipped copy, not against translation keys.
+beforeAll(async () => {
+  const bundle = (ns: string) =>
+    JSON.parse(readFileSync(`public/locales/da/${ns}.json`, "utf8"));
+  await i18n.use(initReactI18next).init({
+    lng: "da",
+    fallbackLng: "da",
+    ns: ["common"],
+    defaultNS: "common",
+    resources: { da: { common: bundle("common") } },
+    interpolation: { escapeValue: false },
+    react: { useSuspense: false },
+  });
+});
 
 const ORIGINAL_WIDTH = window.innerWidth;
 
@@ -92,12 +112,20 @@ describe("Footer contract", () => {
       const { container } = renderFooter("/", width);
       const footer = container.querySelector("footer")!;
       const scope = within(footer);
-      expect(scope.getByRole("link", { name: "Regler" })).toHaveAttribute("href", "/regler");
-      expect(scope.getByRole("link", { name: "Privatlivspolitik" })).toHaveAttribute("href", "/regler");
-      expect(scope.getByRole("link", { name: "Priser & regler" })).toHaveAttribute("href", "/regler");
-      expect(scope.getByRole("link", { name: "Kontakt" })).toHaveAttribute(
+      // "Priser & regler" is intentionally listed in both the Platform and
+      // the Support column.
+      const rules = scope.getAllByRole("link", { name: "Priser & regler" });
+      expect(rules).toHaveLength(2);
+      for (const link of rules) expect(link).toHaveAttribute("href", "/regler");
+      expect(scope.getByRole("link", { name: "Privatlivspolitik" })).toHaveAttribute(
         "href",
-        "mailto:support@mycleaner.app",
+        "/legal/privacy-policy",
+      );
+      expect(scope.getByRole("link", { name: "Legal Center" })).toHaveAttribute("href", "/legal");
+      expect(scope.getByRole("link", { name: "Kontakt" })).toHaveAttribute("href", "/kontakt");
+      expect(scope.getByRole("link", { name: COMPANY.supportEmail })).toHaveAttribute(
+        "href",
+        `mailto:${COMPANY.supportEmail}`,
       );
     });
 
@@ -112,7 +140,7 @@ describe("Footer contract", () => {
         expect(link.getAttribute("href")).toBeTruthy();
         expect(link.getAttribute("tabindex")).not.toBe("-1");
       }
-      const brand = within(footer).getByLabelText("MyCleaner – forside");
+      const brand = within(footer).getByLabelText(COMPANY.tradingName);
       expect(brand).toHaveAttribute("href", "/");
     });
 
@@ -120,7 +148,7 @@ describe("Footer contract", () => {
       const { container } = renderFooter("/", width);
       const footer = container.querySelector("footer")!;
       const headings = Array.from(footer.querySelectorAll("h4")).map((h) => h.textContent);
-      expect(headings).toEqual(["Platform", "For providere", "Support"]);
+      expect(headings).toEqual(["Platform", "For providere", "Support", "Virksomhed"]);
     });
 
     it("does not ship a parallel hidden mobile copy of the footer content", () => {
@@ -129,8 +157,9 @@ describe("Footer contract", () => {
       // A duplicated `hidden`/`md:hidden` mirror block would double the links.
       expect(footer.querySelectorAll('[class*="md:hidden"]')).toHaveLength(0);
       expect(footer.querySelectorAll("footer")).toHaveLength(0);
-      const regler = within(footer).getAllByRole("link", { name: "Regler" });
-      expect(regler).toHaveLength(1);
+      // Exactly the two intended occurrences — no hidden mobile mirror.
+      const regler = within(footer).getAllByRole("link", { name: "Priser & regler" });
+      expect(regler).toHaveLength(2);
     });
   });
 });

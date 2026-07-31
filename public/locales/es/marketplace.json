@@ -175,7 +175,7 @@
     "href": "/founding-cleaner",
     "badgePrimary": "FOUNDING CLEANER",
     "badgeSecondary": "ABRE PRONTO",
-    "edition": "2026 EDITION",
+    "edition": "EDICIÓN 2026",
     "amount": "0 €",
     "amountSuffix1": "en comisión de plataforma del proveedor",
     "amountSuffix2": "durante 3 meses",
@@ -215,6 +215,30 @@
       {
         "q": "¿En qué países está activo?",
         "a": "Dinamarca, Suecia, Alemania, Reino Unido y España. Más países en camino."
+      },
+      {
+        "q": "¿Puedo crear una reserva periódica?",
+        "a": "Sí. Elige reserva periódica y el servicio se repetirá automáticamente con el intervalo que escojas."
+      },
+      {
+        "q": "¿Cuándo se cobra el pago?",
+        "a": "El importe puede quedar retenido en tu tarjeta mientras se tramita tu solicitud de reserva. Se cobra cuando el provider acepta la reserva y se abona al provider una vez realizado el servicio."
+      },
+      {
+        "q": "¿Puedo cancelar?",
+        "a": "Sí. Puedes cancelar una reserva desde Mis reservas. Lo que puede costar una cancelación, y si es posible el reembolso, depende de con cuánta antelación canceles respecto a la hora de inicio: consulta las condiciones aplicables en nuestras normas."
+      },
+      {
+        "q": "¿En qué países está disponible?",
+        "a": "MyCleaner está disponible en Dinamarca. Suecia, Alemania, Reino Unido y España llegarán muy pronto."
+      },
+      {
+        "q": "¿Cómo accede el provider a mi vivienda?",
+        "a": "El acceso lo acuerdas directamente con el provider que elijas. MyCleaner no recibe llaves, no las guarda ni gestiona su entrega. Tú eliges la solución de acceso y eres responsable de ella."
+      },
+      {
+        "q": "¿Qué ocurre si se produce un daño?",
+        "a": "Crea un caso de soporte con fotos y una descripción. MyCleaner es la plataforma entre el cliente y el provider. Cualquier reclamación por daños se evalúa según la documentación, la responsabilidad del provider y las condiciones aplicables."
       }
     ]
   },

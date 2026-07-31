@@ -215,6 +215,30 @@
       {
         "q": "Vilka länder är live?",
         "a": "Danmark, Sverige, Tyskland, Storbritannien och Spanien. Fler länder rullas ut löpande."
+      },
+      {
+        "q": "Kan jag skapa en återkommande bokning?",
+        "a": "Ja. Välj återkommande bokning så upprepas uppdraget automatiskt med det intervall du väljer."
+      },
+      {
+        "q": "När dras betalningen?",
+        "a": "Beloppet kan reserveras på ditt kort medan din bokningsförfrågan behandlas. Det dras när providern har accepterat bokningen och betalas ut till providern efter att tjänsten har utförts."
+      },
+      {
+        "q": "Kan jag avboka?",
+        "a": "Ja. Du kan avboka en bokning under Mina bokningar. Vad en avbokning kan kosta, och om återbetalning är möjlig, beror på hur nära starttiden du avbokar – se gällande villkor i våra regler."
+      },
+      {
+        "q": "Vilka länder är igång?",
+        "a": "MyCleaner är igång i Danmark. Sverige, Tyskland, Storbritannien och Spanien kommer snart."
+      },
+      {
+        "q": "Hur får providern tillgång till mitt hem?",
+        "a": "Du kommer överens om tillträdet direkt med den provider du valt. MyCleaner tar inte emot nycklar, förvarar inga nycklar och ordnar ingen nyckelöverlämning. Du väljer själv lösningen för tillträde och ansvarar för den."
+      },
+      {
+        "q": "Vad händer om något skadas?",
+        "a": "Skapa ett supportärende med foton och en beskrivning. MyCleaner är plattformen mellan kunden och providern. Eventuella skadeanspråk bedöms utifrån dokumentationen, providerns ansvar och gällande villkor."
       }
     ]
   },

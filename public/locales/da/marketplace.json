@@ -58,7 +58,7 @@
     "heading": "Populære ydelser",
     "view_all": "Se alle",
     "cleaning": "Rengøring",
-    "handyman": "Handyman",
+    "handyman": "Håndværker",
     "garden": "Have",
     "moving": "Flytning",
     "tiles": {
@@ -230,7 +230,7 @@
       },
       {
         "q": "Hvilke lande er live?",
-        "a": "Danmark, Sverige, Tyskland, Storbritannien og Spanien. Flere lande kommer løbende."
+        "a": "MyCleaner er live i Danmark. Sverige, Tyskland, Storbritannien og Spanien kommer snart."
       },
       {
         "q": "Hvordan får provideren adgang til min bolig?",
@@ -313,7 +313,7 @@
     "quickActions": {
       "title": "Hurtige handlinger",
       "book_again": "Book igen",
-      "find_cleaner": "Find cleaner",
+      "find_cleaner": "Find Cleaner",
       "messages": "Beskeder"
     },
     "customer": {
