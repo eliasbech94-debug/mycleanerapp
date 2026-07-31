@@ -85,7 +85,14 @@ export async function createApplicant(
   const levelName = args.level === "provider" ? cfg.providerLevel : cfg.customerLevel;
   const path = `/resources/applicants?levelName=${encodeURIComponent(levelName)}`;
   const body: Record<string, unknown> = { externalUserId: args.externalUserId };
-  if (args.countryCode) body.info = { country: args.countryCode.toUpperCase() };
+  // Sumsub requires ISO 3166-1 alpha-3; MyCleaner stores alpha-2 everywhere.
+  // An unmappable code is omitted rather than sent through, because a bad
+  // country value makes Sumsub reject the whole applicant with a 400.
+  const alpha3 = toAlpha3(args.countryCode);
+  if (alpha3) body.info = { country: alpha3 };
+  else if (args.countryCode) {
+    console.warn("sumsub_country_unmappable", { code: args.countryCode });
+  }
   const r = await sumsubCall(cfg, "POST", path, body) as { id: string };
   return { id: r.id };
 }
