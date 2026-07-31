@@ -154,6 +154,8 @@ Deno.serve(async (req) => {
           dedupe_key: `provider_decision:${notice.id}`,
           subject: NOTIFICATION_TITLE[noticeType],
           body: withheld ? WITHHELD_TEXT : providerReason.slice(0, 240),
+          vars: { reason: withheld ? WITHHELD_TEXT : providerReason.slice(0, 240) },
+
           action_label: "Se afgorelsen",
           action_url: `/provider/decisions/${notice.id}`,
           severity: "warning",

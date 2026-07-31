@@ -1,469 +1,670 @@
 {
   "greeting": {
-    "morning": "Good morning",
     "day": "Good day",
-    "evening": "Good evening"
+    "evening": "Good evening",
+    "morning": "Good morning"
   },
   "profile": {
-    "nav": {
-      "back": "Back",
-      "title": "My profile",
-      "signOut": "Log out",
-      "help": "Help & support",
-      "complaint": "Submit a complaint",
-      "menu": "Menu"
+    "addresses": {
+      "subtitle": "Add multiple addresses with access information, pets, parking etc. The primary address is chosen automatically at booking.",
+      "title": "My addresses"
+    },
+    "bookings": {
+      "cardFallback": "Card",
+      "emptySubtitle": "Find a cleaner and book directly in the calendar.",
+      "emptyTitle": "No bookings yet",
+      "findCleaner": "Find cleaner",
+      "fullRefund": "Full refund",
+      "hoursSuffix": "h",
+      "loading": "Loading…",
+      "paidStatus": "Paid",
+      "partialRefund": "Partial refund",
+      "payment": {
+        "authorized": "Reserved",
+        "canceled": "Cancelled",
+        "captured": "Paid",
+        "failed": "Not completed",
+        "partially_refunded": "Partially refunded",
+        "refunded": "Refunded"
+      },
+      "pendingPaymentStatus": "Awaiting payment",
+      "reason": "Reason",
+      "refundCount_one": "{{count}} refund",
+      "refundCount_other": "{{count}} refunds",
+      "refundDefault": "Refund",
+      "refundFailed": "Could not be completed",
+      "refundFailedReason": "Could not be completed: {{reason}}",
+      "refundId": "Refund ID",
+      "refundReason": {
+        "duplicate": "Duplicate payment",
+        "expired_uncaptured_charge": "Card hold expired",
+        "fraudulent": "Suspected fraud",
+        "requested_by_customer": "Requested by customer"
+      },
+      "refunded": "Refunded",
+      "remaining": "Remaining",
+      "reservedStatus": "Reserved",
+      "seeReceipt": "See receipt",
+      "status": {
+        "accepted": "Accepted",
+        "cancelled": "Cancelled",
+        "completed": "Completed",
+        "declined": "Declined",
+        "pending": "Awaiting cleaner"
+      },
+      "timePrefix": "at",
+      "totalPrice": "Total price",
+      "totalRefunded": "Total refunded",
+      "youPaid": "You paid",
+      "youStillPay": "You still pay"
+    },
+    "cards": {
+      "addCard": "Add payment card",
+      "cardRemoved": "Card removed",
+      "cardRemovedError": "The card was not removed. Please try again in a moment.",
+      "cardReplaced": "Card replaced",
+      "cardReplacedError": "The card was not replaced. Please try again, or use another payment method.",
+      "cardSaved": "Card saved",
+      "chargedFor": "Will be charged for {{service}} with {{provider}} · {{date}} {{slot}} · {{amount}}",
+      "closeAria": "Close",
+      "dateLabel": "Date",
+      "defaultExpired": "Your default card has expired — replace it before the next payment.",
+      "defaultUpdateError": "We couldn't update your default card. Please try again.",
+      "defaultUpdated": "Default card updated",
+      "deleteCard": "Delete card",
+      "deleteCardTitle": "Remove payment card?",
+      "deleteDefaultTitle": "Delete default card?",
+      "deleting": "Deleting…",
+      "emptySubtitle": "Add a card to make booking faster next time.",
+      "emptyTitle": "No saved cards",
+      "errorTitle": "We couldn't fetch your payment information",
+      "expiresColLabel": "Expires",
+      "expiresInMonth": "Expires in about 1 month",
+      "expiresLabel": "Expires {{date}}",
+      "expiresSoonBody": "We recommend replacing the card in good time{{defaultNote}}, so upcoming payments aren't declined.",
+      "expiresSoonBodyDefault": " – it's your default card and is used for your next payment",
+      "expiresSoonTitle": "Expires soon",
+      "expiresThisMonth": "Expires this month",
+      "expiringCount_one": "1 card is expiring soon",
+      "expiringCount_other": "{{count}} cards are expiring soon",
+      "expiringDefaultWarning": "Your default card expires within 2 months. Add a new card now so your next payment isn't declined.",
+      "expiringDoNow": " We recommend doing this right away.",
+      "expiringOtherWarning": "Replace the cards in good time to avoid declined payments.",
+      "filterLabel": "Filter",
+      "filters": {
+        "active": "Active",
+        "all": "All",
+        "default": "Default",
+        "expired": "Expired"
+      },
+      "formOpenError": "We couldn't open the payment card form. Please try again.",
+      "hideDetails": "Hide details",
+      "lastUsedLabel": "Last used",
+      "loading": "Loading…",
+      "neverUsed": "Never used",
+      "newCardTitle": "New card",
+      "nextPaymentTitle": "Next scheduled payment",
+      "noUpcoming": "No upcoming bookings scheduled. The card will be used automatically for your next booking.",
+      "noneMatch": "No cards match the selected filter.",
+      "onlyCardWarning": "This is your only saved card. You'll need to manually enter card details at your next booking.",
+      "pickDefaultFirst": "First choose a new default card before removing the current one.",
+      "pickNewDefault": "This is your default card. Choose a new default card before deleting:",
+      "preparingForm": "Preparing secure Stripe form…",
+      "referenceLabel": "Reference",
+      "removeAria": "Remove",
+      "replace": "Replace",
+      "replaceCardNow": "Replace card now",
+      "replaceCardTitle": "Replace card",
+      "replaceDefaultNow": "Replace default card now",
+      "replaceNote": "The new card will be set as default, and {{brand}} •••• {{last4}} will be removed automatically.",
+      "replaceNow": "Replace card now",
+      "saveCard": "Save card",
+      "savingCardError": "The card could not be saved. Check the details and try again.",
+      "setDefault": "Set as default",
+      "setupIntentMissing": "We couldn't start the secure payment page. Please try again shortly.",
+      "showDetails": "Show details",
+      "soonSuffix": "(soon)",
+      "status": {
+        "active": "Active",
+        "default": "Default – used next time",
+        "expired": "Expired"
+      },
+      "statusLabel": "Status",
+      "stripeKeyMissing": "Stripe publishable key is missing from the configuration",
+      "updating": "Updating…"
     },
     "header": {
       "defaultName": "Your profile"
     },
-    "tabs": {
-      "overview": "Overview",
-      "inbox": "Inbox",
-      "info": "My information",
-      "addresses": "Addresses",
-      "bookings": "Bookings",
-      "cards": "Cards & payments",
-      "invoices": "Invoices",
-      "history": "Payment history",
-      "notifications": "Notifications",
-      "sms": "SMS",
-      "tax": "Tax information",
-      "deduction": "Service deduction",
-      "deactivate": "Deactivate account"
-    },
-    "overview": {
-      "welcome": "Welcome, {{name}}",
-      "heroSubtitle": "Here's a quick overview of your upcoming cleanings, addresses and payments.",
-      "bookNewCleaner": "Book a new cleaner",
-      "myBookings": "My bookings",
-      "checklistTitle": "Complete your profile",
-      "checklistSubtitle": "Finish these steps to get the best match and fastest booking.",
-      "checklist": {
-        "contact": {
-          "title": "Contact information",
-          "done": "Name, phone and country are validated.",
-          "fill": "Fill in name, phone and country.",
-          "action": "Fill in"
-        },
-        "email": {
-          "title": "Confirm email",
-          "done": "Your email is confirmed.",
-          "pending": "We've sent a confirmation link to your inbox."
-        },
-        "address": {
-          "title": "Primary address",
-          "loading": "Loading…",
-          "missing": "No primary address",
-          "fallback": "Choose an address from the suggestions.",
-          "action": "Add"
-        },
-        "property": {
-          "title": "Home details",
-          "missing": "Missing home details",
-          "fallback": "Enter size, type and access.",
-          "action": "Fill in",
-          "summary": "{{size}} m² · {{type}} · access: {{access}}"
-        },
-        "card": {
-          "title": "Payment card",
-          "loading": "Loading…",
-          "saved_one": "{{count}} card saved for fast booking.",
-          "saved_other": "{{count}} cards saved for fast booking.",
-          "fallback": "Save a card to book with a single click.",
-          "action": "Add card"
-        },
-        "firstBooking": {
-          "title": "First booking",
-          "done": "You've sent your first request.",
-          "pending": "Find a cleaner and book in under 2 minutes."
-        }
+    "history": {
+      "cardFallback": "Payment card",
+      "emptySubtitle": "Once you complete bookings, your full payment history will appear here.",
+      "emptyTitle": "No payments yet",
+      "events": {
+        "charged": "Charged to card",
+        "paymentFailed": "Payment failed",
+        "refundFailed": "Refund failed",
+        "refundPending": "Refund pending",
+        "refundedToCard": "Refunded to card",
+        "reservationReleased": "Reservation released",
+        "reserved": "Reserved"
       },
-      "stats": {
-        "upcoming": "Upcoming",
-        "completed": "Completed",
-        "paidTotal": "Total paid",
-        "addresses": "Addresses"
+      "loading": "Loading…",
+      "net": "Net",
+      "refundReason": {
+        "customer": "Customer's request",
+        "default": "Refund",
+        "duplicate": "Duplicate payment",
+        "expired": "Card hold expired",
+        "fraudulent": "Suspected fraud"
       },
-      "nextBooking": {
-        "title": "Next booking",
-        "seeAll": "See all",
-        "loading": "Loading…",
-        "hoursSuffix": "h",
-        "timePrefix": "at",
-        "empty": "No upcoming bookings.",
-        "findCleaner": "Find a cleaner"
-      },
-      "primaryAddress": {
-        "title": "Primary address",
-        "manage": "Manage",
-        "empty": "You don't have any addresses yet.",
-        "addOne": "Add one"
-      },
-      "cards": {
-        "title": "Cards & payments",
-        "manage": "Manage",
-        "loading": "Loading…",
-        "empty": "No saved cards yet.",
-        "saved_one": "<b>{{count}}</b> card saved for fast booking.",
-        "saved_other": "<b>{{count}}</b> cards saved for fast booking."
-      },
-      "recent": {
-        "title": "Recent activity",
-        "fullHistory": "Full history",
-        "loading": "Loading…",
-        "empty": "No activity yet."
-      }
+      "refunded": "Refunded",
+      "reservedNow": "Reserved now",
+      "totalPaid": "Total paid"
     },
     "info": {
-      "helperBanner": "Your contact information was created during onboarding and is fetched automatically here — you can adjust it anytime.",
+      "addressPlaceholder": "Street, no., floor, city",
+      "addressTitle": "My address",
+      "countryLabel": "Country",
       "emailLabel": "Email (your login address)",
       "fullNameLabel": "Full name",
       "fullNamePlaceholder": "e.g. Mette Hansen",
+      "helperBanner": "Your contact information was created during onboarding and is fetched automatically here — you can adjust it anytime.",
       "phoneLabel": "Phone",
-      "countryLabel": "Country",
+      "phonePlaceholder": "+45 12 34 56 78",
+      "providerIdHelp": "Enter your provider ID to get access to the",
+      "providerIdHelpFull": "Enter your provider ID to get access to the <dash>provider dashboard</dash>.",
+      "providerIdHelpLink": "provider dashboard",
       "providerIdLabel": "Provider ID (only if you're a cleaner yourself)",
       "providerIdPlaceholder": "e.g. p_002",
-      "providerIdHelp": "Enter your provider ID to get access to the",
-      "providerIdHelpLink": "provider dashboard",
-      "addressTitle": "My address",
-      "addressPlaceholder": "Street, no., floor, city",
       "saveButton": "Save profile",
       "toast": {
         "checkContact": "Check your contact information",
         "invalidAddress": "Choose a valid address from the list before saving.",
         "saved": "Profile saved"
-      },
-      "phonePlaceholder": "+45 12 34 56 78",
-      "providerIdHelpFull": "Enter your provider ID to get access to the <dash>provider dashboard</dash>."
-    },
-    "addresses": {
-      "title": "My addresses",
-      "subtitle": "Add multiple addresses with access information, pets, parking etc. The primary address is chosen automatically at booking."
-    },
-    "bookings": {
-      "loading": "Loading…",
-      "emptyTitle": "No bookings yet",
-      "emptySubtitle": "Find a cleaner and book directly in the calendar.",
-      "findCleaner": "Find cleaner",
-      "hoursSuffix": "h",
-      "timePrefix": "at",
-      "cardFallback": "Card",
-      "totalPrice": "Total price",
-      "refunded": "Refunded",
-      "youPaid": "You paid",
-      "youStillPay": "You still pay",
-      "paidStatus": "Paid",
-      "reservedStatus": "Reserved",
-      "pendingPaymentStatus": "Awaiting payment",
-      "partialRefund": "Partial refund",
-      "fullRefund": "Full refund",
-      "refundCount_one": "{{count}} refund",
-      "refundCount_other": "{{count}} refunds",
-      "refundFailed": "Could not be completed",
-      "refundFailedReason": "Could not be completed: {{reason}}",
-      "refundDefault": "Refund",
-      "totalRefunded": "Total refunded",
-      "remaining": "Remaining",
-      "reason": "Reason",
-      "refundId": "Refund ID",
-      "seeReceipt": "See receipt",
-      "status": {
-        "pending": "Awaiting cleaner",
-        "accepted": "Accepted",
-        "declined": "Declined",
-        "cancelled": "Cancelled",
-        "completed": "Completed"
-      },
-      "payment": {
-        "authorized": "Reserved",
-        "captured": "Paid",
-        "canceled": "Cancelled",
-        "refunded": "Refunded",
-        "partially_refunded": "Partially refunded",
-        "failed": "Not completed"
-      },
-      "refundReason": {
-        "duplicate": "Duplicate payment",
-        "fraudulent": "Suspected fraud",
-        "requested_by_customer": "Requested by customer",
-        "expired_uncaptured_charge": "Card hold expired"
       }
-    },
-    "cards": {
-      "filters": {
-        "all": "All",
-        "default": "Default",
-        "active": "Active",
-        "expired": "Expired"
-      },
-      "filterLabel": "Filter",
-      "noneMatch": "No cards match the selected filter.",
-      "loading": "Loading…",
-      "emptyTitle": "No saved cards",
-      "emptySubtitle": "Add a card to make booking faster next time.",
-      "status": {
-        "expired": "Expired",
-        "default": "Default – used next time",
-        "active": "Active"
-      },
-      "expiresLabel": "Expires {{date}}",
-      "soonSuffix": "(soon)",
-      "statusLabel": "Status",
-      "expiresColLabel": "Expires",
-      "lastUsedLabel": "Last used",
-      "neverUsed": "Never used",
-      "hideDetails": "Hide details",
-      "showDetails": "Show details",
-      "dateLabel": "Date",
-      "referenceLabel": "Reference",
-      "expiresThisMonth": "Expires this month",
-      "expiresInMonth": "Expires in about 1 month",
-      "expiresSoonTitle": "Expires soon",
-      "expiresSoonBodyDefault": " – it's your default card and is used for your next payment",
-      "expiresSoonBody": "We recommend replacing the card in good time{{defaultNote}}, so upcoming payments aren't declined.",
-      "replaceNow": "Replace card now",
-      "updating": "Updating…",
-      "setDefault": "Set as default",
-      "replace": "Replace",
-      "removeAria": "Remove",
-      "nextPaymentTitle": "Next scheduled payment",
-      "chargedFor": "Will be charged for {{service}} with {{provider}} · {{date}} {{slot}} · {{amount}}",
-      "noUpcoming": "No upcoming bookings scheduled. The card will be used automatically for your next booking.",
-      "defaultExpired": "Your default card has expired — replace it before the next payment.",
-      "expiringCount_one": "1 card is expiring soon",
-      "expiringCount_other": "{{count}} cards are expiring soon",
-      "expiringDefaultWarning": "Your default card expires within 2 months. Add a new card now so your next payment isn't declined.",
-      "expiringOtherWarning": "Replace the cards in good time to avoid declined payments.",
-      "expiringDoNow": " We recommend doing this right away.",
-      "replaceDefaultNow": "Replace default card now",
-      "replaceCardNow": "Replace card now",
-      "errorTitle": "We couldn't fetch your payment information",
-      "closeAria": "Close",
-      "addCard": "Add payment card",
-      "replaceCardTitle": "Replace card",
-      "newCardTitle": "New card",
-      "preparingForm": "Preparing secure Stripe form…",
-      "replaceNote": "The new card will be set as default, and {{brand}} •••• {{last4}} will be removed automatically.",
-      "deleteDefaultTitle": "Delete default card?",
-      "deleteCardTitle": "Remove payment card?",
-      "pickNewDefault": "This is your default card. Choose a new default card before deleting:",
-      "onlyCardWarning": "This is your only saved card. You'll need to manually enter card details at your next booking.",
-      "deleting": "Deleting…",
-      "deleteCard": "Delete card",
-      "saveCard": "Save card",
-      "savingCardError": "The card could not be saved. Check the details and try again.",
-      "cardSaved": "Card saved",
-      "cardReplaced": "Card replaced",
-      "cardReplacedError": "The card was not replaced. Please try again, or use another payment method.",
-      "pickDefaultFirst": "First choose a new default card before removing the current one.",
-      "cardRemoved": "Card removed",
-      "cardRemovedError": "The card was not removed. Please try again in a moment.",
-      "defaultUpdated": "Default card updated",
-      "defaultUpdateError": "We couldn't update your default card. Please try again.",
-      "formOpenError": "We couldn't open the payment card form. Please try again.",
-      "stripeKeyMissing": "Stripe publishable key is missing from the configuration",
-      "setupIntentMissing": "We couldn't start the secure payment page. Please try again shortly."
     },
     "invoices": {
-      "loading": "Loading…",
-      "emptyTitle": "No invoices yet",
-      "emptySubtitle": "Once a booking is completed and paid, you'll see the receipt here.",
-      "service": "Service",
-      "date": "Date",
       "address": "Address",
-      "provider": "Provider",
-      "status": "Status",
-      "paid": "Paid",
       "completed": "Completed",
+      "date": "Date",
+      "emptySubtitle": "Once a booking is completed and paid, you'll see the receipt here.",
+      "emptyTitle": "No invoices yet",
+      "loading": "Loading…",
+      "paid": "Paid",
+      "provider": "Provider",
+      "service": "Service",
+      "status": "Status",
       "total": "Total"
     },
-    "history": {
-      "loading": "Loading…",
-      "emptyTitle": "No payments yet",
-      "emptySubtitle": "Once you complete bookings, your full payment history will appear here.",
-      "totalPaid": "Total paid",
-      "refunded": "Refunded",
-      "reservedNow": "Reserved now",
-      "net": "Net",
-      "events": {
-        "reserved": "Reserved",
-        "charged": "Charged to card",
-        "reservationReleased": "Reservation released",
-        "paymentFailed": "Payment failed",
-        "refundedToCard": "Refunded to card",
-        "refundFailed": "Refund failed",
-        "refundPending": "Refund pending"
+    "nav": {
+      "back": "Back",
+      "complaint": "Submit a complaint",
+      "help": "Help & support",
+      "menu": "Menu",
+      "signOut": "Log out",
+      "title": "My profile"
+    },
+    "overview": {
+      "bookNewCleaner": "Book a new cleaner",
+      "cards": {
+        "empty": "No saved cards yet.",
+        "loading": "Loading…",
+        "manage": "Manage",
+        "saved_one": "<b>{{count}}</b> card saved for fast booking.",
+        "saved_other": "<b>{{count}}</b> cards saved for fast booking.",
+        "title": "Cards & payments"
       },
-      "cardFallback": "Payment card",
-      "refundReason": {
-        "customer": "Customer's request",
-        "duplicate": "Duplicate payment",
-        "fraudulent": "Suspected fraud",
-        "expired": "Card hold expired",
-        "default": "Refund"
-      }
+      "checklist": {
+        "address": {
+          "action": "Add",
+          "fallback": "Choose an address from the suggestions.",
+          "loading": "Loading…",
+          "missing": "No primary address",
+          "title": "Primary address"
+        },
+        "card": {
+          "action": "Add card",
+          "fallback": "Save a card to book with a single click.",
+          "loading": "Loading…",
+          "saved_one": "{{count}} card saved for fast booking.",
+          "saved_other": "{{count}} cards saved for fast booking.",
+          "title": "Payment card"
+        },
+        "contact": {
+          "action": "Fill in",
+          "done": "Name, phone and country are validated.",
+          "fill": "Fill in name, phone and country.",
+          "title": "Contact information"
+        },
+        "email": {
+          "done": "Your email is confirmed.",
+          "pending": "We've sent a confirmation link to your inbox.",
+          "title": "Confirm email"
+        },
+        "firstBooking": {
+          "done": "You've sent your first request.",
+          "pending": "Find a cleaner and book in under 2 minutes.",
+          "title": "First booking"
+        },
+        "property": {
+          "action": "Fill in",
+          "fallback": "Enter size, type and access.",
+          "missing": "Missing home details",
+          "summary": "{{size}} m² · {{type}} · access: {{access}}",
+          "title": "Home details"
+        }
+      },
+      "checklistSubtitle": "Finish these steps to get the best match and fastest booking.",
+      "checklistTitle": "Complete your profile",
+      "heroSubtitle": "Here's a quick overview of your upcoming cleanings, addresses and payments.",
+      "myBookings": "My bookings",
+      "nextBooking": {
+        "empty": "No upcoming bookings.",
+        "findCleaner": "Find a cleaner",
+        "hoursSuffix": "h",
+        "loading": "Loading…",
+        "seeAll": "See all",
+        "timePrefix": "at",
+        "title": "Next booking"
+      },
+      "primaryAddress": {
+        "addOne": "Add one",
+        "empty": "You don't have any addresses yet.",
+        "manage": "Manage",
+        "title": "Primary address"
+      },
+      "recent": {
+        "empty": "No activity yet.",
+        "fullHistory": "Full history",
+        "loading": "Loading…",
+        "title": "Recent activity"
+      },
+      "stats": {
+        "addresses": "Addresses",
+        "completed": "Completed",
+        "paidTotal": "Total paid",
+        "upcoming": "Upcoming"
+      },
+      "welcome": "Welcome, {{name}}"
+    },
+    "tabs": {
+      "addresses": "Addresses",
+      "bookings": "Bookings",
+      "cards": "Cards & payments",
+      "deactivate": "Deactivate account",
+      "deduction": "Service deduction",
+      "history": "Payment history",
+      "inbox": "Inbox",
+      "info": "My information",
+      "invoices": "Invoices",
+      "notifications": "Notifications",
+      "overview": "Overview",
+      "sms": "SMS",
+      "tax": "Tax information"
     }
   },
   "profileV2": {
-    "title": "My profile",
-    "subtitle": "Your account and information",
-    "editProfile": "Edit profile",
-    "edit": "Edit",
-    "manage": "Manage",
-    "open": "Open",
-    "memberSince": "Member since {{date}}",
-    "bookingsSummary_one": "You have {{count}} booking in total.",
-    "bookingsSummary_other": "You have {{count}} bookings in total.",
-    "welcomeSubtitle": "Welcome — book your first cleaning when you're ready.",
-    "stats": {
-      "totalBookings": "Total bookings",
-      "upcoming": "Upcoming",
-      "completed": "Completed",
-      "lastBooking": "Last booking"
-    },
-    "personal": {
-      "title": "Personal information",
-      "noName": "No name provided"
-    },
-    "contact": {
-      "title": "Contact",
-      "noPhone": "No phone number",
-      "noSms": "No SMS number",
-      "verified": "Verified",
-      "unverified": "Not verified"
-    },
-    "addresses": {
-      "title": "Saved addresses",
-      "description": "Access, size, pets and notes per address.",
-      "manage": "Manage",
-      "primary": "Primary",
-      "emptyTitle": "No saved addresses yet",
-      "emptyDescription": "Add an address to make booking faster.",
-      "addAddress": "Add address",
-      "accessPrefix": "Access",
-      "sizeSuffix": "m²",
-      "roomsSuffix": "room(s)"
-    },
-    "notifications": {
-      "title": "Notifications",
-      "emptyTitle": "No channels active",
-      "emptyDescription": "Choose how we may contact you about bookings and messages.",
-      "channelsActive_one": "{{count}} channel activated.",
-      "channelsActive_other": "{{count}} channels activated."
-    },
-    "preferences": {
-      "title": "Cleaning preferences",
-      "pets": "Pets",
-      "children": "Children",
-      "suppliesReady": "Cleaning supplies ready",
-      "parking": "Parking",
-      "yes": "Yes",
-      "no": "No",
-      "emptyTitle": "No preferences yet",
-      "emptyDescription": "Add a primary address to set your preferences"
-    },
     "access": {
-      "title": "Access instructions",
-      "method": "Access method",
       "code": "Code",
+      "emptyDescription": "Add a primary address to save access instructions.",
       "emptyTitle": "No access instructions",
-      "emptyDescription": "Add a primary address to save access instructions."
-    },
-    "privacy": {
-      "title": "Privacy",
-      "description": "View, download or request deletion of your data in the Privacy Center."
+      "method": "Access method",
+      "title": "Access instructions"
     },
     "account": {
-      "title": "Account",
+      "activeDescription": "Your account is active. You can always deactivate it from account settings.",
       "deactivate": "Deactivate",
       "deactivated": "Account is deactivated",
-      "activeDescription": "Your account is active. You can always deactivate it from account settings."
+      "title": "Account"
+    },
+    "addressLabels": {
+      "accessMethod": {
+        "code": "Entry code",
+        "doorman": "Doorman / caretaker",
+        "home": "I'm home",
+        "key_box": "Key box",
+        "key_under_mat": "Hidden key (under mat / pot)",
+        "other": "Other"
+      },
+      "placeType": {
+        "business": "Business",
+        "other": "Other",
+        "private": "Private",
+        "vacation": "Vacation home"
+      }
+    },
+    "addresses": {
+      "accessPrefix": "Access",
+      "addAddress": "Add address",
+      "description": "Access, size, pets and notes per address.",
+      "emptyDescription": "Add an address to make booking faster.",
+      "emptyTitle": "No saved addresses yet",
+      "manage": "Manage",
+      "primary": "Primary",
+      "roomsSuffix": "room(s)",
+      "sizeSuffix": "m²",
+      "title": "Saved addresses"
+    },
+    "bookingsSummary_one": "You have {{count}} booking in total.",
+    "bookingsSummary_other": "You have {{count}} bookings in total.",
+    "comingSoon": {
+      "familyDescription": "Share your account and bookings with the rest of your household.",
+      "familyTitle": "Family members",
+      "productsDescription": "Save preferred cleaning products and allergies.",
+      "productsTitle": "Preferred products"
+    },
+    "contact": {
+      "noPhone": "No phone number",
+      "noSms": "No SMS number",
+      "title": "Contact",
+      "unverified": "Not verified",
+      "verified": "Verified"
+    },
+    "edit": "Edit",
+    "editProfile": "Edit profile",
+    "editors": {
+      "access": "Access instructions",
+      "accessFields": {
+        "codeLabel": "Code (optional)",
+        "instructionsLabel": "Instructions",
+        "methodLabel": "Access method"
+      },
+      "addresses": "Saved addresses",
+      "common": {
+        "addPrimaryFirst": "Add a primary address first",
+        "addPrimaryFirstInline": "Add a primary address first in \"Saved addresses\".",
+        "invalid": "Invalid",
+        "saved": "Saved"
+      },
+      "contact": "Contact",
+      "contactFields": {
+        "emailLabel": "Email",
+        "emailNote": "Email is changed via account settings.",
+        "errors": {
+          "phone": "Invalid number"
+        },
+        "phoneLabel": "Phone",
+        "phonePlaceholder": "+45 12 34 56 78"
+      },
+      "deactivate": "Deactivate account",
+      "notifications": "Notifications",
+      "personal": "Personal information",
+      "personalFields": {
+        "countryLabel": "Country (ISO 3166-1)",
+        "countryPlaceholder": "DK",
+        "errors": {
+          "charLimit": "Max 100 characters",
+          "countryCode": "2-letter country code"
+        },
+        "fullNameLabel": "Full name",
+        "languageLabel": "Language",
+        "languageNone": "—"
+      },
+      "preferences": "Cleaning preferences",
+      "prefsFields": {
+        "childrenLabel": "Children at home",
+        "parkingLabel": "Parking",
+        "petDetailsLabel": "Details",
+        "petDetailsPlaceholder": "E.g. 'Dog, not aggressive'",
+        "petsLabel": "Pets",
+        "suppliesLabel": "Cleaning supplies ready"
+      },
+      "tax": "Tax information"
+    },
+    "manage": "Manage",
+    "memberSince": "Member since {{date}}",
+    "notifications": {
+      "channelsActive_one": "{{count}} channel activated.",
+      "channelsActive_other": "{{count}} channels activated.",
+      "emptyDescription": "Choose how we may contact you about bookings and messages.",
+      "emptyTitle": "No channels active",
+      "title": "Notifications"
+    },
+    "open": "Open",
+    "personal": {
+      "noName": "No name provided",
+      "title": "Personal information"
+    },
+    "preferences": {
+      "children": "Children",
+      "emptyDescription": "Add a primary address to set your preferences",
+      "emptyTitle": "No preferences yet",
+      "no": "No",
+      "parking": "Parking",
+      "pets": "Pets",
+      "suppliesReady": "Cleaning supplies ready",
+      "title": "Cleaning preferences",
+      "yes": "Yes"
+    },
+    "privacy": {
+      "description": "View, download or request deletion of your data in the Privacy Center.",
+      "title": "Privacy"
     },
     "shortcuts": {
-      "title": "Shortcuts",
-      "myBookings": "My bookings",
-      "myBookingsDescription": "View and manage",
-      "messages": "Messages",
-      "messagesDescription": "Your inbox",
       "cards": "Cards & payments",
       "cardsDescription": "Payment methods",
       "invoices": "Invoices",
       "invoicesDescription": "Receipts and documents",
+      "messages": "Messages",
+      "messagesDescription": "Your inbox",
+      "myBookings": "My bookings",
+      "myBookingsDescription": "View and manage",
       "support": "Support",
       "supportDescription": "Get help",
       "tax": "Tax information",
-      "taxDescription": "Service deduction"
+      "taxDescription": "Service deduction",
+      "title": "Shortcuts"
     },
-    "comingSoon": {
-      "familyTitle": "Family members",
-      "familyDescription": "Share your account and bookings with the rest of your household.",
-      "productsTitle": "Preferred products",
-      "productsDescription": "Save preferred cleaning products and allergies."
+    "stats": {
+      "completed": "Completed",
+      "lastBooking": "Last booking",
+      "totalBookings": "Total bookings",
+      "upcoming": "Upcoming"
     },
-    "editors": {
-      "personal": "Personal information",
-      "contact": "Contact",
-      "addresses": "Saved addresses",
-      "notifications": "Notifications",
-      "preferences": "Cleaning preferences",
-      "access": "Access instructions",
-      "deactivate": "Deactivate account",
-      "tax": "Tax information",
-      "common": {
-        "saved": "Saved",
-        "addPrimaryFirst": "Add a primary address first",
-        "addPrimaryFirstInline": "Add a primary address first in \"Saved addresses\".",
-        "invalid": "Invalid"
-      },
-      "personalFields": {
-        "fullNameLabel": "Full name",
-        "countryLabel": "Country (ISO 3166-1)",
-        "countryPlaceholder": "DK",
-        "languageLabel": "Language",
-        "languageNone": "—",
-        "errors": {
-          "charLimit": "Max 100 characters",
-          "countryCode": "2-letter country code"
-        }
-      },
-      "contactFields": {
-        "emailLabel": "Email",
-        "emailNote": "Email is changed via account settings.",
-        "phoneLabel": "Phone",
-        "phonePlaceholder": "+45 12 34 56 78",
-        "errors": {
-          "phone": "Invalid number"
-        }
-      },
-      "prefsFields": {
-        "petsLabel": "Pets",
-        "petDetailsLabel": "Details",
-        "petDetailsPlaceholder": "E.g. 'Dog, not aggressive'",
-        "childrenLabel": "Children at home",
-        "suppliesLabel": "Cleaning supplies ready",
-        "parkingLabel": "Parking"
-      },
-      "accessFields": {
-        "methodLabel": "Access method",
-        "codeLabel": "Code (optional)",
-        "instructionsLabel": "Instructions"
+    "subtitle": "Your account and information",
+    "title": "My profile",
+    "welcomeSubtitle": "Welcome — book your first cleaning when you're ready."
+  },
+  "surfaces": {
+    "addressBook": {
+      "emptyDescription": "Add an address so you can book faster next time.",
+      "emptyTitle": "No saved addresses yet",
+      "fields": {
+        "access": "Access for cleaner",
+        "accessInstructions": "Access instructions (optional)",
+        "accessInstructionsPlaceholder": "e.g. Ring doorbell B, key is under the mat",
+        "addressPlaceholder": "Street, no., city",
+        "children": "Children in the home",
+        "cleaningSupplies": "Cleaning supplies are ready",
+        "codePlaceholder": "e.g. 1234",
+        "markPrimary": "Mark as primary address",
+        "name": "Name of address",
+        "namePlaceholder": "e.g. Home, Summer house, Office",
+        "otherNotes": "Other notes",
+        "parkingPlaceholder": "e.g. Free at the door / paid zone",
+        "petDetails": "Pet details",
+        "petDetailsPlaceholder": "e.g. 1 dog, allergy-friendly",
+        "pets": "Pets in the home",
+        "placeType": "Type of place",
+        "rooms": "Rooms",
+        "size": "Size (m²)",
+        "wifiName": "WiFi name (optional)",
+        "wifiPassword": "WiFi password (optional)"
       }
     },
-    "addressLabels": {
-      "placeType": {
-        "private": "Private",
-        "business": "Business",
-        "vacation": "Vacation home",
-        "other": "Other"
+    "bookingPlan": {
+      "addFocusPlaceholder": "Add your own focus...",
+      "addRoomPlaceholder": "Add room (e.g. Entrance, Utility room)",
+      "addTaskPlaceholder": "Add task...",
+      "editingSaved": "Editing saved plan",
+      "fixedPlan": "Fixed plan for the property",
+      "focusAreas": "Focus areas",
+      "howToSave": "How would you like to save this",
+      "locked": "Locked",
+      "noAddressFound": "No address found — add one to your profile to save as a fixed plan.",
+      "notFound": "Booking not found.",
+      "notesPlaceholder": "e.g. the key is under the mat, dog is home, use fragrance-free products...",
+      "notesToCleaner": "Notes to the cleaner",
+      "onlyThisBooking": "Only for this cleaning",
+      "reusedAt": "Automatically reused for all future bookings at",
+      "roomsAndTasks": "Rooms and tasks",
+      "title": "Cleaning plan"
+    },
+    "createTask": {
+      "afternoon": "Afternoon (12-17)",
+      "aiEstimate": "AI price estimate",
+      "describeTask": "Describe the task",
+      "descriptionPlaceholder": "Describe what you need help with. The more detail, the better the quote...",
+      "evening": "Evening (17-21)",
+      "morning": "Morning (8-12)",
+      "preferredDate": "Preferred date",
+      "subtitle": "Describe your task and receive AI-driven quotes from verified professionals",
+      "title": "Create a task"
+    },
+    "dashboard": {
+      "bookCleaning": "Book cleaning",
+      "description": "Overview of your bookings, messages and account. You choose and book an independent provider yourself through the MyCleaner platform.",
+      "feed": {
+        "description": "Personal recommendations based on your history are on the way. This feature isn't active yet.",
+        "title": "Personal feed"
       },
-      "accessMethod": {
-        "home": "I'm home",
-        "key_box": "Key box",
-        "key_under_mat": "Hidden key (under mat / pot)",
-        "doorman": "Doorman / caretaker",
-        "code": "Entry code",
-        "other": "Other"
+      "history": {
+        "description": "See the receipt, or book the same provider again.",
+        "emptyDescription": "Your completed bookings will appear here.",
+        "emptyTitle": "No history yet",
+        "title": "Past bookings"
+      },
+      "notifications": {
+        "emptyDescription": "Messages about your bookings will appear here.",
+        "emptyTitle": "All quiet here"
+      },
+      "quickActions": {
+        "book": {
+          "description": "Choose a time and cleaner",
+          "title": "Book cleaning"
+        },
+        "bookings": {
+          "description": "View and manage",
+          "title": "My bookings"
+        },
+        "favorites": {
+          "description": "Your favorite providers"
+        },
+        "invoices": {
+          "description": "View and download receipts"
+        },
+        "messages": {
+          "description": "Chat with your providers"
+        },
+        "support": {
+          "description": "We're here to help"
+        }
+      },
+      "stats": {
+        "completed": "Completed",
+        "memberSince": "Member since",
+        "totalSpent": "Total paid"
+      },
+      "upcoming": {
+        "emptyDescription": "Find a cleaner and book directly in the provider's calendar.",
+        "emptyTitle": "No upcoming bookings",
+        "findCleaner": "Find a cleaner",
+        "title": "Upcoming bookings"
       }
+    },
+    "findCleaner": {
+      "availableToday": "Available today",
+      "clickToOpenProfile": "Click to open profile",
+      "filterByServiceArea": "Filter by service area (select multiple)",
+      "filterCleaners": "Filter cleaners",
+      "instantBook": "Instant Book",
+      "maxHourlyRate": "Max. hourly rate",
+      "minExperience": "Min. years of experience",
+      "minRating": "Min. rating",
+      "moveMapToSeeProviders": "Move the map or zoom out to see providers.",
+      "somethingWentWrong": "Something went wrong",
+      "title": "Find your cleaner"
+    },
+    "header": {
+      "account": {
+        "logOut": "Log out",
+        "myAccount": "My account"
+      },
+      "getStarted": "Get started",
+      "homeAriaLabel": "MyCleaner – home",
+      "login": "Log in",
+      "logoAriaLabel": "MyCleaner – home",
+      "nav": {
+        "adminDashboard": "Admin dashboard",
+        "becomeProvider": "Become a provider",
+        "bookCleaner": "Book a cleaner",
+        "dashboard": "Dashboard",
+        "employeePortal": "Employee",
+        "faq": "FAQ",
+        "findCleaner": "Find cleaner",
+        "howItWorks": "How it works",
+        "myBookings": "My bookings",
+        "myProfile": "My profile",
+        "providerDashboard": "Provider dashboard",
+        "receipts": "Receipts & expenses",
+        "rules": "Rules"
+      },
+      "toggleMenu": "Toggle menu"
+    },
+    "marketplace": {
+      "allServices": "All services",
+      "allTiers": "All tiers",
+      "findCleaner": "Find a cleaner",
+      "maxHourlyRatePlaceholder": "Max. hourly rate",
+      "minTierPlaceholder": "Min. tier",
+      "next": "Next",
+      "noneMatchFilters": "No providers match your filters.",
+      "subtitle": "Browse verified providers. Book directly in their calendar."
+    },
+    "profileExtra": {
+      "deactivate": {
+        "bookingsCancelled": "Future bookings will be cancelled automatically.",
+        "dataDeleted": "After 30 days, personal data is permanently deleted.",
+        "dataRetained": "Your data is retained for 30 days — contact support if you change your mind.",
+        "hidesProfile": "This hides your profile and pauses all activity.",
+        "reasonLabel": "Reason (optional)",
+        "title": "Deactivate account"
+      },
+      "marketingNotifications": "Marketing & news",
+      "sms": {
+        "cityPlaceholder": "e.g. Copenhagen",
+        "codeExpires": "The code expires in 10 minutes.",
+        "enable": "Enable SMS",
+        "enterCode": "Enter 6-digit code"
+      },
+      "tax": {
+        "estimatedValue": "Est. tax value",
+        "howToReport": "How to report the deduction",
+        "step1": "Log in to",
+        "step1Mitid": "with MitID.",
+        "step2Edit": "Edit annual statement",
+        "step2GoTo": "Go to",
+        "step2Statement": "Annual Statement",
+        "step3": "Enter the total amount you have paid for approved services (labor, not materials).",
+        "step4": "State MyCleaner / the provider's business registration number as recipient. Keep your receipts for 5 years.",
+        "step5": "The deduction is calculated automatically and reduces your remaining tax (or increases your excess tax).",
+        "totalUsed": "Total spent",
+        "yearlyLimit": "Yearly limit"
+      }
+    },
+    "register": {
+      "addressPlaceholder": "Street name 123",
+      "betterSuggestions": "Better suggestions from the start",
+      "floors": "Number of floors",
+      "homeInfo": "This information is used for the cleaning and only shared with the cleaner you book.",
+      "passwordPlaceholder": "At least 6 characters",
+      "preferredDays": "Preferred days",
+      "preferredTime": "Preferred time",
+      "saveAndContinue": "Save and continue to booking",
+      "size": "Size (m²)",
+      "terms": "the terms",
+      "whoAreYou": "First: who are you?"
     }
   }
 }

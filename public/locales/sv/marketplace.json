@@ -1,466 +1,143 @@
 {
-  "hero": {
-    "trust": {
-      "verified": "Verifierade Cleaners",
-      "payments": "Säkra betalningar",
-      "reviews": "Äkta omdömen",
-      "fixed_price": "Fast pris utan överraskningar",
-      "rowLabel": "Fördelar"
-    },
-    "availability": "MyCleaner öppnar först i Danmark. Sverige, Storbritannien, Tyskland och Spanien kommer snart.",
-    "availability_label": "Öppnar först i",
-    "countries": {
-      "dk": "Danmark",
-      "se": "Sverige",
-      "de": "Tyskland",
-      "gb": "Storbritannien",
-      "es": "Spanien"
-    },
-    "image_alt": "Verifierad Cleaner i ett europeiskt hem",
-    "variants": {
-      "guest": {
-        "eyebrow": "Europas städmarknad",
-        "title_line_1": "Hitta den perfekta Cleaner",
-        "title_line_2": "— när och var det passar dig.",
-        "subtitle": "Boka verifierade Cleaners till hemmet eller företaget. Snabbt, tryggt och enkelt — med tydliga priser och äkta omdömen.",
-        "cta_secondary_label": "Bli Cleaner",
-        "cta_secondary_href": "/bliv-cleaner"
-      },
-      "customer": {
-        "eyebrow": "Välkommen tillbaka",
-        "title_line_1": "Välkommen tillbaka, {{name}}.",
-        "title_line_2": "Boka din nästa Cleaner på några sekunder.",
-        "subtitle": "Boka om en tidigare bokning eller hitta en ny Cleaner i ditt område.",
-        "cta_secondary_label": "Se mina bokningar",
-        "cta_secondary_href": "/my-bookings"
-      },
-      "provider": {
-        "eyebrow": "Din dag",
-        "title_line_1": "Välkommen tillbaka.",
-        "title_line_2": "Se dina bokningar och nya jobb.",
-        "subtitle": "Håll koll på dagens jobb, svarstid och intäkter — allt på ett ställe.",
-        "cta_secondary_label": "Öppna dashboard",
-        "cta_secondary_href": "/provider-dashboard"
-      }
-    },
-    "launch_notice": "MyCleaner öppnar först i Danmark. Sverige, Storbritannien, Tyskland och Spanien kommer snart.",
-    "coming_soon": "Kommer snart"
-  },
-  "search": {
-    "aria": "Hitta en Cleaner",
-    "where": "Var",
-    "where_placeholder": "Ort eller postnummer",
-    "when": "När",
-    "service": "Tjänst",
-    "submit": "Hitta en Cleaner"
-  },
-  "categories": {
-    "heading": "Populära tjänster",
-    "view_all": "Se alla",
-    "cleaning": "Städning",
-    "handyman": "Hantverkare",
-    "garden": "Trädgård",
-    "moving": "Flytt",
-    "tiles": {
-      "regular": "Vanlig städning",
-      "deep": "Storstädning",
-      "move": "Flyttstädning",
-      "office": "Kontorsstädning",
-      "custom": "Specialjobb"
-    }
-  },
-  "results": {
-    "heading": "Utvalda Cleaners nära dig",
-    "subtitle": "Verifierade proffs. Äkta omdömen. Boka tryggt.",
-    "see_all": "Se alla Cleaners",
-    "empty": "Inga Cleaners ännu i {{area}}. Prova ett annat område.",
-    "empty_area": "ditt område",
-    "error_title": "Vi kunde inte hämta tillgängliga Cleaners just nu."
-  },
-  "card": {
-    "verified": "Verifierad",
-    "badge_verified": "Verifierad",
-    "badge_top": "Topprankad",
-    "badge_fast": "Snabbt svar",
-    "badge_today": "Ledig idag",
-    "add_fav": "Lägg till favorit",
-    "remove_fav": "Ta bort favorit",
-    "avatar_alt": "{{name}} profilbild",
-    "radius": "inom {{km}} km",
-    "completed": "{{n}} bokningar",
-    "price_note": "Priset beräknas vid bokning",
-    "view": "Se profil",
-    "demo_hint": "Demoprofil — logga in för att se riktiga Cleaners"
-  },
-  "trust": {
-    "heading": "Därför väljer kunder MyCleaner",
-    "identity": {
-      "title": "Verifierad identitet",
-      "body": "Alla Cleaners genomgår ID-verifiering innan de får ta emot bokningar."
-    },
-    "payments": {
-      "title": "Säkra betalningar",
-      "body": "Betalningar hanteras via Stripe. Dina kortuppgifter delas aldrig med din Cleaner."
-    },
-    "reviews": {
-      "title": "Äkta omdömen",
-      "body": "Endast kunder med genomförda bokningar kan lämna omdömen."
-    },
-    "support": {
-      "title": "Kundsupport",
-      "body": "Skriv till oss om något känns fel — vi hjälper dig genom varje ärende."
-    }
-  },
-  "summary": {
-    "heading": "Bokningsöversikt",
-    "service": "Tjänst",
-    "when": "När",
-    "where": "Var",
-    "total": "Totalt",
-    "price_note": "Priset beräknas vid bokning utifrån din Cleaner och tjänst."
-  },
-  "sidebar": {
-    "price_note": "Priset beräknas vid bokning utifrån din Cleaner och tjänst.",
-    "why_heading": "Därför väljer kunder MyCleaner",
-    "why_verified": "ID-verifierade Cleaners"
-  },
-  "how": {
-    "eyebrow": "Så fungerar det",
-    "heading": "Fem steg till ett rent hem",
-    "steps": {
-      "search": {
-        "title": "Hitta en Cleaner",
-        "body": "Sök lokalt, jämför priser och äkta omdömen."
-      },
-      "book": {
-        "title": "Boka i kalendern",
-        "body": "Välj tid direkt hos din Cleaner — ingen väntan, ingen budgivning."
-      },
-      "enjoy": {
-        "title": "Njut av ett rent hem",
-        "body": "Betalningen hålls tryggt tills jobbet är godkänt."
-      }
-    }
-  },
-  "reviews": {
-    "eyebrow": "Från våra kunder",
-    "heading": "Älskade i hela Europa",
-    "items": [
-      {
-        "quote": "Otroligt enkelt att boka och min Cleaner var fantastisk. Kommer definitivt använda igen.",
-        "name": "Sofie L.",
-        "city": "Köpenhamn",
-        "rating": 5
-      },
-      {
-        "quote": "Priserna är tydliga och jag visste exakt vad jag betalade för. Varmt rekommenderat.",
-        "name": "Marcus B.",
-        "city": "Malmö",
-        "rating": 5
-      },
-      {
-        "quote": "Äntligen en plattform där min Cleaner får ordentlig betalning och jag får kvalitet.",
-        "name": "Ana R.",
-        "city": "Madrid",
-        "rating": 5
-      }
-    ]
+  "app": {
+    "android": "Google Play",
+    "android_href": "",
+    "body": "Följ din bokning, chatta med din Cleaner och betala tryggt — allt i en app.",
+    "eyebrow": "MyCleaner-appen",
+    "heading": "Boka och omboka från fickan",
+    "ios": "App Store",
+    "ios_href": ""
   },
   "campaign": {
-    "eyebrow": "FOUNDING CLEANER",
-    "title": "Founding Cleaner-programmet öppnar snart",
-    "body": "Planerad förmån för de första 500 godkända Cleaners som skickar in sin leverantörsansökan under 2026: 0 kr i plattformsavgift för leverantörer i tre kalendermånader.",
-    "note": "Programmet har inte öppnat ännu. Din ansökan reserverar inte automatiskt en plats.",
-    "cta": "Läs om programmet",
-    "href": "/founding-cleaner",
-    "badgePrimary": "FOUNDING CLEANER",
-    "badgeSecondary": "ÖPPNAR SNART",
-    "edition": "2026 EDITION",
     "amount": "0 KR.",
     "amountSuffix1": "i plattformsavgift för leverantörer",
     "amountSuffix2": "i 3 månader",
+    "badgePrimary": "FOUNDING CLEANER",
+    "badgeSecondary": "ÖPPNAR SNART",
+    "body": "Planerad förmån för de första 500 godkända Cleaners som skickar in sin leverantörsansökan under 2026: 0 kr i plattformsavgift för leverantörer i tre kalendermånader.",
+    "cta": "Läs om programmet",
+    "ctaShort": "Läs om programmet",
+    "edition": "2026 EDITION",
     "explain": "Planerad förmån för de första 500 godkända Cleaners som skickar in sin leverantörsansökan under 2026.",
+    "eyebrow": "FOUNDING CLEANER",
+    "href": "/founding-cleaner",
+    "note": "Programmet har inte öppnat ännu. Din ansökan reserverar inte automatiskt en plats.",
     "noteShort": "Programmet har inte öppnat ännu. Din ansökan reserverar inte automatiskt en plats.",
-    "ctaShort": "Läs om programmet"
+    "title": "Founding Cleaner-programmet öppnar snart"
   },
-  "app": {
-    "eyebrow": "MyCleaner-appen",
-    "heading": "Boka och omboka från fickan",
-    "body": "Följ din bokning, chatta med din Cleaner och betala tryggt — allt i en app.",
-    "ios": "App Store",
-    "android": "Google Play",
-    "ios_href": "",
-    "android_href": ""
+  "card": {
+    "add_fav": "Lägg till favorit",
+    "avatar_alt": "{{name}} profilbild",
+    "badge_fast": "Snabbt svar",
+    "badge_today": "Ledig idag",
+    "badge_top": "Topprankad",
+    "badge_verified": "Verifierad",
+    "completed": "{{n}} bokningar",
+    "demo_hint": "Demoprofil — logga in för att se riktiga Cleaners",
+    "price_note": "Priset beräknas vid bokning",
+    "radius": "inom {{km}} km",
+    "remove_fav": "Ta bort favorit",
+    "verified": "Verifierad",
+    "view": "Se profil"
+  },
+  "categories": {
+    "cleaning": "Städning",
+    "garden": "Trädgård",
+    "handyman": "Hantverkare",
+    "heading": "Populära tjänster",
+    "moving": "Flytt",
+    "tiles": {
+      "custom": "Specialjobb",
+      "deep": "Storstädning",
+      "move": "Flyttstädning",
+      "office": "Kontorsstädning",
+      "regular": "Vanlig städning"
+    },
+    "view_all": "Se alla"
   },
   "faq": {
     "eyebrow": "FAQ",
     "heading": "Vanliga frågor",
     "items": [
       {
-        "q": "Hur sätts priserna?",
-        "a": "Cleaners sätter sina egna priser inom lokala minimisatser. Du ser hela priset innan du bokar — inga dolda avgifter."
+        "a": "Cleaners sätter sina egna priser inom lokala minimisatser. Du ser hela priset innan du bokar — inga dolda avgifter.",
+        "q": "Hur sätts priserna?"
       },
       {
-        "q": "Är alla Cleaners verifierade?",
-        "a": "Ja. Alla Cleaners genomgår ID- och identitetsverifiering innan de får ta emot bokningar."
+        "a": "Ja. Alla Cleaners genomgår ID- och identitetsverifiering innan de får ta emot bokningar.",
+        "q": "Är alla Cleaners verifierade?"
       },
       {
-        "q": "När dras betalningen?",
-        "a": "Vi reserverar beloppet vid bokning och släpper det till din Cleaner när jobbet är utfört och godkänt."
+        "a": "Vi reserverar beloppet vid bokning och släpper det till din Cleaner när jobbet är utfört och godkänt.",
+        "q": "När dras betalningen?"
       },
       {
-        "q": "Kan jag avboka?",
-        "a": "Ja — avbokning är gratis upp till 24 timmar innan. Se hela avbokningspolicyn i FAQ."
+        "a": "Ja — avbokning är gratis upp till 24 timmar innan. Se hela avbokningspolicyn i FAQ.",
+        "q": "Kan jag avboka?"
       },
       {
-        "q": "Vilka länder är live?",
-        "a": "Danmark, Sverige, Tyskland, Storbritannien och Spanien. Fler länder rullas ut löpande."
+        "a": "Danmark, Sverige, Tyskland, Storbritannien och Spanien. Fler länder rullas ut löpande.",
+        "q": "Vilka länder är live?"
       },
       {
-        "q": "Kan jag skapa en återkommande bokning?",
-        "a": "Ja. Välj återkommande bokning så upprepas uppdraget automatiskt med det intervall du väljer."
+        "a": "Ja. Välj återkommande bokning så upprepas uppdraget automatiskt med det intervall du väljer.",
+        "q": "Kan jag skapa en återkommande bokning?"
       },
       {
-        "q": "När dras betalningen?",
-        "a": "Beloppet kan reserveras på ditt kort medan din bokningsförfrågan behandlas. Det dras när providern har accepterat bokningen och betalas ut till providern efter att tjänsten har utförts."
+        "a": "Beloppet kan reserveras på ditt kort medan din bokningsförfrågan behandlas. Det dras när providern har accepterat bokningen och betalas ut till providern efter att tjänsten har utförts.",
+        "q": "När dras betalningen?"
       },
       {
-        "q": "Kan jag avboka?",
-        "a": "Ja. Du kan avboka en bokning under Mina bokningar. Vad en avbokning kan kosta, och om återbetalning är möjlig, beror på hur nära starttiden du avbokar – se gällande villkor i våra regler."
+        "a": "Ja. Du kan avboka en bokning under Mina bokningar. Vad en avbokning kan kosta, och om återbetalning är möjlig, beror på hur nära starttiden du avbokar – se gällande villkor i våra regler.",
+        "q": "Kan jag avboka?"
       },
       {
-        "q": "Vilka länder är igång?",
-        "a": "MyCleaner är igång i Danmark. Sverige, Tyskland, Storbritannien och Spanien kommer snart."
+        "a": "MyCleaner är igång i Danmark. Sverige, Tyskland, Storbritannien och Spanien kommer snart.",
+        "q": "Vilka länder är igång?"
       },
       {
-        "q": "Hur får providern tillgång till mitt hem?",
-        "a": "Du kommer överens om tillträdet direkt med den provider du valt. MyCleaner tar inte emot nycklar, förvarar inga nycklar och ordnar ingen nyckelöverlämning. Du väljer själv lösningen för tillträde och ansvarar för den."
+        "a": "Du kommer överens om tillträdet direkt med den provider du valt. MyCleaner tar inte emot nycklar, förvarar inga nycklar och ordnar ingen nyckelöverlämning. Du väljer själv lösningen för tillträde och ansvarar för den.",
+        "q": "Hur får providern tillgång till mitt hem?"
       },
       {
-        "q": "Vad händer om något skadas?",
-        "a": "Skapa ett supportärende med foton och en beskrivning. MyCleaner är plattformen mellan kunden och providern. Eventuella skadeanspråk bedöms utifrån dokumentationen, providerns ansvar och gällande villkor."
+        "a": "Skapa ett supportärende med foton och en beskrivning. MyCleaner är plattformen mellan kunden och providern. Eventuella skadeanspråk bedöms utifrån dokumentationen, providerns ansvar och gällande villkor.",
+        "q": "Vad händer om något skadas?"
       }
     ]
   },
-  "welcome_back": {
-    "eyebrow": "Välkommen tillbaka",
-    "heading": "Fortsätt där du slutade",
-    "heading_named": "Hej {{name}} — fortsätt där du slutade",
-    "tiles": {
-      "upcoming": {
-        "title": "Kommande bokningar",
-        "body": "Se och hantera dina planerade bokningar."
-      },
-      "favorites": {
-        "title": "Favorit-Cleaners",
-        "body": "Gå direkt till de Cleaners du sparat."
-      },
-      "book_again": {
-        "title": "Boka igen",
-        "body": "Omboka en Cleaner du använt tidigare."
-      }
-    }
-  },
-  "provider_home": {
-    "eyebrow": "Din dag",
-    "heading": "Översikt och genvägar",
-    "tiles": {
-      "today": {
-        "title": "Dagens bokningar",
-        "body": "Vem, var och när idag."
-      },
-      "performance": {
-        "title": "Prestanda",
-        "body": "Betyg, svarstid och genomförande."
-      },
-      "earnings": {
-        "title": "Intäkter",
-        "body": "Veckans och månadens utbetalningar."
-      },
-      "pricing": {
-        "title": "Dynamisk prissättning",
-        "body": "Optimera priser efter efterfrågan."
-      }
-    }
-  },
-  "mobileHome": {
-    "greeting_guest": "Hitta den perfekta Cleaner",
-    "greeting_named": "Hej {{name}}",
-    "greeting_fallback_name": "där",
-    "subtitle_guest": "Verifierade Cleaners — snabbt, säkert och enkelt.",
-    "subtitle_customer": "Boka din nästa Cleaner på sekunder.",
-    "bookingCard": {
-      "eyebrow": "Boka en Cleaner",
-      "title": "Hitta din Cleaner",
-      "subtitle": "Jämför profiler, priser och lediga tider.",
-      "trust": "Verifierade profiler · Säkra betalningar",
-      "cta": "Hitta en Cleaner",
-      "ariaLabel": "Hitta en Cleaner"
-    },
-    "howItWorks": {
-      "cta": "Hitta en Cleaner",
-      "step_of": "Steg {{n}} av {{total}}",
-      "progress": "Steg-indikator"
-    },
-    "services": {
-      "title": "Populära tjänster"
-    },
-    "featured": {
-      "title": "Rekommenderade Cleaners",
-      "viewAll": "Visa alla",
-      "empty": "Inga Cleaners att visa just nu."
-    },
-    "quickActions": {
-      "title": "Snabbåtgärder",
-      "book_again": "Boka igen",
-      "find_cleaner": "Hitta cleaner",
-      "messages": "Meddelanden"
-    },
-    "customer": {
-      "upcoming": "Kommande bokning",
-      "loading": "Laddar…",
-      "error": "Kunde inte hämta bokningar.",
-      "empty": "Inga kommande bokningar. Boka din nästa Cleaner nu.",
-      "provider": "Cleaner"
-    },
-    "provider": {
-      "today": "Idag",
-      "todayJobs_one": "aktivt jobb idag",
-      "todayJobs_other": "aktiva jobb idag",
-      "openDashboard": "Öppna dashboard",
-      "nextJob": "Nästa jobb",
-      "job": "Jobb",
-      "noJobs": "Inga kommande jobb.",
-      "error": "Kunde inte hämta jobb.",
-      "earnings": "Månadens intäkter",
-      "earningsUnavailable": "Se dina uppdaterade intäkter i Ekonomi.",
-      "openFinance": "Öppna Ekonomi",
-      "onboarding": "Kom igång",
-      "onboardingProgress": "{{done}} av {{total}} steg klara",
-      "continueOnboarding": "Fortsätt",
-      "calendar": "Kalender",
-      "payouts": "Utbetalningar"
-    }
-  },
-  "mobileSearch": {
-    "appBarTitle": "Hitta en Cleaner",
-    "placeholder": "Sök på namn, stad eller postnummer",
-    "aria": "Sök efter Cleaners",
-    "clear": "Rensa sökning",
-    "loading_count": "Laddar…",
-    "count": "{{n}} Cleaners hittade",
-    "price_from": "från {{price}} kr/t",
-    "chips": {
-      "aria": "Filtrera kategori",
-      "all": "Alla",
-      "cleaning": "Städning"
-    },
-    "filters": {
-      "label": "Filter",
-      "open": "Öppna filter",
-      "title": "Filter och sortering",
-      "description": "Anpassa din sökning",
-      "sortHeading": "Sortering",
-      "maxRate": "Max timpris",
-      "maxRatePlaceholder": "Ingen gräns",
-      "reset": "Återställ",
-      "apply": "Visa resultat"
-    },
-    "sort": {
-      "score": "Bästa matchning",
-      "price_asc": "Pris (låg → hög)",
-      "price_desc": "Pris (hög → låg)",
-      "rating": "Högst betyg",
-      "response": "Snabbast svar"
-    },
-    "empty": {
-      "title": "Inga Cleaners matchar dina filter",
-      "body": "Prova att återställa filter eller utöka området.",
-      "reset": "Återställ filter"
-    },
-    "error": {
-      "title": "Sökningen är tillfälligt otillgänglig",
-      "body": "Försök igen om ett ögonblick.",
-      "retry": "Försök igen"
-    },
-    "pagination": {
-      "prev": "Föregående",
-      "next": "Nästa",
-      "pageOf": "Sida {{page}} av {{pages}}"
-    }
-  },
-  "mobileBookings": {
-    "appBarTitle": "Mina bokningar",
-    "provider": "Cleaner",
-    "total": "Du betalar",
-    "tabs": {
-      "aria": "Bokningar",
-      "upcoming": "Kommande",
-      "previous": "Tidigare"
-    },
-    "status": {
-      "pending": "Väntar",
-      "accepted": "Accepterad",
-      "declined": "Avvisad",
-      "cancelled": "Avbokad",
-      "completed": "Slutförd"
-    },
-    "empty": {
-      "cta": "Hitta en Cleaner",
-      "upcoming": {
-        "title": "Inga kommande bokningar",
-        "body": "Hitta en Cleaner och boka direkt i kalendern."
-      },
-      "previous": {
-        "title": "Inga tidigare bokningar",
-        "body": "Dina slutförda bokningar visas här."
-      },
-      "signed_out": {
-        "title": "Logga in för att se dina bokningar",
-        "body": "Bokningar syns endast när du är inloggad.",
-        "cta": "Logga in"
-      }
-    },
-    "error": {
-      "title": "Kunde inte hämta bokningar",
-      "body": "Försök igen om ett ögonblick.",
-      "retry": "Försök igen"
-    }
-  },
   "foundingCleaner": {
-    "eyebrow": "FOUNDING CLEANER",
-    "heading": "Founding Cleaner-programmet",
-    "intro": "Founding Cleaner-programmet planerar att ge de första 500 godkända Cleaners som skickar in sin leverantörsansökan under 2026 en förmån på 0 kr i plattformsavgift för leverantörer i tre kalendermånader. Programmet är ännu inte aktiverat och en ansökan reserverar inte automatiskt en plats.",
-    "status": {
-      "title": "Programmet öppnar snart",
-      "body": "Founding Cleaner-programmet är ännu inte aktiverat. Du kan skicka in din Cleaner-ansökan, men ansökan reserverar ingen kampanjplats. Om programmet öppnar meddelar MyCleaner kvalificerade sökande direkt."
-    },
-    "plannedBenefit": "Den planerade förmånen är 0 kr i plattformsavgift för leverantörer i tre kalendermånader. Kundens separata plattformsavgift, betalhantering, skatt, moms, försäkring och andra tredjepartskostnader påverkas inte.",
+    "appBarTitle": "Founding Cleaner",
     "ctaPrimary": "Ansök som Cleaner",
     "ctaPrimaryNote": "Ansökan är inte en reservation av en kampanjplats.",
     "ctaSecondary": "Se villkoren",
-    "startNote": "Om programmet öppnas och du kvalificerar dig startar de tre kalendermånaderna först när ditt första kvalificerande uppdrag är genomfört, betalt och frisläppt enligt MyCleaners befintliga releasekontroll.",
+    "eyebrow": "FOUNDING CLEANER",
+    "heading": "Founding Cleaner-programmet",
     "how": {
       "heading": "Så är programmet tänkt",
       "steps": [
         {
-          "title": "Skicka in din ansökan",
-          "body": "Fyll i din Cleaner-profil under 2026 och slutför den befintliga onboardingen. Ansökan reserverar ingen plats."
+          "body": "Fyll i din Cleaner-profil under 2026 och slutför den befintliga onboardingen. Ansökan reserverar ingen plats.",
+          "title": "Skicka in din ansökan"
         },
         {
-          "title": "Vänta på godkännande",
-          "body": "MyCleaner granskar profil, identitet och nödvändig dokumentation. Godkännande får ske efter 2026."
+          "body": "MyCleaner granskar profil, identitet och nödvändig dokumentation. Godkännande får ske efter 2026.",
+          "title": "Vänta på godkännande"
         },
         {
-          "title": "Få besked om programmet öppnar",
-          "body": "Om programmet aktiveras och du tilldelas en av upp till 500 globala platser meddelas du direkt av MyCleaner."
+          "body": "Om programmet aktiveras och du tilldelas en av upp till 500 globala platser meddelas du direkt av MyCleaner.",
+          "title": "Få besked om programmet öppnar"
         }
       ]
     },
+    "intro": "Founding Cleaner-programmet planerar att ge de första 500 godkända Cleaners som skickar in sin leverantörsansökan under 2026 en förmån på 0 kr i plattformsavgift för leverantörer i tre kalendermånader. Programmet är ännu inte aktiverat och en ansökan reserverar inte automatiskt en plats.",
+    "plannedBenefit": "Den planerade förmånen är 0 kr i plattformsavgift för leverantörer i tre kalendermånader. Kundens separata plattformsavgift, betalhantering, skatt, moms, försäkring och andra tredjepartskostnader påverkas inte.",
+    "startNote": "Om programmet öppnas och du kvalificerar dig startar de tre kalendermånaderna först när ditt första kvalificerande uppdrag är genomfört, betalt och frisläppt enligt MyCleaners befintliga releasekontroll.",
+    "status": {
+      "body": "Founding Cleaner-programmet är ännu inte aktiverat. Du kan skicka in din Cleaner-ansökan, men ansökan reserverar ingen kampanjplats. Om programmet öppnar meddelar MyCleaner kvalificerade sökande direkt.",
+      "title": "Programmet öppnar snart"
+    },
     "terms": {
       "heading": "Planerade villkor",
-      "lastUpdatedLabel": "Senast uppdaterad",
-      "lastUpdated": "2026-07-27",
       "items": [
         "Founding Cleaner-programmet är ännu inte aktiverat. Att skicka in en ansökan ger inte automatiskt rätt till förmånen och reserverar ingen kampanjplats.",
         "Maximalt 500 platser kan tilldelas globalt över alla marknader.",
@@ -474,8 +151,443 @@
         "En full återbetalning eller öppen dispute före release startar inte perioden. En återbetalning eller chargeback efter start återställer eller förlänger inte perioden.",
         "MyCleaner meddelar sökande direkt om de tilldelas en plats. Ingen offentlig nedräkning eller räknare för återstående platser publiceras.",
         "Slutgiltiga kampanjvillkor måste godkännas när programmet aktiveras. MyCleaner kan ändra eller avsluta det planerade programmet för framtida deltagare; en redan bekräftad kampanjförmån ändras inte retroaktivt i strid med tillämplig lag."
-      ]
+      ],
+      "lastUpdated": "2026-07-27",
+      "lastUpdatedLabel": "Senast uppdaterad"
+    }
+  },
+  "hero": {
+    "availability": "MyCleaner öppnar först i Danmark. Sverige, Storbritannien, Tyskland och Spanien kommer snart.",
+    "availability_label": "Öppnar först i",
+    "coming_soon": "Kommer snart",
+    "countries": {
+      "de": "Tyskland",
+      "dk": "Danmark",
+      "es": "Spanien",
+      "gb": "Storbritannien",
+      "se": "Sverige"
     },
-    "appBarTitle": "Founding Cleaner"
+    "image_alt": "Verifierad Cleaner i ett europeiskt hem",
+    "launch_notice": "MyCleaner öppnar först i Danmark. Sverige, Storbritannien, Tyskland och Spanien kommer snart.",
+    "trust": {
+      "fixed_price": "Fast pris utan överraskningar",
+      "payments": "Säkra betalningar",
+      "reviews": "Äkta omdömen",
+      "rowLabel": "Fördelar",
+      "verified": "Verifierade Cleaners"
+    },
+    "variants": {
+      "customer": {
+        "cta_secondary_href": "/my-bookings",
+        "cta_secondary_label": "Se mina bokningar",
+        "eyebrow": "Välkommen tillbaka",
+        "subtitle": "Boka om en tidigare bokning eller hitta en ny Cleaner i ditt område.",
+        "title_line_1": "Välkommen tillbaka, {{name}}.",
+        "title_line_2": "Boka din nästa Cleaner på några sekunder."
+      },
+      "guest": {
+        "cta_secondary_href": "/bliv-cleaner",
+        "cta_secondary_label": "Bli Cleaner",
+        "eyebrow": "Europas städmarknad",
+        "subtitle": "Boka verifierade Cleaners till hemmet eller företaget. Snabbt, tryggt och enkelt — med tydliga priser och äkta omdömen.",
+        "title_line_1": "Hitta den perfekta Cleaner",
+        "title_line_2": "— när och var det passar dig."
+      },
+      "provider": {
+        "cta_secondary_href": "/provider-dashboard",
+        "cta_secondary_label": "Öppna dashboard",
+        "eyebrow": "Din dag",
+        "subtitle": "Håll koll på dagens jobb, svarstid och intäkter — allt på ett ställe.",
+        "title_line_1": "Välkommen tillbaka.",
+        "title_line_2": "Se dina bokningar och nya jobb."
+      }
+    }
+  },
+  "how": {
+    "eyebrow": "Så fungerar det",
+    "heading": "Fem steg till ett rent hem",
+    "steps": {
+      "book": {
+        "body": "Välj tid direkt hos din Cleaner — ingen väntan, ingen budgivning.",
+        "title": "Boka i kalendern"
+      },
+      "enjoy": {
+        "body": "Betalningen hålls tryggt tills jobbet är godkänt.",
+        "title": "Njut av ett rent hem"
+      },
+      "search": {
+        "body": "Sök lokalt, jämför priser och äkta omdömen.",
+        "title": "Hitta en Cleaner"
+      }
+    }
+  },
+  "mobileBookings": {
+    "appBarTitle": "Mina bokningar",
+    "empty": {
+      "cta": "Hitta en Cleaner",
+      "previous": {
+        "body": "Dina slutförda bokningar visas här.",
+        "title": "Inga tidigare bokningar"
+      },
+      "signed_out": {
+        "body": "Bokningar syns endast när du är inloggad.",
+        "cta": "Logga in",
+        "title": "Logga in för att se dina bokningar"
+      },
+      "upcoming": {
+        "body": "Hitta en Cleaner och boka direkt i kalendern.",
+        "title": "Inga kommande bokningar"
+      }
+    },
+    "error": {
+      "body": "Försök igen om ett ögonblick.",
+      "retry": "Försök igen",
+      "title": "Kunde inte hämta bokningar"
+    },
+    "provider": "Cleaner",
+    "status": {
+      "accepted": "Accepterad",
+      "cancelled": "Avbokad",
+      "completed": "Slutförd",
+      "declined": "Avvisad",
+      "pending": "Väntar"
+    },
+    "tabs": {
+      "aria": "Bokningar",
+      "previous": "Tidigare",
+      "upcoming": "Kommande"
+    },
+    "total": "Du betalar"
+  },
+  "mobileHome": {
+    "bookingCard": {
+      "ariaLabel": "Hitta en Cleaner",
+      "cta": "Hitta en Cleaner",
+      "eyebrow": "Boka en Cleaner",
+      "subtitle": "Jämför profiler, priser och lediga tider.",
+      "title": "Hitta din Cleaner",
+      "trust": "Verifierade profiler · Säkra betalningar"
+    },
+    "customer": {
+      "empty": "Inga kommande bokningar. Boka din nästa Cleaner nu.",
+      "error": "Kunde inte hämta bokningar.",
+      "loading": "Laddar…",
+      "provider": "Cleaner",
+      "upcoming": "Kommande bokning"
+    },
+    "featured": {
+      "empty": "Inga Cleaners att visa just nu.",
+      "title": "Rekommenderade Cleaners",
+      "viewAll": "Visa alla"
+    },
+    "greeting_fallback_name": "där",
+    "greeting_guest": "Hitta den perfekta Cleaner",
+    "greeting_named": "Hej {{name}}",
+    "howItWorks": {
+      "cta": "Hitta en Cleaner",
+      "progress": "Steg-indikator",
+      "step_of": "Steg {{n}} av {{total}}"
+    },
+    "provider": {
+      "calendar": "Kalender",
+      "continueOnboarding": "Fortsätt",
+      "earnings": "Månadens intäkter",
+      "earningsUnavailable": "Se dina uppdaterade intäkter i Ekonomi.",
+      "error": "Kunde inte hämta jobb.",
+      "job": "Jobb",
+      "nextJob": "Nästa jobb",
+      "noJobs": "Inga kommande jobb.",
+      "onboarding": "Kom igång",
+      "onboardingProgress": "{{done}} av {{total}} steg klara",
+      "openDashboard": "Öppna dashboard",
+      "openFinance": "Öppna Ekonomi",
+      "payouts": "Utbetalningar",
+      "today": "Idag",
+      "todayJobs_one": "aktivt jobb idag",
+      "todayJobs_other": "aktiva jobb idag"
+    },
+    "quickActions": {
+      "book_again": "Boka igen",
+      "find_cleaner": "Hitta cleaner",
+      "messages": "Meddelanden",
+      "title": "Snabbåtgärder"
+    },
+    "services": {
+      "title": "Populära tjänster"
+    },
+    "subtitle_customer": "Boka din nästa Cleaner på sekunder.",
+    "subtitle_guest": "Verifierade Cleaners — snabbt, säkert och enkelt."
+  },
+  "mobileSearch": {
+    "appBarTitle": "Hitta en Cleaner",
+    "aria": "Sök efter Cleaners",
+    "chips": {
+      "all": "Alla",
+      "aria": "Filtrera kategori",
+      "cleaning": "Städning"
+    },
+    "clear": "Rensa sökning",
+    "count": "{{n}} Cleaners hittade",
+    "empty": {
+      "body": "Prova att återställa filter eller utöka området.",
+      "reset": "Återställ filter",
+      "title": "Inga Cleaners matchar dina filter"
+    },
+    "error": {
+      "body": "Försök igen om ett ögonblick.",
+      "retry": "Försök igen",
+      "title": "Sökningen är tillfälligt otillgänglig"
+    },
+    "filters": {
+      "apply": "Visa resultat",
+      "description": "Anpassa din sökning",
+      "label": "Filter",
+      "maxRate": "Max timpris",
+      "maxRatePlaceholder": "Ingen gräns",
+      "open": "Öppna filter",
+      "reset": "Återställ",
+      "sortHeading": "Sortering",
+      "title": "Filter och sortering"
+    },
+    "loading_count": "Laddar…",
+    "pagination": {
+      "next": "Nästa",
+      "pageOf": "Sida {{page}} av {{pages}}",
+      "prev": "Föregående"
+    },
+    "placeholder": "Sök på namn, stad eller postnummer",
+    "price_from": "från {{price}} kr/t",
+    "sort": {
+      "price_asc": "Pris (låg → hög)",
+      "price_desc": "Pris (hög → låg)",
+      "rating": "Högst betyg",
+      "response": "Snabbast svar",
+      "score": "Bästa matchning"
+    }
+  },
+  "provider_home": {
+    "eyebrow": "Din dag",
+    "heading": "Översikt och genvägar",
+    "tiles": {
+      "earnings": {
+        "body": "Veckans och månadens utbetalningar.",
+        "title": "Intäkter"
+      },
+      "performance": {
+        "body": "Betyg, svarstid och genomförande.",
+        "title": "Prestanda"
+      },
+      "pricing": {
+        "body": "Optimera priser efter efterfrågan.",
+        "title": "Dynamisk prissättning"
+      },
+      "today": {
+        "body": "Vem, var och när idag.",
+        "title": "Dagens bokningar"
+      }
+    }
+  },
+  "results": {
+    "empty": "Inga Cleaners ännu i {{area}}. Prova ett annat område.",
+    "empty_area": "ditt område",
+    "error_title": "Vi kunde inte hämta tillgängliga Cleaners just nu.",
+    "heading": "Utvalda Cleaners nära dig",
+    "see_all": "Se alla Cleaners",
+    "subtitle": "Verifierade proffs. Äkta omdömen. Boka tryggt."
+  },
+  "reviews": {
+    "eyebrow": "Från våra kunder",
+    "heading": "Älskade i hela Europa",
+    "items": [
+      {
+        "city": "Köpenhamn",
+        "name": "Sofie L.",
+        "quote": "Otroligt enkelt att boka och min Cleaner var fantastisk. Kommer definitivt använda igen.",
+        "rating": 5
+      },
+      {
+        "city": "Malmö",
+        "name": "Marcus B.",
+        "quote": "Priserna är tydliga och jag visste exakt vad jag betalade för. Varmt rekommenderat.",
+        "rating": 5
+      },
+      {
+        "city": "Madrid",
+        "name": "Ana R.",
+        "quote": "Äntligen en plattform där min Cleaner får ordentlig betalning och jag får kvalitet.",
+        "rating": 5
+      }
+    ]
+  },
+  "search": {
+    "aria": "Hitta en Cleaner",
+    "service": "Tjänst",
+    "submit": "Hitta en Cleaner",
+    "when": "När",
+    "where": "Var",
+    "where_placeholder": "Ort eller postnummer"
+  },
+  "sidebar": {
+    "price_note": "Priset beräknas vid bokning utifrån din Cleaner och tjänst.",
+    "why_heading": "Därför väljer kunder MyCleaner",
+    "why_verified": "ID-verifierade Cleaners"
+  },
+  "summary": {
+    "heading": "Bokningsöversikt",
+    "price_note": "Priset beräknas vid bokning utifrån din Cleaner och tjänst.",
+    "service": "Tjänst",
+    "total": "Totalt",
+    "when": "När",
+    "where": "Var"
+  },
+  "surfaces": {
+    "createTask": {
+      "addressLabel": "Adress",
+      "categoryLabel": "Kategori",
+      "countryLabel": "Land",
+      "descriptionLabel": "Beskriv uppgiften",
+      "descriptionPlaceholder": "Beskriv vad du behöver hjälp med. Ju mer detaljer, desto bättre offerter...",
+      "estimate": {
+        "basis": "Baserat på {{agreement}} • Min. {{symbol}}{{rate}}/timme • Inkl. moms ({{vat}}%)",
+        "from": "Från",
+        "heading": "AI-prisuppskattning",
+        "recommended": "Rekommenderad",
+        "to": "Till"
+      },
+      "heading": "Skapa en uppgift",
+      "preferredDateLabel": "Önskat datum",
+      "preferredTimeLabel": "Tid",
+      "priority": {
+        "flexible": "Flexibelt",
+        "normal": "Normal",
+        "urgent": "Brådskande"
+      },
+      "priorityLabel": "Prioritet",
+      "subcategoryLabel": "Underkategori",
+      "subheading": "Beskriv din uppgift och få AI-drivna offerter från verifierade proffs",
+      "submit": "Se offerter från proffs",
+      "time": {
+        "afternoon": "Eftermiddag (12-17)",
+        "evening": "Kväll (17-21)",
+        "flexible": "Flexibelt",
+        "morning": "Morgon (8-12)"
+      }
+    },
+    "findCleaner": {
+      "card": {
+        "availableToday": "Idag",
+        "bookNow": "Boka nu",
+        "instant": "Direkt",
+        "verified": "Verifierad",
+        "viewProfile": "Visa profil"
+      },
+      "errors": {
+        "generic": "Något gick fel",
+        "loadMap": "Det gick inte att läsa in kartan",
+        "loadProviders": "Det gick inte att hämta leverantörer"
+      },
+      "filters": {
+        "allChip": "🌍 Alla ({{count}})",
+        "any": "Alla",
+        "areaAriaLabel": "Filtrera efter serviceområde (välj flera)",
+        "availableToday": "Tillgänglig idag",
+        "button": "Filter",
+        "experienceValue": "{{value}}+ år",
+        "instantBook": "Direktbokning",
+        "languages": "Språk",
+        "maxHourly": "Max. timpris",
+        "maxHourlyValue": "{{value}}/tim",
+        "minExperience": "Min. års erfarenhet",
+        "minRating": "Min. betyg",
+        "ratingValue": "{{value}}★+",
+        "reset": "Återställ",
+        "services": "Tjänster",
+        "sheetTitle": "Filtrera städare",
+        "showResults": "Visa {{count}} städare"
+      },
+      "header": {
+        "count": "{{count}} leverantörer",
+        "countInArea": "{{count}} leverantörer i {{area}}",
+        "title": "Hitta din städare"
+      },
+      "list": {
+        "drawerTitle": "{{count}} leverantörer i området",
+        "empty": "Flytta kartan eller zooma ut för att se leverantörer.",
+        "showList": "Visa lista"
+      },
+      "map": {
+        "clickToOpen": "Klicka för att öppna profil",
+        "coverageLabel": "Täcker ~{{radius}} km serviceområde",
+        "loading": "Hämtar leverantörer…",
+        "markerTitle": "{{name}} — täcker ~{{radius}} km kring {{area}}",
+        "searchThisArea": "Sök i det här området"
+      }
+    },
+    "marketplace": {
+      "allServices": "Alla tjänster",
+      "allTiers": "Alla nivåer",
+      "countryPlaceholder": "Land",
+      "favorites": "Favoriter",
+      "heading": "Hitta en städare",
+      "loading": "Läser in…",
+      "loginToSaveFavorites": "Logga in för att spara favoriter",
+      "mapView": "Kartvy",
+      "maxHourlyRatePlaceholder": "Max. timpris",
+      "next": "Nästa",
+      "noResults": "Inga leverantörer matchar dina filter.",
+      "pageOf": "Sida {{page}} av {{total}}",
+      "previous": "Föregående",
+      "resultsCount": "{{count}} leverantörer hittades",
+      "searchAriaLabel": "Sök",
+      "searchPlaceholder": "Sök efter namn…",
+      "servicePlaceholder": "Tjänst",
+      "sort": {
+        "priceAsc": "Pris (lågt → högt)",
+        "priceDesc": "Pris (högt → lågt)",
+        "rating": "Högsta betyg",
+        "response": "Snabbast svar",
+        "score": "Bästa matchning"
+      },
+      "subheading": "Bläddra bland verifierade leverantörer. Boka direkt i deras kalender.",
+      "tierPlaceholder": "Min. nivå"
+    }
+  },
+  "trust": {
+    "heading": "Därför väljer kunder MyCleaner",
+    "identity": {
+      "body": "Alla Cleaners genomgår ID-verifiering innan de får ta emot bokningar.",
+      "title": "Verifierad identitet"
+    },
+    "payments": {
+      "body": "Betalningar hanteras via Stripe. Dina kortuppgifter delas aldrig med din Cleaner.",
+      "title": "Säkra betalningar"
+    },
+    "reviews": {
+      "body": "Endast kunder med genomförda bokningar kan lämna omdömen.",
+      "title": "Äkta omdömen"
+    },
+    "support": {
+      "body": "Skriv till oss om något känns fel — vi hjälper dig genom varje ärende.",
+      "title": "Kundsupport"
+    }
+  },
+  "welcome_back": {
+    "eyebrow": "Välkommen tillbaka",
+    "heading": "Fortsätt där du slutade",
+    "heading_named": "Hej {{name}} — fortsätt där du slutade",
+    "tiles": {
+      "book_again": {
+        "body": "Omboka en Cleaner du använt tidigare.",
+        "title": "Boka igen"
+      },
+      "favorites": {
+        "body": "Gå direkt till de Cleaners du sparat.",
+        "title": "Favorit-Cleaners"
+      },
+      "upcoming": {
+        "body": "Se och hantera dina planerade bokningar.",
+        "title": "Kommande bokningar"
+      }
+    }
   }
 }

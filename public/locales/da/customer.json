@@ -1,469 +1,670 @@
 {
   "greeting": {
-    "morning": "Godmorgen",
     "day": "Goddag",
-    "evening": "Godaften"
+    "evening": "Godaften",
+    "morning": "Godmorgen"
   },
   "profile": {
-    "nav": {
-      "back": "Tilbage",
-      "title": "Min profil",
-      "signOut": "Log ud",
-      "help": "Hjælp & support",
-      "complaint": "Indgiv en klage",
-      "menu": "Menu"
+    "addresses": {
+      "subtitle": "Tilføj flere adresser med adgangsoplysninger, kæledyr, parkering m.m. Den primære adresse vælges automatisk ved booking.",
+      "title": "Mine adresser"
+    },
+    "bookings": {
+      "cardFallback": "Kort",
+      "emptySubtitle": "Find en Cleaner, og book direkte i kalenderen.",
+      "emptyTitle": "Ingen bookinger endnu",
+      "findCleaner": "Find Cleaner",
+      "fullRefund": "Fuld refundering",
+      "hoursSuffix": "t",
+      "loading": "Indlæser…",
+      "paidStatus": "Betalt",
+      "partialRefund": "Delvis refundering",
+      "payment": {
+        "authorized": "Reserveret",
+        "canceled": "Annulleret",
+        "captured": "Betalt",
+        "failed": "Ikke gennemført",
+        "partially_refunded": "Delvist refunderet",
+        "refunded": "Refunderet"
+      },
+      "pendingPaymentStatus": "Afventer betaling",
+      "reason": "Årsag",
+      "refundCount_one": "{{count}} refundering",
+      "refundCount_other": "{{count}} refunderinger",
+      "refundDefault": "Refundering",
+      "refundFailed": "Kunne ikke gennemføres",
+      "refundFailedReason": "Kunne ikke gennemføres: {{reason}}",
+      "refundId": "Refunderings-ID",
+      "refundReason": {
+        "duplicate": "Dobbelt betaling",
+        "expired_uncaptured_charge": "Kortreservation udløbet",
+        "fraudulent": "Mistanke om svindel",
+        "requested_by_customer": "Ønsket af kunden"
+      },
+      "refunded": "Refunderet",
+      "remaining": "Resterende",
+      "reservedStatus": "Reserveret",
+      "seeReceipt": "Se kvittering",
+      "status": {
+        "accepted": "Accepteret",
+        "cancelled": "Annulleret",
+        "completed": "Gennemført",
+        "declined": "Afvist",
+        "pending": "Afventer Cleaner"
+      },
+      "timePrefix": "kl.",
+      "totalPrice": "Samlet pris",
+      "totalRefunded": "Refunderet i alt",
+      "youPaid": "Du betalte",
+      "youStillPay": "Du mangler at betale"
+    },
+    "cards": {
+      "addCard": "Tilføj betalingskort",
+      "cardRemoved": "Kort fjernet",
+      "cardRemovedError": "Kortet blev ikke fjernet. Prøv igen om lidt.",
+      "cardReplaced": "Kort udskiftet",
+      "cardReplacedError": "Kortet blev ikke udskiftet. Prøv igen, eller brug en anden betalingsmetode.",
+      "cardSaved": "Kort gemt",
+      "chargedFor": "Der trækkes for {{service}} hos {{provider}} · {{date}} {{slot}} · {{amount}}",
+      "closeAria": "Luk",
+      "dateLabel": "Dato",
+      "defaultExpired": "Dit standardkort er udløbet — udskift det inden næste betaling.",
+      "defaultUpdateError": "Vi kunne ikke opdatere dit standardkort. Prøv igen.",
+      "defaultUpdated": "Standardkort opdateret",
+      "deleteCard": "Slet kort",
+      "deleteCardTitle": "Fjern betalingskort?",
+      "deleteDefaultTitle": "Slet standardkort?",
+      "deleting": "Sletter…",
+      "emptySubtitle": "Tilføj et kort for at gøre booking hurtigere næste gang.",
+      "emptyTitle": "Ingen gemte kort",
+      "errorTitle": "Vi kunne ikke hente dine betalingsoplysninger",
+      "expiresColLabel": "Udløber",
+      "expiresInMonth": "Udløber om ca. 1 måned",
+      "expiresLabel": "Udløber {{date}}",
+      "expiresSoonBody": "Vi anbefaler, at du udskifter kortet i god tid{{defaultNote}}, så kommende betalinger ikke afvises.",
+      "expiresSoonBodyDefault": " – det er dit standardkort og bruges til din næste betaling",
+      "expiresSoonTitle": "Udløber snart",
+      "expiresThisMonth": "Udløber denne måned",
+      "expiringCount_one": "1 kort udløber snart",
+      "expiringCount_other": "{{count}} kort udløber snart",
+      "expiringDefaultWarning": "Dit standardkort udløber inden for 2 måneder. Tilføj et nyt kort nu, så din næste betaling ikke afvises.",
+      "expiringDoNow": " Vi anbefaler, at du gør det med det samme.",
+      "expiringOtherWarning": "Udskift kortene i god tid for at undgå afviste betalinger.",
+      "filterLabel": "Filter",
+      "filters": {
+        "active": "Aktive",
+        "all": "Alle",
+        "default": "Standard",
+        "expired": "Udløbet"
+      },
+      "formOpenError": "Vi kunne ikke åbne formularen til betalingskort. Prøv igen.",
+      "hideDetails": "Skjul detaljer",
+      "lastUsedLabel": "Sidst brugt",
+      "loading": "Indlæser…",
+      "neverUsed": "Aldrig brugt",
+      "newCardTitle": "Nyt kort",
+      "nextPaymentTitle": "Næste planlagte betaling",
+      "noUpcoming": "Ingen kommende bookinger planlagt. Kortet bruges automatisk til din næste booking.",
+      "noneMatch": "Ingen kort matcher det valgte filter.",
+      "onlyCardWarning": "Dette er dit eneste gemte kort. Du skal indtaste kortoplysninger manuelt ved din næste booking.",
+      "pickDefaultFirst": "Vælg først et nyt standardkort, før du fjerner det nuværende.",
+      "pickNewDefault": "Dette er dit standardkort. Vælg et nyt standardkort, før du sletter:",
+      "preparingForm": "Forbereder sikker Stripe-formular…",
+      "referenceLabel": "Reference",
+      "removeAria": "Fjern",
+      "replace": "Udskift",
+      "replaceCardNow": "Udskift kort nu",
+      "replaceCardTitle": "Udskift kort",
+      "replaceDefaultNow": "Udskift standardkort nu",
+      "replaceNote": "Det nye kort sættes som standard, og {{brand}} •••• {{last4}} fjernes automatisk.",
+      "replaceNow": "Udskift kort nu",
+      "saveCard": "Gem kort",
+      "savingCardError": "Kortet kunne ikke gemmes. Tjek oplysningerne, og prøv igen.",
+      "setDefault": "Angiv som standard",
+      "setupIntentMissing": "Vi kunne ikke åbne den sikre betalingsside. Prøv igen om lidt.",
+      "showDetails": "Vis detaljer",
+      "soonSuffix": "(snart)",
+      "status": {
+        "active": "Aktivt",
+        "default": "Standard – bruges næste gang",
+        "expired": "Udløbet"
+      },
+      "statusLabel": "Status",
+      "stripeKeyMissing": "Stripes offentlige nøgle mangler i konfigurationen",
+      "updating": "Opdaterer…"
     },
     "header": {
       "defaultName": "Din profil"
     },
-    "tabs": {
-      "overview": "Overblik",
-      "inbox": "Indbakke",
-      "info": "Mine oplysninger",
-      "addresses": "Adresser",
-      "bookings": "Bookinger",
-      "cards": "Kort & betaling",
-      "invoices": "Fakturaer",
-      "history": "Betalingshistorik",
-      "notifications": "Notifikationer",
-      "sms": "SMS",
-      "tax": "Skatteoplysninger",
-      "deduction": "Servicefradrag",
-      "deactivate": "Deaktiver konto"
-    },
-    "overview": {
-      "welcome": "Velkommen, {{name}}",
-      "heroSubtitle": "Her er et hurtigt overblik over dine kommende rengøringer, adresser og betalinger.",
-      "bookNewCleaner": "Book en ny Cleaner",
-      "myBookings": "Mine bookinger",
-      "checklistTitle": "Færdiggør din profil",
-      "checklistSubtitle": "Fuldfør disse trin for at få det bedste match og den hurtigste booking.",
-      "checklist": {
-        "contact": {
-          "title": "Kontaktoplysninger",
-          "done": "Navn, telefon og land er godkendt.",
-          "fill": "Udfyld navn, telefon og land.",
-          "action": "Udfyld"
-        },
-        "email": {
-          "title": "Bekræft e-mail",
-          "done": "Din e-mail er bekræftet.",
-          "pending": "Vi har sendt et bekræftelseslink til din indbakke."
-        },
-        "address": {
-          "title": "Primær adresse",
-          "loading": "Indlæser…",
-          "missing": "Ingen primær adresse",
-          "fallback": "Vælg en adresse fra forslagene.",
-          "action": "Tilføj"
-        },
-        "property": {
-          "title": "Boligoplysninger",
-          "missing": "Manglende boligoplysninger",
-          "fallback": "Angiv størrelse, type og adgang.",
-          "action": "Udfyld",
-          "summary": "{{size}} m² · {{type}} · adgang: {{access}}"
-        },
-        "card": {
-          "title": "Betalingskort",
-          "loading": "Indlæser…",
-          "saved_one": "{{count}} kort gemt til hurtig booking.",
-          "saved_other": "{{count}} kort gemt til hurtig booking.",
-          "fallback": "Gem et kort for at booke med ét klik.",
-          "action": "Tilføj kort"
-        },
-        "firstBooking": {
-          "title": "Første booking",
-          "done": "Du har sendt din første forespørgsel.",
-          "pending": "Find en Cleaner, og book på under 2 minutter."
-        }
+    "history": {
+      "cardFallback": "Betalingskort",
+      "emptySubtitle": "Når du har gennemført bookinger, kan du se din fulde betalingshistorik her.",
+      "emptyTitle": "Ingen betalinger endnu",
+      "events": {
+        "charged": "Trukket på kort",
+        "paymentFailed": "Betaling mislykkedes",
+        "refundFailed": "Refundering mislykkedes",
+        "refundPending": "Refundering afventer",
+        "refundedToCard": "Refunderet til kort",
+        "reservationReleased": "Reservation frigivet",
+        "reserved": "Reserveret"
       },
-      "stats": {
-        "upcoming": "Kommende",
-        "completed": "Gennemført",
-        "paidTotal": "Betalt i alt",
-        "addresses": "Adresser"
+      "loading": "Indlæser…",
+      "net": "Netto",
+      "refundReason": {
+        "customer": "Kundens ønske",
+        "default": "Refundering",
+        "duplicate": "Dobbelt betaling",
+        "expired": "Kortreservation udløbet",
+        "fraudulent": "Mistanke om svindel"
       },
-      "nextBooking": {
-        "title": "Næste booking",
-        "seeAll": "Se alle",
-        "loading": "Indlæser…",
-        "hoursSuffix": "t",
-        "timePrefix": "kl.",
-        "empty": "Ingen kommende bookinger.",
-        "findCleaner": "Find en Cleaner"
-      },
-      "primaryAddress": {
-        "title": "Primær adresse",
-        "manage": "Administrer",
-        "empty": "Du har endnu ikke nogen adresser.",
-        "addOne": "Tilføj en"
-      },
-      "cards": {
-        "title": "Kort & betaling",
-        "manage": "Administrer",
-        "loading": "Indlæser…",
-        "empty": "Ingen gemte kort endnu.",
-        "saved_one": "<b>{{count}}</b> kort gemt til hurtig booking.",
-        "saved_other": "<b>{{count}}</b> kort gemt til hurtig booking."
-      },
-      "recent": {
-        "title": "Seneste aktivitet",
-        "fullHistory": "Fuld historik",
-        "loading": "Indlæser…",
-        "empty": "Ingen aktivitet endnu."
-      }
+      "refunded": "Refunderet",
+      "reservedNow": "Reserveret nu",
+      "totalPaid": "Betalt i alt"
     },
     "info": {
-      "helperBanner": "Dine kontaktoplysninger blev oprettet under onboarding og hentes automatisk her — du kan altid justere dem.",
+      "addressPlaceholder": "Gade, nr., etage, by",
+      "addressTitle": "Min adresse",
+      "countryLabel": "Land",
       "emailLabel": "E-mail (din login-adresse)",
       "fullNameLabel": "Fulde navn",
       "fullNamePlaceholder": "f.eks. Mette Hansen",
+      "helperBanner": "Dine kontaktoplysninger blev oprettet under onboarding og hentes automatisk her — du kan altid justere dem.",
       "phoneLabel": "Telefon",
-      "countryLabel": "Land",
+      "phonePlaceholder": "+45 12 34 56 78",
+      "providerIdHelp": "Indtast dit Provider-ID for at få adgang til",
+      "providerIdHelpFull": "Indtast dit provider-ID for at få adgang til <dash>provider-dashboardet</dash>.",
+      "providerIdHelpLink": "provider-dashboardet",
       "providerIdLabel": "Provider-ID (kun hvis du selv er Cleaner)",
       "providerIdPlaceholder": "f.eks. p_002",
-      "providerIdHelp": "Indtast dit Provider-ID for at få adgang til",
-      "providerIdHelpLink": "provider-dashboardet",
-      "addressTitle": "Min adresse",
-      "addressPlaceholder": "Gade, nr., etage, by",
       "saveButton": "Gem profil",
       "toast": {
         "checkContact": "Tjek dine kontaktoplysninger",
         "invalidAddress": "Vælg en gyldig adresse fra listen, før du gemmer.",
         "saved": "Profil gemt"
-      },
-      "phonePlaceholder": "+45 12 34 56 78",
-      "providerIdHelpFull": "Indtast dit provider-ID for at få adgang til <dash>provider-dashboardet</dash>."
-    },
-    "addresses": {
-      "title": "Mine adresser",
-      "subtitle": "Tilføj flere adresser med adgangsoplysninger, kæledyr, parkering m.m. Den primære adresse vælges automatisk ved booking."
-    },
-    "bookings": {
-      "loading": "Indlæser…",
-      "emptyTitle": "Ingen bookinger endnu",
-      "emptySubtitle": "Find en Cleaner, og book direkte i kalenderen.",
-      "findCleaner": "Find Cleaner",
-      "hoursSuffix": "t",
-      "timePrefix": "kl.",
-      "cardFallback": "Kort",
-      "totalPrice": "Samlet pris",
-      "refunded": "Refunderet",
-      "youPaid": "Du betalte",
-      "youStillPay": "Du mangler at betale",
-      "paidStatus": "Betalt",
-      "reservedStatus": "Reserveret",
-      "pendingPaymentStatus": "Afventer betaling",
-      "partialRefund": "Delvis refundering",
-      "fullRefund": "Fuld refundering",
-      "refundCount_one": "{{count}} refundering",
-      "refundCount_other": "{{count}} refunderinger",
-      "refundFailed": "Kunne ikke gennemføres",
-      "refundFailedReason": "Kunne ikke gennemføres: {{reason}}",
-      "refundDefault": "Refundering",
-      "totalRefunded": "Refunderet i alt",
-      "remaining": "Resterende",
-      "reason": "Årsag",
-      "refundId": "Refunderings-ID",
-      "seeReceipt": "Se kvittering",
-      "status": {
-        "pending": "Afventer Cleaner",
-        "accepted": "Accepteret",
-        "declined": "Afvist",
-        "cancelled": "Annulleret",
-        "completed": "Gennemført"
-      },
-      "payment": {
-        "authorized": "Reserveret",
-        "captured": "Betalt",
-        "canceled": "Annulleret",
-        "refunded": "Refunderet",
-        "partially_refunded": "Delvist refunderet",
-        "failed": "Ikke gennemført"
-      },
-      "refundReason": {
-        "duplicate": "Dobbelt betaling",
-        "fraudulent": "Mistanke om svindel",
-        "requested_by_customer": "Ønsket af kunden",
-        "expired_uncaptured_charge": "Kortreservation udløbet"
       }
-    },
-    "cards": {
-      "filters": {
-        "all": "Alle",
-        "default": "Standard",
-        "active": "Aktive",
-        "expired": "Udløbet"
-      },
-      "filterLabel": "Filter",
-      "noneMatch": "Ingen kort matcher det valgte filter.",
-      "loading": "Indlæser…",
-      "emptyTitle": "Ingen gemte kort",
-      "emptySubtitle": "Tilføj et kort for at gøre booking hurtigere næste gang.",
-      "status": {
-        "expired": "Udløbet",
-        "default": "Standard – bruges næste gang",
-        "active": "Aktivt"
-      },
-      "expiresLabel": "Udløber {{date}}",
-      "soonSuffix": "(snart)",
-      "statusLabel": "Status",
-      "expiresColLabel": "Udløber",
-      "lastUsedLabel": "Sidst brugt",
-      "neverUsed": "Aldrig brugt",
-      "hideDetails": "Skjul detaljer",
-      "showDetails": "Vis detaljer",
-      "dateLabel": "Dato",
-      "referenceLabel": "Reference",
-      "expiresThisMonth": "Udløber denne måned",
-      "expiresInMonth": "Udløber om ca. 1 måned",
-      "expiresSoonTitle": "Udløber snart",
-      "expiresSoonBodyDefault": " – det er dit standardkort og bruges til din næste betaling",
-      "expiresSoonBody": "Vi anbefaler, at du udskifter kortet i god tid{{defaultNote}}, så kommende betalinger ikke afvises.",
-      "replaceNow": "Udskift kort nu",
-      "updating": "Opdaterer…",
-      "setDefault": "Angiv som standard",
-      "replace": "Udskift",
-      "removeAria": "Fjern",
-      "nextPaymentTitle": "Næste planlagte betaling",
-      "chargedFor": "Der trækkes for {{service}} hos {{provider}} · {{date}} {{slot}} · {{amount}}",
-      "noUpcoming": "Ingen kommende bookinger planlagt. Kortet bruges automatisk til din næste booking.",
-      "defaultExpired": "Dit standardkort er udløbet — udskift det inden næste betaling.",
-      "expiringCount_one": "1 kort udløber snart",
-      "expiringCount_other": "{{count}} kort udløber snart",
-      "expiringDefaultWarning": "Dit standardkort udløber inden for 2 måneder. Tilføj et nyt kort nu, så din næste betaling ikke afvises.",
-      "expiringOtherWarning": "Udskift kortene i god tid for at undgå afviste betalinger.",
-      "expiringDoNow": " Vi anbefaler, at du gør det med det samme.",
-      "replaceDefaultNow": "Udskift standardkort nu",
-      "replaceCardNow": "Udskift kort nu",
-      "errorTitle": "Vi kunne ikke hente dine betalingsoplysninger",
-      "closeAria": "Luk",
-      "addCard": "Tilføj betalingskort",
-      "replaceCardTitle": "Udskift kort",
-      "newCardTitle": "Nyt kort",
-      "preparingForm": "Forbereder sikker Stripe-formular…",
-      "replaceNote": "Det nye kort sættes som standard, og {{brand}} •••• {{last4}} fjernes automatisk.",
-      "deleteDefaultTitle": "Slet standardkort?",
-      "deleteCardTitle": "Fjern betalingskort?",
-      "pickNewDefault": "Dette er dit standardkort. Vælg et nyt standardkort, før du sletter:",
-      "onlyCardWarning": "Dette er dit eneste gemte kort. Du skal indtaste kortoplysninger manuelt ved din næste booking.",
-      "deleting": "Sletter…",
-      "deleteCard": "Slet kort",
-      "saveCard": "Gem kort",
-      "savingCardError": "Kortet kunne ikke gemmes. Tjek oplysningerne, og prøv igen.",
-      "cardSaved": "Kort gemt",
-      "cardReplaced": "Kort udskiftet",
-      "cardReplacedError": "Kortet blev ikke udskiftet. Prøv igen, eller brug en anden betalingsmetode.",
-      "pickDefaultFirst": "Vælg først et nyt standardkort, før du fjerner det nuværende.",
-      "cardRemoved": "Kort fjernet",
-      "cardRemovedError": "Kortet blev ikke fjernet. Prøv igen om lidt.",
-      "defaultUpdated": "Standardkort opdateret",
-      "defaultUpdateError": "Vi kunne ikke opdatere dit standardkort. Prøv igen.",
-      "formOpenError": "Vi kunne ikke åbne formularen til betalingskort. Prøv igen.",
-      "stripeKeyMissing": "Stripes offentlige nøgle mangler i konfigurationen",
-      "setupIntentMissing": "Vi kunne ikke åbne den sikre betalingsside. Prøv igen om lidt."
     },
     "invoices": {
-      "loading": "Indlæser…",
-      "emptyTitle": "Ingen fakturaer endnu",
-      "emptySubtitle": "Når en booking er gennemført og betalt, kan du se kvitteringen her.",
-      "service": "Service",
-      "date": "Dato",
       "address": "Adresse",
-      "provider": "Provider",
-      "status": "Status",
-      "paid": "Betalt",
       "completed": "Gennemført",
+      "date": "Dato",
+      "emptySubtitle": "Når en booking er gennemført og betalt, kan du se kvitteringen her.",
+      "emptyTitle": "Ingen fakturaer endnu",
+      "loading": "Indlæser…",
+      "paid": "Betalt",
+      "provider": "Provider",
+      "service": "Service",
+      "status": "Status",
       "total": "I alt"
     },
-    "history": {
-      "loading": "Indlæser…",
-      "emptyTitle": "Ingen betalinger endnu",
-      "emptySubtitle": "Når du har gennemført bookinger, kan du se din fulde betalingshistorik her.",
-      "totalPaid": "Betalt i alt",
-      "refunded": "Refunderet",
-      "reservedNow": "Reserveret nu",
-      "net": "Netto",
-      "events": {
-        "reserved": "Reserveret",
-        "charged": "Trukket på kort",
-        "reservationReleased": "Reservation frigivet",
-        "paymentFailed": "Betaling mislykkedes",
-        "refundedToCard": "Refunderet til kort",
-        "refundFailed": "Refundering mislykkedes",
-        "refundPending": "Refundering afventer"
+    "nav": {
+      "back": "Tilbage",
+      "complaint": "Indgiv en klage",
+      "help": "Hjælp & support",
+      "menu": "Menu",
+      "signOut": "Log ud",
+      "title": "Min profil"
+    },
+    "overview": {
+      "bookNewCleaner": "Book en ny Cleaner",
+      "cards": {
+        "empty": "Ingen gemte kort endnu.",
+        "loading": "Indlæser…",
+        "manage": "Administrer",
+        "saved_one": "<b>{{count}}</b> kort gemt til hurtig booking.",
+        "saved_other": "<b>{{count}}</b> kort gemt til hurtig booking.",
+        "title": "Kort & betaling"
       },
-      "cardFallback": "Betalingskort",
-      "refundReason": {
-        "customer": "Kundens ønske",
-        "duplicate": "Dobbelt betaling",
-        "fraudulent": "Mistanke om svindel",
-        "expired": "Kortreservation udløbet",
-        "default": "Refundering"
-      }
+      "checklist": {
+        "address": {
+          "action": "Tilføj",
+          "fallback": "Vælg en adresse fra forslagene.",
+          "loading": "Indlæser…",
+          "missing": "Ingen primær adresse",
+          "title": "Primær adresse"
+        },
+        "card": {
+          "action": "Tilføj kort",
+          "fallback": "Gem et kort for at booke med ét klik.",
+          "loading": "Indlæser…",
+          "saved_one": "{{count}} kort gemt til hurtig booking.",
+          "saved_other": "{{count}} kort gemt til hurtig booking.",
+          "title": "Betalingskort"
+        },
+        "contact": {
+          "action": "Udfyld",
+          "done": "Navn, telefon og land er godkendt.",
+          "fill": "Udfyld navn, telefon og land.",
+          "title": "Kontaktoplysninger"
+        },
+        "email": {
+          "done": "Din e-mail er bekræftet.",
+          "pending": "Vi har sendt et bekræftelseslink til din indbakke.",
+          "title": "Bekræft e-mail"
+        },
+        "firstBooking": {
+          "done": "Du har sendt din første forespørgsel.",
+          "pending": "Find en Cleaner, og book på under 2 minutter.",
+          "title": "Første booking"
+        },
+        "property": {
+          "action": "Udfyld",
+          "fallback": "Angiv størrelse, type og adgang.",
+          "missing": "Manglende boligoplysninger",
+          "summary": "{{size}} m² · {{type}} · adgang: {{access}}",
+          "title": "Boligoplysninger"
+        }
+      },
+      "checklistSubtitle": "Fuldfør disse trin for at få det bedste match og den hurtigste booking.",
+      "checklistTitle": "Færdiggør din profil",
+      "heroSubtitle": "Her er et hurtigt overblik over dine kommende rengøringer, adresser og betalinger.",
+      "myBookings": "Mine bookinger",
+      "nextBooking": {
+        "empty": "Ingen kommende bookinger.",
+        "findCleaner": "Find en Cleaner",
+        "hoursSuffix": "t",
+        "loading": "Indlæser…",
+        "seeAll": "Se alle",
+        "timePrefix": "kl.",
+        "title": "Næste booking"
+      },
+      "primaryAddress": {
+        "addOne": "Tilføj en",
+        "empty": "Du har endnu ikke nogen adresser.",
+        "manage": "Administrer",
+        "title": "Primær adresse"
+      },
+      "recent": {
+        "empty": "Ingen aktivitet endnu.",
+        "fullHistory": "Fuld historik",
+        "loading": "Indlæser…",
+        "title": "Seneste aktivitet"
+      },
+      "stats": {
+        "addresses": "Adresser",
+        "completed": "Gennemført",
+        "paidTotal": "Betalt i alt",
+        "upcoming": "Kommende"
+      },
+      "welcome": "Velkommen, {{name}}"
+    },
+    "tabs": {
+      "addresses": "Adresser",
+      "bookings": "Bookinger",
+      "cards": "Kort & betaling",
+      "deactivate": "Deaktiver konto",
+      "deduction": "Servicefradrag",
+      "history": "Betalingshistorik",
+      "inbox": "Indbakke",
+      "info": "Mine oplysninger",
+      "invoices": "Fakturaer",
+      "notifications": "Notifikationer",
+      "overview": "Overblik",
+      "sms": "SMS",
+      "tax": "Skatteoplysninger"
     }
   },
   "profileV2": {
-    "title": "Min profil",
-    "subtitle": "Din konto og dine oplysninger",
-    "editProfile": "Rediger profil",
-    "edit": "Rediger",
-    "manage": "Administrer",
-    "open": "Åbn",
-    "memberSince": "Medlem siden {{date}}",
-    "bookingsSummary_one": "Du har {{count}} booking i alt.",
-    "bookingsSummary_other": "Du har {{count}} bookinger i alt.",
-    "welcomeSubtitle": "Velkommen — book din første rengøring, når du er klar.",
-    "stats": {
-      "totalBookings": "Bookinger i alt",
-      "upcoming": "Kommende",
-      "completed": "Gennemført",
-      "lastBooking": "Seneste booking"
-    },
-    "personal": {
-      "title": "Personlige oplysninger",
-      "noName": "Intet navn angivet"
-    },
-    "contact": {
-      "title": "Kontakt",
-      "noPhone": "Intet telefonnummer",
-      "noSms": "Intet SMS-nummer",
-      "verified": "Bekræftet",
-      "unverified": "Ikke bekræftet"
-    },
-    "addresses": {
-      "title": "Gemte adresser",
-      "description": "Adgang, størrelse, kæledyr og noter pr. adresse.",
-      "manage": "Administrer",
-      "primary": "Primær",
-      "emptyTitle": "Ingen gemte adresser endnu",
-      "emptyDescription": "Tilføj en adresse for at gøre booking hurtigere.",
-      "addAddress": "Tilføj adresse",
-      "accessPrefix": "Adgang",
-      "sizeSuffix": "m²",
-      "roomsSuffix": "værelse(r)"
-    },
-    "notifications": {
-      "title": "Notifikationer",
-      "emptyTitle": "Ingen kanaler aktive",
-      "emptyDescription": "Vælg, hvordan vi må kontakte dig om bookinger og beskeder.",
-      "channelsActive_one": "{{count}} kanal aktiveret.",
-      "channelsActive_other": "{{count}} kanaler aktiveret."
-    },
-    "preferences": {
-      "title": "Rengøringspræferencer",
-      "pets": "Kæledyr",
-      "children": "Børn",
-      "suppliesReady": "Rengøringsmidler klar",
-      "parking": "Parkering",
-      "yes": "Ja",
-      "no": "Nej",
-      "emptyTitle": "Ingen præferencer endnu",
-      "emptyDescription": "Tilføj en primær adresse for at angive dine præferencer"
-    },
     "access": {
-      "title": "Adgangsinstruktioner",
-      "method": "Adgangsmetode",
       "code": "Kode",
+      "emptyDescription": "Tilføj en primær adresse for at gemme adgangsinstruktioner.",
       "emptyTitle": "Ingen adgangsinstruktioner",
-      "emptyDescription": "Tilføj en primær adresse for at gemme adgangsinstruktioner."
-    },
-    "privacy": {
-      "title": "Privatliv",
-      "description": "Se, download eller anmod om sletning af dine data i Privacy Center."
+      "method": "Adgangsmetode",
+      "title": "Adgangsinstruktioner"
     },
     "account": {
-      "title": "Konto",
+      "activeDescription": "Din konto er aktiv. Du kan altid deaktivere den fra kontoindstillinger.",
       "deactivate": "Deaktiver",
       "deactivated": "Kontoen er deaktiveret",
-      "activeDescription": "Din konto er aktiv. Du kan altid deaktivere den fra kontoindstillinger."
+      "title": "Konto"
+    },
+    "addressLabels": {
+      "accessMethod": {
+        "code": "Adgangskode til opgang",
+        "doorman": "Vicevært / portner",
+        "home": "Jeg er hjemme",
+        "key_box": "Nøgleboks",
+        "key_under_mat": "Nøgle gemt (under måtte / krukke)",
+        "other": "Andet"
+      },
+      "placeType": {
+        "business": "Erhverv",
+        "other": "Andet",
+        "private": "Privat",
+        "vacation": "Sommerhus"
+      }
+    },
+    "addresses": {
+      "accessPrefix": "Adgang",
+      "addAddress": "Tilføj adresse",
+      "description": "Adgang, størrelse, kæledyr og noter pr. adresse.",
+      "emptyDescription": "Tilføj en adresse for at gøre booking hurtigere.",
+      "emptyTitle": "Ingen gemte adresser endnu",
+      "manage": "Administrer",
+      "primary": "Primær",
+      "roomsSuffix": "værelse(r)",
+      "sizeSuffix": "m²",
+      "title": "Gemte adresser"
+    },
+    "bookingsSummary_one": "Du har {{count}} booking i alt.",
+    "bookingsSummary_other": "Du har {{count}} bookinger i alt.",
+    "comingSoon": {
+      "familyDescription": "Del din konto og dine bookinger med resten af husstanden.",
+      "familyTitle": "Familiemedlemmer",
+      "productsDescription": "Gem foretrukne rengøringsprodukter og allergier.",
+      "productsTitle": "Foretrukne produkter"
+    },
+    "contact": {
+      "noPhone": "Intet telefonnummer",
+      "noSms": "Intet SMS-nummer",
+      "title": "Kontakt",
+      "unverified": "Ikke bekræftet",
+      "verified": "Bekræftet"
+    },
+    "edit": "Rediger",
+    "editProfile": "Rediger profil",
+    "editors": {
+      "access": "Adgangsinstruktioner",
+      "accessFields": {
+        "codeLabel": "Kode (valgfri)",
+        "instructionsLabel": "Instruktioner",
+        "methodLabel": "Adgangsmetode"
+      },
+      "addresses": "Gemte adresser",
+      "common": {
+        "addPrimaryFirst": "Tilføj en primær adresse først",
+        "addPrimaryFirstInline": "Tilføj en primær adresse først i \"Gemte adresser\".",
+        "invalid": "Ugyldigt",
+        "saved": "Gemt"
+      },
+      "contact": "Kontakt",
+      "contactFields": {
+        "emailLabel": "E-mail",
+        "emailNote": "E-mail ændres via kontoindstillinger.",
+        "errors": {
+          "phone": "Ugyldigt nummer"
+        },
+        "phoneLabel": "Telefon",
+        "phonePlaceholder": "+45 12 34 56 78"
+      },
+      "deactivate": "Deaktiver konto",
+      "notifications": "Notifikationer",
+      "personal": "Personlige oplysninger",
+      "personalFields": {
+        "countryLabel": "Land (ISO 3166-1)",
+        "countryPlaceholder": "DK",
+        "errors": {
+          "charLimit": "Maks. 100 tegn",
+          "countryCode": "2-bogstavs landekode"
+        },
+        "fullNameLabel": "Fulde navn",
+        "languageLabel": "Sprog",
+        "languageNone": "—"
+      },
+      "preferences": "Rengøringspræferencer",
+      "prefsFields": {
+        "childrenLabel": "Børn i hjemmet",
+        "parkingLabel": "Parkering",
+        "petDetailsLabel": "Detaljer",
+        "petDetailsPlaceholder": "F.eks. 'Hund, ikke aggressiv'",
+        "petsLabel": "Kæledyr",
+        "suppliesLabel": "Rengøringsmidler er klar"
+      },
+      "tax": "Skatteoplysninger"
+    },
+    "manage": "Administrer",
+    "memberSince": "Medlem siden {{date}}",
+    "notifications": {
+      "channelsActive_one": "{{count}} kanal aktiveret.",
+      "channelsActive_other": "{{count}} kanaler aktiveret.",
+      "emptyDescription": "Vælg, hvordan vi må kontakte dig om bookinger og beskeder.",
+      "emptyTitle": "Ingen kanaler aktive",
+      "title": "Notifikationer"
+    },
+    "open": "Åbn",
+    "personal": {
+      "noName": "Intet navn angivet",
+      "title": "Personlige oplysninger"
+    },
+    "preferences": {
+      "children": "Børn",
+      "emptyDescription": "Tilføj en primær adresse for at angive dine præferencer",
+      "emptyTitle": "Ingen præferencer endnu",
+      "no": "Nej",
+      "parking": "Parkering",
+      "pets": "Kæledyr",
+      "suppliesReady": "Rengøringsmidler klar",
+      "title": "Rengøringspræferencer",
+      "yes": "Ja"
+    },
+    "privacy": {
+      "description": "Se, download eller anmod om sletning af dine data i Privacy Center.",
+      "title": "Privatliv"
     },
     "shortcuts": {
-      "title": "Genveje",
-      "myBookings": "Mine bookinger",
-      "myBookingsDescription": "Se og administrer",
-      "messages": "Beskeder",
-      "messagesDescription": "Din indbakke",
       "cards": "Kort & betaling",
       "cardsDescription": "Betalingsmetoder",
       "invoices": "Fakturaer",
       "invoicesDescription": "Kvitteringer og dokumenter",
+      "messages": "Beskeder",
+      "messagesDescription": "Din indbakke",
+      "myBookings": "Mine bookinger",
+      "myBookingsDescription": "Se og administrer",
       "support": "Support",
       "supportDescription": "Få hjælp",
       "tax": "Skatteoplysninger",
-      "taxDescription": "Servicefradrag"
+      "taxDescription": "Servicefradrag",
+      "title": "Genveje"
     },
-    "comingSoon": {
-      "familyTitle": "Familiemedlemmer",
-      "familyDescription": "Del din konto og dine bookinger med resten af husstanden.",
-      "productsTitle": "Foretrukne produkter",
-      "productsDescription": "Gem foretrukne rengøringsprodukter og allergier."
+    "stats": {
+      "completed": "Gennemført",
+      "lastBooking": "Seneste booking",
+      "totalBookings": "Bookinger i alt",
+      "upcoming": "Kommende"
     },
-    "editors": {
-      "personal": "Personlige oplysninger",
-      "contact": "Kontakt",
-      "addresses": "Gemte adresser",
-      "notifications": "Notifikationer",
-      "preferences": "Rengøringspræferencer",
-      "access": "Adgangsinstruktioner",
-      "deactivate": "Deaktiver konto",
-      "tax": "Skatteoplysninger",
-      "common": {
-        "saved": "Gemt",
-        "addPrimaryFirst": "Tilføj en primær adresse først",
-        "addPrimaryFirstInline": "Tilføj en primær adresse først i \"Gemte adresser\".",
-        "invalid": "Ugyldigt"
-      },
-      "personalFields": {
-        "fullNameLabel": "Fulde navn",
-        "countryLabel": "Land (ISO 3166-1)",
-        "countryPlaceholder": "DK",
-        "languageLabel": "Sprog",
-        "languageNone": "—",
-        "errors": {
-          "charLimit": "Maks. 100 tegn",
-          "countryCode": "2-bogstavs landekode"
-        }
-      },
-      "contactFields": {
-        "emailLabel": "E-mail",
-        "emailNote": "E-mail ændres via kontoindstillinger.",
-        "phoneLabel": "Telefon",
-        "phonePlaceholder": "+45 12 34 56 78",
-        "errors": {
-          "phone": "Ugyldigt nummer"
-        }
-      },
-      "prefsFields": {
-        "petsLabel": "Kæledyr",
-        "petDetailsLabel": "Detaljer",
-        "petDetailsPlaceholder": "F.eks. 'Hund, ikke aggressiv'",
-        "childrenLabel": "Børn i hjemmet",
-        "suppliesLabel": "Rengøringsmidler er klar",
-        "parkingLabel": "Parkering"
-      },
-      "accessFields": {
-        "methodLabel": "Adgangsmetode",
-        "codeLabel": "Kode (valgfri)",
-        "instructionsLabel": "Instruktioner"
+    "subtitle": "Din konto og dine oplysninger",
+    "title": "Min profil",
+    "welcomeSubtitle": "Velkommen — book din første rengøring, når du er klar."
+  },
+  "surfaces": {
+    "addressBook": {
+      "emptyDescription": "Tilføj en adresse, så du kan booke hurtigere næste gang.",
+      "emptyTitle": "Ingen gemte adresser endnu",
+      "fields": {
+        "access": "Adgang for cleaner",
+        "accessInstructions": "Adgangsinstruktioner (valgfri)",
+        "accessInstructionsPlaceholder": "Fx: Ring på dør B, nøglen ligger under måtten",
+        "addressPlaceholder": "Vej, nr., by",
+        "children": "Børn i hjemmet",
+        "cleaningSupplies": "Rengøringsmidler står klar",
+        "codePlaceholder": "Fx 1234",
+        "markPrimary": "Markér som primær adresse",
+        "name": "Navn på adressen",
+        "namePlaceholder": "Fx Hjem, Sommerhus, Kontor",
+        "otherNotes": "Andre bemærkninger",
+        "parkingPlaceholder": "Fx Gratis ved døren / betalingszone",
+        "petDetails": "Detaljer om kæledyr",
+        "petDetailsPlaceholder": "Fx 1 hund, allergivenlig",
+        "pets": "Kæledyr i hjemmet",
+        "placeType": "Type af sted",
+        "rooms": "Værelser",
+        "size": "Størrelse (m²)",
+        "wifiName": "WiFi-navn (valgfri)",
+        "wifiPassword": "WiFi-kode (valgfri)"
       }
     },
-    "addressLabels": {
-      "placeType": {
-        "private": "Privat",
-        "business": "Erhverv",
-        "vacation": "Sommerhus",
-        "other": "Andet"
+    "bookingPlan": {
+      "addFocusPlaceholder": "Tilføj eget fokus...",
+      "addRoomPlaceholder": "Tilføj rum (fx Entré, Bryggers)",
+      "addTaskPlaceholder": "Tilføj opgave...",
+      "editingSaved": "Redigerer gemt plan",
+      "fixedPlan": "Fast plan på boligen",
+      "focusAreas": "Fokusområder",
+      "howToSave": "Sådan vil du gemme",
+      "locked": "Låst",
+      "noAddressFound": "Ingen adresse fundet — tilføj en på din profil for at gemme som fast plan.",
+      "notFound": "Booking ikke fundet.",
+      "notesPlaceholder": "Fx: nøglen ligger under måtten, hund er hjemme, brug parfumefri produkter...",
+      "notesToCleaner": "Noter til cleaneren",
+      "onlyThisBooking": "Kun til denne rengøring",
+      "reusedAt": "Genbruges automatisk ved alle fremtidige bookinger på",
+      "roomsAndTasks": "Rum og opgaver",
+      "title": "Rengøringsplan"
+    },
+    "createTask": {
+      "afternoon": "Eftermiddag (12-17)",
+      "aiEstimate": "AI prisestimering",
+      "describeTask": "Beskriv opgaven",
+      "descriptionPlaceholder": "Beskriv hvad du har brug for hjælp til. Jo mere detalje, jo bedre tilbud...",
+      "evening": "Aften (17-21)",
+      "morning": "Morgen (8-12)",
+      "preferredDate": "Ønsket dato",
+      "subtitle": "Beskriv din opgave og modtag AI-drevne tilbud fra verificerede fagfolk",
+      "title": "Opret en opgave"
+    },
+    "dashboard": {
+      "bookCleaning": "Book rengøring",
+      "description": "Overblik over dine bookinger, beskeder og konto. Du vælger og booker selv en selvstændig provider gennem MyCleaner-platformen.",
+      "feed": {
+        "description": "Personlige anbefalinger baseret på din historik er på vej. Funktionen er endnu ikke aktiv.",
+        "title": "Personligt feed"
       },
-      "accessMethod": {
-        "home": "Jeg er hjemme",
-        "key_box": "Nøgleboks",
-        "key_under_mat": "Nøgle gemt (under måtte / krukke)",
-        "doorman": "Vicevært / portner",
-        "code": "Adgangskode til opgang",
-        "other": "Andet"
+      "history": {
+        "description": "Se kvittering, eller book den samme provider igen.",
+        "emptyDescription": "Dine gennemførte bookinger vises her.",
+        "emptyTitle": "Ingen historik endnu",
+        "title": "Tidligere bookinger"
+      },
+      "notifications": {
+        "emptyDescription": "Beskeder om dine bookinger vises her.",
+        "emptyTitle": "Alt roligt her"
+      },
+      "quickActions": {
+        "book": {
+          "description": "Vælg tid og cleaner",
+          "title": "Book rengøring"
+        },
+        "bookings": {
+          "description": "Se og administrer",
+          "title": "Mine bookinger"
+        },
+        "favorites": {
+          "description": "Dine foretrukne providere"
+        },
+        "invoices": {
+          "description": "Se og hent kvitteringer"
+        },
+        "messages": {
+          "description": "Skriv med dine providere"
+        },
+        "support": {
+          "description": "Vi hjælper dig"
+        }
+      },
+      "stats": {
+        "completed": "Gennemførte",
+        "memberSince": "Medlem siden",
+        "totalSpent": "Samlet pris betalt"
+      },
+      "upcoming": {
+        "emptyDescription": "Find en cleaner, og book direkte i providerens kalender.",
+        "emptyTitle": "Ingen kommende bookinger",
+        "findCleaner": "Find en cleaner",
+        "title": "Kommende bookinger"
       }
+    },
+    "findCleaner": {
+      "availableToday": "Ledig i dag",
+      "clickToOpenProfile": "Klik for at åbne profil",
+      "filterByServiceArea": "Filtrér efter serviceområde (vælg flere)",
+      "filterCleaners": "Filtrér cleaners",
+      "instantBook": "Instant Book",
+      "maxHourlyRate": "Maks. timepris",
+      "minExperience": "Min. års erfaring",
+      "minRating": "Min. rating",
+      "moveMapToSeeProviders": "Flyt kortet eller zoom ud for at se providere.",
+      "somethingWentWrong": "Der gik noget galt",
+      "title": "Find din cleaner"
+    },
+    "header": {
+      "account": {
+        "logOut": "Log ud",
+        "myAccount": "Min konto"
+      },
+      "getStarted": "Kom i gang",
+      "homeAriaLabel": "MyCleaner – forside",
+      "login": "Log ind",
+      "logoAriaLabel": "MyCleaner – forside",
+      "nav": {
+        "adminDashboard": "Admin dashboard",
+        "becomeProvider": "Bliv provider",
+        "bookCleaner": "Book en cleaner",
+        "dashboard": "Dashboard",
+        "employeePortal": "Medarbejder",
+        "faq": "FAQ",
+        "findCleaner": "Find cleaner",
+        "howItWorks": "Sådan virker det",
+        "myBookings": "Mine bookinger",
+        "myProfile": "Min profil",
+        "providerDashboard": "Provider dashboard",
+        "receipts": "Bilag & udgifter",
+        "rules": "Regler"
+      },
+      "toggleMenu": "Toggle menu"
+    },
+    "marketplace": {
+      "allServices": "Alle services",
+      "allTiers": "Alle tiers",
+      "findCleaner": "Find en cleaner",
+      "maxHourlyRatePlaceholder": "Maks. timepris",
+      "minTierPlaceholder": "Min. tier",
+      "next": "Næste",
+      "noneMatchFilters": "Ingen providere matcher dine filtre.",
+      "subtitle": "Gennemse verificerede providere. Book direkte i deres kalender."
+    },
+    "profileExtra": {
+      "deactivate": {
+        "bookingsCancelled": "Fremtidige bookinger annulleres automatisk.",
+        "dataDeleted": "Efter 30 dage slettes personlige oplysninger permanent.",
+        "dataRetained": "Dine data bevares i 30 dage — kontakt support hvis du fortryder.",
+        "hidesProfile": "Dette skjuler din profil og pauser al aktivitet.",
+        "reasonLabel": "Årsag (valgfrit)",
+        "title": "Deaktivér konto"
+      },
+      "marketingNotifications": "Marketing & nyheder",
+      "sms": {
+        "cityPlaceholder": "fx København",
+        "codeExpires": "Koden udløber om 10 minutter.",
+        "enable": "Aktivér SMS",
+        "enterCode": "Indtast 6-cifret kode"
+      },
+      "tax": {
+        "estimatedValue": "Ca. værdi i skat",
+        "howToReport": "Sådan indberetter du fradraget",
+        "step1": "Log ind på",
+        "step1Mitid": "med MitID.",
+        "step2Edit": "Ret årsopgørelsen",
+        "step2GoTo": "Gå til",
+        "step2Statement": "Årsopgørelsen",
+        "step3": "Indtast det samlede beløb du har betalt for godkendte serviceydelser (arbejdsløn, ikke materialer).",
+        "step4": "Angiv MyCleaner / providerens CVR som modtager. Gem dine kvitteringer i 5 år.",
+        "step5": "Fradraget beregnes automatisk og reducerer din restskat (eller øger overskydende skat).",
+        "totalUsed": "Brugt i alt",
+        "yearlyLimit": "Årets loft"
+      }
+    },
+    "register": {
+      "addressPlaceholder": "Vejnavn 123",
+      "betterSuggestions": "Bedre forslag fra start",
+      "floors": "Antal etager",
+      "homeInfo": "Oplysningerne bruges til rengøringen og deles kun med den cleaner, du booker.",
+      "passwordPlaceholder": "Mindst 6 tegn",
+      "preferredDays": "Foretrukne dage",
+      "preferredTime": "Foretrukket tidspunkt",
+      "saveAndContinue": "Gem og fortsæt til booking",
+      "size": "Størrelse (m²)",
+      "terms": "vilkårene",
+      "whoAreYou": "Først: hvem er du?"
     }
   }
 }

@@ -1,185 +1,42 @@
 {
-  "profile": {
-    "pageTitle": "My profile",
-    "pageSubtitle": "Your public profile and information",
-    "viewPublicProfile": "View public profile",
-    "editProfile": "Edit profile",
-    "editButton": "Edit",
-    "welcomeSubtitleDefault": "Your profile controls how customers see you on the marketplace.",
-    "greeting": {
-      "morning": "Good morning",
-      "day": "Good day",
-      "evening": "Good evening"
-    },
-    "noProfile": {
-      "title": "No provider profile",
-      "body": "You need to start a Cleaner application first.",
-      "cta": "Become a Cleaner"
-    },
+  "booking": {
+    "atSlot": "at {{slot}}",
+    "defaultService": "Cleaning",
+    "hoursSuffix": "· {{count}} h",
+    "providerGets": "You get {{amount}}",
     "status": {
-      "label": "Status"
-    },
-    "visibility": {
-      "label": "Visibility",
-      "public": "Public",
-      "hidden": "Hidden"
-    },
-    "stats": {
-      "completedJobs": "Completed jobs",
-      "yearsExperience": "Years of experience",
-      "responseTime": "Response time",
-      "responseTimeHint": "Last 30 days",
-      "acceptanceRate": "Acceptance rate"
-    },
-    "time": {
-      "minutes": "{{count}} min"
-    },
-    "sections": {
-      "photoIdentity": {
-        "title": "Photo & identity",
-        "noName": "No name"
-      },
-      "about": {
-        "title": "About me",
-        "emptyTitle": "No public bio yet",
-        "emptyDescription": "Tell customers who you are and why they should choose you."
-      },
-      "languages": {
-        "title": "Languages",
-        "empty": "No languages selected"
-      },
-      "experienceEquipment": {
-        "title": "Experience & equipment",
-        "experienceLabel": "Experience:",
-        "yearsValue": "{{count}} years",
-        "noEquipment": "No equipment marked."
-      },
-      "servicesPricing": {
-        "title": "Services & prices",
-        "description": "Each service has its own hourly price. Final prices are always calculated server-side.",
-        "categoriesButton": "Categories",
-        "pricesButton": "Prices",
-        "noCategories": "No categories selected.",
-        "emptyPricesTitle": "No individual service prices yet",
-        "emptyPricesDescription": "Set prices per service so customers know exactly what it costs.",
-        "addPrices": "Add prices",
-        "perHour": "/hr"
-      },
-      "area": {
-        "title": "Service area",
-        "noAddress": "No address selected",
-        "publicNotice": "Only a circular area is shown publicly — never your exact address.",
-        "radiusLabel": "Radius:",
-        "radiusValue": "{{count}} km"
-      },
-      "availability": {
-        "title": "Availability",
-        "description": "Your weekly schedule and booking windows.",
-        "openCalendar": "Open calendar editor"
-      },
-      "verification": {
-        "title": "Verification",
-        "identityLabel": "Identity",
-        "verified": "Verified",
-        "missing": "Missing",
-        "stripeLabel": "Stripe payout",
-        "ready": "Ready",
-        "notReady": "Not ready",
-        "openStripeStatus": "Open Stripe status"
-      },
-      "insurance": {
-        "title": "Insurance",
-        "policyLabel": "Policy",
-        "expiresLabel": "Expires"
-      },
-      "documents": {
-        "title": "Documents",
-        "uploadButton": "Upload",
-        "insuranceDocLabel": "Insurance document",
-        "uploaded": "Uploaded",
-        "missing": "Missing"
-      },
-      "performance": {
-        "title": "Performance",
-        "detailsButton": "See details",
-        "score": "Score",
-        "tier": "Tier",
-        "completed": "Completed"
-      },
-      "reviews": {
-        "title": "Customer reviews",
-        "description": "Shown here once customers leave reviews on completed bookings."
-      },
-      "tax": {
-        "title": "Tax",
-        "openButton": "Open tax profile",
-        "body": "VAT/tax ID and tax settings are updated in their own editor."
-      },
-      "settings": {
-        "title": "Settings & visibility",
-        "description": "Share your profile, visibility, account status and GDPR.",
-        "openButton": "Open",
-        "publicUrlLabel": "Public URL",
-        "notAssigned": "Not assigned yet",
-        "hidden": "Hidden",
-        "pending": "Pending"
-      }
-    },
-    "editors": {
-      "personal": "Personal information",
-      "business": "About me",
-      "languages": "Languages",
-      "equipment": "Equipment",
-      "services": "Service categories",
-      "pricing": "Prices",
-      "area": "Service area",
-      "insurance": "Insurance",
-      "settings": "Settings",
-      "availability": "Availability",
-      "identity": "Verification",
-      "stripe": "Stripe & payout",
-      "documents": "Documents",
-      "tax": "Tax information",
-      "performance": {
-        "title": "Performance & score",
-        "rating": "Rating",
-        "completionRate": "Completion",
-        "cancellations": "Cancellations",
-        "repeatCustomers": "Repeat customers",
-        "note": "Score and tier are updated automatically based on your last 30 days."
-      }
-    },
-    "identityBadge": {
-      "verified": "Verified",
-      "pending": "Under review",
-      "unverified": "Not verified"
+      "accepted": "Accepted",
+      "cancelled": "Cancelled",
+      "completed": "Completed",
+      "declined": "Declined",
+      "pending": "New request"
     }
   },
   "catalog": {
     "categories": {
       "cleaning": "Cleaning",
-      "handyman": "Handyman",
       "garden": "Garden",
+      "handyman": "Handyman",
       "moving": "Moving"
+    },
+    "equipment": {
+      "car": "Own car",
+      "eco_products": "Eco-friendly products",
+      "ladder": "Ladder",
+      "own_mop": "Own mop/floor set",
+      "own_vacuum": "Own vacuum cleaner"
     },
     "languages": {
       "da": "Danish",
-      "en": "English",
-      "sv": "Swedish",
       "de": "German",
+      "en": "English",
       "es": "Spanish",
-      "pl": "Polish"
-    },
-    "equipment": {
-      "own_vacuum": "Own vacuum cleaner",
-      "eco_products": "Eco-friendly products",
-      "own_mop": "Own mop/floor set",
-      "car": "Own car",
-      "ladder": "Ladder"
+      "pl": "Polish",
+      "sv": "Swedish"
     },
     "services": {
-      "home_cleaning": "Regular cleaning",
       "deep_cleaning": "Deep cleaning",
+      "home_cleaning": "Regular cleaning",
       "move_out_cleaning": "Move-out cleaning",
       "office_cleaning": "Office cleaning",
       "window_cleaning": "Window cleaning"
@@ -187,124 +44,576 @@
   },
   "dashboard": {
     "brandTitle": "Cleaner",
-    "greeting": "Cleaner dashboard",
-    "title": "Dashboard",
     "description": "Overview of your bookings, your earnings and your profile status as an independent provider.",
     "editProfile": "Edit profile",
-    "subtitle": {
-      "nextJobWithSlot": "Next job: {{date}} at {{slot}}.",
-      "nextJob": "Next job: {{date}}.",
-      "openRequests_one": "You have {{count}} open request — reply quickly for a better placement.",
-      "openRequests_other": "You have {{count}} open requests — reply quickly for a better placement.",
-      "noBookings": "You have no upcoming bookings. Keep your profile complete and visible so more customers can find you."
-    },
-    "stats": {
-      "completedBookings": "Completed bookings",
-      "earnings": "Your earnings",
-      "earningsHint": "From completed bookings",
-      "acceptanceRate": "Acceptance rate",
-      "noOffersYet": "No offers yet",
+    "greeting": "Cleaner dashboard",
+    "keyFigures": {
+      "accept": "Accept",
+      "cancellation": "Cancellation",
+      "description": "Based on real bookings and offers.",
+      "rating": "Rating",
       "responseTime": "Response time",
-      "noResponsesYet": "No responses yet",
-      "average": "Average"
+      "tier": "Tier",
+      "title": "Key figures"
     },
-    "time": {
-      "seconds": "{{count}}s",
-      "minutes": "{{count}} min",
-      "hours": "{{count}} h"
+    "payouts": {
+      "emptyDescription": "Your first payout appears here once a booking is completed. The exact time the amount becomes visible in the account depends on the payment provider and your bank.",
+      "emptyTitle": "No payouts yet",
+      "seeAll": "See all",
+      "title": "Payouts"
     },
     "sections": {
-      "today": {
-        "title": "Today",
-        "description": "Your bookings today.",
-        "emptyTitle": "No bookings today",
-        "emptyDescription": "Enjoy a break — or update your availability so more customers can book you."
-      },
       "newRequests": {
-        "title": "New booking requests",
         "description": "Reply quickly — it gives you a better placement in the marketplace.",
+        "emptyDescription": "New booking requests appear here as soon as a customer sends one.",
         "emptyTitle": "No new booking requests",
-        "emptyDescription": "New booking requests appear here as soon as a customer sends one."
-      },
-      "upcoming": {
-        "title": "Upcoming bookings",
-        "emptyTitle": "No upcoming bookings",
-        "emptyDescription": "Accepted bookings appear here until they're completed."
+        "title": "New booking requests"
       },
       "reviews": {
-        "title": "Reviews",
-        "description": "Ratings and written reviews from your customers.",
+        "comingSoonDescription": "Reviews are coming soon. Until then, the dashboard only shows bookings and earnings.",
         "comingSoonTitle": "Ratings & reviews",
-        "comingSoonDescription": "Reviews are coming soon. Until then, the dashboard only shows bookings and earnings."
+        "description": "Ratings and written reviews from your customers.",
+        "title": "Reviews"
+      },
+      "today": {
+        "description": "Your bookings today.",
+        "emptyDescription": "Enjoy a break — or update your availability so more customers can book you.",
+        "emptyTitle": "No bookings today",
+        "title": "Today"
+      },
+      "upcoming": {
+        "emptyDescription": "Accepted bookings appear here until they're completed.",
+        "emptyTitle": "No upcoming bookings",
+        "title": "Upcoming bookings"
       }
     },
     "shortcuts": {
-      "title": "Shortcuts",
-      "messages": { "title": "Messages", "description": "Chat with customers" },
-      "pricing": { "title": "Prices", "description": "Adjust your hourly rate and packages" },
-      "finance": { "title": "Finance", "description": "Payouts and settlement overviews" },
-      "receipts": { "title": "Receipts", "description": "Receipts and expenses for your accounting" },
-      "profile": { "title": "Profile", "description": "Edit your public profile" },
-      "support": { "title": "Support", "description": "We're here to help" }
+      "finance": {
+        "description": "Payouts and settlement overviews",
+        "title": "Finance"
+      },
+      "messages": {
+        "description": "Chat with customers",
+        "title": "Messages"
+      },
+      "pricing": {
+        "description": "Adjust your hourly rate and packages",
+        "title": "Prices"
+      },
+      "profile": {
+        "description": "Edit your public profile",
+        "title": "Profile"
+      },
+      "receipts": {
+        "description": "Receipts and expenses for your accounting",
+        "title": "Receipts"
+      },
+      "support": {
+        "description": "We're here to help",
+        "title": "Support"
+      },
+      "title": "Shortcuts"
     },
-    "keyFigures": {
-      "title": "Key figures",
-      "description": "Based on real bookings and offers.",
-      "accept": "Accept",
-      "cancellation": "Cancellation",
-      "responseTime": "Response time",
-      "rating": "Rating",
-      "tier": "Tier"
+    "stats": {
+      "acceptanceRate": "Acceptance rate",
+      "average": "Average",
+      "completedBookings": "Completed bookings",
+      "earnings": "Your earnings",
+      "earningsHint": "From completed bookings",
+      "noOffersYet": "No offers yet",
+      "noResponsesYet": "No responses yet",
+      "responseTime": "Response time"
     },
-    "payouts": {
-      "title": "Payouts",
-      "seeAll": "See all",
-      "emptyTitle": "No payouts yet",
-      "emptyDescription": "Your first payout appears here once a booking is completed. The exact time the amount becomes visible in the account depends on the payment provider and your bank."
-    }
+    "subtitle": {
+      "nextJob": "Next job: {{date}}.",
+      "nextJobWithSlot": "Next job: {{date}} at {{slot}}.",
+      "noBookings": "You have no upcoming bookings. Keep your profile complete and visible so more customers can find you.",
+      "openRequests_one": "You have {{count}} open request — reply quickly for a better placement.",
+      "openRequests_other": "You have {{count}} open requests — reply quickly for a better placement."
+    },
+    "time": {
+      "hours": "{{count}} h",
+      "minutes": "{{count}} min",
+      "seconds": "{{count}}s"
+    },
+    "title": "Dashboard"
   },
-  "booking": {
-    "status": {
-      "pending": "New request",
-      "accepted": "Accepted",
-      "completed": "Completed",
-      "declined": "Declined",
-      "cancelled": "Cancelled"
+  "onboardingSurfaces": {
+    "careerIdentity": {
+      "brandLabel": "MyCleaner Career Identity",
+      "metrics": {
+        "careerScore": "Career Score",
+        "completedJobs": "Completed jobs",
+        "reliability": "Reliability"
+      },
+      "permanentId": {
+        "description": "The ID follows your verified identity — not your email address.",
+        "title": "Permanent MyCleaner ID"
+      },
+      "presentation": {
+        "headlineLabel": "Professional headline",
+        "headlinePlaceholder": "E.g. experienced cleaner specialising in office and move-out cleaning",
+        "summaryPlaceholder": "Tell briefly about your experience, working style and specialities.",
+        "title": "Professional presentation"
+      },
+      "status": {
+        "pending": "Awaiting review",
+        "rejected": "Not approved",
+        "selfReported": "Self-reported by the cleaner"
+      },
+      "subtitle": "Your professional cleaning CV",
+      "visibility": {
+        "customersOnly": "Customers only",
+        "findableById": "Findable by MyCleaner ID",
+        "findableByName": "Findable by name",
+        "linkOnly": "Only people with the link",
+        "notice": "Documentation and private control notes are never shown publicly.",
+        "title": "Visibility and search",
+        "whoCanSee": "Who can see the profile?"
+      },
+      "workHistory": {
+        "addLabel": "Add experience",
+        "currentlyEmployed": "I still work here",
+        "deleteLabel": "Delete experience",
+        "empty": "No experience added yet.",
+        "hint": "Add e.g. ISS 2000–2004 or Coor 2006–2012. Information is clearly shown as self-reported until verified.",
+        "verificationDetail": "Work history can be documented via employer confirmation, contract, reference or blurred payslip. The document itself is kept private and never shown on the profile.",
+        "verificationNote": "Verification comes in the next control flow."
+      }
     },
-    "defaultService": "Cleaning",
-    "hoursSuffix": "· {{count}} h",
-    "providerGets": "You get {{amount}}",
-    "atSlot": "at {{slot}}"
+    "disputes": {
+      "amountInCase": "Amount in case:",
+      "categories": {
+        "customerCommunication": "Communication with the customer",
+        "serviceDocumentation": "Documentation of completed service",
+        "shippingDocumentation": "Documentation of access to the address"
+      },
+      "myCases": "My dispute cases",
+      "noDisputes": "There are no disputes on your payments right now.",
+      "noEvidenceUploaded": "No documentation has been uploaded on this case yet.",
+      "outcomeLabel": "Outcome:",
+      "responseDeadline": "Response deadline:",
+      "seeBooking": "See booking",
+      "selectCasePrompt": "Select a case in the list to see the details.",
+      "statusLabel": "Status:",
+      "title": "Payment disputes",
+      "uploadDocumentation": "Upload documentation",
+      "yourCaseDescription": "Your description of the case"
+    },
+    "onboarding": {
+      "accountIntro": {
+        "item1": "Basic profile — name, age, address and profile photo",
+        "item2": "Service profile — cleaning types, experience, languages and area",
+        "item3": "Identity and contact verification",
+        "item4": "Stripe Connect — secure receipt of payouts",
+        "item5": "Provider terms and right to work",
+        "item6": "Review and submit for manual approval"
+      },
+      "fields": {
+        "bioLabel": "Description (at least 40 characters)",
+        "bioPlaceholder": "Tell us about your experience, your methods and why customers should choose you.",
+        "choosePhoto": "Choose a clear picture of your face",
+        "dateOfBirth": "Date of birth",
+        "displayNamePublic": "Display name (public)",
+        "fullName": "Full name",
+        "headlinePlaceholder": "E.g. Experienced cleaner, Copenhagen",
+        "insuranceExpiresLabel": "Insurance valid until",
+        "photoAlt": "Profile photo preview",
+        "policyNumberPlaceholder": "Your policy number",
+        "radiusKm": "Radius (km)",
+        "workArea": "Your work area",
+        "yearsExperience": "Years of experience"
+      },
+      "identity": {
+        "emailConfirmed": "Email confirmed",
+        "identityApproved": "Identity approved",
+        "phoneSmsVerified": "Phone SMS-verified",
+        "smsLinkText": "profile and SMS verification",
+        "title": "Identity & Verification"
+      },
+      "insuranceLabel": "Insurance:",
+      "loggedInAsLabel": "Logged in as:",
+      "nameLabel": "Name:",
+      "notReadyToSubmit": "Complete all first 6 steps to be able to submit.",
+      "stepReview": "Review & Submit",
+      "stripeStep": {
+        "detailsSubmitted": "Details submitted to Stripe",
+        "paymentsEnabled": "Payments enabled",
+        "payoutEnabled": "Payout enabled",
+        "title": "Payout and tax"
+      }
+    },
+    "providerEditors": {
+      "dateOfBirth": "Date of birth",
+      "expiresOn": "Expiry date",
+      "pause": "Pause",
+      "publicBio": "Public bio",
+      "requestDataExport": "Request data export",
+      "requestDeletion": "Request deletion",
+      "shareYourProfile": "Share your profile",
+      "showProfilePublicly": "Show my profile publicly",
+      "uploadFailed": "Upload failed",
+      "yearsExperience": "Years of experience",
+      "yourPrice": "Your price"
+    },
+    "register": {
+      "businessDescription": "Setup fee + quarterly subscription. Multiple employees and areas.",
+      "calculationLabel": "Calculation:",
+      "chooseServiceHint": "Choose at least one service in step 3 to see prices.",
+      "chooseSpecificServices": "Choose specific services",
+      "chooseType": "Choose your provider type",
+      "cityPlaceholder": "Copenhagen",
+      "companyNamePlaceholder": "Company Ltd",
+      "coverageRadius": "Coverage radius",
+      "cvrLabel": "Business ID / Reg. no.",
+      "dataSecureDescription": "Documents are encrypted and stored securely. Only used for verification.",
+      "dataSecureTitle": "Your data is secure",
+      "personalInfo": "Personal info",
+      "privateProvider": "Private provider",
+      "privateProviderDescription": "Free to sign up. Perfect for freelancers and sole proprietors.",
+      "reviewApplication": "Review your application",
+      "servicesAndArea": "Your services & coverage area",
+      "servicesAndAreaShort": "Services & area",
+      "subtitle": "Sign up and start taking jobs in your area",
+      "suggestedHourlyRate": "Suggested hourly rate",
+      "termsLinkText": "terms and conditions",
+      "title": "Become a MyCleaner provider",
+      "totalServices": "Total services",
+      "uploadDocuments": "Upload documents",
+      "uploadDocumentsDescription": "To be approved we need to verify your identity and any qualifications.",
+      "whatHappensNext": "What happens next?",
+      "whatHappensNextDescription": "Your application is reviewed by our team within 24-48 hours. You'll receive an email once approved.",
+      "whichServices": "Which services do you offer?",
+      "yourDetails": "Your details"
+    },
+    "shareCard": {
+      "changeSlugConfirmTitle": "Change your public link name?",
+      "copyLinkLabel": "Copy link",
+      "newLinkName": "New link name",
+      "newSlugPlaceholder": "e.g. marie-cleans",
+      "openLinkLabel": "Open link",
+      "openPublicProfileLabel": "Open public profile",
+      "qrCodeLabel": "QR code for your public profile",
+      "shareYourProfile": "Share your profile",
+      "yourLink": "Your link"
+    },
+    "stripeWidget": {
+      "canReceivePayment": "Can receive payment",
+      "canReceivePayout": "Can receive payout",
+      "defaultCurrency": "Default currency",
+      "done": "Done",
+      "missingFromStripe": "Missing from Stripe:",
+      "profileSubmitted": "Profile submitted",
+      "refreshLabel": "Refresh Stripe status",
+      "sectionLabel": "Stripe Connect status",
+      "steps": {
+        "acceptTerms": "Accept terms",
+        "addBankAccount": "Add bank account",
+        "missingToComplete": "Missing to complete",
+        "payoutsBlocked": "Payouts blocked",
+        "secureVerification": "Secure verification"
+      },
+      "title": "Stripe payouts",
+      "toasts": {
+        "connectedDescription": "Your account is now connected to the platform.",
+        "notReadyDescription": "Check which information is missing.",
+        "readyDescription": "Stripe has fully approved your account.",
+        "stepApprovedDescription": "The step was just approved by Stripe.",
+        "stepMissingDescription": "Stripe has requested updated information."
+      }
+    }
   },
   "payout": {
     "status": {
-      "paid": "Payout completed",
-      "in_transit": "Payout scheduled",
-      "pending": "Pending",
+      "canceled": "Cancelled",
       "failed": "Not completed",
-      "canceled": "Cancelled"
+      "in_transit": "Payout scheduled",
+      "paid": "Payout completed",
+      "pending": "Pending"
+    }
+  },
+  "profile": {
+    "editButton": "Edit",
+    "editProfile": "Edit profile",
+    "editors": {
+      "area": "Service area",
+      "availability": "Availability",
+      "business": "About me",
+      "documents": "Documents",
+      "equipment": "Equipment",
+      "identity": "Verification",
+      "insurance": "Insurance",
+      "languages": "Languages",
+      "performance": {
+        "cancellations": "Cancellations",
+        "completionRate": "Completion",
+        "note": "Score and tier are updated automatically based on your last 30 days.",
+        "rating": "Rating",
+        "repeatCustomers": "Repeat customers",
+        "title": "Performance & score"
+      },
+      "personal": "Personal information",
+      "pricing": "Prices",
+      "services": "Service categories",
+      "settings": "Settings",
+      "stripe": "Stripe & payout",
+      "tax": "Tax information"
+    },
+    "greeting": {
+      "day": "Good day",
+      "evening": "Good evening",
+      "morning": "Good morning"
+    },
+    "identityBadge": {
+      "pending": "Under review",
+      "unverified": "Not verified",
+      "verified": "Verified"
+    },
+    "noProfile": {
+      "body": "You need to start a Cleaner application first.",
+      "cta": "Become a Cleaner",
+      "title": "No provider profile"
+    },
+    "pageSubtitle": "Your public profile and information",
+    "pageTitle": "My profile",
+    "sections": {
+      "about": {
+        "emptyDescription": "Tell customers who you are and why they should choose you.",
+        "emptyTitle": "No public bio yet",
+        "title": "About me"
+      },
+      "area": {
+        "noAddress": "No address selected",
+        "publicNotice": "Only a circular area is shown publicly — never your exact address.",
+        "radiusLabel": "Radius:",
+        "radiusValue": "{{count}} km",
+        "title": "Service area"
+      },
+      "availability": {
+        "description": "Your weekly schedule and booking windows.",
+        "openCalendar": "Open calendar editor",
+        "title": "Availability"
+      },
+      "documents": {
+        "insuranceDocLabel": "Insurance document",
+        "missing": "Missing",
+        "title": "Documents",
+        "uploadButton": "Upload",
+        "uploaded": "Uploaded"
+      },
+      "experienceEquipment": {
+        "experienceLabel": "Experience:",
+        "noEquipment": "No equipment marked.",
+        "title": "Experience & equipment",
+        "yearsValue": "{{count}} years"
+      },
+      "insurance": {
+        "expiresLabel": "Expires",
+        "policyLabel": "Policy",
+        "title": "Insurance"
+      },
+      "languages": {
+        "empty": "No languages selected",
+        "title": "Languages"
+      },
+      "performance": {
+        "completed": "Completed",
+        "detailsButton": "See details",
+        "score": "Score",
+        "tier": "Tier",
+        "title": "Performance"
+      },
+      "photoIdentity": {
+        "noName": "No name",
+        "title": "Photo & identity"
+      },
+      "reviews": {
+        "description": "Shown here once customers leave reviews on completed bookings.",
+        "title": "Customer reviews"
+      },
+      "servicesPricing": {
+        "addPrices": "Add prices",
+        "categoriesButton": "Categories",
+        "description": "Each service has its own hourly price. Final prices are always calculated server-side.",
+        "emptyPricesDescription": "Set prices per service so customers know exactly what it costs.",
+        "emptyPricesTitle": "No individual service prices yet",
+        "noCategories": "No categories selected.",
+        "perHour": "/hr",
+        "pricesButton": "Prices",
+        "title": "Services & prices"
+      },
+      "settings": {
+        "description": "Share your profile, visibility, account status and GDPR.",
+        "hidden": "Hidden",
+        "notAssigned": "Not assigned yet",
+        "openButton": "Open",
+        "pending": "Pending",
+        "publicUrlLabel": "Public URL",
+        "title": "Settings & visibility"
+      },
+      "tax": {
+        "body": "VAT/tax ID and tax settings are updated in their own editor.",
+        "openButton": "Open tax profile",
+        "title": "Tax"
+      },
+      "verification": {
+        "identityLabel": "Identity",
+        "missing": "Missing",
+        "notReady": "Not ready",
+        "openStripeStatus": "Open Stripe status",
+        "ready": "Ready",
+        "stripeLabel": "Stripe payout",
+        "title": "Verification",
+        "verified": "Verified"
+      }
+    },
+    "stats": {
+      "acceptanceRate": "Acceptance rate",
+      "completedJobs": "Completed jobs",
+      "responseTime": "Response time",
+      "responseTimeHint": "Last 30 days",
+      "yearsExperience": "Years of experience"
+    },
+    "status": {
+      "label": "Status"
+    },
+    "time": {
+      "minutes": "{{count}} min"
+    },
+    "viewPublicProfile": "View public profile",
+    "visibility": {
+      "hidden": "Hidden",
+      "label": "Visibility",
+      "public": "Public"
+    },
+    "welcomeSubtitleDefault": "Your profile controls how customers see you on the marketplace."
+  },
+  "surfaces": {
+    "decisions": {
+      "addInfoLabel": "Add information",
+      "addInfoPlaceholder": "Write the information you'd like included in the case.",
+      "aiAssisted": "Automated systems have only acted as decision support and cannot make the decision alone.",
+      "allDecisions": "All decisions",
+      "appealDecisionCardDescription": "Explain why you believe the decision is wrong. A staff member — not an automated system — will review your case and respond within {{days}} days.",
+      "appealDecisionCardTitle": "Appeal the decision",
+      "appealDecisionTitle": "Decision on your appeal",
+      "appealStatementPlaceholder": "Describe the case in your own words (at least 20 characters).",
+      "caseHistory": "Case history",
+      "decidedOn": "Decided {{date}}",
+      "documentation": "Documentation",
+      "effectiveFrom": "Effective from {{date}}",
+      "humanReviewPending": "The decision is awaiting approval from a staff member.",
+      "humanReviewed": "The decision was made by a staff member.",
+      "infoRequestTitle": "We need information from you",
+      "noAiUsed": "No automated systems were used in the decision.",
+      "noAppeal": "No appeal",
+      "noDecisions": "There are no decisions about your account.",
+      "noDocsUploaded": "No documents uploaded.",
+      "notAppealable": "This decision cannot be appealed. Contact support if you believe this is a mistake.",
+      "pageDescription": "Here you can see decisions about your account and appeal if you disagree. All appeals are handled by a staff member.",
+      "pageTitle": "Decisions and appeals",
+      "reason": "Reason",
+      "reasonRestricted": "The reason is restricted: {{label}}. This does not affect your right to appeal.",
+      "rulesApplied": "Rules applied",
+      "sendAppeal": "Send appeal",
+      "sendInfo": "Send information",
+      "toastAppealNotSent": "Appeal was not sent",
+      "toastAppealReceived": "Your appeal has been received",
+      "toastAppealReceivedDescription": "A staff member will review the case and respond within {{days}} days.",
+      "toastAppealWithdrawn": "Appeal has been withdrawn",
+      "toastCouldNotComplete": "Could not complete",
+      "toastCouldNotOpenDoc": "Could not open the document",
+      "toastDocUploaded": "Document uploaded",
+      "toastInfoSent": "Your information has been sent",
+      "toastUploadFailed": "Upload failed",
+      "uploadDocsLabel": "Upload documentation (PDF, JPG, PNG — max 15 MB)",
+      "withdrawAppeal": "Withdraw appeal",
+      "yourAppeal": "Your appeal",
+      "yourExplanation": "Your explanation",
+      "yourExplanationSrOnly": "Your explanation"
+    },
+    "pricing": {
+      "appliedMultipliers": "Applied multipliers ({{pct}}% total)",
+      "base": "Base",
+      "city": "City",
+      "country": "Country",
+      "demand": "Demand",
+      "enableSmartPricing": "Enable Smart Pricing",
+      "errorAboveMarketMaximum": "Above the market maximum for your location.",
+      "errorBelowMarketMinimum": "Below the market minimum for your location.",
+      "errorInvalidHourlyRate": "Enter your hourly rate.",
+      "errorNoActiveMarketRule": "No active market rule for this location.",
+      "errorSmartBoundsRequired": "Smart Pricing needs a minimum and maximum.",
+      "errorSmartMaxAboveMarket": "Smart maximum is above the market maximum.",
+      "errorSmartMaxBelowMin": "Smart maximum must be greater than or equal to the minimum.",
+      "errorSmartMinBelowMarket": "Smart minimum is below the market minimum.",
+      "errors": {
+        "above_market_maximum": "Your rate is above the market maximum",
+        "below_market_minimum": "Your rate is below the market minimum",
+        "invalid_hourly_rate": "Enter a valid hourly rate",
+        "no_active_market_rule": "No active market rule for your country",
+        "smart_bounds_required": "Set both a minimum and a maximum for smart pricing",
+        "smart_max_above_market": "Smart maximum is above the market maximum",
+        "smart_max_below_min": "Smart maximum is below the smart minimum",
+        "smart_min_below_market": "Smart minimum is below the market minimum"
+      },
+      "estimatedEarnings": "Estimated earnings (advisory)",
+      "estimatedEarningsHint": "Assumes {{hours}} bookable hours/week and {{pct}}% conversion. Gross of platform fee, taxes and expenses.",
+      "hourlyRateWithCurrency": "Hourly rate ({{currency}})",
+      "liveIndicator": "Live indicator based on the recommended price.",
+      "marketConfidence": "Market confidence",
+      "marketRuleHint": "Most specific rule wins: postcode → city → region → country.",
+      "max": "Max",
+      "maxWithValue": "Max {{value}}",
+      "min": "Min",
+      "minWithValue": "Min {{value}}",
+      "monthly": "Monthly",
+      "nearbyActiveProviders": "Nearby active providers",
+      "nearbyAvg": "Nearby avg",
+      "noActiveMarketRule": "No active market rule.",
+      "noRecommendationYet": "No recommendation available yet — set your location and save once to compute.",
+      "pageDescription": "Set your hourly rate and Smart Pricing bounds. Advisory only — it does not change existing bookings or checkout prices.",
+      "pageTitle": "Your pricing",
+      "postcode": "Postcode",
+      "professionalHosting": "Professional hosting",
+      "providerRoleRequired": "Provider role required.",
+      "rate": "Rate",
+      "rec": "Rec",
+      "recommendationHint": "Deterministic recommendation from admin-configured rules and multipliers.",
+      "recommendedPrice": "Recommended price",
+      "region": "Region",
+      "savePricing": "Save pricing",
+      "saving": "Saving…",
+      "smartMaximumWithCurrency": "Smart maximum ({{currency}})",
+      "smartMinimumWithCurrency": "Smart minimum ({{currency}})",
+      "smartPricingBounds": "Smart Pricing bounds",
+      "smartPricingHint": "Set bounds now. Automatic adjustment within your bounds activates in a future phase — no prices change today.",
+      "toastPricingSaved": "Pricing saved",
+      "weekly": "Weekly",
+      "yourHourlyRate": "Your hourly rate",
+      "yourMarket": "Your market"
     }
   },
   "verification": {
-    "identity": {
-      "title": "Verify your identity",
-      "description": "We need to confirm your identity before you can receive bookings.",
-      "action": "Start verification"
+    "completion": {
+      "action": "Finish",
+      "description": "Finish your profile — complete profiles rank higher in the marketplace.",
+      "title": "Your profile is {{percent}}% complete"
     },
-    "stripe": {
-      "title": "Complete Stripe onboarding",
-      "description": "Connect your bank account so your earnings can be paid out.",
-      "action": "Open Stripe"
+    "identity": {
+      "action": "Start verification",
+      "description": "We need to confirm your identity before you can receive bookings.",
+      "title": "Verify your identity"
     },
     "public": {
-      "title": "Your profile isn't visible",
+      "action": "Edit profile",
       "description": "Enable public visibility to receive requests from customers.",
-      "action": "Edit profile"
+      "title": "Your profile isn't visible"
     },
-    "completion": {
-      "title": "Your profile is {{percent}}% complete",
-      "description": "Finish your profile — complete profiles rank higher in the marketplace.",
-      "action": "Finish"
+    "stripe": {
+      "action": "Open Stripe",
+      "description": "Connect your bank account so your earnings can be paid out.",
+      "title": "Complete Stripe onboarding"
     }
   }
 }
