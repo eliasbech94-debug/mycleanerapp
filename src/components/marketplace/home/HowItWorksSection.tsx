@@ -44,8 +44,8 @@ export function HowItWorksSection() {
   const sectionRef = React.useRef<HTMLElement | null>(null);
 
   const steps = [
-    { key: "search", Icon: Search, defaults: { title: "Find cleaner", body: "" } },
-    { key: "book", Icon: CalendarCheck, defaults: { title: "Book", body: "" } },
+    { key: "search", Icon: Search, defaults: { titleFallback: "Find cleaner", body: "" } },
+    { key: "book", Icon: CalendarCheck, defaults: { titleFallback: "Book", body: "" } },
     {
       key: "onway",
       Icon: Truck,
@@ -54,7 +54,7 @@ export function HowItWorksSection() {
         body: "Følg med når din cleaner er på vej til din adresse.",
       },
     },
-    { key: "enjoy", Icon: Sparkles, defaults: { title: "Nyd et rent hjem", body: "" } },
+    { key: "enjoy", Icon: Sparkles, defaults: { titleFallback: "Nyd et rent hjem", body: "" } },
     {
       key: "rate",
       Icon: Star,
@@ -212,7 +212,7 @@ export function HowItWorksSection() {
                 </div>
 
                 <h3 className="mt-4 text-[16px] font-semibold leading-snug tracking-[-0.01em] text-[hsl(var(--mkt-ink))]">
-                  {t(`how.steps.${key}.title`, defaults.title)}
+                  {t(`how.steps.${key}.title`, defaults.titleFallback)}
                 </h3>
                 <p className="mt-2 text-[13.5px] leading-relaxed text-[hsl(var(--mkt-ink-muted))]">
                   {t(`how.steps.${key}.body`, defaults.body)}

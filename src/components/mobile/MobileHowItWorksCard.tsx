@@ -25,8 +25,8 @@ import onwayVideo from "@/assets/how-it-works-onway.mp4.asset.json";
 import rateVideo from "@/assets/how-it-works-rate.mp4.asset.json";
 
 const STEPS = [
-  { key: "search", Icon: Search, defaults: { title: "Find cleaner", body: "" } },
-  { key: "book", Icon: CalendarCheck, defaults: { title: "Book", body: "" } },
+  { key: "search", Icon: Search, defaults: { titleFallback: "Find cleaner", body: "" } },
+  { key: "book", Icon: CalendarCheck, defaults: { titleFallback: "Book", body: "" } },
   {
     key: "onway",
     Icon: Truck,
@@ -35,7 +35,7 @@ const STEPS = [
       body: "Følg med når din cleaner er på vej til din adresse.",
     },
   },
-  { key: "enjoy", Icon: Sparkles, defaults: { title: "Nyd et rent hjem", body: "" } },
+  { key: "enjoy", Icon: Sparkles, defaults: { titleFallback: "Nyd et rent hjem", body: "" } },
   {
     key: "rate",
     Icon: Star,
@@ -195,7 +195,7 @@ export function MobileHowItWorksCard() {
                 </span>
               </div>
               <h3 className="mt-3 text-[16px] font-semibold tracking-[-0.01em] text-[hsl(var(--mkt-ink))]">
-                {t(`how.steps.${key}.title`, defaults.title)}
+                {t(`how.steps.${key}.title`, defaults.titleFallback)}
               </h3>
               <p className="mt-1.5 text-[13px] leading-relaxed text-[hsl(var(--mkt-ink-muted))]">
                 {t(`how.steps.${key}.body`, defaults.body)}
