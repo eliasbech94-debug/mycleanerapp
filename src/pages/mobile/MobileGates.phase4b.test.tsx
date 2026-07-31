@@ -59,7 +59,17 @@ function setViewport(width: number) {
   })) as unknown as typeof window.matchMedia;
 }
 
-beforeEach(() => vi.resetModules());
+/**
+ * No `vi.resetModules()` here on purpose.
+ *
+ * The viewport is read during render (`useState(() => window.innerWidth < 768)`
+ * in Header, `window.matchMedia` inside an effect), never at module-evaluation
+ * time, so a fresh module registry buys nothing. It only forced every test to
+ * re-evaluate Header's whole transitive graph through a dynamic `import()`,
+ * which is what made the first case time out at 5s under full-suite load while
+ * passing in isolation. Static imports keep the graph loaded once and make the
+ * assertions deterministic.
+ */
 afterEach(() => cleanup());
 
 // ---- 1. Header hiding on mobile shell routes ---------------------------
@@ -68,9 +78,8 @@ const SHELL_PATHS = ["/marketplace", "/mine-bookinger", "/customer/bookings"];
 
 describe("Header — mobile shell duplicate-header suppression", () => {
   for (const p of SHELL_PATHS) {
-    it(`returns null at 390px on ${p}`, async () => {
+    it(`returns null at 390px on ${p}`, () => {
       setViewport(390);
-      const Header = (await import("@/components/layout/Header")).default;
       const { container } = render(
         <MemoryRouter initialEntries={[p]}>
           <Header />
@@ -79,9 +88,8 @@ describe("Header — mobile shell duplicate-header suppression", () => {
       expect(container.firstChild).toBeNull();
     });
 
-    it(`renders at 768px on ${p} (desktop preserved)`, async () => {
+    it(`renders at 768px on ${p} (desktop preserved)`, () => {
       setViewport(768);
-      const Header = (await import("@/components/layout/Header")).default;
       const { container } = render(
         <MemoryRouter initialEntries={[p]}>
           <Header />
@@ -90,9 +98,8 @@ describe("Header — mobile shell duplicate-header suppression", () => {
       expect(container.firstChild).not.toBeNull();
     });
 
-    it(`renders at 1440px on ${p} (desktop unchanged)`, async () => {
+    it(`renders at 1440px on ${p} (desktop unchanged)`, () => {
       setViewport(1440);
-      const Header = (await import("@/components/layout/Header")).default;
       const { container } = render(
         <MemoryRouter initialEntries={[p]}>
           <Header />
@@ -102,6 +109,7 @@ describe("Header — mobile shell duplicate-header suppression", () => {
     });
   }
 });
+
 
 // ---- 2. MobileBottomNav route detection --------------------------------
 
