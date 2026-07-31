@@ -54,14 +54,22 @@ Deno.serve(monitored("dispute-monitor", async (req, _log) => {
       await notifyUser(admin, {
         user_id: d.provider_user_id,
         event_type: "dispute.evidence_required",
+        template_key: hoursLeft < 24
+          ? "dispute.evidence_required.critical"
+          : "dispute.evidence_required",
         dedupe_key: `dispute:${d.stripe_dispute_id}:deadline:${hoursLeft < 24 ? "24h" : "72h"}`,
         subject: hoursLeft < 24 ? "Kritisk: dokumentation mangler (<24t)" : "Dokumentation kræves inden 72 timer",
         body: `Du skal indsende dokumentation til indsigelse ${d.stripe_dispute_id} inden ${new Date(d.evidence_due_by).toLocaleString("da-DK")}.`,
+        vars: {
+          disputeId: d.stripe_dispute_id,
+          deadline: { type: "datetime", iso: d.evidence_due_by },
+        },
         severity: hoursLeft < 24 ? "error" : "warning",
         action_label: "Uploade dokumentation",
         action_url: `/provider/disputes/${d.id}`,
         related_booking_id: d.booking_id,
       });
+
     }
   }
 

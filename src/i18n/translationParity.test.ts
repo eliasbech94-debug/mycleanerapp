@@ -82,6 +82,13 @@ const SHARED_LITERALS = new Set([
   "Download PDF",
   "Legal Center — MyCleaner",
   "{{title}} · version {{version}}",
+  // "Status:" is the loanword "Status" plus punctuation, identical in da/sv/de/es.
+  "Status:",
+  // "Radius (km)" — "Radius" is the same word in da/sv/de/es; the unit is universal.
+  "Radius (km)",
+  // Cognate adjectives spelled identically across da/sv/de/es.
+  "Normal",
+  "Flexible",
 ]);
 
 /**
@@ -89,6 +96,63 @@ const SHARED_LITERALS = new Set([
  * languages by design, apart from exonyms handled in the bundles themselves.
  */
 const PROPER_NOUNS = /(^|\.)(name|city|firstName|lastName)$/;
+
+/**
+ * Per-key allowlist for values that are genuinely identical to English in a
+ * specific language/namespace/key combination — proper nouns, brand-locked
+ * product terms, or loanwords that happen to be spelled the same in that
+ * language. Scoped narrowly (rather than added to SHARED_LITERALS) so a
+ * coincidental match elsewhere in the same bundle still gets caught.
+ * Format: "lang/ns:key.path".
+ */
+const PER_KEY_ALLOWED_IDENTICAL = new Set([
+  // Brand-locked product/feature names — never translated.
+  "da/provider:onboardingSurfaces.careerIdentity.brandLabel",
+  "sv/provider:onboardingSurfaces.careerIdentity.brandLabel",
+  "de/provider:onboardingSurfaces.careerIdentity.brandLabel",
+  "es/provider:onboardingSurfaces.careerIdentity.brandLabel",
+  "da/provider:onboardingSurfaces.careerIdentity.permanentId.title",
+  "da/provider:onboardingSurfaces.stripeWidget.sectionLabel",
+  // "Region" is spelled identically in Danish, Swedish and German.
+  "da/provider:surfaces.pricing.region",
+  "sv/provider:surfaces.pricing.region",
+  "de/provider:surfaces.pricing.region",
+  "da/admin:rules.table.headers.region",
+  "sv/admin:rules.table.headers.region",
+  "de/admin:rules.table.headers.region",
+  // "System" is spelled identically in Danish, Swedish and German.
+  "da/admin:rules.tax.systemLabel",
+  "sv/admin:rules.tax.systemLabel",
+  "de/admin:rules.tax.systemLabel",
+  // "Audit" is used untranslated as a short tab label in Danish and German.
+  "da/admin:rules.editor.tabs.audit",
+  "de/admin:rules.editor.tabs.audit",
+  // "Rule Packs" / "URL (https)" are deliberately-untranslated technical/
+  // product terms shared across all bundles.
+  "da/admin:rules.dashboard.rulePacksTitle",
+  "sv/admin:rules.dashboard.rulePacksTitle",
+  "de/admin:rules.dashboard.rulePacksTitle",
+  "es/admin:rules.dashboard.rulePacksTitle",
+  "da/admin:rules.sources.urlLabel",
+  "sv/admin:rules.sources.urlLabel",
+  "de/admin:rules.sources.urlLabel",
+  "es/admin:rules.sources.urlLabel",
+  // "Period" is spelled identically in Swedish.
+  "sv/admin:rules.filing.periodLabel",
+  // "General" is spelled identically in Spanish.
+  "es/admin:rules.editor.tabs.general",
+  "es/admin:rules.general.title",
+  // "Booking" / "Platform" are common loanwords in Danish.
+  "da/finance:ui.financePages.booking",
+  "da/finance:ui.income.add.platformSuggestionA",
+  "da/finance:ui.income.add.platformSuggestionB",
+  "da/finance:ui.income.add.platformSuggestionC",
+  // "Version" is spelled identically in Swedish and German.
+  "sv/finance:ui.reports.section.versionLabel",
+  "de/finance:ui.reports.section.versionLabel",
+  // "Provisional" is spelled identically in Spanish.
+  "es/finance:ui.reports.section.provisional",
+]);
 
 /** Keys whose values are machine-readable, not user-facing prose. */
 // Note: `version` is intentionally absent — it is a UI label ("Version") in
@@ -239,6 +303,7 @@ describe("translation parity", () => {
             if (NON_CONTENT(k, en[k])) return false;
             if (PROPER_NOUNS.test(k)) return false;
             if (SHARED_LITERALS.has(v.trim())) return false;
+            if (PER_KEY_ALLOWED_IDENTICAL.has(`${lang}/${ns}:${k}`)) return false;
             // Single tokens shorter than 5 chars are too noisy to judge.
             if (v.trim().length < 5) return false;
             // Nothing translatable once placeholders and punctuation are

@@ -108,6 +108,13 @@ export async function handleDisputeEvent(
         dedupe_key: `dispute:${dispute.id}:opened`,
         subject: "Ny betalingsindsigelse (chargeback)",
         body: `En kunde har åbnet en betalingsindsigelse på ${(dispute.amount / 100).toFixed(2)} ${(dispute.currency ?? "dkk").toUpperCase()}. Send dokumentation inden fristen.`,
+        vars: {
+          amount: {
+            type: "money",
+            minor: dispute.amount,
+            currency: (dispute.currency ?? "dkk").toUpperCase(),
+          },
+        },
         severity: "warning",
         action_label: "Se sag",
         action_url: `/provider/disputes/${disputeUuid}`,
@@ -118,6 +125,11 @@ export async function handleDisputeEvent(
       await notifyUser(admin, {
         user_id: upserted.provider_user_id,
         event_type: "dispute.resolved.provider",
+        template_key: dispute.status === "won"
+          ? "dispute.resolved.provider.won"
+          : dispute.status === "lost"
+          ? "dispute.resolved.provider.lost"
+          : "dispute.resolved.provider",
         dedupe_key: `dispute:${dispute.id}:closed:${dispute.status}`,
         subject: `Sagen er afsluttet: ${dispute.status}`,
         body: dispute.status === "won"
@@ -125,11 +137,13 @@ export async function handleDisputeEvent(
           : dispute.status === "lost"
           ? "Indsigelsen blev tabt. Beløbet fratrækkes din næste udbetaling."
           : `Sagen er lukket med status: ${dispute.status}.`,
+        vars: { status: dispute.status },
         severity: dispute.status === "won" ? "success" : "error",
         action_label: "Se sag",
         action_url: `/provider/disputes/${disputeUuid}`,
         related_booking_id: upserted.booking_id,
       });
+
     }
   }
 

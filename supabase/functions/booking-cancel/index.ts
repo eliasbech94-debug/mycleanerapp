@@ -290,6 +290,7 @@ Deno.serve(monitored("booking-cancel", async (req, _log) => {
         dedupe_key: `booking.cancelled:${booking.id}`,
         subject: `Booking ${bookingRef} annulleret`,
         body: `Din booking af ${svc} er annulleret af ${actor_role}.`,
+        vars: { ref: bookingRef, service: svc, actor: actor_role },
         related_booking_id: booking.id,
         action_label: "Se detaljer", action_url: actionUrl,
       });
@@ -300,6 +301,7 @@ Deno.serve(monitored("booking-cancel", async (req, _log) => {
           dedupe_key: `refund.initiated:${stripeRefundId ?? booking.id}`,
           subject: `Refundering igangsat`,
           body: `Vi har igangsat en refundering på ${(refundAmount/100).toFixed(2)} ${currencyStr}. Beløbet er tilbage på kortet inden for 5-10 hverdage.`,
+          vars: { amount: { type: "money", minor: refundAmount, currency: currencyStr } },
           related_booking_id: booking.id,
           action_label: "Se booking", action_url: actionUrl,
           payload: { refund_amount: refundAmount, currency: currencyStr, stripe_refund_id: stripeRefundId },
@@ -314,10 +316,17 @@ Deno.serve(monitored("booking-cancel", async (req, _log) => {
         dedupe_key: `booking.cancelled.provider:${booking.id}`,
         subject: `Booking ${bookingRef} annulleret`,
         body: `Bookingen af ${svc} den ${booking.booking_date ?? ""} er annulleret af ${actor_role}.`,
+        vars: {
+          ref: bookingRef,
+          service: svc,
+          actor: actor_role,
+          date: { type: "date", iso: booking.booking_date ?? null },
+        },
         related_booking_id: booking.id,
         action_label: "Se booking", action_url: `/provider-dashboard`,
       });
     }
+
 
     // Credit note is issued asynchronously by the webhook when the refund
     // event settles (refund.updated → succeeded). We do NOT create it here to

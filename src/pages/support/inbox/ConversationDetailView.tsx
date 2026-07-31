@@ -175,6 +175,7 @@ export function ConversationDetailView({ conversationId, onDetail, showBack }: P
 }
 
 function RealtimeIndicator({ status }: { status: "connecting" | "live" | "error" }) {
+  const { t } = useTranslation("admin");
   if (status === "live") {
     return (
       <span className="inline-flex items-center gap-1 text-[10px] text-emerald-600 dark:text-emerald-400">

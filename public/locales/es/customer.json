@@ -1,469 +1,670 @@
 {
   "greeting": {
-    "morning": "Buenos días",
     "day": "Buen día",
-    "evening": "Buenas tardes"
+    "evening": "Buenas tardes",
+    "morning": "Buenos días"
   },
   "profile": {
-    "nav": {
-      "back": "Atrás",
-      "title": "Mi perfil",
-      "signOut": "Cerrar sesión",
-      "help": "Ayuda y soporte",
-      "complaint": "Enviar una reclamación",
-      "menu": "Menú"
+    "addresses": {
+      "subtitle": "Añade varias direcciones con información de acceso, mascotas, aparcamiento, etc. La dirección principal se elige automáticamente al reservar.",
+      "title": "Mis direcciones"
+    },
+    "bookings": {
+      "cardFallback": "Tarjeta",
+      "emptySubtitle": "Encuentra un Cleaner y reserva directamente en el calendario.",
+      "emptyTitle": "Aún no tienes reservas",
+      "findCleaner": "Buscar Cleaner",
+      "fullRefund": "Reembolso total",
+      "hoursSuffix": "h",
+      "loading": "Cargando…",
+      "paidStatus": "Pagado",
+      "partialRefund": "Reembolso parcial",
+      "payment": {
+        "authorized": "Reservado",
+        "canceled": "Cancelado",
+        "captured": "Pagado",
+        "failed": "No completado",
+        "partially_refunded": "Reembolsado parcialmente",
+        "refunded": "Reembolsado"
+      },
+      "pendingPaymentStatus": "Pago pendiente",
+      "reason": "Motivo",
+      "refundCount_one": "{{count}} reembolso",
+      "refundCount_other": "{{count}} reembolsos",
+      "refundDefault": "Reembolso",
+      "refundFailed": "No se pudo completar",
+      "refundFailedReason": "No se pudo completar: {{reason}}",
+      "refundId": "ID de reembolso",
+      "refundReason": {
+        "duplicate": "Pago duplicado",
+        "expired_uncaptured_charge": "La retención de la tarjeta expiró",
+        "fraudulent": "Sospecha de fraude",
+        "requested_by_customer": "Solicitado por el cliente"
+      },
+      "refunded": "Reembolsado",
+      "remaining": "Restante",
+      "reservedStatus": "Reservado",
+      "seeReceipt": "Ver recibo",
+      "status": {
+        "accepted": "Aceptada",
+        "cancelled": "Cancelada",
+        "completed": "Completada",
+        "declined": "Rechazada",
+        "pending": "Esperando al Cleaner"
+      },
+      "timePrefix": "a las",
+      "totalPrice": "Precio total",
+      "totalRefunded": "Total reembolsado",
+      "youPaid": "Has pagado",
+      "youStillPay": "Aún debes pagar"
+    },
+    "cards": {
+      "addCard": "Añadir tarjeta de pago",
+      "cardRemoved": "Tarjeta eliminada",
+      "cardRemovedError": "La tarjeta no se pudo eliminar. Inténtalo de nuevo en un momento.",
+      "cardReplaced": "Tarjeta sustituida",
+      "cardReplacedError": "La tarjeta no se pudo sustituir. Inténtalo de nuevo o usa otro método de pago.",
+      "cardSaved": "Tarjeta guardada",
+      "chargedFor": "Se cobrará por {{service}} con {{provider}} · {{date}} {{slot}} · {{amount}}",
+      "closeAria": "Cerrar",
+      "dateLabel": "Fecha",
+      "defaultExpired": "Tu tarjeta predeterminada ha caducado; sustitúyela antes del próximo pago.",
+      "defaultUpdateError": "No pudimos actualizar tu tarjeta predeterminada. Inténtalo de nuevo.",
+      "defaultUpdated": "Tarjeta predeterminada actualizada",
+      "deleteCard": "Eliminar tarjeta",
+      "deleteCardTitle": "¿Eliminar tarjeta de pago?",
+      "deleteDefaultTitle": "¿Eliminar tarjeta predeterminada?",
+      "deleting": "Eliminando…",
+      "emptySubtitle": "Añade una tarjeta para reservar más rápido la próxima vez.",
+      "emptyTitle": "Sin tarjetas guardadas",
+      "errorTitle": "No pudimos obtener tu información de pago",
+      "expiresColLabel": "Caduca",
+      "expiresInMonth": "Caduca en aproximadamente 1 mes",
+      "expiresLabel": "Caduca el {{date}}",
+      "expiresSoonBody": "Te recomendamos sustituir la tarjeta con tiempo{{defaultNote}}, para que los próximos pagos no se rechacen.",
+      "expiresSoonBodyDefault": " – es tu tarjeta predeterminada y se usa para tu próximo pago",
+      "expiresSoonTitle": "Caduca pronto",
+      "expiresThisMonth": "Caduca este mes",
+      "expiringCount_one": "1 tarjeta caduca pronto",
+      "expiringCount_other": "{{count}} tarjetas caducan pronto",
+      "expiringDefaultWarning": "Tu tarjeta predeterminada caduca en 2 meses. Añade una nueva tarjeta ahora para que tu próximo pago no se rechace.",
+      "expiringDoNow": " Te recomendamos hacerlo cuanto antes.",
+      "expiringOtherWarning": "Sustituye las tarjetas con tiempo para evitar pagos rechazados.",
+      "filterLabel": "Filtro",
+      "filters": {
+        "active": "Activas",
+        "all": "Todas",
+        "default": "Predeterminada",
+        "expired": "Caducadas"
+      },
+      "formOpenError": "No pudimos abrir el formulario de la tarjeta de pago. Inténtalo de nuevo.",
+      "hideDetails": "Ocultar detalles",
+      "lastUsedLabel": "Último uso",
+      "loading": "Cargando…",
+      "neverUsed": "Nunca usada",
+      "newCardTitle": "Nueva tarjeta",
+      "nextPaymentTitle": "Próximo pago programado",
+      "noUpcoming": "No hay próximas reservas programadas. La tarjeta se usará automáticamente en tu próxima reserva.",
+      "noneMatch": "Ninguna tarjeta coincide con el filtro seleccionado.",
+      "onlyCardWarning": "Esta es tu única tarjeta guardada. Deberás introducir los datos de la tarjeta manualmente en tu próxima reserva.",
+      "pickDefaultFirst": "Elige primero una nueva tarjeta predeterminada antes de eliminar la actual.",
+      "pickNewDefault": "Esta es tu tarjeta predeterminada. Elige una nueva antes de eliminarla:",
+      "preparingForm": "Preparando el formulario seguro de Stripe…",
+      "referenceLabel": "Referencia",
+      "removeAria": "Eliminar",
+      "replace": "Sustituir",
+      "replaceCardNow": "Sustituir tarjeta ahora",
+      "replaceCardTitle": "Sustituir tarjeta",
+      "replaceDefaultNow": "Sustituir tarjeta predeterminada ahora",
+      "replaceNote": "La nueva tarjeta se establecerá como predeterminada, y {{brand}} •••• {{last4}} se eliminará automáticamente.",
+      "replaceNow": "Sustituir tarjeta ahora",
+      "saveCard": "Guardar tarjeta",
+      "savingCardError": "No se pudo guardar la tarjeta. Revisa los datos e inténtalo de nuevo.",
+      "setDefault": "Establecer como predeterminada",
+      "setupIntentMissing": "No pudimos abrir la página de pago segura. Inténtalo de nuevo en breve.",
+      "showDetails": "Mostrar detalles",
+      "soonSuffix": "(pronto)",
+      "status": {
+        "active": "Activa",
+        "default": "Predeterminada – se usará la próxima vez",
+        "expired": "Caducada"
+      },
+      "statusLabel": "Estado",
+      "stripeKeyMissing": "Falta la clave pública de Stripe en la configuración",
+      "updating": "Actualizando…"
     },
     "header": {
       "defaultName": "Tu perfil"
     },
-    "tabs": {
-      "overview": "Resumen",
-      "inbox": "Bandeja de entrada",
-      "info": "Mis datos",
-      "addresses": "Direcciones",
-      "bookings": "Reservas",
-      "cards": "Tarjetas y pagos",
-      "invoices": "Facturas",
-      "history": "Historial de pagos",
-      "notifications": "Notificaciones",
-      "sms": "SMS",
-      "tax": "Datos fiscales",
-      "deduction": "Deducción por servicios",
-      "deactivate": "Desactivar cuenta"
-    },
-    "overview": {
-      "welcome": "Bienvenido/a, {{name}}",
-      "heroSubtitle": "Aquí tienes un resumen rápido de tus próximas limpiezas, direcciones y pagos.",
-      "bookNewCleaner": "Reservar un nuevo Cleaner",
-      "myBookings": "Mis reservas",
-      "checklistTitle": "Completa tu perfil",
-      "checklistSubtitle": "Termina estos pasos para conseguir la mejor coincidencia y la reserva más rápida.",
-      "checklist": {
-        "contact": {
-          "title": "Datos de contacto",
-          "done": "Nombre, teléfono y país están validados.",
-          "fill": "Completa nombre, teléfono y país.",
-          "action": "Completar"
-        },
-        "email": {
-          "title": "Confirma tu email",
-          "done": "Tu email está confirmado.",
-          "pending": "Te hemos enviado un enlace de confirmación a tu bandeja de entrada."
-        },
-        "address": {
-          "title": "Dirección principal",
-          "loading": "Cargando…",
-          "missing": "No hay dirección principal",
-          "fallback": "Elige una dirección de las sugerencias.",
-          "action": "Añadir"
-        },
-        "property": {
-          "title": "Detalles de la vivienda",
-          "missing": "Faltan detalles de la vivienda",
-          "fallback": "Indica el tamaño, el tipo y el acceso.",
-          "action": "Completar",
-          "summary": "{{size}} m² · {{type}} · acceso: {{access}}"
-        },
-        "card": {
-          "title": "Tarjeta de pago",
-          "loading": "Cargando…",
-          "saved_one": "{{count}} tarjeta guardada para reservar más rápido.",
-          "saved_other": "{{count}} tarjetas guardadas para reservar más rápido.",
-          "fallback": "Guarda una tarjeta para reservar con un solo clic.",
-          "action": "Añadir tarjeta"
-        },
-        "firstBooking": {
-          "title": "Primera reserva",
-          "done": "Has enviado tu primera solicitud.",
-          "pending": "Encuentra un Cleaner y reserva en menos de 2 minutos."
-        }
+    "history": {
+      "cardFallback": "Tarjeta de pago",
+      "emptySubtitle": "Cuando completes reservas, aquí aparecerá tu historial de pagos completo.",
+      "emptyTitle": "Aún no hay pagos",
+      "events": {
+        "charged": "Cargado a la tarjeta",
+        "paymentFailed": "Pago fallido",
+        "refundFailed": "Reembolso fallido",
+        "refundPending": "Reembolso pendiente",
+        "refundedToCard": "Reembolsado a la tarjeta",
+        "reservationReleased": "Reserva liberada",
+        "reserved": "Reservado"
       },
-      "stats": {
-        "upcoming": "Próximas",
-        "completed": "Completadas",
-        "paidTotal": "Total pagado",
-        "addresses": "Direcciones"
+      "loading": "Cargando…",
+      "net": "Neto",
+      "refundReason": {
+        "customer": "Solicitud del cliente",
+        "default": "Reembolso",
+        "duplicate": "Pago duplicado",
+        "expired": "La retención de la tarjeta expiró",
+        "fraudulent": "Sospecha de fraude"
       },
-      "nextBooking": {
-        "title": "Próxima reserva",
-        "seeAll": "Ver todas",
-        "loading": "Cargando…",
-        "hoursSuffix": "h",
-        "timePrefix": "a las",
-        "empty": "No tienes próximas reservas.",
-        "findCleaner": "Buscar un Cleaner"
-      },
-      "primaryAddress": {
-        "title": "Dirección principal",
-        "manage": "Gestionar",
-        "empty": "Aún no tienes ninguna dirección.",
-        "addOne": "Añadir una"
-      },
-      "cards": {
-        "title": "Tarjetas y pagos",
-        "manage": "Gestionar",
-        "loading": "Cargando…",
-        "empty": "Aún no tienes tarjetas guardadas.",
-        "saved_one": "<b>{{count}}</b> tarjeta guardada para reservar más rápido.",
-        "saved_other": "<b>{{count}}</b> tarjetas guardadas para reservar más rápido."
-      },
-      "recent": {
-        "title": "Actividad reciente",
-        "fullHistory": "Historial completo",
-        "loading": "Cargando…",
-        "empty": "Aún no hay actividad."
-      }
+      "refunded": "Reembolsado",
+      "reservedNow": "Reservado ahora",
+      "totalPaid": "Total pagado"
     },
     "info": {
-      "helperBanner": "Tus datos de contacto se crearon durante el registro y se obtienen automáticamente aquí; puedes modificarlos cuando quieras.",
+      "addressPlaceholder": "Calle, número, piso, ciudad",
+      "addressTitle": "Mi dirección",
+      "countryLabel": "País",
       "emailLabel": "Email (tu dirección de acceso)",
       "fullNameLabel": "Nombre completo",
       "fullNamePlaceholder": "p. ej. Mette Hansen",
+      "helperBanner": "Tus datos de contacto se crearon durante el registro y se obtienen automáticamente aquí; puedes modificarlos cuando quieras.",
       "phoneLabel": "Teléfono",
-      "countryLabel": "País",
+      "phonePlaceholder": "+34 612 34 56 78",
+      "providerIdHelp": "Introduce tu ID de Provider para acceder al",
+      "providerIdHelpFull": "Introduce tu ID de proveedor para acceder al <dash>panel de proveedor</dash>.",
+      "providerIdHelpLink": "panel del Provider",
       "providerIdLabel": "ID de Provider (solo si tú mismo eres Cleaner)",
       "providerIdPlaceholder": "p. ej. p_002",
-      "providerIdHelp": "Introduce tu ID de Provider para acceder al",
-      "providerIdHelpLink": "panel del Provider",
-      "addressTitle": "Mi dirección",
-      "addressPlaceholder": "Calle, número, piso, ciudad",
       "saveButton": "Guardar perfil",
       "toast": {
         "checkContact": "Revisa tus datos de contacto",
         "invalidAddress": "Elige una dirección válida de la lista antes de guardar.",
         "saved": "Perfil guardado"
-      },
-      "phonePlaceholder": "+34 612 34 56 78",
-      "providerIdHelpFull": "Introduce tu ID de proveedor para acceder al <dash>panel de proveedor</dash>."
-    },
-    "addresses": {
-      "title": "Mis direcciones",
-      "subtitle": "Añade varias direcciones con información de acceso, mascotas, aparcamiento, etc. La dirección principal se elige automáticamente al reservar."
-    },
-    "bookings": {
-      "loading": "Cargando…",
-      "emptyTitle": "Aún no tienes reservas",
-      "emptySubtitle": "Encuentra un Cleaner y reserva directamente en el calendario.",
-      "findCleaner": "Buscar Cleaner",
-      "hoursSuffix": "h",
-      "timePrefix": "a las",
-      "cardFallback": "Tarjeta",
-      "totalPrice": "Precio total",
-      "refunded": "Reembolsado",
-      "youPaid": "Has pagado",
-      "youStillPay": "Aún debes pagar",
-      "paidStatus": "Pagado",
-      "reservedStatus": "Reservado",
-      "pendingPaymentStatus": "Pago pendiente",
-      "partialRefund": "Reembolso parcial",
-      "fullRefund": "Reembolso total",
-      "refundCount_one": "{{count}} reembolso",
-      "refundCount_other": "{{count}} reembolsos",
-      "refundFailed": "No se pudo completar",
-      "refundFailedReason": "No se pudo completar: {{reason}}",
-      "refundDefault": "Reembolso",
-      "totalRefunded": "Total reembolsado",
-      "remaining": "Restante",
-      "reason": "Motivo",
-      "refundId": "ID de reembolso",
-      "seeReceipt": "Ver recibo",
-      "status": {
-        "pending": "Esperando al Cleaner",
-        "accepted": "Aceptada",
-        "declined": "Rechazada",
-        "cancelled": "Cancelada",
-        "completed": "Completada"
-      },
-      "payment": {
-        "authorized": "Reservado",
-        "captured": "Pagado",
-        "canceled": "Cancelado",
-        "refunded": "Reembolsado",
-        "partially_refunded": "Reembolsado parcialmente",
-        "failed": "No completado"
-      },
-      "refundReason": {
-        "duplicate": "Pago duplicado",
-        "fraudulent": "Sospecha de fraude",
-        "requested_by_customer": "Solicitado por el cliente",
-        "expired_uncaptured_charge": "La retención de la tarjeta expiró"
       }
-    },
-    "cards": {
-      "filters": {
-        "all": "Todas",
-        "default": "Predeterminada",
-        "active": "Activas",
-        "expired": "Caducadas"
-      },
-      "filterLabel": "Filtro",
-      "noneMatch": "Ninguna tarjeta coincide con el filtro seleccionado.",
-      "loading": "Cargando…",
-      "emptyTitle": "Sin tarjetas guardadas",
-      "emptySubtitle": "Añade una tarjeta para reservar más rápido la próxima vez.",
-      "status": {
-        "expired": "Caducada",
-        "default": "Predeterminada – se usará la próxima vez",
-        "active": "Activa"
-      },
-      "expiresLabel": "Caduca el {{date}}",
-      "soonSuffix": "(pronto)",
-      "statusLabel": "Estado",
-      "expiresColLabel": "Caduca",
-      "lastUsedLabel": "Último uso",
-      "neverUsed": "Nunca usada",
-      "hideDetails": "Ocultar detalles",
-      "showDetails": "Mostrar detalles",
-      "dateLabel": "Fecha",
-      "referenceLabel": "Referencia",
-      "expiresThisMonth": "Caduca este mes",
-      "expiresInMonth": "Caduca en aproximadamente 1 mes",
-      "expiresSoonTitle": "Caduca pronto",
-      "expiresSoonBodyDefault": " – es tu tarjeta predeterminada y se usa para tu próximo pago",
-      "expiresSoonBody": "Te recomendamos sustituir la tarjeta con tiempo{{defaultNote}}, para que los próximos pagos no se rechacen.",
-      "replaceNow": "Sustituir tarjeta ahora",
-      "updating": "Actualizando…",
-      "setDefault": "Establecer como predeterminada",
-      "replace": "Sustituir",
-      "removeAria": "Eliminar",
-      "nextPaymentTitle": "Próximo pago programado",
-      "chargedFor": "Se cobrará por {{service}} con {{provider}} · {{date}} {{slot}} · {{amount}}",
-      "noUpcoming": "No hay próximas reservas programadas. La tarjeta se usará automáticamente en tu próxima reserva.",
-      "defaultExpired": "Tu tarjeta predeterminada ha caducado; sustitúyela antes del próximo pago.",
-      "expiringCount_one": "1 tarjeta caduca pronto",
-      "expiringCount_other": "{{count}} tarjetas caducan pronto",
-      "expiringDefaultWarning": "Tu tarjeta predeterminada caduca en 2 meses. Añade una nueva tarjeta ahora para que tu próximo pago no se rechace.",
-      "expiringOtherWarning": "Sustituye las tarjetas con tiempo para evitar pagos rechazados.",
-      "expiringDoNow": " Te recomendamos hacerlo cuanto antes.",
-      "replaceDefaultNow": "Sustituir tarjeta predeterminada ahora",
-      "replaceCardNow": "Sustituir tarjeta ahora",
-      "errorTitle": "No pudimos obtener tu información de pago",
-      "closeAria": "Cerrar",
-      "addCard": "Añadir tarjeta de pago",
-      "replaceCardTitle": "Sustituir tarjeta",
-      "newCardTitle": "Nueva tarjeta",
-      "preparingForm": "Preparando el formulario seguro de Stripe…",
-      "replaceNote": "La nueva tarjeta se establecerá como predeterminada, y {{brand}} •••• {{last4}} se eliminará automáticamente.",
-      "deleteDefaultTitle": "¿Eliminar tarjeta predeterminada?",
-      "deleteCardTitle": "¿Eliminar tarjeta de pago?",
-      "pickNewDefault": "Esta es tu tarjeta predeterminada. Elige una nueva antes de eliminarla:",
-      "onlyCardWarning": "Esta es tu única tarjeta guardada. Deberás introducir los datos de la tarjeta manualmente en tu próxima reserva.",
-      "deleting": "Eliminando…",
-      "deleteCard": "Eliminar tarjeta",
-      "saveCard": "Guardar tarjeta",
-      "savingCardError": "No se pudo guardar la tarjeta. Revisa los datos e inténtalo de nuevo.",
-      "cardSaved": "Tarjeta guardada",
-      "cardReplaced": "Tarjeta sustituida",
-      "cardReplacedError": "La tarjeta no se pudo sustituir. Inténtalo de nuevo o usa otro método de pago.",
-      "pickDefaultFirst": "Elige primero una nueva tarjeta predeterminada antes de eliminar la actual.",
-      "cardRemoved": "Tarjeta eliminada",
-      "cardRemovedError": "La tarjeta no se pudo eliminar. Inténtalo de nuevo en un momento.",
-      "defaultUpdated": "Tarjeta predeterminada actualizada",
-      "defaultUpdateError": "No pudimos actualizar tu tarjeta predeterminada. Inténtalo de nuevo.",
-      "formOpenError": "No pudimos abrir el formulario de la tarjeta de pago. Inténtalo de nuevo.",
-      "stripeKeyMissing": "Falta la clave pública de Stripe en la configuración",
-      "setupIntentMissing": "No pudimos abrir la página de pago segura. Inténtalo de nuevo en breve."
     },
     "invoices": {
-      "loading": "Cargando…",
-      "emptyTitle": "Aún no hay facturas",
-      "emptySubtitle": "Cuando una reserva se complete y se pague, verás aquí el recibo.",
-      "service": "Servicio",
-      "date": "Fecha",
       "address": "Dirección",
-      "provider": "Provider",
-      "status": "Estado",
-      "paid": "Pagado",
       "completed": "Completada",
+      "date": "Fecha",
+      "emptySubtitle": "Cuando una reserva se complete y se pague, verás aquí el recibo.",
+      "emptyTitle": "Aún no hay facturas",
+      "loading": "Cargando…",
+      "paid": "Pagado",
+      "provider": "Provider",
+      "service": "Servicio",
+      "status": "Estado",
       "total": "Total"
     },
-    "history": {
-      "loading": "Cargando…",
-      "emptyTitle": "Aún no hay pagos",
-      "emptySubtitle": "Cuando completes reservas, aquí aparecerá tu historial de pagos completo.",
-      "totalPaid": "Total pagado",
-      "refunded": "Reembolsado",
-      "reservedNow": "Reservado ahora",
-      "net": "Neto",
-      "events": {
-        "reserved": "Reservado",
-        "charged": "Cargado a la tarjeta",
-        "reservationReleased": "Reserva liberada",
-        "paymentFailed": "Pago fallido",
-        "refundedToCard": "Reembolsado a la tarjeta",
-        "refundFailed": "Reembolso fallido",
-        "refundPending": "Reembolso pendiente"
+    "nav": {
+      "back": "Atrás",
+      "complaint": "Enviar una reclamación",
+      "help": "Ayuda y soporte",
+      "menu": "Menú",
+      "signOut": "Cerrar sesión",
+      "title": "Mi perfil"
+    },
+    "overview": {
+      "bookNewCleaner": "Reservar un nuevo Cleaner",
+      "cards": {
+        "empty": "Aún no tienes tarjetas guardadas.",
+        "loading": "Cargando…",
+        "manage": "Gestionar",
+        "saved_one": "<b>{{count}}</b> tarjeta guardada para reservar más rápido.",
+        "saved_other": "<b>{{count}}</b> tarjetas guardadas para reservar más rápido.",
+        "title": "Tarjetas y pagos"
       },
-      "cardFallback": "Tarjeta de pago",
-      "refundReason": {
-        "customer": "Solicitud del cliente",
-        "duplicate": "Pago duplicado",
-        "fraudulent": "Sospecha de fraude",
-        "expired": "La retención de la tarjeta expiró",
-        "default": "Reembolso"
-      }
+      "checklist": {
+        "address": {
+          "action": "Añadir",
+          "fallback": "Elige una dirección de las sugerencias.",
+          "loading": "Cargando…",
+          "missing": "No hay dirección principal",
+          "title": "Dirección principal"
+        },
+        "card": {
+          "action": "Añadir tarjeta",
+          "fallback": "Guarda una tarjeta para reservar con un solo clic.",
+          "loading": "Cargando…",
+          "saved_one": "{{count}} tarjeta guardada para reservar más rápido.",
+          "saved_other": "{{count}} tarjetas guardadas para reservar más rápido.",
+          "title": "Tarjeta de pago"
+        },
+        "contact": {
+          "action": "Completar",
+          "done": "Nombre, teléfono y país están validados.",
+          "fill": "Completa nombre, teléfono y país.",
+          "title": "Datos de contacto"
+        },
+        "email": {
+          "done": "Tu email está confirmado.",
+          "pending": "Te hemos enviado un enlace de confirmación a tu bandeja de entrada.",
+          "title": "Confirma tu email"
+        },
+        "firstBooking": {
+          "done": "Has enviado tu primera solicitud.",
+          "pending": "Encuentra un Cleaner y reserva en menos de 2 minutos.",
+          "title": "Primera reserva"
+        },
+        "property": {
+          "action": "Completar",
+          "fallback": "Indica el tamaño, el tipo y el acceso.",
+          "missing": "Faltan detalles de la vivienda",
+          "summary": "{{size}} m² · {{type}} · acceso: {{access}}",
+          "title": "Detalles de la vivienda"
+        }
+      },
+      "checklistSubtitle": "Termina estos pasos para conseguir la mejor coincidencia y la reserva más rápida.",
+      "checklistTitle": "Completa tu perfil",
+      "heroSubtitle": "Aquí tienes un resumen rápido de tus próximas limpiezas, direcciones y pagos.",
+      "myBookings": "Mis reservas",
+      "nextBooking": {
+        "empty": "No tienes próximas reservas.",
+        "findCleaner": "Buscar un Cleaner",
+        "hoursSuffix": "h",
+        "loading": "Cargando…",
+        "seeAll": "Ver todas",
+        "timePrefix": "a las",
+        "title": "Próxima reserva"
+      },
+      "primaryAddress": {
+        "addOne": "Añadir una",
+        "empty": "Aún no tienes ninguna dirección.",
+        "manage": "Gestionar",
+        "title": "Dirección principal"
+      },
+      "recent": {
+        "empty": "Aún no hay actividad.",
+        "fullHistory": "Historial completo",
+        "loading": "Cargando…",
+        "title": "Actividad reciente"
+      },
+      "stats": {
+        "addresses": "Direcciones",
+        "completed": "Completadas",
+        "paidTotal": "Total pagado",
+        "upcoming": "Próximas"
+      },
+      "welcome": "Bienvenido/a, {{name}}"
+    },
+    "tabs": {
+      "addresses": "Direcciones",
+      "bookings": "Reservas",
+      "cards": "Tarjetas y pagos",
+      "deactivate": "Desactivar cuenta",
+      "deduction": "Deducción por servicios",
+      "history": "Historial de pagos",
+      "inbox": "Bandeja de entrada",
+      "info": "Mis datos",
+      "invoices": "Facturas",
+      "notifications": "Notificaciones",
+      "overview": "Resumen",
+      "sms": "SMS",
+      "tax": "Datos fiscales"
     }
   },
   "profileV2": {
-    "title": "Mi perfil",
-    "subtitle": "Tu cuenta y tus datos",
-    "editProfile": "Editar perfil",
-    "edit": "Editar",
-    "manage": "Gestionar",
-    "open": "Abrir",
-    "memberSince": "Miembro desde {{date}}",
-    "bookingsSummary_one": "Tienes {{count}} reserva en total.",
-    "bookingsSummary_other": "Tienes {{count}} reservas en total.",
-    "welcomeSubtitle": "Bienvenido/a: reserva tu primera limpieza cuando estés listo/a.",
-    "stats": {
-      "totalBookings": "Reservas totales",
-      "upcoming": "Próximas",
-      "completed": "Completadas",
-      "lastBooking": "Última reserva"
-    },
-    "personal": {
-      "title": "Información personal",
-      "noName": "No se ha indicado un nombre"
-    },
-    "contact": {
-      "title": "Contacto",
-      "noPhone": "Sin número de teléfono",
-      "noSms": "Sin número de SMS",
-      "verified": "Verificado",
-      "unverified": "No verificado"
-    },
-    "addresses": {
-      "title": "Direcciones guardadas",
-      "description": "Acceso, tamaño, mascotas y notas por dirección.",
-      "manage": "Gestionar",
-      "primary": "Principal",
-      "emptyTitle": "Aún no hay direcciones guardadas",
-      "emptyDescription": "Añade una dirección para reservar más rápido.",
-      "addAddress": "Añadir dirección",
-      "accessPrefix": "Acceso",
-      "sizeSuffix": "m²",
-      "roomsSuffix": "habitación(es)"
-    },
-    "notifications": {
-      "title": "Notificaciones",
-      "emptyTitle": "Ningún canal activo",
-      "emptyDescription": "Elige cómo podemos contactarte sobre reservas y mensajes.",
-      "channelsActive_one": "{{count}} canal activado.",
-      "channelsActive_other": "{{count}} canales activados."
-    },
-    "preferences": {
-      "title": "Preferencias de limpieza",
-      "pets": "Mascotas",
-      "children": "Niños",
-      "suppliesReady": "Productos de limpieza disponibles",
-      "parking": "Aparcamiento",
-      "yes": "Sí",
-      "no": "No",
-      "emptyTitle": "Aún no hay preferencias",
-      "emptyDescription": "Añade una dirección principal para establecer tus preferencias"
-    },
     "access": {
-      "title": "Instrucciones de acceso",
-      "method": "Método de acceso",
       "code": "Código",
+      "emptyDescription": "Añade una dirección principal para guardar instrucciones de acceso.",
       "emptyTitle": "Sin instrucciones de acceso",
-      "emptyDescription": "Añade una dirección principal para guardar instrucciones de acceso."
-    },
-    "privacy": {
-      "title": "Privacidad",
-      "description": "Consulta, descarga o solicita la eliminación de tus datos en el Privacy Center."
+      "method": "Método de acceso",
+      "title": "Instrucciones de acceso"
     },
     "account": {
-      "title": "Cuenta",
+      "activeDescription": "Tu cuenta está activa. Siempre puedes desactivarla desde la configuración de la cuenta.",
       "deactivate": "Desactivar",
       "deactivated": "La cuenta está desactivada",
-      "activeDescription": "Tu cuenta está activa. Siempre puedes desactivarla desde la configuración de la cuenta."
+      "title": "Cuenta"
+    },
+    "addressLabels": {
+      "accessMethod": {
+        "code": "Código de acceso",
+        "doorman": "Portero / conserje",
+        "home": "Estoy en casa",
+        "key_box": "Caja de llaves",
+        "key_under_mat": "Llave escondida (bajo el felpudo / maceta)",
+        "other": "Otro"
+      },
+      "placeType": {
+        "business": "Comercial",
+        "other": "Otro",
+        "private": "Privada",
+        "vacation": "Casa de vacaciones"
+      }
+    },
+    "addresses": {
+      "accessPrefix": "Acceso",
+      "addAddress": "Añadir dirección",
+      "description": "Acceso, tamaño, mascotas y notas por dirección.",
+      "emptyDescription": "Añade una dirección para reservar más rápido.",
+      "emptyTitle": "Aún no hay direcciones guardadas",
+      "manage": "Gestionar",
+      "primary": "Principal",
+      "roomsSuffix": "habitación(es)",
+      "sizeSuffix": "m²",
+      "title": "Direcciones guardadas"
+    },
+    "bookingsSummary_one": "Tienes {{count}} reserva en total.",
+    "bookingsSummary_other": "Tienes {{count}} reservas en total.",
+    "comingSoon": {
+      "familyDescription": "Comparte tu cuenta y tus reservas con el resto de tu hogar.",
+      "familyTitle": "Miembros de la familia",
+      "productsDescription": "Guarda tus productos de limpieza preferidos y alergias.",
+      "productsTitle": "Productos preferidos"
+    },
+    "contact": {
+      "noPhone": "Sin número de teléfono",
+      "noSms": "Sin número de SMS",
+      "title": "Contacto",
+      "unverified": "No verificado",
+      "verified": "Verificado"
+    },
+    "edit": "Editar",
+    "editProfile": "Editar perfil",
+    "editors": {
+      "access": "Instrucciones de acceso",
+      "accessFields": {
+        "codeLabel": "Código (opcional)",
+        "instructionsLabel": "Instrucciones",
+        "methodLabel": "Método de acceso"
+      },
+      "addresses": "Direcciones guardadas",
+      "common": {
+        "addPrimaryFirst": "Añade primero una dirección principal",
+        "addPrimaryFirstInline": "Añade primero una dirección principal en \"Direcciones guardadas\".",
+        "invalid": "No válido",
+        "saved": "Guardado"
+      },
+      "contact": "Contacto",
+      "contactFields": {
+        "emailLabel": "Correo electrónico",
+        "emailNote": "El correo electrónico se cambia en la configuración de la cuenta.",
+        "errors": {
+          "phone": "Número no válido"
+        },
+        "phoneLabel": "Teléfono",
+        "phonePlaceholder": "+34 612 34 56 78"
+      },
+      "deactivate": "Desactivar cuenta",
+      "notifications": "Notificaciones",
+      "personal": "Información personal",
+      "personalFields": {
+        "countryLabel": "País (ISO 3166-1)",
+        "countryPlaceholder": "ES",
+        "errors": {
+          "charLimit": "Máx. 100 caracteres",
+          "countryCode": "Código de país de 2 letras"
+        },
+        "fullNameLabel": "Nombre completo",
+        "languageLabel": "Idioma",
+        "languageNone": "—"
+      },
+      "preferences": "Preferencias de limpieza",
+      "prefsFields": {
+        "childrenLabel": "Niños en casa",
+        "parkingLabel": "Aparcamiento",
+        "petDetailsLabel": "Detalles",
+        "petDetailsPlaceholder": "P. ej. 'Perro, no agresivo'",
+        "petsLabel": "Mascotas",
+        "suppliesLabel": "Productos de limpieza disponibles"
+      },
+      "tax": "Datos fiscales"
+    },
+    "manage": "Gestionar",
+    "memberSince": "Miembro desde {{date}}",
+    "notifications": {
+      "channelsActive_one": "{{count}} canal activado.",
+      "channelsActive_other": "{{count}} canales activados.",
+      "emptyDescription": "Elige cómo podemos contactarte sobre reservas y mensajes.",
+      "emptyTitle": "Ningún canal activo",
+      "title": "Notificaciones"
+    },
+    "open": "Abrir",
+    "personal": {
+      "noName": "No se ha indicado un nombre",
+      "title": "Información personal"
+    },
+    "preferences": {
+      "children": "Niños",
+      "emptyDescription": "Añade una dirección principal para establecer tus preferencias",
+      "emptyTitle": "Aún no hay preferencias",
+      "no": "No",
+      "parking": "Aparcamiento",
+      "pets": "Mascotas",
+      "suppliesReady": "Productos de limpieza disponibles",
+      "title": "Preferencias de limpieza",
+      "yes": "Sí"
+    },
+    "privacy": {
+      "description": "Consulta, descarga o solicita la eliminación de tus datos en el Privacy Center.",
+      "title": "Privacidad"
     },
     "shortcuts": {
-      "title": "Accesos directos",
-      "myBookings": "Mis reservas",
-      "myBookingsDescription": "Ver y gestionar",
-      "messages": "Mensajes",
-      "messagesDescription": "Tu bandeja de entrada",
       "cards": "Tarjetas y pagos",
       "cardsDescription": "Métodos de pago",
       "invoices": "Facturas",
       "invoicesDescription": "Recibos y documentos",
+      "messages": "Mensajes",
+      "messagesDescription": "Tu bandeja de entrada",
+      "myBookings": "Mis reservas",
+      "myBookingsDescription": "Ver y gestionar",
       "support": "Soporte",
       "supportDescription": "Obtener ayuda",
       "tax": "Datos fiscales",
-      "taxDescription": "Deducción por servicios"
+      "taxDescription": "Deducción por servicios",
+      "title": "Accesos directos"
     },
-    "comingSoon": {
-      "familyTitle": "Miembros de la familia",
-      "familyDescription": "Comparte tu cuenta y tus reservas con el resto de tu hogar.",
-      "productsTitle": "Productos preferidos",
-      "productsDescription": "Guarda tus productos de limpieza preferidos y alergias."
+    "stats": {
+      "completed": "Completadas",
+      "lastBooking": "Última reserva",
+      "totalBookings": "Reservas totales",
+      "upcoming": "Próximas"
     },
-    "editors": {
-      "personal": "Información personal",
-      "contact": "Contacto",
-      "addresses": "Direcciones guardadas",
-      "notifications": "Notificaciones",
-      "preferences": "Preferencias de limpieza",
-      "access": "Instrucciones de acceso",
-      "deactivate": "Desactivar cuenta",
-      "tax": "Datos fiscales",
-      "common": {
-        "saved": "Guardado",
-        "addPrimaryFirst": "Añade primero una dirección principal",
-        "addPrimaryFirstInline": "Añade primero una dirección principal en \"Direcciones guardadas\".",
-        "invalid": "No válido"
-      },
-      "personalFields": {
-        "fullNameLabel": "Nombre completo",
-        "countryLabel": "País (ISO 3166-1)",
-        "countryPlaceholder": "ES",
-        "languageLabel": "Idioma",
-        "languageNone": "—",
-        "errors": {
-          "charLimit": "Máx. 100 caracteres",
-          "countryCode": "Código de país de 2 letras"
-        }
-      },
-      "contactFields": {
-        "emailLabel": "Correo electrónico",
-        "emailNote": "El correo electrónico se cambia en la configuración de la cuenta.",
-        "phoneLabel": "Teléfono",
-        "phonePlaceholder": "+34 612 34 56 78",
-        "errors": {
-          "phone": "Número no válido"
-        }
-      },
-      "prefsFields": {
-        "petsLabel": "Mascotas",
-        "petDetailsLabel": "Detalles",
-        "petDetailsPlaceholder": "P. ej. 'Perro, no agresivo'",
-        "childrenLabel": "Niños en casa",
-        "suppliesLabel": "Productos de limpieza disponibles",
-        "parkingLabel": "Aparcamiento"
-      },
-      "accessFields": {
-        "methodLabel": "Método de acceso",
-        "codeLabel": "Código (opcional)",
-        "instructionsLabel": "Instrucciones"
+    "subtitle": "Tu cuenta y tus datos",
+    "title": "Mi perfil",
+    "welcomeSubtitle": "Bienvenido/a: reserva tu primera limpieza cuando estés listo/a."
+  },
+  "surfaces": {
+    "addressBook": {
+      "emptyDescription": "Añade una dirección para reservar más rápido la próxima vez.",
+      "emptyTitle": "Aún no hay direcciones guardadas",
+      "fields": {
+        "access": "Acceso para el limpiador",
+        "accessInstructions": "Instrucciones de acceso (opcional)",
+        "accessInstructionsPlaceholder": "ej.: Llama al timbre B, la llave está bajo el felpudo",
+        "addressPlaceholder": "Calle, número, ciudad",
+        "children": "Niños en el hogar",
+        "cleaningSupplies": "Productos de limpieza listos",
+        "codePlaceholder": "ej. 1234",
+        "markPrimary": "Marcar como dirección principal",
+        "name": "Nombre de la dirección",
+        "namePlaceholder": "ej. Casa, Casa de verano, Oficina",
+        "otherNotes": "Otras notas",
+        "parkingPlaceholder": "ej. Gratis en la puerta / zona de pago",
+        "petDetails": "Detalles de la mascota",
+        "petDetailsPlaceholder": "ej. 1 perro, apto para alérgicos",
+        "pets": "Mascotas en el hogar",
+        "placeType": "Tipo de lugar",
+        "rooms": "Habitaciones",
+        "size": "Tamaño (m²)",
+        "wifiName": "Nombre de WiFi (opcional)",
+        "wifiPassword": "Contraseña de WiFi (opcional)"
       }
     },
-    "addressLabels": {
-      "placeType": {
-        "private": "Privada",
-        "business": "Comercial",
-        "vacation": "Casa de vacaciones",
-        "other": "Otro"
+    "bookingPlan": {
+      "addFocusPlaceholder": "Añadir tu propio enfoque...",
+      "addRoomPlaceholder": "Añadir habitación (ej. Entrada, Lavandería)",
+      "addTaskPlaceholder": "Añadir tarea...",
+      "editingSaved": "Editando plan guardado",
+      "fixedPlan": "Plan fijo para la propiedad",
+      "focusAreas": "Áreas de enfoque",
+      "howToSave": "Cómo quieres guardarlo",
+      "locked": "Bloqueado",
+      "noAddressFound": "No se encontró ninguna dirección — añade una en tu perfil para guardarla como plan fijo.",
+      "notFound": "Reserva no encontrada.",
+      "notesPlaceholder": "ej.: la llave está bajo el felpudo, el perro está en casa, usa productos sin perfume...",
+      "notesToCleaner": "Notas para el limpiador",
+      "onlyThisBooking": "Solo para esta limpieza",
+      "reusedAt": "Se reutiliza automáticamente en todas las futuras reservas en",
+      "roomsAndTasks": "Habitaciones y tareas",
+      "title": "Plan de limpieza"
+    },
+    "createTask": {
+      "afternoon": "Tarde (12-17)",
+      "aiEstimate": "Estimación de precio con IA",
+      "describeTask": "Describe la tarea",
+      "descriptionPlaceholder": "Describe con qué necesitas ayuda. Cuanto más detalle, mejor la oferta...",
+      "evening": "Noche (17-21)",
+      "morning": "Mañana (8-12)",
+      "preferredDate": "Fecha deseada",
+      "subtitle": "Describe tu tarea y recibe ofertas impulsadas por IA de profesionales verificados",
+      "title": "Crear una tarea"
+    },
+    "dashboard": {
+      "bookCleaning": "Reservar limpieza",
+      "description": "Resumen de tus reservas, mensajes y cuenta. Tú eliges y reservas tú mismo un proveedor independiente a través de la plataforma MyCleaner.",
+      "feed": {
+        "description": "Las recomendaciones personales basadas en tu historial están en camino. Esta función aún no está activa.",
+        "title": "Feed personal"
       },
-      "accessMethod": {
-        "home": "Estoy en casa",
-        "key_box": "Caja de llaves",
-        "key_under_mat": "Llave escondida (bajo el felpudo / maceta)",
-        "doorman": "Portero / conserje",
-        "code": "Código de acceso",
-        "other": "Otro"
+      "history": {
+        "description": "Consulta el recibo o vuelve a reservar el mismo proveedor.",
+        "emptyDescription": "Tus reservas completadas aparecerán aquí.",
+        "emptyTitle": "Aún no hay historial",
+        "title": "Reservas anteriores"
+      },
+      "notifications": {
+        "emptyDescription": "Los mensajes sobre tus reservas aparecerán aquí.",
+        "emptyTitle": "Todo tranquilo aquí"
+      },
+      "quickActions": {
+        "book": {
+          "description": "Elige hora y limpiador",
+          "title": "Reservar limpieza"
+        },
+        "bookings": {
+          "description": "Ver y gestionar",
+          "title": "Mis reservas"
+        },
+        "favorites": {
+          "description": "Tus proveedores favoritos"
+        },
+        "invoices": {
+          "description": "Ver y descargar recibos"
+        },
+        "messages": {
+          "description": "Chatea con tus proveedores"
+        },
+        "support": {
+          "description": "Te ayudamos"
+        }
+      },
+      "stats": {
+        "completed": "Completadas",
+        "memberSince": "Miembro desde",
+        "totalSpent": "Total pagado"
+      },
+      "upcoming": {
+        "emptyDescription": "Encuentra un limpiador y reserva directamente en su calendario.",
+        "emptyTitle": "No hay próximas reservas",
+        "findCleaner": "Encontrar un limpiador",
+        "title": "Próximas reservas"
       }
+    },
+    "findCleaner": {
+      "availableToday": "Disponible hoy",
+      "clickToOpenProfile": "Haz clic para abrir el perfil",
+      "filterByServiceArea": "Filtrar por área de servicio (selecciona varias)",
+      "filterCleaners": "Filtrar limpiadores",
+      "instantBook": "Reserva instantánea",
+      "maxHourlyRate": "Tarifa máx. por hora",
+      "minExperience": "Años mín. de experiencia",
+      "minRating": "Valoración mín.",
+      "moveMapToSeeProviders": "Mueve el mapa o aleja el zoom para ver proveedores.",
+      "somethingWentWrong": "Algo salió mal",
+      "title": "Encuentra tu limpiador"
+    },
+    "header": {
+      "account": {
+        "logOut": "Cerrar sesión",
+        "myAccount": "Mi cuenta"
+      },
+      "getStarted": "Empezar",
+      "homeAriaLabel": "MyCleaner – inicio",
+      "login": "Iniciar sesión",
+      "logoAriaLabel": "MyCleaner – inicio",
+      "nav": {
+        "adminDashboard": "Panel de administración",
+        "becomeProvider": "Conviértete en proveedor",
+        "bookCleaner": "Reservar limpieza",
+        "dashboard": "Panel",
+        "employeePortal": "Empleado",
+        "faq": "Preguntas frecuentes",
+        "findCleaner": "Buscar limpiador/a",
+        "howItWorks": "Cómo funciona",
+        "myBookings": "Mis reservas",
+        "myProfile": "Mi perfil",
+        "providerDashboard": "Panel del proveedor",
+        "receipts": "Recibos y gastos",
+        "rules": "Normas"
+      },
+      "toggleMenu": "Alternar menú"
+    },
+    "marketplace": {
+      "allServices": "Todos los servicios",
+      "allTiers": "Todos los niveles",
+      "findCleaner": "Encontrar un limpiador",
+      "maxHourlyRatePlaceholder": "Tarifa máx. por hora",
+      "minTierPlaceholder": "Nivel mín.",
+      "next": "Siguiente",
+      "noneMatchFilters": "Ningún proveedor coincide con tus filtros.",
+      "subtitle": "Explora proveedores verificados. Reserva directamente en su calendario."
+    },
+    "profileExtra": {
+      "deactivate": {
+        "bookingsCancelled": "Las futuras reservas se cancelarán automáticamente.",
+        "dataDeleted": "Después de 30 días, los datos personales se eliminan permanentemente.",
+        "dataRetained": "Tus datos se conservan durante 30 días — contacta con soporte si cambias de opinión.",
+        "hidesProfile": "Esto oculta tu perfil y pausa toda la actividad.",
+        "reasonLabel": "Motivo (opcional)",
+        "title": "Desactivar cuenta"
+      },
+      "marketingNotifications": "Marketing y novedades",
+      "sms": {
+        "cityPlaceholder": "ej. Copenhague",
+        "codeExpires": "El código caduca en 10 minutos.",
+        "enable": "Activar SMS",
+        "enterCode": "Introduce el código de 6 dígitos"
+      },
+      "tax": {
+        "estimatedValue": "Valor fiscal aprox.",
+        "howToReport": "Cómo declarar la deducción",
+        "step1": "Inicia sesión en",
+        "step1Mitid": "con MitID.",
+        "step2Edit": "Editar declaración anual",
+        "step2GoTo": "Ve a",
+        "step2Statement": "Declaración anual",
+        "step3": "Introduce el importe total que has pagado por servicios aprobados (mano de obra, no materiales).",
+        "step4": "Indica MyCleaner / el número de empresa del proveedor como destinatario. Guarda tus recibos durante 5 años.",
+        "step5": "La deducción se calcula automáticamente y reduce tu impuesto pendiente (o aumenta tu exceso de impuesto).",
+        "totalUsed": "Total gastado",
+        "yearlyLimit": "Límite anual"
+      }
+    },
+    "register": {
+      "addressPlaceholder": "Nombre de la calle 123",
+      "betterSuggestions": "Mejores sugerencias desde el principio",
+      "floors": "Número de plantas",
+      "homeInfo": "La información se usa para la limpieza y solo se comparte con el limpiador que reserves.",
+      "passwordPlaceholder": "Al menos 6 caracteres",
+      "preferredDays": "Días preferidos",
+      "preferredTime": "Hora preferida",
+      "saveAndContinue": "Guardar y continuar a la reserva",
+      "size": "Tamaño (m²)",
+      "terms": "los términos",
+      "whoAreYou": "Primero: ¿quién eres?"
     }
   }
 }
