@@ -179,8 +179,30 @@ Deno.serve(async (req) => {
     }
   }
 
+  // 4) Optional: probe caller-supplied candidate level names. Lets an admin
+  //    discover the real level name when the listing endpoint is unavailable.
+  let candidateProbes: unknown = null;
+  try {
+    const body = req.method === "POST" ? await req.json().catch(() => ({})) : {};
+    const candidates = Array.isArray(body?.candidates) ? body.candidates.slice(0, 25) : [];
+    if (candidates.length) {
+      const out: Record<string, unknown> = {};
+      for (const c of candidates) {
+        if (typeof c !== "string" || !c) continue;
+        const p2 = await probe(
+          host, appToken, secretKey, "POST",
+          `/resources/accessTokens?userId=${encodeURIComponent("mycleaner-selftest")}` +
+            `&levelName=${encodeURIComponent(c)}&ttlInSecs=60`,
+        );
+        out[c] = { http_status: p2.status, exists: p2.ok, note: p2.note };
+      }
+      candidateProbes = out;
+    }
+  } catch { /* ignore */ }
+
   result.probes = {
     available_levels: availableLevels,
+    candidate_levels: candidateProbes,
     credentials: {
       http_status: credProbe.status,
       credentials_valid: credProbe.status === 404 || credProbe.ok,
