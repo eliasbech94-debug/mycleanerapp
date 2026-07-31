@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -21,6 +22,7 @@ function emptySource(): RulePackSource {
 }
 
 export default function RulePackSourcesTab({ pack, readOnly, onChange }: TabProps) {
+  const { t } = useTranslation("admin");
   const update = (index: number, patch: Partial<RulePackSource>) =>
     onChange({ sources: pack.sources.map((s, i) => (i === index ? { ...s, ...patch } : s)) });
 
@@ -29,31 +31,31 @@ export default function RulePackSourcesTab({ pack, readOnly, onChange }: TabProp
       <Card>
         <CardHeader className="flex-row items-center justify-between space-y-0">
           <div>
-            <CardTitle className="text-base">Kilder</CardTitle>
+            <CardTitle className="text-base">{t("rules.sources.title")}</CardTitle>
             <p className="text-xs text-muted-foreground">
-              Publish kræver mindst én kilde med navn, https-URL, kontroldato og kontrolleret af.
+              {t("rules.sources.hint")}
             </p>
           </div>
           {!readOnly && (
             <Button size="sm" variant="outline" onClick={() => onChange({ sources: [...pack.sources, emptySource()] })}>
               <Plus className="mr-1 h-4 w-4" aria-hidden />
-              Tilføj kilde
+              {t("rules.sources.addSource")}
             </Button>
           )}
         </CardHeader>
         <CardContent className="space-y-3">
-          {pack.sources.length === 0 && <p className="text-sm text-muted-foreground">Ingen kilder tilføjet.</p>}
+          {pack.sources.length === 0 && <p className="text-sm text-muted-foreground">{t("rules.sources.noSources")}</p>}
           {pack.sources.map((source, index) => (
             <div key={index} className="space-y-3 rounded-lg border border-border p-3">
               <div className="flex items-center justify-between gap-2">
                 <Badge variant={isSourceVerified(source) ? "default" : "outline"}>
-                  {isSourceVerified(source) ? "Verificeret" : "Ikke verificeret"}
+                  {isSourceVerified(source) ? t("rules.sources.verified") : t("rules.sources.notVerified")}
                 </Badge>
                 {!readOnly && (
                   <Button
                     size="icon"
                     variant="ghost"
-                    aria-label={`Slet kilde ${index + 1}`}
+                    aria-label={t("rules.sources.deleteSourceAria", { index: index + 1 })}
                     onClick={() => onChange({ sources: pack.sources.filter((_, i) => i !== index) })}
                   >
                     <Trash2 className="h-4 w-4" aria-hidden />
@@ -62,7 +64,7 @@ export default function RulePackSourcesTab({ pack, readOnly, onChange }: TabProp
               </div>
               <div className="grid gap-3 md:grid-cols-2">
                 <div className="space-y-1">
-                  <label htmlFor={`source-name-${index}`} className="text-xs text-muted-foreground">Myndighed</label>
+                  <label htmlFor={`source-name-${index}`} className="text-xs text-muted-foreground">{t("rules.sources.authorityLabel")}</label>
                   <Input
                     id={`source-name-${index}`}
                     value={source.officialSourceName}
@@ -71,7 +73,7 @@ export default function RulePackSourcesTab({ pack, readOnly, onChange }: TabProp
                   />
                 </div>
                 <div className="space-y-1">
-                  <label htmlFor={`source-url-${index}`} className="text-xs text-muted-foreground">URL (https)</label>
+                  <label htmlFor={`source-url-${index}`} className="text-xs text-muted-foreground">{t("rules.sources.urlLabel")}</label>
                   <Input
                     id={`source-url-${index}`}
                     value={source.officialSourceUrl}
@@ -80,7 +82,7 @@ export default function RulePackSourcesTab({ pack, readOnly, onChange }: TabProp
                   />
                 </div>
                 <div className="space-y-1">
-                  <label htmlFor={`source-doc-${index}`} className="text-xs text-muted-foreground">Dokumenttitel</label>
+                  <label htmlFor={`source-doc-${index}`} className="text-xs text-muted-foreground">{t("rules.sources.docTitleLabel")}</label>
                   <Input
                     id={`source-doc-${index}`}
                     value={source.sourceDocumentTitle ?? ""}
@@ -89,7 +91,7 @@ export default function RulePackSourcesTab({ pack, readOnly, onChange }: TabProp
                   />
                 </div>
                 <div className="space-y-1">
-                  <label htmlFor={`source-published-${index}`} className="text-xs text-muted-foreground">Publiceret</label>
+                  <label htmlFor={`source-published-${index}`} className="text-xs text-muted-foreground">{t("rules.sources.publishedLabel")}</label>
                   <Input
                     id={`source-published-${index}`}
                     type="date"
@@ -99,7 +101,7 @@ export default function RulePackSourcesTab({ pack, readOnly, onChange }: TabProp
                   />
                 </div>
                 <div className="space-y-1">
-                  <label htmlFor={`source-checked-${index}`} className="text-xs text-muted-foreground">Kontrolleret</label>
+                  <label htmlFor={`source-checked-${index}`} className="text-xs text-muted-foreground">{t("rules.sources.checkedLabel")}</label>
                   <Input
                     id={`source-checked-${index}`}
                     type="date"
@@ -109,7 +111,7 @@ export default function RulePackSourcesTab({ pack, readOnly, onChange }: TabProp
                   />
                 </div>
                 <div className="space-y-1">
-                  <label htmlFor={`source-by-${index}`} className="text-xs text-muted-foreground">Kontrolleret af</label>
+                  <label htmlFor={`source-by-${index}`} className="text-xs text-muted-foreground">{t("rules.sources.checkedByLabel")}</label>
                   <Input
                     id={`source-by-${index}`}
                     value={source.checkedBy ?? ""}
@@ -118,7 +120,7 @@ export default function RulePackSourcesTab({ pack, readOnly, onChange }: TabProp
                   />
                 </div>
                 <div className="space-y-1 md:col-span-2">
-                  <label htmlFor={`source-notes-${index}`} className="text-xs text-muted-foreground">Noter</label>
+                  <label htmlFor={`source-notes-${index}`} className="text-xs text-muted-foreground">{t("rules.sources.notesLabel")}</label>
                   <Textarea
                     id={`source-notes-${index}`}
                     value={source.verificationNotes ?? ""}
@@ -134,11 +136,11 @@ export default function RulePackSourcesTab({ pack, readOnly, onChange }: TabProp
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Verifikation af rule pack</CardTitle>
+          <CardTitle className="text-base">{t("rules.sources.verificationTitle")}</CardTitle>
         </CardHeader>
         <CardContent className="grid gap-4 md:grid-cols-2">
           <div className="space-y-1">
-            <label htmlFor="verified-at" className="text-xs text-muted-foreground">Verificeret dato</label>
+            <label htmlFor="verified-at" className="text-xs text-muted-foreground">{t("rules.sources.verifiedAtLabel")}</label>
             <Input
               id="verified-at"
               type="date"
@@ -148,7 +150,7 @@ export default function RulePackSourcesTab({ pack, readOnly, onChange }: TabProp
             />
           </div>
           <div className="space-y-1">
-            <label htmlFor="verified-by" className="text-xs text-muted-foreground">Verificeret af</label>
+            <label htmlFor="verified-by" className="text-xs text-muted-foreground">{t("rules.sources.verifiedByLabel")}</label>
             <Input
               id="verified-by"
               value={pack.verifiedBy ?? ""}
