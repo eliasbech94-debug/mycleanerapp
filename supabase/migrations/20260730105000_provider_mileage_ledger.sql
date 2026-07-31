@@ -97,8 +97,13 @@ RETURNS trigger LANGUAGE plpgsql SET search_path = public AS $$
 DECLARE
   booking_provider text;
   booking_country text;
+  selected_rule_version integer;
+  selected_currency text;
+  selected_rate_per_km numeric(12,4);
+  selected_calculation_mode text;
 BEGIN
   NEW.country_code := upper(NEW.country_code);
+
   IF NEW.booking_id IS NOT NULL THEN
     SELECT provider_id, upper(coalesce(country_code, NEW.country_code))
       INTO booking_provider, booking_country
@@ -107,10 +112,48 @@ BEGIN
     IF booking_provider <> NEW.provider_id THEN RAISE EXCEPTION 'Provider does not own booking'; END IF;
     IF booking_country <> NEW.country_code THEN RAISE EXCEPTION 'Mileage country must match booking country'; END IF;
   END IF;
+
+  IF NEW.country_rule_version IS NOT NULL THEN
+    SELECT version, currency, rate_per_km, calculation_mode
+      INTO selected_rule_version, selected_currency, selected_rate_per_km, selected_calculation_mode
+    FROM public.mileage_country_rules
+    WHERE country_code = NEW.country_code
+      AND version = NEW.country_rule_version
+      AND effective_from <= NEW.travel_date
+      AND (effective_to IS NULL OR effective_to >= NEW.travel_date);
+    IF selected_rule_version IS NULL THEN
+      RAISE EXCEPTION 'Mileage country rule is invalid for travel date';
+    END IF;
+  ELSE
+    SELECT version, currency, rate_per_km, calculation_mode
+      INTO selected_rule_version, selected_currency, selected_rate_per_km, selected_calculation_mode
+    FROM public.mileage_country_rules
+    WHERE country_code = NEW.country_code
+      AND is_active
+      AND effective_from <= NEW.travel_date
+      AND (effective_to IS NULL OR effective_to >= NEW.travel_date)
+    ORDER BY effective_from DESC, version DESC
+    LIMIT 1;
+  END IF;
+
+  NEW.country_rule_version := selected_rule_version;
+  NEW.currency := selected_currency;
+
   IF NEW.vehicle_type = 'public_transport' THEN
     NEW.status := 'rejected';
-    NEW.estimated_allowance_amount := NULL;
   END IF;
+
+  IF NEW.status = 'rejected'
+     OR selected_calculation_mode IS DISTINCT FROM 'allowance_estimate'
+     OR selected_rate_per_km IS NULL THEN
+    NEW.estimated_allowance_amount := NULL;
+  ELSE
+    NEW.estimated_allowance_amount := round(
+      (NEW.outbound_distance_km + NEW.return_distance_km) * selected_rate_per_km,
+      2
+    );
+  END IF;
+
   IF NEW.status = 'confirmed' AND NEW.provider_confirmed_at IS NULL THEN
     NEW.provider_confirmed_at := now();
   ELSIF NEW.status <> 'confirmed' THEN
@@ -139,4 +182,6 @@ GROUP BY provider_id, date_trunc('month', travel_date), country_code, currency;
 
 GRANT SELECT ON public.provider_mileage_monthly_summary TO authenticated;
 COMMENT ON COLUMN public.provider_mileage_entries.estimated_allowance_amount IS
-  'Informational country-rule estimate only; not a final tax determination.';
+  'Server-derived estimate: route kilometres multiplied by the applicable versioned country rate; not a final tax determination.';
+COMMENT ON COLUMN public.provider_mileage_entries.currency IS
+  'Server-derived from the applicable mileage_country_rules row; client input is overwritten.';
