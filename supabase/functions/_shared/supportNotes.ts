@@ -1,5 +1,15 @@
 // Shared validation + shaping for private support notes (staff-only).
-import type { SupabaseClient } from "npm:@supabase/supabase-js@2";
+// Minimal structural type so this module also typechecks in the app/test
+// toolchain (Deno `npm:` specifiers are not resolvable there).
+type SupabaseClient = {
+  from: (table: string) => {
+    select: (columns: string) => {
+      eq: (column: string, value: string) => {
+        maybeSingle: () => Promise<{ data: unknown }>;
+      };
+    };
+  };
+};
 
 export const NOTE_BODY_MAX = 5000;
 export const SUBJECT_TYPES = ["customer", "provider"] as const;
