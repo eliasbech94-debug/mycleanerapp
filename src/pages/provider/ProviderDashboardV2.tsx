@@ -32,6 +32,7 @@ import {
   WelcomeHeader,
 } from "@/components/dashboard/primitives";
 import { AppErrorBoundary } from "@/components/AppErrorBoundary";
+import ProviderDecisionBanner from "@/components/provider/ProviderDecisionBanner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useNotifications } from "@/components/Inbox";
@@ -79,6 +80,10 @@ export default function ProviderDashboardV2() {
         description="Overblik over dine bookinger, din indtjening og din profilstatus som selvstændig provider."
       >
         <div className="grid gap-5 lg:gap-6">
+          <AppErrorBoundary>
+            <ProviderDecisionBanner />
+          </AppErrorBoundary>
+
           {data.error && (
             <SectionErrorState
               message={data.error}
