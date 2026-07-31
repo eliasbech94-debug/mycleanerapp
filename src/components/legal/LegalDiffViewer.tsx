@@ -2,6 +2,7 @@
 import { useMemo } from "react";
 import { diffLines, diffStats, type DiffLine } from "@/lib/legal/diff";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 function Column({ lines, side }: { lines: DiffLine[]; side: "old" | "new" }) {
   const visible = lines.filter((l) => (side === "old" ? l.type !== "added" : l.type !== "removed"));
@@ -24,6 +25,7 @@ function Column({ lines, side }: { lines: DiffLine[]; side: "old" | "new" }) {
 }
 
 export function LegalDiffViewer({ oldText, newText }: { oldText: string; newText: string }) {
+  const { t } = useTranslation("common");
   const lines = useMemo(() => diffLines(oldText, newText), [oldText, newText]);
   const stats = useMemo(() => diffStats(lines), [lines]);
 
@@ -31,15 +33,15 @@ export function LegalDiffViewer({ oldText, newText }: { oldText: string; newText
     <div className="space-y-3">
       <p className="text-xs text-muted-foreground">
         <span className="font-medium text-primary">+{stats.added}</span>{" "}
-        <span className="font-medium text-destructive">−{stats.removed}</span> linjer ændret
+        <span className="font-medium text-destructive">−{stats.removed}</span> {t("ui.legalDiffViewer.linesChanged")}
       </p>
       <div className="grid gap-3 md:grid-cols-2">
-        <section aria-label="Nuværende version">
-          <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Nuværende version</h3>
+        <section aria-label={t("ui.legalDiffViewer.currentVersion")}>
+          <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t("ui.legalDiffViewer.currentVersion")}</h3>
           <Column lines={lines} side="old" />
         </section>
-        <section aria-label="Ny version">
-          <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Ny version</h3>
+        <section aria-label={t("ui.legalDiffViewer.newVersion")}>
+          <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t("ui.legalDiffViewer.newVersion")}</h3>
           <Column lines={lines} side="new" />
         </section>
       </div>

@@ -413,20 +413,20 @@ export function TaxTab() {
         <div>
           <label className="mb-1 block text-xs font-bold uppercase tracking-wider opacity-70">{t("surfaces.profileExtra.tax.type")}</label>
           <div className="flex gap-2">
-            {(["private", "business"] as const).map((t) => (
+            {(["private", "business"] as const).map((opt) => (
               <button
-                key={t}
+                key={opt}
                 type="button"
-                onClick={() => setType(t)}
-                aria-pressed={type === t}
+                onClick={() => setType(opt)}
+                aria-pressed={type === opt}
                 className="flex-1 rounded-xl border-2 px-4 py-3 text-sm font-bold"
                 style={{
-                  borderColor: type === t ? C.teal : `${C.ink}22`,
-                  background: type === t ? `${C.teal}18` : "#fff",
+                  borderColor: type === opt ? C.teal : `${C.ink}22`,
+                  background: type === opt ? `${C.teal}18` : "#fff",
                   color: C.ink,
                 }}
               >
-                {t2 === "private" ? t("surfaces.profileExtra.tax.private") : t("surfaces.profileExtra.tax.business")}
+                {opt === "private" ? t("surfaces.profileExtra.tax.private") : t("surfaces.profileExtra.tax.business")}
               </button>
             ))}
           </div>
