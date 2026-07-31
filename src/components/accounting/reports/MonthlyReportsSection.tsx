@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -31,13 +32,13 @@ export interface MonthlyReportsSectionProps {
   onToggleSuperseded?: (next: boolean) => void;
 }
 
-const STATUS_LABELS: Record<MonthlyReportStatus, { label: string; variant: "default" | "secondary" | "outline" | "destructive" }> = {
-  scheduled: { label: "Planlagt", variant: "outline" },
-  generating: { label: "Genereres", variant: "secondary" },
-  ready: { label: "Klar", variant: "default" },
-  ready_with_warnings: { label: "Klar — kræver kontrol", variant: "secondary" },
-  failed: { label: "Kunne ikke genereres", variant: "destructive" },
-  superseded: { label: "Erstattet", variant: "outline" },
+const STATUS_VARIANTS: Record<MonthlyReportStatus, "default" | "secondary" | "outline" | "destructive"> = {
+  scheduled: "outline",
+  generating: "secondary",
+  ready: "default",
+  ready_with_warnings: "secondary",
+  failed: "destructive",
+  superseded: "outline",
 };
 
 export default function MonthlyReportsSection({
@@ -50,6 +51,7 @@ export default function MonthlyReportsSection({
   showSuperseded = false,
   onToggleSuperseded,
 }: MonthlyReportsSectionProps) {
+  const { t } = useTranslation("finance");
   const [preview, setPreview] = useState<ReportDocument | null>(null);
 
   const visible = showSuperseded ? reports : reports.filter((item) => item.record.isCurrentVersion);
@@ -59,23 +61,18 @@ export default function MonthlyReportsSection({
     <div className="space-y-4">
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-base">Månedlige regnskabsrapporter</CardTitle>
+          <CardTitle className="text-base">{t("ui.reports.section.title")}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2 text-sm text-muted-foreground">
-          <p>
-            MyCleaner samler automatisk din måned i én rapport den 1. i den efterfølgende måned.
-            Rapporten indeholder indkomst, gebyrer, udgifter, kørsel og poster, der kræver kontrol.
-          </p>
-          <p>
-            Rapporten er en foreløbig oversigt — ikke en officiel skatte- eller momsindberetning.
-          </p>
+          <p>{t("ui.reports.section.description1")}</p>
+          <p>{t("ui.reports.section.description2")}</p>
         </CardContent>
       </Card>
 
       {unavailableReason && (
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-base">Rapporter kan ikke hentes lige nu</CardTitle>
+            <CardTitle className="text-base">{t("ui.reports.section.unavailableTitle")}</CardTitle>
           </CardHeader>
           <CardContent className="text-sm text-muted-foreground">{unavailableReason}</CardContent>
         </Card>
@@ -84,19 +81,19 @@ export default function MonthlyReportsSection({
       {loading ? (
         <div className="flex items-center gap-2 py-8 text-sm text-muted-foreground">
           <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
-          <span>Henter rapporter…</span>
+          <span>{t("ui.reports.section.loading")}</span>
         </div>
       ) : visible.length === 0 && !unavailableReason ? (
         <Card>
           <CardContent className="py-8 text-center text-sm text-muted-foreground">
-            Der er endnu ingen månedsrapporter. Den første rapport oprettes automatisk, når din
-            første måned med aktivitet er afsluttet.
+            {t("ui.reports.section.emptyState")}
           </CardContent>
         </Card>
       ) : (
         <ul className="space-y-3">
           {visible.map(({ record, document }) => {
-            const status = STATUS_LABELS[record.status];
+            const statusLabel = t(`ui.reports.section.status.${record.status}`);
+            const statusVariant = STATUS_VARIANTS[record.status];
             return (
               <li key={record.id}>
                 <Card>
@@ -106,32 +103,32 @@ export default function MonthlyReportsSection({
                         <h3 className="font-medium text-foreground">
                           {monthLabel(record.reportYear, record.reportMonth)}
                         </h3>
-                        <Badge variant={status.variant}>{status.label}</Badge>
+                        <Badge variant={statusVariant}>{statusLabel}</Badge>
                         {record.reportKind === "provisional" && (
-                          <Badge variant="outline">Foreløbig</Badge>
+                          <Badge variant="outline">{t("ui.reports.section.provisional")}</Badge>
                         )}
                         {record.reportVersion > 1 && (
-                          <Badge variant="outline">Version {record.reportVersion}</Badge>
+                          <Badge variant="outline">{t("ui.reports.section.versionLabel", { version: record.reportVersion })}</Badge>
                         )}
                       </div>
                       <p className="mt-1 text-sm text-muted-foreground">
                         {record.periodStart} – {record.periodEnd}
                         {record.jurisdictionCode ? ` · ${record.jurisdictionCode}` : ""}
-                        {record.rulePackVersion ? ` · regelpakke ${record.rulePackVersion}` : ""}
+                        {record.rulePackVersion ? t("ui.reports.section.rulePackSuffix", { version: record.rulePackVersion }) : ""}
                       </p>
                       <p className="mt-1 text-sm">
-                        <span className="text-muted-foreground">Samlet indkomst: </span>
+                        <span className="text-muted-foreground">{t("ui.reports.section.totalIncome")}</span>
                         <span className="font-medium text-foreground">
                           {formatMinor(record.totalIncomeMinor, record.accountingCurrency, locale)}
                         </span>
-                        <span className="text-muted-foreground"> · Foreløbigt resultat: </span>
+                        <span className="text-muted-foreground">{t("ui.reports.section.preliminaryResult")}</span>
                         <span className="font-medium text-foreground">
                           {formatMinor(record.preliminaryResultMinor, record.accountingCurrency, locale)}
                         </span>
                       </p>
                       {record.reviewRequiredCount > 0 && (
                         <p className="mt-1 text-sm text-muted-foreground">
-                          {record.reviewRequiredCount} post(er) kræver din kontrol.
+                          {t("ui.reports.section.reviewRequiredCount", { count: record.reviewRequiredCount })}
                         </p>
                       )}
                       {record.status === "failed" && record.generationErrorMessage && (
@@ -143,7 +140,7 @@ export default function MonthlyReportsSection({
                       {document && (
                         <Button variant="outline" size="sm" onClick={() => setPreview(document)}>
                           <FileText className="mr-2 h-4 w-4" aria-hidden />
-                          Se rapport
+                          {t("ui.reports.section.viewReport")}
                         </Button>
                       )}
                       {onDownload && record.pdfStoragePath && (
@@ -151,14 +148,14 @@ export default function MonthlyReportsSection({
                           size="sm"
                           onClick={() => onDownload(record)}
                           disabled={downloadingId === record.id}
-                          aria-label={`Download rapport for ${monthLabel(record.reportYear, record.reportMonth)}`}
+                          aria-label={t("ui.reports.section.downloadAriaLabel", { month: monthLabel(record.reportYear, record.reportMonth) })}
                         >
                           {downloadingId === record.id ? (
                             <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden />
                           ) : (
                             <Download className="mr-2 h-4 w-4" aria-hidden />
                           )}
-                          Download PDF
+                          {t("ui.reports.section.downloadPdf")}
                         </Button>
                       )}
                     </div>
@@ -172,14 +169,14 @@ export default function MonthlyReportsSection({
 
       {hasSuperseded && onToggleSuperseded && (
         <Button variant="ghost" size="sm" onClick={() => onToggleSuperseded(!showSuperseded)}>
-          {showSuperseded ? "Skjul tidligere versioner" : "Vis tidligere versioner"}
+          {showSuperseded ? t("ui.reports.section.hidePrevious") : t("ui.reports.section.showPrevious")}
         </Button>
       )}
 
       <Dialog open={preview !== null} onOpenChange={(open) => !open && setPreview(null)}>
         <DialogContent className="max-h-[85vh] max-w-3xl overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{preview?.title ?? "Rapport"}</DialogTitle>
+            <DialogTitle>{preview?.title ?? t("ui.reports.section.reportFallbackTitle")}</DialogTitle>
           </DialogHeader>
           {preview && <ReportDocumentView document={preview} />}
         </DialogContent>
