@@ -1082,6 +1082,21 @@
       "deactivated": "Deaktiveret",
       "active": "Aktiv"
     },
+    "dashboard": {
+      "title": "Overblik",
+      "description": "Dagens supportstatus og seneste aktivitet.",
+      "mineOpen": "Mine åbne",
+      "unassigned": "Ikke tildelte",
+      "urgent": "Akutte",
+      "escalated": "Eskalerede",
+      "unread": "Ulæste",
+      "recentActivity": "Seneste aktivitet",
+      "recentEmpty": "Ingen aktivitet endnu.",
+      "error": "Fejl: {{message}}",
+      "assignedToMe": "Tildelt mig",
+      "openConversation": "Åbn samtale",
+      "noSubject": "(Uden emne)"
+    },
     "detail": {
       "selectPrompt": "Vælg en samtale for at se detaljer.",
       "loadFailed": "Kunne ikke hente samtalen.",
@@ -1111,6 +1126,25 @@
       },
       "detailAria": "Samtaledetaljer",
       "contextAria": "Kontekst"
+    },
+    "notes": {
+      "title": "Private noter",
+      "staffOnly": "Kun synlig for MyCleaner-medarbejdere",
+      "placeholder": "Skriv en intern note…",
+      "add": "Tilføj note",
+      "save": "Gem",
+      "cancel": "Annullér",
+      "edit": "Redigér",
+      "pin": "Fastgør",
+      "unpin": "Fjern fastgørelse",
+      "pinned": "Fastgjort",
+      "empty": "Ingen noter endnu.",
+      "error": "Fejl: {{message}}",
+      "saved": "Noten er gemt",
+      "loading": "Henter noter…",
+      "toggle": "Vis private noter",
+      "counter": "{{count}} noter",
+      "authorOnly": "Kun forfatteren kan redigere denne note"
     },
     "providers": {
       "title": "Providere",

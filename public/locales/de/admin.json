@@ -1082,6 +1082,21 @@
       "deactivated": "Deaktiviert",
       "active": "Aktiv"
     },
+    "dashboard": {
+      "title": "Überblick",
+      "description": "Aktueller Support-Status und letzte Aktivität.",
+      "mineOpen": "Meine offenen",
+      "unassigned": "Nicht zugewiesen",
+      "urgent": "Dringend",
+      "escalated": "Eskaliert",
+      "unread": "Ungelesen",
+      "recentActivity": "Letzte Aktivität",
+      "recentEmpty": "Noch keine Aktivität.",
+      "error": "Fehler: {{message}}",
+      "assignedToMe": "Mir zugewiesen",
+      "openConversation": "Konversation öffnen",
+      "noSubject": "(Ohne Betreff)"
+    },
     "detail": {
       "selectPrompt": "Wählen Sie eine Konversation, um Details zu sehen.",
       "loadFailed": "Konversation konnte nicht geladen werden.",
@@ -1111,6 +1126,25 @@
       },
       "detailAria": "Konversationsdetails",
       "contextAria": "Kontext"
+    },
+    "notes": {
+      "title": "Private Notizen",
+      "staffOnly": "Nur für MyCleaner-Mitarbeitende sichtbar",
+      "placeholder": "Interne Notiz schreiben…",
+      "add": "Notiz hinzufügen",
+      "save": "Speichern",
+      "cancel": "Abbrechen",
+      "edit": "Bearbeiten",
+      "pin": "Anheften",
+      "unpin": "Lösen",
+      "pinned": "Angeheftet",
+      "empty": "Noch keine Notizen.",
+      "error": "Fehler: {{message}}",
+      "saved": "Notiz gespeichert",
+      "loading": "Notizen werden geladen…",
+      "toggle": "Private Notizen anzeigen",
+      "counter": "{{count}} Notizen",
+      "authorOnly": "Nur die verfassende Person kann diese Notiz bearbeiten"
     },
     "providers": {
       "title": "Anbieter",

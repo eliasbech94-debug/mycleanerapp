@@ -1082,6 +1082,21 @@
       "deactivated": "Inaktiverad",
       "active": "Aktiv"
     },
+    "dashboard": {
+      "title": "Översikt",
+      "description": "Dagens supportstatus och senaste aktivitet.",
+      "mineOpen": "Mina öppna",
+      "unassigned": "Ej tilldelade",
+      "urgent": "Akuta",
+      "escalated": "Eskalerade",
+      "unread": "Olästa",
+      "recentActivity": "Senaste aktivitet",
+      "recentEmpty": "Ingen aktivitet ännu.",
+      "error": "Fel: {{message}}",
+      "assignedToMe": "Tilldelad mig",
+      "openConversation": "Öppna konversation",
+      "noSubject": "(Utan ämne)"
+    },
     "detail": {
       "selectPrompt": "Välj en konversation för att se detaljer.",
       "loadFailed": "Kunde inte hämta konversationen.",
@@ -1111,6 +1126,25 @@
       },
       "detailAria": "Konversationsdetaljer",
       "contextAria": "Kontext"
+    },
+    "notes": {
+      "title": "Privata anteckningar",
+      "staffOnly": "Endast synlig för MyCleaner-medarbetare",
+      "placeholder": "Skriv en intern anteckning…",
+      "add": "Lägg till anteckning",
+      "save": "Spara",
+      "cancel": "Avbryt",
+      "edit": "Redigera",
+      "pin": "Fäst",
+      "unpin": "Ta bort fästning",
+      "pinned": "Fäst",
+      "empty": "Inga anteckningar ännu.",
+      "error": "Fel: {{message}}",
+      "saved": "Anteckningen sparades",
+      "loading": "Hämtar anteckningar…",
+      "toggle": "Visa privata anteckningar",
+      "counter": "{{count}} anteckningar",
+      "authorOnly": "Endast författaren kan redigera denna anteckning"
     },
     "providers": {
       "title": "Leverantörer",
