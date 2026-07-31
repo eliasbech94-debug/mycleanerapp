@@ -34,7 +34,8 @@
     "DK": "Danmark",
     "GB": "Storbritannien",
     "SE": "Sverige",
-    "ES": "Spanien"
+    "ES": "Spanien",
+    "coming_soon": "Kommer snart"
   },
   "mobileMessages": {
     "title": "Beskeder",

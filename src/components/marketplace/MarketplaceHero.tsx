@@ -6,6 +6,8 @@ import { ShieldCheck, Lock, Star, ArrowRight } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useHomeAudience, type HomeAudience } from "./home/useHomeAudience";
 import heroAsset from "@/assets/hero-europe-v7.jpg.asset.json";
+import { useMarketStatus } from "@/hooks/useMarketStatus";
+
 
 /**
  * MarketplaceHero — responsive premium editorial layout.
@@ -78,7 +80,12 @@ export function MarketplaceHero() {
 
   const alt = t("hero.image_alt", { defaultValue: "MyCleaner" });
   const availabilityLabel = t("hero.availability_label", { defaultValue: "" });
+  const launchNotice = t("hero.launch_notice", { defaultValue: "" });
+  const comingSoonLabel = t("hero.coming_soon", { defaultValue: "" });
+  // Availability is server-driven — no hardcoded list of active markets here.
+  const { isBookable } = useMarketStatus();
   const countryCodes = ["dk", "se", "de", "gb", "es"] as const;
+
 
   return (
     <section className="relative isolate" aria-labelledby="mkt-hero-title">
@@ -142,10 +149,21 @@ export function MarketplaceHero() {
                 label={availabilityLabel}
                 codes={countryCodes}
                 t={t}
+                isBookable={isBookable}
+                comingSoonLabel={comingSoonLabel}
                 className="text-[12px] font-medium uppercase tracking-[0.18em] text-[hsl(var(--mkt-ink-soft))]"
               />
               <SecondaryCta label={variant.cta_secondary_label} href={variant.cta_secondary_href} />
             </div>
+            {launchNotice && (
+              <p
+                data-testid="hero-launch-notice"
+                className="mt-2 text-[12.5px] leading-relaxed text-[hsl(var(--mkt-ink-muted))]"
+              >
+                {launchNotice}
+              </p>
+            )}
+
           </div>
         </div>
       </div>
@@ -198,7 +216,7 @@ export function MarketplaceHero() {
           </ul>
         </div>
 
-        {/* 4. Country availability — clean chip row, no dot separators (which wrap awkwardly on narrow screens). */}
+        {/* 4. Country availability — DK is live, others are explicitly "coming soon". */}
         <div className="px-4 pt-3">
           {availabilityLabel && (
             <p className="mb-1.5 text-[10.5px] font-semibold uppercase tracking-[0.16em] text-[hsl(var(--mkt-ink-soft))]">
@@ -209,8 +227,14 @@ export function MarketplaceHero() {
             {countryCodes.map((code) => {
               const name = t(`hero.countries.${code}`, { defaultValue: "" });
               if (!name) return null;
+              const live = isBookable(code);
               return (
-                <li key={code} className="inline-flex items-center gap-1.5 rounded-full border border-[hsl(var(--mkt-border))] bg-[hsl(var(--mkt-surface))] px-2.5 py-1 text-[11.5px] font-medium text-[hsl(var(--mkt-ink))]">
+                <li
+                  key={code}
+                  data-testid={`hero-market-${code}`}
+                  data-market-status={live ? "active" : "coming_soon"}
+                  className={`inline-flex items-center gap-1.5 rounded-full border border-[hsl(var(--mkt-border))] bg-[hsl(var(--mkt-surface))] px-2.5 py-1 text-[11.5px] font-medium text-[hsl(var(--mkt-ink))] ${live ? "" : "opacity-70"}`}
+                >
                   <img
                     src={`https://flagcdn.com/${code}.svg`}
                     alt=""
@@ -221,16 +245,27 @@ export function MarketplaceHero() {
                     className="inline-block h-3 w-4 rounded-[2px] object-cover"
                   />
                   {name}
+                  {!live && comingSoonLabel && (
+                    <span className="rounded-full bg-[hsl(var(--mkt-surface-muted))] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[hsl(var(--mkt-ink-soft))]">
+                      {comingSoonLabel}
+                    </span>
+                  )}
                 </li>
               );
             })}
           </ul>
+          {launchNotice && (
+            <p className="mt-2 text-[12px] leading-relaxed text-[hsl(var(--mkt-ink-muted))]">
+              {launchNotice}
+            </p>
+          )}
           {variant.cta_secondary_label && variant.cta_secondary_href && (
             <div className="mt-3">
               <SecondaryCta label={variant.cta_secondary_label} href={variant.cta_secondary_href} />
             </div>
           )}
         </div>
+
       </div>
     </section>
   );
@@ -297,11 +332,15 @@ function AvailabilityRow({
   codes,
   t,
   className,
+  isBookable,
+  comingSoonLabel,
 }: {
   label: string;
   codes: readonly string[];
   t: any;
   className?: string;
+  isBookable: (code?: string | null) => boolean;
+  comingSoonLabel?: string;
 }) {
   if (!label || codes.length === 0) return null;
   return (
@@ -311,8 +350,14 @@ function AvailabilityRow({
         {codes.map((code, i) => {
           const name = t(`hero.countries.${code}`, { defaultValue: "" });
           if (!name) return null;
+          const live = isBookable(code);
           return (
-            <span key={code} className="inline-flex items-center gap-1.5 align-middle">
+            <span
+              key={code}
+              data-testid={`hero-market-desktop-${code}`}
+              data-market-status={live ? "active" : "coming_soon"}
+              className={`inline-flex items-center gap-1.5 align-middle ${live ? "" : "opacity-70"}`}
+            >
               {i > 0 && <span aria-hidden="true" className="opacity-40">·</span>}
               <img
                 src={`https://flagcdn.com/${code}.svg`}
@@ -324,9 +369,15 @@ function AvailabilityRow({
                 className="inline-block h-[13px] w-[18px] rounded-[2px] shadow-[0_0_0_1px_hsl(var(--mkt-border))] object-cover"
               />
               <span>{name}</span>
+              {!live && comingSoonLabel && (
+                <span className="rounded-full bg-[hsl(var(--mkt-surface-muted))] px-1.5 py-0.5 text-[9.5px] font-semibold normal-case tracking-normal text-[hsl(var(--mkt-ink-soft))]">
+                  {comingSoonLabel}
+                </span>
+              )}
             </span>
           );
         })}
+
       </span>
     </p>
   );
