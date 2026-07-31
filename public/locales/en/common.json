@@ -19,7 +19,12 @@
     "bookings": "Bookings",
     "inbox": "Inbox",
     "profile": "Profile",
-    "logout": "Log out"
+    "logout": "Log out",
+    "find_cleaner": "Find a Cleaner",
+    "how": "How it works",
+    "become_cleaner": "Become a Cleaner",
+    "sign_in": "Log in",
+    "get_started": "Get started"
   },
   "language": {
     "label": "Language",
@@ -272,7 +277,14 @@
     "helpText": "Open the FAQ chat and get help from our AI. If the case turns out to be complex, we'll pass it on to a human.",
     "startChat": "Start FAQ chat",
     "loginToChat": "Log in to chat",
-    "seeRules": "See rules"
+    "seeRules": "See rules",
+    "cta": {
+      "heading": "Didn't find an answer?",
+      "body": "Open the FAQ chat and get help from our AI. If the case gets complex, we hand it over to a human.",
+      "start": "Start FAQ chat",
+      "login": "Log in to chat",
+      "rules": "See rules"
+    }
   },
   "rules": {
     "heading": "Rules and terms",

@@ -86,6 +86,7 @@ import { StagingBanner } from "@/components/StagingBanner";
 import { installFrontendMonitoring, initSentry } from "@/lib/monitoring";
 import OAuthConsent from "./pages/OAuthConsent";
 import { CountryProvider } from "@/i18n/CountryContext";
+import { LanguageAccountSync } from "@/i18n/LanguageAccountSync";
 import { ActiveMarketProvider } from "@/context/ActiveMarketContext";
 import { AppContextProvider } from "@/context/AppContext";
 import { AuthGateProvider } from "@/context/AuthGateContext";
@@ -110,7 +111,10 @@ initSentry();
 installFrontendMonitoring();
 
 const queryClient = new QueryClient();
-const COUNTRY_ROUTE_PREFIXES = ["dk", "gb", "se", "es"] as const;
+// Localised URL prefixes — one per supported market (see SUPPORTED_COUNTRIES).
+// Adding a market here is all that is needed for /{{market}}/... URLs to work;
+// indexability is decided separately by MarketSeo from server bookability.
+const COUNTRY_ROUTE_PREFIXES = ["dk", "gb", "se", "es", "de"] as const;
 
 /**
  * All application routes. Rendered once at "/*" and once under "/:country/*".
@@ -291,6 +295,7 @@ const App = () => (
         <CustomCursor />
         <BrowserRouter>
           <AuthProvider>
+            <LanguageAccountSync />
             <ActiveMarketProvider>
               <AppContextProvider>
                 <AuthGateProvider>

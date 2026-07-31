@@ -103,7 +103,12 @@
     "bookings": "Reservas",
     "inbox": "Bandeja de entrada",
     "profile": "Perfil",
-    "logout": "Cerrar sesión"
+    "logout": "Cerrar sesión",
+    "find_cleaner": "Encontrar un Cleaner",
+    "how": "Cómo funciona",
+    "become_cleaner": "Hazte Cleaner",
+    "sign_in": "Iniciar sesión",
+    "get_started": "Empezar"
   },
   "footer": {
     "tagline": "La plataforma de servicios para el hogar más inteligente de Europa. Encuentra y reserva cleaners verificados directamente en su calendario.",
@@ -170,7 +175,7 @@
       "description": "Habla con nuestro equipo de soporte o consulta los datos oficiales de la empresa y el correo de soporte."
     },
     "legal": {
-      "title": "Legal Center — MyCleaner",
+      "title": "Centro Legal — MyCleaner",
       "description": "Todos los documentos legales de MyCleaner en un solo sitio: condiciones, privacidad, política de cancelación y reembolso."
     },
     "comingSoonSuffix": "Próximamente"
@@ -272,7 +277,14 @@
     "helpText": "Abre el chat de FAQ y recibe ayuda de nuestra IA. Si el caso resulta complejo, lo derivamos a una persona.",
     "startChat": "Iniciar chat de FAQ",
     "loginToChat": "Inicia sesión para chatear",
-    "seeRules": "Ver reglas"
+    "seeRules": "Ver reglas",
+    "cta": {
+      "heading": "¿No has encontrado la respuesta?",
+      "body": "Abre el chat de preguntas frecuentes y recibe ayuda de nuestra IA. Si el caso se complica, lo pasamos a una persona.",
+      "start": "Iniciar chat de FAQ",
+      "login": "Inicia sesión para chatear",
+      "rules": "Ver normas"
+    }
   },
   "rules": {
     "heading": "Reglas y condiciones",

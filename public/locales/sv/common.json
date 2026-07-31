@@ -103,7 +103,12 @@
     "bookings": "Bokningar",
     "inbox": "Inkorg",
     "profile": "Profil",
-    "logout": "Logga ut"
+    "logout": "Logga ut",
+    "find_cleaner": "Hitta en Cleaner",
+    "how": "Så fungerar det",
+    "become_cleaner": "Bli Cleaner",
+    "sign_in": "Logga in",
+    "get_started": "Kom igång"
   },
   "footer": {
     "tagline": "Europas smartaste plattform för hemservice. Hitta och boka verifierade cleaners direkt i deras kalender.",
@@ -272,7 +277,14 @@
     "helpText": "Öppna FAQ-chatten och få hjälp av vår AI. Blir ärendet komplext skickar vi det vidare till en människa.",
     "startChat": "Starta FAQ-chatt",
     "loginToChat": "Logga in för att chatta",
-    "seeRules": "Se regler"
+    "seeRules": "Se regler",
+    "cta": {
+      "heading": "Hittade du inget svar?",
+      "body": "Öppna FAQ-chatten och få hjälp av vår AI. Blir ärendet komplext skickar vi det vidare till en människa.",
+      "start": "Starta FAQ-chatt",
+      "login": "Logga in för att chatta",
+      "rules": "Se regler"
+    }
   },
   "rules": {
     "heading": "Regler och villkor",

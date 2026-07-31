@@ -1,45 +1,45 @@
 {
   "hero": {
     "trust": {
-      "verified": "Verified Cleaners",
-      "payments": "Secure payments",
-      "reviews": "Real reviews",
-      "fixed_price": "Fixed price, no surprises",
-      "rowLabel": "Highlights"
+      "verified": "Verifizierte Cleaner",
+      "payments": "Sichere Zahlungen",
+      "reviews": "Echte Bewertungen",
+      "fixed_price": "Festpreis ohne Überraschungen",
+      "rowLabel": "Vorteile"
     },
     "availability": "MyCleaner startet zuerst in Dänemark. Schweden, Großbritannien, Deutschland und Spanien folgen in Kürze.",
     "availability_label": "Startet zuerst in",
     "countries": {
-      "dk": "Denmark",
-      "se": "Sweden",
-      "de": "Germany",
-      "gb": "United Kingdom",
-      "es": "Spain"
+      "dk": "Dänemark",
+      "se": "Schweden",
+      "de": "Deutschland",
+      "gb": "Vereinigtes Königreich",
+      "es": "Spanien"
     },
-    "image_alt": "Verified Cleaner in a European home",
+    "image_alt": "Verifizierter Cleaner in einem europäischen Zuhause",
     "variants": {
       "guest": {
-        "eyebrow": "Europe's home services marketplace",
-        "title_line_1": "Find the perfect Cleaner",
-        "title_line_2": "— when and where it suits you.",
-        "subtitle": "Book verified Cleaners for your home or business. Fast, safe and easy — with transparent prices and real reviews.",
-        "cta_secondary_label": "Become a Cleaner",
+        "eyebrow": "Europas Marketplace für Haushaltsdienstleistungen",
+        "title_line_1": "Finde den perfekten Cleaner",
+        "title_line_2": "— wann und wo es dir passt.",
+        "subtitle": "Buche verifizierte Cleaner für dein Zuhause oder Unternehmen. Schnell, sicher und einfach — mit transparenten Preisen und echten Bewertungen.",
+        "cta_secondary_label": "Werde Cleaner",
         "cta_secondary_href": "/bliv-cleaner"
       },
       "customer": {
-        "eyebrow": "Welcome back",
-        "title_line_1": "Welcome back, {{name}}.",
-        "title_line_2": "Book your next Cleaner in seconds.",
-        "subtitle": "Repeat a past booking or find a new Cleaner in your area.",
-        "cta_secondary_label": "View my bookings",
+        "eyebrow": "Willkommen zurück",
+        "title_line_1": "Willkommen zurück, {{name}}.",
+        "title_line_2": "Buche deinen nächsten Cleaner in Sekunden.",
+        "subtitle": "Wiederhole eine frühere Buchung oder finde einen neuen Cleaner in deiner Nähe.",
+        "cta_secondary_label": "Meine Buchungen ansehen",
         "cta_secondary_href": "/my-bookings"
       },
       "provider": {
-        "eyebrow": "Your day",
-        "title_line_1": "Welcome back.",
-        "title_line_2": "See your bookings and new jobs.",
-        "subtitle": "Track today's jobs, response time and earnings — all in one place.",
-        "cta_secondary_label": "Open dashboard",
+        "eyebrow": "Dein Tag",
+        "title_line_1": "Willkommen zurück.",
+        "title_line_2": "Sieh dir deine Buchungen und neuen Aufträge an.",
+        "subtitle": "Behalte den Überblick über die heutigen Aufträge, Antwortzeit und Einnahmen — alles an einem Ort.",
+        "cta_secondary_label": "Dashboard öffnen",
         "cta_secondary_href": "/provider-dashboard"
       }
     },
@@ -47,119 +47,119 @@
     "coming_soon": "Demnächst"
   },
   "search": {
-    "aria": "Find a Cleaner",
-    "where": "Where",
-    "where_placeholder": "City or postcode",
+    "aria": "Finde einen Cleaner",
+    "where": "Wo",
+    "where_placeholder": "Stadt oder Postleitzahl",
     "when": "When",
-    "service": "Service",
-    "submit": "Find a Cleaner"
+    "service": "Leistung",
+    "submit": "Finde einen Cleaner"
   },
   "categories": {
-    "heading": "Popular services",
-    "view_all": "See all",
-    "cleaning": "Cleaning",
-    "handyman": "Handyman",
-    "garden": "Garden",
-    "moving": "Moving",
+    "heading": "Beliebte Leistungen",
+    "view_all": "Alle ansehen",
+    "cleaning": "Reinigung",
+    "handyman": "Handwerker",
+    "garden": "Garten",
+    "moving": "Umzug",
     "tiles": {
-      "regular": "Regular cleaning",
-      "deep": "Deep cleaning",
-      "move": "Move cleaning",
-      "office": "Office cleaning",
-      "custom": "Custom job"
+      "regular": "Regelmäßige Reinigung",
+      "deep": "Grundreinigung",
+      "move": "Umzugsreinigung",
+      "office": "Büroreinigung",
+      "custom": "Individueller Auftrag"
     }
   },
   "results": {
-    "heading": "Featured Cleaners near you",
-    "subtitle": "Verified professionals. Real reviews. Book with confidence.",
-    "see_all": "See all Cleaners",
-    "empty": "No Cleaners yet in {{area}}. Try another area.",
-    "empty_area": "your area",
-    "error_title": "We couldn't load available Cleaners right now."
+    "heading": "Empfohlene Cleaner in deiner Nähe",
+    "subtitle": "Verifizierte Profis. Echte Bewertungen. Buche mit gutem Gefühl.",
+    "see_all": "Alle Cleaner ansehen",
+    "empty": "Noch keine Cleaner in {{area}}. Versuche ein anderes Gebiet.",
+    "empty_area": "deiner Nähe",
+    "error_title": "Wir konnten gerade keine verfügbaren Cleaner laden."
   },
   "card": {
-    "verified": "Verified",
-    "badge_verified": "Verified",
-    "badge_top": "Top rated",
-    "badge_fast": "Fast response",
-    "badge_today": "Available today",
-    "add_fav": "Add to favorites",
-    "remove_fav": "Remove from favorites",
-    "avatar_alt": "{{name}} profile photo",
-    "radius": "within {{km}} km",
-    "completed": "{{n}} bookings",
-    "price_note": "Price calculated during booking",
-    "view": "View profile",
-    "demo_hint": "Demo profile — sign in to browse real Cleaners"
+    "verified": "Verifiziert",
+    "badge_verified": "Verifiziert",
+    "badge_top": "Top bewertet",
+    "badge_fast": "Schnelle Antwort",
+    "badge_today": "Heute verfügbar",
+    "add_fav": "Zu Favoriten hinzufügen",
+    "remove_fav": "Aus Favoriten entfernen",
+    "avatar_alt": "Profilfoto von {{name}}",
+    "radius": "im Umkreis von {{km}} km",
+    "completed": "{{n}} Buchungen",
+    "price_note": "Preis wird bei der Buchung berechnet",
+    "view": "Profil ansehen",
+    "demo_hint": "Demoprofil — melde dich an, um echte Cleaner zu entdecken"
   },
   "trust": {
-    "heading": "Why customers choose MyCleaner",
+    "heading": "Darum entscheiden sich Kunden für MyCleaner",
     "identity": {
-      "title": "Verified identity",
-      "body": "Every Cleaner passes identity verification before they can accept bookings."
+      "title": "Verifizierte Identität",
+      "body": "Jeder Cleaner durchläuft eine Identitätsprüfung, bevor er Buchungen annehmen kann."
     },
     "payments": {
-      "title": "Secure payments",
-      "body": "Payments are handled by Stripe. Your card details are never shared with your Cleaner."
+      "title": "Sichere Zahlungen",
+      "body": "Zahlungen werden über Stripe abgewickelt. Deine Kartendaten werden nie mit deinem Cleaner geteilt."
     },
     "reviews": {
-      "title": "Real reviews",
-      "body": "Only customers with completed bookings can leave a review."
+      "title": "Echte Bewertungen",
+      "body": "Nur Kunden mit abgeschlossenen Buchungen können eine Bewertung hinterlassen."
     },
     "support": {
-      "title": "Support when you need it",
-      "body": "If something doesn't add up, create a support case. Support reviews the information from both parties."
+      "title": "Support, wenn du ihn brauchst",
+      "body": "Wenn etwas nicht stimmt, erstelle einen Support-Fall. Support prüft die Angaben beider Seiten."
     }
   },
   "summary": {
-    "heading": "Booking summary",
-    "service": "Service",
+    "heading": "Buchungsübersicht",
+    "service": "Leistung",
     "when": "When",
-    "where": "Where",
-    "total": "Total",
-    "price_note": "Price is calculated during booking based on your Cleaner and service."
+    "where": "Wo",
+    "total": "Gesamt",
+    "price_note": "Der Preis wird bei der Buchung anhand deines Cleaners und des Service berechnet."
   },
   "sidebar": {
-    "price_note": "Price is calculated during booking based on your Cleaner and service.",
-    "why_heading": "Why choose MyCleaner?",
-    "why_verified": "Identity-verified Cleaners"
+    "price_note": "Der Preis wird bei der Buchung anhand deines Cleaners und des Service berechnet.",
+    "why_heading": "Darum entscheiden sich Kunden für MyCleaner",
+    "why_verified": "Identitätsgeprüfte Cleaner"
   },
   "how": {
-    "eyebrow": "How it works",
-    "heading": "Five steps to a clean home",
+    "eyebrow": "So funktioniert's",
+    "heading": "Fünf Schritte zu einem sauberen Zuhause",
     "steps": {
       "search": {
-        "title": "Find a Cleaner",
-        "body": "Search locally, compare prices and real reviews."
+        "title": "Finde einen Cleaner",
+        "body": "Suche in deiner Nähe, vergleiche Preise und echte Bewertungen."
       },
       "book": {
-        "title": "Book in the calendar",
-        "body": "Pick a time directly with your Cleaner — no waiting, no bidding."
+        "title": "Im Kalender buchen",
+        "body": "Wähle einen Termin direkt bei deinem Cleaner — keine Wartezeit, keine Gebote."
       },
       "enjoy": {
-        "title": "Enjoy a clean home",
-        "body": "Payment is held securely until the job is approved."
+        "title": "Genieße ein sauberes Zuhause",
+        "body": "Die Zahlung wird sicher zurückgehalten, bis der Auftrag freigegeben ist."
       }
     }
   },
   "reviews": {
-    "eyebrow": "From our customers",
-    "heading": "Loved across Europe",
+    "eyebrow": "Von unseren Kunden",
+    "heading": "Beliebt in ganz Europa",
     "items": [
       {
-        "quote": "Incredibly easy to book and my Cleaner was fantastic. I'll definitely use it again.",
+        "quote": "Sehr einfach zu buchen, und mein Cleaner war fantastisch. Ich nutze den Service definitiv wieder.",
         "name": "Sofie L.",
-        "city": "Copenhagen",
+        "city": "Kopenhagen",
         "rating": 5
       },
       {
-        "quote": "Prices are transparent and I knew exactly what I was paying for. Highly recommend.",
+        "quote": "Die Preise sind transparent, und ich wusste genau, wofür ich bezahle. Sehr empfehlenswert.",
         "name": "Marcus B.",
         "city": "Malmö",
         "rating": 5
       },
       {
-        "quote": "Finally a platform where my Cleaner gets paid properly and I get quality.",
+        "quote": "Endlich eine Plattform, auf der mein Cleaner fair bezahlt wird und ich Qualität bekomme.",
         "name": "Ana R.",
         "city": "Madrid",
         "rating": 5
@@ -168,25 +168,25 @@
   },
   "campaign": {
     "eyebrow": "FOUNDING CLEANER",
-    "title": "The Founding Cleaner program opens soon",
-    "body": "Planned benefit for the first 500 approved Cleaners who submit their provider application in 2026: 0 in provider platform fee for three calendar months.",
-    "note": "The program has not opened yet. Your application does not automatically reserve a spot.",
-    "cta": "Read about the program",
+    "title": "Das Founding-Cleaner-Programm startet bald",
+    "body": "Geplanter Vorteil für die ersten 500 zugelassenen Cleaner, die ihre Provider-Bewerbung 2026 einreichen: 0 € Provider-Plattformgebühr für drei Kalendermonate.",
+    "note": "Das Programm ist noch nicht gestartet. Deine Bewerbung sichert dir noch keinen automatischen Platz.",
+    "cta": "Mehr über das Programm erfahren",
     "href": "/founding-cleaner",
     "badgePrimary": "FOUNDING CLEANER",
-    "badgeSecondary": "OPENS SOON",
-    "edition": "2026 EDITION",
+    "badgeSecondary": "STARTET BALD",
+    "edition": "AUSGABE 2026",
     "amount": "0",
-    "amountSuffix1": "in provider platform fee",
-    "amountSuffix2": "for 3 months",
-    "explain": "Planned benefit for the first 500 approved Cleaners who submit their provider application in 2026.",
-    "noteShort": "The program has not opened yet. Your application does not automatically reserve a spot.",
-    "ctaShort": "Read about the program"
+    "amountSuffix1": "Provider-Plattformgebühr",
+    "amountSuffix2": "für 3 Monate",
+    "explain": "Geplanter Vorteil für die ersten 500 zugelassenen Cleaner, die ihre Provider-Bewerbung 2026 einreichen.",
+    "noteShort": "Das Programm ist noch nicht gestartet. Deine Bewerbung sichert dir noch keinen automatischen Platz.",
+    "ctaShort": "Mehr über das Programm erfahren"
   },
   "app": {
-    "eyebrow": "The MyCleaner app",
-    "heading": "Book and rebook from your pocket",
-    "body": "Track your booking, chat with your Cleaner and pay securely — all in one app.",
+    "eyebrow": "Die MyCleaner-App",
+    "heading": "Buchen und erneut buchen — direkt aus der Tasche",
+    "body": "Verfolge deine Buchung, chatte mit deinem Cleaner und zahle sicher — alles in einer App.",
     "ios": "App Store",
     "android": "Google Play",
     "ios_href": "",
@@ -194,286 +194,286 @@
   },
   "faq": {
     "eyebrow": "FAQ",
-    "heading": "Frequently asked questions",
+    "heading": "Häufig gestellte Fragen",
     "items": [
       {
-        "q": "How do I book?",
-        "a": "Pick a cleaner, choose an open slot in their calendar and send a booking request. It becomes a booking once the cleaner accepts."
+        "q": "Wie buche ich?",
+        "a": "Wählen Sie einen Cleaner aus, suchen Sie sich einen freien Termin in dessen Kalender aus und senden Sie eine Buchungsanfrage. Sobald der Cleaner die Anfrage annimmt, wird daraus eine Buchung."
       },
       {
-        "q": "How are prices set?",
-        "a": "Cleaners set their own prices within local minimum rates. You see the provider's price, the platform fee and the total price before you confirm — no hidden fees."
+        "q": "Wie werden die Preise festgelegt?",
+        "a": "Cleaner legen ihre eigenen Preise innerhalb der lokalen Mindestsätze fest. Sie sehen den Preis des Anbieters, die Plattformgebühr und den Gesamtpreis, bevor Sie bestätigen – ohne versteckte Kosten."
       },
       {
-        "q": "Are all cleaners verified?",
-        "a": "Yes. Everyone passes ID verification before they can accept bookings, and verified profiles are clearly marked."
+        "q": "Sind alle Cleaner verifiziert?",
+        "a": "Ja. Jeder durchläuft eine Identitätsprüfung, bevor er Buchungen annehmen kann, und verifizierte Profile sind deutlich gekennzeichnet."
       },
       {
-        "q": "What is Provider Score?",
-        "a": "A single measure of quality based on reviews, response time, completed bookings and verification."
+        "q": "Was ist der Provider Score?",
+        "a": "Eine einzige Kennzahl für Qualität, basierend auf Bewertungen, Antwortzeit, abgeschlossenen Buchungen und Verifizierung."
       },
       {
-        "q": "Why do some profiles have a video?",
-        "a": "Cleaners can add a short video introduction so you can meet the person before booking."
+        "q": "Warum haben manche Profile ein Video?",
+        "a": "Cleaner können ein kurzes Vorstellungsvideo hinzufügen, damit Sie die Person schon vor der Buchung kennenlernen können."
       },
       {
-        "q": "Can I set up a recurring booking?",
-        "a": "Yes. Choose recurring booking and the job repeats automatically at the interval you pick."
+        "q": "Kann ich eine wiederkehrende Buchung einrichten?",
+        "a": "Ja. Wählen Sie die wiederkehrende Buchung, und der Auftrag wiederholt sich automatisch in dem von Ihnen gewählten Intervall."
       },
       {
-        "q": "When is payment charged?",
-        "a": "The amount may be held on your card while your booking request is processed. It is charged once the provider accepts the booking, and paid out to the provider after the service has been carried out."
+        "q": "Wann wird die Zahlung abgebucht?",
+        "a": "Der Betrag kann vorübergehend auf Ihrer Karte reserviert werden, während Ihre Buchungsanfrage bearbeitet wird. Abgebucht wird er erst, sobald der Anbieter die Buchung annimmt, und an den Anbieter ausgezahlt, nachdem die Leistung erbracht wurde."
       },
       {
-        "q": "Can I cancel?",
-        "a": "Yes. You can cancel a booking from My bookings. What a cancellation may cost, and whether a refund is possible, depends on how close to the start time you cancel — see the applicable terms in our rules."
+        "q": "Kann ich stornieren?",
+        "a": "Ja. Sie können eine Buchung unter „Meine Buchungen“ stornieren. Was eine Stornierung kostet und ob eine Rückerstattung möglich ist, hängt davon ab, wie kurzfristig vor dem Starttermin Sie stornieren – die geltenden Bedingungen finden Sie in unseren Regeln."
       },
       {
-        "q": "Which countries are live?",
-        "a": "Denmark, Sweden, Germany, the United Kingdom and Spain, with more on the way."
+        "q": "In welchen Ländern ist MyCleaner verfügbar?",
+        "a": "MyCleaner ist in Dänemark verfügbar. Schweden, Deutschland, Großbritannien und Spanien folgen in Kürze."
       },
       {
-        "q": "How does the provider get access to my home?",
-        "a": "You arrange access directly with your chosen provider. MyCleaner does not receive keys, does not store keys and does not arrange key handovers. You choose the access solution and are responsible for it."
+        "q": "Wie erhält der Anbieter Zugang zu meiner Wohnung?",
+        "a": "Sie vereinbaren den Zugang direkt mit Ihrem gewählten Anbieter. MyCleaner erhält keine Schlüssel, bewahrt keine Schlüssel auf und organisiert keine Schlüsselübergaben. Sie wählen die Zugangslösung und sind dafür verantwortlich."
       },
       {
-        "q": "What happens if something is damaged?",
-        "a": "Create a support case with photos and a description. MyCleaner is the platform between the customer and the provider. Any damage claim is assessed based on the documentation, the provider's responsibility and the applicable terms."
+        "q": "Was passiert, wenn etwas beschädigt wird?",
+        "a": "Erstellen Sie einen Support-Fall mit Fotos und einer Beschreibung. MyCleaner ist die Plattform zwischen Kunde und Anbieter. Jede Schadensmeldung wird anhand der Dokumentation, der Verantwortlichkeit des Anbieters und der geltenden Bedingungen bewertet."
       }
     ]
   },
   "welcome_back": {
-    "eyebrow": "Welcome back",
-    "heading": "Pick up where you left off",
-    "heading_named": "Hi {{name}} — pick up where you left off",
+    "eyebrow": "Willkommen zurück",
+    "heading": "Mach da weiter, wo du aufgehört hast",
+    "heading_named": "Hallo {{name}} — mach da weiter, wo du aufgehört hast",
     "tiles": {
       "upcoming": {
-        "title": "Upcoming bookings",
-        "body": "View and manage your scheduled bookings."
+        "title": "Anstehende Buchungen",
+        "body": "Sieh dir deine geplanten Buchungen an und verwalte sie."
       },
       "favorites": {
-        "title": "Favorite Cleaners",
-        "body": "Jump straight to the Cleaners you've saved."
+        "title": "Favorisierte Cleaner",
+        "body": "Springe direkt zu den Cleanern, die du gespeichert hast."
       },
       "book_again": {
-        "title": "Book again",
-        "body": "Rebook a Cleaner you've used before."
+        "title": "Erneut buchen",
+        "body": "Buche einen Cleaner, den du bereits kennst, erneut."
       }
     }
   },
   "provider_home": {
-    "eyebrow": "Your day",
-    "heading": "Overview and shortcuts",
+    "eyebrow": "Dein Tag",
+    "heading": "Übersicht und Schnellzugriffe",
     "tiles": {
       "today": {
-        "title": "Today's bookings",
-        "body": "Who, where and when today."
+        "title": "Heutige Buchungen",
+        "body": "Wer, wo und wann heute."
       },
       "performance": {
-        "title": "Performance",
-        "body": "Rating, response time and completion."
+        "title": "Leistungsübersicht",
+        "body": "Bewertung, Reaktionszeit und Abschlussrate."
       },
       "earnings": {
-        "title": "Earnings",
-        "body": "This week's and month's payouts."
+        "title": "Einnahmen",
+        "body": "Auszahlungen dieser Woche und dieses Monats."
       },
       "pricing": {
-        "title": "Dynamic pricing",
-        "body": "Optimise prices to demand."
+        "title": "Dynamische Preisgestaltung",
+        "body": "Optimiere Preise passend zur Nachfrage."
       }
     }
   },
   "mobileHome": {
-    "greeting_guest": "Find your perfect Cleaner",
-    "greeting_named": "Hi {{name}}",
-    "greeting_fallback_name": "there",
-    "subtitle_guest": "Verified Cleaners — fast, safe and easy.",
-    "subtitle_customer": "Book your next Cleaner in seconds.",
+    "greeting_guest": "Finde deinen perfekten Cleaner",
+    "greeting_named": "Hallo {{name}}",
+    "greeting_fallback_name": "zusammen",
+    "subtitle_guest": "Verifizierte Cleaner – schnell, sicher und einfach.",
+    "subtitle_customer": "Buche deinen nächsten Cleaner in Sekunden.",
     "bookingCard": {
-      "eyebrow": "Book a Cleaner",
-      "title": "Find your Cleaner",
-      "subtitle": "Compare profiles, prices and open time slots.",
-      "trust": "Verified profiles · Secure payments",
-      "cta": "Find a Cleaner",
-      "ariaLabel": "Find a Cleaner"
+      "eyebrow": "Cleaner buchen",
+      "title": "Finde deinen Cleaner",
+      "subtitle": "Vergleiche Profile, Preise und freie Termine.",
+      "trust": "Verifizierte Profile · Sichere Zahlung",
+      "cta": "Cleaner finden",
+      "ariaLabel": "Cleaner finden"
     },
     "howItWorks": {
-      "cta": "Find a Cleaner",
-      "step_of": "Step {{n}} of {{total}}",
-      "progress": "Step indicator"
+      "cta": "Cleaner finden",
+      "step_of": "Schritt {{n}} von {{total}}",
+      "progress": "Schrittanzeige"
     },
     "services": {
-      "title": "Popular services"
+      "title": "Beliebte Services"
     },
     "featured": {
-      "title": "Featured Cleaners",
-      "viewAll": "View all",
-      "empty": "No Cleaners to show right now."
+      "title": "Empfohlene Cleaner",
+      "viewAll": "Alle anzeigen",
+      "empty": "Aktuell keine Cleaner verfügbar."
     },
     "quickActions": {
-      "title": "Quick actions",
-      "book_again": "Book again",
-      "find_cleaner": "Find cleaner",
-      "messages": "Messages"
+      "title": "Schnellzugriffe",
+      "book_again": "Erneut buchen",
+      "find_cleaner": "Cleaner finden",
+      "messages": "Nachrichten"
     },
     "customer": {
-      "upcoming": "Upcoming booking",
-      "loading": "Loading…",
-      "error": "Could not load bookings.",
-      "empty": "No upcoming bookings. Book your next Cleaner now.",
+      "upcoming": "Bevorstehende Buchung",
+      "loading": "Wird geladen…",
+      "error": "Buchungen konnten nicht geladen werden.",
+      "empty": "Keine bevorstehenden Buchungen. Buche jetzt deinen nächsten Cleaner.",
       "provider": "Cleaner"
     },
     "provider": {
-      "today": "Today",
-      "todayJobs_one": "active job today",
-      "todayJobs_other": "active jobs today",
-      "openDashboard": "Open dashboard",
-      "nextJob": "Next job",
+      "today": "Heute",
+      "todayJobs_one": "aktiver Auftrag heute",
+      "todayJobs_other": "aktive Aufträge heute",
+      "openDashboard": "Dashboard öffnen",
+      "nextJob": "Nächster Auftrag",
       "job": "Job",
-      "noJobs": "No upcoming jobs.",
-      "error": "Could not load jobs.",
-      "earnings": "This month's earnings",
-      "earningsUnavailable": "See your up-to-date earnings in Finance.",
-      "openFinance": "Open Finance",
-      "onboarding": "Get started",
-      "onboardingProgress": "{{done}} of {{total}} steps done",
-      "continueOnboarding": "Continue",
-      "calendar": "Calendar",
-      "payouts": "Payouts"
+      "noJobs": "Keine bevorstehenden Aufträge.",
+      "error": "Aufträge konnten nicht geladen werden.",
+      "earnings": "Einnahmen dieses Monats",
+      "earningsUnavailable": "Deine aktuellen Einnahmen findest du in Finance.",
+      "openFinance": "Finance öffnen",
+      "onboarding": "Loslegen",
+      "onboardingProgress": "{{done}} von {{total}} Schritten erledigt",
+      "continueOnboarding": "Weiter",
+      "calendar": "Kalender",
+      "payouts": "Auszahlungen"
     }
   },
   "mobileSearch": {
-    "appBarTitle": "Find a Cleaner",
-    "placeholder": "Search by name, city or postcode",
-    "aria": "Search for Cleaners",
-    "clear": "Clear search",
-    "loading_count": "Loading…",
-    "count": "{{n}} Cleaners found",
-    "price_from": "from {{price}} /h",
+    "appBarTitle": "Cleaner finden",
+    "placeholder": "Suche nach Name, Stadt oder Postleitzahl",
+    "aria": "Nach Cleanern suchen",
+    "clear": "Suche löschen",
+    "loading_count": "Wird geladen…",
+    "count": "{{n}} Cleaner gefunden",
+    "price_from": "ab {{price}} /Std.",
     "chips": {
-      "aria": "Filter category",
+      "aria": "Kategorie filtern",
       "all": "All",
-      "cleaning": "Cleaning"
+      "cleaning": "Reinigung"
     },
     "filters": {
-      "label": "Filters",
-      "open": "Open filters",
-      "title": "Filters and sort",
-      "description": "Tune your search",
+      "label": "Filter",
+      "open": "Filter öffnen",
+      "title": "Filter und Sortierung",
+      "description": "Passe deine Suche an",
       "sortHeading": "Sort",
-      "maxRate": "Max hourly rate",
-      "maxRatePlaceholder": "No limit",
-      "reset": "Reset",
-      "apply": "Show results"
+      "maxRate": "Maximaler Stundensatz",
+      "maxRatePlaceholder": "Kein Limit",
+      "reset": "Zurücksetzen",
+      "apply": "Ergebnisse anzeigen"
     },
     "sort": {
-      "score": "Best match",
-      "price_asc": "Price (low → high)",
-      "price_desc": "Price (high → low)",
-      "rating": "Top rated",
-      "response": "Fastest reply"
+      "score": "Beste Übereinstimmung",
+      "price_asc": "Preis (niedrig → hoch)",
+      "price_desc": "Preis (hoch → niedrig)",
+      "rating": "Bestbewertet",
+      "response": "Schnellste Antwort"
     },
     "empty": {
-      "title": "No Cleaners match your filters",
-      "body": "Try resetting filters or widening your area.",
-      "reset": "Reset filters"
+      "title": "Keine Cleaner entsprechen deinen Filtern",
+      "body": "Setze die Filter zurück oder erweitere deinen Suchbereich.",
+      "reset": "Filter zurücksetzen"
     },
     "error": {
-      "title": "Search is temporarily unavailable",
-      "body": "Please try again in a moment.",
-      "retry": "Try again"
+      "title": "Suche vorübergehend nicht verfügbar",
+      "body": "Bitte versuche es gleich noch einmal.",
+      "retry": "Erneut versuchen"
     },
     "pagination": {
-      "prev": "Previous",
+      "prev": "Zurück",
       "next": "Next",
-      "pageOf": "Page {{page}} of {{pages}}"
+      "pageOf": "Seite {{page}} von {{pages}}"
     }
   },
   "mobileBookings": {
-    "appBarTitle": "My bookings",
+    "appBarTitle": "Meine Buchungen",
     "provider": "Cleaner",
-    "total": "You pay",
+    "total": "Du zahlst",
     "tabs": {
-      "aria": "Bookings",
-      "upcoming": "Upcoming",
-      "previous": "Previous"
+      "aria": "Buchungen",
+      "upcoming": "Bevorstehend",
+      "previous": "Vergangen"
     },
     "status": {
-      "pending": "Pending",
-      "accepted": "Accepted",
-      "declined": "Declined",
-      "cancelled": "Cancelled",
-      "completed": "Completed"
+      "pending": "Ausstehend",
+      "accepted": "Angenommen",
+      "declined": "Abgelehnt",
+      "cancelled": "Storniert",
+      "completed": "Abgeschlossen"
     },
     "empty": {
-      "cta": "Find a Cleaner",
+      "cta": "Cleaner finden",
       "upcoming": {
-        "title": "No upcoming bookings",
-        "body": "Find a Cleaner and book directly in their calendar."
+        "title": "Keine bevorstehenden Buchungen",
+        "body": "Finde einen Cleaner und buche direkt in seinem Kalender."
       },
       "previous": {
-        "title": "No previous bookings",
-        "body": "Your completed bookings will appear here."
+        "title": "Keine früheren Buchungen",
+        "body": "Deine abgeschlossenen Buchungen erscheinen hier."
       },
       "signed_out": {
-        "title": "Sign in to see your bookings",
-        "body": "Bookings are only visible when signed in.",
-        "cta": "Sign in"
+        "title": "Melde dich an, um deine Buchungen zu sehen",
+        "body": "Buchungen sind nur sichtbar, wenn du angemeldet bist.",
+        "cta": "Anmelden"
       }
     },
     "error": {
-      "title": "Couldn't load bookings",
-      "body": "Please try again in a moment.",
-      "retry": "Try again"
+      "title": "Buchungen konnten nicht geladen werden",
+      "body": "Bitte versuche es gleich noch einmal.",
+      "retry": "Erneut versuchen"
     }
   },
   "foundingCleaner": {
     "eyebrow": "FOUNDING CLEANER",
-    "heading": "The Founding Cleaner program",
-    "intro": "The Founding Cleaner program plans to give the first 500 approved Cleaners who submit their provider application in 2026 a benefit of 0 in provider platform fee for three calendar months. The program is not yet active, and an application does not automatically reserve a spot.",
+    "heading": "Das Founding-Cleaner-Programm",
+    "intro": "Das Founding-Cleaner-Programm plant, den ersten 500 zugelassenen Cleanern, die ihre Provider-Bewerbung 2026 einreichen, einen Vorteil von 0 € Provider-Plattformgebühr für drei Kalendermonate zu gewähren. Das Programm ist noch nicht aktiv, und eine Bewerbung reserviert automatisch keinen Platz.",
     "status": {
-      "title": "The program opens soon",
-      "body": "The Founding Cleaner program is not yet active. You can submit your Cleaner application, but the application does not reserve a campaign spot. If the program opens, qualifying applicants will be notified directly by MyCleaner."
+      "title": "Das Programm öffnet in Kürze",
+      "body": "Das Founding-Cleaner-Programm ist noch nicht aktiv. Du kannst deine Cleaner-Bewerbung einreichen, doch die Bewerbung reserviert keinen Kampagnenplatz. Sollte das Programm öffnen, werden qualifizierte Bewerber direkt von MyCleaner benachrichtigt."
     },
-    "plannedBenefit": "The planned benefit is 0 in provider platform fee for three calendar months. The customer's separate platform fee, payment processing, tax, VAT, insurance and other third-party costs are not changed.",
-    "ctaPrimary": "Apply as a Cleaner",
-    "ctaPrimaryNote": "The application is not a reservation of a campaign spot.",
-    "ctaSecondary": "See the terms",
-    "startNote": "If the program opens and you qualify, the three calendar months only start when your first qualifying job has been completed, paid and released under MyCleaner's existing release control.",
+    "plannedBenefit": "Der geplante Vorteil beträgt 0 € Provider-Plattformgebühr für drei Kalendermonate. Die separate Plattformgebühr des Kunden, Zahlungsabwicklung, Steuern, Mehrwertsteuer, Versicherung und andere Kosten Dritter ändern sich nicht.",
+    "ctaPrimary": "Als Cleaner bewerben",
+    "ctaPrimaryNote": "Die Bewerbung ist keine Reservierung eines Kampagnenplatzes.",
+    "ctaSecondary": "Bedingungen ansehen",
+    "startNote": "Wenn das Programm öffnet und du qualifiziert bist, beginnen die drei Kalendermonate erst, sobald dein erster qualifizierender Auftrag abgeschlossen, bezahlt und gemäß MyCleaners bestehender Freigabekontrolle freigegeben wurde.",
     "how": {
-      "heading": "How the program is planned",
+      "heading": "So ist das Programm geplant",
       "steps": [
         {
-          "title": "Submit your application",
-          "body": "Complete your Cleaner profile in 2026 and finish the existing onboarding. The application does not reserve a spot."
+          "title": "Bewerbung einreichen",
+          "body": "Vervollständigen Sie Ihr Cleaner-Profil im Jahr 2026 und schließen Sie das bestehende Onboarding ab. Die Bewerbung sichert keinen Platz."
         },
         {
-          "title": "Wait for approval",
-          "body": "MyCleaner reviews profile, identity and the required documentation. Approval may complete after 2026."
+          "title": "Auf die Freigabe warten",
+          "body": "MyCleaner prüft Profil, Identität und die erforderlichen Unterlagen. Die Freigabe kann auch nach 2026 abgeschlossen werden."
         },
         {
-          "title": "Get notified if the program opens",
-          "body": "If the program is activated and you are allocated one of up to 500 global spots, you will be notified directly by MyCleaner."
+          "title": "Benachrichtigung, falls das Programm startet",
+          "body": "Wird das Programm aktiviert und Ihnen einer von weltweit bis zu 500 Plätzen zugeteilt, werden Sie direkt von MyCleaner benachrichtigt."
         }
       ]
     },
     "terms": {
-      "heading": "Planned terms",
-      "lastUpdatedLabel": "Last updated",
+      "heading": "Geplante Bedingungen",
+      "lastUpdatedLabel": "Zuletzt aktualisiert",
       "lastUpdated": "2026-07-27",
       "items": [
-        "The Founding Cleaner program is not yet active. Submitting an application does not automatically grant the benefit and does not reserve a campaign spot.",
-        "A maximum of 500 spots may be allocated globally across all markets.",
-        "Only completed provider applications submitted in the 2026 calendar year (from 1 January 2026 through 31 December 2026 inclusive) may be considered. The authoritative timestamp is provider_profiles.submitted_at on the server.",
-        "Approval may take place after 2026. A spot is only allocated server-side upon final approval and activation.",
-        "At most one campaign benefit is granted per verified natural person, even if that person controls multiple businesses. Duplicate profiles do not receive additional benefits.",
-        "The planned benefit is 0 in MyCleaner's provider platform fee for three calendar months. The customer's separate platform fee is not affected.",
-        "Payment processing costs, tax, VAT, insurance and other third-party costs are not automatically changed by the program.",
-        "The period lasts three calendar months via started_at + interval ‘3 months’ and is not measured in 90 days.",
-        "The period only starts when the first qualifying job has been completed, paid/captured, customer-confirmed or processed under the existing completion rule, and approved for release under MyCleaner's existing 24-hour hold and dispute control.",
-        "A full refund or open dispute before release does not start the period. A refund or chargeback after the start does not reset or extend the period.",
-        "MyCleaner notifies applicants directly if they are allocated a spot. No public countdown or remaining-spots counter is published.",
-        "Final campaign terms must be accepted when the program is activated. MyCleaner may change or end the planned program for future participants; an already confirmed campaign benefit will not be changed retroactively in violation of applicable law."
+        "Das Founding-Cleaner-Programm ist noch nicht aktiv. Das Einreichen einer Bewerbung gewährt den Vorteil nicht automatisch und sichert keinen Kampagnenplatz.",
+        "Weltweit können über alle Märkte hinweg höchstens 500 Plätze vergeben werden.",
+        "Berücksichtigt werden können nur vollständige Anbieterbewerbungen, die im Kalenderjahr 2026 eingereicht wurden (vom 1. Januar 2026 bis einschließlich 31. Dezember 2026). Maßgeblich ist der Zeitstempel provider_profiles.submitted_at auf dem Server.",
+        "Die Freigabe kann auch nach 2026 erfolgen. Ein Platz wird serverseitig erst bei endgültiger Freigabe und Aktivierung zugeteilt.",
+        "Pro verifizierter natürlicher Person wird höchstens ein Kampagnenvorteil gewährt, selbst wenn diese Person mehrere Unternehmen kontrolliert. Doppelte Profile erhalten keine zusätzlichen Vorteile.",
+        "Der geplante Vorteil besteht in 0 Provider-Plattformgebühr bei MyCleaner für drei Kalendermonate. Die separate Plattformgebühr des Kunden bleibt davon unberührt.",
+        "Kosten der Zahlungsabwicklung, Steuern, Mehrwertsteuer, Versicherung und andere Kosten Dritter werden durch das Programm nicht automatisch geändert.",
+        "Der Zeitraum umfasst drei Kalendermonate gemäß started_at + interval ‘3 months’ und wird nicht in 90 Tagen gemessen.",
+        "Der Zeitraum beginnt erst, wenn der erste qualifizierende Auftrag abgeschlossen, bezahlt/erfasst, vom Kunden bestätigt oder gemäß der bestehenden Abschlussregel verarbeitet wurde und gemäß der bestehenden 24-Stunden-Frist von MyCleaner sowie der Streitfallprüfung zur Freigabe genehmigt wurde.",
+        "Eine vollständige Rückerstattung oder ein offener Streitfall vor der Freigabe lässt den Zeitraum nicht beginnen. Eine Rückerstattung oder Rückbuchung nach Beginn setzt den Zeitraum nicht zurück und verlängert ihn nicht.",
+        "MyCleaner benachrichtigt Bewerber direkt, wenn ihnen ein Platz zugeteilt wird. Es wird kein öffentlicher Countdown oder Zähler für verbleibende Plätze veröffentlicht.",
+        "Bei Aktivierung des Programms müssen die endgültigen Kampagnenbedingungen akzeptiert werden. MyCleaner kann das geplante Programm für zukünftige Teilnehmer ändern oder beenden; ein bereits bestätigter Kampagnenvorteil wird nicht rückwirkend geändert, soweit dies geltendem Recht widerspräche."
       ]
     },
     "appBarTitle": "Founding Cleaner"

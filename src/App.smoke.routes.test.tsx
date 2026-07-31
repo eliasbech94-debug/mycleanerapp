@@ -15,6 +15,12 @@ vi.mock("@/i18n/CountryContext", () => ({
 }));
 
 // Neutralize guards so alias routes render their target directly.
+// The legal re-acceptance gate needs AuthProvider; route tests render the
+// router in isolation, so it is stubbed out here.
+vi.mock("@/components/legal/LegalUpdateGate", () => ({
+  LegalUpdateGate: () => null,
+  default: () => null,
+}));
 vi.mock("@/components/RoleGuard", () => ({
   RoleGuard: ({ children }: { children: ReactNode }) => <>{children}</>,
 }));

@@ -21,6 +21,12 @@ vi.mock("@/i18n/CountryContext", () => ({
   SUPPORTED_COUNTRIES: ["DK", "GB", "SE", "ES"],
 }));
 
+// The legal re-acceptance gate needs AuthProvider; route tests render the
+// router in isolation, so it is stubbed out here.
+vi.mock("@/components/legal/LegalUpdateGate", () => ({
+  LegalUpdateGate: () => null,
+  default: () => null,
+}));
 vi.mock("@/components/RoleGuard", () => ({
   RoleGuard: ({ allow, children }: { allow: string[]; children: ReactNode }) => {
     // Record every guard rendered on the current route.

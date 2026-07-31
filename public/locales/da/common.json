@@ -19,7 +19,12 @@
     "bookings": "Bookinger",
     "inbox": "Indbakke",
     "profile": "Profil",
-    "logout": "Log ud"
+    "logout": "Log ud",
+    "find_cleaner": "Find en Cleaner",
+    "how": "Sådan virker det",
+    "become_cleaner": "Bliv Cleaner",
+    "sign_in": "Log ind",
+    "get_started": "Kom i gang"
   },
   "language": {
     "label": "Sprog",
@@ -272,7 +277,14 @@
     "helpText": "Åbn FAQ-chatten og få hjælp fra vores AI. Bliver sagen kompleks, sender vi den videre til et menneske.",
     "startChat": "Start FAQ-chat",
     "loginToChat": "Log ind for at chatte",
-    "seeRules": "Se regler"
+    "seeRules": "Se regler",
+    "cta": {
+      "heading": "Fandt du ikke svar?",
+      "body": "Åbn FAQ-chatten og få hjælp fra vores AI. Bliver sagen kompleks, sender vi den videre til et menneske.",
+      "start": "Start FAQ-chat",
+      "login": "Log ind for at chatte",
+      "rules": "Se regler"
+    }
   },
   "rules": {
     "heading": "Regler og vilkår",
