@@ -35,4 +35,4 @@ export function shouldShowFirstJobPopup(state: FirstJobPopupState, isProvider: b
 }
 
 /** Route the primary CTA points to. */
-export const FIRST_JOB_DASHBOARD_ROUTE = "/provider/dashboard";
+export const FIRST_JOB_DASHBOARD_ROUTE = "/provider-dashboard";
