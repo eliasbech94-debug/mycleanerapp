@@ -32,7 +32,12 @@ export function CelebrationConfetti({ durationMs = 2500, className }: Celebratio
   useEffect(() => {
     if (prefersReducedMotion()) return;
     const canvas = canvasRef.current;
-    const ctx = canvas?.getContext("2d");
+    let ctx: CanvasRenderingContext2D | null = null;
+    try {
+      ctx = canvas?.getContext("2d") ?? null;
+    } catch {
+      return; // environments without canvas support (e.g. jsdom)
+    }
     if (!canvas || !ctx) return;
 
     const dpr = Math.min(window.devicePixelRatio || 1, 2);

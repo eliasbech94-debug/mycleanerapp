@@ -98,8 +98,6 @@ export function FirstJobCelebrationDialog({ open, bookingId, onClose }: FirstJob
       <DialogPrimitive.Portal>
         <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-foreground/70 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
         <DialogPrimitive.Content
-          aria-labelledby="first-job-title"
-          aria-describedby="first-job-desc"
           className={cn(
             "fixed left-1/2 top-1/2 z-50 flex -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden bg-card text-card-foreground shadow-2xl",
             // Mobile: near fullscreen. Desktop: narrow modal with vertical video.
@@ -153,10 +151,10 @@ export function FirstJobCelebrationDialog({ open, bookingId, onClose }: FirstJob
           )}
 
           <div className="relative z-30 flex flex-1 flex-col gap-3 overflow-y-auto p-5">
-            <DialogPrimitive.Title id="first-job-title" className="text-xl font-bold tracking-tight">
+            <DialogPrimitive.Title className="text-xl font-bold tracking-tight">
               {t("first_job_popup.title", "🎉 Tillykke!")}
             </DialogPrimitive.Title>
-            <DialogPrimitive.Description id="first-job-desc" className="text-sm leading-relaxed text-muted-foreground">
+            <DialogPrimitive.Description className="text-sm leading-relaxed text-muted-foreground">
               {t("first_job_popup.body")}
             </DialogPrimitive.Description>
             <p className="text-sm leading-relaxed text-muted-foreground">{t("first_job_popup.support")}</p>
