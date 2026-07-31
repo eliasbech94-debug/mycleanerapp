@@ -1,34 +1,47 @@
 /**
  * Shows the concrete cancellation ladder for one booking, including the exact
- * instants at which the refund level changes. Reads the canonical policy from
- * `src/lib/cancellationPolicy.ts` — never hardcode the numbers here.
+ * local instants at which free cancellation expires and the 100 % cancellation
+ * fee begins. Reads the canonical policy from `src/lib/cancellationPolicy.ts` —
+ * never hardcode the numbers or the wording thresholds here.
+ *
+ * `policyVersion` comes from the booking's frozen
+ * `cancellation_policy_snapshot`; omitting it means "a booking made now", which
+ * uses the current policy.
  */
-import { cancellationDeadlines } from "@/lib/cancellationPolicy";
+import {
+  CURRENT_CANCELLATION_POLICY,
+  cancellationCutoffs,
+  policyForVersion,
+  type CancellationPolicy,
+} from "@/lib/cancellationPolicy";
 
 const dtf = new Intl.DateTimeFormat("da-DK", {
-  weekday: "short",
+  weekday: "long",
   day: "numeric",
-  month: "short",
+  month: "long",
   hour: "2-digit",
   minute: "2-digit",
 });
 
-function label(percent: number) {
-  if (percent >= 100) return "Fuld refundering";
-  if (percent <= 0) return "Ingen refundering";
-  return `${percent}% refundering`;
-}
-
 export function CancellationPolicyNotice({
   serviceStart,
+  policyVersion,
   className,
 }: {
   serviceStart: Date | string | number;
+  policyVersion?: string | null;
   className?: string;
 }) {
+  const policy: CancellationPolicy = policyVersion
+    ? policyForVersion(policyVersion)
+    : CURRENT_CANCELLATION_POLICY;
   const start = new Date(serviceStart);
   if (Number.isNaN(start.getTime())) return null;
-  const tiers = cancellationDeadlines(start);
+  const cutoffs = cancellationCutoffs(start, policy);
+  if (!cutoffs) return null;
+
+  const full = policy.tiers.find((t) => t.key === "full") ?? policy.tiers[0];
+  const partial = policy.tiers.find((t) => t.key === "partial") ?? policy.tiers[1];
 
   return (
     <section className={className} aria-labelledby="cancellation-policy-heading">
@@ -36,21 +49,32 @@ export function CancellationPolicyNotice({
         Afbestilling
       </h2>
       <ul className="mt-3 space-y-2 text-sm">
-        {tiers.map(({ tier, until }) => (
-          <li key={tier.key} className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-            <span className="font-semibold">{label(tier.refundPercent)}</span>
-            <span className="opacity-70">
-              {until
-                ? `hvis du afbestiller senest ${dtf.format(until)}`
-                : `hvis du afbestiller efter ${dtf.format(new Date(start.getTime() - tiers[tiers.length - 2].tier.minHoursBeforeStart * 3_600_000))}`}
-            </span>
-          </li>
-        ))}
+        <li className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+          <span className="font-semibold">Gratis aflysning — 100 % refusion</span>
+          <span className="opacity-70">
+            hvis du aflyser før {dtf.format(cutoffs.freeUntil)}
+          </span>
+        </li>
+        <li className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+          <span className="font-semibold">{partial.refundPercent} % refusion</span>
+          <span className="opacity-70">
+            fra {dtf.format(cutoffs.freeUntil)} til og med {dtf.format(cutoffs.fullFeeFrom)}
+          </span>
+        </li>
+        <li className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+          <span className="font-semibold">0 % refusion — 100 % cancellation fee</span>
+          <span className="opacity-70">
+            hvis du aflyser efter {dtf.format(cutoffs.fullFeeFrom)}
+          </span>
+        </li>
       </ul>
       <p className="mt-3 text-xs opacity-60">
-        Tidspunkterne er beregnet ud fra bookingens start {dtf.format(start)}. Er beløbet endnu ikke hævet,
-        annulleres reservationen i stedet, og der opkræves intet. Klager skal indgives senest 48 timer efter
-        opgavens planlagte eller registrerede afslutning.
+        Bookingen starter {dtf.format(start)}. Gratis aflysning udløber{" "}
+        <strong>{dtf.format(cutoffs.freeUntil)}</strong> ({full.minHoursBeforeStart} timer før start), og fra{" "}
+        <strong>{dtf.format(cutoffs.fullFeeFrom)}</strong> ({partial.minHoursBeforeStart} timer før start)
+        opkræves 100 % cancellation fee. Tidspunkterne vises i din lokale tid. Er beløbet endnu ikke hævet,
+        annulleres reservationen i stedet, og der opkræves intet. Klager skal indgives senest{" "}
+        {policy.complaintWindowHours} timer efter opgavens planlagte eller registrerede afslutning.
       </p>
     </section>
   );

@@ -62,7 +62,7 @@ const FAQS: Array<{ q: string; a: string }> = [
   },
   {
     q: "Hvordan afbestiller jeg en booking?",
-    a: "Gå til Mine bookinger, vælg bookingen og tryk Annuller booking. Hvad en annullering kan koste, og om en refundering er mulig, afhænger af, hvor tæt på starttidspunktet du annullerer — se de gældende vilkår under Regler.",
+    a: "Gå til Mine bookinger, vælg bookingen og tryk Annuller booking. Aflyser du mere end 18 timer før bookingens præcise starttidspunkt, er aflysningen gratis med 100 % refusion. Fra og med 8 og til og med 18 timer før start refunderes 50 %. Under 8 timer før start er der 0 % refusion, og der opkræves 100 % cancellation fee. De eksakte lokale tidspunkter står på din bookingbekræftelse. Bookinger oprettet før de nuværende regler afregnes efter de vilkår, du accepterede dengang.",
   },
   {
     q: "Hvordan får jeg refusion?",

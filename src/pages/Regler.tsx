@@ -31,12 +31,14 @@ export default function Regler() {
         <div>
           <h2 className="font-heading text-2xl mb-3">3. Afbestilling</h2>
           <p className="text-muted-foreground mb-3">
-            Refunderingen afhænger af, hvor lang tid der er til bookingens starttidspunkt, når afbestillingen registreres:
+            Refusionen afhænger af, hvor lang tid der er til bookingens præcise starttidspunkt, når aflysningen registreres:
           </p>
           <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
-            <li>48 timer eller mere før start: 100% refundering.</li>
-            <li>Fra 24 timer og indtil under 48 timer før start: 50% refundering.</li>
-            <li>Under 24 timer før start: ingen refundering.</li>
+            <li>Mere end 18 timer før bookingens præcise starttidspunkt: gratis aflysning og 100 % refusion.</li>
+            <li>Fra og med 8 timer til og med 18 timer før bookingens præcise starttidspunkt: 50 % refusion.</li>
+            <li>Under 8 timer før bookingens præcise starttidspunkt: 0 % refusion — der opkræves 100 % cancellation fee.</li>
+            <li>Tidspunkterne beregnes ud fra bookingens præcise start i bookingens tidszone. De eksakte tidspunkter vises på bookingbekræftelsen.</li>
+            <li>Reglerne gælder bookinger oprettet efter policyens ikrafttrædelse. Eksisterende bookinger afregnes efter den version, kunden accepterede ved booking.</li>
             <li>
               Er beløbet endnu ikke hævet, annulleres reservationen i stedet, og der opkræves intet.
               Afbestiller provideren, refunderes kunden fuldt ud.

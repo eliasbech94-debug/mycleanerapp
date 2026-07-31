@@ -1,9 +1,17 @@
 import { describe, it, expect } from "vitest";
 import {
+  CANCELLATION_POLICY_VERSION,
   CANCELLATION_TIERS,
   COMPLAINT_WINDOW_HOURS,
+  CURRENT_CANCELLATION_POLICY,
+  LEGACY_CANCELLATION_POLICY_VERSION,
+  bookingStartInstant,
+  cancellationCutoffs,
   cancellationDeadlines,
+  cancellationPolicySnapshot,
   hoursUntilServiceStart,
+  policyForSnapshot,
+  policyForVersion,
   refundPercentForHours,
   tierForBooking,
   tierForHours,
@@ -11,94 +19,156 @@ import {
 
 const H = 3_600_000;
 
-describe("cancellation ladder", () => {
-  it("refunds 100% more than 48 hours before start", () => {
+describe("cancellation ladder (v2 — 18/8)", () => {
+  it("is the current policy version", () => {
+    expect(CANCELLATION_POLICY_VERSION).toBe("2.0.0");
+    expect(CANCELLATION_TIERS).toBe(CURRENT_CANCELLATION_POLICY.tiers);
+  });
+
+  it("refunds 100% more than 18 hours before start", () => {
     expect(refundPercentForHours(72)).toBe(100);
-    expect(refundPercentForHours(48.0001)).toBe(100);
+    expect(refundPercentForHours(19)).toBe(100);
+    expect(refundPercentForHours(18.0001)).toBe(100);
+    expect(tierForHours(19).key).toBe("full");
   });
 
-  it("refunds 100% at exactly 48 hours (inclusive bound)", () => {
-    expect(refundPercentForHours(48)).toBe(100);
-    expect(tierForHours(48).key).toBe("full");
+  it("refunds 50% at exactly 18 hours (exclusive upper bound)", () => {
+    expect(refundPercentForHours(18)).toBe(50);
+    expect(tierForHours(18).key).toBe("partial");
   });
 
-  it("refunds 50% between 24 and 48 hours", () => {
-    expect(refundPercentForHours(47.9999)).toBe(50);
-    expect(refundPercentForHours(36)).toBe(50);
+  it("refunds 50% between 8 and 18 hours", () => {
+    expect(refundPercentForHours(17.9999)).toBe(50);
+    expect(refundPercentForHours(12)).toBe(50);
+    expect(refundPercentForHours(8.0001)).toBe(50);
   });
 
-  it("refunds 50% at exactly 24 hours (inclusive bound)", () => {
-    expect(refundPercentForHours(24)).toBe(50);
-    expect(tierForHours(24).key).toBe("partial");
+  it("refunds 50% at exactly 8 hours (inclusive bound)", () => {
+    expect(refundPercentForHours(8)).toBe(50);
+    expect(tierForHours(8).key).toBe("partial");
   });
 
-  it("refunds 0% less than 24 hours before start", () => {
-    expect(refundPercentForHours(23.9999)).toBe(0);
+  it("refunds 0% less than 8 hours before start", () => {
+    expect(refundPercentForHours(7.9999)).toBe(0);
     expect(refundPercentForHours(1)).toBe(0);
     expect(refundPercentForHours(0)).toBe(0);
+    expect(tierForHours(1).key).toBe("none");
   });
 
-  it("refunds 0% for a booking that has already started", () => {
-    const start = new Date("2026-08-01T10:00:00Z");
-    const now = new Date("2026-08-01T10:30:00Z");
-    expect(hoursUntilServiceStart(start, now)).toBe(0);
-    expect(tierForBooking(start, now).key).toBe("none");
-    expect(refundPercentForHours(-12)).toBe(0);
+  it("refunds 0% after the service has started", () => {
+    const start = new Date("2026-08-10T09:00:00Z");
+    const after = new Date(start.getTime() + 3 * H);
+    expect(hoursUntilServiceStart(start, after)).toBe(0);
+    expect(tierForBooking(start, after).refundPercent).toBe(0);
   });
 
-  it("is immune to timezone and DST shifts (absolute instants only)", () => {
-    // European DST ends 2026-10-25 03:00 CEST → 02:00 CET. The wall clock
-    // between these two instants spans 49 hours, the real elapsed time 48.
-    const now = new Date("2026-10-23T22:00:00Z"); // 2026-10-24 00:00 CEST
-    const start = new Date("2026-10-25T22:00:00Z"); // 2026-10-25 23:00 CET
-    expect(hoursUntilServiceStart(start, now)).toBeCloseTo(48, 9);
-    expect(tierForBooking(start, now).key).toBe("full");
-
-    // One millisecond later the same booking drops to the 50% tier.
-    const justAfter = new Date(now.getTime() + 1);
-    expect(tierForBooking(start, justAfter).key).toBe("partial");
-  });
-
-  it("accepts ISO strings from different offsets identically", () => {
-    const start = "2026-08-10T08:00:00+02:00";
-    const nowUtc = "2026-08-08T06:00:00Z"; // same instant as 08:00+02:00
-    expect(hoursUntilServiceStart(start, nowUtc)).toBe(48);
-  });
-});
-
-describe("cancellationDeadlines", () => {
-  const start = new Date("2026-08-10T08:00:00Z");
-  const deadlines = cancellationDeadlines(start);
-
-  it("exposes one entry per tier in descending order", () => {
-    expect(deadlines.map((d) => d.tier.key)).toEqual(["full", "partial", "none"]);
-  });
-
-  it("computes exact cut-off instants", () => {
-    expect(deadlines[0].until?.toISOString()).toBe(new Date(start.getTime() - 48 * H).toISOString());
-    expect(deadlines[1].until?.toISOString()).toBe(new Date(start.getTime() - 24 * H).toISOString());
-    expect(deadlines[2].until).toBeNull();
-  });
-
-  it("cut-off instants agree with the ladder evaluation", () => {
-    for (const d of deadlines) {
-      if (!d.until) continue;
-      expect(tierForBooking(start, d.until).key).toBe(d.tier.key);
-      expect(tierForBooking(start, new Date(d.until.getTime() + 1)).key).not.toBe(d.tier.key);
-    }
-  });
-});
-
-describe("policy constants", () => {
-  it("keeps the approved economic ladder", () => {
-    expect(CANCELLATION_TIERS).toEqual([
-      { key: "full", minHoursBeforeStart: 48, refundPercent: 100 },
-      { key: "partial", minHoursBeforeStart: 24, refundPercent: 50 },
-      { key: "none", minHoursBeforeStart: 0, refundPercent: 0 },
-    ]);
-  });
-
-  it("keeps the 48 hour complaint window", () => {
+  it("keeps the complaint window at 48 hours", () => {
     expect(COMPLAINT_WINDOW_HOURS).toBe(48);
+  });
+});
+
+describe("timezone and DST", () => {
+  it("is immune to timezone and DST shifts because it compares instants", () => {
+    const start = new Date("2026-10-25T09:00:00+02:00"); // CEST → CET night
+    const now = new Date(start.getTime() - 19 * H);
+    expect(tierForBooking(start, now).refundPercent).toBe(100);
+    expect(tierForBooking(start, new Date(start.getTime() - 18 * H)).refundPercent).toBe(50);
+  });
+
+  it("accepts ISO strings with different offsets identically", () => {
+    const a = tierForBooking("2026-08-10T09:00:00Z", "2026-08-09T14:00:00Z");
+    const b = tierForBooking("2026-08-10T11:00:00+02:00", "2026-08-09T16:00:00+02:00");
+    expect(a.key).toBe(b.key);
+  });
+
+  it("resolves a booking start from date + slot + IANA timezone", () => {
+    expect(bookingStartInstant("2026-08-10", "09:00", "Europe/Copenhagen")!.toISOString())
+      .toBe("2026-08-10T07:00:00.000Z"); // CEST = UTC+2
+    expect(bookingStartInstant("2026-01-10", "09:00", "Europe/Copenhagen")!.toISOString())
+      .toBe("2026-01-10T08:00:00.000Z"); // CET = UTC+1
+    expect(bookingStartInstant("2026-08-10", "09:00", "Europe/London")!.toISOString())
+      .toBe("2026-08-10T08:00:00.000Z");
+  });
+
+  it("never falls back to midnight UTC on malformed input", () => {
+    expect(bookingStartInstant("2026-08-10", null)).toBeNull();
+    expect(bookingStartInstant("2026-08-10", "9am")).toBeNull();
+    expect(bookingStartInstant("not-a-date", "09:00")).toBeNull();
+  });
+
+  it("uses the slot, not midnight, when deciding the tier", () => {
+    // Booking 10 Aug 18:00 local; now is 10 Aug 06:00 local → 12 h → 50 %.
+    const start = bookingStartInstant("2026-08-10", "18:00", "Europe/Copenhagen")!;
+    const now = new Date(start.getTime() - 12 * H);
+    expect(tierForBooking(start, now).refundPercent).toBe(50);
+    // Midnight-UTC maths would have produced a negative/0 delta and 0 %.
+    expect(refundPercentForHours(hoursUntilServiceStart(start, now))).toBe(50);
+  });
+});
+
+describe("non-retroactivity", () => {
+  it("keeps the legacy 48/24 ladder available", () => {
+    const legacy = policyForVersion(LEGACY_CANCELLATION_POLICY_VERSION);
+    expect(legacy.version).toBe("1.0.0");
+    expect(refundPercentForHours(48, legacy)).toBe(100);
+    expect(refundPercentForHours(24, legacy)).toBe(50);
+    expect(refundPercentForHours(23.99, legacy)).toBe(0);
+  });
+
+  it("evaluates an existing booking with the version it accepted", () => {
+    const accepted = { policy_version: "1.0.0" };
+    const policy = policyForSnapshot(accepted);
+    expect(policy.version).toBe("1.0.0");
+    // 20 h before start: legacy → 0 %, new ladder → 100 %.
+    expect(refundPercentForHours(20, policy)).toBe(0);
+    expect(refundPercentForHours(20)).toBe(100);
+  });
+
+  it("falls back to the legacy ladder — never the newest — without a snapshot", () => {
+    expect(policyForSnapshot(null).version).toBe(LEGACY_CANCELLATION_POLICY_VERSION);
+    expect(policyForSnapshot({}).version).toBe(LEGACY_CANCELLATION_POLICY_VERSION);
+    expect(policyForVersion("9.9.9").version).toBe(LEGACY_CANCELLATION_POLICY_VERSION);
+  });
+
+  it("freezes the accepted terms in the booking snapshot", () => {
+    const snap = cancellationPolicySnapshot() as {
+      policy_version: string;
+      tiers: { key: string; min_hours_before_start: number; bound_exclusive: boolean; refund_percent: number }[];
+    };
+    expect(snap.policy_version).toBe("2.0.0");
+    expect(snap.tiers).toEqual([
+      { key: "full", min_hours_before_start: 18, bound_exclusive: true, refund_percent: 100 },
+      { key: "partial", min_hours_before_start: 8, bound_exclusive: false, refund_percent: 50 },
+      { key: "none", min_hours_before_start: 0, bound_exclusive: false, refund_percent: 0 },
+    ]);
+    // A snapshot round-trips to the exact ladder it recorded.
+    expect(policyForSnapshot(snap).version).toBe("2.0.0");
+  });
+});
+
+describe("customer-facing cut-offs", () => {
+  it("exposes the exact free-cancellation and full-fee instants", () => {
+    const start = new Date("2026-08-10T07:00:00Z");
+    const c = cancellationCutoffs(start)!;
+    expect(c.freeUntil.toISOString()).toBe(new Date(start.getTime() - 18 * H).toISOString());
+    expect(c.fullFeeFrom.toISOString()).toBe(new Date(start.getTime() - 8 * H).toISOString());
+    expect(c.partialUntil.toISOString()).toBe(c.fullFeeFrom.toISOString());
+  });
+
+  it("cut-offs agree with the ladder at their own boundaries", () => {
+    const start = new Date("2026-08-10T07:00:00Z");
+    const c = cancellationCutoffs(start)!;
+    expect(tierForBooking(start, new Date(c.freeUntil.getTime() - 1)).refundPercent).toBe(100);
+    expect(tierForBooking(start, c.freeUntil).refundPercent).toBe(50);
+    expect(tierForBooking(start, c.fullFeeFrom).refundPercent).toBe(50);
+    expect(tierForBooking(start, new Date(c.fullFeeFrom.getTime() + 1)).refundPercent).toBe(0);
+  });
+
+  it("deadlines list the ladder in order", () => {
+    const start = new Date("2026-08-10T07:00:00Z");
+    const rows = cancellationDeadlines(start);
+    expect(rows.map((r) => r.tier.key)).toEqual(["full", "partial", "none"]);
+    expect(rows[0].until!.toISOString()).toBe(new Date(start.getTime() - 18 * H).toISOString());
+    expect(rows[2].until).toBeNull();
   });
 });
