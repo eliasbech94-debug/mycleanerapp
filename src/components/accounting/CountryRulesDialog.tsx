@@ -77,7 +77,7 @@ export default function CountryRulesDialog({
                       {source.officialSourceName}
                     </a>
                     {source.sourceDocumentTitle ? ` — ${source.sourceDocumentTitle}` : ""}
-                    {source.sourceCheckedAt ? ` (kontrolleret ${source.sourceCheckedAt})` : ""}
+                    {source.sourceCheckedAt ? t("ui.countryRules.checkedAtSuffix", { date: source.sourceCheckedAt }) : ""}
                   </li>
                 ))}
               </ul>
