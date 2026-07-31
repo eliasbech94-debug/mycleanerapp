@@ -10,7 +10,7 @@
 -- Usage: psql -f scripts/campaign-applications-p0-rls-regression.sql
 -- ============================================================================
 
-\set ON_ERROR_STOP off
+\set ON_ERROR_STOP on
 
 BEGIN;
 
@@ -22,11 +22,17 @@ CREATE TEMP TABLE _p0_ctx (k text primary key, v text);
 DO $$
 DECLARE
   v_campaign uuid;
-  v_owner    uuid := gen_random_uuid();
-  v_other    uuid := gen_random_uuid();
+  v_owner    uuid;
+  v_other    uuid;
   v_app_own  uuid;
   v_app_oth  uuid;
 BEGIN
+  SELECT id INTO v_owner FROM auth.users ORDER BY created_at, id LIMIT 1;
+  SELECT id INTO v_other FROM auth.users WHERE id <> v_owner ORDER BY created_at, id LIMIT 1;
+  IF v_owner IS NULL OR v_other IS NULL THEN
+    RAISE EXCEPTION 'P0 regression requires at least two staging auth users';
+  END IF;
+
   SELECT id INTO v_campaign FROM public.campaigns ORDER BY created_at LIMIT 1;
   IF v_campaign IS NULL THEN
     INSERT INTO public.campaigns (slug, kind, lifecycle)
@@ -157,9 +163,13 @@ END $$;
 -- 7. admin / support read access preserved
 -- ---------------------------------------------------------------------------
 DO $$
-DECLARE n_admin int; n_support int; admin_id uuid := gen_random_uuid(); support_id uuid := gen_random_uuid();
+DECLARE n_admin int; n_support int; admin_id uuid; support_id uuid;
 BEGIN
-  INSERT INTO public.user_roles (user_id, role) VALUES (admin_id, 'admin'), (support_id, 'support');
+  SELECT v::uuid INTO admin_id FROM _p0_ctx WHERE k='owner';
+  SELECT v::uuid INTO support_id FROM _p0_ctx WHERE k='other';
+  INSERT INTO public.user_roles (user_id, role)
+  VALUES (admin_id, 'admin'), (support_id, 'support')
+  ON CONFLICT DO NOTHING;
 
   SET LOCAL ROLE authenticated;
   PERFORM set_config('request.jwt.claims', json_build_object('sub', admin_id, 'role', 'authenticated')::text, true);
