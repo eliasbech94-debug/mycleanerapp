@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Search } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 type Booking = {
   id: string;
@@ -20,11 +21,6 @@ type Booking = {
   customer_pays: number | null;
 };
 
-const STATUS_LABEL: Record<string, string> = {
-  pending: "Afventer", confirmed: "Bekræftet", completed: "Fuldført",
-  cancelled: "Annulleret", disputed: "Tvist",
-};
-
 function formatAmount(amount: number | null, currency: string | null) {
   if (amount == null || !currency) return "—";
   try {
@@ -35,6 +31,7 @@ function formatAmount(amount: number | null, currency: string | null) {
 }
 
 export default function SupportBookingsPage() {
+  const { t } = useTranslation("admin");
   const [q, setQ] = useState("");
   const [committed, setCommitted] = useState("");
 
