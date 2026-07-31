@@ -8416,6 +8416,33 @@ export type Database = {
           },
         ]
       }
+      market_launch_status: {
+        Row: {
+          currency: string | null
+          is_bookable: boolean | null
+          iso: string | null
+          lifecycle_state:
+            | Database["public"]["Enums"]["country_lifecycle_state"]
+            | null
+        }
+        Insert: {
+          currency?: string | null
+          is_bookable?: never
+          iso?: string | null
+          lifecycle_state?:
+            | Database["public"]["Enums"]["country_lifecycle_state"]
+            | null
+        }
+        Update: {
+          currency?: string | null
+          is_bookable?: never
+          iso?: string | null
+          lifecycle_state?:
+            | Database["public"]["Enums"]["country_lifecycle_state"]
+            | null
+        }
+        Relationships: []
+      }
       platform_tax_settings_v: {
         Row: {
           country_code: string | null
