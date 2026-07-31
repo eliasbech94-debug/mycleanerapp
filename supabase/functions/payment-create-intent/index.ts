@@ -111,7 +111,7 @@ Deno.serve(monitored("payment-create-intent", async (req, _log) => {
       // Idempotent: return the existing booking + PI for this quote.
       const { data: existing } = await admin
         .from("bookings")
-        .select("id, payment_intent_id")
+        .select("id, payment_intent_id, cancellation_policy_snapshot")
         .eq("pricing_calculation_id", quote.id)
         .maybeSingle();
       if (existing?.payment_intent_id) {
@@ -122,6 +122,9 @@ Deno.serve(monitored("payment-create-intent", async (req, _log) => {
           booking_id: existing.id,
           payment_intent_id: existing.payment_intent_id,
           client_secret: pi.client_secret,
+          // Frozen accepted terms — the UI must quote these, not today's policy.
+          cancellation_policy_version:
+            (existing.cancellation_policy_snapshot as { version?: string } | null)?.version ?? null,
           idempotent: true,
         });
       }
@@ -239,7 +242,7 @@ Deno.serve(monitored("payment-create-intent", async (req, _log) => {
         commission_config_snapshot: commissionSnapshot,
         booking_rules_snapshot: bookingRulesSnapshot,
         // Freeze the accepted cancellation terms — never re-evaluated later.
-        cancellation_policy_snapshot: cancellationPolicySnapshot(policyAt(new Date())),
+        cancellation_policy_snapshot: acceptedCancellationSnapshot,
         pricing_calculation_id: quote.id,
         acquisition_source: acquisitionSource,
         acquisition_provider_id: acquisitionProviderId,
@@ -251,7 +254,7 @@ Deno.serve(monitored("payment-create-intent", async (req, _log) => {
       // Duplicate on pricing_calculation_id → return the existing booking's PI.
       if ((insErr as any).code === "23505") {
         const { data: existing } = await admin
-          .from("bookings").select("id, payment_intent_id")
+          .from("bookings").select("id, payment_intent_id, cancellation_policy_snapshot")
           .eq("pricing_calculation_id", quote.id).maybeSingle();
         if (existing?.payment_intent_id) {
           const pi = await fetch(`${STRIPE}/payment_intents/${existing.payment_intent_id}`, {
@@ -261,6 +264,8 @@ Deno.serve(monitored("payment-create-intent", async (req, _log) => {
             booking_id: existing.id,
             payment_intent_id: existing.payment_intent_id,
             client_secret: pi.client_secret,
+            cancellation_policy_version:
+              (existing.cancellation_policy_snapshot as { version?: string } | null)?.version ?? null,
             idempotent: true,
           });
         }
@@ -329,6 +334,9 @@ Deno.serve(monitored("payment-create-intent", async (req, _log) => {
       booking_id: bookingId,
       payment_intent_id: pi.id,
       client_secret: pi.client_secret,
+      // The exact cancellation-policy version the customer just accepted.
+      cancellation_policy_version:
+        (acceptedCancellationSnapshot as { version?: string }).version ?? null,
     });
   } catch (e) {
     return json(500, { error: (e as Error).message });
