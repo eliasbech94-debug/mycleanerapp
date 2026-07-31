@@ -341,5 +341,31 @@
       "title": "7. Sperrung und Kündigung",
       "text": "MyCleaner behält sich das Recht vor, Konten zu sperren oder zu kündigen, die gegen diese Regeln verstoßen. Schwerwiegende Verstöße können zum dauerhaften Ausschluss und gegebenenfalls zu einer Anzeige führen."
     }
+  },
+  "cancellation": {
+    "ladder": {
+      "bullet": {
+        "fullExclusive": "Mehr als {{hours}} Stunden {{when}}: kostenlose Stornierung und {{percent}} % Erstattung.",
+        "fullInclusive": "{{hours}} Stunden oder mehr {{when}}: kostenlose Stornierung und {{percent}} % Erstattung.",
+        "partialExclusive": "Ab {{from}} Stunden bis einschließlich {{to}} Stunden {{when}}: {{percent}} % Erstattung.",
+        "partialInclusive": "Ab {{from}} Stunden und unter {{to}} Stunden {{when}}: {{percent}} % Erstattung.",
+        "none": "Weniger als {{hours}} Stunden {{when}}: 0 % Erstattung — es wird eine Stornogebühr von 100 % berechnet."
+      },
+      "sentence": {
+        "exclusive": "Wenn Sie mehr als {{fullHours}} Stunden {{when}} stornieren, ist die Stornierung kostenlos mit {{fullPercent}} % Erstattung. Ab {{partialHours}} bis einschließlich {{fullHours}} Stunden vor dem Start werden {{partialPercent}} % erstattet. Unter {{partialHours}} Stunden vor dem Start erfolgt keine Erstattung und es wird eine Stornogebühr von 100 % berechnet.",
+        "inclusive": "Wenn Sie {{fullHours}} Stunden oder mehr {{when}} stornieren, ist die Stornierung kostenlos mit {{fullPercent}} % Erstattung. Ab {{partialHours}} und unter {{fullHours}} Stunden vor dem Start werden {{partialPercent}} % erstattet. Unter {{partialHours}} Stunden vor dem Start erfolgt keine Erstattung und es wird eine Stornogebühr von 100 % berechnet."
+      },
+      "when": "vor dem genauen Startzeitpunkt der Buchung"
+    },
+    "notice": {
+      "heading": "Stornierung",
+      "free": "Kostenlose Stornierung — 100 % Erstattung",
+      "freeWhen": "wenn Sie vor {{time}} stornieren",
+      "partial": "{{percent}} % Erstattung",
+      "partialWhen": "von {{from}} bis einschließlich {{to}}",
+      "none": "0 % Erstattung — 100 % Stornogebühr",
+      "noneWhen": "wenn Sie nach {{time}} stornieren",
+      "detail": "Die Buchung beginnt {{start}}. Die kostenlose Stornierung endet {{freeUntil}} ({{fullHours}} Stunden vor dem Start), und ab {{feeFrom}} ({{partialHours}} Stunden vor dem Start) wird eine Stornogebühr von 100 % berechnet. Die Zeiten werden in Ihrer lokalen Zeit angezeigt. Wurde der Betrag noch nicht abgebucht, wird stattdessen die Reservierung freigegeben und nichts berechnet. Beschwerden müssen spätestens {{complaintHours}} Stunden nach dem geplanten oder erfassten Ende des Auftrags eingereicht werden."
+    }
   }
 }

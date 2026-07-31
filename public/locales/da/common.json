@@ -341,5 +341,31 @@
       "title": "7. Suspension og ophør",
       "text": "MyCleaner forbeholder sig retten til at suspendere eller ophæve konti der overtræder disse regler. Alvorlige overtrædelser kan medføre permanent udelukkelse og eventuel politianmeldelse."
     }
+  },
+  "cancellation": {
+    "ladder": {
+      "bullet": {
+        "fullExclusive": "Mere end {{hours}} timer {{when}}: gratis aflysning og {{percent}} % refusion.",
+        "fullInclusive": "{{hours}} timer eller mere {{when}}: gratis aflysning og {{percent}} % refusion.",
+        "partialExclusive": "Fra og med {{from}} timer til og med {{to}} timer {{when}}: {{percent}} % refusion.",
+        "partialInclusive": "Fra og med {{from}} timer og under {{to}} timer {{when}}: {{percent}} % refusion.",
+        "none": "Under {{hours}} timer {{when}}: 0 % refusion — der opkræves 100 % cancellation fee."
+      },
+      "sentence": {
+        "exclusive": "Aflyser du mere end {{fullHours}} timer {{when}}, er aflysningen gratis med {{fullPercent}} % refusion. Fra og med {{partialHours}} og til og med {{fullHours}} timer før start refunderes {{partialPercent}} %. Under {{partialHours}} timer før start er der 0 % refusion, og der opkræves 100 % cancellation fee.",
+        "inclusive": "Aflyser du {{fullHours}} timer eller mere {{when}}, er aflysningen gratis med {{fullPercent}} % refusion. Fra og med {{partialHours}} og under {{fullHours}} timer før start refunderes {{partialPercent}} %. Under {{partialHours}} timer før start er der 0 % refusion, og der opkræves 100 % cancellation fee."
+      },
+      "when": "før bookingens præcise starttidspunkt"
+    },
+    "notice": {
+      "heading": "Afbestilling",
+      "free": "Gratis aflysning — 100 % refusion",
+      "freeWhen": "hvis du aflyser før {{time}}",
+      "partial": "{{percent}} % refusion",
+      "partialWhen": "fra {{from}} til og med {{to}}",
+      "none": "0 % refusion — 100 % cancellation fee",
+      "noneWhen": "hvis du aflyser efter {{time}}",
+      "detail": "Bookingen starter {{start}}. Gratis aflysning udløber {{freeUntil}} ({{fullHours}} timer før start), og fra {{feeFrom}} ({{partialHours}} timer før start) opkræves 100 % cancellation fee. Tidspunkterne vises i din lokale tid. Er beløbet endnu ikke hævet, annulleres reservationen i stedet, og der opkræves intet. Klager skal indgives senest {{complaintHours}} timer efter opgavens planlagte eller registrerede afslutning."
+    }
   }
 }

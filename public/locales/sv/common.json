@@ -341,5 +341,31 @@
       "title": "7. Avstängning och uppsägning",
       "text": "MyCleaner förbehåller sig rätten att stänga av eller avsluta konton som bryter mot dessa regler. Allvarliga överträdelser kan leda till permanent uteslutning och eventuell polisanmälan."
     }
+  },
+  "cancellation": {
+    "ladder": {
+      "bullet": {
+        "fullExclusive": "Mer än {{hours}} timmar {{when}}: kostnadsfri avbokning och {{percent}} % återbetalning.",
+        "fullInclusive": "{{hours}} timmar eller mer {{when}}: kostnadsfri avbokning och {{percent}} % återbetalning.",
+        "partialExclusive": "Från {{from}} timmar till och med {{to}} timmar {{when}}: {{percent}} % återbetalning.",
+        "partialInclusive": "Från {{from}} timmar och under {{to}} timmar {{when}}: {{percent}} % återbetalning.",
+        "none": "Mindre än {{hours}} timmar {{when}}: 0 % återbetalning — en avbokningsavgift på 100 % tas ut."
+      },
+      "sentence": {
+        "exclusive": "Om du avbokar mer än {{fullHours}} timmar {{when}} är avbokningen kostnadsfri med {{fullPercent}} % återbetalning. Från {{partialHours}} till och med {{fullHours}} timmar före start återbetalas {{partialPercent}} %. Under {{partialHours}} timmar före start sker ingen återbetalning och en avbokningsavgift på 100 % tas ut.",
+        "inclusive": "Om du avbokar {{fullHours}} timmar eller mer {{when}} är avbokningen kostnadsfri med {{fullPercent}} % återbetalning. Från {{partialHours}} och under {{fullHours}} timmar före start återbetalas {{partialPercent}} %. Under {{partialHours}} timmar före start sker ingen återbetalning och en avbokningsavgift på 100 % tas ut."
+      },
+      "when": "före bokningens exakta starttid"
+    },
+    "notice": {
+      "heading": "Avbokning",
+      "free": "Kostnadsfri avbokning — 100 % återbetalning",
+      "freeWhen": "om du avbokar före {{time}}",
+      "partial": "{{percent}} % återbetalning",
+      "partialWhen": "från {{from}} till och med {{to}}",
+      "none": "0 % återbetalning — 100 % avbokningsavgift",
+      "noneWhen": "om du avbokar efter {{time}}",
+      "detail": "Bokningen börjar {{start}}. Kostnadsfri avbokning gäller till {{freeUntil}} ({{fullHours}} timmar före start), och från {{feeFrom}} ({{partialHours}} timmar före start) tas en avbokningsavgift på 100 % ut. Tiderna visas i din lokala tid. Om beloppet ännu inte har dragits släpps reservationen i stället och inget debiteras. Reklamationer måste lämnas in senast {{complaintHours}} timmar efter uppdragets planerade eller registrerade slut."
+    }
   }
 }
