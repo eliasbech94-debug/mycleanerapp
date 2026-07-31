@@ -42,7 +42,7 @@ import AdminProviders from "./pages/admin/AdminProviders";
 import AdminAppeals from "./pages/admin/AdminAppeals";
 import ProviderDecisions from "./pages/provider/ProviderDecisions";
 import {
-  SupportHome, SupportInbox, SupportCases,
+  SupportHome, SupportDashboard, SupportInbox, SupportCases,
   SupportCustomers, SupportProviders, SupportBookings,
 } from "./pages/support/SupportShell";
 
