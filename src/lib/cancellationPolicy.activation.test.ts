@@ -23,8 +23,8 @@ const H = 3_600_000;
 
 describe("activation instant", () => {
   it("is the approved UTC instant", () => {
-    expect(CANCELLATION_POLICY_V2_ACTIVATION_AT).toBe("2026-08-03T06:00:00.000Z");
-    expect(new Date(T).toISOString()).toBe("2026-08-03T06:00:00.000Z");
+    expect(CANCELLATION_POLICY_V2_ACTIVATION_AT).toBe("2026-08-01T06:00:00.000Z");
+    expect(new Date(T).toISOString()).toBe("2026-08-01T06:00:00.000Z");
   });
 
   it("selects v1 one millisecond before T", () => {
@@ -111,17 +111,17 @@ describe("snapshot freeze and cancellation", () => {
 
   it("records the accepted instant on the snapshot", () => {
     const snap = cancellationPolicySnapshot(policyAt(T, true), T) as { accepted_at: string };
-    expect(snap.accepted_at).toBe("2026-08-03T06:00:00.000Z");
+    expect(snap.accepted_at).toBe("2026-08-01T06:00:00.000Z");
   });
 });
 
 describe("timezone and DST around activation", () => {
   it("activation is an absolute instant, not a wall-clock time", () => {
-    // 2026-08-03 08:00 CEST === 06:00 UTC === T.
-    expect(policyAt("2026-08-03T08:00:00+02:00", true).version).toBe("2.0.0");
-    expect(policyAt("2026-08-03T07:59:59.999+02:00", true).version).toBe("1.0.0");
+    // 2026-08-01 08:00 CEST === 06:00 UTC === T.
+    expect(policyAt("2026-08-01T08:00:00+02:00", true).version).toBe("2.0.0");
+    expect(policyAt("2026-08-01T07:59:59.999+02:00", true).version).toBe("1.0.0");
     // Same instant expressed in another zone.
-    expect(policyAt("2026-08-03T07:00:00+01:00", true).version).toBe("2.0.0");
+    expect(policyAt("2026-08-01T07:00:00+01:00", true).version).toBe("2.0.0");
   });
 
   it("evaluates a DST-crossing booking with its frozen policy", () => {

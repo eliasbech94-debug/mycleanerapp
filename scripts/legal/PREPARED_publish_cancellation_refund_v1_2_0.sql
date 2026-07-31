@@ -1,5 +1,5 @@
 -- ============================================================================
--- PREPARED — DO NOT EXECUTE BEFORE T = 2026-08-03T06:00:00.000Z
+-- PREPARED — DO NOT EXECUTE BEFORE T = 2026-08-01T06:00:00.000Z
 -- ============================================================================
 -- Atomic coordinated publication of:
 --   MC-CANCELLATION-POLICY-001 v1.2.0   (id 2e22a4f5-efb8-4048-9397-e2302f87f9a0)
@@ -25,7 +25,7 @@ BEGIN;
 
 DO $$
 DECLARE
-  T                  CONSTANT timestamptz := '2026-08-03T06:00:00.000Z';
+  T                  CONSTANT timestamptz := '2026-08-01T06:00:00.000Z';
 
   OLD_CANCEL_ID      CONSTANT uuid := '10dbd28b-9364-4007-ac25-101854d63078';
   NEW_CANCEL_ID      CONSTANT uuid := '2e22a4f5-efb8-4048-9397-e2302f87f9a0';

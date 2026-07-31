@@ -38,10 +38,10 @@ describe("cancellation policy parity", () => {
   });
 
   it("both copies declare the same activation instant, byte for byte", () => {
-    const line = `export const CANCELLATION_POLICY_V2_ACTIVATION_AT = "2026-08-03T06:00:00.000Z";`;
+    const line = `export const CANCELLATION_POLICY_V2_ACTIVATION_AT = "2026-08-01T06:00:00.000Z";`;
     expect(read(FRONTEND)).toContain(line);
     expect(read(EDGE)).toContain(line);
-    expect(CANCELLATION_POLICY_V2_ACTIVATION_AT).toBe("2026-08-03T06:00:00.000Z");
+    expect(CANCELLATION_POLICY_V2_ACTIVATION_AT).toBe("2026-08-01T06:00:00.000Z");
   });
 
   it("both copies publish exactly the same policy versions", () => {
@@ -107,8 +107,8 @@ describe("cancellation policy parity", () => {
   });
 
   it("derived copy matches whichever ladder is in force", () => {
-    const v1 = policyAt("2026-08-03T05:59:59.999Z", true);
-    const v2 = policyAt("2026-08-03T06:00:00.000Z", true);
+    const v1 = policyAt("2026-08-01T05:59:59.999Z", true);
+    const v2 = policyAt("2026-08-01T06:00:00.000Z", true);
     expect(cancellationLadderBullets(v1)[0]).toContain("48 timer eller mere");
     expect(cancellationLadderBullets(v1)[2]).toContain("Under 24 timer");
     expect(cancellationLadderBullets(v2)[0]).toContain("Mere end 18 timer");
