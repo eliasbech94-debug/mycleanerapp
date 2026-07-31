@@ -170,10 +170,28 @@ Deno.serve(monitored("sms-send-code", async (req, _log) => {
     }
 
 
+    // Copy comes from the central SMS template layer (never hardcoded here).
+    // Language: recipient profiles.ui_language, English fallback.
+    const lang = await resolveUserLang(
+      supabase as unknown as Parameters<typeof resolveUserLang>[0],
+      userId,
+    );
+    const rendered = renderSms("verification.code", lang, { code, minutes: 10 });
+    if (!rendered) {
+      await supabase.from("sms_verifications").delete().eq("id", insRow.id);
+      return json({ error: "Kunne ikke sende SMS. Prøv igen om lidt." }, 500);
+    }
+    console.log(JSON.stringify({
+      evt: "sms.code.template",
+      lang: rendered.lang,
+      encoding: rendered.segments.encoding,
+      segments: rendered.segments.segments,
+    }));
+
     // Deliver via GatewayAPI (MyCleaner's only SMS provider).
     const sms = await sendSms({
       to: phone,
-      message: `Din MyCleaner-kode er ${code}. Koden udløber om 10 minutter.`,
+      message: rendered.text,
       reference: `sms-verify:${insRow.id}`,
     });
 
