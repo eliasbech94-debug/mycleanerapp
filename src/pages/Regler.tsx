@@ -30,9 +30,17 @@ export default function Regler() {
 
         <div>
           <h2 className="font-heading text-2xl mb-3">3. Afbestilling</h2>
+          <p className="text-muted-foreground mb-3">
+            Refunderingen afhænger af, hvor lang tid der er til bookingens starttidspunkt, når afbestillingen registreres:
+          </p>
           <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
-            <li>Gratis afbestilling indtil 24 timer før opgaven.</li>
-            <li>Herefter opkræves 50% af opgavens pris.</li>
+            <li>48 timer eller mere før start: 100% refundering.</li>
+            <li>Fra 24 timer og indtil under 48 timer før start: 50% refundering.</li>
+            <li>Under 24 timer før start: ingen refundering.</li>
+            <li>
+              Er beløbet endnu ikke hævet, annulleres reservationen i stedet, og der opkræves intet.
+              Afbestiller provideren, refunderes kunden fuldt ud.
+            </li>
             <li>Providere der afbestiller kort før opgaven risikerer suspension.</li>
           </ul>
         </div>
@@ -40,12 +48,13 @@ export default function Regler() {
         <div>
           <h2 className="font-heading text-2xl mb-3">4. Klager og refusion</h2>
           <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
-            <li>Klager skal indsendes inden for 48 timer efter opgavens afslutning.</li>
+            <li>Klager skal indsendes inden for 48 timer efter opgavens planlagte eller registrerede afslutning.</li>
             <li>MyCleaner Support gennemgår sagen og de indsendte oplysninger, typisk inden for 5 hverdage.</li>
             <li>MyCleaner Support gennemgår de tilgængelige oplysninger fra begge parter, før der registreres en beslutning.</li>
             <li>En godkendt refundering sendes tilbage til den anvendte betalingsmetode. Behandlingstiden afhænger af betalingsudbyderen og kundens bank.</li>
           </ul>
         </div>
+
 
         <div>
           <h2 className="font-heading text-2xl mb-3">5. Skat og indberetning</h2>

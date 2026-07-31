@@ -5911,6 +5911,147 @@ export type Database = {
         }
         Relationships: []
       }
+      provider_appeal_attachments: {
+        Row: {
+          appeal_id: string
+          content_type: string
+          created_at: string
+          file_name: string
+          id: string
+          size_bytes: number
+          storage_path: string
+          uploaded_by: string
+        }
+        Insert: {
+          appeal_id: string
+          content_type: string
+          created_at?: string
+          file_name: string
+          id?: string
+          size_bytes: number
+          storage_path: string
+          uploaded_by: string
+        }
+        Update: {
+          appeal_id?: string
+          content_type?: string
+          created_at?: string
+          file_name?: string
+          id?: string
+          size_bytes?: number
+          storage_path?: string
+          uploaded_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_appeal_attachments_appeal_id_fkey"
+            columns: ["appeal_id"]
+            isOneToOne: false
+            referencedRelation: "provider_appeals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      provider_appeal_events: {
+        Row: {
+          actor_role: string
+          actor_user_id: string | null
+          appeal_id: string
+          created_at: string
+          event_type: string
+          from_status: string | null
+          id: number
+          note: string | null
+          to_status: string | null
+        }
+        Insert: {
+          actor_role: string
+          actor_user_id?: string | null
+          appeal_id: string
+          created_at?: string
+          event_type: string
+          from_status?: string | null
+          id?: never
+          note?: string | null
+          to_status?: string | null
+        }
+        Update: {
+          actor_role?: string
+          actor_user_id?: string | null
+          appeal_id?: string
+          created_at?: string
+          event_type?: string
+          from_status?: string | null
+          id?: never
+          note?: string | null
+          to_status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_appeal_events_appeal_id_fkey"
+            columns: ["appeal_id"]
+            isOneToOne: false
+            referencedRelation: "provider_appeals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      provider_appeals: {
+        Row: {
+          created_at: string
+          decided_at: string | null
+          id: string
+          information_request: string | null
+          notice_id: string
+          provider_followup: string | null
+          provider_statement: string
+          provider_user_id: string
+          reviewer_reason: string | null
+          reviewer_user_id: string | null
+          status: string
+          submitted_at: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          decided_at?: string | null
+          id?: string
+          information_request?: string | null
+          notice_id: string
+          provider_followup?: string | null
+          provider_statement: string
+          provider_user_id: string
+          reviewer_reason?: string | null
+          reviewer_user_id?: string | null
+          status?: string
+          submitted_at?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          decided_at?: string | null
+          id?: string
+          information_request?: string | null
+          notice_id?: string
+          provider_followup?: string | null
+          provider_statement?: string
+          provider_user_id?: string
+          reviewer_reason?: string | null
+          reviewer_user_id?: string | null
+          status?: string
+          submitted_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_appeals_notice_id_fkey"
+            columns: ["notice_id"]
+            isOneToOne: false
+            referencedRelation: "provider_decision_notices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       provider_balance_accounts: {
         Row: {
           available_credit_minor: number
@@ -6260,6 +6401,74 @@ export type Database = {
             columns: ["source_movement_id"]
             isOneToOne: false
             referencedRelation: "provider_balance_movements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      provider_decision_notices: {
+        Row: {
+          admin_action_id: number | null
+          ai_assisted: boolean
+          appealable: boolean
+          created_at: string
+          decision_status: string | null
+          decision_type: string
+          effective_at: string
+          human_reviewed: boolean
+          id: string
+          issued_by: string | null
+          provider_id: string | null
+          provider_reason: string
+          provider_user_id: string
+          reason_withheld: boolean
+          reason_withheld_code: string | null
+          rules_applied: string[]
+          updated_at: string
+        }
+        Insert: {
+          admin_action_id?: number | null
+          ai_assisted?: boolean
+          appealable?: boolean
+          created_at?: string
+          decision_status?: string | null
+          decision_type: string
+          effective_at?: string
+          human_reviewed?: boolean
+          id?: string
+          issued_by?: string | null
+          provider_id?: string | null
+          provider_reason: string
+          provider_user_id: string
+          reason_withheld?: boolean
+          reason_withheld_code?: string | null
+          rules_applied?: string[]
+          updated_at?: string
+        }
+        Update: {
+          admin_action_id?: number | null
+          ai_assisted?: boolean
+          appealable?: boolean
+          created_at?: string
+          decision_status?: string | null
+          decision_type?: string
+          effective_at?: string
+          human_reviewed?: boolean
+          id?: string
+          issued_by?: string | null
+          provider_id?: string | null
+          provider_reason?: string
+          provider_user_id?: string
+          reason_withheld?: boolean
+          reason_withheld_code?: string | null
+          rules_applied?: string[]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_decision_notices_admin_action_id_fkey"
+            columns: ["admin_action_id"]
+            isOneToOne: false
+            referencedRelation: "provider_admin_actions"
             referencedColumns: ["id"]
           },
         ]
@@ -8314,6 +8523,10 @@ export type Database = {
       }
       _pp_scope_clear: { Args: never; Returns: undefined }
       _pp_scope_set: { Args: { _scope: string }; Returns: undefined }
+      admin_appeal_transition_v1: {
+        Args: { _appeal_id: string; _reason?: string; _to_status: string }
+        Returns: string
+      }
       admin_get_provider_trust: {
         Args: { _uid: string }
         Returns: {
@@ -9183,6 +9396,10 @@ export type Database = {
         }
         Returns: string
       }
+      provider_appeal_respond_v1: {
+        Args: { _action: string; _appeal_id: string; _message?: string }
+        Returns: string
+      }
       provider_can_accept_booking: { Args: { _uid: string }; Returns: boolean }
       provider_can_receive_payout: { Args: { _uid: string }; Returns: boolean }
       provider_is_marketplace_visible: {
@@ -9481,6 +9698,10 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      submit_provider_appeal_v1: {
+        Args: { _notice_id: string; _statement: string }
+        Returns: string
       }
       submit_provider_application: {
         Args: never

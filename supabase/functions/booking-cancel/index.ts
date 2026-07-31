@@ -8,6 +8,8 @@ import Stripe from "npm:stripe@17";
 import { authenticate } from "../_shared/auth.ts";
 import { writeAudit } from "../_shared/audit.ts";
 import { notifyUser } from "../_shared/notify.ts";
+import { refundPercentForHours, tierForHours } from "../_shared/cancellationPolicy.ts";
+
 
 import { monitored } from "../_shared/logger.ts";
 const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, { apiVersion: "2024-06-20" });
@@ -39,12 +41,16 @@ function json(body: unknown, status = 200) {
   });
 }
 
-/** Cancellation policy: hours until service start → % refunded of captured amount. */
+/**
+ * Cancellation policy: hours until service start → % refunded of captured
+ * amount. The ladder lives in `_shared/cancellationPolicy.ts` so backend,
+ * frontend and the Legal Center quote the exact same numbers.
+ * Behaviour is unchanged: >=48h → 100, >=24h → 50, otherwise 0.
+ */
 function policyRefundPercent(hoursUntilService: number): number {
-  if (hoursUntilService >= 48) return 100;
-  if (hoursUntilService >= 24) return 50;
-  return 0;
+  return refundPercentForHours(hoursUntilService);
 }
+
 
 Deno.serve(monitored("booking-cancel", async (req, _log) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
@@ -127,6 +133,8 @@ Deno.serve(monitored("booking-cancel", async (req, _log) => {
         refundAmount = Math.round(refundable * (pct / 100));
         policySnapshot.rule = "customer_policy_by_hours";
         policySnapshot.refund_percent = pct;
+        policySnapshot.policy_tier = tierForHours(hoursUntilService).key;
+
       }
       refundType = refundAmount === 0 ? "none"
         : refundAmount >= refundable ? "full" : "partial";

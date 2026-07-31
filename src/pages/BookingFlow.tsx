@@ -17,6 +17,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Elements, CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { loadStripe, type Stripe as StripeJS } from "@stripe/stripe-js";
 import BookingsOpenSoonDialog, { guardFinancialAction, useFinancialActionLock } from "@/components/launch/BookingsOpenSoonDialog";
+import { CancellationPolicyNotice } from "@/components/booking/CancellationPolicyNotice";
+
 
 let _stripePromise: Promise<StripeJS | null> | null = null;
 function getStripePromise() {
@@ -1120,6 +1122,7 @@ function Step3({ address, setAddress, addressValid, setAddressValid, setAddressP
 
 /* ---------------- Step 4 — Success ---------------- */
 function Step4({ provider, date, slot, customerPays }: any) {
+  const serviceStart = date && slot ? new Date(`${fmtISO(date)}T${slot}:00`) : null;
   return (
     <div className="rounded-3xl border-2 bg-white p-8 text-center shadow-[8px_8px_0_rgba(10,61,58,0.15)]" style={{ borderColor: C.ink }}>
       <div className="mx-auto grid h-16 w-16 place-items-center rounded-full" style={{ background: C.mint }}>
@@ -1136,6 +1139,14 @@ function Step4({ provider, date, slot, customerPays }: any) {
         <div className="font-display text-xl">{fmtLong(date)}</div>
         <div className="font-display text-2xl" style={{ color: C.orange }}>kl. {slot}</div>
       </div>
+
+      {serviceStart && (
+        <CancellationPolicyNotice
+          serviceStart={serviceStart}
+          className="mx-auto mt-6 max-w-md rounded-2xl border-2 p-5 text-left"
+        />
+      )}
+
 
       <div className="mt-8 flex flex-wrap justify-center gap-3">
         <Link
