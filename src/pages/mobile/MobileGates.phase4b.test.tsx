@@ -118,8 +118,7 @@ describe("Header — mobile shell duplicate-header suppression", () => {
 // ---- 2. MobileBottomNav route detection --------------------------------
 
 describe("MobileBottomNav — shouldShowMobileNav route matching", () => {
-  it("matches /marketplace and country-prefixed marketplace paths", async () => {
-    const { shouldShowMobileNav } = await import("@/components/layout/MobileBottomNav");
+  it("matches /marketplace and country-prefixed marketplace paths", () => {
     for (const p of [
       "/marketplace",
       "/marketplace/",
@@ -132,8 +131,7 @@ describe("MobileBottomNav — shouldShowMobileNav route matching", () => {
     }
   });
 
-  it("matches /customer/bookings and /mine-bookinger with country prefixes", async () => {
-    const { shouldShowMobileNav } = await import("@/components/layout/MobileBottomNav");
+  it("matches /customer/bookings and /mine-bookinger with country prefixes", () => {
     for (const p of [
       "/mine-bookinger",
       "/dk/mine-bookinger",
@@ -145,16 +143,14 @@ describe("MobileBottomNav — shouldShowMobileNav route matching", () => {
     }
   });
 
-  it("query parameters and deep links do not break detection", async () => {
-    const { shouldShowMobileNav } = await import("@/components/layout/MobileBottomNav");
+  it("query parameters and deep links do not break detection", () => {
     // useLocation().pathname never contains ?query, but guard anyway.
     expect(shouldShowMobileNav("/marketplace")).toBe(true);
     expect(shouldShowMobileNav("/dk/marketplace/")).toBe(true);
     expect(shouldShowMobileNav("/customer/bookings")).toBe(true);
   });
 
-  it("does not match admin / employee dashboards", async () => {
-    const { shouldShowMobileNav } = await import("@/components/layout/MobileBottomNav");
+  it("does not match admin / employee dashboards", () => {
     expect(shouldShowMobileNav("/admin")).toBe(false);
     expect(shouldShowMobileNav("/employee")).toBe(false);
   });
