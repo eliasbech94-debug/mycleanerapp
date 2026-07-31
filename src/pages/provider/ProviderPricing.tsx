@@ -437,12 +437,13 @@ function Estimate({ label, value }: { label: string; value: string }) {
 }
 
 function ValidationErrors({ errors }: { errors: string[] }) {
+  const { t } = useTranslation("provider");
   if (errors.length === 0) return null;
   return (
     <div className="space-y-1 rounded-md border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive">
       {errors.map((e) => (
         <div key={e} className="flex items-center gap-2">
-          <AlertCircle className="h-4 w-4" /> {ERROR_LABELS[e] ?? e}
+          <AlertCircle className="h-4 w-4" /> {t(`surfaces.pricing.errors.${e}`, { defaultValue: e })}
         </div>
       ))}
     </div>

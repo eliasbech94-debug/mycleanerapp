@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -45,37 +46,38 @@ function CurrencyBlock({
   totals: CurrencyTotals;
   payouts?: PayoutCurrencyTotals;
 }) {
+  const { t } = useTranslation("finance");
   const cur = totals.currency;
   return (
     <section className="space-y-3">
       <div className="flex items-center gap-2">
-        <h2 className="text-lg font-serif">Totaler i {cur}</h2>
+        <h2 className="text-lg font-serif">{t("ui.financePages.totalsIn", { currency: cur })}</h2>
         <Badge variant="outline">{cur}</Badge>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <KPI
-          label={scope === "admin" ? "Netto omsætning" : "Din netto omsætning"}
+          label={scope === "admin" ? t("ui.financePages.netRevenue") : t("ui.financePages.yourNetRevenue")}
           value={formatMoney(totals.gross_revenue, cur)}
           icon={TrendingUp}
-          hint={`${totals.bookings_count} bookinger • Refundering ${formatMoney(totals.refunded_amount, cur)}`}
+          hint={t("ui.financePages.bookingsRefundHint", { count: totals.bookings_count, amount: formatMoney(totals.refunded_amount, cur) })}
         />
         <KPI
-          label={scope === "admin" ? "Platformgebyr" : "Platformgebyr"}
+          label={t("ui.financePages.platformFee")}
           value={formatMoney(totals.platform_commission, cur)}
           icon={Percent}
-          hint="Justeret for refunderinger"
+          hint={t("ui.financePages.adjustedForRefunds")}
         />
         <KPI
-          label={scope === "admin" ? "Providerens indtjening" : "Din indtjening"}
+          label={scope === "admin" ? t("ui.financePages.providerEarnings") : t("ui.financePages.yourEarnings")}
           value={formatMoney(totals.provider_net, cur)}
           icon={Receipt}
-          hint="Justeret for refunderinger"
+          hint={t("ui.financePages.adjustedForRefunds")}
         />
         <KPI
-          label="Gennemført udbetaling"
+          label={t("ui.financePages.completedPayout")}
           value={formatMoney(payouts?.paid ?? 0, cur)}
           icon={Wallet}
-          hint={`Planlagt udbetaling: ${formatMoney(payouts?.in_transit ?? 0, cur)}`}
+          hint={t("ui.financePages.scheduledPayoutHint", { amount: formatMoney(payouts?.in_transit ?? 0, cur) })}
         />
       </div>
     </section>
@@ -83,6 +85,7 @@ function CurrencyBlock({
 }
 
 function FinanceView({ scope, title }: { scope: "provider" | "admin"; title: string }) {
+  const { t } = useTranslation("finance");
   const [data, setData] = useState<FinanceSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -110,7 +113,7 @@ function FinanceView({ scope, title }: { scope: "provider" | "admin"; title: str
     );
     setGenerating(false);
     if (err) toast.error(err.message);
-    else toast.success(`Genereret ${(res as any)?.statements_generated ?? 0} månedlige opgørelser`);
+    else toast.success(t("ui.financePages.statementsGenerated", { count: (res as any)?.statements_generated ?? 0 }));
   }
 
   const payoutsByCur = new Map(
@@ -126,12 +129,12 @@ function FinanceView({ scope, title }: { scope: "provider" | "admin"; title: str
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={load} disabled={loading}>
-            <RefreshCcw className="h-4 w-4 mr-1" /> Opdater
+            <RefreshCcw className="h-4 w-4 mr-1" /> {t("ui.financePages.refresh")}
           </Button>
           {scope === "admin" && (
             <Button size="sm" onClick={generateStatements} disabled={generating}>
               <FileText className="h-4 w-4 mr-1" />
-              {generating ? "Genererer…" : "Generér forrige måned"}
+              {generating ? t("ui.financePages.generating") : t("ui.financePages.generatePreviousMonth")}
             </Button>
           )}
         </div>
@@ -139,7 +142,7 @@ function FinanceView({ scope, title }: { scope: "provider" | "admin"; title: str
 
       {loading && (
         <div className="flex items-center gap-2 text-muted-foreground py-12 justify-center">
-          <Loader2 className="h-5 w-5 animate-spin" /> Indlæser…
+          <Loader2 className="h-5 w-5 animate-spin" /> {t("ui.financePages.loading")}
         </div>
       )}
       {error && <div className="text-destructive text-sm">{error}</div>}
@@ -148,7 +151,7 @@ function FinanceView({ scope, title }: { scope: "provider" | "admin"; title: str
         <>
           {data.totals_by_currency.length === 0 ? (
             <Card><CardContent className="p-6 text-sm text-muted-foreground">
-              Ingen betalte bookinger endnu i nogen valuta.
+              {t("ui.financePages.noPaidBookings")}
             </CardContent></Card>
           ) : (
             data.totals_by_currency.map((t) => (
@@ -157,21 +160,21 @@ function FinanceView({ scope, title }: { scope: "provider" | "admin"; title: str
           )}
 
           <Card>
-            <CardHeader><CardTitle>Månedlig oversigt (per valuta)</CardTitle></CardHeader>
+            <CardHeader><CardTitle>{t("ui.financePages.monthlyOverviewTitle")}</CardTitle></CardHeader>
             <CardContent>
               {data.monthly.length === 0 ? (
-                <p className="text-sm text-muted-foreground">Ingen betalte bookinger endnu.</p>
+                <p className="text-sm text-muted-foreground">{t("ui.financePages.noPaidBookingsShort")}</p>
               ) : (
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Måned</TableHead>
-                      <TableHead>Valuta</TableHead>
-                      <TableHead className="text-right">Bookinger</TableHead>
-                      <TableHead className="text-right">Samlet pris (efter refundering)</TableHead>
-                      <TableHead className="text-right">Refundering</TableHead>
-                      <TableHead className="text-right">Platformgebyr</TableHead>
-                      <TableHead className="text-right">Providerens indtjening</TableHead>
+                      <TableHead>{t("ui.financePages.month")}</TableHead>
+                      <TableHead>{t("ui.financePages.currency")}</TableHead>
+                      <TableHead className="text-right">{t("ui.financePages.bookings")}</TableHead>
+                      <TableHead className="text-right">{t("ui.financePages.totalPriceAfterRefund")}</TableHead>
+                      <TableHead className="text-right">{t("ui.financePages.refund")}</TableHead>
+                      <TableHead className="text-right">{t("ui.financePages.platformFee")}</TableHead>
+                      <TableHead className="text-right">{t("ui.financePages.providerEarnings")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -193,22 +196,22 @@ function FinanceView({ scope, title }: { scope: "provider" | "admin"; title: str
           </Card>
 
           <Card>
-            <CardHeader><CardTitle>Udbetalinger</CardTitle></CardHeader>
+            <CardHeader><CardTitle>{t("ui.financePages.payoutsTitle")}</CardTitle></CardHeader>
             <CardContent>
               {data.payouts.items.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
-                  Der er endnu ingen registrerede udbetalinger. En udbetaling vises her, når den er planlagt eller gennemført.
+                  {t("ui.financePages.noPayoutsYet")}
                 </p>
               ) : (
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Dato</TableHead>
-                      <TableHead>Booking</TableHead>
-                      <TableHead>Reference</TableHead>
-                      <TableHead className="text-right">Providerens indtjening</TableHead>
-                      <TableHead className="text-right">Platformgebyr</TableHead>
-                      <TableHead>Valuta</TableHead>
+                      <TableHead>{t("ui.financePages.date")}</TableHead>
+                      <TableHead>{t("ui.financePages.booking")}</TableHead>
+                      <TableHead>{t("ui.financePages.reference")}</TableHead>
+                      <TableHead className="text-right">{t("ui.financePages.providerEarnings")}</TableHead>
+                      <TableHead className="text-right">{t("ui.financePages.platformFee")}</TableHead>
+                      <TableHead>{t("ui.financePages.currency")}</TableHead>
                       <TableHead>Status</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -235,15 +238,12 @@ function FinanceView({ scope, title }: { scope: "provider" | "admin"; title: str
           </Card>
 
           <section>
-            <h2 className="text-lg font-serif mb-3">Fakturaer & afregningsoversigter</h2>
+            <h2 className="text-lg font-serif mb-3">{t("ui.financePages.invoicesTitle")}</h2>
             <InvoicesPanel scope={scope} />
           </section>
 
           <p className="text-xs text-muted-foreground">
-            Rapport til overblik. Totaler grupperes altid per valuta — vi kombinerer aldrig DKK, EUR, GBP m.fl. i én KPI.
-            MyCleaner-platformen formidler kontakten mellem kunder og selvstændige providere og fakturerer alene sit eget platformgebyr;
-            provideren er selv ansvarlig for kundefakturering og momsafregning. En planlagt udbetaling er ikke en garanti for et bestemt banktidspunkt —
-            hvornår beløbet er synligt på kontoen afhænger af betalingsudbyderen og providerens bank.
+            {t("ui.financePages.footerNote")}
           </p>
         </>
       )}
@@ -252,17 +252,19 @@ function FinanceView({ scope, title }: { scope: "provider" | "admin"; title: str
 }
 
 export function ProviderFinance() {
+  const { t } = useTranslation("finance");
   return (
     <RoleGuard allow={["provider", "admin"]}>
-      <FinanceView scope="provider" title="Indtjening & udbetalinger" />
+      <FinanceView scope="provider" title={t("ui.financePages.providerFinanceTitle")} />
     </RoleGuard>
   );
 }
 
 export function AdminFinance() {
+  const { t } = useTranslation("finance");
   return (
     <RoleGuard allow={["admin"]}>
-      <FinanceView scope="admin" title="Marketplace økonomi" />
+      <FinanceView scope="admin" title={t("ui.financePages.adminFinanceTitle")} />
     </RoleGuard>
   );
 }
