@@ -11,6 +11,9 @@ import { ProviderServicePricing } from "@/components/provider/ProviderServicePri
 import { StripeConnectStatusWidget } from "@/components/provider/StripeConnectStatusWidget";
 import { IdentityVerificationCard } from "@/components/identity/IdentityVerificationCard";
 import BackButton from "@/components/BackButton";
+import { ProviderQuizCard } from "@/components/provider/ProviderQuizCard";
+import { ProviderApprovalChecklist } from "@/components/provider/ProviderApprovalChecklist";
+
 import { acceptLegalDocument, fetchLegalDocument } from "@/lib/legal/api";
 
 const C = { ink: "#0a3d3a", orange: "#ff6b35", cream: "#f5f0e0", teal: "#168a7a", mint: "#c8e6c0" };
@@ -314,16 +317,21 @@ function OnboardingInner() {
           {step === 4 && <StepIdentity pp={pp} authUser={user} smsVerifiedAt={smsVerifiedAt} />}
           {step === 5 && <StepStripe pp={pp} patch={patch} />}
           {step === 6 && (
-            <StepReview
-              pp={pp}
-              canSubmit={canSubmit}
-              submitting={submitting}
-              completion={completion}
-              missingSteps={missingSteps}
-              submitErrorCode={submitErrorCode}
-              onSubmit={handleSubmit}
-            />
+            <div className="space-y-6">
+              <ProviderQuizCard />
+              <ProviderApprovalChecklist />
+              <StepReview
+                pp={pp}
+                canSubmit={canSubmit}
+                submitting={submitting}
+                completion={completion}
+                missingSteps={missingSteps}
+                submitErrorCode={submitErrorCode}
+                onSubmit={handleSubmit}
+              />
+            </div>
           )}
+
         </section>
 
         <div className="mt-5 flex items-center justify-between">
@@ -416,8 +424,33 @@ function StepBasic({
       if (error) throw error;
 
       const { data } = supabase.storage.from("provider-photos").getPublicUrl(objectPath);
-      patch({ photo_path: `${data.publicUrl}?v=${Date.now()}` });
-      toast.success("Profilfoto uploadet");
+      const photoUrl = `${data.publicUrl}?v=${Date.now()}`;
+      // Persist immediately (bypassing the debounce) so the moderation
+      // function can verify the path belongs to this provider.
+      const { error: saveError } = await supabase
+        .from("provider_profiles")
+        .update({ photo_path: photoUrl } as any)
+        .eq("user_id", userId);
+      if (saveError) throw saveError;
+      patch({ photo_path: photoUrl });
+      toast.success("Profilfoto uploadet — vi tjekker det nu");
+
+      // Asynchronous quality/content moderation. Identity and liveness are
+      // handled exclusively by the ID verification step.
+      void supabase.functions
+        .invoke("provider-photo-moderate", { body: { photo_path: photoUrl } })
+        .then(({ data: mod }) => {
+          if (mod?.status === "approved") toast.success("Dit profilbillede er godkendt");
+          else if (mod?.status === "rejected") {
+            toast.error(mod?.message || "Billedet blev afvist. Prøv med et andet foto.");
+          } else {
+            toast.info("Dit profilbillede gennemgås manuelt.");
+          }
+        })
+        .catch(() => {
+          toast.info("Dit profilbillede gennemgås manuelt.");
+        });
+
     } catch (error: any) {
       toast.error(error?.message || "Fotoet kunne ikke uploades");
     } finally {

@@ -18,6 +18,8 @@ export async function reconcileProvider(
       _uid: userId,
       _reason: reason,
     });
+    // The approval engine is the single authority for approved/public/bookable.
+    await admin.rpc("evaluate_provider_approval", { _uid: userId });
   } catch (e) {
     console.error("provider_reconcile_failed", userId, (e as Error).message);
   }
