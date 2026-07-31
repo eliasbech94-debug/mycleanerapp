@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserRoles } from "@/hooks/useUserRoles";
 import { supabase } from "@/integrations/supabase/client";
@@ -24,18 +25,19 @@ import {
 const ASSUMED_HOURS_PER_WEEK = 20;
 const ASSUMED_CONVERSION_BPS = 6000; // 60%
 
-const ERROR_LABELS: Record<string, string> = {
-  no_active_market_rule: "No active market rule for this location.",
-  invalid_hourly_rate: "Enter your hourly rate.",
-  below_market_minimum: "Below the market minimum for your location.",
-  above_market_maximum: "Above the market maximum for your location.",
-  smart_bounds_required: "Smart Pricing needs a minimum and maximum.",
-  smart_min_below_market: "Smart minimum is below the market minimum.",
-  smart_max_above_market: "Smart maximum is above the market maximum.",
-  smart_max_below_min: "Smart maximum must be greater than or equal to the minimum.",
+const ERROR_KEYS: Record<string, string> = {
+  no_active_market_rule: "surfaces.pricing.errorNoActiveMarketRule",
+  invalid_hourly_rate: "surfaces.pricing.errorInvalidHourlyRate",
+  below_market_minimum: "surfaces.pricing.errorBelowMarketMinimum",
+  above_market_maximum: "surfaces.pricing.errorAboveMarketMaximum",
+  smart_bounds_required: "surfaces.pricing.errorSmartBoundsRequired",
+  smart_min_below_market: "surfaces.pricing.errorSmartMinBelowMarket",
+  smart_max_above_market: "surfaces.pricing.errorSmartMaxAboveMarket",
+  smart_max_below_min: "surfaces.pricing.errorSmartMaxBelowMin",
 };
 
 export default function ProviderPricing() {
+  const { t } = useTranslation("provider");
   const { user } = useAuth();
   const { isProvider, loading: rolesLoading } = useUserRoles();
   const qc = useQueryClient();
@@ -171,10 +173,10 @@ export default function ProviderPricing() {
     onError: (err: Error, _v, ctx) => {
       if (ctx?.prev !== undefined) qc.setQueryData(["provider_pricing_prefs", uid], ctx.prev);
       const msg = err.message.replace(/^.*:\s*/, "");
-      toast.error(ERROR_LABELS[msg] ?? err.message);
+      toast.error(ERROR_KEYS[msg] ? t(ERROR_KEYS[msg]) : err.message);
     },
     onSuccess: () => {
-      toast.success("Pricing saved");
+      toast.success(t("surfaces.pricing.toastPricingSaved"));
       qc.invalidateQueries({ queryKey: ["provider_pricing_prefs", uid] });
       qc.invalidateQueries({ queryKey: ["provider_recommendation", uid] });
     },
@@ -188,7 +190,7 @@ export default function ProviderPricing() {
         <Card><CardContent className="pt-6">
           <div className="flex items-center gap-3">
             <AlertCircle className="h-5 w-5 text-muted-foreground" />
-            <p>Provider role required.</p>
+            <p>{t("surfaces.pricing.providerRoleRequired")}</p>
           </div>
         </CardContent></Card>
       </div>
@@ -214,12 +216,11 @@ export default function ProviderPricing() {
     <div className="mx-auto max-w-5xl space-y-6 p-4 md:p-6">
       <header className="space-y-1">
         <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-muted-foreground">
-          <Sparkles className="h-3.5 w-3.5" /> Professional hosting
+          <Sparkles className="h-3.5 w-3.5" /> {t("surfaces.pricing.professionalHosting")}
         </div>
-        <h1 className="font-serif text-3xl md:text-4xl">Your pricing</h1>
+        <h1 className="font-serif text-3xl md:text-4xl">{t("surfaces.pricing.pageTitle")}</h1>
         <p className="text-muted-foreground">
-          Set your hourly rate and Smart Pricing bounds. Advisory only — it does not change existing bookings
-          or checkout prices.
+          {t("surfaces.pricing.pageDescription")}
         </p>
       </header>
 
@@ -227,22 +228,22 @@ export default function ProviderPricing() {
         {/* Left: market */}
         <Card className="md:col-span-1">
           <CardHeader>
-            <CardTitle>Your market</CardTitle>
-            <CardDescription>Most specific rule wins: postcode → city → region → country.</CardDescription>
+            <CardTitle>{t("surfaces.pricing.yourMarket")}</CardTitle>
+            <CardDescription>{t("surfaces.pricing.marketRuleHint")}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            <div><Label>Country</Label><Input value={country} maxLength={2}
+            <div><Label>{t("surfaces.pricing.country")}</Label><Input value={country} maxLength={2}
               onChange={(e) => setCountry(e.target.value.toUpperCase())} /></div>
-            <div><Label>Region</Label><Input value={region} onChange={(e) => setRegion(e.target.value)} /></div>
-            <div><Label>City</Label><Input value={city} onChange={(e) => setCity(e.target.value)} /></div>
-            <div><Label>Postcode</Label><Input value={postcode} onChange={(e) => setPostcode(e.target.value)} /></div>
+            <div><Label>{t("surfaces.pricing.region")}</Label><Input value={region} onChange={(e) => setRegion(e.target.value)} /></div>
+            <div><Label>{t("surfaces.pricing.city")}</Label><Input value={city} onChange={(e) => setCity(e.target.value)} /></div>
+            <div><Label>{t("surfaces.pricing.postcode")}</Label><Input value={postcode} onChange={(e) => setPostcode(e.target.value)} /></div>
 
             <div className="rounded-md border bg-muted/30 p-3 text-sm">
               {marketQ.isLoading ? (
                 <Skeleton className="h-4 w-full" />
               ) : market?.error || !market ? (
                 <div className="flex items-center gap-2 text-destructive">
-                  <AlertCircle className="h-4 w-4" /> No active market rule.
+                  <AlertCircle className="h-4 w-4" /> {t("surfaces.pricing.noActiveMarketRule")}
                 </div>
               ) : (
                 <div className="space-y-1">
@@ -251,12 +252,12 @@ export default function ProviderPricing() {
                     <span className="text-muted-foreground">{market.currency}</span>
                   </div>
                   <div className="text-muted-foreground">
-                    Min <b className="text-foreground">{formatMinor(market.min_minor, currency)}</b>
+                    {t("surfaces.pricing.min")} <b className="text-foreground">{formatMinor(market.min_minor, currency)}</b>
                     {market.max_minor != null && (
-                      <> · Max <b className="text-foreground">{formatMinor(market.max_minor, currency)}</b></>
+                      <> · {t("surfaces.pricing.max")} <b className="text-foreground">{formatMinor(market.max_minor, currency)}</b></>
                     )}
                     {market.recommended_minor != null && (
-                      <> · Rec <b className="text-foreground">{formatMinor(market.recommended_minor, currency)}</b></>
+                      <> · {t("surfaces.pricing.rec")} <b className="text-foreground">{formatMinor(market.recommended_minor, currency)}</b></>
                     )}
                   </div>
                 </div>
@@ -270,10 +271,10 @@ export default function ProviderPricing() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <TrendingUp className="h-5 w-5 text-primary" />
-              Recommended price
+              {t("surfaces.pricing.recommendedPrice")}
             </CardTitle>
             <CardDescription>
-              Deterministic recommendation from admin-configured rules and multipliers.
+              {t("surfaces.pricing.recommendationHint")}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -281,7 +282,7 @@ export default function ProviderPricing() {
               <div className="space-y-3"><Skeleton className="h-9 w-48" /><Skeleton className="h-4 w-64" /></div>
             ) : !rec ? (
               <div className="text-sm text-muted-foreground">
-                No recommendation available yet — set your location and save once to compute.
+                {t("surfaces.pricing.noRecommendationYet")}
               </div>
             ) : (
               <div className="grid gap-4 sm:grid-cols-2">
@@ -290,26 +291,26 @@ export default function ProviderPricing() {
                     {formatMinor(rec.recommended_minor, rec.currency)}<span className="text-base text-muted-foreground">/h</span>
                   </div>
                   <div className="mt-1 flex flex-wrap gap-1 text-xs text-muted-foreground">
-                    <Badge variant="outline">Base {formatMinor(rec.base_recommended_minor, rec.currency)}</Badge>
+                    <Badge variant="outline">{t("surfaces.pricing.base")} {formatMinor(rec.base_recommended_minor, rec.currency)}</Badge>
                     <Badge variant="outline">{rec.method}</Badge>
                   </div>
                 </div>
                 <div className="space-y-2 text-sm">
                   <Metric icon={<Users className="h-4 w-4" />}
-                    label="Nearby active providers" value={String(rec.competition_score)} />
+                    label={t("surfaces.pricing.nearbyActiveProviders")} value={String(rec.competition_score)} />
                   <Metric icon={<Gauge className="h-4 w-4" />}
-                    label="Demand"
+                    label={t("surfaces.pricing.demand")}
                     valueNode={<Badge className={DEMAND_META[rec.demand_level].className}>{DEMAND_META[rec.demand_level].label}</Badge>} />
                   <Metric icon={<Info className="h-4 w-4" />}
-                    label="Nearby avg" value={formatMinor(rec.nearby_avg_minor, rec.currency)} />
+                    label={t("surfaces.pricing.nearbyAvg")} value={formatMinor(rec.nearby_avg_minor, rec.currency)} />
                   <Metric icon={<Sparkles className="h-4 w-4" />}
-                    label="Market confidence"
+                    label={t("surfaces.pricing.marketConfidence")}
                     valueNode={<Badge variant="outline" className="capitalize">{rec.data_confidence}</Badge>} />
                 </div>
                 {rec.applied_multipliers.length > 0 && (
                   <div className="sm:col-span-2">
                     <p className="mb-1 text-xs text-muted-foreground">
-                      Applied multipliers ({(rec.multiplier_bps_total / 100).toFixed(1)}% total)
+                      {t("surfaces.pricing.appliedMultipliers", { pct: (rec.multiplier_bps_total / 100).toFixed(1) })}
                     </p>
                     <div className="flex flex-wrap gap-1">
                       {rec.applied_multipliers.map((m) => (
@@ -329,13 +330,13 @@ export default function ProviderPricing() {
       {/* Hourly rate */}
       <Card>
         <CardHeader>
-          <CardTitle>Your hourly rate</CardTitle>
-          <CardDescription>Live indicator based on the recommended price.</CardDescription>
+          <CardTitle>{t("surfaces.pricing.yourHourlyRate")}</CardTitle>
+          <CardDescription>{t("surfaces.pricing.liveIndicator")}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
             <div className="flex-1">
-              <Label>Hourly rate ({currency ?? "—"})</Label>
+              <Label>{t("surfaces.pricing.hourlyRateWithCurrency", { currency: currency ?? "—" })}</Label>
               <Input type="number" min={0} step="1" inputMode="numeric"
                 value={hourlyMajor} onChange={(e) => setHourlyMajor(e.target.value)} />
             </div>
@@ -349,8 +350,8 @@ export default function ProviderPricing() {
           {market?.min_minor != null && (
             <div className="space-y-1">
               <div className="flex justify-between text-xs text-muted-foreground">
-                <span>Min {formatMinor(market.min_minor, currency)}</span>
-                {market.max_minor != null && <span>Max {formatMinor(market.max_minor, currency)}</span>}
+                <span>{t("surfaces.pricing.minWithValue", { value: formatMinor(market.min_minor, currency) })}</span>
+                {market.max_minor != null && <span>{t("surfaces.pricing.maxWithValue", { value: formatMinor(market.max_minor, currency) })}</span>}
               </div>
               <Progress value={bandPct ?? 0} className="h-2" />
             </div>
@@ -364,22 +365,22 @@ export default function ProviderPricing() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
-            Smart Pricing bounds
-            <Switch checked={smartOn} onCheckedChange={setSmartOn} aria-label="Enable Smart Pricing" />
+            {t("surfaces.pricing.smartPricingBounds")}
+            <Switch checked={smartOn} onCheckedChange={setSmartOn} aria-label={t("surfaces.pricing.enableSmartPricing")} />
           </CardTitle>
           <CardDescription>
-            Set bounds now. Automatic adjustment within your bounds activates in a future phase — no prices change today.
+            {t("surfaces.pricing.smartPricingHint")}
           </CardDescription>
         </CardHeader>
         {smartOn && (
           <CardContent className="grid gap-3 sm:grid-cols-2">
             <div>
-              <Label>Smart minimum ({currency ?? "—"})</Label>
+              <Label>{t("surfaces.pricing.smartMinimumWithCurrency", { currency: currency ?? "—" })}</Label>
               <Input type="number" inputMode="numeric" value={smartMinMajor}
                 onChange={(e) => setSmartMinMajor(e.target.value)} />
             </div>
             <div>
-              <Label>Smart maximum ({currency ?? "—"})</Label>
+              <Label>{t("surfaces.pricing.smartMaximumWithCurrency", { currency: currency ?? "—" })}</Label>
               <Input type="number" inputMode="numeric" value={smartMaxMajor}
                 onChange={(e) => setSmartMaxMajor(e.target.value)} />
             </div>
@@ -390,16 +391,15 @@ export default function ProviderPricing() {
       {/* Earnings estimate */}
       <Card>
         <CardHeader>
-          <CardTitle>Estimated earnings (advisory)</CardTitle>
+          <CardTitle>{t("surfaces.pricing.estimatedEarnings")}</CardTitle>
           <CardDescription>
-            Assumes {ASSUMED_HOURS_PER_WEEK} bookable hours/week and {ASSUMED_CONVERSION_BPS / 100}% conversion.
-            Gross of platform fee, taxes and expenses.
+            {t("surfaces.pricing.estimatedEarningsHint", { hours: ASSUMED_HOURS_PER_WEEK, pct: ASSUMED_CONVERSION_BPS / 100 })}
           </CardDescription>
         </CardHeader>
         <CardContent className="grid grid-cols-3 gap-4 text-sm">
-          <Estimate label="Weekly" value={formatMinor(weekly, currency)} />
-          <Estimate label="Monthly" value={formatMinor(monthly, currency)} />
-          <Estimate label="Rate" value={`${formatMinor(hourlyMinor, currency)}/h`} />
+          <Estimate label={t("surfaces.pricing.weekly")} value={formatMinor(weekly, currency)} />
+          <Estimate label={t("surfaces.pricing.monthly")} value={formatMinor(monthly, currency)} />
+          <Estimate label={t("surfaces.pricing.rate")} value={`${formatMinor(hourlyMinor, currency)}/h`} />
         </CardContent>
       </Card>
 
@@ -407,7 +407,7 @@ export default function ProviderPricing() {
 
       <div className="flex flex-col items-stretch gap-2 sm:flex-row sm:justify-end">
         <Button onClick={() => saveMut.mutate()} disabled={!canSave} size="lg" className="min-w-40">
-          {saveMut.isPending ? "Saving…" : "Save pricing"}
+          {saveMut.isPending ? t("surfaces.pricing.saving") : t("surfaces.pricing.savePricing")}
         </Button>
       </div>
     </div>
