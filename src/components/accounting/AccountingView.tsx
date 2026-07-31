@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -69,6 +70,7 @@ export default function AccountingView({
   onImportExternalIncome,
   onCheckDetails,
 }: AccountingViewProps) {
+  const { t } = useTranslation("finance");
   const [showSuperseded, setShowSuperseded] = useState(false);
 
   const [rulesOpen, setRulesOpen] = useState(false);
@@ -80,7 +82,7 @@ export default function AccountingView({
   );
 
   const monthDiffersFromFiling = period.kind !== "monthly";
-  const amountLabel = rulePack?.labels.preliminaryAmountLabel ?? "Foreløbigt beløb til registrering";
+  const amountLabel = rulePack?.labels.preliminaryAmountLabel ?? t("ui.preliminaryResult.status.ready_for_review");
 
 
   return (
@@ -90,15 +92,14 @@ export default function AccountingView({
           role="alert"
           className="rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive"
         >
-          Testdata: regelpakken er en fiktiv preview-pakke og må ikke bruges til indberetning.
+          {t("ui.view.sampleWarning")}
         </div>
       )}
 
       <header>
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">Dit regnskab</h1>
+        <h1 className="text-2xl font-semibold tracking-tight text-foreground">{t("ui.view.title")}</h1>
         <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-          Få overblik over indtjening, udgifter, transport og relevante skatter efter reglerne for
-          dit registreringsland.
+          {t("ui.view.subtitle")}
         </p>
       </header>
 
@@ -112,9 +113,9 @@ export default function AccountingView({
 
       <Tabs defaultValue="overview" className="w-full">
         <TabsList>
-          <TabsTrigger value="overview">Oversigt</TabsTrigger>
-          <TabsTrigger value="income">Indkomst</TabsTrigger>
-          <TabsTrigger value="reports">Rapporter</TabsTrigger>
+          <TabsTrigger value="overview">{t("ui.view.tabs.overview")}</TabsTrigger>
+          <TabsTrigger value="income">{t("ui.view.tabs.income")}</TabsTrigger>
+          <TabsTrigger value="reports">{t("ui.view.tabs.reports")}</TabsTrigger>
         </TabsList>
 
 
@@ -124,7 +125,7 @@ export default function AccountingView({
           <Card>
             <CardHeader className="pb-2">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <CardTitle className="text-base">Perioder</CardTitle>
+                <CardTitle className="text-base">{t("ui.view.periodsTitle")}</CardTitle>
                 {rulePack && (
                   <Badge variant="outline">
                     {rulePack.labels.filingPeriodLabel}: {period.kind}
@@ -134,18 +135,17 @@ export default function AccountingView({
             </CardHeader>
             <CardContent className="space-y-3 text-sm">
               <div>
-                <h3 className="font-medium text-foreground">Aktuel indberetningsperiode</h3>
+                <h3 className="font-medium text-foreground">{t("ui.view.currentPeriodTitle")}</h3>
                 <p className="text-muted-foreground">
                   {period.periodStart} – {period.periodEnd}
-                  {period.status === "closed" ? " (lukket)" : ""}
+                  {period.status === "closed" ? t("ui.view.closedSuffix") : ""}
                 </p>
               </div>
               {monthDiffersFromFiling && (
                 <div>
-                  <h3 className="font-medium text-foreground">Månedsoversigt</h3>
+                  <h3 className="font-medium text-foreground">{t("ui.view.monthlyTitle")}</h3>
                   <p className="text-muted-foreground">
-                    Månedstal er kun et overblik og er ikke nødvendigvis en officiel
-                    indberetningsperiode.
+                    {t("ui.view.monthlyHint")}
                   </p>
                   {monthlySummary && monthlySummary.length > 0 && (
                     <ul className="mt-2 space-y-1">
@@ -173,11 +173,11 @@ export default function AccountingView({
           ) : (
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-base">Hvad kan jeg registrere?</CardTitle>
+                <CardTitle className="text-base">{t("ui.view.noRulePackTitle")}</CardTitle>
               </CardHeader>
               <CardContent className="text-sm text-muted-foreground">
-                <p>Bilagsopsamling og eksport understøttes.</p>
-                <p>Automatisk skattevejledning er endnu ikke aktiveret.</p>
+                <p>{t("ui.view.noRulePackLine1")}</p>
+                <p>{t("ui.view.noRulePackLine2")}</p>
               </CardContent>
             </Card>
           )}

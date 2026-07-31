@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -63,6 +64,7 @@ function emptyCategory(): ExpenseCategoryRule {
 }
 
 export default function RulePackCategoriesTab({ pack, readOnly, onChange }: TabProps) {
+  const { t } = useTranslation("admin");
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   const update = (index: number, patch: Partial<ExpenseCategoryRule>) =>
@@ -74,7 +76,7 @@ export default function RulePackCategoriesTab({ pack, readOnly, onChange }: TabP
     <div className="space-y-4">
       <Card>
         <CardHeader className="flex-row items-center justify-between space-y-0">
-          <CardTitle className="text-base">Udgiftskategorier ({pack.expenseCategories.length})</CardTitle>
+          <CardTitle className="text-base">{t("rules.categories.title", { count: pack.expenseCategories.length })}</CardTitle>
           {!readOnly && (
             <Button
               size="sm"
@@ -85,14 +87,14 @@ export default function RulePackCategoriesTab({ pack, readOnly, onChange }: TabP
               }}
             >
               <Plus className="mr-1 h-4 w-4" aria-hidden />
-              Ny kategori
+              {t("rules.categories.newCategory")}
             </Button>
           )}
         </CardHeader>
         <CardContent className="space-y-2">
           {pack.expenseCategories.length === 0 && (
             <p className="text-sm text-muted-foreground">
-              Ingen kategorier. En rule pack kan ikke publiceres uden mindst én kategori.
+              {t("rules.categories.noCategories")}
             </p>
           )}
           {pack.expenseCategories.map((category, index) => {
@@ -107,10 +109,10 @@ export default function RulePackCategoriesTab({ pack, readOnly, onChange }: TabP
                 >
                   <span className="min-w-0">
                     <span className="block truncate font-medium text-foreground">
-                      {category.localTitle || "(uden titel)"}
+                      {category.localTitle || t("rules.categories.untitled")}
                     </span>
                     <span className="block truncate text-xs text-muted-foreground">
-                      {category.categoryCode || "(mangler kode)"}
+                      {category.categoryCode || t("rules.categories.missingCode")}
                     </span>
                   </span>
                   <Badge variant="outline">{category.treatment}</Badge>
@@ -119,7 +121,7 @@ export default function RulePackCategoriesTab({ pack, readOnly, onChange }: TabP
                 {expanded && (
                   <div className="grid gap-4 border-t border-border p-3 md:grid-cols-2">
                     <div className="space-y-1">
-                      <label htmlFor={`cat-code-${index}`} className="text-xs text-muted-foreground">Kategorikode</label>
+                      <label htmlFor={`cat-code-${index}`} className="text-xs text-muted-foreground">{t("rules.categories.categoryCodeLabel")}</label>
                       <Input
                         id={`cat-code-${index}`}
                         value={category.categoryCode}
@@ -128,7 +130,7 @@ export default function RulePackCategoriesTab({ pack, readOnly, onChange }: TabP
                       />
                     </div>
                     <div className="space-y-1">
-                      <label htmlFor={`cat-title-${index}`} className="text-xs text-muted-foreground">Lokal titel</label>
+                      <label htmlFor={`cat-title-${index}`} className="text-xs text-muted-foreground">{t("rules.categories.localTitleLabel")}</label>
                       <Input
                         id={`cat-title-${index}`}
                         value={category.localTitle}
@@ -137,7 +139,7 @@ export default function RulePackCategoriesTab({ pack, readOnly, onChange }: TabP
                       />
                     </div>
                     <div className="space-y-1 md:col-span-2">
-                      <label htmlFor={`cat-desc-${index}`} className="text-xs text-muted-foreground">Beskrivelse</label>
+                      <label htmlFor={`cat-desc-${index}`} className="text-xs text-muted-foreground">{t("rules.categories.descriptionLabel")}</label>
                       <Textarea
                         id={`cat-desc-${index}`}
                         value={category.description}
@@ -146,7 +148,7 @@ export default function RulePackCategoriesTab({ pack, readOnly, onChange }: TabP
                       />
                     </div>
                     <div className="space-y-1">
-                      <label htmlFor={`cat-treatment-${index}`} className="text-xs text-muted-foreground">Behandling</label>
+                      <label htmlFor={`cat-treatment-${index}`} className="text-xs text-muted-foreground">{t("rules.categories.treatmentLabel")}</label>
                       <select
                         id={`cat-treatment-${index}`}
                         className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
@@ -161,7 +163,7 @@ export default function RulePackCategoriesTab({ pack, readOnly, onChange }: TabP
                     </div>
                     <div className="space-y-1">
                       <label htmlFor={`cat-tax-${index}`} className="text-xs text-muted-foreground">
-                        Indirekte skattebehandling
+                        {t("rules.categories.taxTreatmentLabel")}
                       </label>
                       <select
                         id={`cat-tax-${index}`}
@@ -179,7 +181,7 @@ export default function RulePackCategoriesTab({ pack, readOnly, onChange }: TabP
                     </div>
                     <div className="space-y-1">
                       <label htmlFor={`cat-max-${index}`} className="text-xs text-muted-foreground">
-                        Maks. fradragsprocent (0–100)
+                        {t("rules.categories.maxDeductibleLabel")}
                       </label>
                       <Input
                         id={`cat-max-${index}`}
@@ -195,7 +197,7 @@ export default function RulePackCategoriesTab({ pack, readOnly, onChange }: TabP
                       />
                     </div>
                     <div className="space-y-1">
-                      <label htmlFor={`cat-sort-${index}`} className="text-xs text-muted-foreground">Sortering</label>
+                      <label htmlFor={`cat-sort-${index}`} className="text-xs text-muted-foreground">{t("rules.categories.sortLabel")}</label>
                       <Input
                         id={`cat-sort-${index}`}
                         inputMode="numeric"
@@ -208,7 +210,7 @@ export default function RulePackCategoriesTab({ pack, readOnly, onChange }: TabP
                     </div>
                     <div className="space-y-1 md:col-span-2">
                       <label htmlFor={`cat-keywords-${index}`} className="text-xs text-muted-foreground">
-                        AI-nøgleord (kommasepareret) — kun forslag, aldrig afgørende
+                        {t("rules.categories.keywordsLabel")}
                       </label>
                       <Input
                         id={`cat-keywords-${index}`}
@@ -223,7 +225,7 @@ export default function RulePackCategoriesTab({ pack, readOnly, onChange }: TabP
                     </div>
                     <div className="space-y-1 md:col-span-2">
                       <label htmlFor={`cat-conditions-${index}`} className="text-xs text-muted-foreground">
-                        Lokale betingelser (én pr. linje)
+                        {t("rules.categories.conditionsLabel")}
                       </label>
                       <Textarea
                         id={`cat-conditions-${index}`}
@@ -237,7 +239,7 @@ export default function RulePackCategoriesTab({ pack, readOnly, onChange }: TabP
                       />
                     </div>
                     <div className="space-y-1 md:col-span-2">
-                      <label htmlFor={`cat-warning-${index}`} className="text-xs text-muted-foreground">Advarselstekst</label>
+                      <label htmlFor={`cat-warning-${index}`} className="text-xs text-muted-foreground">{t("rules.categories.warningLabel")}</label>
                       <Input
                         id={`cat-warning-${index}`}
                         value={category.warningText ?? ""}
@@ -247,7 +249,7 @@ export default function RulePackCategoriesTab({ pack, readOnly, onChange }: TabP
                     </div>
                     <div className="space-y-1 md:col-span-2">
                       <label htmlFor={`cat-ref-${index}`} className="text-xs text-muted-foreground">
-                        Officiel kildehenvisning
+                        {t("rules.categories.referenceLabel")}
                       </label>
                       <Input
                         id={`cat-ref-${index}`}
@@ -258,7 +260,7 @@ export default function RulePackCategoriesTab({ pack, readOnly, onChange }: TabP
                     </div>
 
                     <fieldset className="md:col-span-2">
-                      <legend className="text-xs text-muted-foreground">Tilladte registreringstyper</legend>
+                      <legend className="text-xs text-muted-foreground">{t("rules.categories.allowedRegistrationTypes")}</legend>
                       <div className="mt-2 flex flex-wrap gap-3">
                         {REGISTRATION_TYPES.map((type) => (
                           <label key={type} className="flex items-center gap-2 text-sm text-foreground">
@@ -281,11 +283,11 @@ export default function RulePackCategoriesTab({ pack, readOnly, onChange }: TabP
 
                     <div className="flex flex-wrap gap-4 md:col-span-2">
                       {([
-                        ["businessUseRequired", "Erhvervsmæssig andel påkrævet"],
-                        ["documentationRequired", "Dokumentation påkrævet"],
-                        ["mixedUseAllowed", "Blandet anvendelse tilladt"],
-                        ["capitalAsset", "Anlægsaktiv"],
-                        ["requiresManualReview", "Kræver manuel gennemgang"],
+                        ["businessUseRequired", t("rules.categories.flags.businessUseRequired")],
+                        ["documentationRequired", t("rules.categories.flags.documentationRequired")],
+                        ["mixedUseAllowed", t("rules.categories.flags.mixedUseAllowed")],
+                        ["capitalAsset", t("rules.categories.flags.capitalAsset")],
+                        ["requiresManualReview", t("rules.categories.flags.requiresManualReview")],
                       ] as const).map(([field, label]) => (
                         <label key={field} className="flex items-center gap-2 text-sm text-foreground">
                           <Checkbox
@@ -311,7 +313,7 @@ export default function RulePackCategoriesTab({ pack, readOnly, onChange }: TabP
                           }
                         >
                           <Trash2 className="mr-1 h-4 w-4" aria-hidden />
-                          Slet kategori
+                          {t("rules.categories.deleteCategory")}
                         </Button>
                       </div>
                     )}
@@ -325,11 +327,11 @@ export default function RulePackCategoriesTab({ pack, readOnly, onChange }: TabP
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Blandet anvendelse</CardTitle>
+          <CardTitle className="text-base">{t("rules.categories.mixedUseTitle")}</CardTitle>
         </CardHeader>
         <CardContent className="grid gap-4 md:grid-cols-2">
           <div className="space-y-1">
-            <label htmlFor="mixed-max" className="text-xs text-muted-foreground">Maks. erhvervsandel (%)</label>
+            <label htmlFor="mixed-max" className="text-xs text-muted-foreground">{t("rules.categories.mixedMaxLabel")}</label>
             <Input
               id="mixed-max"
               inputMode="numeric"
@@ -347,7 +349,7 @@ export default function RulePackCategoriesTab({ pack, readOnly, onChange }: TabP
           </div>
           <div className="space-y-1">
             <label htmlFor="mixed-doc" className="text-xs text-muted-foreground">
-              Dokumentation kræves over (%)
+              {t("rules.categories.mixedDocLabel")}
             </label>
             <Input
               id="mixed-doc"
@@ -367,7 +369,7 @@ export default function RulePackCategoriesTab({ pack, readOnly, onChange }: TabP
           </div>
           <div className="space-y-1">
             <label htmlFor="mixed-review" className="text-xs text-muted-foreground">
-              Kategorier der kræver gennemgang (kommasepareret)
+              {t("rules.categories.mixedReviewLabel")}
             </label>
             <Input
               id="mixed-review"
@@ -385,7 +387,7 @@ export default function RulePackCategoriesTab({ pack, readOnly, onChange }: TabP
           </div>
           <div className="space-y-1">
             <label htmlFor="mixed-disallowed" className="text-xs text-muted-foreground">
-              Ikke-tilladte kategorier (kommasepareret)
+              {t("rules.categories.mixedDisallowedLabel")}
             </label>
             <Input
               id="mixed-disallowed"

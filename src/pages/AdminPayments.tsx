@@ -466,7 +466,7 @@ export default function AdminPayments() {
                             <div>
                               <p className="font-semibold mb-1">{t("ops.payments.detail.transferTitle")}</p>
                               <p>{t("ops.payments.detail.providerStripeAccount", { value: r.b.provider_stripe_account_id ?? "—" })}</p>
-                              <p>PaymentIntent: <code>{r.b.payment_intent_id}</code></p>
+                              <p>{t("ops.payments.detail.paymentIntentLabel")} <code>{r.b.payment_intent_id}</code></p>
                               {r.transferEv ? (
                                 <>
                                   <p>{t("ops.payments.detail.transferredAmount", { value: fmtMoney(r.transferAmount, r.transferEv.currency) })}</p>

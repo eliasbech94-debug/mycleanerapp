@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import {
   Dialog,
   DialogContent,
@@ -24,13 +25,14 @@ export default function CountryRulesDialog({
   provider: ProviderAccountingProfile;
   jurisdiction: JurisdictionResolution;
 }) {
+  const { t } = useTranslation("finance");
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Regler for dit land</DialogTitle>
+          <DialogTitle>{t("ui.countryRules.title")}</DialogTitle>
           <DialogDescription>
-            Oversigten viser den regelversion, der er anvendt på den valgte periode.
+            {t("ui.countryRules.description")}
           </DialogDescription>
         </DialogHeader>
 
@@ -38,31 +40,31 @@ export default function CountryRulesDialog({
           <p className="text-sm text-muted-foreground">
             {jurisdiction.status === "requires_review"
               ? jurisdiction.message
-              : "Der er ikke fundet en aktiv regelpakke."}
+              : t("ui.countryRules.noActiveRulePack")}
           </p>
         ) : (
           <div className="space-y-4 text-sm">
             <dl className="divide-y divide-border">
-              <Line label="Aktivt land" value={`${rulePack.countryCode}${rulePack.regionCode ? `-${rulePack.regionCode}` : ""}`} />
-              <Line label="Registreringstype" value={provider.registrationType ?? "Ikke oplyst"} />
+              <Line label={t("ui.countryRules.activeCountry")} value={`${rulePack.countryCode}${rulePack.regionCode ? `-${rulePack.regionCode}` : ""}`} />
+              <Line label={t("ui.countryRules.registrationType")} value={provider.registrationType ?? t("ui.countryRules.notProvided")} />
               <Line
-                label="Indirekte skattestatus"
+                label={t("ui.countryRules.indirectTaxStatus")}
                 value={
                   provider.indirectTaxRegistered === true
-                    ? `Registreret (${rulePack.labels.indirectTaxLabel})`
+                    ? t("ui.countryRules.registeredWithLabel", { label: rulePack.labels.indirectTaxLabel })
                     : provider.indirectTaxRegistered === false
-                      ? "Ikke registreret"
-                      : "Ukendt"
+                      ? t("ui.countryRules.notRegistered")
+                      : t("ui.countryRules.unknown")
                 }
               />
-              <Line label="Anvendt regelversion" value={rulePack.rulePackVersion} />
-              <Line label="Gyldig fra" value={rulePack.effectiveFrom} />
-              <Line label="Gyldig til" value={rulePack.effectiveTo ?? "Ingen slutdato"} />
-              <Line label="Seneste verificering" value={rulePack.verifiedAt ?? "Ikke verificeret"} />
+              <Line label={t("ui.countryRules.rulePackVersion")} value={rulePack.rulePackVersion} />
+              <Line label={t("ui.countryRules.validFrom")} value={rulePack.effectiveFrom} />
+              <Line label={t("ui.countryRules.validTo")} value={rulePack.effectiveTo ?? t("ui.countryRules.noEndDate")} />
+              <Line label={t("ui.countryRules.lastVerified")} value={rulePack.verifiedAt ?? t("ui.countryRules.notVerified")} />
             </dl>
 
             <div>
-              <h3 className="font-medium text-foreground">Officielle kilder</h3>
+              <h3 className="font-medium text-foreground">{t("ui.countryRules.officialSources")}</h3>
               <ul className="mt-1 space-y-2">
                 {rulePack.sources.map((source) => (
                   <li key={source.officialSourceUrl} className="text-muted-foreground">

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -10,17 +11,18 @@ import type { TabProps } from "./RulePackGeneralTab";
 const PERIODS: FilingPeriodKind[] = ["monthly", "quarterly", "half_yearly", "yearly", "other_local"];
 
 const DOC_FIELDS = [
-  ["receiptRequirements", "Krav til bilag"],
-  ["invoiceRequirements", "Krav til fakturaer"],
-  ["recordRetentionRules", "Opbevaringsregler"],
+  ["receiptRequirements", "rules.filing.docFields.receiptRequirements"],
+  ["invoiceRequirements", "rules.filing.docFields.invoiceRequirements"],
+  ["recordRetentionRules", "rules.filing.docFields.recordRetentionRules"],
 ] as const;
 
 export default function RulePackFilingTab({ pack, readOnly, onChange }: TabProps) {
+  const { t } = useTranslation("admin");
   return (
     <div className="space-y-4">
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Indberetningsperioder</CardTitle>
+          <CardTitle className="text-base">{t("rules.filing.periodsTitle")}</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-wrap gap-4">
           {PERIODS.map((period) => (
@@ -44,7 +46,7 @@ export default function RulePackFilingTab({ pack, readOnly, onChange }: TabProps
 
       <Card>
         <CardHeader className="flex-row items-center justify-between space-y-0">
-          <CardTitle className="text-base">Frister</CardTitle>
+          <CardTitle className="text-base">{t("rules.filing.deadlinesTitle")}</CardTitle>
           {!readOnly && (
             <Button
               size="sm"
@@ -59,18 +61,18 @@ export default function RulePackFilingTab({ pack, readOnly, onChange }: TabProps
               }
             >
               <Plus className="mr-1 h-4 w-4" aria-hidden />
-              Tilføj frist
+              {t("rules.filing.addDeadline")}
             </Button>
           )}
         </CardHeader>
         <CardContent className="space-y-3">
           {pack.filingDeadlines.length === 0 && (
-            <p className="text-sm text-muted-foreground">Ingen frister beskrevet.</p>
+            <p className="text-sm text-muted-foreground">{t("rules.filing.noDeadlines")}</p>
           )}
           {pack.filingDeadlines.map((deadline, index) => (
             <div key={index} className="grid gap-3 rounded-lg border border-border p-3 md:grid-cols-4">
               <div className="space-y-1">
-                <label htmlFor={`deadline-kind-${index}`} className="text-xs text-muted-foreground">Periode</label>
+                <label htmlFor={`deadline-kind-${index}`} className="text-xs text-muted-foreground">{t("rules.filing.periodLabel")}</label>
                 <select
                   id={`deadline-kind-${index}`}
                   className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
@@ -90,7 +92,7 @@ export default function RulePackFilingTab({ pack, readOnly, onChange }: TabProps
                 </select>
               </div>
               <div className="space-y-1 md:col-span-2">
-                <label htmlFor={`deadline-desc-${index}`} className="text-xs text-muted-foreground">Beskrivelse</label>
+                <label htmlFor={`deadline-desc-${index}`} className="text-xs text-muted-foreground">{t("rules.filing.descriptionLabel")}</label>
                 <Input
                   id={`deadline-desc-${index}`}
                   value={deadline.description}
@@ -109,7 +111,7 @@ export default function RulePackFilingTab({ pack, readOnly, onChange }: TabProps
                   <Button
                     size="icon"
                     variant="ghost"
-                    aria-label={`Slet frist ${index + 1}`}
+                    aria-label={t("rules.filing.deleteDeadlineAria", { index: index + 1 })}
                     onClick={() =>
                       onChange({ filingDeadlines: pack.filingDeadlines.filter((_, i) => i !== index) })
                     }
@@ -125,13 +127,13 @@ export default function RulePackFilingTab({ pack, readOnly, onChange }: TabProps
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Dokumentation</CardTitle>
+          <CardTitle className="text-base">{t("rules.filing.docsTitle")}</CardTitle>
         </CardHeader>
         <CardContent className="grid gap-4 md:grid-cols-3">
-          {DOC_FIELDS.map(([field, label]) => (
+          {DOC_FIELDS.map(([field, labelKey]) => (
             <div key={field} className="space-y-1">
               <label htmlFor={`doc-${field}`} className="text-xs text-muted-foreground">
-                {label} (én pr. linje)
+                {t("rules.filing.perLine", { label: t(labelKey) })}
               </label>
               <Textarea
                 id={`doc-${field}`}

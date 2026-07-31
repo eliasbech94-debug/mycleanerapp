@@ -158,8 +158,8 @@ export default function AdminWebhooks() {
                 <ul className="list-disc pl-5 space-y-0.5">
                   <li>charge.refunded</li>
                   <li>refund.updated</li>
-                  <li>transfer.created / transfer.updated</li>
-                  <li>payout.paid / payout.failed</li>
+                  <li>{t("ops.webhooks.endpoint.eventTransfer")}</li>
+                  <li>{t("ops.webhooks.endpoint.eventPayout")}</li>
                 </ul>
               </div>
             </div>
