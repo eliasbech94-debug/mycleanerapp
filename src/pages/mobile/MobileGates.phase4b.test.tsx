@@ -15,6 +15,10 @@ import { render, screen, cleanup } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import fs from "node:fs";
 import path from "node:path";
+// Static imports: `vi.mock` factories below are hoisted above them, so the
+// mocked modules are still what these components resolve.
+import Header from "@/components/layout/Header";
+import { shouldShowMobileNav } from "@/components/layout/MobileBottomNav";
 
 // ---- shared mocks ------------------------------------------------------
 
