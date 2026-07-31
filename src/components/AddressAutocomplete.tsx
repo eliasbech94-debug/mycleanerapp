@@ -7,6 +7,7 @@ import { dawaProvider, DawaUnavailableError } from "@/lib/address/dawa";
 import { LruCache } from "@/lib/address/cache";
 import { normalizeAddress, matchSpan } from "@/lib/address/normalize";
 import type { AddressSuggestion, AddressSource } from "@/lib/address/types";
+import { useTranslation } from "react-i18next";
 
 
 /**
@@ -32,6 +33,7 @@ type Props = {
 export default function AddressAutocomplete({
   value, onChange, onSelect, onValidityChange, placeholder, autoFocus, countries = ["dk"], isValid,
 }: Props) {
+  const { t } = useTranslation("common");
   const primaryCountry = (countries[0] || "dk").toLowerCase();
   const source: AddressSource = primaryCountry === "dk" ? "dawa" : "google";
 
@@ -300,7 +302,7 @@ export default function AddressAutocomplete({
           inputMode="text"
           enterKeyHint="search"
         />
-        {loading && <Loader2 className="h-4 w-4 animate-spin opacity-60" aria-label="Søger" />}
+        {loading && <Loader2 className="h-4 w-4 animate-spin opacity-60" aria-label={t("ui.addressAutocomplete.searching")} />}
         {!loading && isValid && (
           <CheckCircle2 className="h-4 w-4" style={{ color: "#168a7a" }} aria-label="Godkendt" />
         )}
@@ -310,7 +312,7 @@ export default function AddressAutocomplete({
         <div className="mt-2 flex items-start gap-2 text-sm" style={{ color: "#c2412c" }}>
           <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0" />
           <div>
-            <span className="font-bold">Vi kunne ikke genkende denne adresse.</span>
+            <span className="font-bold">{t("ui.addressAutocomplete.notRecognized")}</span>
             <div className="opacity-80">
               Vælg en adresse fra listen, så vi sikrer at den kan findes af din cleaner.
             </div>
@@ -322,7 +324,7 @@ export default function AddressAutocomplete({
         <div role="alert" className="mt-2 flex items-start gap-2 text-sm" style={{ color: "#c2412c" }}>
           <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0" />
           <div>
-            <span className="font-bold">Adressen kunne ikke godkendes.</span>
+            <span className="font-bold">{t("ui.addressAutocomplete.notApproved")}</span>
             <div className="opacity-80">{serverError}</div>
           </div>
         </div>
@@ -337,7 +339,7 @@ export default function AddressAutocomplete({
         >
           <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0" />
           <div>
-            <span className="font-bold">Vælg en adresse fra listen.</span>
+            <span className="font-bold">{t("ui.addressAutocomplete.pickFromList")}</span>
             <div className="opacity-80">
               Adressen er først gyldig, når du vælger et af forslagene.
             </div>

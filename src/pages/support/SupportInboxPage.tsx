@@ -10,15 +10,9 @@ import { ConversationList } from "./inbox/ConversationList";
 import { ConversationDetailView } from "./inbox/ConversationDetailView";
 import { ContextPanel } from "./inbox/ContextPanel";
 import type { ConversationDetail } from "@/hooks/useConversationDetail";
+import { useTranslation } from "react-i18next";
 
-const SCOPES: Array<{ id: SupportScope; label: string }> = [
-  { id: "mine", label: "Mine" },
-  { id: "unassigned", label: "Ikke tildelt" },
-  { id: "open", label: "Åbne" },
-  { id: "escalated", label: "Eskaleret" },
-  { id: "resolved", label: "Løst" },
-  { id: "all", label: "Alle" },
-];
+const SCOPE_IDS: SupportScope[] = ["mine", "unassigned", "open", "escalated", "resolved", "all"];
 
 /**
  * Support Inbox — three-column responsive helpdesk layout.
@@ -28,6 +22,7 @@ const SCOPES: Array<{ id: SupportScope; label: string }> = [
  * Routing: /support/inbox and /support/inbox/:conversationId
  */
 export default function SupportInboxPage() {
+  const { t } = useTranslation("admin");
   const nav = useNavigate();
   const { conversationId } = useParams<{ conversationId?: string }>();
   const [scope, setScope] = useState<SupportScope>("mine");
@@ -50,11 +45,11 @@ export default function SupportInboxPage() {
   const onSelect = (id: string) => nav(`/support/inbox/${id}`);
 
   return (
-    <SupportLayout title="Indbakke" description="Aktive supportsamtaler">
+    <SupportLayout title={t("support.inboxPage.title")} description={t("support.inboxPage.description")}>
       <div className="grid gap-0 border rounded-lg overflow-hidden bg-background h-[calc(100vh-260px)] min-h-[500px] grid-cols-1 md:grid-cols-[minmax(280px,340px)_1fr] lg:grid-cols-[minmax(280px,320px)_1fr_minmax(280px,340px)]">
         {/* ============= Column 1: List ============= */}
         <section
-          aria-label="Samtaleliste"
+          aria-label={t("support.inboxPage.listAria")}
           className={cn(
             "flex flex-col min-h-0 border-r bg-muted/20",
             showDetailMobile && "hidden md:flex",
@@ -66,21 +61,21 @@ export default function SupportInboxPage() {
               <Input
                 value={searchDraft}
                 onChange={(e) => setSearchDraft(e.target.value)}
-                placeholder="Søg efter emne…"
+                placeholder={t("support.inboxPage.searchPlaceholder")}
                 className="pl-8 h-8 text-sm"
-                aria-label="Søg samtaler"
+                aria-label={t("support.inboxPage.searchAria")}
               />
             </div>
             <div className="flex gap-1 overflow-x-auto -mx-1 px-1">
-              {SCOPES.map((s) => (
+              {SCOPE_IDS.map((id) => (
                 <Button
-                  key={s.id}
+                  key={id}
                   size="sm"
-                  variant={scope === s.id ? "default" : "ghost"}
-                  onClick={() => setScope(s.id)}
+                  variant={scope === id ? "default" : "ghost"}
+                  onClick={() => setScope(id)}
                   className="h-7 px-2 text-xs whitespace-nowrap"
                 >
-                  {s.label}
+                  {t(`support.inboxPage.scope.${id}`)}
                 </Button>
               ))}
             </div>
@@ -101,7 +96,7 @@ export default function SupportInboxPage() {
 
         {/* ============= Column 2: Detail ============= */}
         <section
-          aria-label="Samtaledetaljer"
+          aria-label={t("support.inboxPage.detailAria")}
           className={cn(
             "flex flex-col min-h-0 min-w-0 bg-background",
             showListMobile && "hidden md:flex",
@@ -116,7 +111,7 @@ export default function SupportInboxPage() {
 
         {/* ============= Column 3: Context (lg+) ============= */}
         <aside
-          aria-label="Kontekst"
+          aria-label={t("support.inboxPage.contextAria")}
           className="hidden lg:flex flex-col min-h-0 border-l bg-muted/20"
         >
           <ContextPanel detail={activeDetail} />

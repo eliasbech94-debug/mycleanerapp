@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { formatMoney, formatDate } from "@/lib/finance";
 import { fetchInvoicesList, fetchInvoiceDownloadUrl, type PlatformFeeInvoice, type SettlementStatement } from "@/lib/invoices";
 import { supabase } from "@/integrations/supabase/client";
+import { useTranslation } from "react-i18next";
 
 const PAYOUT_STATUS_LABEL: Record<string, string> = {
   pending: "Afventer",
@@ -39,6 +40,7 @@ async function download(kind: "invoice" | "statement", id: string) {
 }
 
 export function InvoicesPanel({ scope }: { scope: "provider" | "admin" }) {
+  const { t } = useTranslation("common");
   const [loading, setLoading] = useState(true);
   const [invoices, setInvoices] = useState<PlatformFeeInvoice[]>([]);
   const [statements, setStatements] = useState<SettlementStatement[]>([]);
@@ -97,7 +99,7 @@ export function InvoicesPanel({ scope }: { scope: "provider" | "admin" }) {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
-            <CardTitle>Fakturaer for platformgebyr</CardTitle>
+            <CardTitle>{t("ui.invoicesPanel.feeInvoicesTitle")}</CardTitle>
             <p className="text-xs text-muted-foreground mt-1">
               MyCleaner-platformen formidler kontakten mellem kunden og den selvstændige provider og fakturerer alene sit eget platformgebyr. Momsbehandlingen afhænger af providerens skatteoplysninger.
             </p>
@@ -111,7 +113,7 @@ export function InvoicesPanel({ scope }: { scope: "provider" | "admin" }) {
         </CardHeader>
         <CardContent>
           {invoices.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Der er endnu ingen fakturaer for platformgebyr.</p>
+            <p className="text-sm text-muted-foreground">{t("ui.invoicesPanel.noFeeInvoices")}</p>
           ) : (
             <Table>
               <TableHeader>
@@ -121,7 +123,7 @@ export function InvoicesPanel({ scope }: { scope: "provider" | "admin" }) {
                   <TableHead>Booking</TableHead>
                   <TableHead className="text-right">Platformgebyr</TableHead>
                   <TableHead className="text-right">Moms</TableHead>
-                  <TableHead className="text-right">Samlet pris</TableHead>
+                  <TableHead className="text-right">{t("ui.invoicesPanel.total")}</TableHead>
                   <TableHead>Momsbehandling</TableHead>
                   <TableHead></TableHead>
                 </TableRow>
@@ -152,7 +154,7 @@ export function InvoicesPanel({ scope }: { scope: "provider" | "admin" }) {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
-            <CardTitle>Afregningsoversigter til selvstændige providere</CardTitle>
+            <CardTitle>{t("ui.invoicesPanel.statementsTitle")}</CardTitle>
             <p className="text-xs text-muted-foreground mt-1">
               Afregningsoversigt pr. booking. Dette er <strong>ikke</strong> en momsfaktura fra MyCleaner — den selvstændige provider er selv ansvarlig for eventuel kundefakturering og momsafregning. Det præcise tidspunkt, hvor en udbetaling er synlig på kontoen, afhænger af betalingsudbyderen og providerens bank.
             </p>
@@ -166,7 +168,7 @@ export function InvoicesPanel({ scope }: { scope: "provider" | "admin" }) {
         </CardHeader>
         <CardContent>
           {statements.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Der er endnu ingen afregningsoversigter.</p>
+            <p className="text-sm text-muted-foreground">{t("ui.invoicesPanel.noStatements")}</p>
           ) : (
             <Table>
               <TableHeader>
@@ -174,10 +176,10 @@ export function InvoicesPanel({ scope }: { scope: "provider" | "admin" }) {
                   <TableHead>Nummer</TableHead>
                   <TableHead>Udstedt</TableHead>
                   <TableHead>Booking</TableHead>
-                  <TableHead className="text-right">Kundens betaling</TableHead>
+                  <TableHead className="text-right">{t("ui.invoicesPanel.customerPayment")}</TableHead>
                   <TableHead className="text-right">Refundering</TableHead>
                   <TableHead className="text-right">Platformgebyr</TableHead>
-                  <TableHead className="text-right">Providerens indtjening</TableHead>
+                  <TableHead className="text-right">{t("ui.invoicesPanel.providerEarnings")}</TableHead>
                   <TableHead>Udbetalingsstatus</TableHead>
                   <TableHead></TableHead>
                 </TableRow>

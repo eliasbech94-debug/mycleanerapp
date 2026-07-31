@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Check, ChevronRight, Loader2, CalendarClock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -29,6 +30,7 @@ interface Props {
  * plus the scheduled periodic review action.
  */
 export function LegalReviewWorkflow({ document, onChanged }: Props) {
+  const { t } = useTranslation("admin");
   const [busy, setBusy] = useState<string | null>(null);
   const status = document.status;
   const currentIndex = REVIEW_WORKFLOW.indexOf(status as LegalStatus);
@@ -45,10 +47,10 @@ export function LegalReviewWorkflow({ document, onChanged }: Props) {
     setBusy(to);
     try {
       await transitionDocumentStatus(document, to);
-      toast.success(`Status ændret til «${LEGAL_STATUS_LABEL[to]}»`);
+      toast.success(t("console.legal.review.statusChangedToast", { status: LEGAL_STATUS_LABEL[to] }));
       onChanged?.();
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Statusskifte fejlede");
+      toast.error(error instanceof Error ? error.message : t("console.legal.review.statusChangeFailed"));
     } finally {
       setBusy(null);
     }
@@ -58,10 +60,10 @@ export function LegalReviewWorkflow({ document, onChanged }: Props) {
     setBusy("review");
     try {
       await recordLegalReview(document);
-      toast.success("Gennemgang registreret — næste gennemgang planlagt");
+      toast.success(t("console.legal.review.reviewRecordedToast"));
       onChanged?.();
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Kunne ikke registrere gennemgang");
+      toast.error(error instanceof Error ? error.message : t("console.legal.review.reviewRecordFailed"));
     } finally {
       setBusy(null);
     }
@@ -70,10 +72,10 @@ export function LegalReviewWorkflow({ document, onChanged }: Props) {
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle className="text-base">Gennemgangsforløb</CardTitle>
+        <CardTitle className="text-base">{t("console.legal.review.title")}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <ol className="flex flex-wrap items-center gap-2" aria-label="Dokumentets gennemgangsforløb">
+        <ol className="flex flex-wrap items-center gap-2" aria-label={t("console.legal.review.ariaLabel")}>
           {REVIEW_WORKFLOW.map((step, index) => {
             const done = currentIndex > index;
             const active = currentIndex === index;
@@ -102,7 +104,7 @@ export function LegalReviewWorkflow({ document, onChanged }: Props) {
         </ol>
 
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs text-muted-foreground">Nuværende status:</span>
+          <span className="text-xs text-muted-foreground">{t("console.legal.review.currentStatus")}</span>
           <Badge variant="secondary">
             {isLegalStatus(status) ? LEGAL_STATUS_LABEL[status] : status}
           </Badge>
@@ -113,13 +115,13 @@ export function LegalReviewWorkflow({ document, onChanged }: Props) {
             {forward.map((s) => (
               <Button key={s} size="sm" disabled={busy !== null} onClick={() => move(s)}>
                 {busy === s && <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" aria-hidden="true" />}
-                Send til {LEGAL_STATUS_LABEL[s].toLowerCase()}
+                {t("console.legal.review.sendTo", { status: LEGAL_STATUS_LABEL[s].toLowerCase() })}
               </Button>
             ))}
             {backward.map((s) => (
               <Button key={s} size="sm" variant="outline" disabled={busy !== null} onClick={() => move(s)}>
                 {busy === s && <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" aria-hidden="true" />}
-                Tilbage til {LEGAL_STATUS_LABEL[s].toLowerCase()}
+                {t("console.legal.review.backTo", { status: LEGAL_STATUS_LABEL[s].toLowerCase() })}
               </Button>
             ))}
           </div>
@@ -128,15 +130,15 @@ export function LegalReviewWorkflow({ document, onChanged }: Props) {
         <div className="rounded-lg border bg-muted/40 p-3 text-xs">
           <div className="flex items-center gap-2 font-medium">
             <CalendarClock className="h-3.5 w-3.5" aria-hidden="true" />
-            Planlagt juridisk gennemgang
+            {t("console.legal.review.scheduledReview")}
           </div>
           <p className="mt-1 text-muted-foreground">
             {review.dueAt
-              ? `Næste gennemgang ${review.dueAt.toLocaleDateString("da-DK")}${
-                  review.isOverdue ? " — overskredet" : review.isDueSoon ? " — snart forfalden" : ""
+              ? `${t("console.legal.review.nextReview", { date: review.dueAt.toLocaleDateString("da-DK") })}${
+                  review.isOverdue ? ` ${t("console.legal.review.overdue")}` : review.isDueSoon ? ` ${t("console.legal.review.dueSoon")}` : ""
                 }`
-              : "Ingen gennemgang planlagt endnu."}
-            {document.review_interval_months ? ` (interval: ${document.review_interval_months} mdr.)` : ""}
+              : t("console.legal.review.noReviewScheduled")}
+            {document.review_interval_months ? ` ${t("console.legal.review.intervalMonths", { months: document.review_interval_months })}` : ""}
           </p>
           <Button
             className="mt-2"
@@ -146,7 +148,7 @@ export function LegalReviewWorkflow({ document, onChanged }: Props) {
             onClick={markReviewed}
           >
             {busy === "review" && <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" aria-hidden="true" />}
-            Registrér gennemgang udført
+            {t("console.legal.review.markReviewed")}
           </Button>
         </div>
       </CardContent>

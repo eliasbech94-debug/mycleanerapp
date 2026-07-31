@@ -132,7 +132,9 @@
         "checkContact": "Tjek dine kontaktoplysninger",
         "invalidAddress": "Vælg en gyldig adresse fra listen, før du gemmer.",
         "saved": "Profil gemt"
-      }
+      },
+      "phonePlaceholder": "+45 12 34 56 78",
+      "providerIdHelpFull": "Indtast dit provider-ID for at få adgang til <dash>provider-dashboardet</dash>."
     },
     "addresses": {
       "title": "Mine adresser",

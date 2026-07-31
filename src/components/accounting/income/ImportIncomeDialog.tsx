@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Dialog,
   DialogContent,
@@ -37,18 +38,6 @@ export interface ImportIncomeDialogProps {
   onConfirm: (items: ExternalIncomeInput[]) => void;
 }
 
-const COLUMN_LABELS: Record<ImportColumnKey, string> = {
-  incomeDate: "Dato (ÅÅÅÅ-MM-DD)",
-  description: "Beskrivelse",
-  amount: "Beløb",
-  currency: "Valuta",
-  platformName: "Platform",
-  customerReference: "Kundereference",
-  invoiceNumber: "Fakturanummer",
-  paymentStatus: "Betalingsstatus",
-  paymentMethod: "Betalingsmetode",
-};
-
 const NONE = "__none__";
 
 /** Upload → match kolonner → preview → bekræft. Poster gemmes som review_required. */
@@ -59,6 +48,18 @@ export default function ImportIncomeDialog({
   existing,
   onConfirm,
 }: ImportIncomeDialogProps) {
+  const { t } = useTranslation("finance");
+  const COLUMN_LABELS: Record<ImportColumnKey, string> = {
+    incomeDate: t("ui.income.import.columnLabels.incomeDate"),
+    description: t("ui.income.import.columnLabels.description"),
+    amount: t("ui.income.import.columnLabels.amount"),
+    currency: t("ui.income.import.columnLabels.currency"),
+    platformName: t("ui.income.import.columnLabels.platformName"),
+    customerReference: t("ui.income.import.columnLabels.customerReference"),
+    invoiceNumber: t("ui.income.import.columnLabels.invoiceNumber"),
+    paymentStatus: t("ui.income.import.columnLabels.paymentStatus"),
+    paymentMethod: t("ui.income.import.columnLabels.paymentMethod"),
+  };
   const [csv, setCsv] = useState<ParsedCsv | null>(null);
   const [mapping, setMapping] = useState<ImportColumnMapping>({});
   const [sourceType, setSourceType] = useState<ExternalIncomeSourceType>("other_platform");
@@ -101,15 +102,13 @@ export default function ImportIncomeDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Importér indkomst</DialogTitle>
-          <DialogDescription>
-            Importerede poster gemmes til kontrol og medregnes først, når du har godkendt dem.
-          </DialogDescription>
+          <DialogTitle>{t("ui.income.import.title")}</DialogTitle>
+          <DialogDescription>{t("ui.income.import.description")}</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
           <div className="space-y-1">
-            <Label className="text-xs">CSV-fil eller payout-oversigt</Label>
+            <Label className="text-xs">{t("ui.income.import.fileLabel")}</Label>
             <Input
               type="file"
               accept=".csv,text/csv"
@@ -121,12 +120,12 @@ export default function ImportIncomeDialog({
           </div>
 
           <div className="space-y-1">
-            <Label className="text-xs">Kilde</Label>
+            <Label className="text-xs">{t("ui.income.import.sourceLabel")}</Label>
             <Select
               value={sourceType}
               onValueChange={(v) => setSourceType(v as ExternalIncomeSourceType)}
             >
-              <SelectTrigger aria-label="Kilde for import">
+              <SelectTrigger aria-label={t("ui.income.import.sourceAriaLabel")}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -141,7 +140,7 @@ export default function ImportIncomeDialog({
 
           {csv && csv.headers.length > 0 && (
             <div className="space-y-2">
-              <p className="text-sm font-medium text-foreground">Match kolonner</p>
+              <p className="text-sm font-medium text-foreground">{t("ui.income.import.matchColumns")}</p>
               {(Object.keys(COLUMN_LABELS) as ImportColumnKey[]).map((key) => (
                 <div key={key} className="grid grid-cols-2 items-center gap-2">
                   <Label className="text-xs">{COLUMN_LABELS[key]}</Label>
@@ -158,10 +157,10 @@ export default function ImportIncomeDialog({
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value={NONE}>Ikke valgt</SelectItem>
+                      <SelectItem value={NONE}>{t("ui.income.import.notSelected")}</SelectItem>
                       {csv.headers.map((header, index) => (
                         <SelectItem key={`${header}-${index}`} value={String(index)}>
-                          {header || `Kolonne ${index + 1}`}
+                          {header || t("ui.income.import.columnFallback", { index: index + 1 })}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -169,7 +168,7 @@ export default function ImportIncomeDialog({
                 </div>
               ))}
               <Button size="sm" variant="outline" onClick={runPreview}>
-                Vis preview
+                {t("ui.income.import.showPreview")}
               </Button>
             </div>
           )}
@@ -177,19 +176,19 @@ export default function ImportIncomeDialog({
           {preview && (
             <div className="space-y-2 rounded-lg border border-border p-3 text-sm">
               <p className="font-medium text-foreground">
-                {preview.drafts.length} post(er) klar til kontrol
+                {t("ui.income.import.entriesReady", { count: preview.drafts.length })}
               </p>
               {preview.issues.length > 0 && (
                 <ul className="space-y-1 text-xs text-destructive">
                   {preview.issues.slice(0, 10).map((issue) => (
                     <li key={`${issue.rowIndex}-${issue.code}`}>
-                      Række {issue.rowIndex + 1}: {issue.message}
+                      {t("ui.income.import.rowIssue", { row: issue.rowIndex + 1, message: issue.message })}
                     </li>
                   ))}
                 </ul>
               )}
               <p className="text-xs text-muted-foreground">
-                Alle importerede poster markeres som “kræver kontrol”.
+                {t("ui.income.import.allImportedNote")}
               </p>
             </div>
           )}
@@ -197,13 +196,13 @@ export default function ImportIncomeDialog({
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Annullér
+            {t("ui.income.import.cancel")}
           </Button>
           <Button
             disabled={!preview || preview.drafts.length === 0}
             onClick={() => preview && onConfirm(preview.drafts)}
           >
-            Bekræft import
+            {t("ui.income.import.confirm")}
           </Button>
         </DialogFooter>
       </DialogContent>

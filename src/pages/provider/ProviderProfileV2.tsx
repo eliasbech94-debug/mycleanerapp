@@ -122,20 +122,20 @@ export default function ProviderProfileV2() {
         <div className="flex items-center gap-3">
           <BackButton />
           <div>
-            <h1 className="sr-only">Min profil</h1>
-            <div className="text-xs opacity-70">Din offentlige profil og oplysninger</div>
+            <h1 className="sr-only">{t("profile.pageTitle")}</h1>
+            <div className="text-xs opacity-70">{t("profile.pageSubtitle")}</div>
           </div>
         </div>
         <div className="flex items-center gap-2">
           {p.provider_slug && p.is_public && (
             <Button asChild variant="outline" size="sm">
               <Link to={`/p/${p.provider_slug}`} target="_blank" rel="noreferrer">
-                <ExternalLink className="mr-1 h-4 w-4" /> Se offentlig profil
+                <ExternalLink className="mr-1 h-4 w-4" /> {t("profile.viewPublicProfile")}
               </Link>
             </Button>
           )}
           <Button size="sm" onClick={() => setOpenEditor("personal")}>
-            <Pencil className="mr-1 h-4 w-4" /> Redigér profil
+            <Pencil className="mr-1 h-4 w-4" /> {t("profile.editProfile")}
           </Button>
         </div>
       </div>
@@ -143,40 +143,40 @@ export default function ProviderProfileV2() {
       <WelcomeHeader
         greeting={greeting}
         name={firstName}
-        subtitle={p.headline ?? "Din profil styrer hvordan kunder ser dig på marketplace."}
+        subtitle={p.headline ?? t("profile.welcomeSubtitleDefault")}
         completion={p.completion_pct ?? null}
         actions={
           <div className="flex flex-wrap items-center gap-2">
-            <StatusPill label="Status" value={(p.status ?? "draft").replace(/_/g, " ")}
+            <StatusPill label={t("profile.status.label")} value={(p.status ?? "draft").replace(/_/g, " ")}
               tone={p.status === "active" ? "ok" : "warn"} />
-            <StatusPill label="Synlighed" value={p.is_public ? "Offentlig" : "Skjult"}
+            <StatusPill label={t("profile.visibility.label")} value={p.is_public ? t("profile.visibility.public") : t("profile.visibility.hidden")}
               tone={p.is_public ? "ok" : "warn"} />
           </div>
         }
       />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Fuldførte jobs" value={view.completedJobs} icon={Briefcase} />
-        <StatCard label="Års erfaring" value={p.years_experience ?? "—"} icon={Sparkles} />
-        <StatCard label="Svartid"
+        <StatCard label={t("profile.stats.completedJobs")} value={view.completedJobs} icon={Briefcase} />
+        <StatCard label={t("profile.stats.yearsExperience")} value={p.years_experience ?? "—"} icon={Sparkles} />
+        <StatCard label={t("profile.stats.responseTime")}
           value={snap.avg_response_seconds != null
-            ? `${Math.round(Number(snap.avg_response_seconds) / 60)} min`
+            ? t("profile.time.minutes", { count: Math.round(Number(snap.avg_response_seconds) / 60) })
             : "—"}
-          hint="Sidste 30 dage" />
-        <StatCard label="Accept-rate"
+          hint={t("profile.stats.responseTimeHint")} />
+        <StatCard label={t("profile.stats.acceptanceRate")}
           value={snap.acceptance_rate != null
             ? `${Math.round(Number(snap.acceptance_rate) * 100)}%` : "—"} />
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <SectionCard title="Profilbillede & identitet" action={editBtn("personal")}>
+        <SectionCard title={t("profile.sections.photoIdentity.title")} action={editBtn("personal")}>
           <div className="flex items-center gap-4">
             <span aria-hidden
               className="grid h-16 w-16 shrink-0 place-items-center rounded-full bg-primary/10 text-lg font-semibold text-primary">
               {(p.display_name ?? "?").slice(0, 2).toUpperCase()}
             </span>
             <div className="min-w-0 flex-1">
-              <p className="truncate font-display text-lg">{p.display_name ?? "Uden navn"}</p>
+              <p className="truncate font-display text-lg">{p.display_name ?? t("profile.sections.photoIdentity.noName")}</p>
               {p.headline && <p className="truncate text-sm text-muted-foreground">{p.headline}</p>}
               <div className="mt-2 flex flex-wrap gap-1.5">
                 <IdentityBadge status={identity} />
@@ -270,107 +270,107 @@ export default function ProviderProfileV2() {
       </SectionCard>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <SectionCard title="Serviceområde" action={editBtn("area")}>
+        <SectionCard title={t("profile.sections.area.title")} action={editBtn("area")}>
           <div className="space-y-2 text-sm">
             <div className="flex items-start gap-2">
               <MapPin className="mt-0.5 h-4 w-4 text-muted-foreground" />
               <div>
-                <div className="font-medium">{p.base_address_formatted ?? "Ingen adresse valgt"}</div>
+                <div className="font-medium">{p.base_address_formatted ?? t("profile.sections.area.noAddress")}</div>
                 <div className="text-xs text-muted-foreground">
-                  Kun et cirkelområde vises offentligt — aldrig præcis adresse.
+                  {t("profile.sections.area.publicNotice")}
                 </div>
               </div>
             </div>
             <div className="text-sm">
-              <span className="text-muted-foreground">Radius: </span>
-              <b>{p.service_area_radius_km != null ? `${p.service_area_radius_km} km` : "—"}</b>
+              <span className="text-muted-foreground">{t("profile.sections.area.radiusLabel")} </span>
+              <b>{p.service_area_radius_km != null ? t("profile.sections.area.radiusValue", { count: p.service_area_radius_km }) : "—"}</b>
             </div>
           </div>
         </SectionCard>
 
-        <SectionCard title="Tilgængelighed" action={editBtn("availability")}>
+        <SectionCard title={t("profile.sections.availability.title")} action={editBtn("availability")}>
           <div className="flex items-start gap-2 text-sm">
             <CalendarClock className="mt-0.5 h-4 w-4 text-muted-foreground" />
-            <p>Dit ugeskema og bookingvinduer.</p>
+            <p>{t("profile.sections.availability.description")}</p>
           </div>
           <Button variant="outline" size="sm" className="mt-3"
             onClick={() => setOpenEditor("availability")}>
-            Åbn kalender-editor
+            {t("profile.sections.availability.openCalendar")}
           </Button>
         </SectionCard>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
-        <SectionCard title="Verifikation" action={editBtn("identity")}>
+        <SectionCard title={t("profile.sections.verification.title")} action={editBtn("identity")}>
           <div className="space-y-2 text-sm">
-            <Row icon={ShieldCheck} label="Identitet"
-              value={identityOk ? "Verificeret" : "Mangler"} ok={identityOk} />
-            <Row icon={ShieldCheck} label="Stripe udbetaling"
-              value={stripeReady ? "Klar" : "Ikke klar"} ok={stripeReady} />
+            <Row icon={ShieldCheck} label={t("profile.sections.verification.identityLabel")}
+              value={identityOk ? t("profile.sections.verification.verified") : t("profile.sections.verification.missing")} ok={identityOk} />
+            <Row icon={ShieldCheck} label={t("profile.sections.verification.stripeLabel")}
+              value={stripeReady ? t("profile.sections.verification.ready") : t("profile.sections.verification.notReady")} ok={stripeReady} />
             <Button variant="link" size="sm" className="px-0 text-primary"
               onClick={() => setOpenEditor("stripe")}>
-              Åbn Stripe-status
+              {t("profile.sections.verification.openStripeStatus")}
             </Button>
           </div>
         </SectionCard>
 
-        <SectionCard title="Forsikring" action={editBtn("insurance")}>
+        <SectionCard title={t("profile.sections.insurance.title")} action={editBtn("insurance")}>
           <div className="space-y-2 text-sm">
-            <Row icon={FileBadge} label="Police" value={p.insurance_policy_number || "—"}
+            <Row icon={FileBadge} label={t("profile.sections.insurance.policyLabel")} value={p.insurance_policy_number || "—"}
               ok={!!p.insurance_policy_number} />
-            <Row icon={FileBadge} label="Udløber"
+            <Row icon={FileBadge} label={t("profile.sections.insurance.expiresLabel")}
               value={(p.insurance_expires_on as string | null) ?? "—"} ok={insuranceValid} />
           </div>
         </SectionCard>
 
-        <SectionCard title="Dokumenter" action={editBtn("documents", "Upload")}>
+        <SectionCard title={t("profile.sections.documents.title")} action={editBtn("documents", t("profile.sections.documents.uploadButton"))}>
           <div className="text-sm">
-            <Row icon={FileBadge} label="Forsikringsdokument"
-              value={p.insurance_doc_path ? "Uploadet" : "Mangler"} ok={!!p.insurance_doc_path} />
+            <Row icon={FileBadge} label={t("profile.sections.documents.insuranceDocLabel")}
+              value={p.insurance_doc_path ? t("profile.sections.documents.uploaded") : t("profile.sections.documents.missing")} ok={!!p.insurance_doc_path} />
           </div>
         </SectionCard>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <SectionCard title="Ydeevne" action={editBtn("performance", "Se detaljer")}>
+        <SectionCard title={t("profile.sections.performance.title")} action={editBtn("performance", t("profile.sections.performance.detailsButton"))}>
           <div className="grid grid-cols-2 gap-3">
-            <MiniStat label="Score" value={p.provider_score ?? "—"} />
-            <MiniStat label="Tier" value={p.provider_tier ?? "—"} />
-            <MiniStat label="Fuldførte" value={view.completedJobs} />
-            <MiniStat label="Accept-rate"
+            <MiniStat label={t("profile.sections.performance.score")} value={p.provider_score ?? "—"} />
+            <MiniStat label={t("profile.sections.performance.tier")} value={p.provider_tier ?? "—"} />
+            <MiniStat label={t("profile.sections.performance.completed")} value={view.completedJobs} />
+            <MiniStat label={t("profile.stats.acceptanceRate")}
               value={snap.acceptance_rate != null
                 ? `${Math.round(Number(snap.acceptance_rate) * 100)}%` : "—"} />
           </div>
         </SectionCard>
 
-        <ComingSoonCard title="Kundeanmeldelser"
-          description="Vises her når kunder afgiver anmeldelser på fuldførte bookings." />
+        <ComingSoonCard title={t("profile.sections.reviews.title")}
+          description={t("profile.sections.reviews.description")} />
       </div>
 
-      <SectionCard title="Skat" action={editBtn("tax", "Åbn skatteprofil")}>
+      <SectionCard title={t("profile.sections.tax.title")} action={editBtn("tax", t("profile.sections.tax.openButton"))}>
         <p className="text-sm text-muted-foreground">
-          CVR/CPR og skatte-indstillinger opdateres i sin egen editor.
+          {t("profile.sections.tax.body")}
         </p>
       </SectionCard>
 
-      <SectionCard title="Indstillinger & synlighed"
-        description="Del din profil, synlighed, konto-status og GDPR."
-        action={editBtn("settings", "Åbn")}>
+      <SectionCard title={t("profile.sections.settings.title")}
+        description={t("profile.sections.settings.description")}
+        action={editBtn("settings", t("profile.sections.settings.openButton"))}>
         <div className="flex items-center justify-between gap-3">
           <div className="min-w-0">
-            <div className="text-xs uppercase tracking-widest text-muted-foreground">Offentlig URL</div>
+            <div className="text-xs uppercase tracking-widest text-muted-foreground">{t("profile.sections.settings.publicUrlLabel")}</div>
             <code className="block truncate text-sm">
-              {p.provider_slug ? `/p/${p.provider_slug}` : "Ikke tildelt endnu"}
+              {p.provider_slug ? `/p/${p.provider_slug}` : t("profile.sections.settings.notAssigned")}
             </code>
           </div>
           {p.provider_slug && p.is_public ? (
             <Button asChild size="sm">
               <Link to={`/p/${p.provider_slug}`} target="_blank" rel="noreferrer">
-                <ExternalLink className="mr-1 h-4 w-4" /> Åbn
+                <ExternalLink className="mr-1 h-4 w-4" /> {t("profile.sections.settings.openButton")}
               </Link>
             </Button>
           ) : (
-            <Badge variant="outline">{p.provider_slug ? "Skjult" : <><Star className="mr-1 h-3 w-3 inline" />Afventer</>}</Badge>
+            <Badge variant="outline">{p.provider_slug ? t("profile.sections.settings.hidden") : <><Star className="mr-1 h-3 w-3 inline" />{t("profile.sections.settings.pending")}</>}</Badge>
           )}
         </div>
       </SectionCard>
@@ -380,56 +380,56 @@ export default function ProviderProfileV2() {
         <>
           <SectionEditDialog
             open={openEditor === "personal"} onOpenChange={(o) => o || closeEditor()}
-            title="Personlige oplysninger" dirty={editor.isDirty} saving={editor.saving}
+            title={t("profile.editors.personal")} dirty={editor.isDirty} saving={editor.saving}
             onSave={handleSave}>
             <PersonalEditor pp={editor.pp} patch={editor.patch} />
           </SectionEditDialog>
 
           <SectionEditDialog
             open={openEditor === "business"} onOpenChange={(o) => o || closeEditor()}
-            title="Om mig" dirty={editor.isDirty} saving={editor.saving} onSave={handleSave}>
+            title={t("profile.editors.business")} dirty={editor.isDirty} saving={editor.saving} onSave={handleSave}>
             <BusinessEditor pp={editor.pp} patch={editor.patch} />
           </SectionEditDialog>
 
           <SectionEditDialog
             open={openEditor === "languages"} onOpenChange={(o) => o || closeEditor()}
-            title="Sprog" dirty={editor.isDirty} saving={editor.saving} onSave={handleSave}>
+            title={t("profile.editors.languages")} dirty={editor.isDirty} saving={editor.saving} onSave={handleSave}>
             <LanguagesEditor pp={editor.pp} patch={editor.patch} />
           </SectionEditDialog>
 
           <SectionEditDialog
             open={openEditor === "equipment"} onOpenChange={(o) => o || closeEditor()}
-            title="Udstyr" dirty={editor.isDirty} saving={editor.saving} onSave={handleSave}>
+            title={t("profile.editors.equipment")} dirty={editor.isDirty} saving={editor.saving} onSave={handleSave}>
             <EquipmentEditor pp={editor.pp} patch={editor.patch} />
           </SectionEditDialog>
 
           <SectionEditDialog
             open={openEditor === "services"} onOpenChange={(o) => o || closeEditor()}
-            title="Servicekategorier" dirty={editor.isDirty} saving={editor.saving} onSave={handleSave}>
+            title={t("profile.editors.services")} dirty={editor.isDirty} saving={editor.saving} onSave={handleSave}>
             <ServicesEditor pp={editor.pp} patch={editor.patch} />
           </SectionEditDialog>
 
           <SectionEditDialog
             open={openEditor === "pricing"} onOpenChange={(o) => o || closeEditor()}
-            title="Priser" dirty={editor.isDirty} saving={editor.saving} onSave={handleSave}>
+            title={t("profile.editors.pricing")} dirty={editor.isDirty} saving={editor.saving} onSave={handleSave}>
             <PricingEditor pp={editor.pp} patch={editor.patch} />
           </SectionEditDialog>
 
           <SectionEditDialog
             open={openEditor === "area"} onOpenChange={(o) => o || closeEditor()}
-            title="Serviceområde" dirty={editor.isDirty} saving={editor.saving} onSave={handleSave}>
+            title={t("profile.editors.area")} dirty={editor.isDirty} saving={editor.saving} onSave={handleSave}>
             <AreaEditor pp={editor.pp} patch={editor.patch} />
           </SectionEditDialog>
 
           <SectionEditDialog
             open={openEditor === "insurance"} onOpenChange={(o) => o || closeEditor()}
-            title="Forsikring" dirty={editor.isDirty} saving={editor.saving} onSave={handleSave}>
+            title={t("profile.editors.insurance")} dirty={editor.isDirty} saving={editor.saving} onSave={handleSave}>
             <InsuranceEditor pp={editor.pp} patch={editor.patch} />
           </SectionEditDialog>
 
           <SectionEditDialog
             open={openEditor === "settings"} onOpenChange={(o) => o || closeEditor()}
-            title="Indstillinger" dirty={editor.isDirty} saving={editor.saving} onSave={handleSave}>
+            title={t("profile.editors.settings")} dirty={editor.isDirty} saving={editor.saving} onSave={handleSave}>
             <SettingsEditor pp={editor.pp} patch={editor.patch} onReload={editor.reload} />
           </SectionEditDialog>
         </>
@@ -437,60 +437,60 @@ export default function ProviderProfileV2() {
 
       <SectionEditDialog
         open={openEditor === "availability"} onOpenChange={(o) => o || closeEditor()}
-        title="Tilgængelighed" showFooter={false}>
+        title={t("profile.editors.availability")} showFooter={false}>
         {openEditor === "availability" && <AvailabilityEditor />}
       </SectionEditDialog>
 
       <SectionEditDialog
         open={openEditor === "identity"} onOpenChange={(o) => o || closeEditor()}
-        title="Verifikation" showFooter={false}>
+        title={t("profile.editors.identity")} showFooter={false}>
         {openEditor === "identity" && <IdentityEditor />}
       </SectionEditDialog>
 
       <SectionEditDialog
         open={openEditor === "stripe"} onOpenChange={(o) => o || closeEditor()}
-        title="Stripe & udbetaling" showFooter={false}>
+        title={t("profile.editors.stripe")} showFooter={false}>
         {openEditor === "stripe" && <StripeEditor />}
       </SectionEditDialog>
 
       <SectionEditDialog
         open={openEditor === "documents"} onOpenChange={(o) => o || closeEditor()}
-        title="Dokumenter" showFooter={false}>
+        title={t("profile.editors.documents")} showFooter={false}>
         {openEditor === "documents" && <DocumentsEditor />}
       </SectionEditDialog>
 
       <SectionEditDialog
         open={openEditor === "tax"} onOpenChange={(o) => o || closeEditor()}
-        title="Skatteoplysninger" showFooter={false}>
+        title={t("profile.editors.tax")} showFooter={false}>
         {openEditor === "tax" && <TaxEditor />}
       </SectionEditDialog>
 
       <SectionEditDialog
         open={openEditor === "performance"} onOpenChange={(o) => o || closeEditor()}
-        title="Ydeevne & score" showFooter={false}>
+        title={t("profile.editors.performance.title")} showFooter={false}>
         {openEditor === "performance" && (
           <div className="space-y-3 text-sm">
             <div className="grid grid-cols-2 gap-3">
-              <MiniStat label="Score" value={p.provider_score ?? "—"} />
-              <MiniStat label="Tier" value={p.provider_tier ?? "—"} />
-              <MiniStat label="Fuldførte" value={view.completedJobs} />
-              <MiniStat label="Rating"
+              <MiniStat label={t("profile.sections.performance.score")} value={p.provider_score ?? "—"} />
+              <MiniStat label={t("profile.sections.performance.tier")} value={p.provider_tier ?? "—"} />
+              <MiniStat label={t("profile.sections.performance.completed")} value={view.completedJobs} />
+              <MiniStat label={t("profile.editors.performance.rating")}
                 value={snap.avg_rating != null ? Number(snap.avg_rating).toFixed(2) : "—"} />
-              <MiniStat label="Accept-rate"
+              <MiniStat label={t("profile.stats.acceptanceRate")}
                 value={snap.acceptance_rate != null
                   ? `${Math.round(Number(snap.acceptance_rate) * 100)}%` : "—"} />
-              <MiniStat label="Fuldførelse"
+              <MiniStat label={t("profile.editors.performance.completionRate")}
                 value={snap.completion_rate != null
                   ? `${Math.round(Number(snap.completion_rate) * 100)}%` : "—"} />
-              <MiniStat label="Aflysninger"
+              <MiniStat label={t("profile.editors.performance.cancellations")}
                 value={snap.cancellation_rate != null
                   ? `${Math.round(Number(snap.cancellation_rate) * 100)}%` : "—"} />
-              <MiniStat label="Gengangere"
+              <MiniStat label={t("profile.editors.performance.repeatCustomers")}
                 value={snap.repeat_customer_rate != null
                   ? `${Math.round(Number(snap.repeat_customer_rate) * 100)}%` : "—"} />
             </div>
             <p className="text-xs text-muted-foreground">
-              Score og tier opdateres automatisk baseret på dine seneste 30 dage.
+              {t("profile.editors.performance.note")}
             </p>
           </div>
         )}
@@ -514,9 +514,10 @@ function StatusPill({ label, value, tone }: {
 }
 
 function IdentityBadge({ status }: { status: string }) {
+  const { t } = useTranslation("provider");
   const ok = status === "approved";
   const pending = status === "pending" || status === "on_hold";
-  const label = ok ? "Verificeret" : pending ? "Under review" : "Ikke verificeret";
+  const label = ok ? t("profile.identityBadge.verified") : pending ? t("profile.identityBadge.pending") : t("profile.identityBadge.unverified");
   return (
     <Badge variant={ok ? "default" : "outline"} className="gap-1">
       <ShieldCheck className="h-3 w-3" /> {label}

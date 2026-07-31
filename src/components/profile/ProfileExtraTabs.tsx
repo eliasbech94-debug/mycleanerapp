@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Bell, Loader2, MessageSquare, PiggyBank, Receipt, ShieldOff, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -56,6 +57,7 @@ const DEFAULT_PREFS: Prefs = { email: true, push: true, sms: false, marketing: f
 
 /* ---------- NOTIFIKATIONER ---------- */
 export function NotificationsTab() {
+  const { t } = useTranslation("customer");
   const { user } = useAuth();
   const [prefs, setPrefs] = useState<Prefs>(DEFAULT_PREFS);
   const [loading, setLoading] = useState(true);
@@ -80,37 +82,37 @@ export function NotificationsTab() {
     setSaving(true);
     const { error } = await supabase.from("profiles").update({ notification_prefs: next } as any).eq("id", user.id);
     setSaving(false);
-    if (error) toast.error("Kunne ikke gemme"); else toast.success("Gemt");
+    if (error) toast.error(t("surfaces.profileExtra.saveFailed")); else toast.success(t("surfaces.profileExtra.saved"));
   }
 
   async function enablePush() {
-    if (typeof Notification === "undefined") { toast.error("Push understøttes ikke i denne browser"); return; }
+    if (typeof Notification === "undefined") { toast.error(t("surfaces.profileExtra.pushUnsupported")); return; }
     const perm = await Notification.requestPermission();
     setPushStatus(perm);
     if (perm === "granted") save({ ...prefs, push: true });
-    else toast.error("Push blev afvist");
+    else toast.error(t("surfaces.profileExtra.pushDenied"));
   }
 
   if (loading) return <div className="grid place-items-center py-16"><Loader2 className="h-6 w-6 animate-spin" /></div>;
 
   return (
-    <Card title="Notifikationer" icon={Bell}>
+    <Card title={t("surfaces.profileExtra.notifications.title")} icon={Bell}>
       <div className="space-y-3">
         <Toggle
-          label="Email-notifikationer"
-          hint="Kvitteringer, bookingopdateringer og påmindelser."
+          label={t("surfaces.profileExtra.notifications.email")}
+          hint={t("surfaces.profileExtra.notifications.emailHint")}
           value={prefs.email}
           onChange={(v) => save({ ...prefs, email: v })}
           disabled={saving}
         />
         <Toggle
-          label="Push-notifikationer"
+          label={t("surfaces.profileExtra.notifications.push")}
           hint={
             pushStatus === "denied"
-              ? "Blokeret i browseren — aktivér i browser-indstillinger."
+              ? t("surfaces.profileExtra.notifications.pushBlocked")
               : pushStatus !== "granted"
-              ? "Tillad browseren at vise push."
-              : "Aktive i denne browser."
+              ? t("surfaces.profileExtra.notifications.pushAllow")
+              : t("surfaces.profileExtra.notifications.pushActive")
           }
           value={prefs.push && pushStatus === "granted"}
           onChange={(v) => {
@@ -120,8 +122,8 @@ export function NotificationsTab() {
           disabled={saving || pushStatus === "denied"}
         />
         <Toggle
-          label="Marketing & nyheder"
-          hint="Tilbud, tips og produktnyt. Maks 1× pr. måned."
+          label={t("surfaces.profileExtra.marketingNotifications")}
+          hint={t("surfaces.profileExtra.notifications.marketingHint")}
           value={prefs.marketing}
           onChange={(v) => save({ ...prefs, marketing: v })}
           disabled={saving}
@@ -133,6 +135,7 @@ export function NotificationsTab() {
 
 /* ---------- SMS ---------- */
 export function SmsTab() {
+  const { t } = useTranslation("customer");
   const { user } = useAuth();
   const [phone, setPhone] = useState("");
   const [verifiedPhone, setVerifiedPhone] = useState<string | null>(null);
@@ -185,7 +188,7 @@ export function SmsTab() {
   }
 
   async function sendCode() {
-    if (!/^\+?[0-9\s\-()]{7,}$/.test(phone)) { toast.error("Ugyldigt telefonnummer"); return; }
+    if (!/^\+?[0-9\s\-()]{7,}$/.test(phone)) { toast.error(t("surfaces.profileExtra.sms.invalidPhone")); return; }
     setSending(true);
     // If the number differs from what's already verified, revoke the old
     // verification server-side BEFORE sending a new code. That way the old
@@ -193,47 +196,47 @@ export function SmsTab() {
     if (phoneChanged) await revokeStoredVerification();
     const { data, error } = await supabase.functions.invoke("sms-send-code", { body: { phone } });
     setSending(false);
-    if (error || (data as any)?.error) { toast.error((data as any)?.error || "Kunne ikke sende kode"); return; }
+    if (error || (data as any)?.error) { toast.error((data as any)?.error || t("surfaces.profileExtra.sms.sendFailed")); return; }
     setStep("sent");
     setDevCode((data as any)?.dev_code ?? null);
-    toast.success("Kode sendt");
+    toast.success(t("surfaces.profileExtra.sms.codeSent"));
   }
 
   async function verifyCode() {
     setVerifying(true);
     const { data, error } = await supabase.functions.invoke("sms-verify-code", { body: { phone, code } });
     setVerifying(false);
-    if (error || (data as any)?.error) { toast.error((data as any)?.error || "Verifikation fejlede"); return; }
+    if (error || (data as any)?.error) { toast.error((data as any)?.error || t("surfaces.profileExtra.sms.verifyFailed")); return; }
     setVerifiedPhone((data as any).phone);
     setVerifiedAt((data as any).verified_at);
     setStep("idle");
     setCode("");
     setDevCode(null);
-    toast.success("Telefonnummer verificeret");
+    toast.success(t("surfaces.profileExtra.sms.verified"));
   }
 
   async function savePrefs() {
     if (!user) return;
-    if (phoneChanged) { toast.error("Verificér det nye nummer først"); return; }
-    if (enabled && !isVerified) { toast.error("Verificér telefonnummeret først"); return; }
+    if (phoneChanged) { toast.error(t("surfaces.profileExtra.sms.verifyNewFirst")); return; }
+    if (enabled && !isVerified) { toast.error(t("surfaces.profileExtra.sms.verifyFirst")); return; }
     setSaving(true);
     const { data: current } = await supabase.from("profiles").select("notification_prefs").eq("id", user.id).maybeSingle();
     const prefs = { ...DEFAULT_PREFS, ...((current as any)?.notification_prefs || {}), sms: enabled };
     const { error } = await supabase.from("profiles").update({ notification_prefs: prefs } as any).eq("id", user.id);
     setSaving(false);
-    if (error) toast.error("Kunne ikke gemme"); else toast.success("Gemt");
+    if (error) toast.error(t("surfaces.profileExtra.saveFailed")); else toast.success(t("surfaces.profileExtra.saved"));
   }
 
   if (loading) return <div className="grid place-items-center py-16"><Loader2 className="h-6 w-6 animate-spin" /></div>;
 
   return (
-    <Card title="SMS-notifikationer" icon={MessageSquare}>
+    <Card title={t("surfaces.profileExtra.sms.title")} icon={MessageSquare}>
       <p className="mb-5 text-sm opacity-75">
-        Modtag SMS ved bookingbekræftelser, ændringer og påmindelser 24 timer før. Almindelige takster kan gælde.
+        {t("surfaces.profileExtra.sms.description")}
       </p>
       <div className="space-y-3">
         <div>
-          <label className="mb-1 block text-xs font-bold uppercase tracking-wider opacity-70">Telefonnummer</label>
+          <label className="mb-1 block text-xs font-bold uppercase tracking-wider opacity-70">{t("surfaces.profileExtra.sms.phone")}</label>
           <div className="flex gap-2">
             <input
               type="tel"
@@ -248,7 +251,7 @@ export function SmsTab() {
                 className="grid shrink-0 place-items-center rounded-xl px-4 text-xs font-bold uppercase tracking-wider"
                 style={{ background: `${C.mint}`, color: C.ink }}
               >
-                Verificeret
+                {t("surfaces.profileExtra.sms.verified")}
               </span>
             ) : (
               <button
@@ -257,12 +260,12 @@ export function SmsTab() {
                 className="shrink-0 rounded-xl px-4 py-3 text-xs font-bold uppercase tracking-wider disabled:opacity-50"
                 style={{ background: C.orange, color: "#fff" }}
               >
-                {sending ? "Sender…" : step === "sent" ? "Send igen" : "Send kode"}
+                {sending ? t("surfaces.profileExtra.sms.sending") : step === "sent" ? t("surfaces.profileExtra.sms.resend") : t("surfaces.profileExtra.sms.sendCode")}
               </button>
             )}
           </div>
           {verifiedAt && isVerified && (
-            <p className="mt-1 text-xs opacity-70">Verificeret {new Date(verifiedAt).toLocaleDateString("da-DK")}</p>
+            <p className="mt-1 text-xs opacity-70">{t("surfaces.profileExtra.sms.verified")} {new Date(verifiedAt).toLocaleDateString("da-DK")}</p>
           )}
           {phoneChanged && (
             <div
@@ -270,15 +273,14 @@ export function SmsTab() {
               className="mt-2 rounded-xl border-2 px-3 py-2 text-xs"
               style={{ borderColor: `${C.orange}66`, background: `${C.orange}14`, color: C.ink }}
             >
-              Du har ændret telefonnummer — det gamle nummer er ikke længere godkendt.
-              Send og indtast en ny kode for at aktivere det nye nummer.
+              {t("surfaces.profileExtra.sms.numberChanged")}
             </div>
           )}
         </div>
 
         {step === "sent" && !isVerified && (
           <div className="rounded-2xl border-2 p-4" style={{ borderColor: `${C.teal}55`, background: `${C.teal}0f` }}>
-            <label className="mb-1 block text-xs font-bold uppercase tracking-wider opacity-70">Indtast 6-cifret kode</label>
+            <label className="mb-1 block text-xs font-bold uppercase tracking-wider opacity-70">{t("surfaces.profileExtra.sms.enterCode")}</label>
             <div className="flex gap-2">
               <input
                 inputMode="numeric"
@@ -295,24 +297,24 @@ export function SmsTab() {
                 className="shrink-0 rounded-xl px-4 py-3 text-xs font-bold uppercase tracking-wider disabled:opacity-50"
                 style={{ background: C.ink, color: C.cream }}
               >
-                {verifying ? "Tjekker…" : "Bekræft"}
+                {verifying ? t("surfaces.profileExtra.sms.checking") : t("surfaces.profileExtra.sms.confirm")}
               </button>
             </div>
-            <p className="mt-2 text-xs opacity-70">Koden udløber om 10 minutter.</p>
+            <p className="mt-2 text-xs opacity-70">{t("surfaces.profileExtra.sms.codeExpires")}</p>
             {devCode && (
               <p className="mt-2 text-xs" style={{ color: C.orange }}>
-                Udvikling: kode = <strong>{devCode}</strong> (SMS-udbyder endnu ikke tilsluttet)
+                {t("surfaces.profileExtra.sms.devCode")} <strong>{devCode}</strong> {t("surfaces.profileExtra.sms.devCodeNote")}
               </p>
             )}
           </div>
         )}
 
         <Toggle
-          label="Aktivér SMS"
-          hint={isVerified ? "Kun kritiske beskeder — aldrig marketing." : "Verificér dit nummer for at kunne aktivere."}
+          label={t("surfaces.profileExtra.sms.enable")}
+          hint={isVerified ? t("surfaces.profileExtra.sms.criticalOnly") : t("surfaces.profileExtra.sms.verifyToEnable")}
           value={enabled}
           onChange={(v) => {
-            if (v && !isVerified) { toast.error("Verificér telefonnummeret først"); return; }
+            if (v && !isVerified) { toast.error(t("surfaces.profileExtra.sms.verifyFirst")); return; }
             setEnabled(v);
           }}
           disabled={saving || !isVerified}
@@ -324,7 +326,7 @@ export function SmsTab() {
           className="rounded-xl px-5 py-3 text-sm font-bold uppercase tracking-wider disabled:opacity-50"
           style={{ background: C.ink, color: C.cream }}
         >
-          {saving ? "Gemmer…" : "Gem SMS-indstillinger"}
+          {saving ? t("surfaces.profileExtra.sms.saving") : t("surfaces.profileExtra.sms.saveSettings")}
         </button>
       </div>
     </Card>
@@ -333,6 +335,7 @@ export function SmsTab() {
 
 /* ---------- SKATTEOPLYSNINGER (pgcrypto server-side) ---------- */
 export function TaxTab() {
+  const { t } = useTranslation("customer");
   const { user } = useAuth();
   const [taxId, setTaxId] = useState("");
   const [municipality, setMunicipality] = useState("");
@@ -363,14 +366,14 @@ export function TaxTab() {
   async function save() {
     if (!user) return;
     setError(null);
-    if (!municipality) { setError("Vælg din skattekommune"); return; }
-    if (!DK_MUNICIPALITIES.includes(municipality)) { setError("Ukendt kommune — vælg fra listen"); return; }
+    if (!municipality) { setError(t("surfaces.profileExtra.tax.selectMunicipality")); return; }
+    if (!DK_MUNICIPALITIES.includes(municipality)) { setError(t("surfaces.profileExtra.tax.unknownMunicipality")); return; }
 
     let normalized: string | undefined;
     if (taxId.trim() || !hasStored) {
-      if (!taxId.trim()) { setError(type === "private" ? "Indtast CPR-nummer" : "Indtast CVR-nummer"); return; }
+      if (!taxId.trim()) { setError(type === "private" ? t("surfaces.profileExtra.tax.enterCpr") : t("surfaces.profileExtra.tax.enterCvr")); return; }
       const v = type === "private" ? validateCPR(taxId) : validateCVR(taxId);
-      if (!v.ok || !v.normalized) { setError(v.error || "Ugyldigt nummer"); return; }
+      if (!v.ok || !v.normalized) { setError(v.error || t("surfaces.profileExtra.tax.invalidNumber")); return; }
       normalized = v.normalized;
     }
 
@@ -380,20 +383,20 @@ export function TaxTab() {
       body: { tax_id: normalized, tax_municipality: municipality, tax_type: type },
     });
     setSaving(false);
-    if (err || data?.error) { toast.error("Kunne ikke gemme skatteoplysninger"); return; }
-    toast.success("Skatteoplysninger gemt");
+    if (err || data?.error) { toast.error(t("surfaces.profileExtra.tax.saveFailed")); return; }
+    toast.success(t("surfaces.profileExtra.tax.saved"));
     setTaxId("");
     await load();
   }
 
   async function remove() {
     if (!user) return;
-    if (!window.confirm("Slet dine skatteoplysninger permanent?")) return;
+    if (!window.confirm(t("surfaces.profileExtra.tax.confirmDelete"))) return;
     setDeleting(true);
     const { error: err } = await supabase.functions.invoke("profile-tax-id", { method: "DELETE" });
     setDeleting(false);
-    if (err) { toast.error("Kunne ikke slette"); return; }
-    toast.success("Skatteoplysninger slettet");
+    if (err) { toast.error(t("surfaces.profileExtra.tax.deleteFailed")); return; }
+    toast.success(t("surfaces.profileExtra.tax.deleted"));
     setStoredLast4(null); setHasStored(false); setMunicipality(""); setType("private"); setTaxId("");
   }
 
@@ -402,28 +405,28 @@ export function TaxTab() {
   const stored = hasStored && storedLast4 ? `••••${storedLast4}` : "";
 
   return (
-    <Card title="Skatteoplysninger" icon={Receipt}>
+    <Card title={t("surfaces.profileExtra.tax.title")} icon={Receipt}>
       <p className="mb-5 text-sm opacity-75">
-        Bruges til årsopgørelse, servicefradrag og korrekt indberetning. Dine oplysninger gemmes krypteret og deles aldrig med tredjepart.
+        {t("surfaces.profileExtra.tax.description")}
       </p>
       <div className="space-y-4">
         <div>
-          <label className="mb-1 block text-xs font-bold uppercase tracking-wider opacity-70">Type</label>
+          <label className="mb-1 block text-xs font-bold uppercase tracking-wider opacity-70">{t("surfaces.profileExtra.tax.type")}</label>
           <div className="flex gap-2">
-            {(["private", "business"] as const).map((t) => (
+            {(["private", "business"] as const).map((opt) => (
               <button
-                key={t}
+                key={opt}
                 type="button"
-                onClick={() => setType(t)}
-                aria-pressed={type === t}
+                onClick={() => setType(opt)}
+                aria-pressed={type === opt}
                 className="flex-1 rounded-xl border-2 px-4 py-3 text-sm font-bold"
                 style={{
-                  borderColor: type === t ? C.teal : `${C.ink}22`,
-                  background: type === t ? `${C.teal}18` : "#fff",
+                  borderColor: type === opt ? C.teal : `${C.ink}22`,
+                  background: type === opt ? `${C.teal}18` : "#fff",
                   color: C.ink,
                 }}
               >
-                {t === "private" ? "Privatperson (CPR)" : "Virksomhed (CVR)"}
+                {opt === "private" ? t("surfaces.profileExtra.tax.private") : t("surfaces.profileExtra.tax.business")}
               </button>
             ))}
           </div>
@@ -431,8 +434,8 @@ export function TaxTab() {
 
         <div>
           <label htmlFor="tax-id" className="mb-1 block text-xs font-bold uppercase tracking-wider opacity-70">
-            {type === "private" ? "CPR-nummer" : "CVR-nummer"}
-            {hasStored && <span className="ml-2 rounded-full px-2 py-0.5 text-[10px]" style={{ background: `${C.mint}88`, color: C.ink }}>Gemt: {stored}</span>}
+            {type === "private" ? t("surfaces.profileExtra.tax.cprNumber") : t("surfaces.profileExtra.tax.cvrNumber")}
+            {hasStored && <span className="ml-2 rounded-full px-2 py-0.5 text-[10px]" style={{ background: `${C.mint}88`, color: C.ink }}>{t("surfaces.profileExtra.tax.savedLabel")} {stored}</span>}
           </label>
           <input
             id="tax-id"
@@ -441,7 +444,7 @@ export function TaxTab() {
             autoComplete="off"
             value={taxId}
             onChange={(e) => { setTaxId(e.target.value); setError(null); }}
-            placeholder={hasStored ? "Udfyld for at ændre" : type === "private" ? "010190-1234" : "12345678"}
+            placeholder={hasStored ? t("surfaces.profileExtra.tax.fillToChange") : type === "private" ? "010190-1234" : "12345678"}
             maxLength={type === "private" ? 11 : 8}
             className="w-full rounded-xl border-2 bg-white px-4 py-3 text-sm"
             style={{ borderColor: `${C.ink}22`, color: C.ink }}
@@ -449,14 +452,14 @@ export function TaxTab() {
         </div>
 
         <div>
-          <label htmlFor="tax-muni" className="mb-1 block text-xs font-bold uppercase tracking-wider opacity-70">Skattekommune</label>
+          <label htmlFor="tax-muni" className="mb-1 block text-xs font-bold uppercase tracking-wider opacity-70">{t("surfaces.profileExtra.tax.municipality")}</label>
           <input
             id="tax-muni"
             list="dk-municipalities"
             type="text"
             value={municipality}
             onChange={(e) => { setMunicipality(e.target.value); setError(null); }}
-            placeholder="fx København"
+            placeholder={t("surfaces.profileExtra.tax.municipalityPlaceholder")}
             className="w-full rounded-xl border-2 bg-white px-4 py-3 text-sm"
             style={{ borderColor: `${C.ink}22`, color: C.ink }}
           />
@@ -472,7 +475,7 @@ export function TaxTab() {
         )}
 
         <div className="rounded-xl p-4 text-xs" style={{ background: `${C.mint}55`, color: C.ink }}>
-          Tip: Se din årsopgørelse og forskudsregistrering på{" "}
+          {t("surfaces.profileExtra.tax.tip")}{" "}
           <a href="https://skat.dk" target="_blank" rel="noreferrer" className="underline">skat.dk</a>.
         </div>
 
@@ -483,7 +486,7 @@ export function TaxTab() {
             className="rounded-xl px-5 py-3 text-sm font-bold uppercase tracking-wider disabled:opacity-50"
             style={{ background: C.ink, color: C.cream }}
           >
-            {saving ? "Gemmer…" : hasStored ? "Opdatér" : "Gem"}
+            {saving ? t("surfaces.profileExtra.tax.saving") : hasStored ? t("surfaces.profileExtra.tax.update") : t("surfaces.profileExtra.tax.save")}
           </button>
           {hasStored && (
             <button
@@ -492,7 +495,7 @@ export function TaxTab() {
               className="rounded-xl border-2 px-5 py-3 text-sm font-bold uppercase tracking-wider disabled:opacity-50"
               style={{ borderColor: `${C.orange}66`, color: C.orange, background: "#fff" }}
             >
-              {deleting ? "Sletter…" : "Slet"}
+              {deleting ? t("surfaces.profileExtra.tax.deleting") : t("surfaces.profileExtra.tax.delete")}
             </button>
           )}
         </div>

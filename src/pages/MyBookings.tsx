@@ -4,6 +4,7 @@ import { ArrowLeft, Calendar, Clock, Loader2, MapPin, Sparkles } from "lucide-re
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import CleaningPlanPanel from "@/components/booking/CleaningPlanPanel";
+import { useTranslation } from "react-i18next";
 
 const C = { ink: "#0a3d3a", orange: "#ff6b35", cream: "#f5f0e0", teal: "#168a7a", mint: "#c8e6c0" };
 
@@ -64,6 +65,7 @@ const STATUS_LABEL: Record<
 };
 
 export default function MyBookings() {
+  const { t } = useTranslation("common");
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const [bookings, setBookings] = useState<Booking[] | null>(null);
@@ -106,21 +108,21 @@ export default function MyBookings() {
           <Link to="/" className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em]">
             <ArrowLeft className="h-4 w-4" /> Tilbage
           </Link>
-          <div className="text-[10px] font-black uppercase tracking-[0.28em] opacity-70">Mine bookinger</div>
+          <div className="text-[10px] font-black uppercase tracking-[0.28em] opacity-70">{t("ui.myBookings.headerTitle")}</div>
           <div className="w-16" />
         </div>
       </header>
 
       <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
-        <h1 className="font-display text-3xl sm:text-4xl">Dine bookinger</h1>
-        <p className="mt-2 text-sm opacity-70">Her følger du dine bookingforespørgsler og bekræftede bookinger.</p>
+        <h1 className="font-display text-3xl sm:text-4xl">{t("ui.myBookings.pageTitle")}</h1>
+        <p className="mt-2 text-sm opacity-70">{t("ui.myBookings.pageSubtitle")}</p>
 
         <div className="mt-8 space-y-3">
           {bookings === null && <div className="opacity-60 text-sm">Henter dine bookinger…</div>}
           {bookings && bookings.length === 0 && (
             <div className="rounded-2xl border-2 border-dashed bg-white p-8 text-center" style={{ borderColor: `${C.ink}33` }}>
-              <div className="font-display text-xl">Du har ingen bookinger endnu</div>
-              <p className="mt-2 text-sm opacity-70">Find en cleaner, og book direkte i providerens kalender.</p>
+              <div className="font-display text-xl">{t("ui.myBookings.emptyTitle")}</div>
+              <p className="mt-2 text-sm opacity-70">{t("ui.myBookings.emptyBody")}</p>
               <Link to="/" className="mt-4 inline-flex rounded-full px-5 py-2.5 text-xs font-bold uppercase tracking-[0.18em]" style={{ background: C.orange, color: C.ink }}>
                 Find en cleaner
               </Link>
@@ -177,7 +179,7 @@ export default function MyBookings() {
                       <div className="inline-flex items-start gap-2 opacity-80"><MapPin className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" /> {b.address}</div>
                     </div>
                     <div className="mt-3 border-t border-dashed pt-3 text-xs flex items-baseline justify-between" style={{ borderColor: `${C.ink}22` }}>
-                      <span className="opacity-60">Samlet pris inkl. platformgebyr</span>
+                      <span className="opacity-60">{t("ui.myBookings.totalWithFee")}</span>
                       <span className="font-display text-base">{b.customer_pays.toLocaleString("da-DK")} {b.currency}</span>
                     </div>
                   </>
@@ -192,7 +194,7 @@ export default function MyBookings() {
                         addressPlaceId={b.address_place_id}
                       />
                     ) : (
-                      <div className="text-xs opacity-70">Rengøringsplan er ikke tilgængelig for denne booking.</div>
+                      <div className="text-xs opacity-70">{t("ui.myBookings.planUnavailable")}</div>
                     )}
                   </div>
                 )}

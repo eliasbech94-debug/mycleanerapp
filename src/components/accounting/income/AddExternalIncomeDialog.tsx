@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { AlertTriangle } from "lucide-react";
 import {
   Dialog,
@@ -48,9 +49,6 @@ export interface AddExternalIncomeDialogProps {
   onSubmit: (item: ExternalIncomeInput) => void;
 }
 
-/** UI suggestions only. No platform ever carries a tax rule of its own. */
-const PLATFORM_SUGGESTIONS = ["Platform A", "Platform B", "Platform C"];
-
 export default function AddExternalIncomeDialog({
   open,
   onOpenChange,
@@ -60,6 +58,12 @@ export default function AddExternalIncomeDialog({
   existing,
   onSubmit,
 }: AddExternalIncomeDialogProps) {
+  const { t } = useTranslation("finance");
+  const PLATFORM_SUGGESTIONS = [
+    t("ui.income.add.platformSuggestionA"),
+    t("ui.income.add.platformSuggestionB"),
+    t("ui.income.add.platformSuggestionC"),
+  ];
   const [sourceType, setSourceType] = useState<ExternalIncomeSourceType>("other_platform");
   const [platformName, setPlatformName] = useState("");
   const [customerReference, setCustomerReference] = useState("");
@@ -187,17 +191,17 @@ export default function AddExternalIncomeDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Tilføj indkomst</DialogTitle>
+          <DialogTitle>{t("ui.income.add.title")}</DialogTitle>
           <DialogDescription>{EXTERNAL_INCOME_RESPONSIBILITY_TEXT}</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
-          <Field label="Hvor kommer indkomsten fra?">
+          <Field label={t("ui.income.add.sourceLabel")}>
             <Select
               value={sourceType}
               onValueChange={(v) => setSourceType(v as ExternalIncomeSourceType)}
             >
-              <SelectTrigger aria-label="Indkomstkilde">
+              <SelectTrigger aria-label={t("ui.income.add.sourceAriaLabel")}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -221,7 +225,7 @@ export default function AddExternalIncomeDialog({
           )}
 
           {isPlatform && (
-            <Field label="Platformens navn" hint="Forslag — skriv gerne et andet navn.">
+            <Field label={t("ui.income.add.platformName")} hint={t("ui.income.add.platformNameHint")}>
               <Input
                 list="platform-suggestions"
                 value={platformName}
@@ -237,8 +241,8 @@ export default function AddExternalIncomeDialog({
 
           {(isOwnCustomer || isCash) && (
             <Field
-              label="Kundereference"
-              hint="Brug en intern reference frem for fuldt navn, når det er nok."
+              label={t("ui.income.add.customerReference")}
+              hint={t("ui.income.add.customerReferenceHint")}
             >
               <Input
                 value={customerReference}
@@ -248,51 +252,51 @@ export default function AddExternalIncomeDialog({
           )}
 
           {isOwnCustomer && (
-            <Field label="Fakturanummer">
+            <Field label={t("ui.income.add.invoiceNumber")}>
               <Input value={invoiceNumber} onChange={(e) => setInvoiceNumber(e.target.value)} />
             </Field>
           )}
 
           <div className="grid grid-cols-2 gap-3">
-            <Field label="Dato for indkomst">
+            <Field label={t("ui.income.add.incomeDate")}>
               <Input
                 type="date"
                 value={incomeDate}
                 onChange={(e) => setIncomeDate(e.target.value)}
               />
             </Field>
-            <Field label="Udbetalingsdato">
+            <Field label={t("ui.income.add.payoutDate")}>
               <Input
                 type="date"
                 value={payoutDate}
                 onChange={(e) => setPayoutDate(e.target.value)}
               />
             </Field>
-            <Field label="Serviceperiode fra">
+            <Field label={t("ui.income.add.serviceFrom")}>
               <Input
                 type="date"
                 value={serviceFrom}
                 onChange={(e) => setServiceFrom(e.target.value)}
               />
             </Field>
-            <Field label="Serviceperiode til">
+            <Field label={t("ui.income.add.serviceTo")}>
               <Input type="date" value={serviceTo} onChange={(e) => setServiceTo(e.target.value)} />
             </Field>
           </div>
 
-          <Field label="Beskrivelse">
+          <Field label={t("ui.income.add.description")}>
             <Input value={description} onChange={(e) => setDescription(e.target.value)} />
           </Field>
 
           <div className="grid grid-cols-2 gap-3">
-            <Field label="Beløb">
+            <Field label={t("ui.income.add.amount")}>
               <Input
                 inputMode="decimal"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
               />
             </Field>
-            <Field label="Valuta">
+            <Field label={t("ui.income.add.currency")}>
               <Input
                 value={currency}
                 onChange={(e) => setCurrency(e.target.value.toUpperCase())}
@@ -304,20 +308,19 @@ export default function AddExternalIncomeDialog({
           {foreignCurrency && (
             <div className="grid grid-cols-1 gap-3 rounded-lg border border-border p-3">
               <p className="text-xs text-muted-foreground">
-                Beløbet er i en anden valuta end dit regnskab ({accountingCurrency}). Uden kurs
-                tæller posten ikke med i det endelige resultat.
+                {t("ui.income.add.foreignCurrencyNote", { currency: accountingCurrency })}
               </p>
-              <Field label="Kurs">
+              <Field label={t("ui.income.add.exchangeRate")}>
                 <Input value={exchangeRate} onChange={(e) => setExchangeRate(e.target.value)} />
               </Field>
-              <Field label="Kursdato">
+              <Field label={t("ui.income.add.exchangeRateDate")}>
                 <Input
                   type="date"
                   value={exchangeRateDate}
                   onChange={(e) => setExchangeRateDate(e.target.value)}
                 />
               </Field>
-              <Field label="Kurskilde">
+              <Field label={t("ui.income.add.exchangeRateSource")}>
                 <Input
                   value={exchangeRateSource}
                   onChange={(e) => setExchangeRateSource(e.target.value)}
@@ -328,26 +331,26 @@ export default function AddExternalIncomeDialog({
 
           {isPlatform && (
             <div className="space-y-3 rounded-lg border border-border p-3">
-              <p className="text-sm font-medium text-foreground">Udbetaling fra platformen</p>
+              <p className="text-sm font-medium text-foreground">{t("ui.income.add.platformPayoutTitle")}</p>
               <div className="grid grid-cols-2 gap-3">
-                <Field label="Bruttobeløb">
+                <Field label={t("ui.income.add.grossAmount")}>
                   <Input inputMode="decimal" value={gross} onChange={(e) => setGross(e.target.value)} />
                 </Field>
-                <Field label="Platformgebyr">
+                <Field label={t("ui.income.add.platformFee")}>
                   <Input inputMode="decimal" value={fee} onChange={(e) => setFee(e.target.value)} />
                 </Field>
-                <Field label="Skat eller moms trukket">
+                <Field label={t("ui.income.add.taxWithheld")}>
                   <Input
                     inputMode="decimal"
                     value={taxWithheld}
                     onChange={(e) => setTaxWithheld(e.target.value)}
                   />
                 </Field>
-                <Field label="Nettobeløb modtaget">
+                <Field label={t("ui.income.add.netAmount")}>
                   <Input inputMode="decimal" value={net} onChange={(e) => setNet(e.target.value)} />
                 </Field>
               </div>
-              <Field label="Payout-reference">
+              <Field label={t("ui.income.add.payoutReference")}>
                 <Input
                   value={payoutReference}
                   onChange={(e) => setPayoutReference(e.target.value)}
@@ -362,30 +365,30 @@ export default function AddExternalIncomeDialog({
           )}
 
           <div className="grid grid-cols-2 gap-3">
-            <Field label="Betalingsmetode">
+            <Field label={t("ui.income.add.paymentMethod")}>
               <Select
                 value={paymentMethod}
                 onValueChange={(v) => setPaymentMethod(v as ExternalIncomePaymentMethod)}
               >
-                <SelectTrigger aria-label="Betalingsmetode">
+                <SelectTrigger aria-label={t("ui.income.add.paymentMethodAriaLabel")}>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="bank_transfer">Bankoverførsel</SelectItem>
-                  <SelectItem value="cash">Kontant</SelectItem>
-                  <SelectItem value="card">Kort</SelectItem>
-                  <SelectItem value="platform_payout">Platformudbetaling</SelectItem>
-                  <SelectItem value="invoice">Faktura</SelectItem>
-                  <SelectItem value="other">Andet</SelectItem>
+                  <SelectItem value="bank_transfer">{t("ui.income.add.paymentMethodBankTransfer")}</SelectItem>
+                  <SelectItem value="cash">{t("ui.income.add.paymentMethodCash")}</SelectItem>
+                  <SelectItem value="card">{t("ui.income.add.paymentMethodCard")}</SelectItem>
+                  <SelectItem value="platform_payout">{t("ui.income.add.paymentMethodPlatformPayout")}</SelectItem>
+                  <SelectItem value="invoice">{t("ui.income.add.paymentMethodInvoice")}</SelectItem>
+                  <SelectItem value="other">{t("ui.income.add.paymentMethodOther")}</SelectItem>
                 </SelectContent>
               </Select>
             </Field>
-            <Field label="Betalingsstatus">
+            <Field label={t("ui.income.add.paymentStatus")}>
               <Select
                 value={paymentStatus}
                 onValueChange={(v) => setPaymentStatus(v as ExternalIncomePaymentStatus)}
               >
-                <SelectTrigger aria-label="Betalingsstatus">
+                <SelectTrigger aria-label={t("ui.income.add.paymentStatusAriaLabel")}>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -404,17 +407,17 @@ export default function AddExternalIncomeDialog({
               checked={hasDocumentation}
               onCheckedChange={(v) => setHasDocumentation(v === true)}
             />
-            Jeg har vedhæftet dokumentation (faktura, kvittering, bankbilag eller payout-oversigt)
+            {t("ui.income.add.hasDocumentation")}
           </label>
 
           {isCash && (
             <label className="flex items-center gap-2 text-sm">
               <Checkbox checked={cashReviewed} onCheckedChange={(v) => setCashReviewed(v === true)} />
-              Jeg har gennemgået den kontante post
+              {t("ui.income.add.cashReviewed")}
             </label>
           )}
 
-          <Field label="Noter">
+          <Field label={t("ui.income.add.notes")}>
             <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} />
           </Field>
 
@@ -425,9 +428,9 @@ export default function AddExternalIncomeDialog({
             >
               <p className="font-medium text-destructive">{DUPLICATE_WARNING_TEXT}</p>
               <p className="text-xs text-muted-foreground">
-                Matcher på: {duplicates[0].matchedOn.join(", ")}
+                {t("ui.income.add.duplicateMatchedOn", { fields: duplicates[0].matchedOn.join(", ") })}
               </p>
-              <Field label="Begrundelse for at fortsætte">
+              <Field label={t("ui.income.add.duplicateReasonLabel")}>
                 <Input
                   value={duplicateReason}
                   onChange={(e) => setDuplicateReason(e.target.value)}
@@ -439,7 +442,7 @@ export default function AddExternalIncomeDialog({
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Annullér
+            {t("ui.income.add.cancel")}
           </Button>
           <Button
             disabled={!canSubmit}
@@ -451,7 +454,7 @@ export default function AddExternalIncomeDialog({
               });
             }}
           >
-            Gem indkomst
+            {t("ui.income.add.save")}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,7 @@ export interface RulePackTableProps {
 }
 
 export default function RulePackTable({ packs, onOpen }: RulePackTableProps) {
+  const { t } = useTranslation("admin");
   const [country, setCountry] = useState("");
   const [version, setVersion] = useState("");
   const [status, setStatus] = useState<RulePackStatus | "">("");
@@ -57,43 +59,43 @@ export default function RulePackTable({ packs, onOpen }: RulePackTableProps) {
       <Card>
         <CardContent className="grid gap-3 p-4 md:grid-cols-2 lg:grid-cols-4">
           <div>
-            <label htmlFor="filter-country" className="text-xs text-muted-foreground">Land</label>
+            <label htmlFor="filter-country" className="text-xs text-muted-foreground">{t("rules.table.countryLabel")}</label>
             <Input id="filter-country" value={country} onChange={(e) => setCountry(e.target.value)} placeholder="DK" />
           </div>
           <div>
-            <label htmlFor="filter-status" className="text-xs text-muted-foreground">Status</label>
+            <label htmlFor="filter-status" className="text-xs text-muted-foreground">{t("rules.table.statusLabel")}</label>
             <select
               id="filter-status"
               className="mt-1 h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
               value={status}
               onChange={(e) => setStatus(e.target.value as RulePackStatus | "")}
             >
-              <option value="">Alle</option>
+              <option value="">{t("rules.table.all")}</option>
               {STATUSES.map((s) => (
                 <option key={s} value={s}>{RULE_PACK_STATUS_LABELS[s]}</option>
               ))}
             </select>
           </div>
           <div>
-            <label htmlFor="filter-version" className="text-xs text-muted-foreground">Version</label>
+            <label htmlFor="filter-version" className="text-xs text-muted-foreground">{t("rules.table.versionLabel")}</label>
             <Input id="filter-version" value={version} onChange={(e) => setVersion(e.target.value)} placeholder="2026.1" />
           </div>
           <div>
-            <label htmlFor="filter-active" className="text-xs text-muted-foreground">Aktiv dato</label>
+            <label htmlFor="filter-active" className="text-xs text-muted-foreground">{t("rules.table.activeDateLabel")}</label>
             <Input id="filter-active" type="date" value={activeOn} onChange={(e) => setActiveOn(e.target.value)} />
           </div>
           <div className="flex flex-wrap gap-4 lg:col-span-4">
             <label className="flex items-center gap-2 text-sm text-foreground">
               <Checkbox checked={needsVerification} onCheckedChange={(v) => setNeedsVerification(v === true)} />
-              Mangler verifikation
+              {t("rules.table.needsVerification")}
             </label>
             <label className="flex items-center gap-2 text-sm text-foreground">
               <Checkbox checked={hasWarnings} onCheckedChange={(v) => setHasWarnings(v === true)} />
-              Har warnings
+              {t("rules.table.hasWarnings")}
             </label>
             <label className="flex items-center gap-2 text-sm text-foreground">
               <Checkbox checked={hasBlocking} onCheckedChange={(v) => setHasBlocking(v === true)} />
-              Har blocking errors
+              {t("rules.table.hasBlocking")}
             </label>
           </div>
         </CardContent>
@@ -105,15 +107,15 @@ export default function RulePackTable({ packs, onOpen }: RulePackTableProps) {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Land</TableHead>
-                <TableHead>Region</TableHead>
-                <TableHead>Version</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Effective from</TableHead>
-                <TableHead>Effective to</TableHead>
-                <TableHead>Seneste ændring</TableHead>
-                <TableHead>Verificeret</TableHead>
-                <TableHead>Ansvarlig</TableHead>
+                <TableHead>{t("rules.table.headers.country")}</TableHead>
+                <TableHead>{t("rules.table.headers.region")}</TableHead>
+                <TableHead>{t("rules.table.headers.version")}</TableHead>
+                <TableHead>{t("rules.table.headers.status")}</TableHead>
+                <TableHead>{t("rules.table.headers.from")}</TableHead>
+                <TableHead>{t("rules.table.headers.to")}</TableHead>
+                <TableHead>{t("rules.table.headers.lastChange")}</TableHead>
+                <TableHead>{t("rules.table.headers.verified")}</TableHead>
+                <TableHead>{t("rules.table.headers.owner")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -137,14 +139,14 @@ export default function RulePackTable({ packs, onOpen }: RulePackTableProps) {
                   <TableCell>{pack.effectiveFrom || "—"}</TableCell>
                   <TableCell>{pack.effectiveTo ?? "—"}</TableCell>
                   <TableCell>{pack.verifiedAt ?? "—"}</TableCell>
-                  <TableCell>{report.verifiedSourceCount > 0 ? "Ja" : "Nej"}</TableCell>
+                  <TableCell>{report.verifiedSourceCount > 0 ? t("rules.table.yes") : t("rules.table.no")}</TableCell>
                   <TableCell className="max-w-[10rem] truncate">{pack.verifiedBy ?? "—"}</TableCell>
                 </TableRow>
               ))}
               {rows.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={9} className="text-center text-muted-foreground">
-                    Ingen rule packs matcher filtrene.
+                    {t("rules.table.noMatches")}
                   </TableCell>
                 </TableRow>
               )}
@@ -165,21 +167,21 @@ export default function RulePackTable({ packs, onOpen }: RulePackTableProps) {
                 <RulePackStatusBadge status={pack.status} />
               </div>
               <dl className="grid grid-cols-2 gap-1 text-sm">
-                <dt className="text-muted-foreground">Gælder fra</dt>
+                <dt className="text-muted-foreground">{t("rules.table.headers.from")}</dt>
                 <dd className="text-foreground">{pack.effectiveFrom || "—"}</dd>
-                <dt className="text-muted-foreground">Gælder til</dt>
+                <dt className="text-muted-foreground">{t("rules.table.headers.to")}</dt>
                 <dd className="text-foreground">{pack.effectiveTo ?? "—"}</dd>
-                <dt className="text-muted-foreground">Verificeret</dt>
-                <dd className="text-foreground">{report.verifiedSourceCount > 0 ? "Ja" : "Nej"}</dd>
+                <dt className="text-muted-foreground">{t("rules.table.headers.verified")}</dt>
+                <dd className="text-foreground">{report.verifiedSourceCount > 0 ? t("rules.table.yes") : t("rules.table.no")}</dd>
               </dl>
               <Button size="sm" className="w-full" onClick={() => onOpen(pack)}>
-                Åbn rule pack
+                {t("rules.table.openPack")}
               </Button>
             </CardContent>
           </Card>
         ))}
         {rows.length === 0 && (
-          <p className="text-sm text-muted-foreground">Ingen rule packs matcher filtrene.</p>
+          <p className="text-sm text-muted-foreground">{t("rules.table.noMatches")}</p>
         )}
       </div>
     </div>

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -23,15 +24,16 @@ const TREATMENTS: ExpenseTreatment[] = [
 ];
 
 const TRIP_FIELDS = [
-  ["commutingTreatment", "Pendling"],
-  ["homeToCustomerTreatment", "Hjem → kunde"],
-  ["customerToCustomerTreatment", "Kunde → kunde"],
-  ["parkingTreatment", "Parkering"],
-  ["tollTreatment", "Broafgift / vejafgift"],
-  ["publicTransportTreatment", "Offentlig transport"],
+  ["commutingTreatment", "rules.mileage.tripFields.commutingTreatment"],
+  ["homeToCustomerTreatment", "rules.mileage.tripFields.homeToCustomerTreatment"],
+  ["customerToCustomerTreatment", "rules.mileage.tripFields.customerToCustomerTreatment"],
+  ["parkingTreatment", "rules.mileage.tripFields.parkingTreatment"],
+  ["tollTreatment", "rules.mileage.tripFields.tollTreatment"],
+  ["publicTransportTreatment", "rules.mileage.tripFields.publicTransportTreatment"],
 ] as const;
 
 export default function RulePackMileageTab({ pack, readOnly, onChange }: TabProps) {
+  const { t } = useTranslation("admin");
   const rules = pack.mileageRules;
   const patch = (value: Partial<typeof rules>) => onChange({ mileageRules: { ...rules, ...value } });
 
@@ -42,11 +44,11 @@ export default function RulePackMileageTab({ pack, readOnly, onChange }: TabProp
     <div className="space-y-4">
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Kørsel</CardTitle>
+          <CardTitle className="text-base">{t("rules.mileage.title")}</CardTitle>
         </CardHeader>
         <CardContent className="grid gap-4 md:grid-cols-2">
           <div className="space-y-1">
-            <label htmlFor="mileage-method" className="text-xs text-muted-foreground">Metode</label>
+            <label htmlFor="mileage-method" className="text-xs text-muted-foreground">{t("rules.mileage.methodLabel")}</label>
             <select
               id="mileage-method"
               className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
@@ -60,7 +62,7 @@ export default function RulePackMileageTab({ pack, readOnly, onChange }: TabProp
             </select>
           </div>
           <div className="space-y-1">
-            <label htmlFor="mileage-unit" className="text-xs text-muted-foreground">Afstandsenhed</label>
+            <label htmlFor="mileage-unit" className="text-xs text-muted-foreground">{t("rules.mileage.unitLabel")}</label>
             <select
               id="mileage-unit"
               className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
@@ -68,13 +70,13 @@ export default function RulePackMileageTab({ pack, readOnly, onChange }: TabProp
               disabled={readOnly}
               onChange={(e) => patch({ distanceUnit: (e.target.value || null) as "km" | "mile" | null })}
             >
-              <option value="">Ikke valgt</option>
+              <option value="">{t("rules.mileage.notSelected")}</option>
               <option value="km">km</option>
               <option value="mile">mile</option>
             </select>
           </div>
           <div className="space-y-1">
-            <label htmlFor="mileage-currency" className="text-xs text-muted-foreground">Valuta for satser</label>
+            <label htmlFor="mileage-currency" className="text-xs text-muted-foreground">{t("rules.mileage.currencyLabel")}</label>
             <Input
               id="mileage-currency"
               value={rules.currency ?? ""}
@@ -84,7 +86,7 @@ export default function RulePackMileageTab({ pack, readOnly, onChange }: TabProp
           </div>
           <div className="space-y-1">
             <label htmlFor="mileage-vehicles" className="text-xs text-muted-foreground">
-              Køretøjstyper (kommasepareret)
+              {t("rules.mileage.vehiclesLabel")}
             </label>
             <Input
               id="mileage-vehicles"
@@ -95,9 +97,9 @@ export default function RulePackMileageTab({ pack, readOnly, onChange }: TabProp
               }
             />
           </div>
-          {TRIP_FIELDS.map(([field, label]) => (
+          {TRIP_FIELDS.map(([field, labelKey]) => (
             <div key={field} className="space-y-1">
-              <label htmlFor={`mileage-${field}`} className="text-xs text-muted-foreground">{label}</label>
+              <label htmlFor={`mileage-${field}`} className="text-xs text-muted-foreground">{t(labelKey)}</label>
               <select
                 id={`mileage-${field}`}
                 className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
@@ -105,15 +107,15 @@ export default function RulePackMileageTab({ pack, readOnly, onChange }: TabProp
                 disabled={readOnly}
                 onChange={(e) => patch({ [field]: e.target.value as ExpenseTreatment })}
               >
-                {TREATMENTS.map((t) => (
-                  <option key={t} value={t}>{t}</option>
+                {TREATMENTS.map((t2) => (
+                  <option key={t2} value={t2}>{t2}</option>
                 ))}
               </select>
             </div>
           ))}
           <div className="space-y-1 md:col-span-2">
             <label htmlFor="mileage-docs" className="text-xs text-muted-foreground">
-              Dokumentationskrav (én pr. linje)
+              {t("rules.mileage.docsLabel")}
             </label>
             <Textarea
               id="mileage-docs"
@@ -132,9 +134,9 @@ export default function RulePackMileageTab({ pack, readOnly, onChange }: TabProp
       <Card>
         <CardHeader className="flex-row items-center justify-between space-y-0">
           <div>
-            <CardTitle className="text-base">Satsintervaller</CardTitle>
+            <CardTitle className="text-base">{t("rules.mileage.bandsTitle")}</CardTitle>
             <p className="text-xs text-muted-foreground">
-              Sats i minor units pr. afstandsenhed. Heltal — aldrig decimaltal.
+              {t("rules.mileage.bandsHint")}
             </p>
           </div>
           {!readOnly && (
@@ -156,18 +158,18 @@ export default function RulePackMileageTab({ pack, readOnly, onChange }: TabProp
               }
             >
               <Plus className="mr-1 h-4 w-4" aria-hidden />
-              Tilføj interval
+              {t("rules.mileage.addBand")}
             </Button>
           )}
         </CardHeader>
         <CardContent className="space-y-3">
           {rules.rateBands.length === 0 && (
-            <p className="text-sm text-muted-foreground">Ingen satsintervaller.</p>
+            <p className="text-sm text-muted-foreground">{t("rules.mileage.noBands")}</p>
           )}
           {rules.rateBands.map((band, index) => (
             <div key={index} className="grid gap-3 rounded-lg border border-border p-3 md:grid-cols-5">
               <div className="space-y-1">
-                <label htmlFor={`band-vehicle-${index}`} className="text-xs text-muted-foreground">Køretøj</label>
+                <label htmlFor={`band-vehicle-${index}`} className="text-xs text-muted-foreground">{t("rules.mileage.vehicleLabel")}</label>
                 <Input
                   id={`band-vehicle-${index}`}
                   value={band.vehicleType}
@@ -176,7 +178,7 @@ export default function RulePackMileageTab({ pack, readOnly, onChange }: TabProp
                 />
               </div>
               <div className="space-y-1">
-                <label htmlFor={`band-rate-${index}`} className="text-xs text-muted-foreground">Minor pr. enhed</label>
+                <label htmlFor={`band-rate-${index}`} className="text-xs text-muted-foreground">{t("rules.mileage.rateLabel")}</label>
                 <Input
                   id={`band-rate-${index}`}
                   inputMode="numeric"
@@ -186,7 +188,7 @@ export default function RulePackMileageTab({ pack, readOnly, onChange }: TabProp
                 />
               </div>
               <div className="space-y-1">
-                <label htmlFor={`band-from-${index}`} className="text-xs text-muted-foreground">Fra</label>
+                <label htmlFor={`band-from-${index}`} className="text-xs text-muted-foreground">{t("rules.mileage.fromLabel")}</label>
                 <Input
                   id={`band-from-${index}`}
                   inputMode="numeric"
@@ -197,7 +199,7 @@ export default function RulePackMileageTab({ pack, readOnly, onChange }: TabProp
               </div>
               <div className="space-y-1">
                 <label htmlFor={`band-to-${index}`} className="text-xs text-muted-foreground">
-                  Til (tom = ingen grænse)
+                  {t("rules.mileage.toLabel")}
                 </label>
                 <Input
                   id={`band-to-${index}`}
@@ -214,7 +216,7 @@ export default function RulePackMileageTab({ pack, readOnly, onChange }: TabProp
                   <Button
                     size="icon"
                     variant="ghost"
-                    aria-label={`Slet satsinterval ${index + 1}`}
+                    aria-label={t("rules.mileage.deleteBandAria", { index: index + 1 })}
                     onClick={() => patch({ rateBands: rules.rateBands.filter((_, i) => i !== index) })}
                   >
                     <Trash2 className="h-4 w-4" aria-hidden />

@@ -630,6 +630,7 @@ function DashStat({ icon: Icon, label, value, tint }: { icon: typeof UserIcon; l
 
 /* ---------- INFO TAB ---------- */
 function InfoTab() {
+  const { t } = useTranslation("customer");
   const { user, profile, refreshProfile } = useAuth();
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
@@ -662,11 +663,11 @@ function InfoTab() {
   async function save() {
     if (!user) return;
     if (!contactCheck.ok) {
-      toast.error(contactCheck.error || "Tjek kontaktoplysningerne");
+      toast.error(contactCheck.error || t("profile.info.toast.checkContact"));
       return;
     }
     if (address && !addrValid) {
-      toast.error("Vælg en gyldig adresse fra listen før du gemmer.");
+      toast.error(t("profile.info.toast.invalidAddress"));
       return;
     }
     setSaving(true);
@@ -684,24 +685,24 @@ function InfoTab() {
     setSaving(false);
     if (error) return toast.error(error.message);
     await refreshProfile();
-    toast.success("Profil gemt");
+    toast.success(t("profile.info.toast.saved"));
   }
 
   return (
     <div className="space-y-4">
       <div className="rounded-2xl border bg-white/60 p-3 text-[11px] opacity-70" style={{ borderColor: `${C.ink}22` }}>
-        Dine kontaktoplysninger blev oprettet under onboarding og hentes automatisk her — du kan justere dem når som helst.
+        {t("profile.info.helperBanner")}
       </div>
-      <Field label="Email (din loginadresse)">
+      <Field label={t("profile.info.emailLabel")}>
         <input value={user?.email ?? ""} disabled className="w-full bg-transparent text-base focus:outline-none opacity-70" />
       </Field>
-      <Field label="Fulde navn">
-        <input value={fullName} onChange={(e) => setFullName(e.target.value)} className="w-full bg-transparent text-base focus:outline-none" placeholder="Fx Mette Hansen" />
+      <Field label={t("profile.info.fullNameLabel")}>
+        <input value={fullName} onChange={(e) => setFullName(e.target.value)} className="w-full bg-transparent text-base focus:outline-none" placeholder={t("profile.info.fullNamePlaceholder")} />
       </Field>
-      <Field label="Telefon">
-        <input value={phone} onChange={(e) => setPhone(e.target.value)} className="w-full bg-transparent text-base focus:outline-none" placeholder="+45 12 34 56 78" type="tel" />
+      <Field label={t("profile.info.phoneLabel")}>
+        <input value={phone} onChange={(e) => setPhone(e.target.value)} className="w-full bg-transparent text-base focus:outline-none" placeholder={t("profile.info.phonePlaceholder")} type="tel" />
       </Field>
-      <Field label="Land">
+      <Field label={t("profile.info.countryLabel")}>
         <select
           value={countryCode}
           onChange={(e) => setCountryCode(e.target.value)}
@@ -712,14 +713,15 @@ function InfoTab() {
           ))}
         </select>
       </Field>
-      <Field label="Provider-ID (kun hvis du selv er cleaner)">
-        <input value={providerId} onChange={(e) => setProviderId(e.target.value)} className="w-full bg-transparent text-base focus:outline-none" placeholder="Fx p_002" />
+      <Field label={t("profile.info.providerIdLabel")}>
+        <input value={providerId} onChange={(e) => setProviderId(e.target.value)} className="w-full bg-transparent text-base focus:outline-none" placeholder={t("profile.info.providerIdPlaceholder")} />
         <div className="mt-1 text-[10px] opacity-60">
-          Indtast dit provider-ID for at få adgang til <Link to="/provider-dashboard" className="font-bold underline">provider-dashboardet</Link>.
+          <Trans i18nKey="profile.info.providerIdHelpFull" ns="customer"
+            components={{ dash: <Link to="/provider-dashboard" className="font-bold underline" /> }} />
         </div>
       </Field>
       <div className="rounded-2xl border-2 bg-white p-4" style={{ borderColor: `${C.ink}22` }}>
-        <div className="text-[10px] font-black uppercase tracking-[0.22em] opacity-70">Min adresse</div>
+        <div className="text-[10px] font-black uppercase tracking-[0.22em] opacity-70">{t("profile.info.addressTitle")}</div>
         <div className="mt-2">
           <AddressAutocomplete
             value={address}
@@ -728,7 +730,7 @@ function InfoTab() {
             onValidityChange={setAddrValid}
             isValid={addrValid}
             countries={[countryCode.toLowerCase()]}
-            placeholder="Vej, nr., etage, by"
+            placeholder={t("profile.info.addressPlaceholder")}
           />
         </div>
       </div>
@@ -744,7 +746,7 @@ function InfoTab() {
         style={{ background: C.orange, color: C.ink }}
       >
         {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
-        Gem profil
+        {t("profile.info.saveButton")}
       </button>
     </div>
   );
@@ -752,16 +754,18 @@ function InfoTab() {
 
 /* ---------- ADDRESSES TAB ---------- */
 function AddressesTab() {
+  const { t } = useTranslation("customer");
   return (
     <div>
       <div className="mb-4">
-        <h2 className="font-display text-2xl">Mine adresser</h2>
+        <h2 className="font-display text-2xl">{t("profile.addresses.title")}</h2>
         <p className="text-sm opacity-70">
-          Tilføj flere adresser med adgangsinformation, dyr, parkering m.m. Den primære adresse vælges automatisk ved booking.
+          {t("profile.addresses.subtitle")}
         </p>
       </div>
       <AddressBook />
     </div>
+
   );
 }
 

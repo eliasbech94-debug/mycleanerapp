@@ -132,7 +132,9 @@
         "checkContact": "Check your contact information",
         "invalidAddress": "Choose a valid address from the list before saving.",
         "saved": "Profile saved"
-      }
+      },
+      "phonePlaceholder": "+45 12 34 56 78",
+      "providerIdHelpFull": "Enter your provider ID to get access to the <dash>provider dashboard</dash>."
     },
     "addresses": {
       "title": "My addresses",

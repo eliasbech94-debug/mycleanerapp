@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Bell, Search, TrendingUp, ArrowUpRight, LogOut } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import WebhookAlertBanner from "@/components/WebhookAlertBanner";
 import { supabase } from "@/integrations/supabase/client";
 import { DashboardLayout } from "@/components/dashboard";
@@ -11,71 +12,77 @@ import { Button } from "@/components/ui/button";
 
 const kpis = [
   {
-    label: "Omsætning (7 dage)",
+    key: "revenue",
+    labelKey: "ops.dashboard.kpi.revenue.label",
     value: "142.500 kr",
-    delta: "+12.4%",
+    deltaKey: "ops.dashboard.kpi.revenue.delta",
     deltaTone: "positive" as const,
     spark: "M0,15 Q10,5 20,12 T40,8 T60,15 T80,5 T100,10",
   },
   {
-    label: "Aktive Udbydere",
+    key: "providers",
+    labelKey: "ops.dashboard.kpi.providers.label",
     value: "842",
-    delta: "+4.2% fra i går",
+    deltaKey: "ops.dashboard.kpi.providers.delta",
     deltaTone: "positive" as const,
   },
   {
-    label: "Pending KYC",
+    key: "kyc",
+    labelKey: "ops.dashboard.kpi.kyc.label",
     value: "14",
-    delta: "Venter på godkendelse",
+    deltaKey: "ops.dashboard.kpi.kyc.delta",
     deltaTone: "warning" as const,
   },
   {
-    label: "Dagens Bookings",
+    key: "bookings",
+    labelKey: "ops.dashboard.kpi.bookings.label",
     value: "156",
-    delta: "Se alle detaljer",
+    deltaKey: "ops.dashboard.kpi.bookings.delta",
     deltaTone: "link" as const,
     href: "/admin/payments",
   },
 ];
 
 const recentPayments = [
-  { id: "BK-2941", customer: "Mads Jørgensen", amount: "450 kr", status: "Gennemført" },
-  { id: "BK-2938", customer: "Sofie Nielsen", amount: "1.200 kr", status: "Afventer" },
-  { id: "BK-2935", customer: "Peter Berg", amount: "300 kr", status: "Refunderet" },
-  { id: "BK-2932", customer: "Anna Lindgren", amount: "820 kr", status: "Gennemført" },
-  { id: "BK-2929", customer: "Hans Klein", amount: "560 kr", status: "Gennemført" },
+  { id: "BK-2941", customer: "Mads Jørgensen", amount: "450 kr", statusKey: "completed" },
+  { id: "BK-2938", customer: "Sofie Nielsen", amount: "1.200 kr", statusKey: "pending" },
+  { id: "BK-2935", customer: "Peter Berg", amount: "300 kr", statusKey: "refunded" },
+  { id: "BK-2932", customer: "Anna Lindgren", amount: "820 kr", statusKey: "completed" },
+  { id: "BK-2929", customer: "Hans Klein", amount: "560 kr", statusKey: "completed" },
 ];
 
 const webhookHealth = [
-  { name: "Stripe Events", pct: 99.9, tone: "ok" as const },
-  { name: "Email Delivery", pct: 94.2, tone: "warn" as const },
-  { name: "SMS Gateway", pct: 98.1, tone: "ok" as const },
+  { nameKey: "ops.dashboard.webhookHealth.stripeEvents", pct: 99.9, tone: "ok" as const },
+  { nameKey: "ops.dashboard.webhookHealth.emailDelivery", pct: 94.2, tone: "warn" as const },
+  { nameKey: "ops.dashboard.webhookHealth.smsGateway", pct: 98.1, tone: "ok" as const },
 ];
 
 const supportQueue = [
-  { title: "Mangler udstyr", ago: "2 min siden", initials: "SJ" },
-  { title: "Refund forespørgsel", ago: "12 min siden", initials: "AL" },
-  { title: "Provider ikke mødt op", ago: "34 min siden", initials: "MK" },
+  { titleKey: "ops.dashboard.supportQueue.item1.title", agoKey: "ops.dashboard.supportQueue.item1.ago", initials: "SJ" },
+  { titleKey: "ops.dashboard.supportQueue.item2.title", agoKey: "ops.dashboard.supportQueue.item2.ago", initials: "AL" },
+  { titleKey: "ops.dashboard.supportQueue.item3.title", agoKey: "ops.dashboard.supportQueue.item3.ago", initials: "MK" },
 ];
 
 const countries = [
-  { flag: "🇩🇰", name: "Danmark", pct: 42, primary: true },
-  { flag: "🇸🇪", name: "Sverige", pct: 18 },
-  { flag: "🇩🇪", name: "Tyskland", pct: 12 },
-  { flag: "🇳🇴", name: "Norge", pct: 9 },
-  { flag: "🇫🇷", name: "Frankrig", pct: 6 },
-  { flag: "🇪🇸", name: "Spanien", pct: 5 },
+  { flag: "🇩🇰", nameKey: "ops.dashboard.countries.dk", pct: 42, primary: true },
+  { flag: "🇸🇪", nameKey: "ops.dashboard.countries.se", pct: 18 },
+  { flag: "🇩🇪", nameKey: "ops.dashboard.countries.de", pct: 12 },
+  { flag: "🇳🇴", nameKey: "ops.dashboard.countries.no", pct: 9 },
+  { flag: "🇫🇷", nameKey: "ops.dashboard.countries.fr", pct: 6 },
+  { flag: "🇪🇸", nameKey: "ops.dashboard.countries.es", pct: 5 },
 ];
 
-function StatusPill({ status }: { status: string }) {
+function StatusPill({ statusKey, t }: { statusKey: string; t: (k: string) => string }) {
   const tone =
-    status === "Gennemført"
+    statusKey === "completed"
       ? "bg-green-500/10 text-green-600 dark:text-green-400"
-      : status === "Afventer"
+      : statusKey === "pending"
       ? "bg-orange-500/10 text-orange-600 dark:text-orange-400"
       : "bg-red-500/10 text-red-600 dark:text-red-400";
   return (
-    <span className={`px-2 py-1 rounded-full text-[10px] ${tone}`}>{status}</span>
+    <span className={`px-2 py-1 rounded-full text-[10px] ${tone}`}>
+      {t(`ops.dashboard.paymentStatus.${statusKey}`)}
+    </span>
   );
 }
 
@@ -89,6 +96,7 @@ function HealthBar({ pct, tone }: { pct: number; tone: "ok" | "warn" }) {
 }
 
 export default function AdminDashboard() {
+  const { t } = useTranslation("admin");
   const navigate = useNavigate();
   async function handleSignOut() {
     await supabase.auth.signOut();
@@ -101,7 +109,7 @@ export default function AdminDashboard() {
         <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
         <input
           type="search"
-          placeholder="Søg brugere, bookings..."
+          placeholder={t("ops.dashboard.searchPlaceholder")}
           className="pl-9 pr-4 py-1.5 bg-muted border border-border rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-ring w-64"
         />
       </div>
@@ -109,19 +117,19 @@ export default function AdminDashboard() {
         <Bell className="w-4 h-4" />
         <span className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-primary" />
       </Button>
-      <Button variant="ghost" size="icon" onClick={handleSignOut} title="Log ud">
+      <Button variant="ghost" size="icon" onClick={handleSignOut} title={t("ops.dashboard.signOut")}>
         <LogOut className="w-4 h-4" />
       </Button>
     </>
   );
 
   return (
-    <DashboardLayout role="admin" title="Admin Oversigt" headerActions={headerActions}>
+    <DashboardLayout role="admin" title={t("ops.dashboard.title")} headerActions={headerActions}>
       <div className="p-4 sm:p-6 lg:p-8 space-y-6">
         <div>
-          <h2 className="text-2xl font-bold text-foreground">Admin Oversigt</h2>
+          <h2 className="text-2xl font-bold text-foreground">{t("ops.dashboard.title")}</h2>
           <p className="text-sm text-muted-foreground mt-1">
-            Realtidsstatus for hele markedspladsen
+            {t("ops.dashboard.subtitle")}
           </p>
         </div>
 
@@ -131,10 +139,10 @@ export default function AdminDashboard() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {kpis.map((k) => (
             <div
-              key={k.label}
+              key={k.key}
               className="bg-card p-5 rounded-2xl border border-border relative overflow-hidden hover:border-primary/40 transition-colors"
             >
-              <p className="text-xs text-muted-foreground mb-1">{k.label}</p>
+              <p className="text-xs text-muted-foreground mb-1">{t(k.labelKey)}</p>
               <h3
                 className={`text-2xl font-bold ${
                   k.deltaTone === "warning" ? "text-orange-500" : "text-foreground"
@@ -153,13 +161,13 @@ export default function AdminDashboard() {
                   </svg>
                 </div>
               ) : null}
-              {k.delta ? (
+              {k.deltaKey ? (
                 k.deltaTone === "link" && k.href ? (
                   <Link
                     to={k.href}
                     className="text-[10px] text-primary mt-2 inline-flex items-center gap-1 hover:underline"
                   >
-                    {k.delta} <ArrowUpRight className="w-3 h-3" />
+                    {t(k.deltaKey)} <ArrowUpRight className="w-3 h-3" />
                   </Link>
                 ) : (
                   <span
@@ -174,7 +182,7 @@ export default function AdminDashboard() {
                     {k.deltaTone === "positive" ? (
                       <TrendingUp className="w-3 h-3" />
                     ) : null}
-                    {k.delta}
+                    {t(k.deltaKey)}
                   </span>
                 )
               ) : null}
@@ -187,22 +195,22 @@ export default function AdminDashboard() {
           {/* Payments table */}
           <div className="lg:col-span-2 bg-card rounded-2xl border border-border overflow-hidden">
             <div className="p-5 border-b border-border flex justify-between items-center">
-              <h4 className="text-sm font-bold text-foreground">Seneste Betalinger</h4>
+              <h4 className="text-sm font-bold text-foreground">{t("ops.dashboard.recentPayments.title")}</h4>
               <Link
                 to="/admin/payments"
                 className="text-[10px] px-2 py-1 rounded text-primary hover:underline"
               >
-                Se alle →
+                {t("ops.dashboard.seeAll")}
               </Link>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
                 <thead>
                   <tr className="text-muted-foreground text-[11px] uppercase tracking-wider">
-                    <th className="p-4 font-medium">Booking ID</th>
-                    <th className="p-4 font-medium">Kunde</th>
-                    <th className="p-4 font-medium">Beløb</th>
-                    <th className="p-4 font-medium">Status</th>
+                    <th className="p-4 font-medium">{t("ops.dashboard.recentPayments.headers.bookingId")}</th>
+                    <th className="p-4 font-medium">{t("ops.dashboard.recentPayments.headers.customer")}</th>
+                    <th className="p-4 font-medium">{t("ops.dashboard.recentPayments.headers.amount")}</th>
+                    <th className="p-4 font-medium">{t("ops.dashboard.recentPayments.headers.status")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
@@ -214,7 +222,7 @@ export default function AdminDashboard() {
                       <td className="p-4 text-foreground">{p.customer}</td>
                       <td className="p-4 text-foreground font-medium">{p.amount}</td>
                       <td className="p-4">
-                        <StatusPill status={p.status} />
+                        <StatusPill statusKey={p.statusKey} t={t} />
                       </td>
                     </tr>
                   ))}
@@ -228,15 +236,15 @@ export default function AdminDashboard() {
             <div className="bg-card p-5 rounded-2xl border border-border">
               <div className="flex items-center justify-between mb-4">
                 <h4 className="text-xs font-bold text-foreground uppercase tracking-widest">
-                  Webhook Health
+                  {t("ops.dashboard.webhookHealth.title")}
                 </h4>
                 <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
               </div>
               <div className="space-y-3">
                 {webhookHealth.map((h) => (
-                  <div key={h.name}>
+                  <div key={h.nameKey}>
                     <div className="flex justify-between items-center mb-1.5">
-                      <span className="text-xs">{h.name}</span>
+                      <span className="text-xs">{t(h.nameKey)}</span>
                       <span
                         className={`text-xs font-medium ${
                           h.tone === "ok" ? "text-green-500" : "text-yellow-500"
@@ -254,24 +262,24 @@ export default function AdminDashboard() {
             <div className="bg-card p-5 rounded-2xl border border-border">
               <div className="flex items-center justify-between mb-4">
                 <h4 className="text-xs font-bold text-foreground uppercase tracking-widest">
-                  Support Kø
+                  {t("ops.dashboard.supportQueue.title")}
                 </h4>
                 <Link to="/employee" className="text-[10px] text-primary hover:underline">
-                  Se alle →
+                  {t("ops.dashboard.seeAll")}
                 </Link>
               </div>
               <div className="space-y-3">
-                {supportQueue.map((t, i) => (
+                {supportQueue.map((s, i) => (
                   <div
                     key={i}
                     className="p-3 bg-muted/50 rounded-lg border border-border flex items-center justify-between"
                   >
                     <div>
-                      <p className="text-xs text-foreground font-medium">{t.title}</p>
-                      <p className="text-[10px] text-muted-foreground">{t.ago}</p>
+                      <p className="text-xs text-foreground font-medium">{t(s.titleKey)}</p>
+                      <p className="text-[10px] text-muted-foreground">{t(s.agoKey)}</p>
                     </div>
                     <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-[10px]">
-                      {t.initials}
+                      {s.initials}
                     </div>
                   </div>
                 ))}
@@ -284,31 +292,31 @@ export default function AdminDashboard() {
         <div className="bg-card p-5 rounded-2xl border border-border">
           <div className="flex items-center justify-between mb-4">
             <h4 className="text-xs font-bold text-foreground uppercase tracking-widest">
-              EU Operationer (12 lande)
+              {t("ops.dashboard.euOperations.title")}
             </h4>
             <Link
               to="/admin/stripe"
               className="text-[10px] text-primary font-bold uppercase tracking-wider hover:underline"
             >
-              Administrer →
+              {t("ops.dashboard.euOperations.manage")}
             </Link>
           </div>
           <div className="flex flex-wrap gap-3">
             {countries.map((c) => (
               <div
-                key={c.name}
+                key={c.nameKey}
                 className={`flex items-center gap-2 px-3 py-1.5 rounded-lg ${
                   c.primary ? "bg-muted border border-primary/30" : "bg-muted"
                 }`}
               >
                 <span className="text-xs">
-                  {c.flag} {c.name}
+                  {c.flag} {t(c.nameKey)}
                 </span>
                 <span className="text-xs font-bold text-foreground">{c.pct}%</span>
               </div>
             ))}
             <span className="px-3 py-1.5 text-[10px] text-primary font-bold uppercase tracking-wider self-center">
-              +6 lande mere
+              {t("ops.dashboard.euOperations.moreCountries")}
             </span>
           </div>
         </div>

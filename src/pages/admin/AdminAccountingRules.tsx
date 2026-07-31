@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
@@ -10,16 +11,16 @@ import RulePackTable from "@/components/admin/accounting-rules/RulePackTable";
 import RulePackEditor from "@/components/admin/accounting-rules/RulePackEditor";
 
 export default function AdminAccountingRules() {
+  const { t } = useTranslation("admin");
   const manager = useRulePackManager();
   const [selected, setSelected] = useState<AccountingRulePack | null>(null);
 
   if (!manager.canAccess) {
     return (
       <main className="mx-auto max-w-3xl p-6">
-        <h1 className="text-xl font-semibold text-foreground">Ingen adgang</h1>
+        <h1 className="text-xl font-semibold text-foreground">{t("pages.adminAccountingRules.noAccessTitle")}</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Rule Pack Manager kræver rollen super_admin eller en admin med rettigheden
-          «{manager.permissionName}».
+          {t("pages.adminAccountingRules.noAccessBody", { permission: manager.permissionName })}
         </p>
       </main>
     );
@@ -29,9 +30,9 @@ export default function AdminAccountingRules() {
     <main className="mx-auto max-w-7xl space-y-6 p-4 md:p-6">
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold text-foreground">International Rule Pack Manager</h1>
+          <h1 className="text-2xl font-semibold text-foreground">{t("pages.adminAccountingRules.title")}</h1>
           <p className="text-sm text-muted-foreground">
-            Landespecifikke regnskabsregler. Ingen regler er hardcodet i koden.
+            {t("pages.adminAccountingRules.subtitle")}
           </p>
         </div>
         <Button
@@ -39,20 +40,19 @@ export default function AdminAccountingRules() {
           onClick={() => {
             const pack = createEmptyRulePack(`draft-${Date.now()}`);
             manager.upsertPack(pack);
-            manager.record("rule_pack_created", pack, "Ny rule pack oprettet som draft.");
+            manager.record("rule_pack_created", pack, t("pages.adminAccountingRules.createdLog"));
             setSelected(pack);
-            toast.success("Ny draft oprettet.");
+            toast.success(t("pages.adminAccountingRules.createdToast"));
           }}
         >
-          Ny rule pack
+          {t("pages.adminAccountingRules.newRulePack")}
         </Button>
       </header>
 
       {manager.backend === "not_provisioned" && (
         <Card>
           <CardContent className="p-4 text-sm text-muted-foreground">
-            Backend-tabellerne for rule packs er endnu ikke oprettet. Manageren kører som lokal
-            arbejdskopi med testdata — intet gemmes, og intet publiceres til providere.
+            {t("pages.adminAccountingRules.notProvisioned")}
           </CardContent>
         </Card>
       )}

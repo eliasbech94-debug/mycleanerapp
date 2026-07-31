@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { useTranslation } from "react-i18next";
 
 type DayRule = {
   weekday: number;
@@ -62,6 +63,7 @@ const localInputValue = (iso: string) => {
 };
 
 export function ProviderAvailabilityEditor() {
+  const { t } = useTranslation("common");
   const { user } = useAuth();
   const timezone = useMemo(
     () => Intl.DateTimeFormat().resolvedOptions().timeZone || "Europe/Copenhagen",
@@ -260,7 +262,7 @@ export function ProviderAvailabilityEditor() {
       <div>
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <h3 className="font-semibold">Faste arbejdstider</h3>
+            <h3 className="font-semibold">{t("ui.providerAvailability.fixedHoursTitle")}</h3>
             <p className="text-xs opacity-60">
               Kunder kan kun anmode om tider inden for disse intervaller. Tidszone: {timezone}
             </p>
@@ -306,7 +308,7 @@ export function ProviderAvailabilityEditor() {
                       />
                     </>
                   ) : (
-                    <span className="text-sm opacity-50">Ikke tilgængelig</span>
+                    <span className="text-sm opacity-50">{t("ui.providerAvailability.notAvailable")}</span>
                   )}
                 </div>
                 <Switch
@@ -321,7 +323,7 @@ export function ProviderAvailabilityEditor() {
       </div>
 
       <div className="border-t pt-6">
-        <h3 className="font-semibold">Ferie og fravær</h3>
+        <h3 className="font-semibold">{t("ui.providerAvailability.timeOffTitle")}</h3>
         <p className="text-xs opacity-60">
           Bloker perioder, hvor du ikke ønsker bookinganmodninger.
         </p>
@@ -367,7 +369,7 @@ export function ProviderAvailabilityEditor() {
                 {new Date(item.ends_at).toLocaleString("da-DK")}
               </span>
               <Button
-                aria-label="Fjern fravær"
+                aria-label={t("ui.providerAvailability.removeTimeOff")}
                 size="icon"
                 variant="ghost"
                 onClick={() => removeTimeOff(item.id)}
@@ -380,7 +382,7 @@ export function ProviderAvailabilityEditor() {
       </div>
 
       <div className="border-t pt-6">
-        <h3 className="font-semibold">Privat kalender</h3>
+        <h3 className="font-semibold">{t("ui.providerAvailability.privateCalendarTitle")}</h3>
         <p className="text-xs opacity-60">
           Forbind Apple, Google, Outlook eller en anden kalender med et privat iCal-link.
           Optagede tider blokeres automatisk i MyCleaner.
@@ -433,7 +435,7 @@ export function ProviderAvailabilityEditor() {
         ) : (
           <div className="mt-3 grid gap-3 sm:grid-cols-[1fr_auto] sm:items-end">
             <div>
-              <Label htmlFor="ical-url">Privat iCal-link</Label>
+              <Label htmlFor="ical-url">{t("ui.providerAvailability.icalLinkLabel")}</Label>
               <Input
                 id="ical-url"
                 type="url"

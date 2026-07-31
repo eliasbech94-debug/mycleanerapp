@@ -132,7 +132,9 @@
         "checkContact": "Revisa tus datos de contacto",
         "invalidAddress": "Elige una dirección válida de la lista antes de guardar.",
         "saved": "Perfil guardado"
-      }
+      },
+      "phonePlaceholder": "+34 612 34 56 78",
+      "providerIdHelpFull": "Introduce tu ID de proveedor para acceder al <dash>panel de proveedor</dash>."
     },
     "addresses": {
       "title": "Mis direcciones",

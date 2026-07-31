@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "@/hooks/use-toast";
 import { Loader2, Shield, AlertTriangle } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 type Status = "draft" | "in_review" | "approved" | "published" | "archived";
 type Risk = "info" | "caution" | "stop" | "emergency";
@@ -79,6 +80,7 @@ const statusBadge = (s: Status) => {
 };
 
 export default function AdminKnowledge() {
+  const { t } = useTranslation("admin");
   const { isAdmin, isSuperAdmin, loading: rolesLoading } = useUserRoles();
   const hasEditor = isAdmin; // admin/super_admin here; employee/support handled by RLS
   const hasPublisher = isAdmin;
@@ -105,7 +107,7 @@ export default function AdminKnowledge() {
     if (q.trim()) query = query.ilike("title", `%${q.trim()}%`);
     const { data, error } = await query;
     if (error) {
-      toast({ title: "Kunne ikke hente artikler", description: error.message, variant: "destructive" });
+      toast({ title: t("pages.adminKnowledge.couldNotFetchArticles"), description: error.message, variant: "destructive" });
     } else {
       setRows((data as Article[]) ?? []);
     }
@@ -128,7 +130,7 @@ export default function AdminKnowledge() {
   if (rolesLoading) {
     return (
       <div className="p-8 flex items-center gap-2 text-muted-foreground">
-        <Loader2 className="h-4 w-4 animate-spin" /> Henter roller…
+        <Loader2 className="h-4 w-4 animate-spin" /> {t("pages.adminKnowledge.loadingRoles")}
       </div>
     );
   }
@@ -138,7 +140,7 @@ export default function AdminKnowledge() {
         <Alert variant="destructive">
           <Shield className="h-4 w-4" />
           <AlertDescription>
-            Du har ikke adgang til Knowledge CMS. Kontakt en administrator.
+            {t("pages.adminKnowledge.noAccess")}
           </AlertDescription>
         </Alert>
       </div>
@@ -149,9 +151,9 @@ export default function AdminKnowledge() {
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
       <header className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-2xl font-semibold">Knowledge CMS</h1>
+          <h1 className="text-2xl font-semibold">{t("pages.adminKnowledge.title")}</h1>
           <p className="text-sm text-muted-foreground">
-            Approval ≠ publication. Safety-critical redigering nulstiller workflowet automatisk.
+            {t("pages.adminKnowledge.subtitle")}
           </p>
         </div>
         <Button
@@ -159,18 +161,18 @@ export default function AdminKnowledge() {
             const slug = `kb-${crypto.randomUUID().slice(0, 8)}`;
             const { data, error } = await supabase
               .from("knowledge_articles")
-              .insert({ slug, title: "Ny artikel", body_md: "" })
+              .insert({ slug, title: t("pages.adminKnowledge.newArticleTitle"), body_md: "" })
               .select("*")
               .single();
             if (error) {
-              toast({ title: "Kunne ikke oprette artikel", description: error.message, variant: "destructive" });
+              toast({ title: t("pages.adminKnowledge.couldNotCreateArticle"), description: error.message, variant: "destructive" });
               return;
             }
             setSelected(data as Article);
             load();
           }}
         >
-          Ny artikel
+          {t("pages.adminKnowledge.newArticle")}
         </Button>
       </header>
 
@@ -178,20 +180,20 @@ export default function AdminKnowledge() {
         <Alert>
           <AlertTriangle className="h-4 w-4" />
           <AlertDescription>
-            {needsReverify.length} publiceret artikel kræver reverifikation.
+            {t("pages.adminKnowledge.needsReverify", { count: needsReverify.length })}
           </AlertDescription>
         </Alert>
       )}
 
       <div className="flex gap-3 items-center">
         <Input
-          placeholder="Søg efter titel…"
+          placeholder={t("pages.adminKnowledge.searchByTitle")}
           value={q}
           onChange={(e) => setQ(e.target.value)}
           className="max-w-sm"
         />
         <Button variant="outline" onClick={load} disabled={loading}>
-          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Opdater"}
+          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : t("pages.adminKnowledge.refresh")}
         </Button>
       </div>
 
@@ -207,10 +209,10 @@ export default function AdminKnowledge() {
           <TabsContent key={s} value={s} className="mt-4">
             <div className="rounded-md border divide-y">
               {loading && rows.length === 0 ? (
-                <div className="p-6 text-sm text-muted-foreground">Henter…</div>
+                <div className="p-6 text-sm text-muted-foreground">{t("pages.adminKnowledge.loading")}</div>
               ) : rows.length === 0 ? (
                 <div className="p-6 text-sm text-muted-foreground">
-                  Intet indhold i {s}. Ingen demoartikler.
+                  {t("pages.adminKnowledge.emptyStatus", { status: s })}
                 </div>
               ) : rows.map((r) => (
                 <button
@@ -227,7 +229,7 @@ export default function AdminKnowledge() {
                       <Badge variant="outline" className="text-[10px] capitalize">{r.risk_level}</Badge>
                     </div>
                     <div className="text-xs text-muted-foreground truncate">
-                      v{r.current_version} · opdateret {new Date(r.updated_at).toLocaleString()}
+                      {t("pages.adminKnowledge.versionUpdated", { version: r.current_version, date: new Date(r.updated_at).toLocaleString() })}
                     </div>
                   </div>
                   {statusBadge(r.status)}
@@ -255,16 +257,16 @@ export default function AdminKnowledge() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              Bekræft {confirm?.action === "publish" ? "publish" : "archive"}
+              {t("pages.adminKnowledge.confirmAction", { action: confirm?.action === "publish" ? t("pages.adminKnowledge.publish") : t("pages.adminKnowledge.archive") })}
             </AlertDialogTitle>
             <AlertDialogDescription>
               {confirm?.action === "publish"
-                ? "Publicering gør artiklen synlig for providers. Approval er ikke det samme som publish."
-                : "Arkivering fjerner artiklen fra provider-visning. Handlingen skal godkendes af en super_admin."}
+                ? t("pages.adminKnowledge.publishDescription")
+                : t("pages.adminKnowledge.archiveDescription")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Annullér</AlertDialogCancel>
+            <AlertDialogCancel>{t("pages.adminKnowledge.cancel")}</AlertDialogCancel>
             <AlertDialogAction
               onClick={async () => {
                 if (!confirm) return;
@@ -275,16 +277,16 @@ export default function AdminKnowledge() {
                   _article_id: confirm.article.id,
                 });
                 if (error) {
-                  toast({ title: `Kunne ikke ${confirm.action}`, description: error.message, variant: "destructive" });
+                  toast({ title: t("pages.adminKnowledge.actionFailed", { action: confirm.action }), description: error.message, variant: "destructive" });
                 } else {
-                  toast({ title: `${confirm.action} gennemført` });
+                  toast({ title: t("pages.adminKnowledge.actionCompleted", { action: confirm.action }) });
                   setSelected(null);
                   load();
                 }
                 setConfirm(null);
               }}
             >
-              Bekræft
+              {t("pages.adminKnowledge.confirm")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -304,6 +306,7 @@ interface EditorProps {
 }
 
 function ArticleEditor({ article, onClose, onChanged, canPublish, canArchive, onConfirm }: EditorProps) {
+  const { t } = useTranslation("admin");
   const [title, setTitle] = useState(article.title);
   const [summary, setSummary] = useState(article.summary ?? "");
   const [body, setBody] = useState(article.body_md);
@@ -330,10 +333,10 @@ function ArticleEditor({ article, onClose, onChanged, canPublish, canArchive, on
     try {
       const { error } = await (supabase.rpc as any)(fn, args);
       if (error) throw error;
-      toast({ title: `${label} OK` });
+      toast({ title: t("pages.adminKnowledge.actionOk", { label }) });
       onChanged();
     } catch (e) {
-      toast({ title: `${label} fejlede`, description: (e as Error).message, variant: "destructive" });
+      toast({ title: t("pages.adminKnowledge.actionFailedLabel", { label }), description: (e as Error).message, variant: "destructive" });
     } finally {
       setBusy(false);
     }
@@ -356,29 +359,27 @@ function ArticleEditor({ article, onClose, onChanged, canPublish, canArchive, on
           <Alert>
             <AlertTriangle className="h-4 w-4" />
             <AlertDescription>
-              Ændringer i denne publicerede safety-critical artikel nulstiller
-              workflowet automatisk (tilbage til draft). Providers ser først den
-              nye version efter reverifikation, approval og publish.
+              {t("pages.adminKnowledge.safetyEditWarning")}
             </AlertDescription>
           </Alert>
         )}
 
         <div className="grid gap-4">
           <div className="grid gap-2">
-            <label className="text-xs uppercase text-muted-foreground">Titel</label>
+            <label className="text-xs uppercase text-muted-foreground">{t("pages.adminKnowledge.titleField")}</label>
             <Input value={title} disabled={!canEdit} onChange={(e) => setTitle(e.target.value)} />
           </div>
           <div className="grid gap-2">
-            <label className="text-xs uppercase text-muted-foreground">Resumé</label>
+            <label className="text-xs uppercase text-muted-foreground">{t("pages.adminKnowledge.summaryField")}</label>
             <Textarea value={summary} disabled={!canEdit} onChange={(e) => setSummary(e.target.value)} rows={2} />
           </div>
           <div className="grid gap-2">
-            <label className="text-xs uppercase text-muted-foreground">Indhold (markdown, ingen rå HTML)</label>
+            <label className="text-xs uppercase text-muted-foreground">{t("pages.adminKnowledge.contentField")}</label>
             <Textarea value={body} disabled={!canEdit} onChange={(e) => setBody(e.target.value)} rows={10} className="font-mono text-sm" />
           </div>
           <div className="grid grid-cols-3 gap-3">
             <div>
-              <label className="text-xs uppercase text-muted-foreground">Risk</label>
+              <label className="text-xs uppercase text-muted-foreground">{t("pages.adminKnowledge.riskField")}</label>
               <select
                 value={risk}
                 disabled={!canEdit}
@@ -395,22 +396,22 @@ function ArticleEditor({ article, onClose, onChanged, canPublish, canArchive, on
                 id="sc" type="checkbox" checked={safety} disabled={!canEdit}
                 onChange={(e) => setSafety(e.target.checked)}
               />
-              <label htmlFor="sc" className="text-sm">Safety-critical</label>
+              <label htmlFor="sc" className="text-sm">{t("pages.adminKnowledge.safetyCritical")}</label>
             </div>
             <div>
-              <label className="text-xs uppercase text-muted-foreground">Review-dato</label>
+              <label className="text-xs uppercase text-muted-foreground">{t("pages.adminKnowledge.reviewDate")}</label>
               <Input type="date" value={expected} disabled={!canEdit} onChange={(e) => setExpected(e.target.value)} />
             </div>
           </div>
           <div className="grid gap-2">
-            <label className="text-xs uppercase text-muted-foreground">Change summary (til versionshistorik)</label>
+            <label className="text-xs uppercase text-muted-foreground">{t("pages.adminKnowledge.changeSummary")}</label>
             <Input value={changeSummary} onChange={(e) => setChangeSummary(e.target.value)} />
           </div>
 
           <Card>
-            <CardHeader className="pb-2"><CardTitle className="text-sm">Versionshistorik (read-only)</CardTitle></CardHeader>
+            <CardHeader className="pb-2"><CardTitle className="text-sm">{t("pages.adminKnowledge.versionHistory")}</CardTitle></CardHeader>
             <CardContent className="text-xs space-y-1 max-h-40 overflow-y-auto">
-              {versions.length === 0 && <div className="text-muted-foreground">Ingen versioner endnu.</div>}
+              {versions.length === 0 && <div className="text-muted-foreground">{t("pages.adminKnowledge.noVersionsYet")}</div>}
               {versions.map((v) => (
                 <div key={v.id} className="flex justify-between gap-2">
                   <span>v{v.version}</span>
@@ -439,39 +440,39 @@ function ArticleEditor({ article, onClose, onChanged, canPublish, canArchive, on
                   },
                   _change_summary: changeSummary || null,
                 },
-                "Save draft",
+                t("pages.adminKnowledge.saveDraft"),
               )}
-            >Save draft</Button>
+            >{t("pages.adminKnowledge.saveDraft")}</Button>
             <Button
               variant="outline"
               disabled={busy || article.status !== "draft"}
-              onClick={() => call("knowledge_article_submit_for_review", { _article_id: article.id }, "Submit")}
-            >Submit for review</Button>
+              onClick={() => call("knowledge_article_submit_for_review", { _article_id: article.id }, t("pages.adminKnowledge.submit"))}
+            >{t("pages.adminKnowledge.submitForReview")}</Button>
             {canPublish && (
               <>
                 <Button
                   variant="outline"
                   disabled={busy || article.status !== "in_review"}
-                  onClick={() => call("knowledge_article_approve", { _article_id: article.id }, "Approve")}
-                >Approve</Button>
+                  onClick={() => call("knowledge_article_approve", { _article_id: article.id }, t("pages.adminKnowledge.approve"))}
+                >{t("pages.adminKnowledge.approve")}</Button>
                 <Button
                   variant="outline"
                   disabled={busy || !["in_review", "approved"].includes(article.status)}
-                  onClick={() => call("knowledge_article_return_to_draft", { _article_id: article.id, _reason: changeSummary || null }, "Return to draft")}
-                >Return to draft</Button>
+                  onClick={() => call("knowledge_article_return_to_draft", { _article_id: article.id, _reason: changeSummary || null }, t("pages.adminKnowledge.returnToDraft"))}
+                >{t("pages.adminKnowledge.returnToDraft")}</Button>
                 <Button
                   disabled={busy || article.status !== "approved"}
                   onClick={() => onConfirm({ action: "publish", article })}
-                >Publish</Button>
+                >{t("pages.adminKnowledge.publish")}</Button>
               </>
             )}
             {canArchive && article.status !== "archived" && (
               <Button variant="destructive" disabled={busy} onClick={() => onConfirm({ action: "archive", article })}>
-                Archive
+                {t("pages.adminKnowledge.archive")}
               </Button>
             )}
           </div>
-          <Button variant="ghost" onClick={onClose}>Luk</Button>
+          <Button variant="ghost" onClick={onClose}>{t("pages.adminKnowledge.close")}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -480,6 +481,7 @@ function ArticleEditor({ article, onClose, onChanged, canPublish, canArchive, on
 
 // ------------------------- Emergency panel ---------------------------
 function EmergencyPanel({ canPublish }: { canPublish: boolean }) {
+  const { t } = useTranslation("admin");
   const [rows, setRows] = useState<EmergencyRow[]>([]);
   const [busy, setBusy] = useState(false);
   const [edit, setEdit] = useState<EmergencyRow | null>(null);
@@ -499,16 +501,15 @@ function EmergencyPanel({ canPublish }: { canPublish: boolean }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Country emergency info</CardTitle>
+        <CardTitle className="text-base">{t("pages.adminKnowledge.emergencyInfoTitle")}</CardTitle>
       </CardHeader>
       <CardContent>
         <p className="text-xs text-muted-foreground mb-3">
-          Verify og Publish er adskilte handlinger. Redigering af telefonnummer
-          eller kilde nulstiller verifikationen. Placeholder-numre må aldrig publiceres.
+          {t("pages.adminKnowledge.emergencyInfoHint")}
         </p>
         <div className="rounded-md border divide-y">
           {rows.length === 0 && (
-            <div className="p-4 text-sm text-muted-foreground">Ingen nødoplysninger registreret endnu.</div>
+            <div className="p-4 text-sm text-muted-foreground">{t("pages.adminKnowledge.noEmergencyInfo")}</div>
           )}
           {rows.map((r) => {
             const s = state(r);
@@ -516,8 +517,8 @@ function EmergencyPanel({ canPublish }: { canPublish: boolean }) {
               <div key={r.country_code} className="p-3 flex items-center gap-3 text-sm">
                 <span className="font-mono uppercase w-10">{r.country_code}</span>
                 <span className="flex-1">
-                  Emergency: <b>{r.emergency_number ?? "—"}</b>{" "}
-                  Police: {r.police_number ?? "—"} · Fire: {r.fire_number ?? "—"} · Medical: {r.medical_number ?? "—"}
+                  {t("pages.adminKnowledge.emergency")}: <b>{r.emergency_number ?? "—"}</b>{" "}
+                  {t("pages.adminKnowledge.police")}: {r.police_number ?? "—"} · {t("pages.adminKnowledge.fire")}: {r.fire_number ?? "—"} · {t("pages.adminKnowledge.medical")}: {r.medical_number ?? "—"}
                 </span>
                 <Badge
                   variant="outline"
@@ -529,17 +530,17 @@ function EmergencyPanel({ canPublish }: { canPublish: boolean }) {
                         : "bg-amber-500/15 text-amber-700 dark:text-amber-300"
                   }
                 >{s}</Badge>
-                <Button size="sm" variant="outline" onClick={() => setEdit(r)}>Rediger</Button>
+                <Button size="sm" variant="outline" onClick={() => setEdit(r)}>{t("pages.adminKnowledge.edit")}</Button>
                 <Button
                   size="sm" variant="outline" disabled={busy || !!r.verified_at}
                   onClick={async () => {
                     setBusy(true);
                     const { error } = await (supabase.rpc as any)("country_emergency_info_verify", { _country_code: r.country_code });
                     setBusy(false);
-                    if (error) toast({ title: "Verify fejlede", description: error.message, variant: "destructive" });
-                    else { toast({ title: "Verified" }); load(); }
+                    if (error) toast({ title: t("pages.adminKnowledge.verifyFailed"), description: error.message, variant: "destructive" });
+                    else { toast({ title: t("pages.adminKnowledge.verified") }); load(); }
                   }}
-                >Verify</Button>
+                >{t("pages.adminKnowledge.verify")}</Button>
                 {canPublish && (
                   <Button
                     size="sm" disabled={busy || !r.verified_at || r.published}
@@ -547,10 +548,10 @@ function EmergencyPanel({ canPublish }: { canPublish: boolean }) {
                       setBusy(true);
                       const { error } = await (supabase.rpc as any)("country_emergency_info_publish", { _country_code: r.country_code });
                       setBusy(false);
-                      if (error) toast({ title: "Publish fejlede", description: error.message, variant: "destructive" });
-                      else { toast({ title: "Published" }); load(); }
+                      if (error) toast({ title: t("pages.adminKnowledge.publishFailed"), description: error.message, variant: "destructive" });
+                      else { toast({ title: t("pages.adminKnowledge.published") }); load(); }
                     }}
-                  >Publish</Button>
+                  >{t("pages.adminKnowledge.publish")}</Button>
                 )}
               </div>
             );
@@ -568,6 +569,7 @@ function EmergencyPanel({ canPublish }: { canPublish: boolean }) {
 function EmergencyEditor({ row, onClose, onSaved }: {
   row: EmergencyRow; onClose: () => void; onSaved: () => void;
 }) {
+  const { t } = useTranslation("admin");
   const [f, setF] = useState<EmergencyRow>(row);
   const [busy, setBusy] = useState(false);
   const changed =
@@ -583,13 +585,13 @@ function EmergencyEditor({ row, onClose, onSaved }: {
     <Dialog open onOpenChange={(o) => !o && onClose()}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Emergency info — {row.country_code.toUpperCase()}</DialogTitle>
+          <DialogTitle>{t("pages.adminKnowledge.emergencyInfoFor", { code: row.country_code.toUpperCase() })}</DialogTitle>
         </DialogHeader>
         {changed && (
           <Alert>
             <AlertTriangle className="h-4 w-4" />
             <AlertDescription>
-              Ændringen nulstiller verifikationen. Feltet skal verificeres og publiceres igen.
+              {t("pages.adminKnowledge.changeResetsVerification")}
             </AlertDescription>
           </Alert>
         )}
@@ -604,12 +606,12 @@ function EmergencyEditor({ row, onClose, onSaved }: {
             </div>
           ))}
           <div className="col-span-2">
-            <label className="text-xs uppercase text-muted-foreground">Kilde-URL</label>
+            <label className="text-xs uppercase text-muted-foreground">{t("pages.adminKnowledge.sourceUrl")}</label>
             <Input value={f.source_url ?? ""} onChange={(e) => setF({ ...f, source_url: e.target.value || null })} />
           </div>
         </div>
         <DialogFooter>
-          <Button variant="ghost" onClick={onClose}>Annullér</Button>
+          <Button variant="ghost" onClick={onClose}>{t("pages.adminKnowledge.cancel")}</Button>
           <Button
             disabled={busy}
             onClick={async () => {
@@ -627,10 +629,10 @@ function EmergencyEditor({ row, onClose, onSaved }: {
                 })
                 .eq("country_code", row.country_code);
               setBusy(false);
-              if (error) toast({ title: "Kunne ikke gemme", description: error.message, variant: "destructive" });
-              else { toast({ title: "Gemt — husk at verificere og publicere igen" }); onSaved(); }
+              if (error) toast({ title: t("pages.adminKnowledge.couldNotSave"), description: error.message, variant: "destructive" });
+              else { toast({ title: t("pages.adminKnowledge.savedReminder") }); onSaved(); }
             }}
-          >Gem</Button>
+          >{t("pages.adminKnowledge.save")}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

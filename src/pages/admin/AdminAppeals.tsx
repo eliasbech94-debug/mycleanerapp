@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useTranslation } from "react-i18next";
 import {
   APPEAL_STATUS_LABEL,
   DECISION_LABEL,
@@ -46,8 +47,9 @@ function Filters({
   value: "open" | "closed";
   onChange: (v: "open" | "closed") => void;
 }) {
+  const { t } = useTranslation("admin");
   return (
-    <div className="flex gap-2" role="tablist" aria-label="Filtrér klagesager">
+    <div className="flex gap-2" role="tablist" aria-label={t("pages.adminAppeals.filterAriaLabel")}>
       {(["open", "closed"] as const).map((v) => (
         <Button
           key={v}
@@ -57,7 +59,7 @@ function Filters({
           size="sm"
           onClick={() => onChange(v)}
         >
-          {v === "open" ? "Åbne sager" : "Afsluttede"}
+          {v === "open" ? t("pages.adminAppeals.openCases") : t("pages.adminAppeals.closedCases")}
         </Button>
       ))}
     </div>
@@ -65,6 +67,7 @@ function Filters({
 }
 
 function AppealRow({ row, canDecide, onDone }: { row: Row; canDecide: boolean; onDone: () => void }) {
+  const { t } = useTranslation("admin");
   const [reason, setReason] = useState("");
   const [busy, setBusy] = useState<AppealStatus | null>(null);
   const [attachments, setAttachments] = useState<AppealAttachment[]>([]);
@@ -81,7 +84,7 @@ function AppealRow({ row, canDecide, onDone }: { row: Row; canDecide: boolean; o
       setReason("");
       onDone();
     } catch (e) {
-      toast({ title: "Handlingen fejlede", description: appealErrorMessage(e), variant: "destructive" });
+      toast({ title: t("pages.adminAppeals.actionFailed"), description: appealErrorMessage(e), variant: "destructive" });
     } finally {
       setBusy(null);
     }
@@ -92,7 +95,7 @@ function AppealRow({ row, canDecide, onDone }: { row: Row; canDecide: boolean; o
       const url = await getAppealEvidenceUrl(id);
       if (url) window.open(url, "_blank", "noopener,noreferrer");
     } catch (e) {
-      toast({ title: "Kunne ikke åbne dokumentet", description: appealErrorMessage(e), variant: "destructive" });
+      toast({ title: t("pages.adminAppeals.cantOpenDocument"), description: appealErrorMessage(e), variant: "destructive" });
     }
   }
 
@@ -102,7 +105,7 @@ function AppealRow({ row, canDecide, onDone }: { row: Row; canDecide: boolean; o
     <Card>
       <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2 space-y-0">
         <CardTitle className="text-base">
-          {row.notice ? DECISION_LABEL[row.notice.decision_type] : "Afgørelse"}
+          {row.notice ? DECISION_LABEL[row.notice.decision_type] : t("pages.adminAppeals.decision")}
         </CardTitle>
         <div className="flex items-center gap-2">
           <Badge variant="outline">{APPEAL_STATUS_LABEL[row.status]}</Badge>
@@ -115,13 +118,13 @@ function AppealRow({ row, canDecide, onDone }: { row: Row; canDecide: boolean; o
         {row.notice && (
           <div className="rounded-lg bg-muted/40 p-3">
             <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              Oprindelig begrundelse
+              {t("pages.adminAppeals.originalReasoning")}
             </div>
             <p className="mt-1 whitespace-pre-wrap">{row.notice.provider_reason}</p>
             {row.notice.ai_assisted && (
               <p className="mt-2 inline-flex items-center gap-1 text-xs text-amber-700">
                 <ShieldAlert className="h-3.5 w-3.5" aria-hidden="true" />
-                Automatisk beslutningsstøtte anvendt — kræver selvstændig menneskelig vurdering.
+                {t("pages.adminAppeals.aiAssistedNote")}
               </p>
             )}
           </div>
@@ -129,7 +132,7 @@ function AppealRow({ row, canDecide, onDone }: { row: Row; canDecide: boolean; o
 
         <div>
           <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            Providerens forklaring
+            {t("pages.adminAppeals.providerExplanation")}
           </div>
           <p className="mt-1 whitespace-pre-wrap">{row.provider_statement}</p>
         </div>
@@ -137,7 +140,7 @@ function AppealRow({ row, canDecide, onDone }: { row: Row; canDecide: boolean; o
         {row.provider_followup && (
           <div>
             <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              Supplerende oplysninger
+              {t("pages.adminAppeals.additionalInfo")}
             </div>
             <p className="mt-1 whitespace-pre-wrap">{row.provider_followup}</p>
           </div>
@@ -162,7 +165,7 @@ function AppealRow({ row, canDecide, onDone }: { row: Row; canDecide: boolean; o
 
         {row.reviewer_reason && (
           <div className="rounded-lg border p-3">
-            <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Afgørelse</div>
+            <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t("pages.adminAppeals.decision")}</div>
             <p className="mt-1 whitespace-pre-wrap">{row.reviewer_reason}</p>
           </div>
         )}
@@ -170,18 +173,18 @@ function AppealRow({ row, canDecide, onDone }: { row: Row; canDecide: boolean; o
         {open && (
           <div className="space-y-3 border-t pt-4">
             <label htmlFor={`reason-${row.id}`} className="text-sm font-medium">
-              Begrundelse (vises for provideren)
+              {t("pages.adminAppeals.reasonLabel")}
             </label>
             <Textarea
               id={`reason-${row.id}`}
               rows={3}
               value={reason}
               onChange={(e) => setReason(e.target.value)}
-              placeholder="Mindst 10 tegn."
+              placeholder={t("pages.adminAppeals.reasonPlaceholder")}
             />
             <div className="flex flex-wrap gap-2">
               <Button size="sm" variant="outline" disabled={busy !== null} onClick={() => transition("under_review")}>
-                Tag under behandling
+                {t("pages.adminAppeals.takeUnderReview")}
               </Button>
               <Button
                 size="sm"
@@ -189,7 +192,7 @@ function AppealRow({ row, canDecide, onDone }: { row: Row; canDecide: boolean; o
                 disabled={busy !== null || reason.trim().length < 10}
                 onClick={() => transition("information_requested")}
               >
-                Bed om oplysninger
+                {t("pages.adminAppeals.requestInfo")}
               </Button>
               {canDecide && (
                 <>
@@ -199,7 +202,7 @@ function AppealRow({ row, canDecide, onDone }: { row: Row; canDecide: boolean; o
                     onClick={() => transition("changed")}
                   >
                     {busy === "changed" && <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />}
-                    Giv medhold — afgørelse ændres
+                    {t("pages.adminAppeals.upholdAppeal")}
                   </Button>
                   <Button
                     size="sm"
@@ -208,14 +211,14 @@ function AppealRow({ row, canDecide, onDone }: { row: Row; canDecide: boolean; o
                     onClick={() => transition("upheld")}
                   >
                     {busy === "upheld" && <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />}
-                    Fasthold afgørelsen
+                    {t("pages.adminAppeals.maintainDecision")}
                   </Button>
                 </>
               )}
             </div>
             {!canDecide && (
               <p className="text-xs text-muted-foreground">
-                Kun en administrator kan træffe den endelige afgørelse.
+                {t("pages.adminAppeals.onlyAdminCanDecide")}
               </p>
             )}
           </div>
@@ -226,6 +229,7 @@ function AppealRow({ row, canDecide, onDone }: { row: Row; canDecide: boolean; o
 }
 
 export default function AdminAppeals() {
+  const { t } = useTranslation("admin");
   const { roles } = useUserRoles();
   const canDecide = roles.some((r) => r === "admin" || r === "super_admin");
   const [filter, setFilter] = useState<"open" | "closed">("open");
@@ -267,14 +271,14 @@ export default function AdminAppeals() {
 
   return (
     <main className="mx-auto w-full max-w-4xl px-4 py-8">
-      <h1 className="font-display text-3xl">Klagesager</h1>
+      <h1 className="font-display text-3xl">{t("pages.adminAppeals.title")}</h1>
       <p className="mt-2 text-sm text-muted-foreground">
-        Menneskelig gennemgang af afgørelser om providerkonti. Ældste sag først.
+        {t("pages.adminAppeals.subtitle")}
       </p>
 
       <div className="mt-6 flex items-center justify-between gap-3">
         <Filters value={filter} onChange={setFilter} />
-        <span className="text-sm text-muted-foreground">{visible.length} sager</span>
+        <span className="text-sm text-muted-foreground">{t("pages.adminAppeals.caseCount", { count: visible.length })}</span>
       </div>
 
       <div className="mt-6 space-y-4">
@@ -286,7 +290,7 @@ export default function AdminAppeals() {
         ) : visible.length === 0 ? (
           <Card>
             <CardContent className="py-10 text-center text-sm text-muted-foreground">
-              Ingen sager i denne visning.
+              {t("pages.adminAppeals.noCasesInView")}
             </CardContent>
           </Card>
         ) : (

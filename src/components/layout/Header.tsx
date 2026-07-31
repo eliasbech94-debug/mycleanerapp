@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X, Globe, ChevronDown, User as UserIcon, LogOut } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { countries } from "@/lib/countries";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserRoles } from "@/hooks/useUserRoles";
@@ -106,61 +107,62 @@ type NavLinkItem = { to: string; label: string };
 function useMenuForRole() {
   const { user } = useAuth();
   const { isAdmin, isEmployee, isProvider } = useUserRoles();
+  const { t } = useTranslation("customer");
 
   const publicLinks: NavLinkItem[] = [
-    { to: "/book", label: "Book en cleaner" },
-    { to: "/find-cleaner", label: "Find cleaner" },
-    { to: "/faq", label: "Sådan virker det" },
-    { to: "/provider/register", label: "Bliv provider" },
-    { to: "/faq", label: "FAQ" },
+    { to: "/book", label: t("surfaces.header.nav.bookCleaner") },
+    { to: "/find-cleaner", label: t("surfaces.header.nav.findCleaner") },
+    { to: "/faq", label: t("surfaces.header.nav.howItWorks") },
+    { to: "/provider/register", label: t("surfaces.header.nav.becomeProvider") },
+    { to: "/faq", label: t("surfaces.header.nav.faq") },
   ];
 
   if (!user) return { primary: publicLinks, account: [] as NavLinkItem[] };
 
   if (isAdmin) {
     return {
-      primary: [{ to: "/faq", label: "FAQ" }, { to: "/regler", label: "Regler" }],
+      primary: [{ to: "/faq", label: t("surfaces.header.nav.faq") }, { to: "/regler", label: t("surfaces.header.nav.rules") }],
       account: [
-        { to: "/admin", label: "Admin dashboard" },
-        { to: "/profil", label: "Min profil" },
+        { to: "/admin", label: t("surfaces.header.nav.adminDashboard") },
+        { to: "/profil", label: t("surfaces.header.nav.myProfile") },
       ],
     };
   }
   if (isEmployee) {
     return {
-      primary: [{ to: "/faq", label: "FAQ" }, { to: "/regler", label: "Regler" }],
+      primary: [{ to: "/faq", label: t("surfaces.header.nav.faq") }, { to: "/regler", label: t("surfaces.header.nav.rules") }],
       account: [
-        { to: "/employee", label: "Medarbejder" },
-        { to: "/profil", label: "Min profil" },
+        { to: "/employee", label: t("surfaces.header.nav.employeePortal") },
+        { to: "/profil", label: t("surfaces.header.nav.myProfile") },
       ],
     };
   }
   if (isProvider) {
     return {
       primary: [
-        { to: "/provider-dashboard", label: "Dashboard" },
-        { to: "/provider/bilag", label: "Bilag" },
-        { to: "/faq", label: "FAQ" },
-        { to: "/regler", label: "Regler" },
+        { to: "/provider-dashboard", label: t("surfaces.header.nav.dashboard") },
+        { to: "/provider/bilag", label: t("surfaces.header.nav.receipts") },
+        { to: "/faq", label: t("surfaces.header.nav.faq") },
+        { to: "/regler", label: t("surfaces.header.nav.rules") },
       ],
       account: [
-        { to: "/provider-dashboard", label: "Provider dashboard" },
-        { to: "/provider/bilag", label: "Bilag & udgifter" },
-        { to: "/profil", label: "Min profil" },
+        { to: "/provider-dashboard", label: t("surfaces.header.nav.providerDashboard") },
+        { to: "/provider/bilag", label: t("surfaces.header.nav.receipts") },
+        { to: "/profil", label: t("surfaces.header.nav.myProfile") },
       ],
     };
   }
   // Customer (default logged-in)
   return {
     primary: [
-      { to: "/book", label: "Book en cleaner" },
-      { to: "/mine-bookinger", label: "Mine bookinger" },
-      { to: "/faq", label: "FAQ" },
-      { to: "/regler", label: "Regler" },
+      { to: "/book", label: t("surfaces.header.nav.bookCleaner") },
+      { to: "/mine-bookinger", label: t("surfaces.header.nav.myBookings") },
+      { to: "/faq", label: t("surfaces.header.nav.faq") },
+      { to: "/regler", label: t("surfaces.header.nav.rules") },
     ],
     account: [
-      { to: "/profil", label: "Min profil" },
-      { to: "/mine-bookinger", label: "Mine bookinger" },
+      { to: "/profil", label: t("surfaces.header.nav.myProfile") },
+      { to: "/mine-bookinger", label: t("surfaces.header.nav.myBookings") },
     ],
   };
 }
@@ -172,6 +174,7 @@ const Header = () => {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const { primary, account } = useMenuForRole();
+  const { t } = useTranslation("customer");
 
   const onAdminRoute = location.pathname.startsWith("/admin");
   const onEmployeeRoute = location.pathname.startsWith("/employee");
@@ -194,7 +197,7 @@ const Header = () => {
       <div className="container-wide flex h-16 items-center justify-between">
         <div className="flex items-center gap-2">
           <BackButton className="mr-1" />
-          <Link to="/" className="flex items-center gap-2" aria-label="MyCleaner – forside">
+          <Link to="/" className="flex items-center gap-2" aria-label={t("surfaces.header.homeAriaLabel")}>
             <img
               src="/mycleaner-logo.png"
               alt="MyCleaner"
@@ -237,7 +240,7 @@ const Header = () => {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm" className="gap-2">
-                  <UserIcon className="h-4 w-4" /> Min konto
+                  <UserIcon className="h-4 w-4" /> {t("surfaces.header.account.myAccount")}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -248,23 +251,23 @@ const Header = () => {
                 ))}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleSignOut}>
-                  <LogOut className="h-4 w-4 mr-2" /> Log ud
+                  <LogOut className="h-4 w-4 mr-2" /> {t("surfaces.header.account.logOut")}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
             <>
               <Link to="/login">
-                <Button variant="ghost" size="sm">Log ind</Button>
+                <Button variant="ghost" size="sm">{t("surfaces.header.login")}</Button>
               </Link>
               <Link to="/customer/register">
-                <Button size="sm">Kom i gang</Button>
+                <Button size="sm">{t("surfaces.header.getStarted")}</Button>
               </Link>
             </>
           )}
         </div>
 
-        <button className="lg:hidden" aria-label="Toggle menu" aria-expanded={mobileOpen} onClick={() => setMobileOpen(!mobileOpen)}>
+        <button className="lg:hidden" aria-label={t("surfaces.header.toggleMenu")} aria-expanded={mobileOpen} onClick={() => setMobileOpen(!mobileOpen)}>
           {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </button>
       </div>
@@ -302,16 +305,16 @@ const Header = () => {
                   handleSignOut();
                 }}
               >
-                <LogOut className="h-4 w-4 mr-2" /> Log ud
+                <LogOut className="h-4 w-4 mr-2" /> {t("surfaces.header.account.logOut")}
               </Button>
             </>
           ) : (
             <>
               <Link to="/login" onClick={() => setMobileOpen(false)}>
-                <Button variant="ghost" className="w-full">Log ind</Button>
+                <Button variant="ghost" className="w-full">{t("surfaces.header.login")}</Button>
               </Link>
               <Link to="/customer/register" onClick={() => setMobileOpen(false)}>
-                <Button className="w-full">Kom i gang</Button>
+                <Button className="w-full">{t("surfaces.header.getStarted")}</Button>
               </Link>
             </>
           )}

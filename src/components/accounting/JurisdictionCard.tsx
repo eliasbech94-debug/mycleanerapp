@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -31,48 +32,49 @@ export default function JurisdictionCard({
   onOpenRules,
   onCheckDetails,
 }: Props) {
+  const { t } = useTranslation("finance");
   const resolved = jurisdiction.status === "resolved" ? jurisdiction : null;
   const registrationLabel =
     (provider.registrationType &&
       rulePack?.labels.registrationTypeLabels[provider.registrationType]) ||
     provider.registrationType ||
-    "Ikke oplyst";
+    t("ui.jurisdiction.notProvided");
 
   const indirectTaxLabel = !rulePack?.indirectTaxEnabled
-    ? "Ikke relevant i dette regelsæt"
+    ? t("ui.jurisdiction.indirectTaxNotRelevant")
     : provider.indirectTaxRegistered === true
-      ? `Registreret (${rulePack.labels.indirectTaxLabel})`
+      ? t("ui.jurisdiction.registeredWithLabel", { label: rulePack.labels.indirectTaxLabel })
       : provider.indirectTaxRegistered === false
-        ? "Ikke registreret"
-        : "Ukendt — kræver kontrol";
+        ? t("ui.jurisdiction.notRegistered")
+        : t("ui.jurisdiction.unknownRequiresReview");
 
   return (
     <Card>
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between gap-3">
-          <CardTitle className="text-base">Regler anvendt</CardTitle>
+          <CardTitle className="text-base">{t("ui.jurisdiction.title")}</CardTitle>
           {resolved ? (
             <Badge variant="secondary">{resolved.rulePackVersion}</Badge>
           ) : (
-            <Badge variant="destructive">Kræver kontrol</Badge>
+            <Badge variant="destructive">{t("ui.jurisdiction.requiresReview")}</Badge>
           )}
         </div>
       </CardHeader>
       <CardContent>
         <div className="divide-y divide-border">
           <Row
-            label="Land"
+            label={t("ui.jurisdiction.country")}
             value={
               resolved?.countryCode ??
               (jurisdiction.status === "requires_review" && jurisdiction.candidateCountries.length > 0
                 ? jurisdiction.candidateCountries.join(", ")
-                : "Ikke oplyst")
+                : t("ui.jurisdiction.notProvided"))
             }
           />
-          <Row label="Registrering" value={String(registrationLabel)} />
-          <Row label="Indirekte skat" value={indirectTaxLabel} />
-          <Row label="Regelversion" value={resolved?.rulePackVersion ?? "—"} />
-          <Row label="Valuta" value={resolved?.currency ?? provider.accountingCurrency ?? "—"} />
+          <Row label={t("ui.jurisdiction.registration")} value={String(registrationLabel)} />
+          <Row label={t("ui.jurisdiction.indirectTax")} value={indirectTaxLabel} />
+          <Row label={t("ui.jurisdiction.rulePackVersion")} value={resolved?.rulePackVersion ?? "—"} />
+          <Row label={t("ui.jurisdiction.currency")} value={resolved?.currency ?? provider.accountingCurrency ?? "—"} />
         </div>
 
         {jurisdiction.status === "requires_review" && (
@@ -83,10 +85,10 @@ export default function JurisdictionCard({
 
         <div className="mt-4 flex flex-wrap gap-2">
           <Button variant="outline" size="sm" onClick={onCheckDetails}>
-            Kontrollér oplysninger
+            {t("ui.jurisdiction.checkDetails")}
           </Button>
           <Button variant="ghost" size="sm" onClick={onOpenRules}>
-            Se regler for dit land
+            {t("ui.jurisdiction.seeRules")}
           </Button>
         </div>
       </CardContent>

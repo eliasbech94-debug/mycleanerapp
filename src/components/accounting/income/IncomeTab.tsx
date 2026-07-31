@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Plus, Upload } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -17,8 +18,6 @@ import {
   EXTERNAL_INCOME_DOCUMENTATION_LABELS,
   EXTERNAL_INCOME_PAYMENT_STATUS_LABELS,
   EXTERNAL_INCOME_SOURCE_LABELS,
-  EXTERNAL_INCOME_RESPONSIBILITY_TEXT,
-  INCOME_TAB_HELPER_TEXT,
   formatMinor,
   type AccountingPeriod,
   type AccountingRulePack,
@@ -55,6 +54,7 @@ export default function IncomeTab({
   onCreate,
   onImport,
 }: IncomeTabProps) {
+  const { t } = useTranslation("finance");
   const [addOpen, setAddOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
   const [source, setSource] = useState(ALL);
@@ -94,29 +94,29 @@ export default function IncomeTab({
   return (
     <div className="space-y-4">
       <div className="space-y-1">
-        <p className="text-sm text-muted-foreground">{INCOME_TAB_HELPER_TEXT}</p>
-        <p className="text-xs text-muted-foreground">{EXTERNAL_INCOME_RESPONSIBILITY_TEXT}</p>
+        <p className="text-sm text-muted-foreground">{t("ui.income.tab.helperText")}</p>
+        <p className="text-xs text-muted-foreground">{t("ui.income.tab.responsibilityText")}</p>
       </div>
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <SummaryCard
-          title="MyCleaner-indkomst"
-          hint="Automatisk registreret via MyCleaner"
+          title={t("ui.income.tab.myCleanerIncomeTitle")}
+          hint={t("ui.income.tab.myCleanerIncomeHint")}
           value={formatMinor(result.myCleanerIncomeMinor, accountingCurrency, locale)}
         />
         <SummaryCard
-          title="Ekstern indkomst"
-          hint="Registreret manuelt af dig"
+          title={t("ui.income.tab.externalIncomeTitle")}
+          hint={t("ui.income.tab.externalIncomeHint")}
           value={formatMinor(result.externalIncomeMinor, accountingCurrency, locale)}
         />
         <SummaryCard
-          title="Samlet indkomst"
-          hint="Beregnet af MyCleaner"
+          title={t("ui.income.tab.totalIncomeTitle")}
+          hint={t("ui.income.tab.totalIncomeHint")}
           value={formatMinor(result.totalIncomeMinor, accountingCurrency, locale)}
         />
         <SummaryCard
-          title="Manglende kontrol"
-          hint="Poster der kræver kontrol"
+          title={t("ui.income.tab.missingReviewTitle")}
+          hint={t("ui.income.tab.missingReviewHint")}
           value={String(result.reviewRequiredExternalIncomeItems.length)}
         />
       </div>
@@ -124,26 +124,26 @@ export default function IncomeTab({
       <div className="flex flex-wrap gap-2">
         <Button size="sm" onClick={() => setAddOpen(true)} disabled={readOnly}>
           <Plus className="mr-1 h-4 w-4" aria-hidden />
-          Tilføj indkomst
+          {t("ui.income.tab.addIncome")}
         </Button>
         <Button size="sm" variant="outline" onClick={() => setImportOpen(true)} disabled={readOnly}>
           <Upload className="mr-1 h-4 w-4" aria-hidden />
-          Importér indkomst
+          {t("ui.income.tab.importIncome")}
         </Button>
         {readOnly && (
           <p className="w-full text-xs text-muted-foreground">
-            Perioden er lukket og kan ikke redigeres.
+            {t("ui.income.tab.readOnlyNote")}
           </p>
         )}
       </div>
 
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-base">Kildefordeling</CardTitle>
+          <CardTitle className="text-base">{t("ui.income.tab.sourceDistributionTitle")}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-1 text-sm">
           {result.incomeBySource.length === 0 ? (
-            <p className="text-muted-foreground">Ingen medregnet indkomst i perioden endnu.</p>
+            <p className="text-muted-foreground">{t("ui.income.tab.noIncomeYet")}</p>
           ) : (
             <ul className="space-y-1">
               {result.incomeBySource.map((row) => (
@@ -153,7 +153,7 @@ export default function IncomeTab({
                 >
                   <span className="min-w-0 truncate text-muted-foreground">
                     {row.sourceType === "mycleaner"
-                      ? "MyCleaner"
+                      ? t("ui.income.tab.myCleanerSourceLabel")
                       : `${EXTERNAL_INCOME_SOURCE_LABELS[
                           row.sourceType as keyof typeof EXTERNAL_INCOME_SOURCE_LABELS
                         ] ?? row.sourceType}${row.sourceName ? ` · ${row.sourceName}` : ""}`}
@@ -170,53 +170,53 @@ export default function IncomeTab({
 
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-base">Ekstern indkomst</CardTitle>
+          <CardTitle className="text-base">{t("ui.income.tab.externalIncomeCardTitle")}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
-            <Filter label="Kilde" value={source} onChange={setSource}>
+            <Filter label={t("ui.income.tab.filterSource")} value={source} onChange={setSource}>
               {Object.entries(EXTERNAL_INCOME_SOURCE_LABELS).map(([key, label]) => (
                 <SelectItem key={key} value={key}>
                   {label}
                 </SelectItem>
               ))}
             </Filter>
-            <Filter label="Platform" value={platform} onChange={setPlatform}>
+            <Filter label={t("ui.income.tab.filterPlatform")} value={platform} onChange={setPlatform}>
               {platforms.map((name) => (
                 <SelectItem key={name} value={name}>
                   {name}
                 </SelectItem>
               ))}
             </Filter>
-            <Filter label="Status" value={status} onChange={setStatus}>
+            <Filter label={t("ui.income.tab.filterStatus")} value={status} onChange={setStatus}>
               {Object.entries(EXTERNAL_INCOME_PAYMENT_STATUS_LABELS).map(([key, label]) => (
                 <SelectItem key={key} value={key}>
                   {label}
                 </SelectItem>
               ))}
             </Filter>
-            <Filter label="Valuta" value={currency} onChange={setCurrency}>
+            <Filter label={t("ui.income.tab.filterCurrency")} value={currency} onChange={setCurrency}>
               {currencies.map((code) => (
                 <SelectItem key={code} value={code}>
                   {code}
                 </SelectItem>
               ))}
             </Filter>
-            <Filter label="Dokumentation" value={documentation} onChange={setDocumentation}>
+            <Filter label={t("ui.income.tab.filterDocumentation")} value={documentation} onChange={setDocumentation}>
               {Object.entries(EXTERNAL_INCOME_DOCUMENTATION_LABELS).map(([key, label]) => (
                 <SelectItem key={key} value={key}>
                   {label}
                 </SelectItem>
               ))}
             </Filter>
-            <Filter label="Kræver kontrol" value={onlyReview} onChange={setOnlyReview}>
-              <SelectItem value="review">Kun poster der kræver kontrol</SelectItem>
+            <Filter label={t("ui.income.tab.filterRequiresReview")} value={onlyReview} onChange={setOnlyReview}>
+              <SelectItem value="review">{t("ui.income.tab.filterRequiresReviewOnly")}</SelectItem>
             </Filter>
           </div>
 
           {visible.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              Ingen eksterne indkomstposter i perioden {period.periodStart} – {period.periodEnd}.
+              {t("ui.income.tab.noEntriesInPeriod", { start: period.periodStart, end: period.periodEnd })}
             </p>
           ) : (
             <ul className="space-y-2">
@@ -240,21 +240,21 @@ export default function IncomeTab({
                         <p className="text-xs text-muted-foreground">
                           {item.accountingAmountMinor != null
                             ? formatMinor(item.accountingAmountMinor, accountingCurrency, locale)
-                            : "Valutakurs mangler"}
+                            : t("ui.income.tab.exchangeRateMissing")}
                         </p>
                       )}
                     </div>
                   </div>
                   <div className="mt-2 flex flex-wrap gap-1">
-                    <Badge variant="outline">Registreret manuelt af dig</Badge>
+                    <Badge variant="outline">{t("ui.income.tab.registeredManually")}</Badge>
                     <Badge variant="outline">
                       {EXTERNAL_INCOME_PAYMENT_STATUS_LABELS[item.paymentStatus]}
                     </Badge>
                     <Badge variant="outline">
                       {EXTERNAL_INCOME_DOCUMENTATION_LABELS[item.documentationStatus]}
                     </Badge>
-                    {reviewIds.has(item.id) && <Badge variant="destructive">Kræver kontrol</Badge>}
-                    {excludedIds.has(item.id) && <Badge variant="secondary">Ikke medregnet</Badge>}
+                    {reviewIds.has(item.id) && <Badge variant="destructive">{t("ui.income.tab.requiresReview")}</Badge>}
+                    {excludedIds.has(item.id) && <Badge variant="secondary">{t("ui.income.tab.notIncluded")}</Badge>}
                   </div>
                 </li>
               ))}
@@ -320,6 +320,8 @@ function Filter({
   onChange: (value: string) => void;
   children: React.ReactNode;
 }) {
+  const { t } = useTranslation("finance");
+  const allLabel = t("ui.income.tab.filterAll");
   return (
     <div className="space-y-1">
       <Label className="text-xs">{label}</Label>
@@ -328,7 +330,7 @@ function Filter({
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value={ALL}>Alle</SelectItem>
+          <SelectItem value={ALL}>{allLabel}</SelectItem>
           {children}
         </SelectContent>
       </Select>

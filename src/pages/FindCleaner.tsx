@@ -16,6 +16,7 @@ import { getProvider, getCountry, deriveHourlyRate } from "@/lib/providers";
 import type { ProviderProfileData } from "@/lib/providers";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { MarketSeo } from "@/components/seo/MarketSeo";
+import { useTranslation } from "react-i18next";
 
 // Deterministic marketplace attributes (until the DB carries them).
 // Same provider id always resolves to the same flags across renders/sessions.
@@ -148,6 +149,7 @@ function smoothFitBounds(
 
 
 export default function FindCleaner() {
+  const { t } = useTranslation("marketplace");
   const navigate = useNavigate();
   const mapRef = useRef<HTMLDivElement>(null);
   const { location: userLocation } = useLocation();
@@ -351,7 +353,7 @@ export default function FindCleaner() {
 
       setProviders(fallback);
     } catch (err: any) {
-      setError(err.message || "Kunne ikke hente providere");
+      setError(err.message || t("surfaces.findCleaner.errors.loadProviders"));
     } finally {
       setLoading(false);
     }
@@ -431,7 +433,7 @@ export default function FindCleaner() {
         };
       })
       .catch((err) => {
-        setError(err.message || "Kunne ikke indlæse kortet");
+        setError(err.message || t("surfaces.findCleaner.errors.loadMap"));
         setLoading(false);
       });
 
@@ -493,7 +495,11 @@ export default function FindCleaner() {
         mapInstance.current?.panTo({ lat: provider.lat, lng: provider.lng });
       });
       // Native browser tooltip (a11y + fast).
-      marker.setTitle(`${provider.name} — dækker ~${Math.round(COVERAGE_RADIUS_M / 1000)} km omkring ${provider.address || getCountry(provider.countryCode).name}`);
+      marker.setTitle(t("surfaces.findCleaner.map.markerTitle", {
+        name: provider.name,
+        radius: Math.round(COVERAGE_RADIUS_M / 1000),
+        area: provider.address || getCountry(provider.countryCode).name,
+      }));
 
       // Rich hover tooltip with a preview of the coverage area.
       const country = getCountry(provider.countryCode);
@@ -508,9 +514,9 @@ export default function FindCleaner() {
           </div>
           <div style="margin-top:6px; display:flex; align-items:center; gap:6px; font-size:11px; color:#168a7a; font-weight:600;">
             <span style="display:inline-block; width:10px; height:10px; border-radius:9999px; background:#168a7a; opacity:0.35;"></span>
-            Dækker ~${Math.round(COVERAGE_RADIUS_M / 1000)} km serviceområde
+            ${t("surfaces.findCleaner.map.coverageLabel", { radius: Math.round(COVERAGE_RADIUS_M / 1000) })}
           </div>
-          <div style="margin-top:4px; font-size:10px; color:#6b7280;">Klik for at åbne profil</div>
+          <div style="margin-top:4px; font-size:10px; color:#6b7280;">${t("surfaces.findCleaner.map.clickToOpen")}</div>
         </div>`;
 
       marker.addListener("mouseover", () => {
@@ -582,13 +588,14 @@ export default function FindCleaner() {
               M
             </div>
             <div>
-              <h1 className="text-sm font-semibold leading-tight">Find din cleaner</h1>
+              <h1 className="text-sm font-semibold leading-tight">{t("surfaces.findCleaner.header.title")}</h1>
               <p className="text-[10px] text-muted-foreground">
-                {filteredProviders.length} providere
-                {countryFilter.size > 0 &&
-                  ` i ${Array.from(countryFilter)
-                    .map((c) => getCountry(c).name)
-                    .join(", ")}`}
+                {countryFilter.size > 0
+                  ? t("surfaces.findCleaner.header.countInArea", {
+                      count: filteredProviders.length,
+                      area: Array.from(countryFilter).map((c) => getCountry(c).name).join(", "),
+                    })
+                  : t("surfaces.findCleaner.header.count", { count: filteredProviders.length })}
               </p>
             </div>
           </div>
@@ -597,7 +604,7 @@ export default function FindCleaner() {
               <SheetTrigger asChild>
                 <Button variant="outline" size="sm" className="h-9 gap-1.5 text-xs relative">
                   <SlidersHorizontal className="h-4 w-4" />
-                  Filtre
+                  {t("surfaces.findCleaner.filters.button")}
                   {activeFilterCount > 0 && (
                     <span className="ml-1 rounded-full bg-primary text-primary-foreground text-[10px] px-1.5 py-0.5 font-bold leading-none">
                       {activeFilterCount}
@@ -607,7 +614,7 @@ export default function FindCleaner() {
               </SheetTrigger>
               <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
                 <SheetHeader>
-                  <SheetTitle>Filtrér cleaners</SheetTitle>
+                  <SheetTitle>{t("surfaces.findCleaner.filters.sheetTitle")}</SheetTitle>
                 </SheetHeader>
 
                 <div className="mt-6 space-y-6 pb-6">
@@ -622,7 +629,7 @@ export default function FindCleaner() {
                       }`}
                     >
                       <CalendarCheck className="h-4 w-4 mb-1 text-primary" />
-                      <div className="text-xs font-semibold">Ledig i dag</div>
+                      <div className="text-xs font-semibold">{t("surfaces.findCleaner.filters.availableToday")}</div>
                     </button>
                     <button
                       type="button"
@@ -633,16 +640,16 @@ export default function FindCleaner() {
                       }`}
                     >
                       <Zap className="h-4 w-4 mb-1 text-primary" />
-                      <div className="text-xs font-semibold">Instant Book</div>
+                      <div className="text-xs font-semibold">{t("surfaces.findCleaner.filters.instantBook")}</div>
                     </button>
                   </div>
 
                   {/* Rating */}
                   <div>
                     <div className="flex justify-between items-center mb-2">
-                      <label className="text-sm font-semibold">Min. rating</label>
+                      <label className="text-sm font-semibold">{t("surfaces.findCleaner.filters.minRating")}</label>
                       <span className="text-xs text-muted-foreground">
-                        {minRating > 0 ? `${minRating.toFixed(1)}★+` : "Alle"}
+                        {minRating > 0 ? t("surfaces.findCleaner.filters.ratingValue", { value: minRating.toFixed(1) }) : t("surfaces.findCleaner.filters.any")}
                       </span>
                     </div>
                     <Slider
@@ -657,9 +664,9 @@ export default function FindCleaner() {
                   {/* Max hourly */}
                   <div>
                     <div className="flex justify-between items-center mb-2">
-                      <label className="text-sm font-semibold">Maks. timepris</label>
+                      <label className="text-sm font-semibold">{t("surfaces.findCleaner.filters.maxHourly")}</label>
                       <span className="text-xs text-muted-foreground">
-                        {maxHourly !== null ? `${maxHourly} kr/t` : "Alle"}
+                        {maxHourly !== null ? t("surfaces.findCleaner.filters.maxHourlyValue", { value: maxHourly }) : t("surfaces.findCleaner.filters.any")}
                       </span>
                     </div>
                     <Slider
@@ -674,9 +681,9 @@ export default function FindCleaner() {
                   {/* Experience */}
                   <div>
                     <div className="flex justify-between items-center mb-2">
-                      <label className="text-sm font-semibold">Min. års erfaring</label>
+                      <label className="text-sm font-semibold">{t("surfaces.findCleaner.filters.minExperience")}</label>
                       <span className="text-xs text-muted-foreground">
-                        {minExperience > 0 ? `${minExperience}+ år` : "Alle"}
+                        {minExperience > 0 ? t("surfaces.findCleaner.filters.experienceValue", { value: minExperience }) : t("surfaces.findCleaner.filters.any")}
                       </span>
                     </div>
                     <Slider
@@ -690,7 +697,7 @@ export default function FindCleaner() {
 
                   {/* Languages */}
                   <div>
-                    <div className="text-sm font-semibold mb-2">Sprog</div>
+                    <div className="text-sm font-semibold mb-2">{t("surfaces.findCleaner.filters.languages")}</div>
                     <div className="flex flex-wrap gap-2">
                       {languageOptions.map((lang) => {
                         const active = selectedLanguages.has(lang);
@@ -717,7 +724,7 @@ export default function FindCleaner() {
 
                   {/* Services */}
                   <div>
-                    <div className="text-sm font-semibold mb-2">Services</div>
+                    <div className="text-sm font-semibold mb-2">{t("surfaces.findCleaner.filters.services")}</div>
                     <div className="space-y-2">
                       {serviceOptions.map((svc) => (
                         <label key={svc} className="flex items-center gap-2 text-sm cursor-pointer">
@@ -738,10 +745,10 @@ export default function FindCleaner() {
 
                 <SheetFooter className="sticky bottom-0 bg-background border-t pt-3 flex-row gap-2">
                   <Button variant="outline" className="flex-1" onClick={clearAllFilters}>
-                    Nulstil
+                    {t("surfaces.findCleaner.filters.reset")}
                   </Button>
                   <Button className="flex-1" onClick={() => setFilterSheetOpen(false)}>
-                    Vis {filteredProviders.length} cleaners
+                    {t("surfaces.findCleaner.filters.showResults", { count: filteredProviders.length })}
                   </Button>
                 </SheetFooter>
               </SheetContent>
@@ -754,14 +761,14 @@ export default function FindCleaner() {
               onClick={() => setDrawerOpen(true)}
             >
               <ChevronUp className="h-4 w-4" />
-              Se liste
+              {t("surfaces.findCleaner.list.showList")}
             </Button>
           </div>
         </div>
         <div
           className="flex flex-wrap gap-1.5"
           role="group"
-          aria-label="Filtrér efter serviceområde (vælg flere)"
+          aria-label={t("surfaces.findCleaner.filters.areaAriaLabel")}
         >
           <button
             type="button"
@@ -776,7 +783,7 @@ export default function FindCleaner() {
                 : "border-border bg-background hover:bg-muted"
             }`}
           >
-            🌍 Alle ({providers.length})
+            {t("surfaces.findCleaner.filters.allChip", { count: providers.length })}
           </button>
           {availableCountries.map((c) => {
             const count = providers.filter((p) => p.countryCode === c.code).length;
@@ -806,7 +813,7 @@ export default function FindCleaner() {
       {loading && (
         <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-background/80 backdrop-blur-sm">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <p className="text-sm text-muted-foreground">Henter providere…</p>
+          <p className="text-sm text-muted-foreground">{t("surfaces.findCleaner.map.loading")}</p>
         </div>
       )}
 
@@ -816,7 +823,7 @@ export default function FindCleaner() {
           <div className="flex items-start gap-2">
             <X className="mt-0.5 h-4 w-4 flex-shrink-0" />
             <div>
-              <p className="font-medium">Der gik noget galt</p>
+              <p className="font-medium">{t("surfaces.findCleaner.errors.generic")}</p>
               <p className="text-destructive/80">{error}</p>
             </div>
           </div>
@@ -835,7 +842,7 @@ export default function FindCleaner() {
             className="h-10 gap-2 rounded-full bg-background px-5 text-xs font-semibold text-foreground shadow-lg hover:bg-background/90"
           >
             <Search className="h-3.5 w-3.5" />
-            Søg i dette område
+            {t("surfaces.findCleaner.map.searchThisArea")}
           </Button>
         </div>
       )}
@@ -845,14 +852,14 @@ export default function FindCleaner() {
         <DrawerContent className="max-h-[70vh]">
           <DrawerHeader className="pb-2">
             <DrawerTitle className="text-left text-lg">
-              {visibleProviders.length} providere i området
+              {t("surfaces.findCleaner.list.drawerTitle", { count: visibleProviders.length })}
             </DrawerTitle>
           </DrawerHeader>
           <div className="space-y-3 overflow-y-auto px-4 pb-6">
             {visibleProviders.length === 0 && !loading && (
               <div className="py-8 text-center text-sm text-muted-foreground">
                 <MapPin className="mx-auto mb-2 h-8 w-8 opacity-40" />
-                <p>Flyt kortet eller zoom ud for at se providere.</p>
+                <p>{t("surfaces.findCleaner.list.empty")}</p>
               </div>
             )}
             {visibleProviders.map((provider) => (
@@ -879,17 +886,17 @@ export default function FindCleaner() {
                       <h3 className="truncate font-semibold">{provider.name}</h3>
                       {provider.verified && (
                         <Badge variant="secondary" className="h-4 px-1 text-[9px]">
-                          Verificeret
+                          {t("surfaces.findCleaner.card.verified")}
                         </Badge>
                       )}
                       {isInstantBook(provider.id) && (
                         <Badge className="h-4 px-1 text-[9px] bg-primary/10 text-primary border-0 gap-0.5">
-                          <Zap className="h-2.5 w-2.5" /> Instant
+                          <Zap className="h-2.5 w-2.5" /> {t("surfaces.findCleaner.card.instant")}
                         </Badge>
                       )}
                       {isAvailableToday(provider.id) && (
                         <Badge variant="outline" className="h-4 px-1 text-[9px] border-success/40 text-success gap-0.5">
-                          <CalendarCheck className="h-2.5 w-2.5" /> I dag
+                          <CalendarCheck className="h-2.5 w-2.5" /> {t("surfaces.findCleaner.card.availableToday")}
                         </Badge>
                       )}
                     </div>
@@ -935,7 +942,7 @@ export default function FindCleaner() {
                   <h3 className="truncate font-semibold">{selectedProvider.name}</h3>
                   {selectedProvider.verified && (
                     <Badge variant="secondary" className="h-4 px-1 text-[9px]">
-                      Verificeret
+                      {t("surfaces.findCleaner.card.verified")}
                     </Badge>
                   )}
                 </div>
@@ -961,7 +968,7 @@ export default function FindCleaner() {
                   else navigate(`/provider/${selectedProvider.id}`);
                 }}
               >
-                Se profil
+                {t("surfaces.findCleaner.card.viewProfile")}
               </Button>
               <Button
                 variant="outline"
@@ -972,7 +979,7 @@ export default function FindCleaner() {
                   else navigate(`/book/${selectedProvider.id}`);
                 }}
               >
-                Book nu
+                {t("surfaces.findCleaner.card.bookNow")}
               </Button>
             </div>
 

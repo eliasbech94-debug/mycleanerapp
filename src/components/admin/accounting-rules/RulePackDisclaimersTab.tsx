@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -5,25 +6,26 @@ import type { RulePackLabels } from "@/lib/accounting";
 import type { TabProps } from "./RulePackGeneralTab";
 
 const LABEL_FIELDS: [keyof RulePackLabels, string][] = [
-  ["businessRegistrationLabel", "Betegnelse for virksomhedsregistrering"],
-  ["indirectTaxLabel", "Betegnelse for indirekte skat"],
-  ["indirectTaxNumberLabel", "Betegnelse for skattenummer"],
-  ["taxIdentificationLabel", "Betegnelse for skatte-ID"],
-  ["filingPeriodLabel", "Betegnelse for indberetningsperiode"],
-  ["preliminaryAmountLabel", "Betegnelse for foreløbigt beløb"],
+  ["businessRegistrationLabel", "rules.disclaimers.labels.businessRegistrationLabel"],
+  ["indirectTaxLabel", "rules.disclaimers.labels.indirectTaxLabel"],
+  ["indirectTaxNumberLabel", "rules.disclaimers.labels.indirectTaxNumberLabel"],
+  ["taxIdentificationLabel", "rules.disclaimers.labels.taxIdentificationLabel"],
+  ["filingPeriodLabel", "rules.disclaimers.labels.filingPeriodLabel"],
+  ["preliminaryAmountLabel", "rules.disclaimers.labels.preliminaryAmountLabel"],
 ];
 
 export default function RulePackDisclaimersTab({ pack, readOnly, onChange }: TabProps) {
+  const { t } = useTranslation("admin");
   return (
     <div className="space-y-4">
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Lokale betegnelser</CardTitle>
+          <CardTitle className="text-base">{t("rules.disclaimers.labelsTitle")}</CardTitle>
         </CardHeader>
         <CardContent className="grid gap-4 md:grid-cols-2">
-          {LABEL_FIELDS.map(([field, label]) => (
+          {LABEL_FIELDS.map(([field, labelKey]) => (
             <div key={field} className="space-y-1">
-              <label htmlFor={`label-${field}`} className="text-xs text-muted-foreground">{label}</label>
+              <label htmlFor={`label-${field}`} className="text-xs text-muted-foreground">{t(labelKey)}</label>
               <Input
                 id={`label-${field}`}
                 value={(pack.labels[field] as string) ?? ""}
@@ -37,11 +39,11 @@ export default function RulePackDisclaimersTab({ pack, readOnly, onChange }: Tab
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Disclaimers</CardTitle>
+          <CardTitle className="text-base">{t("rules.disclaimers.disclaimersTitle")}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
           <label htmlFor="disclaimers" className="text-xs text-muted-foreground">
-            Én disclaimer pr. linje. Mindst én er påkrævet — MyCleaner leverer ikke skatterådgivning.
+            {t("rules.disclaimers.disclaimersHint")}
           </label>
           <Textarea
             id="disclaimers"
@@ -57,11 +59,11 @@ export default function RulePackDisclaimersTab({ pack, readOnly, onChange }: Tab
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Officielle vejledningslinks</CardTitle>
+          <CardTitle className="text-base">{t("rules.disclaimers.guidanceTitle")}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
           <label htmlFor="guidance-links" className="text-xs text-muted-foreground">
-            Format pr. linje: Titel | https://...
+            {t("rules.disclaimers.guidanceHint")}
           </label>
           <Textarea
             id="guidance-links"
