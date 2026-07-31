@@ -5708,6 +5708,27 @@ export type Database = {
           },
         ]
       }
+      platform_runtime_config: {
+        Row: {
+          key: string
+          updated_at: string
+          updated_by: string | null
+          value: string
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          updated_by?: string | null
+          value: string
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: string
+        }
+        Relationships: []
+      }
       platform_tax_settings: {
         Row: {
           country_code: string
@@ -6256,6 +6277,42 @@ export type Database = {
           },
         ]
       }
+      provider_approval_audit: {
+        Row: {
+          actor_id: string | null
+          created_at: string
+          from_state: string | null
+          gates: Json
+          id: string
+          provider_user_id: string
+          reason: string | null
+          source: string
+          to_state: string
+        }
+        Insert: {
+          actor_id?: string | null
+          created_at?: string
+          from_state?: string | null
+          gates?: Json
+          id?: string
+          provider_user_id: string
+          reason?: string | null
+          source?: string
+          to_state: string
+        }
+        Update: {
+          actor_id?: string | null
+          created_at?: string
+          from_state?: string | null
+          gates?: Json
+          id?: string
+          provider_user_id?: string
+          reason?: string | null
+          source?: string
+          to_state?: string
+        }
+        Relationships: []
+      }
       provider_balance_accounts: {
         Row: {
           available_credit_minor: number
@@ -6727,6 +6784,51 @@ export type Database = {
           },
         ]
       }
+      provider_photo_moderation: {
+        Row: {
+          confidence: number | null
+          created_at: string
+          evaluated_at: string | null
+          id: string
+          model: string | null
+          model_version: string | null
+          photo_path: string
+          provider_message: string | null
+          provider_user_id: string
+          reason_codes: string[]
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          confidence?: number | null
+          created_at?: string
+          evaluated_at?: string | null
+          id?: string
+          model?: string | null
+          model_version?: string | null
+          photo_path: string
+          provider_message?: string | null
+          provider_user_id: string
+          reason_codes?: string[]
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          confidence?: number | null
+          created_at?: string
+          evaluated_at?: string | null
+          id?: string
+          model?: string | null
+          model_version?: string | null
+          photo_path?: string
+          provider_message?: string | null
+          provider_user_id?: string
+          reason_codes?: string[]
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       provider_pricing_preferences: {
         Row: {
           city: string | null
@@ -6841,6 +6943,10 @@ export type Database = {
       provider_profiles: {
         Row: {
           activated_at: string | null
+          approval_blocked_reason: string | null
+          approval_evaluated_at: string | null
+          approval_gates: Json
+          approval_state: string
           approved_at: string | null
           approved_by: string | null
           archived_at: string | null
@@ -6861,20 +6967,27 @@ export type Database = {
           equipment_badges: Json
           headline: string | null
           hourly_rate: number | null
+          identity_applicant_id: string | null
+          identity_reviewed_at: string | null
+          identity_sandbox: boolean | null
           identity_status: string
           insurance_doc_path: string | null
           insurance_expires_on: string | null
           insurance_policy_number: string | null
+          is_bookable: boolean
           is_public: boolean
           languages: string[]
           payout_frozen: boolean
           payout_frozen_reason: string | null
           performance_snapshot: Json
+          photo_moderation_status: string
           photo_path: string | null
           provider_score: number
           provider_slug: string
           provider_tier: Database["public"]["Enums"]["provider_tier"]
           public_bio: string | null
+          quiz_passed_at: string | null
+          quiz_score: number | null
           rejected_at: string | null
           rejected_reason: string | null
           scoring_config_version: number | null
@@ -6899,6 +7012,10 @@ export type Database = {
         }
         Insert: {
           activated_at?: string | null
+          approval_blocked_reason?: string | null
+          approval_evaluated_at?: string | null
+          approval_gates?: Json
+          approval_state?: string
           approved_at?: string | null
           approved_by?: string | null
           archived_at?: string | null
@@ -6919,20 +7036,27 @@ export type Database = {
           equipment_badges?: Json
           headline?: string | null
           hourly_rate?: number | null
+          identity_applicant_id?: string | null
+          identity_reviewed_at?: string | null
+          identity_sandbox?: boolean | null
           identity_status?: string
           insurance_doc_path?: string | null
           insurance_expires_on?: string | null
           insurance_policy_number?: string | null
+          is_bookable?: boolean
           is_public?: boolean
           languages?: string[]
           payout_frozen?: boolean
           payout_frozen_reason?: string | null
           performance_snapshot?: Json
+          photo_moderation_status?: string
           photo_path?: string | null
           provider_score?: number
           provider_slug: string
           provider_tier?: Database["public"]["Enums"]["provider_tier"]
           public_bio?: string | null
+          quiz_passed_at?: string | null
+          quiz_score?: number | null
           rejected_at?: string | null
           rejected_reason?: string | null
           scoring_config_version?: number | null
@@ -6957,6 +7081,10 @@ export type Database = {
         }
         Update: {
           activated_at?: string | null
+          approval_blocked_reason?: string | null
+          approval_evaluated_at?: string | null
+          approval_gates?: Json
+          approval_state?: string
           approved_at?: string | null
           approved_by?: string | null
           archived_at?: string | null
@@ -6977,20 +7105,27 @@ export type Database = {
           equipment_badges?: Json
           headline?: string | null
           hourly_rate?: number | null
+          identity_applicant_id?: string | null
+          identity_reviewed_at?: string | null
+          identity_sandbox?: boolean | null
           identity_status?: string
           insurance_doc_path?: string | null
           insurance_expires_on?: string | null
           insurance_policy_number?: string | null
+          is_bookable?: boolean
           is_public?: boolean
           languages?: string[]
           payout_frozen?: boolean
           payout_frozen_reason?: string | null
           performance_snapshot?: Json
+          photo_moderation_status?: string
           photo_path?: string | null
           provider_score?: number
           provider_slug?: string
           provider_tier?: Database["public"]["Enums"]["provider_tier"]
           public_bio?: string | null
+          quiz_passed_at?: string | null
+          quiz_score?: number | null
           rejected_at?: string | null
           rejected_reason?: string | null
           scoring_config_version?: number | null
@@ -7012,6 +7147,39 @@ export type Database = {
           user_id?: string
           visibility?: Database["public"]["Enums"]["provider_visibility"]
           years_experience?: number | null
+        }
+        Relationships: []
+      }
+      provider_quiz_attempts: {
+        Row: {
+          answers: Json
+          created_at: string
+          id: string
+          max_score: number
+          passed: boolean
+          provider_user_id: string
+          quiz_key: string
+          score: number
+        }
+        Insert: {
+          answers?: Json
+          created_at?: string
+          id?: string
+          max_score: number
+          passed: boolean
+          provider_user_id: string
+          quiz_key?: string
+          score: number
+        }
+        Update: {
+          answers?: Json
+          created_at?: string
+          id?: string
+          max_score?: number
+          passed?: boolean
+          provider_user_id?: string
+          quiz_key?: string
+          score?: number
         }
         Relationships: []
       }
@@ -8789,9 +8957,46 @@ export type Database = {
         }
         Returns: Json
       }
+      admin_provider_approval_decision: {
+        Args: { _decision: string; _reason: string; _uid: string }
+        Returns: Json
+      }
       admin_release_slug_v1: { Args: { _slug: string }; Returns: undefined }
       admin_reserve_slug_v1: {
         Args: { _reason: string; _slug: string }
+        Returns: undefined
+      }
+      apply_provider_identity_sync: {
+        Args: {
+          _applicant_id: string
+          _sandbox: boolean
+          _status: string
+          _uid: string
+        }
+        Returns: undefined
+      }
+      apply_provider_photo_moderation: {
+        Args: {
+          _confidence: number
+          _message: string
+          _model: string
+          _model_version: string
+          _photo_path: string
+          _reason_codes: string[]
+          _status: string
+          _uid: string
+        }
+        Returns: undefined
+      }
+      apply_provider_quiz_result: {
+        Args: {
+          _answers: Json
+          _max_score: number
+          _passed: boolean
+          _quiz_key: string
+          _score: number
+          _uid: string
+        }
         Returns: undefined
       }
       assert_ledger_writer_authorized: { Args: never; Returns: undefined }
@@ -8968,6 +9173,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      evaluate_provider_approval: { Args: { _uid: string }; Returns: Json }
       expire_pricing_quotes: { Args: never; Returns: number }
       funds_release_max_retries_v1: { Args: never; Returns: number }
       funds_release_reason_codes_v1: { Args: never; Returns: Json }
@@ -9604,6 +9810,7 @@ export type Database = {
           threads_skipped: number
         }[]
       }
+      my_provider_approval_status: { Args: never; Returns: Json }
       next_credit_note_number: {
         Args: { _country_code: string }
         Returns: string
@@ -9613,6 +9820,7 @@ export type Database = {
         Args: { _force_dry_run?: boolean; _limit?: number }
         Returns: Json
       }
+      platform_is_production: { Args: never; Returns: boolean }
       post_ledger_transaction_v1: {
         Args: {
           _booking_id?: string
@@ -9631,6 +9839,7 @@ export type Database = {
         Args: { _action: string; _appeal_id: string; _message?: string }
         Returns: string
       }
+      provider_approval_gates: { Args: { _uid: string }; Returns: Json }
       provider_can_accept_booking: { Args: { _uid: string }; Returns: boolean }
       provider_can_receive_payout: { Args: { _uid: string }; Returns: boolean }
       provider_is_marketplace_visible: {
@@ -9667,6 +9876,10 @@ export type Database = {
         Args: { _uid: string }
         Returns: {
           activated_at: string | null
+          approval_blocked_reason: string | null
+          approval_evaluated_at: string | null
+          approval_gates: Json
+          approval_state: string
           approved_at: string | null
           approved_by: string | null
           archived_at: string | null
@@ -9687,20 +9900,27 @@ export type Database = {
           equipment_badges: Json
           headline: string | null
           hourly_rate: number | null
+          identity_applicant_id: string | null
+          identity_reviewed_at: string | null
+          identity_sandbox: boolean | null
           identity_status: string
           insurance_doc_path: string | null
           insurance_expires_on: string | null
           insurance_policy_number: string | null
+          is_bookable: boolean
           is_public: boolean
           languages: string[]
           payout_frozen: boolean
           payout_frozen_reason: string | null
           performance_snapshot: Json
+          photo_moderation_status: string
           photo_path: string | null
           provider_score: number
           provider_slug: string
           provider_tier: Database["public"]["Enums"]["provider_tier"]
           public_bio: string | null
+          quiz_passed_at: string | null
+          quiz_score: number | null
           rejected_at: string | null
           rejected_reason: string | null
           scoring_config_version: number | null
@@ -9867,6 +10087,10 @@ export type Database = {
         Args: never
         Returns: {
           activated_at: string | null
+          approval_blocked_reason: string | null
+          approval_evaluated_at: string | null
+          approval_gates: Json
+          approval_state: string
           approved_at: string | null
           approved_by: string | null
           archived_at: string | null
@@ -9887,20 +10111,27 @@ export type Database = {
           equipment_badges: Json
           headline: string | null
           hourly_rate: number | null
+          identity_applicant_id: string | null
+          identity_reviewed_at: string | null
+          identity_sandbox: boolean | null
           identity_status: string
           insurance_doc_path: string | null
           insurance_expires_on: string | null
           insurance_policy_number: string | null
+          is_bookable: boolean
           is_public: boolean
           languages: string[]
           payout_frozen: boolean
           payout_frozen_reason: string | null
           performance_snapshot: Json
+          photo_moderation_status: string
           photo_path: string | null
           provider_score: number
           provider_slug: string
           provider_tier: Database["public"]["Enums"]["provider_tier"]
           public_bio: string | null
+          quiz_passed_at: string | null
+          quiz_score: number | null
           rejected_at: string | null
           rejected_reason: string | null
           scoring_config_version: number | null
@@ -9938,6 +10169,10 @@ export type Database = {
         Args: never
         Returns: {
           activated_at: string | null
+          approval_blocked_reason: string | null
+          approval_evaluated_at: string | null
+          approval_gates: Json
+          approval_state: string
           approved_at: string | null
           approved_by: string | null
           archived_at: string | null
@@ -9958,20 +10193,27 @@ export type Database = {
           equipment_badges: Json
           headline: string | null
           hourly_rate: number | null
+          identity_applicant_id: string | null
+          identity_reviewed_at: string | null
+          identity_sandbox: boolean | null
           identity_status: string
           insurance_doc_path: string | null
           insurance_expires_on: string | null
           insurance_policy_number: string | null
+          is_bookable: boolean
           is_public: boolean
           languages: string[]
           payout_frozen: boolean
           payout_frozen_reason: string | null
           performance_snapshot: Json
+          photo_moderation_status: string
           photo_path: string | null
           provider_score: number
           provider_slug: string
           provider_tier: Database["public"]["Enums"]["provider_tier"]
           public_bio: string | null
+          quiz_passed_at: string | null
+          quiz_score: number | null
           rejected_at: string | null
           rejected_reason: string | null
           scoring_config_version: number | null

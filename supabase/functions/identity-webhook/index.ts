@@ -8,6 +8,8 @@ import {
   serviceClient, loadSumsubConfig, verifySumsubWebhookSignature,
   sha256Hex, composeEventId, isReplay, isFlagOn, mapSumsubStatus,
 } from "../_shared/sumsub.ts";
+import { isSandboxResult, resolveSumsubEnv } from "../_shared/sumsubEnv.ts";
+import { evaluateProviderApproval, notifyApprovalRegression } from "../_shared/providerApproval.ts";
 
 const json = (b: unknown, status = 200) =>
   new Response(JSON.stringify(b), { status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
@@ -21,6 +23,7 @@ interface SumsubWebhook {
   reviewStatus?: string;
   reviewResult?: { reviewAnswer?: string; rejectLabels?: string[]; reviewRejectType?: string };
   createdAtMs?: number;
+  sandboxMode?: boolean;
 }
 
 Deno.serve(async (req) => {
@@ -124,6 +127,8 @@ Deno.serve(async (req) => {
     }
 
     const status = mapSumsubStatus(parsed.reviewStatus, parsed.reviewResult?.reviewAnswer);
+    const envDecision = resolveSumsubEnv(cfg.baseUrl);
+    const sandbox = isSandboxResult(parsed.sandboxMode ?? null, envDecision);
     const nowIso = new Date().toISOString();
     const patch: Record<string, unknown> = {
       status, last_review_at: nowIso,
@@ -132,6 +137,7 @@ Deno.serve(async (req) => {
         reviewAnswer: parsed.reviewResult?.reviewAnswer ?? null,
         rejectLabels: parsed.reviewResult?.rejectLabels ?? [],
         reviewRejectType: parsed.reviewResult?.reviewRejectType ?? null,
+        sandboxMode: parsed.sandboxMode ?? null,
       },
     };
     if (status === "approved") patch.verified_at = nowIso;
@@ -154,9 +160,38 @@ Deno.serve(async (req) => {
       const { data: links } = await admin.from("identity_account_links")
         .select("user_id").eq("identity_id", identityId);
       for (const link of links ?? []) {
+        const { data: pp } = await admin.from("provider_profiles")
+          .select("user_id").eq("user_id", link.user_id).maybeSingle();
+        if (pp) {
+          // Persist the Sumsub verdict + sandbox provenance, then let the
+          // central engine decide. Sandbox results can never approve in prod.
+          await admin.rpc("apply_provider_identity_sync", {
+            _uid: link.user_id,
+            _status: status,
+            _sandbox: sandbox,
+            _applicant_id: parsed.applicantId ?? null,
+          });
+        }
         await reconcileProvider(admin, link.user_id, "identity_webhook");
+        if (pp) {
+          const approval = await evaluateProviderApproval(admin, link.user_id, "identity_webhook");
+          if (approval) await notifyApprovalRegression(admin, link.user_id, approval);
+        }
       }
     } catch (e) { console.error("identity reconcile fanout failed", (e as Error).message); }
+
+    console.log(JSON.stringify({
+      evt: "identity.webhook_processed",
+      event_id: eventId,
+      applicant_id: parsed.applicantId ?? null,
+      event_type: parsed.type ?? null,
+      review_status: parsed.reviewStatus ?? null,
+      review_answer: parsed.reviewResult?.reviewAnswer ?? null,
+      sandbox,
+      environment: envDecision.environment,
+      status,
+      at: nowIso,
+    }));
 
     await admin.from("identity_webhook_events").upsert({
       provider: "sumsub", event_id: eventId, event_type: parsed.type ?? null,
