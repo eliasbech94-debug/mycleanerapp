@@ -314,16 +314,21 @@ function OnboardingInner() {
           {step === 4 && <StepIdentity pp={pp} authUser={user} smsVerifiedAt={smsVerifiedAt} />}
           {step === 5 && <StepStripe pp={pp} patch={patch} />}
           {step === 6 && (
-            <StepReview
-              pp={pp}
-              canSubmit={canSubmit}
-              submitting={submitting}
-              completion={completion}
-              missingSteps={missingSteps}
-              submitErrorCode={submitErrorCode}
-              onSubmit={handleSubmit}
-            />
+            <div className="space-y-6">
+              <ProviderQuizCard />
+              <ProviderApprovalChecklist />
+              <StepReview
+                pp={pp}
+                canSubmit={canSubmit}
+                submitting={submitting}
+                completion={completion}
+                missingSteps={missingSteps}
+                submitErrorCode={submitErrorCode}
+                onSubmit={handleSubmit}
+              />
+            </div>
           )}
+
         </section>
 
         <div className="mt-5 flex items-center justify-between">
