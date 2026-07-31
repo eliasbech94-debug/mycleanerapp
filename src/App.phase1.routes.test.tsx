@@ -50,6 +50,7 @@ vi.mock("./pages/finance/FinancePages", () => ({
 }));
 vi.mock("./pages/support/SupportShell", () => ({
   SupportHome: () => <main data-testid="support-home">support</main>,
+  SupportDashboard: () => <main data-testid="support-dashboard">dashboard</main>,
   SupportInbox: () => <main data-testid="support-inbox">inbox</main>,
   SupportCases: () => <main data-testid="support-cases">cases</main>,
   SupportCustomers: () => <main data-testid="support-customers">customers</main>,

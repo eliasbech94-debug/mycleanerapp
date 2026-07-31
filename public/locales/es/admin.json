@@ -1092,7 +1092,7 @@
       "unread": "Sin leer",
       "recentActivity": "Actividad reciente",
       "recentEmpty": "Todavía no hay actividad.",
-      "error": "Error: {{message}}",
+      "error": "No se pudo cargar el panel: {{message}}",
       "assignedToMe": "Asignado a mí",
       "openConversation": "Abrir conversación",
       "noSubject": "(Sin asunto)"
@@ -1139,7 +1139,7 @@
       "unpin": "Desfijar",
       "pinned": "Fijada",
       "empty": "Todavía no hay notas.",
-      "error": "Error: {{message}}",
+      "error": "No se pudieron cargar las notas: {{message}}",
       "saved": "Nota guardada",
       "loading": "Cargando notas…",
       "toggle": "Mostrar notas privadas",
