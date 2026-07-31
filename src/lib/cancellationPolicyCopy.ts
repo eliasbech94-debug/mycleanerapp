@@ -21,7 +21,7 @@ export type LadderTranslate = (
   vars: Record<string, string | number>,
 ) => string;
 
-/** Danish source strings; mirrored in public/locales/*/common.json. */
+/** Danish source strings; mirrored in public/locales/<lang>/common.json. */
 const DA_SOURCE: Record<string, string> = {
   "cancellation.ladder.when": "før bookingens præcise starttidspunkt",
   "cancellation.ladder.bullet.fullExclusive":
