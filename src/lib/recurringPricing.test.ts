@@ -29,10 +29,21 @@ describe("recurringPricing", () => {
     expect(() => calculateRecurringRate(30_000, "weekly", 5_001)).toThrow("invalid_discount_bps");
   });
 
-  it("calculates weekly, biweekly and monthly occurrences", () => {
+  it("calculates weekly and biweekly occurrences", () => {
     const start = new Date("2026-01-31T10:00:00.000Z");
     expect(nextOccurrenceAt(start, "weekly").toISOString()).toBe("2026-02-07T10:00:00.000Z");
     expect(nextOccurrenceAt(start, "biweekly").toISOString()).toBe("2026-02-14T10:00:00.000Z");
-    expect(nextOccurrenceAt(start, "monthly").toISOString()).toBe("2026-03-03T10:00:00.000Z");
+  });
+
+  it("clamps monthly occurrences to the final valid day", () => {
+    expect(nextOccurrenceAt(
+      new Date("2026-01-31T10:00:00.000Z"),
+      "monthly",
+    ).toISOString()).toBe("2026-02-28T10:00:00.000Z");
+
+    expect(nextOccurrenceAt(
+      new Date("2028-01-31T10:00:00.000Z"),
+      "monthly",
+    ).toISOString()).toBe("2028-02-29T10:00:00.000Z");
   });
 });
