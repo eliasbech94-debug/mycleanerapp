@@ -149,10 +149,21 @@ export function MarketplaceHero() {
                 label={availabilityLabel}
                 codes={countryCodes}
                 t={t}
+                isBookable={isBookable}
+                comingSoonLabel={comingSoonLabel}
                 className="text-[12px] font-medium uppercase tracking-[0.18em] text-[hsl(var(--mkt-ink-soft))]"
               />
               <SecondaryCta label={variant.cta_secondary_label} href={variant.cta_secondary_href} />
             </div>
+            {launchNotice && (
+              <p
+                data-testid="hero-launch-notice"
+                className="mt-2 text-[12.5px] leading-relaxed text-[hsl(var(--mkt-ink-muted))]"
+              >
+                {launchNotice}
+              </p>
+            )}
+
           </div>
         </div>
       </div>
