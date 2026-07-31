@@ -11,6 +11,7 @@ import { CountryConfirmDialog } from "@/components/marketplace/CountryConfirmDia
 import { HomeSections } from "@/components/marketplace/home/HomeSections";
 import { DEMO_PROVIDERS, isDemoProvidersEnabled } from "@/data/demoProviders";
 import DemoCollectionRails from "@/components/marketplace/home/DemoCollectionRails";
+import { EarlyAccessEmptyState } from "@/components/marketplace/EarlyAccessEmptyState";
 
 /**
  * MyCleaner — public homepage v2.2 (Premium Polish sprint).
@@ -44,6 +45,8 @@ export default function Index() {
   const providers = hasReal
     ? data
     : (demoEnabled ? DEMO_PROVIDERS : (data ?? null));
+  // Production (demo off) with zero real providers → honest Early Access state.
+  const showEarlyAccess = !loading && !error && !hasReal && !demoEnabled;
 
   return (
     <MarketplaceSurface>
@@ -54,6 +57,9 @@ export default function Index() {
       <div className="mx-auto grid max-w-[1400px] grid-cols-1 gap-6 px-5 pb-8 pt-4 lg:grid-cols-[1fr_360px] lg:gap-8 lg:px-8 lg:pt-6">
         <div className="min-w-0">
           <ServiceCategoryGrid />
+          {showEarlyAccess ? (
+            <EarlyAccessEmptyState className="mt-4" />
+          ) : (
           <CleanerResultsList
             providers={providers}
             loading={loading}
@@ -62,6 +68,7 @@ export default function Index() {
             isDemo={!hasReal && demoEnabled && (providers?.length ?? 0) > 0}
             emptyLabel={isNeutral ? undefined : market.label}
           />
+          )}
         </div>
         <div className="hidden lg:block lg:sticky lg:top-24 lg:self-start">
           <BookingSidebar />

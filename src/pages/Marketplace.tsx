@@ -14,6 +14,7 @@ import {
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { selectDemoProviders } from "@/data/demo";
+import { EarlyAccessEmptyState } from "@/components/marketplace/EarlyAccessEmptyState";
 import { ProviderCard as SharedProviderCard, type ProviderCardData } from "@/components/marketplace/ProviderCard";
 
 
@@ -136,6 +137,10 @@ export default function Marketplace() {
     await loadFavs();
   }
 
+  const hasActiveFilters =
+    category !== "all" || tier !== "all" || lang !== "all" || maxRate !== "" ||
+    search.trim() !== "" || showFavOnly;
+
   const filtered = useMemo(() => {
     if (!rows) return null;
     if (!showFavOnly) return rows;
@@ -207,7 +212,11 @@ export default function Marketplace() {
         {rows === null ? (
           <div className="grid place-items-center py-20"><Loader2 className="h-6 w-6 animate-spin" /></div>
         ) : filtered && filtered.length === 0 ? (
-          <Card><CardContent className="p-10 text-center text-muted-foreground">Ingen providere matcher dine filtre.</CardContent></Card>
+          hasActiveFilters ? (
+            <Card><CardContent className="p-10 text-center text-muted-foreground">Ingen providere matcher dine filtre.</CardContent></Card>
+          ) : (
+            <EarlyAccessEmptyState />
+          )
         ) : (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {filtered?.map((r) => (

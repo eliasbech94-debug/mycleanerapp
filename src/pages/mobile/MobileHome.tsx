@@ -36,6 +36,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useHomeAudience } from "@/components/marketplace/home/useHomeAudience";
 import { useActiveMarket } from "@/context/ActiveMarketContext";
 import { useMarketplaceProviders } from "@/hooks/useMarketplaceProviders";
+import { EarlyAccessEmptyState } from "@/components/marketplace/EarlyAccessEmptyState";
 
 import { CountryConfirmDialog } from "@/components/marketplace/CountryConfirmDialog";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
@@ -234,9 +235,7 @@ function FeaturedCleanersCarousel({ refreshNonce = 0 }: { refreshNonce?: number 
           ))}
         </div>
       ) : error || !data || data.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-[hsl(var(--mkt-border))] bg-[hsl(var(--mkt-surface))] p-4 text-[13px] text-[hsl(var(--mkt-ink-muted))]">
-          {t("mobileHome.featured.empty", "Ingen Cleaners at vise lige nu.")}
-        </div>
+        <EarlyAccessEmptyState compact />
       ) : (
         <div
           className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth px-4 pb-1 [-ms-overflow-style:none] [scrollbar-width:none]"

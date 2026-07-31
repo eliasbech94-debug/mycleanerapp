@@ -18,43 +18,75 @@ export * from "./publicProfile";
 /**
  * DEMO_MODE — the single gate for the development demo dataset.
  *
- * True only in a Vite dev/preview build, or when the build explicitly defines
- * `VITE_DEMO_MODE="true"` / `VITE_ENABLE_DEMO_PROVIDERS="true"` (used for
- * preview deployments). Production builds evaluate this to `false`, which
- * leaves every demo array empty and every helper a no-op — the app behaves
- * exactly as it does today.
+ * Order of evidence (first match wins):
+ *   1. Production hostname  → ALWAYS false. No env flag can override this.
+ *   2. `VITE_DEMO_MODE="false"` → false (explicit kill switch).
+ *   3. Dev server / approved preview host / explicit opt-in flag → true.
+ *   4. Anything else (unknown host, production build) → false, fail-safe.
+ *
+ * The fixtures in `src/data/demo/` are never deleted: they stay available for
+ * development, approved previews and automated tests. Production simply never
+ * reaches them, and demo content is NEVER used as a fallback when the database
+ * returns zero real providers on a production host.
  *
  * The demo layer is read-only local fixture data: no network requests, no
  * database access, no writes, and therefore no RLS surface at all.
  */
 /** Hostnames that always serve real production data. */
-const PRODUCTION_HOSTS = ["mycleaner.dk", "www.mycleaner.dk", "mycleanerapp.lovable.app"];
+export const PRODUCTION_HOSTS = [
+  "mycleaner.dk",
+  "www.mycleaner.dk",
+  "app.mycleaner.dk",
+  "mycleanerapp.lovable.app",
+];
 
-const isPreviewHost = (): boolean => {
-  if (typeof window === "undefined") return false;
-  const host = window.location.hostname;
-  if (PRODUCTION_HOSTS.includes(host)) return false;
-  if (host === "localhost" || host === "127.0.0.1" || host.endsWith(".local")) return true;
+/** Hard runtime guard: true on any production hostname. */
+export function isProductionHost(hostname?: string): boolean {
+  const host =
+    hostname ?? (typeof window !== "undefined" ? window.location.hostname : "");
+  if (!host) return false;
+  return PRODUCTION_HOSTS.includes(host.toLowerCase());
+}
+
+/** Approved development / preview hostnames. */
+export function isPreviewHost(hostname?: string): boolean {
+  const host =
+    hostname ?? (typeof window !== "undefined" ? window.location.hostname : "");
+  if (!host) return false;
+  const h = host.toLowerCase();
+  if (isProductionHost(h)) return false;
+  if (h === "localhost" || h === "127.0.0.1" || h === "[::1]" || h.endsWith(".local")) return true;
   // Lovable sandbox / preview domains
-  if (host.startsWith("id-preview--") || host.endsWith(".lovableproject.com")) return true;
+  if (h.startsWith("id-preview--")) return true;
+  if (h.endsWith(".lovableproject.com") || h.endsWith(".lovable.app")) return true;
   return false;
-};
+}
 
 export function isDemoModeEnabled(): boolean {
   try {
+    // 1. Production hostname always wins — VITE_DEMO_MODE cannot bypass it.
+    if (isProductionHost()) return false;
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const env = (import.meta as any)?.env ?? {};
     if (env.VITE_DEMO_MODE === "false") return false;
-    if (env.PROD === true && !isPreviewHost()) return false;
+
+    const hasWindow = typeof window !== "undefined";
+    if (hasWindow) {
+      // Runtime host decides: only approved dev/preview hosts may show demo.
+      return isPreviewHost();
+    }
+
+    // No DOM (SSR / tests / node scripts): fall back to build-time evidence.
+    if (env.PROD === true) return false;
     if (env.DEV === true) return true;
-    if (env.VITE_DEMO_MODE === "true") return true;
-    if (env.VITE_ENABLE_DEMO_PROVIDERS === "true") return true;
-    return isPreviewHost();
+    return env.VITE_DEMO_MODE === "true" || env.VITE_ENABLE_DEMO_PROVIDERS === "true";
   } catch {
     /* noop */
   }
   return false;
 }
+
 
 
 export const DEMO_MODE = isDemoModeEnabled();
