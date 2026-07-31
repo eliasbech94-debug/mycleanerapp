@@ -7,8 +7,8 @@
       "fixed_price": "Fast pris utan överraskningar",
       "rowLabel": "Fördelar"
     },
-    "availability": "Tillgänglig i 🇩🇰 Danmark · 🇸🇪 Sverige · 🇩🇪 Tyskland · 🇬🇧 Storbritannien · 🇪🇸 Spanien",
-    "availability_label": "Tillgänglig i",
+    "availability": "MyCleaner öppnar först i Danmark. Sverige, Storbritannien, Tyskland och Spanien kommer snart.",
+    "availability_label": "Öppnar först i",
     "countries": {
       "dk": "Danmark",
       "se": "Sverige",
@@ -42,7 +42,9 @@
         "cta_secondary_label": "Öppna dashboard",
         "cta_secondary_href": "/provider-dashboard"
       }
-    }
+    },
+    "launch_notice": "MyCleaner öppnar först i Danmark. Sverige, Storbritannien, Tyskland och Spanien kommer snart.",
+    "coming_soon": "Kommer snart"
   },
   "search": {
     "aria": "Hitta en Cleaner",

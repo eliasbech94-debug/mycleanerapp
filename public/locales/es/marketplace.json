@@ -7,8 +7,8 @@
       "fixed_price": "Precio fijo, sin sorpresas",
       "rowLabel": "Ventajas"
     },
-    "availability": "Disponible en 🇩🇰 Dinamarca · 🇸🇪 Suecia · 🇩🇪 Alemania · 🇬🇧 Reino Unido · 🇪🇸 España",
-    "availability_label": "Disponible en",
+    "availability": "MyCleaner se lanza primero en Dinamarca. Suecia, Reino Unido, Alemania y España llegarán pronto.",
+    "availability_label": "Se lanza primero en",
     "countries": {
       "dk": "Dinamarca",
       "se": "Suecia",
@@ -42,7 +42,9 @@
         "cta_secondary_label": "Abrir dashboard",
         "cta_secondary_href": "/provider-dashboard"
       }
-    }
+    },
+    "launch_notice": "MyCleaner se lanza primero en Dinamarca. Suecia, Reino Unido, Alemania y España llegarán pronto.",
+    "coming_soon": "Próximamente"
   },
   "search": {
     "aria": "Encuentra un Cleaner",
