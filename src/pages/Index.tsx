@@ -12,6 +12,29 @@ import { HomeSections } from "@/components/marketplace/home/HomeSections";
 import { DEMO_PROVIDERS, isDemoProvidersEnabled } from "@/data/demoProviders";
 import DemoCollectionRails from "@/components/marketplace/home/DemoCollectionRails";
 import { EarlyAccessEmptyState } from "@/components/marketplace/EarlyAccessEmptyState";
+import { MarketSeo } from "@/components/seo/MarketSeo";
+import { COMPANY, formatCompanyAddress } from "@/config/company";
+import { BASE_URL } from "@/i18n/seo";
+
+/** Sitewide entity data for rich results — verified company data only. */
+const HOME_JSON_LD = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "MyCleaner",
+  legalName: COMPANY.legalName,
+  url: BASE_URL,
+  identifier: COMPANY.companyNumber,
+  address: formatCompanyAddress(),
+  sameAs: [COMPANY.registryUrl],
+  contactPoint: [
+    {
+      "@type": "ContactPoint",
+      contactType: "customer support",
+      email: COMPANY.supportEmail,
+      availableLanguage: ["da", "en", "sv", "de", "es"],
+    },
+  ],
+} as const;
 
 /**
  * MyCleaner — public homepage v2.2 (Premium Polish sprint).
@@ -50,7 +73,13 @@ export default function Index() {
 
   return (
     <MarketplaceSurface>
+      <MarketSeo
+        titleKey="seo.home.title"
+        descriptionKey="seo.home.description"
+        jsonLd={HOME_JSON_LD}
+      />
       <MarketplaceHero />
+
 
       <HomeSections slot="top" />
 

@@ -4827,10 +4827,18 @@ export type Database = {
           min_hourly_minor: number
           notes: string | null
           postcode: string | null
+          published_at: string | null
           recommended_hourly_minor: number | null
           region: string | null
+          research_assumptions: string | null
+          researched_at: string | null
+          rounding_rule: string | null
           scope: string
+          source_name: string | null
+          source_url: string | null
+          status: string
           updated_at: string
+          vat_status: string | null
         }
         Insert: {
           active?: boolean
@@ -4843,10 +4851,18 @@ export type Database = {
           min_hourly_minor: number
           notes?: string | null
           postcode?: string | null
+          published_at?: string | null
           recommended_hourly_minor?: number | null
           region?: string | null
+          research_assumptions?: string | null
+          researched_at?: string | null
+          rounding_rule?: string | null
           scope: string
+          source_name?: string | null
+          source_url?: string | null
+          status?: string
           updated_at?: string
+          vat_status?: string | null
         }
         Update: {
           active?: boolean
@@ -4859,10 +4875,18 @@ export type Database = {
           min_hourly_minor?: number
           notes?: string | null
           postcode?: string | null
+          published_at?: string | null
           recommended_hourly_minor?: number | null
           region?: string | null
+          research_assumptions?: string | null
+          researched_at?: string | null
+          rounding_rule?: string | null
           scope?: string
+          source_name?: string | null
+          source_url?: string | null
+          status?: string
           updated_at?: string
+          vat_status?: string | null
         }
         Relationships: []
       }

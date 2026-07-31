@@ -1,6 +1,4 @@
 {
-  "_fallback_language": "en",
-  "_note": "Swedish bundle scaffolded; missing keys resolve via English fallback.",
   "mobileMessages": {
     "title": "Meddelanden",
     "defaultTitle": "Konversation",
@@ -69,9 +67,267 @@
     "invalid_credentials": "Ogiltig e-post eller lösenord"
   },
   "language": {
-    "de": "Deutsch"
+    "de": "Deutsch",
+    "label": "Språk",
+    "da": "Dansk",
+    "en": "English",
+    "sv": "Svenska",
+    "es": "Español"
   },
   "country": {
-    "coming_soon": "Kommer snart"
+    "coming_soon": "Kommer snart",
+    "label": "Land",
+    "DK": "Danmark",
+    "GB": "Storbritannien",
+    "SE": "Sverige",
+    "ES": "Spanien",
+    "DE": "Tyskland"
+  },
+  "app_name": "MyCleaner",
+  "actions": {
+    "save": "Spara",
+    "cancel": "Avbryt",
+    "back": "Tillbaka",
+    "next": "Nästa",
+    "continue": "Fortsätt",
+    "delete": "Radera",
+    "confirm": "Bekräfta",
+    "close": "Stäng",
+    "loading": "Laddar…"
+  },
+  "common": {
+    "loading": "Laddar…"
+  },
+  "nav": {
+    "home": "Startsida",
+    "bookings": "Bokningar",
+    "inbox": "Inkorg",
+    "profile": "Profil",
+    "logout": "Logga ut"
+  },
+  "footer": {
+    "tagline": "Europas smartaste plattform för hemservice. Hitta och boka verifierade cleaners direkt i deras kalender.",
+    "platform": "Plattform",
+    "forProviders": "För providers",
+    "support": "Support",
+    "company": "Företag",
+    "findCleaner": "Hitta en cleaner",
+    "howItWorks": "Så fungerar det",
+    "rules": "Priser & regler",
+    "becomeProvider": "Bli provider",
+    "providerDashboard": "Provider-dashboard",
+    "receipts": "Kvitton & utgifter",
+    "faq": "Vanliga frågor",
+    "helpCenter": "Hjälpcenter",
+    "contact": "Kontakt",
+    "legalCenter": "Legal Center",
+    "privacy": "Integritetspolicy",
+    "cookies": "Cookiepolicy",
+    "companyNumber": "Organisationsnummer (UK) {{number}}",
+    "registeredIn": "Registrerat hos Companies House, England och Wales",
+    "companiesHouse": "Se registreringen hos Companies House",
+    "rights": "© {{year}} {{name}}. Alla rättigheter förbehållna.",
+    "marketsNotice": "MyCleaner öppnar först i Danmark. Sverige, Storbritannien, Tyskland och Spanien kommer snart."
+  },
+  "contact": {
+    "title": "Kontakta MyCleaner",
+    "subtitle": "Vi finns här för att hjälpa till — välj den kanal som passar dig bäst.",
+    "backHome": "Tillbaka till startsidan",
+    "chatTitle": "Chatta med supporten",
+    "chatBody": "Öppna supportchatten och skriv direkt med vårt team.",
+    "chatCta": "Öppna supportchatten",
+    "emailTitle": "Skicka ett e-postmeddelande",
+    "emailBody": "Skriv till {{email}} — vi svarar oftast inom 24 timmar.",
+    "faqTitle": "Läs vanliga frågor",
+    "faqBody": "De flesta svaren finns redan i vårt hjälpcenter.",
+    "companyTitle": "Företagsuppgifter",
+    "securityTitle": "Säkerhet — det behöver du aldrig skicka",
+    "securityBody": "Skicka aldrig kortuppgifter, CVV-koder, lösenord eller engångskoder till oss. Vi ber inte heller om ID-handlingar i chatten om du inte genomför en verifiering som vi tydligt har bett dig starta. Är du osäker, fråga oss först."
+  },
+  "seo": {
+    "default": {
+      "title": "MyCleaner — boka en verifierad cleaner",
+      "description": "Hitta och boka verifierade cleaners direkt i deras kalender. Se profil, omdömen och pris innan du bekräftar."
+    },
+    "home": {
+      "title": "MyCleaner — boka en verifierad cleaner i Sverige",
+      "description": "Boka professionell städning med verifierade providers. Se profil, omdömen och pris innan du bekräftar. Inga budgivningar, bara tydliga priser."
+    },
+    "faq": {
+      "title": "Vanliga frågor — MyCleaner",
+      "description": "Svar på de vanligaste frågorna om bokning, betalning, avbokning och trygghet hos MyCleaner."
+    },
+    "rules": {
+      "title": "Regler och villkor — MyCleaner",
+      "description": "Så fungerar MyCleaner: rättigheter, ansvar, avbokningsregler och vad du kan förvänta dig som kund och som provider."
+    },
+    "findCleaner": {
+      "title": "Hitta en cleaner nära dig — MyCleaner",
+      "description": "Sök på kartan efter verifierade cleaners i ditt område. Jämför profiler, priser och lediga tider."
+    },
+    "contact": {
+      "title": "Kontakta MyCleaner — support och företagsuppgifter",
+      "description": "Chatta med vår support eller hitta våra officiella företagsuppgifter och supportmejl."
+    },
+    "legal": {
+      "title": "Legal Center — MyCleaner",
+      "description": "Alla MyCleaners juridiska dokument samlade på ett ställe: villkor, integritetspolicy, avboknings- och återbetalningspolicy."
+    },
+    "comingSoonSuffix": "Öppnar snart"
+  },
+  "faq": {
+    "heading": "Vanliga frågor",
+    "subheading": "Hitta svar direkt — eller starta en chatt med vår support-AI om din fråga inte täcks.",
+    "items": {
+      "0": {
+        "q": "Vad är MyCleaner?",
+        "a": "MyCleaner-plattformen är en digital marknadsplats som kopplar samman kunder med självständiga providers. Du väljer och bokar själv den provider du vill ha. MyCleaner utför inte städningen själv och är inte part i avtalet om utförandet av uppdraget."
+      },
+      "1": {
+        "q": "Hur bokar jag en cleaner?",
+        "a": "Hitta en cleaner i marketplace, öppna profilen och välj en ledig tid direkt i kalendern. Du skickar en bokningsförfrågan, och bokningen är bekräftad när cleanern accepterar."
+      },
+      "2": {
+        "q": "Vad är skillnaden mellan en bokningsförfrågan och en bokning?",
+        "a": "En bokningsförfrågan är din förfrågan om en viss tidpunkt. När cleanern accepterar blir den en bekräftad bokning med tid, pris och adress."
+      },
+      "3": {
+        "q": "Kan jag skapa en återkommande bokning?",
+        "a": "Ja. Välj recurring booking när du bokar, så upprepas uppdraget med samma intervall. Du kan ändra eller stoppa den från Mina bokningar."
+      },
+      "4": {
+        "q": "När dras betalningen?",
+        "a": "Beloppet kan vara reserverat på ditt kort medan bokningsförfrågan behandlas. Det dras först när providern har accepterat bokningen, och betalas ut till providern när tjänsten är utförd."
+      },
+      "5": {
+        "q": "Vad kostar det att använda MyCleaner?",
+        "a": "Plattformsavgiften är 28 % och delas lika: 14 % läggs ovanpå kundens pris, och 14 % dras från providerns intäkt. Du ser alltid providerns pris, plattformsavgiften och totalpriset innan du bekräftar."
+      },
+      "6": {
+        "q": "Vad är Provider Score?",
+        "a": "Provider Score är ett samlat mått på en cleaners kvalitet — baserat på recensioner, svarstid, genomförda bokningar och verifiering. Det hjälper dig att välja tryggt."
+      },
+      "7": {
+        "q": "Vad är MyCleaner ID?",
+        "a": "MyCleaner ID är providerns verifierade identitet på plattformen. Det samlar ID-verifiering, genomförda bokningar och dokumenterad erfarenhet på ett ställe."
+      },
+      "8": {
+        "q": "Hur blir cleaners verifierade?",
+        "a": "Alla cleaners genomgår ID-verifiering innan de kan ta emot bokningar. Verifierade profiler är märkta med badgen Verifierad."
+      },
+      "9": {
+        "q": "Varför har vissa profiler en video?",
+        "a": "Cleaners kan lägga till en kort videopresentation så att du kan möta personen innan du bokar. Videon granskas av MyCleaner innan den blir synlig."
+      },
+      "10": {
+        "q": "Använder MyCleaner AI?",
+        "a": "Vi använder AI för att föreslå relevanta cleaners, hjälpa till med prisuppskattningar och besvara vanliga frågor i supporten. Beslut om verifiering, klagomål och återbetalning fattas alltid av en människa."
+      },
+      "11": {
+        "q": "Kan jag se cleanerns kalender innan jag bokar?",
+        "a": "Ja. Lediga tider visas direkt på profilen, så du kan välja en tid som passar er båda."
+      },
+      "12": {
+        "q": "Hur avbokar jag en bokning?",
+        "a": "Gå till Mina bokningar, välj bokningen och tryck på Avboka. {{ladder}} De exakta lokala tiderna anges på din bokningsbekräftelse. Bokningar som skapats innan de nuvarande reglerna avräknas enligt de villkor du accepterade då."
+      },
+      "13": {
+        "q": "Hur får jag återbetalning?",
+        "a": "Öppna ett supportärende och beskriv vad som hänt. Din begäran bedöms utifrån bokningens status, dokumentationen i ärendet och gällande villkor. En godkänd återbetalning skickas tillbaka till den betalningsmetod som användes. Handläggningstiden beror på betalningsleverantören och din bank."
+      },
+      "14": {
+        "q": "När får jag som självständig provider utbetalning?",
+        "a": "När bokningen är utförd och den fastställda perioden har passerat registreras en planerad utbetalning. Exakt när beloppet blir synligt på kontot beror på betalningsleverantören och din bank. Du följer tillgängligt saldo och planerade utbetalningar i din dashboard."
+      },
+      "15": {
+        "q": "Vad använder jag Kvitton och bokföring till?",
+        "a": "Under Bokföring kan du ladda upp kvitton, lägga till extern inkomst och hämta en månadsrapport. Det är ett hjälpmedel — inte en skattedeklaration."
+      },
+      "16": {
+        "q": "Kan jag få RUT-avdrag?",
+        "a": "För städning, trädgårdsarbete och vissa handyman-uppdrag i privata hem, ja. Din årsöversikt hittar du under Profil → Serviceavdrag."
+      },
+      "17": {
+        "q": "Hur blir jag cleaner på MyCleaner?",
+        "a": "Välj Bli cleaner, skapa din providerprofil, ange dina tjänster och priser, och välj när du är tillgänglig. Du arbetar som självständig provider — MyCleaner är inte din arbetsgivare och tilldelar dig inga uppdrag."
+      },
+      "18": {
+        "q": "Är mina uppgifter säkra?",
+        "a": "Ja. Data lagras krypterat, betalningar hanteras av Stripe, och vi delar aldrig dina uppgifter utan ditt samtycke."
+      },
+      "19": {
+        "q": "Hur får providern tillgång till mitt hem?",
+        "a": "Du kommer överens om tillträde direkt med din valda provider — t.ex. personlig insläpp, nyckelbox eller dörrkod. MyCleaner tar inte emot nycklar, förvarar inte nycklar och organiserar inte nyckelöverlämning. Du väljer själv tillträdeslösningen och ansvarar för den."
+      },
+      "20": {
+        "q": "Vad händer om en skada uppstår?",
+        "a": "Öppna ett supportärende med bilder och en beskrivning så snart som möjligt. MyCleaner är plattformen mellan kunden och providern. Eventuella skadeanspråk bedöms utifrån dokumentationen, providerns ansvar och gällande villkor."
+      },
+      "21": {
+        "q": "Vad gör jag om providern är sen eller inte dyker upp?",
+        "a": "Skriv först i chatten på bokningen — de flesta förseningar löser sig snabbt där. Får du inget svar kan du öppna ett supportärende, så går supporten igenom uppgifterna från båda parter."
+      }
+    },
+    "helpTitle": "Hittade du inget svar?",
+    "helpText": "Öppna FAQ-chatten och få hjälp av vår AI. Blir ärendet komplext skickar vi det vidare till en människa.",
+    "startChat": "Starta FAQ-chatt",
+    "loginToChat": "Logga in för att chatta",
+    "seeRules": "Se regler"
+  },
+  "rules": {
+    "heading": "Regler och villkor",
+    "intro": "MyCleaner-plattformen är en digital marknadsplats som kopplar samman kunder med självständiga providers. MyCleaner utför inte tjänsten själv och är inte part i avtalet om utförandet av uppdraget. Dessa regler gäller för både kunder och providers.",
+    "s1": {
+      "title": "1. Uppträdande på plattformen",
+      "items": [
+        "Var respektfull och professionell i all kommunikation.",
+        "Inga trakasserier, diskriminering eller olämpligt språk.",
+        "All kommunikation ska ske via plattformen tills bokningen är bekräftad."
+      ]
+    },
+    "s2": {
+      "title": "2. Betalning och avgifter",
+      "items": [
+        "Plattformsavgiften är 28 % — 14 % läggs ovanpå kundens pris, och 14 % dras från providerns intäkt.",
+        "En betalningsreservation skapas på kundens betalmetod vid bokning. Beloppet dras när uppdraget registrerats som utfört.",
+        "Ingen underprissättning — självständiga providers ska följa landets minimitaxa.",
+        "Providerns intäkt betalas ut som en planerad utbetalning. Exakt när beloppet blir synligt på kontot beror på betalningsleverantören och providerns bank."
+      ]
+    },
+    "s3": {
+      "title": "3. Avbokning",
+      "intro": "Återbetalningen beror på hur lång tid det är kvar till bokningens exakta starttid när avbokningen registreras:",
+      "afterBullets": [
+        "Tiderna beräknas utifrån bokningens exakta start i bokningens tidszon. De exakta tiderna visas på bokningsbekräftelsen.",
+        "Reglerna gäller bokningar som skapats efter policyns ikraftträdande. Befintliga bokningar avräknas enligt den version kunden accepterade vid bokningstillfället.",
+        "Om beloppet ännu inte dragits annulleras reservationen i stället, och inget debiteras. Avbokar providern återbetalas kunden fullt ut.",
+        "Providers som avbokar strax innan uppdraget riskerar avstängning."
+      ]
+    },
+    "s4": {
+      "title": "4. Klagomål och återbetalning",
+      "items": [
+        "Klagomål ska lämnas in inom 48 timmar efter uppdragets planerade eller registrerade avslutning.",
+        "MyCleaner Support går igenom ärendet och den inlämnade informationen, vanligtvis inom 5 vardagar.",
+        "MyCleaner Support går igenom tillgänglig information från båda parter innan ett beslut registreras.",
+        "En godkänd återbetalning skickas tillbaka till den betalningsmetod som användes. Handläggningstiden beror på betalningsleverantören och kundens bank."
+      ]
+    },
+    "s5": {
+      "title": "5. Skatt och rapportering",
+      "items": [
+        "Självständiga providers ansvarar själva för att redovisa sin inkomst till Skatteverket.",
+        "Providers som driver bolag ska registrera sig för moms om omsättningen överstiger gränsen för momsplikt.",
+        "Kunder kan använda RUT-avdrag för berättigade tjänster — se skatteverket.se."
+      ]
+    },
+    "s6": {
+      "title": "6. Nycklar och tillträde",
+      "text": "MyCleaner tar inte emot, förvarar eller hanterar nycklar. Eventuellt tillträde eller nyckelöverlämning avtalas direkt mellan kunden och den självständiga providern och sker på parternas eget ansvar."
+    },
+    "s7": {
+      "title": "7. Avstängning och uppsägning",
+      "text": "MyCleaner förbehåller sig rätten att stänga av eller avsluta konton som bryter mot dessa regler. Allvarliga överträdelser kan leda till permanent uteslutning och eventuell polisanmälan."
+    }
   }
 }

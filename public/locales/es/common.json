@@ -1,6 +1,4 @@
 {
-  "_fallback_language": "en",
-  "_note": "Spanish bundle scaffolded; missing keys resolve via English fallback.",
   "mobileMessages": {
     "title": "Mensajes",
     "defaultTitle": "Conversación",
@@ -69,9 +67,267 @@
     "invalid_credentials": "Correo o contraseña no válidos"
   },
   "language": {
-    "de": "Deutsch"
+    "de": "Deutsch",
+    "label": "Idioma",
+    "da": "Dansk",
+    "en": "English",
+    "sv": "Svenska",
+    "es": "Español"
   },
   "country": {
-    "coming_soon": "Próximamente"
+    "coming_soon": "Próximamente",
+    "label": "País",
+    "DK": "Dinamarca",
+    "GB": "Reino Unido",
+    "SE": "Suecia",
+    "ES": "España",
+    "DE": "Alemania"
+  },
+  "app_name": "MyCleaner",
+  "actions": {
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "back": "Atrás",
+    "next": "Siguiente",
+    "continue": "Continuar",
+    "delete": "Eliminar",
+    "confirm": "Confirmar",
+    "close": "Cerrar",
+    "loading": "Cargando…"
+  },
+  "common": {
+    "loading": "Cargando…"
+  },
+  "nav": {
+    "home": "Inicio",
+    "bookings": "Reservas",
+    "inbox": "Bandeja de entrada",
+    "profile": "Perfil",
+    "logout": "Cerrar sesión"
+  },
+  "footer": {
+    "tagline": "La plataforma de servicios para el hogar más inteligente de Europa. Encuentra y reserva cleaners verificados directamente en su calendario.",
+    "platform": "Plataforma",
+    "forProviders": "Para providers",
+    "support": "Soporte",
+    "company": "Empresa",
+    "findCleaner": "Buscar un cleaner",
+    "howItWorks": "Cómo funciona",
+    "rules": "Precios y normas",
+    "becomeProvider": "Hazte provider",
+    "providerDashboard": "Panel del provider",
+    "receipts": "Recibos y gastos",
+    "faq": "Preguntas frecuentes",
+    "helpCenter": "Centro de ayuda",
+    "contact": "Contacto",
+    "legalCenter": "Legal Center",
+    "privacy": "Política de privacidad",
+    "cookies": "Política de cookies",
+    "companyNumber": "Número de sociedad (Reino Unido) {{number}}",
+    "registeredIn": "Inscrita en Companies House, Inglaterra y Gales",
+    "companiesHouse": "Ver el registro en Companies House",
+    "rights": "© {{year}} {{name}}. Todos los derechos reservados.",
+    "marketsNotice": "MyCleaner abre primero en Dinamarca. Suecia, Reino Unido, Alemania y España llegarán pronto."
+  },
+  "contact": {
+    "title": "Contacta con MyCleaner",
+    "subtitle": "Estamos aquí para ayudarte: elige el canal que mejor te venga.",
+    "backHome": "Volver a la página de inicio",
+    "chatTitle": "Habla con soporte",
+    "chatBody": "Abre el chat de soporte y escribe directamente con nuestro equipo.",
+    "chatCta": "Abrir el chat de soporte",
+    "emailTitle": "Envíanos un correo",
+    "emailBody": "Escribe a {{email}}: solemos responder en menos de 24 horas.",
+    "faqTitle": "Consulta las preguntas frecuentes",
+    "faqBody": "La mayoría de las respuestas ya están en nuestro centro de ayuda.",
+    "companyTitle": "Datos de la empresa",
+    "securityTitle": "Seguridad: lo que nunca necesitas enviar",
+    "securityBody": "No nos envíes nunca datos de tarjeta, códigos CVV, contraseñas ni códigos de un solo uso. Tampoco pedimos documentos de identidad por chat, salvo que estés completando una verificación que te hayamos solicitado claramente. Si tienes dudas, pregúntanos primero."
+  },
+  "seo": {
+    "default": {
+      "title": "MyCleaner — reserva un cleaner verificado",
+      "description": "Encuentra cleaners verificados y reserva directamente en su calendario. Consulta perfil, valoraciones y precio antes de confirmar."
+    },
+    "home": {
+      "title": "MyCleaner — reserva un cleaner verificado en España",
+      "description": "Reserva limpieza profesional con providers verificados. Consulta perfil, valoraciones y precio antes de confirmar. Sin subastas, con precios claros."
+    },
+    "faq": {
+      "title": "Preguntas frecuentes — MyCleaner",
+      "description": "Respuestas a las dudas más habituales sobre reservas, pagos, cancelaciones y seguridad en MyCleaner."
+    },
+    "rules": {
+      "title": "Normas y condiciones — MyCleaner",
+      "description": "Así funciona MyCleaner: derechos, responsabilidades, normas de cancelación y qué esperar como cliente y como provider."
+    },
+    "findCleaner": {
+      "title": "Encuentra un cleaner cerca de ti — MyCleaner",
+      "description": "Busca en el mapa cleaners verificados en tu zona. Compara perfiles, precios y horarios disponibles."
+    },
+    "contact": {
+      "title": "Contacta con MyCleaner — soporte e información de la empresa",
+      "description": "Habla con nuestro equipo de soporte o consulta los datos oficiales de la empresa y el correo de soporte."
+    },
+    "legal": {
+      "title": "Legal Center — MyCleaner",
+      "description": "Todos los documentos legales de MyCleaner en un solo sitio: condiciones, privacidad, política de cancelación y reembolso."
+    },
+    "comingSoonSuffix": "Próximamente"
+  },
+  "faq": {
+    "heading": "Preguntas frecuentes",
+    "subheading": "Encuentra respuestas al instante — o inicia un chat con nuestra IA de soporte si tu pregunta no está cubierta.",
+    "items": {
+      "0": {
+        "q": "¿Qué es MyCleaner?",
+        "a": "La plataforma MyCleaner es un mercado digital que conecta a clientes con providers independientes. Tú eliges y reservas al provider que quieras. MyCleaner no realiza la limpieza y no es parte del acuerdo sobre la ejecución del servicio."
+      },
+      "1": {
+        "q": "¿Cómo reservo a un cleaner?",
+        "a": "Busca un cleaner en el marketplace, abre su perfil y elige un horario disponible directamente en el calendario. Envías una booking request, y la reserva queda confirmada cuando el cleaner la acepta."
+      },
+      "2": {
+        "q": "¿Cuál es la diferencia entre una booking request y una reserva?",
+        "a": "Una booking request es tu solicitud para un horario concreto. Cuando el cleaner la acepta, se convierte en una reserva confirmada con hora, precio y dirección."
+      },
+      "3": {
+        "q": "¿Puedo crear una reserva recurrente?",
+        "a": "Sí. Elige recurring booking al reservar, y el servicio se repetirá con el mismo intervalo. Puedes modificarla o detenerla desde Mis reservas."
+      },
+      "4": {
+        "q": "¿Cuándo se cobra el pago?",
+        "a": "El importe puede quedar reservado en tu tarjeta mientras se procesa la solicitud de reserva. Solo se cobra cuando el provider acepta la reserva, y se abona al provider cuando el servicio se ha realizado."
+      },
+      "5": {
+        "q": "¿Cuánto cuesta usar MyCleaner?",
+        "a": "La comisión de la plataforma es del 28% y se reparte a partes iguales: un 14% se añade al precio del cliente, y un 14% se descuenta de los ingresos del provider. Siempre ves el precio del provider, la comisión de la plataforma y el precio total antes de confirmar."
+      },
+      "6": {
+        "q": "¿Qué es el Provider Score?",
+        "a": "El Provider Score es una medida global de la calidad de un cleaner — basada en reseñas, tiempo de respuesta, reservas completadas y verificación. Te ayuda a elegir con confianza."
+      },
+      "7": {
+        "q": "¿Qué es el MyCleaner ID?",
+        "a": "El MyCleaner ID es la identidad verificada del provider en la plataforma. Reúne en un solo lugar la verificación de identidad, las reservas completadas y la experiencia documentada."
+      },
+      "8": {
+        "q": "¿Cómo se verifica a los cleaners?",
+        "a": "Todos los cleaners pasan por una verificación de identidad antes de poder recibir reservas. Los perfiles verificados muestran la insignia Verificado."
+      },
+      "9": {
+        "q": "¿Por qué algunos perfiles tienen un vídeo?",
+        "a": "Los cleaners pueden añadir una breve presentación en vídeo para que conozcas a la persona antes de reservar. El vídeo es revisado por MyCleaner antes de hacerse visible."
+      },
+      "10": {
+        "q": "¿Usa MyCleaner inteligencia artificial?",
+        "a": "Usamos IA para sugerir cleaners relevantes, ayudar con estimaciones de precio y responder preguntas frecuentes en el soporte. Las decisiones sobre verificación, reclamaciones y reembolsos siempre las toma una persona."
+      },
+      "11": {
+        "q": "¿Puedo ver el calendario del cleaner antes de reservar?",
+        "a": "Sí. Los horarios disponibles se muestran directamente en el perfil, para que puedas elegir un momento que os convenga a ambos."
+      },
+      "12": {
+        "q": "¿Cómo cancelo una reserva?",
+        "a": "Ve a Mis reservas, selecciona la reserva y pulsa Cancelar reserva. {{ladder}} Los horarios locales exactos figuran en tu confirmación de reserva. Las reservas creadas antes de las reglas actuales se liquidan según las condiciones que aceptaste en su momento."
+      },
+      "13": {
+        "q": "¿Cómo obtengo un reembolso?",
+        "a": "Abre un caso de soporte y describe lo ocurrido. Tu solicitud se evalúa según el estado de la reserva, la documentación del caso y las condiciones vigentes. Un reembolso aprobado se devuelve al método de pago utilizado. El tiempo de procesamiento depende del proveedor de pagos y de tu banco."
+      },
+      "14": {
+        "q": "¿Cuándo recibo el pago como provider independiente?",
+        "a": "Una vez realizada la reserva y transcurrido el periodo establecido, se registra un pago programado. El momento exacto en que el importe aparece en tu cuenta depende del proveedor de pagos y de tu banco. Puedes seguir el saldo disponible y los pagos programados en tu dashboard."
+      },
+      "15": {
+        "q": "¿Para qué sirven los Recibos y contabilidad?",
+        "a": "En Contabilidad puedes subir recibos, añadir ingresos externos y descargar un informe mensual. Es una herramienta de ayuda — no una declaración de impuestos."
+      },
+      "16": {
+        "q": "¿Puedo desgravar el servicio en mis impuestos?",
+        "a": "Para limpieza, jardinería y ciertos trabajos de handyman en hogares privados, sí. Tu resumen anual está en Perfil → Deducción por servicios."
+      },
+      "17": {
+        "q": "¿Cómo me convierto en cleaner en MyCleaner?",
+        "a": "Elige Conviértete en cleaner, crea tu perfil de provider, indica tus servicios y precios, y elige cuándo estás disponible. Trabajas como provider independiente — MyCleaner no es tu empleador y no te asigna tareas."
+      },
+      "18": {
+        "q": "¿Está segura mi información?",
+        "a": "Sí. Los datos se almacenan cifrados, los pagos los gestiona Stripe, y nunca compartimos tu información sin tu consentimiento."
+      },
+      "19": {
+        "q": "¿Cómo accede el provider a mi vivienda?",
+        "a": "Acuerdas el acceso directamente con el provider elegido — por ejemplo, abriendo tú mismo la puerta, con una caja de llaves o un código. MyCleaner no recibe llaves, no las guarda ni organiza su entrega. Tú eliges la solución de acceso y eres responsable de ella."
+      },
+      "20": {
+        "q": "¿Qué ocurre si se produce un daño?",
+        "a": "Abre un caso de soporte con fotos y una descripción lo antes posible. MyCleaner es la plataforma entre el cliente y el provider. Cualquier reclamación por daños se evalúa según la documentación, la responsabilidad del provider y las condiciones vigentes."
+      },
+      "21": {
+        "q": "¿Qué hago si el provider llega tarde o no se presenta?",
+        "a": "Escribe primero en el chat de la reserva — la mayoría de los retrasos se resuelven rápido ahí. Si no obtienes respuesta, puedes abrir un caso de soporte, y el equipo revisará la información de ambas partes."
+      }
+    },
+    "helpTitle": "¿No encontraste respuesta?",
+    "helpText": "Abre el chat de FAQ y recibe ayuda de nuestra IA. Si el caso resulta complejo, lo derivamos a una persona.",
+    "startChat": "Iniciar chat de FAQ",
+    "loginToChat": "Inicia sesión para chatear",
+    "seeRules": "Ver reglas"
+  },
+  "rules": {
+    "heading": "Reglas y condiciones",
+    "intro": "La plataforma MyCleaner es un mercado digital que conecta a clientes con providers independientes. MyCleaner no presta el servicio y no es parte del acuerdo sobre la ejecución del servicio. Estas reglas se aplican tanto a clientes como a providers.",
+    "s1": {
+      "title": "1. Conducta en la plataforma",
+      "items": [
+        "Sé respetuoso y profesional en toda comunicación.",
+        "No se permite el acoso, la discriminación ni el lenguaje inapropiado.",
+        "Toda comunicación debe realizarse a través de la plataforma hasta que la reserva esté confirmada."
+      ]
+    },
+    "s2": {
+      "title": "2. Pago y comisiones",
+      "items": [
+        "La comisión de la plataforma es del 28% — un 14% se añade al precio del cliente, y un 14% se descuenta de los ingresos del provider.",
+        "Al reservar se realiza una retención en el método de pago del cliente. El importe se cobra cuando el servicio se registra como realizado.",
+        "Sin precios por debajo del mínimo — los providers independientes deben respetar la tarifa mínima del país.",
+        "Los ingresos del provider se abonan como un pago programado. El momento exacto en que el importe aparece en la cuenta depende del proveedor de pagos y del banco del provider."
+      ]
+    },
+    "s3": {
+      "title": "3. Cancelación",
+      "intro": "El reembolso depende del tiempo que falte para la hora exacta de inicio de la reserva cuando se registra la cancelación:",
+      "afterBullets": [
+        "Los horarios se calculan a partir del inicio exacto de la reserva en la zona horaria de la reserva. Los horarios exactos se muestran en la confirmación de la reserva.",
+        "Las reglas se aplican a las reservas creadas después de la entrada en vigor de la política. Las reservas existentes se liquidan según la versión que el cliente aceptó al reservar.",
+        "Si el importe aún no se ha cobrado, la retención se cancela y no se cobra nada. Si el provider cancela, el cliente recibe un reembolso completo.",
+        "Los providers que cancelen poco antes del servicio se arriesgan a una suspensión."
+      ]
+    },
+    "s4": {
+      "title": "4. Reclamaciones y reembolsos",
+      "items": [
+        "Las reclamaciones deben enviarse dentro de las 48 horas siguientes a la finalización prevista o registrada del servicio.",
+        "MyCleaner Support revisa el caso y la información enviada, normalmente en un plazo de 5 días hábiles.",
+        "MyCleaner Support revisa la información disponible de ambas partes antes de registrar una decisión.",
+        "Un reembolso aprobado se devuelve al método de pago utilizado. El tiempo de procesamiento depende del proveedor de pagos y del banco del cliente."
+      ]
+    },
+    "s5": {
+      "title": "5. Impuestos y declaración",
+      "items": [
+        "Los providers independientes son responsables de declarar sus ingresos ante la agencia tributaria correspondiente.",
+        "Los providers con actividad empresarial deben registrarse a efectos de IVA si su facturación supera el umbral local.",
+        "Los clientes pueden acogerse a deducciones por servicios elegibles — consulta la agencia tributaria de tu país."
+      ]
+    },
+    "s6": {
+      "title": "6. Llaves y acceso",
+      "text": "MyCleaner no recibe, guarda ni gestiona llaves. Cualquier acceso o entrega de llaves se acuerda directamente entre el cliente y el provider independiente, y se realiza bajo la responsabilidad de las partes."
+    },
+    "s7": {
+      "title": "7. Suspensión y cese",
+      "text": "MyCleaner se reserva el derecho de suspender o cancelar cuentas que incumplan estas reglas. Las infracciones graves pueden derivar en exclusión permanente y una posible denuncia policial."
+    }
   }
 }
