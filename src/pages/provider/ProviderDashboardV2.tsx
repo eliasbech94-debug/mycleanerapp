@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 import { Link } from "react-router-dom";
 import {
   AlertTriangle,
@@ -55,6 +56,7 @@ import { formatMoney } from "@/i18n/money";
  * `<ComingSoonCard>` — nothing is fabricated.
  */
 export default function ProviderDashboardV2() {
+  const { t } = useTranslation("provider");
   const data = useProviderDashboard();
   const notifications = useNotifications();
 
@@ -72,7 +74,7 @@ export default function ProviderDashboardV2() {
     return `${Math.round(s / 3600)} t`;
   }, [data.stats.avgResponseSeconds]);
 
-  const verification = describeVerification(data.profile);
+  const verification = describeVerification(data.profile, t);
 
   return (
     <DashboardLayout role="provider" title="Cleaner">
