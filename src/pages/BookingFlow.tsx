@@ -111,6 +111,10 @@ function BookingFlowInner() {
   const [submitting, setSubmitting] = useState(false);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [bookingId, setBookingId] = useState<string | null>(null);
+  // Cancellation-policy version frozen on the booking by the server. Used so
+  // the confirmation quotes the accepted terms even if the global policy
+  // switches over (time gate) between creation and render.
+  const [acceptedPolicyVersion, setAcceptedPolicyVersion] = useState<string | null>(null);
   const stripe = useStripe();
   const elements = useElements();
 
@@ -257,6 +261,7 @@ function BookingFlowInner() {
           bid = data.booking_id;
           setClientSecret(secret);
           setBookingId(bid);
+          setAcceptedPolicyVersion(data.cancellation_policy_version ?? null);
         }
 
         // 2) Confirm card (authorization only — manual capture)
@@ -371,7 +376,7 @@ function BookingFlowInner() {
                 />
               )}
               {step === 4 && (
-                <Step4 provider={provider} date={date!} slot={slot} customerPays={customerPays} />
+                <Step4 provider={provider} date={date!} slot={slot} customerPays={customerPays} policyVersion={acceptedPolicyVersion} />
               )}
             </motion.div>
           </AnimatePresence>
