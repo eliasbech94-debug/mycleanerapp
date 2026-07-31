@@ -8325,6 +8325,39 @@ export type Database = {
         }
         Relationships: []
       }
+      support_entity_notes: {
+        Row: {
+          author_user_id: string
+          body: string
+          created_at: string
+          id: string
+          pinned: boolean
+          subject_type: string
+          subject_user_id: string
+          updated_at: string
+        }
+        Insert: {
+          author_user_id: string
+          body: string
+          created_at?: string
+          id?: string
+          pinned?: boolean
+          subject_type: string
+          subject_user_id: string
+          updated_at?: string
+        }
+        Update: {
+          author_user_id?: string
+          body?: string
+          created_at?: string
+          id?: string
+          pinned?: boolean
+          subject_type?: string
+          subject_user_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       support_messages: {
         Row: {
           content: string
@@ -10395,6 +10428,19 @@ export type Database = {
       support_provider_summary: {
         Args: { _provider_id: string }
         Returns: Json
+      }
+      support_recent_activity: {
+        Args: { _limit?: number; _user: string }
+        Returns: {
+          assigned_to_me: boolean
+          conversation_id: string
+          conversation_priority: string
+          conversation_status: string
+          conversation_subject: string
+          created_at: string
+          event_id: string
+          event_type: string
+        }[]
       }
       support_search_bookings: {
         Args: { _limit?: number; _q?: string }
