@@ -64,7 +64,17 @@ describe("cancellation policy parity", () => {
 
   it("new bookings snapshot the policy resolved from server time", () => {
     const fn = read("supabase/functions/payment-create-intent/index.ts");
-    expect(fn).toContain("cancellation_policy_snapshot: cancellationPolicySnapshot(policyAt(new Date()))");
+    expect(fn).toContain("const acceptedCancellationSnapshot = cancellationPolicySnapshot(policyAt(new Date()))");
+    expect(fn).toContain("cancellation_policy_snapshot: acceptedCancellationSnapshot");
+    // The accepted version travels back to the client so the confirmation
+    // screen quotes the frozen terms, not today's policy.
+    expect(fn).toContain("cancellation_policy_version");
+  });
+
+  it("the booking confirmation renders the frozen policy version", () => {
+    const flow = read("src/pages/BookingFlow.tsx");
+    expect(flow).toContain("setAcceptedPolicyVersion(data.cancellation_policy_version ?? null)");
+    expect(flow).toContain("policyVersion={policyVersion}");
   });
 
   it("booking-cancel imports the shared policy instead of inlining thresholds", () => {
