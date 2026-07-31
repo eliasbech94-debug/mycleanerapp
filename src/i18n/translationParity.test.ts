@@ -18,6 +18,8 @@ const NAMESPACES = ["common", "marketplace", "legal", "ai"] as const;
 /** Values that are intentionally identical in every language. */
 const SHARED_LITERALS = new Set([
   "MyCleaner",
+  // Brand-locked product/label names — identical by design in every language.
+  "MyCleaner Support",
   "Dansk",
   "English",
   "Svenska",
