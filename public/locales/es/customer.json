@@ -578,10 +578,10 @@
       "clickToOpenProfile": "Haz clic para abrir el perfil",
       "filterByServiceArea": "Filtrar por área de servicio (selecciona varias)",
       "filterCleaners": "Filtrar limpiadores",
-      "instantBook": "Reserva instantánea",
+      "instantBook": "Reserva inmediata",
       "maxHourlyRate": "Tarifa máx. por hora",
       "minExperience": "Años mín. de experiencia",
-      "minRating": "Valoración mín.",
+      "minRating": "Valoración mínima",
       "moveMapToSeeProviders": "Mueve el mapa o aleja el zoom para ver proveedores.",
       "somethingWentWrong": "Algo salió mal",
       "title": "Encuentra tu limpiador"
@@ -602,7 +602,7 @@
         "dashboard": "Panel",
         "employeePortal": "Empleado",
         "faq": "Preguntas frecuentes",
-        "findCleaner": "Buscar limpiador/a",
+        "findCleaner": "Buscar cleaner",
         "howItWorks": "Cómo funciona",
         "myBookings": "Mis reservas",
         "myProfile": "Mi perfil",
@@ -610,14 +610,14 @@
         "receipts": "Recibos y gastos",
         "rules": "Normas"
       },
-      "toggleMenu": "Alternar menú"
+      "toggleMenu": "Mostrar/ocultar menú"
     },
     "marketplace": {
       "allServices": "Todos los servicios",
       "allTiers": "Todos los niveles",
       "findCleaner": "Encontrar un limpiador",
       "maxHourlyRatePlaceholder": "Tarifa máx. por hora",
-      "minTierPlaceholder": "Nivel mín.",
+      "minTierPlaceholder": "Nivel mínimo",
       "next": "Siguiente",
       "noneMatchFilters": "Ningún proveedor coincide con tus filtros.",
       "subtitle": "Explora proveedores verificados. Reserva directamente en su calendario."

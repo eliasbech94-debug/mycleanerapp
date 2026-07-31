@@ -66,7 +66,7 @@
         "publishedHashToast": "Hash: {{hash}}",
         "publishedToast": "Publicerad som version {{version}}",
         "reviewAndPublish": "Granska och publicera",
-        "rollback": "Rollback",
+        "rollback": "Återställning",
         "saveChapter": "Spara kapitel",
         "savedToast": "Sparat",
         "split": "Dela",
@@ -78,7 +78,7 @@
     },
     "providers": {
       "drawer": {
-        "actionFailed": "Action failed",
+        "actionFailed": "Åtgärden misslyckades",
         "actionOk": "OK: {{action}}",
         "actions": {
           "approve": "Godkänn",
@@ -99,41 +99,41 @@
         "colReason": "Anledning",
         "colScore": "Poäng",
         "colTier": "Nivå",
-        "completionBadge": "completion: {{value}}%",
+        "completionBadge": "slutförande: {{value}}%",
         "completionLabel": "Slutförande: {{pct}}% ({{done}}/{{total}})",
         "confirm": "Bekräfta",
         "confirmAction": "Bekräfta {{action}}",
         "confirmDescription": "Denna åtgärd registreras i granskningsloggen. Anledning: {{reason}}",
         "fallbackName": "Leverantör",
-        "flags": "Flags: {{value}}",
-        "identity": "identity: {{value}}",
+        "flags": "Flaggor: {{value}}",
+        "identity": "identitet: {{value}}",
         "missing": "saknas",
         "noFlags": "inga",
         "noHistory": "Ingen historik",
         "none": "Inga",
-        "payoutFrozen": "payout frozen",
+        "payoutFrozen": "utbetalning fryst",
         "reasonInputLabel": "Anledning (krävs för destruktiva åtgärder)",
-        "reasonLabel": "Reason: {{value}}",
+        "reasonLabel": "Orsak: {{value}}",
         "reasonMissing": "(saknas)",
         "reasonPrefix": "Anledning: {{reason}}",
         "reasonRequired": "Ange en anledning först",
         "recalcScore": "Beräkna om poäng/nivå",
         "reconcileStatus": "Avstäm status",
         "score": "score: {{value}}",
-        "stripeNotReady": "stripe: not-ready",
-        "stripeReady": "stripe: ready",
+        "stripeNotReady": "stripe: inte klar",
+        "stripeReady": "stripe: klar",
         "tabActions": "Åtgärder",
-        "tabCompletion": "Onboarding",
+        "tabCompletion": "Uppstart",
         "tabScore": "Poänghistorik",
         "tabTimeline": "Tidslinje",
         "tier": "tier: {{value}}",
         "tierHistoryTitle": "Nivåhistorik (från poängsnapshots)",
         "trustLevel": "Nivå: {{value}}",
-        "trustScore": "Trust Score: {{value}}",
+        "trustScore": "Förtroendepoäng: {{value}}",
         "trustTitle": "Intern Trust Score (endast admin)",
         "updateFailed": "Uppdateringen misslyckades",
         "updated": "Uppdaterad: {{kind}}",
-        "visibility": "visibility: {{value}}"
+        "visibility": "synlighet: {{value}}"
       }
     }
   },
@@ -142,19 +142,19 @@
   "loading": "Laddar…",
   "ops": {
     "accessLogs": {
-      "adminLink": "Admin",
+      "adminLink": "Administration",
       "anonymous": "anonym",
       "filters": {
         "allResults": "Alla resultat",
         "allRoutes": "Alla rutter",
         "resultPlaceholder": "Resultat",
-        "routePlaceholder": "Rutt"
+        "routePlaceholder": "Sökväg"
       },
       "headers": {
         "allowedRoles": "Krävda roller",
         "reason": "Orsak",
         "result": "Resultat",
-        "route": "Rutt",
+        "route": "Sökväg",
         "timestamp": "Tidpunkt",
         "user": "Användare",
         "userRoles": "Användarens roller"
@@ -247,7 +247,7 @@
         "emailDelivery": "E-postleverans",
         "smsGateway": "SMS-gateway",
         "stripeEvents": "Stripe-händelser",
-        "title": "Webhook-hälsa"
+        "title": "Webhook-status"
       }
     },
     "opsDashboard": {
@@ -298,8 +298,8 @@
         "filters": {
           "all": "Alla",
           "feeOff": "Avgift avviker",
-          "marketHigh": "Över max",
-          "marketLow": "Under min",
+          "marketHigh": "Över maximum",
+          "marketLow": "Under minimum",
           "noTransfer": "Saknar överföring",
           "ok": "OK"
         },
@@ -337,7 +337,7 @@
         "totalProvider": "Leverantörernas intäkter totalt:"
       },
       "detail": {
-        "customerPays": "customer_pays = {{value}}",
+        "customerPays": "kunden betalar = {{value}}",
         "deviates": "✗ Avviker",
         "deviationVsMin": "Avvikelse vs. min:",
         "effective": "Effektiv: {{value}}%",
@@ -364,8 +364,8 @@
       },
       "issues": {
         "feeIssue": "avgift {{pct}}% (förväntad {{expected}}%)",
-        "marketHigh": "leverantör {{value}} > max {{max}}",
-        "marketLow": "leverantör {{value}} < min {{min}}",
+        "marketHigh": "leverantör {{value}} över maximum {{max}}",
+        "marketLow": "leverantör {{value}} under minimum {{min}}",
         "splitMismatch": "uppdelning ≠ kundpris",
         "transferIssue": "överföring saknas/felaktig"
       },
@@ -381,8 +381,8 @@
         "feeOff": "Avgiftsavvikelse",
         "noTransfer": "Ingen överföring",
         "ok": "OK",
-        "overMax": "Över max",
-        "underMin": "Under min"
+        "overMax": "Över maximum",
+        "underMin": "Under minimum"
       },
       "subtitle": "Betalningsuppdelning, plattformsavgift och marknadspris per land",
       "title": "Betalningsverifiering",
@@ -418,16 +418,16 @@
         "valid": "Giltig"
       },
       "mode": {
-        "live": "LIVE-LÄGE",
+        "live": "LIVELÄGE",
         "test": "TESTLÄGE",
         "unknown": "OKÄND"
       },
       "publishableKey": {
-        "label": "Publishable key"
+        "label": "Publik nyckel"
       },
       "refresh": "Uppdatera",
       "secretKey": {
-        "label": "Secret key"
+        "label": "Hemlig nyckel"
       },
       "subtitle": "Automatisk kontroll av publishable key och secret key",
       "switchGuide": {
@@ -444,7 +444,7 @@
       "back": "Tillbaka",
       "detail": {
         "booking": "Bokning:",
-        "charge": "Charge:",
+        "charge": "Betalning:",
         "eventId": "Händelse-ID:",
         "paymentIntent": "PaymentIntent:",
         "payout": "Utbetalning:",
@@ -478,15 +478,15 @@
     "adminAccountingReports": {
       "columns": {
         "country": "Land",
-        "income": "Income",
-        "month": "Month",
+        "income": "Intäkt",
+        "month": "Månad",
         "provider": "Provider",
         "reviewPoints": "Review Points",
         "rulePack": "Rule Pack",
         "status": "Status",
         "version": "Version"
       },
-      "failedCount": "Failed Count",
+      "failedCount": "{{count}} misslyckades",
       "failedHelp": "Failed Help",
       "fetchFailed": "Fetch Failed",
       "loadingStatus": "Loading Status",
@@ -503,20 +503,20 @@
       "createdLog": "Created Log",
       "createdToast": "Created Toast",
       "newRulePack": "New Rule Pack",
-      "noAccessBody": "No Access Body",
+      "noAccessBody": "Du behöver behörigheten \"{{permission}}\" för att komma åt den här sidan.",
       "noAccessTitle": "No Access Title",
       "notProvisioned": "Not Provisioned",
       "subtitle": "Undertitel",
       "title": "Titel"
     },
     "adminAppeals": {
-      "actionFailed": "Action Failed",
+      "actionFailed": "Åtgärden misslyckades",
       "additionalInfo": "Additional Info",
       "aiAssistedNote": "Ai Assisted Note",
       "cantOpenDocument": "Cant Open Document",
-      "caseCount": "Case Count",
+      "caseCount": "{{count}} ärenden",
       "closedCases": "Closed Cases",
-      "decision": "Decision",
+      "decision": "Beslut",
       "filterAriaLabel": "Filter Aria Label",
       "maintainDecision": "Maintain Decision",
       "noCasesInView": "No Cases In View",
@@ -533,9 +533,9 @@
       "upholdAppeal": "Uphold Appeal"
     },
     "adminCampaigns": {
-      "actionFailed": "Action Failed",
-      "applicationActionDone": "Application Action Done",
-      "applicationsCount": "Applications Count",
+      "actionFailed": "Åtgärden misslyckades",
+      "applicationActionDone": "Ansökan {{action}}",
+      "applicationsCount": "{{count}} ansökningar",
       "approve": "Godkänn",
       "consoleDisabled": "Console Disabled",
       "csvExportFailed": "Csv Export Failed",
@@ -555,7 +555,7 @@
       "waitlist": "Väntelista"
     },
     "adminCareerVerification": {
-      "certificationTab": "Certification Tab",
+      "certificationTab": "Certifieringar ({{count}})",
       "city": "Stad",
       "country": "Land",
       "current": "Nuvarande",
@@ -572,7 +572,7 @@
       "noWorkHistory": "No Work History",
       "open": "Öppna",
       "openDocFailed": "Open Doc Failed",
-      "pendingCount": "Pending Count",
+      "pendingCount": "{{count}} väntar",
       "reject": "Avvisa",
       "requestMoreInfo": "Request More Info",
       "saveDecisionFailed": "Save Decision Failed",
@@ -583,7 +583,7 @@
       "title": "Titel",
       "to": "Till",
       "verify": "Verifiera",
-      "workHistoryTab": "Work History Tab"
+      "workHistoryTab": "Arbetslivserfarenhet ({{count}})"
     },
     "adminDesignSystem": {
       "alertError": "Alert Error",
@@ -596,10 +596,10 @@
       "title": "Titel"
     },
     "adminKnowledge": {
-      "actionCompleted": "Action Completed",
-      "actionFailed": "Action Failed",
-      "actionFailedLabel": "Action Failed Label",
-      "actionOk": "Action Ok",
+      "actionCompleted": "{{action}} slutförd",
+      "actionFailed": "{{action}} misslyckades",
+      "actionFailedLabel": "{{label}} misslyckades",
+      "actionOk": "{{label}}: klart",
       "approve": "Godkänn",
       "archive": "Arkivera",
       "archiveDescription": "Archive Description",
@@ -608,22 +608,22 @@
       "changeSummary": "Change Summary",
       "close": "Stäng",
       "confirm": "Bekräfta",
-      "confirmAction": "Confirm Action",
+      "confirmAction": "Bekräfta {{action}}",
       "contentField": "Content Field",
       "couldNotCreateArticle": "Could Not Create Article",
       "couldNotFetchArticles": "Could Not Fetch Articles",
       "couldNotSave": "Could Not Save",
       "edit": "Redigera",
       "emergency": "Nödsituation",
-      "emergencyInfoFor": "Emergency Info For",
+      "emergencyInfoFor": "Nödinformation för {{country}}",
       "emergencyInfoHint": "Emergency Info Hint",
       "emergencyInfoTitle": "Emergency Info Title",
-      "emptyStatus": "Empty Status",
+      "emptyStatus": "Inga artiklar med status \"{{status}}\"",
       "fire": "Brand",
       "loading": "Laddar…",
       "loadingRoles": "Loading Roles",
       "medical": "Ambulans",
-      "needsReverify": "Needs Reverify",
+      "needsReverify": "{{count}} publicerade artiklar behöver omverifieras",
       "newArticle": "New Article",
       "newArticleTitle": "New Article Title",
       "noAccess": "No Access",
@@ -638,10 +638,10 @@
       "returnToDraft": "Return To Draft",
       "reviewDate": "Review Date",
       "riskField": "Risk Field",
-      "safetyCritical": "Safety Critical",
+      "safetyCritical": "Säkerhetskritisk",
       "safetyEditWarning": "Safety Edit Warning",
       "save": "Spara",
-      "saveDraft": "Save Draft",
+      "saveDraft": "Spara utkast",
       "savedReminder": "Saved Reminder",
       "searchByTitle": "Search By Title",
       "sourceUrl": "Source Url",
@@ -655,11 +655,11 @@
       "verify": "Verifiera",
       "verifyFailed": "Verify Failed",
       "versionHistory": "Version History",
-      "versionUpdated": "Version Updated"
+      "versionUpdated": "v{{version}} · uppdaterad {{date}}"
     },
     "adminPricing": {
       "active": "Aktiv",
-      "activeRules": "Active Rules",
+      "activeRules": "Aktiva regler ({{count}})",
       "addMultiplier": "Add Multiplier",
       "addRule": "Add Rule",
       "bps": "Bps",
@@ -668,7 +668,7 @@
       "cur": "Cur",
       "currency": "Valuta",
       "key": "Key",
-      "label": "Label",
+      "label": "Etikett",
       "marketRules": "Market Rules",
       "max": "Max",
       "maxMinor": "Max Minor",
@@ -677,8 +677,8 @@
       "multiplierAdded": "Multiplier Added",
       "multiplierBps": "Multiplier Bps",
       "multiplierRequiredFields": "Multiplier Required Fields",
-      "multipliers": "Multipliers",
-      "multipliersCount": "Multipliers Count",
+      "multipliers": "Multiplikatorer",
+      "multipliersCount": "Multiplikatorer ({{count}})",
       "newMultiplier": "New Multiplier",
       "newRule": "New Rule",
       "postcode": "Postnummer",
@@ -695,20 +695,20 @@
     },
     "adminProviders": {
       "accessDenied": "Access Denied",
-      "allOption": "All Option",
+      "allOption": "Alla {{option}}",
       "approve": "Godkänn",
       "archive": "Arkivera",
-      "bulkActionResult": "Bulk Action Result",
-      "completion": "Completion",
-      "confirmBulkAction": "Confirm Bulk Action",
+      "bulkActionResult": "{{ok}} lyckades, {{fail}} misslyckades",
+      "completion": "Slutförande",
+      "confirmBulkAction": "{{action}} {{count}} leverantörer?",
       "identity": "Identitet",
-      "minScore": "Min Score",
-      "minScoreAria": "Min Score Aria",
+      "minScore": "Lägsta poäng",
+      "minScoreAria": "Lägsta poäng",
       "name": "Namn",
       "nextPage": "Next Page",
       "noName": "No Name",
       "noProvidersMatch": "No Providers Match",
-      "pageOf": "Page Of",
+      "pageOf": "Sida {{page}} av {{pages}}",
       "previousPage": "Previous Page",
       "refreshScore": "Refresh Score",
       "reviewQueue": "Review Queue",
@@ -717,9 +717,9 @@
       "searchAria": "Search Aria",
       "searchPlaceholder": "Search Placeholder",
       "selectAllAria": "Select All Aria",
-      "selectRowAria": "Select Row Aria",
-      "selectedCount": "Selected Count",
-      "showing": "Showing",
+      "selectRowAria": "Välj {{name}}",
+      "selectedCount": "{{count}} valda",
+      "showing": "Visar {{count}} av {{total}}",
       "status": "Status",
       "stripe": "Stripe",
       "suspend": "Stäng av",
@@ -731,14 +731,14 @@
       "cancel": "Avbryt",
       "confirm": "Bekräfta",
       "confirmRoleChangeTitle": "Confirm Role Change Title",
-      "giveRole": "Give Role",
-      "grant": "Grant",
+      "giveRole": "Tilldela {{role}}",
+      "grant": "Tilldela",
       "loggedPermanently": "Logged Permanently",
       "noName": "No Name",
       "noUsersMatch": "No Users Match",
       "reasonPlaceholder": "Reason Placeholder",
-      "remove": "Remove",
-      "removeRole": "Remove Role",
+      "remove": "Ta bort",
+      "removeRole": "Ta bort {{role}}",
       "roleForUser": "Role For User",
       "roleGranted": "Role Granted",
       "roleRevoked": "Role Revoked",
@@ -754,10 +754,10 @@
       "confirmPublish": "Confirm Publish",
       "currency": "Valuta",
       "publishNewVersion": "Publish New Version",
-      "publishVersionConfirm": "Publish Version Confirm",
+      "publishVersionConfirm": "Publicera version {{version}}?",
       "publishWarning": "Publish Warning",
       "publishedNewVersion": "Published New Version",
-      "sectionManaged": "Section Managed",
+      "sectionManaged": "{{section}} hanteras på annan plats.",
       "subtitle": "Undertitel",
       "timezone": "Tidszon",
       "title": "Titel",
@@ -1092,7 +1092,7 @@
       "closedNotice": "Ärendet är stängt. Öppna det igen för att kunna svara.",
       "live": "Live",
       "offlineTitle": "Återansluter",
-      "offline": "Offline",
+      "offline": "Inte uppkopplad",
       "connecting": "Ansluter"
     },
     "inboxPage": {

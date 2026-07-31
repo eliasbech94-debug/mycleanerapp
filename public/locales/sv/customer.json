@@ -578,10 +578,10 @@
       "clickToOpenProfile": "Klicka för att öppna profil",
       "filterByServiceArea": "Filtrera efter serviceområde (välj flera)",
       "filterCleaners": "Filtrera städare",
-      "instantBook": "Instant Book",
+      "instantBook": "Boka direkt",
       "maxHourlyRate": "Max. timpris",
       "minExperience": "Min. års erfarenhet",
-      "minRating": "Min. betyg",
+      "minRating": "Lägsta betyg",
       "moveMapToSeeProviders": "Flytta kartan eller zooma ut för att se leverantörer.",
       "somethingWentWrong": "Något gick fel",
       "title": "Hitta din städare"
@@ -596,13 +596,13 @@
       "login": "Logga in",
       "logoAriaLabel": "MyCleaner – startsida",
       "nav": {
-        "adminDashboard": "Adminpanel",
+        "adminDashboard": "Admin-dashboard",
         "becomeProvider": "Bli leverantör",
         "bookCleaner": "Boka en cleaner",
         "dashboard": "Dashboard",
         "employeePortal": "Medarbetare",
         "faq": "FAQ",
-        "findCleaner": "Hitta cleaner",
+        "findCleaner": "Hitta en cleaner",
         "howItWorks": "Så funkar det",
         "myBookings": "Mina bokningar",
         "myProfile": "Min profil",
@@ -610,14 +610,14 @@
         "receipts": "Kvitton & utlägg",
         "rules": "Regler"
       },
-      "toggleMenu": "Växla meny"
+      "toggleMenu": "Visa/dölj meny"
     },
     "marketplace": {
       "allServices": "Alla tjänster",
       "allTiers": "Alla nivåer",
       "findCleaner": "Hitta en städare",
       "maxHourlyRatePlaceholder": "Max. timpris",
-      "minTierPlaceholder": "Min. nivå",
+      "minTierPlaceholder": "Lägsta nivå",
       "next": "Nästa",
       "noneMatchFilters": "Inga leverantörer matchar dina filter.",
       "subtitle": "Bläddra bland verifierade leverantörer. Boka direkt i deras kalender."

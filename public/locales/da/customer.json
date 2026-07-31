@@ -578,10 +578,10 @@
       "clickToOpenProfile": "Klik for at åbne profil",
       "filterByServiceArea": "Filtrér efter serviceområde (vælg flere)",
       "filterCleaners": "Filtrér cleaners",
-      "instantBook": "Instant Book",
+      "instantBook": "Book straks",
       "maxHourlyRate": "Maks. timepris",
       "minExperience": "Min. års erfaring",
-      "minRating": "Min. rating",
+      "minRating": "Min. bedømmelse",
       "moveMapToSeeProviders": "Flyt kortet eller zoom ud for at se providere.",
       "somethingWentWrong": "Der gik noget galt",
       "title": "Find din cleaner"
@@ -596,28 +596,28 @@
       "login": "Log ind",
       "logoAriaLabel": "MyCleaner – forside",
       "nav": {
-        "adminDashboard": "Admin dashboard",
+        "adminDashboard": "Admin-dashboard",
         "becomeProvider": "Bliv provider",
         "bookCleaner": "Book en cleaner",
         "dashboard": "Dashboard",
         "employeePortal": "Medarbejder",
         "faq": "FAQ",
-        "findCleaner": "Find cleaner",
+        "findCleaner": "Find en cleaner",
         "howItWorks": "Sådan virker det",
         "myBookings": "Mine bookinger",
         "myProfile": "Min profil",
-        "providerDashboard": "Provider dashboard",
+        "providerDashboard": "Provider-dashboard",
         "receipts": "Bilag & udgifter",
         "rules": "Regler"
       },
-      "toggleMenu": "Toggle menu"
+      "toggleMenu": "Vis/skjul menu"
     },
     "marketplace": {
       "allServices": "Alle services",
       "allTiers": "Alle tiers",
       "findCleaner": "Find en cleaner",
       "maxHourlyRatePlaceholder": "Maks. timepris",
-      "minTierPlaceholder": "Min. tier",
+      "minTierPlaceholder": "Min. niveau",
       "next": "Næste",
       "noneMatchFilters": "Ingen providere matcher dine filtre.",
       "subtitle": "Gennemse verificerede providere. Book direkte i deres kalender."
