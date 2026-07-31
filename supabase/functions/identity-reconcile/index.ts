@@ -43,7 +43,7 @@ Deno.serve(async (req) => {
     return json({ error: "sumsub_unreachable" }, 502);
   }
 
-  const envDecision = resolveSumsubEnv(cfg.baseUrl);
+  const envDecision = resolveSumsubEnv(cfg.baseUrl, cfg.appToken);
   const summary = remote.reviewSummary as Record<string, unknown>;
   const sandbox = isSandboxResult(
     (summary.sandboxMode as boolean | undefined) ?? null,
