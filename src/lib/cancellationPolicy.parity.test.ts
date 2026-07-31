@@ -98,11 +98,11 @@ describe("cancellation policy parity", () => {
 
   it("public rule pages derive the ladder instead of hardcoding hours", () => {
     const regler = read("src/pages/Regler.tsx");
-    expect(regler).toContain("cancellationLadderBullets()");
+    expect(regler).toContain("cancellationLadderBullets(undefined, translate)");
     expect(regler).not.toMatch(/Mere end 18 timer/);
     expect(regler).not.toMatch(/48 timer eller mere/);
     const faq = read("src/pages/FAQ.tsx");
-    expect(faq).toContain("cancellationLadderSentence()");
+    expect(faq).toContain("cancellationLadderSentence(undefined,");
     expect(faq).not.toMatch(/Fra og med 8 og til og med 18 timer/);
   });
 
@@ -119,7 +119,12 @@ describe("cancellation policy parity", () => {
 
   it("never promises a 100% refund for a late cancellation", () => {
     const notice = read("src/components/booking/CancellationPolicyNotice.tsx");
-    expect(notice).toContain("0 % refusion — 100 % cancellation fee");
+    // Copy now lives in i18n; the component must render the localized keys and
+    // the Danish source must still never promise a full refund when late.
+    expect(notice).toContain("cancellation.notice.none");
+    const daCommon = read("public/locales/da/common.json");
+    expect(daCommon).toContain("0 % refusion — 100 % cancellation fee");
+    expect(daCommon).not.toMatch(/Fuld refundering/);
     expect(notice).not.toMatch(/Fuld refundering/);
     // The notice shows the booking's frozen version, or the policy in force now.
     expect(notice).toContain("policyForVersion(policyVersion)");
