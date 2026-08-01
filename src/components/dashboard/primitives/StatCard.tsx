@@ -39,7 +39,7 @@ export const StatCard = ({ label, value, hint, icon: Icon, loading, className }:
     {loading ? (
       <Skeleton className="mt-3 h-8 w-24" />
     ) : (
-      <div className="mt-2 font-display text-2xl sm:text-3xl leading-tight text-foreground">
+      <div className="mt-2 font-display text-2xl sm:text-3xl leading-tight text-foreground break-words">
         {value}
       </div>
     )}

@@ -93,7 +93,7 @@ export default function AdminUsers() {
   }
 
   return (
-    <DashboardLayout role="admin" title={t("pages.adminUsers.title")}>
+    <DashboardLayout role="admin" showBack backTo="/admin" title={t("pages.adminUsers.title")}>
       <div className="max-w-6xl mx-auto p-6 space-y-6">
         <div>
           <h1 className="text-2xl font-serif">{t("pages.adminUsers.title")}</h1>

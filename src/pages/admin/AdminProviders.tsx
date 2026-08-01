@@ -143,7 +143,7 @@ export default function AdminProviders() {
   }
 
   return (
-    <DashboardLayout role="admin" title={t("pages.adminProviders.title")}>
+    <DashboardLayout role="admin" showBack backTo="/admin" title={t("pages.adminProviders.title")}>
       <main className="p-4 sm:p-6 space-y-4">
         <div className="flex flex-wrap items-center gap-2">
           <div className="relative">

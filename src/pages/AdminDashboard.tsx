@@ -125,7 +125,7 @@ export default function AdminDashboard() {
 
   return (
     <DashboardLayout role="admin" title={t("ops.dashboard.title")} headerActions={headerActions}>
-      <div className="p-4 sm:p-6 lg:p-8 space-y-6">
+      <div className="mx-auto w-full min-w-0 max-w-[1600px] space-y-6 p-4 sm:p-6 lg:p-8">
         <div>
           <h2 className="text-2xl font-bold text-foreground">{t("ops.dashboard.title")}</h2>
           <p className="text-sm text-muted-foreground mt-1">
@@ -136,7 +136,7 @@ export default function AdminDashboard() {
         <WebhookAlertBanner />
 
         {/* KPI Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {kpis.map((k) => (
             <div
               key={k.key}
@@ -191,7 +191,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Mid grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid min-w-0 grid-cols-1 gap-6 lg:grid-cols-3">
           {/* Payments table */}
           <div className="lg:col-span-2 bg-card rounded-2xl border border-border overflow-hidden">
             <div className="p-5 border-b border-border flex justify-between items-center">
@@ -203,7 +203,7 @@ export default function AdminDashboard() {
                 {t("ops.dashboard.seeAll")}
               </Link>
             </div>
-            <div className="overflow-x-auto">
+            <div className="min-w-0 overflow-x-auto">
               <table className="w-full text-left text-sm">
                 <thead>
                   <tr className="text-muted-foreground text-[11px] uppercase tracking-wider">

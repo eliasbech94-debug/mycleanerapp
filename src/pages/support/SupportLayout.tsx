@@ -46,8 +46,15 @@ export function SupportLayout({ title, description, headerActions, children }: P
     : [];
 
   return (
-    <DashboardLayout role="support" title={title} headerActions={headerActions}>
-      <div className="p-4 sm:p-6 space-y-4">
+    <DashboardLayout
+      role="support"
+      title={title}
+      headerActions={headerActions}
+      /* Back only makes sense once the user has left the support start page. */
+      showBack={pathname !== "/support" && pathname !== "/support/"}
+      backTo="/support"
+    >
+      <div className="mx-auto w-full min-w-0 max-w-[1600px] space-y-4 p-4 sm:p-6 lg:p-8">
         <header className="space-y-3">
           <div className="flex flex-wrap items-baseline gap-3">
             <h1 className="text-2xl font-serif">{title}</h1>
