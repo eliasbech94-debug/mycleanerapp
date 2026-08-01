@@ -198,8 +198,10 @@ async function main() {
   // =========================================================================
   const adminFns: { name: string; body: unknown }[] = [
     { name: "admin-user-role", body: { op: "grant", target_user_id: provider.id, role: "admin" } },
-    { name: "admin-users-list", body: {} },
-    { name: "admin-provider-decision", body: { user_id: provider.id, decision: "approve" } },
+    { name: "admin-diagnostics", body: {} },
+    { name: "admin-provider-action", body: { target_user_id: provider.id, action: "approve" } },
+    { name: "admin-provider-refresh", body: { user_id: provider.id } },
+    { name: "admin-country-publish", body: { country_code: "DK" } },
   ];
   for (const fn of adminFns) {
     for (const actor of [provider, support]) {
