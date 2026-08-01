@@ -302,21 +302,26 @@ export function useProviderDashboard(): ProviderDashboardResult {
     void load();
     if (!user) return;
 
-    const ch = supabase
-      .channel(`provider-dash-${user.id}`)
-      .on(
+    let ch = supabase.channel(`provider-dash-${user.id}`);
+
+    // Fail-safe: without a resolved provider_id we must NOT subscribe to
+    // bookings at all. An unfiltered listener would wake this dashboard on
+    // every booking change platform-wide instead of only this provider's.
+    if (providerIdText) {
+      ch = ch.on(
         "postgres_changes",
         {
           event: "*",
           schema: "public",
           table: "bookings",
-          // Server-side filter: without it every provider subscribes to all
-          // booking changes platform-wide and reloads on unrelated activity.
           // bookings.provider_id is the public provider id text, not auth uid.
-          ...(providerIdText ? { filter: `provider_id=eq.${providerIdText}` } : {}),
+          filter: `provider_id=eq.${providerIdText}`,
         },
         () => void load(),
-      )
+      );
+    }
+
+    ch = ch
       .on(
         "postgres_changes",
         {
@@ -336,13 +341,14 @@ export function useProviderDashboard(): ProviderDashboardResult {
           filter: `user_id=eq.${user.id}`,
         },
         () => void load(),
-      )
-      .subscribe();
+      );
+
+    ch.subscribe();
 
     return () => {
       supabase.removeChannel(ch);
     };
-  }, [load, user]);
+  }, [load, user, providerIdText]);
 
   const error = aggregateError([
     sliceErrors.profile,

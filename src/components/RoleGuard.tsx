@@ -94,7 +94,10 @@ export function RoleGuard({ allow, children }: Props) {
   }
 
   if (!user) {
-    return <PrefixedNavigate to="/login" />;
+    // Preserve the intended destination so login returns the provider/customer
+    // to the guarded page instead of dumping them on a generic dashboard.
+    const target = encodeURIComponent(location.pathname + location.search);
+    return <PrefixedNavigate to={`/login?redirect=${target}`} />;
   }
 
   // Super-admin har automatisk adgang til alt
