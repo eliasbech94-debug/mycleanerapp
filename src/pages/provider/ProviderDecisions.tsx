@@ -17,6 +17,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
+import { useCountryPath } from "@/lib/countryPath";
   APPEAL_RESPONSE_DAYS,
   APPEAL_STATUS_LABEL,
   DECISION_LABEL,
@@ -359,6 +360,7 @@ export default function ProviderDecisions() {
   const { user } = useAuth();
   const { noticeId } = useParams();
   const navigate = useNavigate();
+  const localize = useCountryPath();
   const [notices, setNotices] = useState<DecisionNotice[]>([]);
   const [appeals, setAppeals] = useState<Appeal[]>([]);
   const [loading, setLoading] = useState(true);
@@ -412,7 +414,7 @@ export default function ProviderDecisions() {
           </Card>
         ) : selected ? (
           <>
-            <Button variant="ghost" className="px-0" onClick={() => navigate("/provider/decisions")}>
+            <Button variant="ghost" className="px-0" onClick={() => navigate(localize("/provider/decisions"))}>
               <ArrowLeft className="mr-2 h-4 w-4" aria-hidden="true" />
               {t("surfaces.decisions.allDecisions")}
             </Button>
@@ -425,7 +427,7 @@ export default function ProviderDecisions() {
               <button
                 key={n.id}
                 type="button"
-                onClick={() => navigate(`/provider/decisions/${n.id}`)}
+                onClick={() => navigate(localize(`/provider/decisions/${n.id}`))}
                 className="w-full rounded-xl border p-5 text-left transition hover:bg-muted/40"
               >
                 <div className="flex flex-wrap items-center justify-between gap-2">

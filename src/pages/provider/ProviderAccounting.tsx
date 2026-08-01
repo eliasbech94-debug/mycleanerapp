@@ -11,6 +11,7 @@ import type { MonthlyReportRecord } from "@/lib/accounting/monthlyReport";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
 import type {
+import { useCountryPath } from "@/lib/countryPath";
   AccountingPeriod,
   AccountingRulePack,
   CalculationResult,
@@ -41,6 +42,7 @@ interface AccountingPayload {
 export default function ProviderAccounting() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const localize = useCountryPath();
   const [payload, setPayload] = useState<AccountingPayload | null>(null);
   const [loading, setLoading] = useState(true);
   const [unavailableReason, setUnavailableReason] = useState<string | null>(null);
@@ -168,7 +170,7 @@ export default function ProviderAccounting() {
           reportsUnavailableReason={reportsUnavailable}
           onDownloadReport={handleDownloadReport}
           downloadingReportId={downloadingReportId}
-          onCheckDetails={() => navigate("/provider/profile")}
+          onCheckDetails={() => navigate(localize("/provider/profile"))}
         />
 
 

@@ -23,6 +23,7 @@ import {
   SectionErrorState, SectionEditDialog,
 } from "@/components/dashboard/primitives";
 import {
+import { useCountryPath } from "@/lib/countryPath";
   AreaEditor, AvailabilityEditor, BusinessEditor, DocumentsEditor,
   EquipmentEditor, IdentityEditor, InsuranceEditor, LanguagesEditor,
   PersonalEditor, PricingEditor, ServicesEditor, SettingsEditor,
@@ -45,6 +46,7 @@ export default function ProviderProfileV2() {
   const { t, i18n } = useTranslation("provider");
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const localize = useCountryPath();
   const view = useProviderProfile();
   const editor = useProviderProfileEditor();
   const [openEditor, setOpenEditor] = useState<EditorKey | null>(null);
@@ -69,7 +71,7 @@ export default function ProviderProfileV2() {
     return t("profile.greeting.evening");
   }, [t]);
 
-  if (!authLoading && !user) { navigate("/login"); return null; }
+  if (!authLoading && !user) { navigate(localize("/login")); return null; }
 
   if (view.loading || authLoading || editor.loading) {
     return (
@@ -87,7 +89,7 @@ export default function ProviderProfileV2() {
       <div className="mx-auto max-w-3xl p-6 text-center">
         <h1 className="font-display text-2xl">{t("profile.noProfile.title")}</h1>
         <p className="mt-2 opacity-70">{t("profile.noProfile.body")}</p>
-        <Button className="mt-4" onClick={() => navigate("/bliv-cleaner")}>{t("profile.noProfile.cta")}</Button>
+        <Button className="mt-4" onClick={() => navigate(localize("/bliv-cleaner"))}>{t("profile.noProfile.cta")}</Button>
       </div>
     );
   }
