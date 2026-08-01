@@ -5,6 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import CleaningPlanPanel from "@/components/booking/CleaningPlanPanel";
 import { useTranslation } from "react-i18next";
+import { useCountryPath, loginPathWithRedirect } from "@/lib/countryPath";
 
 const C = { ink: "#0a3d3a", orange: "#ff6b35", cream: "#f5f0e0", teal: "#168a7a", mint: "#c8e6c0" };
 
@@ -68,11 +69,12 @@ export default function MyBookings() {
   const { t } = useTranslation("common");
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const localize = useCountryPath();
   const [bookings, setBookings] = useState<Booking[] | null>(null);
   const [tabs, setTabs] = useState<Record<string, TabKey>>({});
 
   useEffect(() => {
-    if (!loading && !user) navigate("/login?redirect=/mine-bookinger");
+    if (!loading && !user) navigate(loginPathWithRedirect(localize, "/mine-bookinger"));
   }, [loading, user, navigate]);
 
   useEffect(() => {
