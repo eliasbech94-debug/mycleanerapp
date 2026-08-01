@@ -12,21 +12,28 @@ const ALL_ROLES: AppRole[] = ["customer", "provider", "employee", "support", "ad
 // Privileged (staff) roles — ONLY an existing super_admin may grant or revoke these.
 const PRIVILEGED_ROLES: AppRole[] = ["employee", "support", "admin", "super_admin"];
 
-/** Best-effort global session invalidation so revoked privileges stop applying immediately. */
-async function invalidateUserSessions(userId: string): Promise<boolean> {
+/**
+ * Force the target's privileges to be re-derived immediately.
+ *
+ * GoTrue exposes no admin "log out user by id" endpoint, and an issued access
+ * token cannot be revoked before it expires. Security therefore does NOT depend
+ * on the token: every server-side check (edge functions + RLS) reads roles live
+ * from public.user_roles, so a revoked role stops applying on the very next
+ * request. In addition, the row change is published on realtime, which makes the
+ * client re-validate its session (auth.getUser) and reload its roles at once.
+ *
+ * Touching the profile row nudges any client subscribed to profile changes too.
+ */
+async function signalRoleChange(
+  admin: { from: (t: string) => any },
+  userId: string,
+): Promise<boolean> {
   try {
-    const url = Deno.env.get("SUPABASE_URL")!;
-    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const res = await fetch(`${url}/auth/v1/admin/users/${userId}/logout`, {
-      method: "POST",
-      headers: {
-        apikey: serviceKey,
-        Authorization: `Bearer ${serviceKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ scope: "global" }),
-    });
-    return res.ok;
+    const { error } = await admin
+      .from("profiles")
+      .update({ updated_at: new Date().toISOString() })
+      .eq("id", userId);
+    return !error;
   } catch {
     return false;
   }
