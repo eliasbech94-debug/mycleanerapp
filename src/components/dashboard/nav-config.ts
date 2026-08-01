@@ -132,7 +132,18 @@ const rawConfig: Record<DashboardRole, NavGroup[]> = {
       defaultRoles: ["provider"],
       items: [
         { title: "Dashboard", url: "/provider-dashboard", icon: LayoutDashboard },
-        { title: "Bilag", url: "/provider/bilag", icon: Briefcase },
+        { title: "Bookinganmodninger", url: "#provider-bookings", icon: ListChecks, comingSoon: true },
+        { title: "Kalender & tilgængelighed", url: "#provider-calendar", icon: Calendar, comingSoon: true },
+        { title: "Beskeder", url: "/inbox", icon: Inbox },
+        { title: "Kunder", url: "#provider-customers", icon: UserSearch, comingSoon: true },
+      ],
+    },
+    {
+      label: "Ydelser",
+      defaultRoles: ["provider"],
+      items: [
+        { title: "Ydelser og priser", url: "/provider/pricing", icon: Tags },
+        { title: "Karriereprofil", url: "/provider/career", icon: Briefcase },
       ],
     },
     {
@@ -140,14 +151,19 @@ const rawConfig: Record<DashboardRole, NavGroup[]> = {
       defaultRoles: ["provider"],
       items: [
         { title: "Indtjening & udbetalinger", url: "/provider/finance", icon: Wallet },
+        { title: "Regnskab", url: "/provider/accounting", icon: BarChart3 },
+        { title: "Bilag", url: "/provider/bilag", icon: FileText },
         { title: "Indsigelser", url: "/provider/disputes", icon: AlertTriangle },
+        { title: "Afgørelser", url: "/provider/decisions", icon: Shield },
       ],
     },
     {
       label: "Konto",
-      defaultRoles: ["provider", "admin", "employee", "customer", "support"],
+      defaultRoles: ["provider"],
       items: [
-        { title: "Profil", url: "/profil", icon: UserCircle },
+        { title: "Profil", url: "/provider/profile", icon: UserCircle },
+        { title: "Indstillinger", url: "#provider-settings", icon: Settings, comingSoon: true },
+        { title: "Support", url: "/faq", icon: HelpCircle },
       ],
     },
   ],
