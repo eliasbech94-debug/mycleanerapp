@@ -34,6 +34,12 @@ export interface NavItem {
    * handled by hasRole()). Defaults inherit from the group.
    */
   roles: AppRole[];
+  /**
+   * Planned surface with no route behind it yet. Rendered as a non-interactive
+   * "Kommer snart" row so it can never look like a working link (no 404s).
+   * `url` is only used as a stable key for these items.
+   */
+  comingSoon?: boolean;
 }
 
 export interface NavGroup {
