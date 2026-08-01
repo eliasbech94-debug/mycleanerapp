@@ -143,6 +143,8 @@ function OnboardingInner() {
     await Promise.all([refreshServicePrices(), refreshSmsStatus()]);
   }, [user, refreshServicePrices, refreshSmsStatus]);
 
+  const localize = useCountryPath();
+
   useEffect(() => { load(); }, [load]);
 
   useEffect(() => {
@@ -151,8 +153,8 @@ function OnboardingInner() {
 
   // Redirect active providers away
   useEffect(() => {
-    if (pp && pp.status === "active") navigate(localizeRef.current("/provider-dashboard"), { replace: true });
-  }, [pp?.status, navigate]);
+    if (pp && pp.status === "active") navigate(localize("/provider-dashboard"), { replace: true });
+  }, [pp?.status, navigate, localize]);
 
   // Server-authoritative resume: pick first incomplete step on initial load
   useEffect(() => {
