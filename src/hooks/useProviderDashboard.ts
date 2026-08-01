@@ -306,7 +306,14 @@ export function useProviderDashboard(): ProviderDashboardResult {
       .channel(`provider-dash-${user.id}`)
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "bookings" },
+        {
+          event: "*",
+          schema: "public",
+          table: "bookings",
+          // Server-side filter: without it every provider subscribes to all
+          // booking changes platform-wide and reloads on unrelated activity.
+          filter: `provider_id=eq.${user.id}`,
+        },
         () => void load(),
       )
       .on(
