@@ -524,6 +524,12 @@
     },
     "dashboard": {
       "bookCleaning": "Reservar limpieza",
+      "complete": {
+        "addAddress": "Añadir dirección",
+        "addPhone": "Añadir teléfono",
+        "description": "Añade los últimos datos para reservar más rápido.",
+        "title": "Completa tu perfil"
+      },
       "description": "Resumen de tus reservas, mensajes y cuenta. Tú eliges y reservas tú mismo un proveedor independiente a través de la plataforma MyCleaner.",
       "feed": {
         "description": "Las recomendaciones personales basadas en tu historial están en camino. Esta función aún no está activa.",
