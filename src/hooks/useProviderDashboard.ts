@@ -312,7 +312,8 @@ export function useProviderDashboard(): ProviderDashboardResult {
           table: "bookings",
           // Server-side filter: without it every provider subscribes to all
           // booking changes platform-wide and reloads on unrelated activity.
-          filter: `provider_id=eq.${user.id}`,
+          // bookings.provider_id is the public provider id text, not auth uid.
+          ...(providerIdText ? { filter: `provider_id=eq.${providerIdText}` } : {}),
         },
         () => void load(),
       )
