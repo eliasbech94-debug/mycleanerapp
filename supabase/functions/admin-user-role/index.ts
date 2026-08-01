@@ -9,6 +9,28 @@ const corsHeaders = {
 };
 
 const ALL_ROLES: AppRole[] = ["customer", "provider", "employee", "support", "admin", "super_admin"];
+// Privileged (staff) roles — ONLY an existing super_admin may grant or revoke these.
+const PRIVILEGED_ROLES: AppRole[] = ["employee", "support", "admin", "super_admin"];
+
+/** Best-effort global session invalidation so revoked privileges stop applying immediately. */
+async function invalidateUserSessions(userId: string): Promise<boolean> {
+  try {
+    const url = Deno.env.get("SUPABASE_URL")!;
+    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const res = await fetch(`${url}/auth/v1/admin/users/${userId}/logout`, {
+      method: "POST",
+      headers: {
+        apikey: serviceKey,
+        Authorization: `Bearer ${serviceKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ scope: "global" }),
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
 
 function json(status: number, body: unknown) {
   return new Response(JSON.stringify(body), {
