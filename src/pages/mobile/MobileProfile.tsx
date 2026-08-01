@@ -20,6 +20,7 @@ import { useUserRoles } from "@/hooks/useUserRoles";
 import { useActiveMarket } from "@/context/ActiveMarketContext";
 import { supabase } from "@/integrations/supabase/client";
 import { MobileAppShell } from "@/components/layout/MobileAppShell";
+import { useCountryPath, loginPathWithRedirect } from "@/lib/countryPath";
 
 type Row = {
   key: string;
@@ -74,6 +75,7 @@ export default function MobileProfile() {
   const roles = useUserRoles();
   const { market } = useActiveMarket();
   const navigate = useNavigate();
+  const localize = useCountryPath();
 
   const roleLabel = !user
     ? t("mobileProfile.roleGuest", "Gæst")
@@ -165,7 +167,7 @@ export default function MobileProfile() {
       key: "session",
       title: t("mobileProfile.groupSession", "Session"),
       rows: [
-        { key: "signin", label: t("mobileProfile.signIn", "Log ind"), icon: LogIn, to: "/login?redirect=/profil" },
+        { key: "signin", label: t("mobileProfile.signIn", "Log ind"), icon: LogIn, to: loginPathWithRedirect(localize, "/profil") },
       ],
     });
   }

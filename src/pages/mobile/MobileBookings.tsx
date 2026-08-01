@@ -26,6 +26,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { PullIndicator } from "@/components/mobile/PullIndicator";
+import { useCountryPath, loginPathWithRedirect } from "@/lib/countryPath";
 
 type Booking = {
   id: string;
@@ -298,6 +299,7 @@ function SkeletonList() {
 
 function EmptyState({ variant }: { variant: "upcoming" | "previous" | "signed_out" }) {
   const { t } = useTranslation("marketplace");
+  const localize = useCountryPath();
   const map = {
     upcoming: {
       title: t("mobileBookings.empty.upcoming.title", "Ingen kommende bookinger"),
@@ -314,8 +316,8 @@ function EmptyState({ variant }: { variant: "upcoming" | "previous" | "signed_ou
   }[variant];
   const cta =
     variant === "signed_out"
-      ? { to: "/login?redirect=/mine-bookinger", label: t("mobileBookings.empty.signed_out.cta", "Log ind") }
-      : { to: "/find-cleaner", label: t("mobileBookings.empty.cta", "Find en Cleaner") };
+      ? { to: loginPathWithRedirect(localize, "/mine-bookinger"), label: t("mobileBookings.empty.signed_out.cta", "Log ind") }
+      : { to: localize("/find-cleaner"), label: t("mobileBookings.empty.cta", "Find en Cleaner") };
   return (
     <div
       role="status"

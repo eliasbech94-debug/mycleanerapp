@@ -22,6 +22,7 @@ import { AiDisclosure } from "@/components/conversation/AiDisclosure";
 import { HumanTakeoverNotice } from "@/components/conversation/HumanTakeoverNotice";
 import { useHumanHandover } from "@/hooks/useHumanHandover";
 import { isAiGenerated, isAutomatedSystemMessage } from "@/lib/conversations/senderType";
+import { useCountryPath, loginPathWithRedirect } from "@/lib/countryPath";
 
 function formatTimestamp(iso: string | null, locale: string): string {
   if (!iso) return "";
@@ -58,6 +59,7 @@ function Avatar({ label }: { label: string }) {
 export function MobileInboxList() {
   const { t, i18n } = useTranslation("common");
   const navigate = useNavigate();
+  const localize = useCountryPath();
   const { conversations, loading, error, refresh } = useCustomerConversations();
 
   return (
@@ -367,7 +369,7 @@ export default function MobileMessages() {
             {t("mobileMessages.signedOut", "Log ind for at se dine beskeder.")}
           </p>
           <a
-            href="/login?redirect=/inbox"
+            href={loginPathWithRedirect(localize, "/inbox")}
             className="tap-target inline-flex min-h-[44px] items-center justify-center rounded-full bg-[hsl(var(--mkt-brand))] px-5 text-sm font-semibold text-white"
           >
             {t("mobileMessages.signIn", "Log ind")}

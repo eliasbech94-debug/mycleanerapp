@@ -7,6 +7,7 @@ import { Loader2, ShieldAlert } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserRoles } from "@/hooks/useUserRoles";
 import { supabase } from "@/integrations/supabase/client";
+import { useCountryPath, loginPathWithRedirect } from "@/lib/countryPath";
 
 type Props = { children: ReactNode; autoStart?: boolean };
 
@@ -53,7 +54,7 @@ export function ProviderApplicantGuard({ children, autoStart = true }: Props) {
       </div>
     );
   }
-  if (!user) return <Navigate to={`/login?redirect=${encodeURIComponent(location.pathname + location.search)}`} replace />;
+  if (!user) return <Navigate to={loginPathWithRedirect(localize, location.pathname + location.search)} replace />;
 
   if (status === "archived" && !isAdmin) {
     return (
