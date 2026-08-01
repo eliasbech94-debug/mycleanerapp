@@ -347,6 +347,7 @@ export default function MobileMessages() {
   const { id } = useParams<{ id?: string }>();
   const { user, loading } = useAuth();
   const { t } = useTranslation("common");
+  const localize = useCountryPath();
 
   if (loading) {
     return (
