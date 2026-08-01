@@ -77,6 +77,32 @@ export default function ProviderDashboardV2() {
   }, [data.stats.avgResponseSeconds, t]);
 
   const verification = describeVerification(data.profile, t);
+  // Fail-closed activation gate: while loading, and for any non-active
+  // profile, the operational dashboard is not rendered at all.
+  const activation = deriveProviderActivation(data.profile);
+
+  if (!data.loading && !activation.active) {
+    return (
+      <DashboardLayout role="provider" title={t("dashboard.brandTitle")}>
+        <DashboardPage
+          title={t("activation.restricted.title")}
+          description={t("activation.restricted.description")}
+        >
+          <div className="grid gap-5 lg:gap-6">
+            <AppErrorBoundary>
+              <ProviderDecisionBanner />
+            </AppErrorBoundary>
+            {data.error && (
+              <SectionErrorState message={data.error} onRetry={data.refetch} compact />
+            )}
+            <AppErrorBoundary>
+              <ProviderOnboardingDashboard activation={activation} />
+            </AppErrorBoundary>
+          </div>
+        </DashboardPage>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout role="provider" title={t("dashboard.brandTitle")}>
@@ -96,6 +122,7 @@ export default function ProviderDashboardV2() {
               compact
             />
           )}
+
 
           <AppErrorBoundary>
             <WelcomeHeader
