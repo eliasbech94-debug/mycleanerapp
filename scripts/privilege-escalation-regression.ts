@@ -262,7 +262,19 @@ async function main() {
   );
   const audit2: any = await auditRes2.json();
   check("audit log contains the role.revoke", Array.isArray(audit2) && audit2.length === 1);
+
+  // 7 (revoke side) — the still-valid token must lose its privileges instantly
+  const afterRevoke = await callFn(admin, "admin-user-role", {
+    op: "grant", target_user_id: provider.id, role: "customer",
+  });
+  check(
+    "revoked admin loses privileges instantly on the same token",
+    afterRevoke.status === 403,
+    `HTTP ${afterRevoke.status}`,
+  );
+
   await callFn(sa, "admin-user-role", { op: "revoke", target_user_id: provider.id, role: "provider" });
+  await callFn(sa, "admin-user-role", { op: "revoke", target_user_id: provider.id, role: "customer" });
 
   const failed = results.filter((r) => !r.ok);
   console.log(`\n${results.length - failed.length}/${results.length} checks passed`);
