@@ -61,9 +61,11 @@ Deno.serve(async (req) => {
     return json(400, { error: "invalid_target_user_id" });
   if (!ALL_ROLES.includes(role)) return json(400, { error: "invalid_role" });
 
-  // Privilege escalation guard: only super_admin may manage super_admin.
-  if (role === "super_admin" && !ctx.isSuperAdmin) {
-    return json(403, { error: "only_super_admin_can_manage_super_admin" });
+  // Privilege escalation guard: ONLY an existing super_admin may grant or revoke
+  // staff roles (employee, support, admin, super_admin). Plain admins are limited
+  // to the non-privileged marketplace roles (customer, provider).
+  if (PRIVILEGED_ROLES.includes(role) && !ctx.isSuperAdmin) {
+    return json(403, { error: "only_super_admin_can_manage_privileged_roles" });
   }
   // No one may change their own role (avoid self-lockout / self-escalation).
   if (target_user_id === ctx.user.id) {
