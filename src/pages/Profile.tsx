@@ -24,6 +24,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Trans, useTranslation } from "react-i18next";
+import { useCountryPath, loginPathWithRedirect } from "@/lib/countryPath";
 
 const C = { ink: "#0a3d3a", orange: "#ff6b35", cream: "#f5f0e0", teal: "#168a7a", mint: "#c8e6c0" };
 
@@ -50,13 +51,14 @@ export default function Profile() {
   const { user, loading } = useAuth();
   const { isAdmin, isEmployee, loading: rolesLoading } = useUserRoles();
   const navigate = useNavigate();
+  const localize = useCountryPath();
   const [params, setParams] = useSearchParams();
   const tab = (params.get("tab") as TabKey) || "overview";
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [supportOpen, setSupportOpen] = useState<false | "support" | "complaint">(false);
 
   useEffect(() => {
-    if (!loading && !user) navigate("/login?redirect=/profil", { replace: true });
+    if (!loading && !user) navigate(loginPathWithRedirect(localize, "/profil"), { replace: true });
   }, [loading, user, navigate]);
 
   // Admin/employee should not land on customer profile — send them to their dashboard

@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import BackButton from "@/components/BackButton";
+import { useCountryPath } from "@/lib/countryPath";
 
 const C = { ink: "#0a3d3a", orange: "#ff6b35", cream: "#f5f0e0", teal: "#168a7a", mint: "#c8e6c0" };
 
@@ -36,6 +37,7 @@ function fmtMoney(cents: number | null, ccy: string | null) {
 
 export default function ProviderReceipts() {
   const { user } = useAuth();
+  const localize = useCountryPath();
   const [rows, setRows] = useState<Receipt[]>([]);
   const [bookings, setBookings] = useState<BookingLite[]>([]);
   const [loading, setLoading] = useState(true);
@@ -294,7 +296,7 @@ export default function ProviderReceipts() {
         )}
 
         <div className="mt-8 rounded-2xl p-4 text-xs" style={{ background: `${C.mint}55`, color: C.ink }}>
-          Tip: Se dit samlede regnskab i <Link to="/provider-dashboard" className="underline font-bold">provider-dashboardet</Link>. Bilag her tælles med i kvartalsudgifter.
+          Tip: Se dit samlede regnskab i <Link to={localize("/provider-dashboard")} className="underline font-bold">provider-dashboardet</Link>. Bilag her tælles med i kvartalsudgifter.
         </div>
       </div>
     </div>

@@ -13,11 +13,13 @@ import { countries, serviceCategories, formatPrice } from "@/lib/countries";
 import { deriveServices, deriveHourlyRate, saveProvider } from "@/lib/providers";
 import { supabase } from "@/integrations/supabase/client";
 import BackButton from "@/components/BackButton";
+import { useCountryPath, loginPathWithRedirect } from "@/lib/countryPath";
 
 const steps = ["Type", "Personlig info", "Services & område", "Dokumenter", "Gennemse"];
 
 const ProviderRegister = () => {
   const navigate = useNavigate();
+  const localize = useCountryPath();
   const [step, setStep] = useState(0);
   const [form, setForm] = useState({
     type: "private" as "private" | "business",
@@ -166,7 +168,7 @@ const ProviderRegister = () => {
     const { data: sess } = await supabase.auth.getSession();
     if (!sess.session) {
       toast.info("Log ind for at fuldføre din ansøgning");
-      navigate(`/login?redirect=/provider/register`);
+      navigate(loginPathWithRedirect(localize, "/provider/register"));
       return;
     }
 

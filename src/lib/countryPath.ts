@@ -41,3 +41,16 @@ export function useCountryPath(): (to: string) => string {
   const prefix = countryPrefixFromPathname(pathname);
   return useCallback((to: string) => withCountryPrefix(prefix, to), [prefix]);
 }
+
+/**
+ * Builds a market-prefixed login URL with a market-prefixed `redirect` target.
+ *
+ * Absolute "/login?redirect=/profil" strings dropped the active prefix twice:
+ * the user left /dk/* on the way to login AND came back unprefixed afterwards.
+ */
+export function loginPathWithRedirect(
+  localize: (to: string) => string,
+  target: string,
+): string {
+  return `${localize("/login")}?redirect=${encodeURIComponent(localize(target))}`;
+}

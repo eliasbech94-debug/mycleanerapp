@@ -1,5 +1,6 @@
 import { CheckCircle2, Circle, Clock, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useCountryPath } from "@/lib/countryPath";
 
 const C = { ink: "#0a3d3a", orange: "#ff6b35", cream: "#f5f0e0", teal: "#168a7a", mint: "#c8e6c0" };
 
@@ -26,6 +27,7 @@ export function ProviderCompletionCard({
   status: string;
   rows: CompletionRow[];
 }) {
+  const localize = useCountryPath();
   const complete = rows.filter((r) => r.status === "complete").length;
   return (
     <div className="rounded-2xl border-2 bg-white p-6" style={{ borderColor: C.ink }}>
@@ -40,7 +42,7 @@ export function ProviderCompletionCard({
           <div className="text-xs opacity-70">{complete}/{rows.length} krav opfyldt</div>
         </div>
         <Link
-          to="/bliv-cleaner"
+          to={localize("/bliv-cleaner")}
           className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-[11px] font-bold uppercase tracking-[0.18em]"
           style={{ background: C.orange, color: C.ink }}
         >
@@ -73,7 +75,7 @@ export function ProviderCompletionCard({
           return (
             <li key={r.key}>
               {r.href ? (
-                <Link to={r.href} className="block hover:bg-black/[0.02] px-1 -mx-1 rounded">{inner}</Link>
+                <Link to={localize(r.href)} className="block hover:bg-black/[0.02] px-1 -mx-1 rounded">{inner}</Link>
               ) : (
                 inner
               )}
