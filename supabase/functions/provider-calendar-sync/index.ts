@@ -235,6 +235,10 @@ Deno.serve(async (req) => {
     .eq("user_id", ctx.user.id)
     .maybeSingle();
   if (!providerProfile) return json({ error: "provider_profile_required" }, 403);
+  // Availability sync feeds dispatch — non-operating providers must not be
+  // able to publish availability.
+  const calendarGate = await requireActiveProvider(ctx, corsHeaders, { allowPaused: true });
+  if (calendarGate instanceof Response) return calendarGate;
 
   const body = await req.json().catch(() => ({}));
   const action = String(body.action || "");

@@ -41,6 +41,9 @@ Deno.serve(async (req) => {
   try {
     const ctx = await authenticate(req, corsHeaders);
     if (ctx instanceof Response) return ctx;
+    // Mileage allowance is a financial operation — operating providers only.
+    const mileageGate = await requireActiveProvider(ctx, corsHeaders, { allowPaused: true });
+    if (mileageGate instanceof Response) return mileageGate;
     const uid = ctx.user.id;
 
     if (req.method !== "POST") return json({ error: "method_not_allowed" }, 405);
