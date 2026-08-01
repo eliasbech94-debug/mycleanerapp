@@ -75,7 +75,7 @@ export function ProviderCompletionCard({
           return (
             <li key={r.key}>
               {r.href ? (
-                <Link to={r.href} className="block hover:bg-black/[0.02] px-1 -mx-1 rounded">{inner}</Link>
+                <Link to={localize(r.href)} className="block hover:bg-black/[0.02] px-1 -mx-1 rounded">{inner}</Link>
               ) : (
                 inner
               )}
