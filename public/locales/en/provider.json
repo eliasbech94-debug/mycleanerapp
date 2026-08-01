@@ -1,4 +1,61 @@
 {
+  "activation": {
+    "badge": "Limited access",
+    "checklistTitle": "Your next steps",
+    "lockedDescription": "Booking requests, customer details, payouts and job management are not available yet.",
+    "lockedTitle": "Locked until approval",
+    "restricted": {
+      "description": "Your profile is not active yet. Finish onboarding here — bookings, customers and financial features unlock once you are approved.",
+      "title": "Onboarding dashboard"
+    },
+    "states": {
+      "archived": {
+        "description": "Your provider profile is archived. Contact support to learn about your options.",
+        "title": "Archived"
+      },
+      "missing_identity": {
+        "description": "We need to verify your identity before you can receive bookings.",
+        "title": "Missing identity"
+      },
+      "missing_profile_details": {
+        "description": "Fill in the remaining details on your profile before we can approve you.",
+        "title": "Missing profile details"
+      },
+      "missing_stripe": {
+        "description": "Finish your payout setup so you can receive payments.",
+        "title": "Missing Stripe"
+      },
+      "no_profile": {
+        "description": "We could not find a provider profile on your account. Create your profile or contact support.",
+        "title": "No provider profile"
+      },
+      "paused": {
+        "description": "Your profile is paused. You will not receive new jobs until you resume it.",
+        "title": "Profile paused"
+      },
+      "pending_review": {
+        "description": "We are reviewing your profile. You will be notified as soon as you are approved.",
+        "title": "Pending approval"
+      },
+      "rejected": {
+        "description": "Your application was rejected. You can read the reasoning and appeal the decision.",
+        "title": "Rejected"
+      },
+      "suspended": {
+        "description": "Your profile is suspended. Review the decision or contact support.",
+        "title": "Suspended"
+      }
+    },
+    "statusLabel": "Status",
+    "steps": {
+      "appeal": "View decision",
+      "documents": "Upload documents",
+      "identity": "Verify identity",
+      "profile": "Complete profile",
+      "stripe": "Set up payouts",
+      "support": "Contact support"
+    }
+  },
   "booking": {
     "atSlot": "at {{slot}}",
     "defaultService": "Cleaning",

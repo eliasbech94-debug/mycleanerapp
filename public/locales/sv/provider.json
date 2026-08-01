@@ -1,4 +1,61 @@
 {
+  "activation": {
+    "badge": "Begränsad åtkomst",
+    "checklistTitle": "Dina nästa steg",
+    "lockedDescription": "Bokningsförfrågningar, kunduppgifter, utbetalningar och uppdragshantering är inte tillgängliga än.",
+    "lockedTitle": "Låst till godkännande",
+    "restricted": {
+      "description": "Din profil är inte aktiv än. Slutför din onboarding här — bokningar, kunder och ekonomiska funktioner öppnas när du är godkänd.",
+      "title": "Onboarding-panel"
+    },
+    "states": {
+      "archived": {
+        "description": "Din leverantörsprofil är arkiverad. Kontakta supporten för att höra om dina alternativ.",
+        "title": "Arkiverad"
+      },
+      "missing_identity": {
+        "description": "Vi måste verifiera din identitet innan du kan ta emot bokningar.",
+        "title": "Saknar identitet"
+      },
+      "missing_profile_details": {
+        "description": "Fyll i återstående uppgifter i din profil innan vi kan godkänna dig.",
+        "title": "Saknade profiluppgifter"
+      },
+      "missing_stripe": {
+        "description": "Slutför din utbetalningsinställning så att du kan ta emot betalningar.",
+        "title": "Saknar Stripe"
+      },
+      "no_profile": {
+        "description": "Vi hittade ingen leverantörsprofil på ditt konto. Skapa din profil eller kontakta supporten.",
+        "title": "Ingen leverantörsprofil"
+      },
+      "paused": {
+        "description": "Din profil är pausad. Du får inga nya uppdrag förrän du återupptar den.",
+        "title": "Profil pausad"
+      },
+      "pending_review": {
+        "description": "Vi granskar din profil. Du får besked så snart du är godkänd.",
+        "title": "Väntar på godkännande"
+      },
+      "rejected": {
+        "description": "Din ansökan avslogs. Du kan läsa motiveringen och överklaga beslutet.",
+        "title": "Avvisad"
+      },
+      "suspended": {
+        "description": "Din profil är avstängd. Läs beslutet eller kontakta supporten.",
+        "title": "Avstängd"
+      }
+    },
+    "statusLabel": "Status",
+    "steps": {
+      "appeal": "Se beslut",
+      "documents": "Ladda upp dokument",
+      "identity": "Verifiera identitet",
+      "profile": "Slutför profil",
+      "stripe": "Konfigurera utbetalningar",
+      "support": "Kontakta support"
+    }
+  },
   "booking": {
     "atSlot": "kl. {{slot}}",
     "defaultService": "Städning",

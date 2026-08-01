@@ -1,4 +1,61 @@
 {
+  "activation": {
+    "badge": "Eingeschränkter Zugriff",
+    "checklistTitle": "Deine nächsten Schritte",
+    "lockedDescription": "Buchungsanfragen, Kundendaten, Auszahlungen und Auftragsverwaltung sind noch nicht verfügbar.",
+    "lockedTitle": "Bis zur Freigabe gesperrt",
+    "restricted": {
+      "description": "Dein Profil ist noch nicht aktiv. Schließe hier dein Onboarding ab — Buchungen, Kunden und Finanzfunktionen werden nach der Freigabe freigeschaltet.",
+      "title": "Onboarding-Dashboard"
+    },
+    "states": {
+      "archived": {
+        "description": "Dein Anbieterprofil ist archiviert. Kontaktiere den Support für deine Möglichkeiten.",
+        "title": "Archiviert"
+      },
+      "missing_identity": {
+        "description": "Wir müssen deine Identität bestätigen, bevor du Buchungen erhalten kannst.",
+        "title": "Identität fehlt"
+      },
+      "missing_profile_details": {
+        "description": "Ergänze die restlichen Angaben in deinem Profil, bevor wir dich freigeben können.",
+        "title": "Fehlende Profilangaben"
+      },
+      "missing_stripe": {
+        "description": "Schließe deine Auszahlungseinrichtung ab, damit du Zahlungen erhalten kannst.",
+        "title": "Stripe fehlt"
+      },
+      "no_profile": {
+        "description": "Wir konnten kein Anbieterprofil zu deinem Konto finden. Erstelle dein Profil oder kontaktiere den Support.",
+        "title": "Kein Anbieterprofil"
+      },
+      "paused": {
+        "description": "Dein Profil ist pausiert. Du erhältst keine neuen Aufträge, bis du es fortsetzt.",
+        "title": "Profil pausiert"
+      },
+      "pending_review": {
+        "description": "Wir prüfen dein Profil. Du wirst benachrichtigt, sobald du freigegeben bist.",
+        "title": "Wartet auf Freigabe"
+      },
+      "rejected": {
+        "description": "Deine Bewerbung wurde abgelehnt. Du kannst die Begründung lesen und Einspruch einlegen.",
+        "title": "Abgelehnt"
+      },
+      "suspended": {
+        "description": "Dein Profil ist gesperrt. Sieh dir die Entscheidung an oder kontaktiere den Support.",
+        "title": "Gesperrt"
+      }
+    },
+    "statusLabel": "Status",
+    "steps": {
+      "appeal": "Entscheidung ansehen",
+      "documents": "Dokumente hochladen",
+      "identity": "Identität verifizieren",
+      "profile": "Profil vervollständigen",
+      "stripe": "Auszahlungen einrichten",
+      "support": "Support kontaktieren"
+    }
+  },
   "booking": {
     "atSlot": "um {{slot}}",
     "defaultService": "Reinigung",
