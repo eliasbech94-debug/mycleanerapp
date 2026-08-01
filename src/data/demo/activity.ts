@@ -119,14 +119,14 @@ const NOTIFICATION_TEMPLATES: Array<{
   body: string;
   href: string | null;
 }> = [
-  { kind: "booking_accepted", audience: "customer", title: "Booking accepteret", body: "Din booking er bekræftet af din cleaner.", href: "/dashboard/bookings" },
-  { kind: "new_review", audience: "provider", title: "Ny anmeldelse", body: "Du har modtaget en ny 5-stjernet anmeldelse.", href: "/provider/reviews" },
-  { kind: "booking_reminder", audience: "customer", title: "Påmindelse", body: "Din rengøring starter i morgen kl. 10:00.", href: "/dashboard/bookings" },
-  { kind: "payment_released", audience: "provider", title: "Beløb frigivet", body: "Udbetalingen for din seneste opgave er på vej.", href: "/provider/payouts" },
+  { kind: "booking_accepted", audience: "customer", title: "Booking accepteret", body: "Din booking er bekræftet af din cleaner.", href: "/mine-bookinger" },
+  { kind: "new_review", audience: "provider", title: "Ny anmeldelse", body: "Du har modtaget en ny 5-stjernet anmeldelse.", href: "/provider-dashboard" },
+  { kind: "booking_reminder", audience: "customer", title: "Påmindelse", body: "Din rengøring starter i morgen kl. 10:00.", href: "/mine-bookinger" },
+  { kind: "payment_released", audience: "provider", title: "Beløb frigivet", body: "Udbetalingen for din seneste opgave er på vej.", href: "/provider/finance" },
   { kind: "message_received", audience: "customer", title: "Ny besked", body: "Du har en ulæst besked i din indbakke.", href: "/inbox" },
   { kind: "profile_reminder", audience: "provider", title: "Færdiggør din profil", body: "Tilføj en beskrivelse for at få flere bookinger.", href: "/provider/profile" },
-  { kind: "booking_reminder", audience: "provider", title: "Opgave i morgen", body: "Du har en opgave i morgen kl. 09:00 på Nørrebrogade.", href: "/provider/bookings" },
-  { kind: "new_review", audience: "customer", title: "Bedøm din cleaner", body: "Hvordan gik din seneste rengøring?", href: "/dashboard/bookings" },
+  { kind: "booking_reminder", audience: "provider", title: "Opgave i morgen", body: "Du har en opgave i morgen kl. 09:00 på Nørrebrogade.", href: "/provider-dashboard" },
+  { kind: "new_review", audience: "customer", title: "Bedøm din cleaner", body: "Hvordan gik din seneste rengøring?", href: "/mine-bookinger" },
 ];
 
 export const getDemoNotifications = lazy<DemoNotification[]>(() => {
