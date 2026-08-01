@@ -143,8 +143,9 @@ export default function AdminUsers() {
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {ALL_ROLES.filter((role) => {
-                      // Non super-admins cannot manage super_admin role
-                      if (role === "super_admin" && !isSuperAdmin) return false;
+                      // Only super_admin may manage privileged (staff) roles.
+                      const privileged: AppRole[] = ["employee", "support", "admin", "super_admin"];
+                      if (privileged.includes(role) && !isSuperAdmin) return false;
                       return true;
                     }).map((role) => {
                       const has = r.roles.includes(role);
