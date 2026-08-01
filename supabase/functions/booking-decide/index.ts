@@ -4,6 +4,8 @@ import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { createClient } from "npm:@supabase/supabase-js@2";
 
 import { monitored } from "../_shared/logger.ts";
+import { authenticate } from "../_shared/auth.ts";
+import { requireActiveProvider } from "../_shared/providerGate.ts";
 async function stripePost(path: string, key: string) {
   const res = await fetch(`https://api.stripe.com/v1${path}`, {
     method: "POST", headers: { Authorization: `Bearer ${key}` },

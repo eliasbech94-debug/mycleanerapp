@@ -1,6 +1,7 @@
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import ICAL from "npm:ical.js@2.1.0";
 import { authenticate } from "../_shared/auth.ts";
+import { requireActiveProvider } from "../_shared/providerGate.ts";
 import type { SupabaseClient } from "npm:@supabase/supabase-js@2";
 
 const MAX_FEED_BYTES = 2_000_000;

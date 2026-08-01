@@ -7,6 +7,7 @@
 // platform commission and provider net proportionally.
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { authenticate, requireRole } from "../_shared/auth.ts";
+import { requireActiveProvider } from "../_shared/providerGate.ts";
 
 interface CurrencyTotals {
   currency: string;
