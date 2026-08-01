@@ -1,4 +1,6 @@
 import {
+  Calendar,
+  Tags,
   LayoutDashboard,
   Users,
   CreditCard,
