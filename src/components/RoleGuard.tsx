@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { ReactNode, useEffect, useRef } from "react";
-import { Navigate, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
+import PrefixedNavigate from "@/components/routing/PrefixedNavigate";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserRoles, AppRole } from "@/hooks/useUserRoles";
 import { Loader2, ShieldAlert } from "lucide-react";
@@ -93,7 +94,7 @@ export function RoleGuard({ allow, children }: Props) {
   }
 
   if (!user) {
-    return <Navigate to="/login" replace state={{ from: location.pathname }} />;
+    return <PrefixedNavigate to="/login" />;
   }
 
   // Super-admin har automatisk adgang til alt

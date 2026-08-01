@@ -52,12 +52,31 @@ export const AppSidebar = ({ role }: Props) => {
                 <SidebarMenu>
                   {group.items.map((item) => (
                     <SidebarMenuItem key={item.url}>
-                      <SidebarMenuButton asChild isActive={isActive(item.url)}>
-                        <NavLink to={localize(item.url)} className="flex items-center gap-2">
-                          <item.icon className="h-4 w-4 shrink-0" />
-                          {!collapsed && <span>{item.title}</span>}
-                        </NavLink>
-                      </SidebarMenuButton>
+                      {item.comingSoon ? (
+                        <SidebarMenuButton
+                          aria-disabled="true"
+                          title={`${item.title} — kommer snart`}
+                          className="cursor-default opacity-60 hover:bg-transparent"
+                          onClick={(e) => e.preventDefault()}
+                        >
+                          <item.icon className="h-4 w-4 shrink-0" aria-hidden />
+                          {!collapsed && (
+                            <span className="flex w-full items-center justify-between gap-2">
+                              <span>{item.title}</span>
+                              <span className="rounded-full border border-border px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-muted-foreground">
+                                Snart
+                              </span>
+                            </span>
+                          )}
+                        </SidebarMenuButton>
+                      ) : (
+                        <SidebarMenuButton asChild isActive={isActive(item.url)}>
+                          <NavLink to={localize(item.url)} className="flex items-center gap-2">
+                            <item.icon className="h-4 w-4 shrink-0" />
+                            {!collapsed && <span>{item.title}</span>}
+                          </NavLink>
+                        </SidebarMenuButton>
+                      )}
                     </SidebarMenuItem>
                   ))}
                 </SidebarMenu>

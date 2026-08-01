@@ -13,6 +13,7 @@ import { IdentityVerificationCard } from "@/components/identity/IdentityVerifica
 import BackButton from "@/components/BackButton";
 import { ProviderQuizCard } from "@/components/provider/ProviderQuizCard";
 import { ProviderApprovalChecklist } from "@/components/provider/ProviderApprovalChecklist";
+import { useCountryPath } from "@/lib/countryPath";
 
 import { acceptLegalDocument, fetchLegalDocument } from "@/lib/legal/api";
 
@@ -142,6 +143,8 @@ function OnboardingInner() {
     await Promise.all([refreshServicePrices(), refreshSmsStatus()]);
   }, [user, refreshServicePrices, refreshSmsStatus]);
 
+  const localize = useCountryPath();
+
   useEffect(() => { load(); }, [load]);
 
   useEffect(() => {
@@ -150,8 +153,8 @@ function OnboardingInner() {
 
   // Redirect active providers away
   useEffect(() => {
-    if (pp && pp.status === "active") navigate("/provider-dashboard", { replace: true });
-  }, [pp?.status, navigate]);
+    if (pp && pp.status === "active") navigate(localize("/provider-dashboard"), { replace: true });
+  }, [pp?.status, navigate, localize]);
 
   // Server-authoritative resume: pick first incomplete step on initial load
   useEffect(() => {

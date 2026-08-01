@@ -159,7 +159,15 @@ export function AppRoutes() {
       <Route path="/contact" element={<Contact />} />
       <Route path="/kontakt" element={<Contact />} />
 
-      <Route path="/provider/register" element={<Navigate to="/bliv-cleaner" replace />} />
+      {/* Provider aliases. Canonical: /provider-dashboard (dashboard) + /provider/* (sub-pages).
+          These keep previously-linked/bookmarked URLs off the 404 page. */}
+      <Route path="/provider/register" element={<PrefixedNavigate to="/bliv-cleaner" />} />
+      <Route path="/provider" element={<PrefixedNavigate to="/provider-dashboard" />} />
+      <Route path="/provider/onboarding" element={<PrefixedNavigate to="/bliv-cleaner" />} />
+      <Route path="/provider/documents" element={<PrefixedNavigate to="/bliv-cleaner" />} />
+      <Route path="/provider/payouts" element={<PrefixedNavigate to="/provider/finance" />} />
+      <Route path="/provider/bookings" element={<PrefixedNavigate to="/provider-dashboard" />} />
+      <Route path="/provider/reviews" element={<PrefixedNavigate to="/provider-dashboard" />} />
       <Route path="/founding-cleaner" element={<MobileFoundingCleanerGate />} />
       {/* UUID-guarded internal provider route. Non-UUID falls through to NotFound. */}
       <Route path="/provider/:id" element={<UuidGuard param="id"><ProviderProfile /></UuidGuard>} />
@@ -197,7 +205,7 @@ export function AppRoutes() {
       <Route path="/mine-bookinger" element={<MobileBookingsGate />} />
       <Route path="/booking/:id/plan" element={<BookingPlan />} />
       <Route path="/provider-dashboard" element={<RoleGuard allow={["provider", "admin"]}><ProviderDashboardV2 /></RoleGuard>} />
-      <Route path="/provider" element={<RoleGuard allow={["provider", "admin"]}><ProviderDashboardV2 /></RoleGuard>} />
+      
       <Route path="/provider/pricing" element={<RoleGuard allow={["provider", "admin"]}><ProviderPricing /></RoleGuard>} />
       <Route path="/admin/pricing" element={<RoleGuard allow={["admin"]}><AdminPricing /></RoleGuard>} />
       <Route path="/provider/finance" element={<RoleGuard allow={["provider", "admin"]}><ProviderFinance /></RoleGuard>} />
