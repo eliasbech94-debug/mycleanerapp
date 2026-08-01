@@ -13,6 +13,7 @@ import { IdentityVerificationCard } from "@/components/identity/IdentityVerifica
 import BackButton from "@/components/BackButton";
 import { ProviderQuizCard } from "@/components/provider/ProviderQuizCard";
 import { ProviderApprovalChecklist } from "@/components/provider/ProviderApprovalChecklist";
+import { useCountryPath } from "@/lib/countryPath";
 
 import { acceptLegalDocument, fetchLegalDocument } from "@/lib/legal/api";
 
@@ -150,7 +151,7 @@ function OnboardingInner() {
 
   // Redirect active providers away
   useEffect(() => {
-    if (pp && pp.status === "active") navigate("/provider-dashboard", { replace: true });
+    if (pp && pp.status === "active") navigate(localizeRef.current("/provider-dashboard"), { replace: true });
   }, [pp?.status, navigate]);
 
   // Server-authoritative resume: pick first incomplete step on initial load

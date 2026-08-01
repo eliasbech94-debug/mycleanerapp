@@ -143,7 +143,7 @@ export default function ProviderDashboardV2() {
                 <div className="flex flex-wrap gap-2">
                   {verification.actions.map((a) => (
                     <Button key={a.to} asChild size="sm" variant={a.primary ? "default" : "outline"}>
-                      <Link to={a.to}>{a.label}</Link>
+                      <Link to={localize(a.to)}>{a.label}</Link>
                     </Button>
                   ))}
                 </div>
@@ -403,12 +403,13 @@ const STATUS_VARIANT: Record<
 
 function BookingRow({ booking, highlight }: { booking: ProviderBooking; highlight?: boolean }) {
   const { t } = useTranslation("provider");
+  const localize = useCountryPath();
   const variant = STATUS_VARIANT[booking.status];
   const label = t(`booking.status.${booking.status}`);
   return (
     <li>
       <Link
-        to={`/booking/${booking.id}/plan`}
+        to={localize(`/booking/${booking.id}/plan`)}
         className={`block rounded-xl border p-4 transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-sm ${
           highlight ? "border-primary/40 bg-primary/5" : "border-border bg-background/50"
         }`}
@@ -528,7 +529,7 @@ function describeVerification(
       showBanner: true,
       title: t("verification.identity.title"),
       description: t("verification.identity.description"),
-      actions: [{ label: t("verification.identity.action"), to: "/provider/profile", primary: true }],
+      actions: [{ label: t("verification.identity.action"), to: "/verify-identity", primary: true }],
     };
   }
   if (needsStripe) {
