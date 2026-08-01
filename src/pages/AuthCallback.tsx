@@ -44,7 +44,7 @@ export default function AuthCallback() {
         const pendingRole = sessionStorage.getItem("pendingSignupRole") as SignupRole | null;
         const signupMode = sessionStorage.getItem("pendingSignupMode") === "true";
         if (signupMode && (pendingRole === "customer" || pendingRole === "provider")) {
-          const { error } = await supabase.rpc("claim_signup_role", { requested_role: pendingRole });
+          const { error } = await (supabase.rpc as any)("claim_signup_role", { requested_role: pendingRole });
           if (error) throw error;
           claimedRole = pendingRole;
         }
