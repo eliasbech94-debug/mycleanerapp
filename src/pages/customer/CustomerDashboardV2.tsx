@@ -93,6 +93,36 @@ export default function CustomerDashboardV2() {
             />
           </AppErrorBoundary>
 
+          {!data.loading && (data.missing.phone || data.missing.address) && (
+            <AppErrorBoundary>
+              <SectionCard
+                title={t("surfaces.dashboard.complete.title")}
+                description={t("surfaces.dashboard.complete.description")}
+              >
+                <div className="flex flex-wrap gap-2">
+                  {data.missing.phone && (
+                    <Button asChild size="sm" variant="outline">
+                      <Link to={localize("/customer/profile?edit=contact")}>
+                        <Phone className="mr-2 h-4 w-4" aria-hidden />
+                        {t("surfaces.dashboard.complete.addPhone")}
+                      </Link>
+                    </Button>
+                  )}
+                  {data.missing.address && (
+                    <Button asChild size="sm" variant="outline">
+                      <Link to={localize("/customer/profile?edit=addresses")}>
+                        <MapPin className="mr-2 h-4 w-4" aria-hidden />
+                        {t("surfaces.dashboard.complete.addAddress")}
+                      </Link>
+                    </Button>
+                  )}
+                </div>
+              </SectionCard>
+            </AppErrorBoundary>
+          )}
+
+
+
           {/* Stats */}
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             <StatCard
