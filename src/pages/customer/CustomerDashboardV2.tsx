@@ -34,6 +34,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useNotifications } from "@/components/Inbox";
 import { useCustomerDashboard, type CustomerBooking } from "@/hooks/useCustomerDashboard";
 import { formatMoney } from "@/i18n/money";
+import { useCountryPath } from "@/lib/countryPath";
 
 /**
  * CustomerDashboardV2 — Phase 1 v1.
@@ -48,6 +49,7 @@ export default function CustomerDashboardV2() {
   const { user } = useAuth();
   const data = useCustomerDashboard();
   const notifications = useNotifications();
+  const localize = useCountryPath();
 
   const nextBooking = data.upcoming[0] ?? null;
   const recentHistory = useMemo(() => data.history.slice(0, 4), [data.history]);
@@ -85,7 +87,7 @@ export default function CustomerDashboardV2() {
               }
               actions={
                 <Button asChild size="sm">
-                  <Link to="/book">{t("surfaces.dashboard.bookCleaning")}</Link>
+                  <Link to={localize("/book")}>{t("surfaces.dashboard.bookCleaning")}</Link>
                 </Button>
               }
             />
@@ -127,7 +129,7 @@ export default function CustomerDashboardV2() {
                   title={t("surfaces.dashboard.upcoming.title")}
                   action={
                     <Link
-                      to="/customer/bookings"
+                      to={localize("/customer/bookings")}
                       className="text-xs font-semibold uppercase tracking-wide text-primary hover:underline"
                     >
                       Se alle
@@ -142,7 +144,7 @@ export default function CustomerDashboardV2() {
                       description={t("surfaces.dashboard.upcoming.emptyDescription")}
                       action={
                         <Button asChild>
-                          <Link to="/find-cleaner">{t("surfaces.dashboard.upcoming.findCleaner")}</Link>
+                          <Link to={localize("/find-cleaner")}>{t("surfaces.dashboard.upcoming.findCleaner")}</Link>
                         </Button>
                       }
                     />
@@ -162,7 +164,7 @@ export default function CustomerDashboardV2() {
                   description={t("surfaces.dashboard.history.description")}
                   action={
                     <Link
-                      to="/customer/bookings"
+                      to={localize("/customer/bookings")}
                       className="text-xs font-semibold uppercase tracking-wide text-primary hover:underline"
                     >
                       Se alle
@@ -203,38 +205,38 @@ export default function CustomerDashboardV2() {
                       title={t("surfaces.dashboard.quickActions.book.title")}
                       description={t("surfaces.dashboard.quickActions.book.description")}
                       icon={Sparkles}
-                      to="/book"
+                      to={localize("/book")}
                     />
                     <QuickActionCard
                       title={t("surfaces.dashboard.quickActions.bookings.title")}
                       description={t("surfaces.dashboard.quickActions.bookings.description")}
                       icon={ListChecks}
-                      to="/customer/bookings"
+                      to={localize("/customer/bookings")}
                     />
                     <QuickActionCard
                       title="Beskeder"
                       description={t("surfaces.dashboard.quickActions.messages.description")}
                       icon={MessageSquare}
-                      to="/inbox"
+                      to={localize("/customer/notifications")}
                       badge={notifications.unread > 0 ? `${notifications.unread}` : undefined}
                     />
                     <QuickActionCard
                       title="Favoritter"
                       description={t("surfaces.dashboard.quickActions.favorites.description")}
                       icon={Heart}
-                      to="/find-cleaner"
+                      to={localize("/find-cleaner")}
                     />
                     <QuickActionCard
                       title="Fakturaer"
                       description={t("surfaces.dashboard.quickActions.invoices.description")}
                       icon={FileText}
-                      to="/customer/invoices"
+                      to={localize("/customer/invoices")}
                     />
                     <QuickActionCard
                       title="Support"
                       description={t("surfaces.dashboard.quickActions.support.description")}
                       icon={LifeBuoy}
-                      to="/faq"
+                      to={localize("/faq")}
                     />
                   </div>
                 </SectionCard>
@@ -245,7 +247,7 @@ export default function CustomerDashboardV2() {
                   title="Notifikationer"
                   action={
                     <Link
-                      to="/inbox"
+                      to={localize("/customer/notifications")}
                       className="text-xs font-semibold uppercase tracking-wide text-primary hover:underline"
                     >
                       Åbn inbox
