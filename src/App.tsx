@@ -143,12 +143,13 @@ export function AppRoutes() {
 
       <Route path="/customer" element={<RoleGuard allow={["customer"]}><CustomerDashboardV2 /></RoleGuard>} />
       <Route path="/customer/bookings" element={<RoleGuard allow={["customer"]}><MobileBookingsGate /></RoleGuard>} />
-      <Route path="/customer/notifications" element={<RoleGuard allow={["customer"]}><Navigate to="/profil?tab=inbox" replace /></RoleGuard>} />
-      <Route path="/customer/invoices" element={<RoleGuard allow={["customer"]}><Navigate to="/profil?tab=invoices" replace /></RoleGuard>} />
-      <Route path="/customer/addresses" element={<RoleGuard allow={["customer"]}><Navigate to="/profil?tab=addresses" replace /></RoleGuard>} />
+      <Route path="/customer/notifications" element={<RoleGuard allow={["customer"]}><PrefixedNavigate to="/profil?tab=inbox" /></RoleGuard>} />
+      <Route path="/customer/invoices" element={<RoleGuard allow={["customer"]}><PrefixedNavigate to="/profil?tab=invoices" /></RoleGuard>} />
+      <Route path="/customer/addresses" element={<RoleGuard allow={["customer"]}><PrefixedNavigate to="/profil?tab=addresses" /></RoleGuard>} />
       <Route path="/customer/profile" element={<RoleGuard allow={["customer"]}><CustomerProfileV2 /></RoleGuard>} />
-      <Route path="/customer/settings" element={<RoleGuard allow={["customer"]}><Navigate to="/profil?tab=notifications" replace /></RoleGuard>} />
-      <Route path="/customer/cards" element={<RoleGuard allow={["customer"]}><Navigate to="/profil?tab=cards" replace /></RoleGuard>} />
+      <Route path="/customer/settings" element={<RoleGuard allow={["customer"]}><PrefixedNavigate to="/profil?tab=notifications" /></RoleGuard>} />
+      <Route path="/customer/cards" element={<RoleGuard allow={["customer"]}><PrefixedNavigate to="/profil?tab=cards" /></RoleGuard>} />
+
       {/* Public aliases for well-known short URLs. Pure client-side redirects, no loops. */}
       <Route path="/help" element={<Navigate to="/faq" replace />} />
       <Route path="/house-rules" element={<Navigate to="/regler" replace />} />
