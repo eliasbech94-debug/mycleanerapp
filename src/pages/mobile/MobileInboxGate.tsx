@@ -8,7 +8,7 @@
  * existing customer/provider conversation infrastructure.
  */
 import { lazy, Suspense, useEffect, useState } from "react";
-import { Navigate } from "react-router-dom";
+import PrefixedNavigate from "@/components/routing/PrefixedNavigate";
 
 const MobileMessages = lazy(() => import("./MobileMessages"));
 
@@ -29,7 +29,7 @@ function useBelow768(): boolean {
 
 export default function MobileInboxGate() {
   const mobile = useBelow768();
-  if (!mobile) return <Navigate to="/profil?tab=inbox" replace />;
+  if (!mobile) return <PrefixedNavigate to="/profil?tab=inbox" />;
   return (
     <Suspense fallback={null}>
       <MobileMessages />
