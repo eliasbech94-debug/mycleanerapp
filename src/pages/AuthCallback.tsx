@@ -5,13 +5,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { resolveHomeForCurrentUser } from "@/lib/roleRedirect";
 import { recordAcceptances } from "@/lib/legalAcceptance";
 
+type SignupRole = "customer" | "provider";
+
 export default function AuthCallback() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const next = params.get("next");
   const hash = typeof window !== "undefined" ? window.location.hash : "";
-  const isRecovery =
-    params.get("type") === "recovery" || /(?:^|[#&])type=recovery/.test(hash);
+  const isRecovery = params.get("type") === "recovery" || /(?:^|[#&])type=recovery/.test(hash);
 
   useEffect(() => {
     let cancelled = false;
@@ -20,7 +21,7 @@ export default function AuthCallback() {
         navigate("/reset-password" + (next ? `?next=${encodeURIComponent(next)}` : ""), { replace: true });
         return;
       }
-      // Wait briefly for session hydration
+
       for (let i = 0; i < 20; i++) {
         const { data: { session } } = await supabase.auth.getSession();
         if (session) break;
@@ -28,26 +29,35 @@ export default function AuthCallback() {
       }
       if (cancelled) return;
 
-      // Flush pending legal acceptances captured pre-verification.
       try {
         const pending = sessionStorage.getItem("pendingLegalAcceptances");
         if (pending) {
           const docs = JSON.parse(pending);
           const { data: { user } } = await supabase.auth.getUser();
-          if (user && Array.isArray(docs) && docs.length) {
-            await recordAcceptances(user.id, docs);
-          }
+          if (user && Array.isArray(docs) && docs.length) await recordAcceptances(user.id, docs);
           sessionStorage.removeItem("pendingLegalAcceptances");
         }
       } catch { /* non-fatal */ }
 
-      // Reconcile provider onboarding after email verification (safe no-op
-      // if no provider_profiles row exists).
+      let claimedRole: SignupRole | null = null;
       try {
-        await supabase.functions.invoke("provider-recompute");
-      } catch { /* non-fatal */ }
+        const pendingRole = sessionStorage.getItem("pendingSignupRole") as SignupRole | null;
+        const signupMode = sessionStorage.getItem("pendingSignupMode") === "true";
+        if (signupMode && (pendingRole === "customer" || pendingRole === "provider")) {
+          const { error } = await supabase.rpc("claim_signup_role", { requested_role: pendingRole });
+          if (error) throw error;
+          claimedRole = pendingRole;
+        }
+      } catch (err) {
+        console.error("signup_role_claim_failed", err);
+      } finally {
+        sessionStorage.removeItem("pendingSignupRole");
+        sessionStorage.removeItem("pendingSignupMode");
+      }
 
-      const dest = next || (await resolveHomeForCurrentUser());
+      try { await supabase.functions.invoke("provider-recompute"); } catch { /* non-fatal */ }
+
+      const dest = next || (claimedRole === "provider" ? "/provider-onboarding" : await resolveHomeForCurrentUser());
       navigate(dest, { replace: true });
     }
     go();
@@ -60,4 +70,3 @@ export default function AuthCallback() {
     </main>
   );
 }
-
