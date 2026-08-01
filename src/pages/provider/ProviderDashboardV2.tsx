@@ -36,6 +36,9 @@ import {
 } from "@/components/dashboard/primitives";
 import { AppErrorBoundary } from "@/components/AppErrorBoundary";
 import ProviderDecisionBanner from "@/components/provider/ProviderDecisionBanner";
+import { ProviderOnboardingDashboard } from "@/components/provider/ProviderOnboardingDashboard";
+import { deriveProviderActivation } from "@/lib/provider/activation";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useNotifications } from "@/components/Inbox";
