@@ -36,6 +36,7 @@ export function LanguageAccountSync() {
   const { user } = useAuth();
   const hydratedFor = useRef<string | null>(null);
 
+  // 1. Pull the account preference once per signed-in user.
   useEffect(() => {
     if (!user) {
       hydratedFor.current = null;
@@ -59,6 +60,7 @@ export function LanguageAccountSync() {
         return;
       }
 
+      // No account preference yet — adopt the pre-login choice if there is one.
       const local = getStoredLanguage();
       if (isManualLanguage() && local) {
         await supabase
@@ -73,12 +75,13 @@ export function LanguageAccountSync() {
     };
   }, [user]);
 
+  // 2. Push every later explicit change back to the account.
   useEffect(() => {
     if (!user) return;
     const onChange = (lng: string) => {
       const lang = lng.slice(0, 2).toLowerCase();
       if (!isSupported(lang)) return;
-      if (!isManualLanguage()) return;
+      if (!isManualLanguage()) return; // auto-detected — not a user decision
       void supabase
         .from("profiles")
         .update({ ui_language: lang, language_manual: true })
