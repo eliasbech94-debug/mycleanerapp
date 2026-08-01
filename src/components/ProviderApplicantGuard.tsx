@@ -13,6 +13,7 @@ type Props = { children: ReactNode; autoStart?: boolean };
 
 export function ProviderApplicantGuard({ children, autoStart = true }: Props) {
   const location = useLocation();
+  const localize = useCountryPath();
   const { user, loading: authLoading } = useAuth();
   const { isAdmin, loading: rolesLoading } = useUserRoles();
   const [status, setStatus] = useState<
