@@ -19,14 +19,17 @@ interface GateMeta {
   to?: string;
 }
 
+// `to` must point at a route that exists in App.tsx. Onboarding steps live on
+// /bliv-cleaner (the canonical provider onboarding route) — /provider/onboarding,
+// /provider/documents and /provider/payouts were dead links.
 const GATES: GateMeta[] = [
-  { key: "identity", icon: ShieldCheck, title: "Identitetsverifikation", help: "Gennemfør ID-verifikationen. Vi godkender først, når verifikationen er fuldført.", to: "/provider/onboarding?step=identity" },
+  { key: "identity", icon: ShieldCheck, title: "Identitetsverifikation", help: "Gennemfør ID-verifikationen. Vi godkender først, når verifikationen er fuldført.", to: "/verify-identity" },
   { key: "photo", icon: Camera, title: "Profilbillede", help: "Upload et tydeligt billede af dit ansigt i god belysning — ingen gruppebilleder, logoer eller skærmbilleder.", to: "/provider/profile" },
   { key: "profile", icon: UserRound, title: "Profiloplysninger", help: "Navn, fødselsdato (18+), adresse, verificeret telefon og e-mail, sprog og en bio på mindst 40 tegn.", to: "/provider/profile" },
   { key: "services", icon: Tag, title: "Aktiv service og pris", help: "Mindst én aktiv service med en pris på eller over landets minimumssats.", to: "/provider/pricing" },
-  { key: "quiz", icon: GraduationCap, title: "MyCleaner-test", help: "Bestå den korte test om regler, sikkerhed og god adfærd.", to: "/provider/onboarding?step=quiz" },
-  { key: "documents", icon: FileText, title: "Forsikring og dokumenter", help: "Upload gyldig forsikringsdokumentation med policenummer og udløbsdato.", to: "/provider/documents" },
-  { key: "stripe", icon: CreditCard, title: "Udbetalinger (Stripe)", help: "Fuldfør Stripe-onboarding, så udbetalinger og betalinger er aktive uden åbne krav.", to: "/provider/payouts" },
+  { key: "quiz", icon: GraduationCap, title: "MyCleaner-test", help: "Bestå den korte test om regler, sikkerhed og god adfærd.", to: "/bliv-cleaner" },
+  { key: "documents", icon: FileText, title: "Forsikring og dokumenter", help: "Upload gyldig forsikringsdokumentation med policenummer og udløbsdato.", to: "/bliv-cleaner" },
+  { key: "stripe", icon: CreditCard, title: "Udbetalinger (Stripe)", help: "Fuldfør Stripe-onboarding, så udbetalinger og betalinger er aktive uden åbne krav.", to: "/provider/finance" },
 ];
 
 const STATE_LABEL: Record<string, string> = {
