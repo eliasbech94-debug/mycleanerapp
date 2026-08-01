@@ -524,6 +524,12 @@
     },
     "dashboard": {
       "bookCleaning": "Reinigung buchen",
+      "complete": {
+        "addAddress": "Adresse hinzufügen",
+        "addPhone": "Telefon hinzufügen",
+        "description": "Ergänze die letzten Angaben, damit Buchungen schneller gehen.",
+        "title": "Profil vervollständigen"
+      },
       "description": "Überblick über deine Buchungen, Nachrichten und dein Konto. Du wählst und buchst selbst einen unabhängigen Anbieter über die MyCleaner-Plattform.",
       "feed": {
         "description": "Persönliche Empfehlungen basierend auf deiner Historie sind unterwegs. Diese Funktion ist noch nicht aktiv.",

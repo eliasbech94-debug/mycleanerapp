@@ -524,6 +524,12 @@
     },
     "dashboard": {
       "bookCleaning": "Book rengøring",
+      "complete": {
+        "addAddress": "Tilføj adresse",
+        "addPhone": "Tilføj telefon",
+        "description": "Tilføj de sidste oplysninger, så bookinger går hurtigere.",
+        "title": "Gør din profil færdig"
+      },
       "description": "Overblik over dine bookinger, beskeder og konto. Du vælger og booker selv en selvstændig provider gennem MyCleaner-platformen.",
       "feed": {
         "description": "Personlige anbefalinger baseret på din historik er på vej. Funktionen er endnu ikke aktiv.",

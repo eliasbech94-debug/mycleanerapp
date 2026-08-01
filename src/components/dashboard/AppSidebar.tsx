@@ -16,6 +16,7 @@ import {
   filterNavGroupsByRoles,
 } from "./nav-config";
 import { useUserRoles } from "@/hooks/useUserRoles";
+import { countryPrefixFromPathname, useCountryPath } from "@/lib/countryPath";
 
 interface Props {
   role: DashboardRole;
@@ -31,7 +32,12 @@ export const AppSidebar = ({ role }: Props) => {
     ? []
     : filterNavGroupsByRoles(resolveNavGroups(role), hasRole);
 
-  const isActive = (url: string) => pathname === url || pathname.startsWith(url + "/");
+  // Nav URLs are market-agnostic; compare against the path without the
+  // /{country} prefix so items stay highlighted on localised URLs.
+  const localize = useCountryPath();
+  const prefix = countryPrefixFromPathname(pathname);
+  const basePath = prefix ? pathname.slice(prefix.length + 1) || "/" : pathname;
+  const isActive = (url: string) => basePath === url || basePath.startsWith(url + "/");
 
 
   return (
@@ -47,7 +53,7 @@ export const AppSidebar = ({ role }: Props) => {
                   {group.items.map((item) => (
                     <SidebarMenuItem key={item.url}>
                       <SidebarMenuButton asChild isActive={isActive(item.url)}>
-                        <NavLink to={item.url} className="flex items-center gap-2">
+                        <NavLink to={localize(item.url)} className="flex items-center gap-2">
                           <item.icon className="h-4 w-4 shrink-0" />
                           {!collapsed && <span>{item.title}</span>}
                         </NavLink>

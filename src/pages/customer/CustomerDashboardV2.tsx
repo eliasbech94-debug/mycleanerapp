@@ -10,6 +10,7 @@ import {
   ListChecks,
   MapPin,
   MessageSquare,
+  Phone,
   Sparkles,
   UserCircle,
   Wallet,
@@ -34,6 +35,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useNotifications } from "@/components/Inbox";
 import { useCustomerDashboard, type CustomerBooking } from "@/hooks/useCustomerDashboard";
 import { formatMoney } from "@/i18n/money";
+import { useCountryPath } from "@/lib/countryPath";
 
 /**
  * CustomerDashboardV2 — Phase 1 v1.
@@ -48,6 +50,7 @@ export default function CustomerDashboardV2() {
   const { user } = useAuth();
   const data = useCustomerDashboard();
   const notifications = useNotifications();
+  const localize = useCountryPath();
 
   const nextBooking = data.upcoming[0] ?? null;
   const recentHistory = useMemo(() => data.history.slice(0, 4), [data.history]);
@@ -85,11 +88,41 @@ export default function CustomerDashboardV2() {
               }
               actions={
                 <Button asChild size="sm">
-                  <Link to="/book">{t("surfaces.dashboard.bookCleaning")}</Link>
+                  <Link to={localize("/book")}>{t("surfaces.dashboard.bookCleaning")}</Link>
                 </Button>
               }
             />
           </AppErrorBoundary>
+
+          {!data.loading && (data.missing.phone || data.missing.address) && (
+            <AppErrorBoundary>
+              <SectionCard
+                title={t("surfaces.dashboard.complete.title")}
+                description={t("surfaces.dashboard.complete.description")}
+              >
+                <div className="flex flex-wrap gap-2">
+                  {data.missing.phone && (
+                    <Button asChild size="sm" variant="outline">
+                      <Link to={localize("/customer/profile?edit=contact")}>
+                        <Phone className="mr-2 h-4 w-4" aria-hidden />
+                        {t("surfaces.dashboard.complete.addPhone")}
+                      </Link>
+                    </Button>
+                  )}
+                  {data.missing.address && (
+                    <Button asChild size="sm" variant="outline">
+                      <Link to={localize("/customer/profile?edit=addresses")}>
+                        <MapPin className="mr-2 h-4 w-4" aria-hidden />
+                        {t("surfaces.dashboard.complete.addAddress")}
+                      </Link>
+                    </Button>
+                  )}
+                </div>
+              </SectionCard>
+            </AppErrorBoundary>
+          )}
+
+
 
           {/* Stats */}
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -127,7 +160,7 @@ export default function CustomerDashboardV2() {
                   title={t("surfaces.dashboard.upcoming.title")}
                   action={
                     <Link
-                      to="/customer/bookings"
+                      to={localize("/customer/bookings")}
                       className="text-xs font-semibold uppercase tracking-wide text-primary hover:underline"
                     >
                       Se alle
@@ -142,7 +175,7 @@ export default function CustomerDashboardV2() {
                       description={t("surfaces.dashboard.upcoming.emptyDescription")}
                       action={
                         <Button asChild>
-                          <Link to="/find-cleaner">{t("surfaces.dashboard.upcoming.findCleaner")}</Link>
+                          <Link to={localize("/find-cleaner")}>{t("surfaces.dashboard.upcoming.findCleaner")}</Link>
                         </Button>
                       }
                     />
@@ -162,7 +195,7 @@ export default function CustomerDashboardV2() {
                   description={t("surfaces.dashboard.history.description")}
                   action={
                     <Link
-                      to="/customer/bookings"
+                      to={localize("/customer/bookings")}
                       className="text-xs font-semibold uppercase tracking-wide text-primary hover:underline"
                     >
                       Se alle
@@ -203,38 +236,38 @@ export default function CustomerDashboardV2() {
                       title={t("surfaces.dashboard.quickActions.book.title")}
                       description={t("surfaces.dashboard.quickActions.book.description")}
                       icon={Sparkles}
-                      to="/book"
+                      to={localize("/book")}
                     />
                     <QuickActionCard
                       title={t("surfaces.dashboard.quickActions.bookings.title")}
                       description={t("surfaces.dashboard.quickActions.bookings.description")}
                       icon={ListChecks}
-                      to="/customer/bookings"
+                      to={localize("/customer/bookings")}
                     />
                     <QuickActionCard
                       title="Beskeder"
                       description={t("surfaces.dashboard.quickActions.messages.description")}
                       icon={MessageSquare}
-                      to="/inbox"
+                      to={localize("/customer/notifications")}
                       badge={notifications.unread > 0 ? `${notifications.unread}` : undefined}
                     />
                     <QuickActionCard
                       title="Favoritter"
                       description={t("surfaces.dashboard.quickActions.favorites.description")}
                       icon={Heart}
-                      to="/find-cleaner"
+                      to={localize("/find-cleaner")}
                     />
                     <QuickActionCard
                       title="Fakturaer"
                       description={t("surfaces.dashboard.quickActions.invoices.description")}
                       icon={FileText}
-                      to="/customer/invoices"
+                      to={localize("/customer/invoices")}
                     />
                     <QuickActionCard
                       title="Support"
                       description={t("surfaces.dashboard.quickActions.support.description")}
                       icon={LifeBuoy}
-                      to="/faq"
+                      to={localize("/faq")}
                     />
                   </div>
                 </SectionCard>
@@ -245,7 +278,7 @@ export default function CustomerDashboardV2() {
                   title="Notifikationer"
                   action={
                     <Link
-                      to="/inbox"
+                      to={localize("/customer/notifications")}
                       className="text-xs font-semibold uppercase tracking-wide text-primary hover:underline"
                     >
                       Åbn inbox
@@ -314,10 +347,11 @@ const STATUS_META: Record<
 
 function BookingRow({ booking, highlight }: { booking: CustomerBooking; highlight?: boolean }) {
   const meta = STATUS_META[booking.status];
+  const localize = useCountryPath();
   return (
     <li>
       <Link
-        to={`/booking/${booking.id}/plan`}
+        to={localize(`/booking/${booking.id}/plan`)}
         className={`block rounded-xl border p-4 transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-sm ${
           highlight ? "border-primary/40 bg-primary/5" : "border-border bg-background/50"
         }`}

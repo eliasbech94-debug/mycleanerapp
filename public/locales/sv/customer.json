@@ -524,6 +524,12 @@
     },
     "dashboard": {
       "bookCleaning": "Boka städning",
+      "complete": {
+        "addAddress": "Lägg till adress",
+        "addPhone": "Lägg till telefon",
+        "description": "Lägg till de sista uppgifterna så går bokningen snabbare.",
+        "title": "Slutför din profil"
+      },
       "description": "Överblick över dina bokningar, meddelanden och konto. Du väljer och bokar själv en oberoende leverantör via MyCleaner-plattformen.",
       "feed": {
         "description": "Personliga rekommendationer baserade på din historik är på väg. Funktionen är inte aktiv ännu.",

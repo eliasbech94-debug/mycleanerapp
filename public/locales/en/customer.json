@@ -524,6 +524,12 @@
     },
     "dashboard": {
       "bookCleaning": "Book cleaning",
+      "complete": {
+        "addAddress": "Add address",
+        "addPhone": "Add phone",
+        "description": "Add the last details so booking goes faster.",
+        "title": "Complete your profile"
+      },
       "description": "Overview of your bookings, messages and account. You choose and book an independent provider yourself through the MyCleaner platform.",
       "feed": {
         "description": "Personal recommendations based on your history are on the way. This feature isn't active yet.",

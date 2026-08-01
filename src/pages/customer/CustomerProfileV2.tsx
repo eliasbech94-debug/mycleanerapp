@@ -3,8 +3,8 @@
 // `/profil?tab=…` writes to (`profiles`, `customer_addresses`, `bookings`),
 // so the two views stay in sync. Editing is fully native: every
 // "Redigér" opens a SectionEditDialog with a native V2 form.
-import { useCallback, useMemo, useRef, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
   Bell, Calendar, CreditCard, FileText, Inbox, LifeBuoy, Lock, Mail,
@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useCustomerProfile } from "@/hooks/useCustomerProfile";
+import { useCountryPath } from "@/lib/countryPath";
 import BackButton from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -29,9 +30,12 @@ import {
   TaxEditor,
 } from "@/components/profile/customer-editors";
 
-type EditorKey =
-  | "personal" | "contact" | "addresses" | "notifications"
-  | "prefs" | "access" | "deactivate" | "tax";
+const EDITOR_KEYS = [
+  "personal", "contact", "addresses", "notifications",
+  "prefs", "access", "deactivate", "tax",
+] as const;
+
+type EditorKey = (typeof EDITOR_KEYS)[number];
 
 const formatDate = (iso: string | null, locale: string) => {
   if (!iso) return "—";
@@ -91,6 +95,8 @@ export default function CustomerProfileV2() {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const data = useCustomerProfile();
+  const localize = useCountryPath();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [openEditor, setOpenEditor] = useState<EditorKey | null>(null);
   const [dirty, setDirty] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -118,6 +124,18 @@ export default function CustomerProfileV2() {
     }
   }, [data, closeEditor]);
 
+  // Deep-link support: /customer/profile?edit=contact opens the editor directly,
+  // so dashboard shortcuts ("Tilføj telefon"/"Tilføj adresse") are actionable.
+  const editParam = searchParams.get("edit") as EditorKey | null;
+  useEffect(() => {
+    if (!editParam) return;
+    if (!EDITOR_KEYS.includes(editParam)) return;
+    setOpenEditor(editParam);
+    const next = new URLSearchParams(searchParams);
+    next.delete("edit");
+    setSearchParams(next, { replace: true });
+  }, [editParam, searchParams, setSearchParams]);
+
   const greeting = useMemo(() => {
     const h = new Date().getHours();
     if (h < 10) return t("greeting.morning");
@@ -126,7 +144,7 @@ export default function CustomerProfileV2() {
   }, [t]);
 
   if (!authLoading && !user) {
-    navigate("/login?redirect=/customer/profile");
+    navigate(localize("/login?redirect=/customer/profile"));
     return null;
   }
 
@@ -226,7 +244,14 @@ export default function CustomerProfileV2() {
             </li>
             <li className="flex items-center gap-3">
               <Phone className="h-4 w-4 shrink-0 text-muted-foreground" />
-              <span className="truncate">{p?.phone || t("profileV2.contact.noPhone")}</span>
+              {p?.phone ? (
+                <span className="truncate">{p.phone}</span>
+              ) : (
+                <Button variant="link" size="sm" className="h-auto p-0"
+                  onClick={() => setOpenEditor("contact")}>
+                  {t("surfaces.dashboard.complete.addPhone")}
+                </Button>
+              )}
             </li>
             <li className="flex items-center gap-3">
               <MessageSquare className="h-4 w-4 shrink-0 text-muted-foreground" />
@@ -339,7 +364,7 @@ export default function CustomerProfileV2() {
       <div className="grid gap-4 lg:grid-cols-2">
         <SectionCard title={t("profileV2.privacy.title")} action={
           <Button asChild variant="ghost" size="sm">
-            <Link to="/privatliv"><Pencil className="mr-1 h-4 w-4" /> {t("profileV2.open")}</Link>
+            <Link to={localize("/privatliv")}><Pencil className="mr-1 h-4 w-4" /> {t("profileV2.open")}</Link>
           </Button>
         }>
           <p className="text-sm text-muted-foreground">
@@ -368,11 +393,11 @@ export default function CustomerProfileV2() {
 
       <SectionCard title={t("profileV2.shortcuts.title")}>
         <div className="grid gap-3 sm:grid-cols-2">
-          <QuickActionCard title={t("profileV2.shortcuts.myBookings")} description={t("profileV2.shortcuts.myBookingsDescription")} icon={Calendar} to="/customer/bookings" />
-          <QuickActionCard title={t("profileV2.shortcuts.messages")} description={t("profileV2.shortcuts.messagesDescription")} icon={Inbox} to="/customer/notifications" />
-          <QuickActionCard title={t("profileV2.shortcuts.cards")} description={t("profileV2.shortcuts.cardsDescription")} icon={CreditCard} to="/customer/cards" />
-          <QuickActionCard title={t("profileV2.shortcuts.invoices")} description={t("profileV2.shortcuts.invoicesDescription")} icon={FileText} to="/customer/invoices" />
-          <QuickActionCard title={t("profileV2.shortcuts.support")} description={t("profileV2.shortcuts.supportDescription")} icon={LifeBuoy} to="/faq" />
+          <QuickActionCard title={t("profileV2.shortcuts.myBookings")} description={t("profileV2.shortcuts.myBookingsDescription")} icon={Calendar} to={localize("/customer/bookings")} />
+          <QuickActionCard title={t("profileV2.shortcuts.messages")} description={t("profileV2.shortcuts.messagesDescription")} icon={Inbox} to={localize("/customer/notifications")} />
+          <QuickActionCard title={t("profileV2.shortcuts.cards")} description={t("profileV2.shortcuts.cardsDescription")} icon={CreditCard} to={localize("/customer/cards")} />
+          <QuickActionCard title={t("profileV2.shortcuts.invoices")} description={t("profileV2.shortcuts.invoicesDescription")} icon={FileText} to={localize("/customer/invoices")} />
+          <QuickActionCard title={t("profileV2.shortcuts.support")} description={t("profileV2.shortcuts.supportDescription")} icon={LifeBuoy} to={localize("/faq")} />
           <button type="button" onClick={() => setOpenEditor("tax")}
             className="group flex min-h-[88px] items-center gap-4 rounded-2xl border border-border bg-card p-4 text-left transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:p-5">
             <span aria-hidden
