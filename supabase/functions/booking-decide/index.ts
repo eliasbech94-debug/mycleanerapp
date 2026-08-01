@@ -55,6 +55,14 @@ Deno.serve(monitored("booking-decide", async (req, _log) => {
     if (!profile?.provider_id || profile.provider_id !== b.provider_id) {
       throw new Error("Not your booking");
     }
+
+    // Activation gate: only an active, approved provider may accept or decline
+    // real booking requests. Fail-closed for paused/suspended/rejected/pending
+    // providers and for providers without a profile.
+    const authCtx = await authenticate(req, corsHeaders);
+    if (authCtx instanceof Response) return authCtx;
+    const decideGate = await requireActiveProvider(authCtx, corsHeaders);
+    if (decideGate instanceof Response) return decideGate;
     if (b.status !== "pending") throw new Error(`Already ${b.status}`);
 
     if (decision === "accepted") {

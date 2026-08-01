@@ -96,6 +96,13 @@ Deno.serve(monitored("booking-cancel", async (req, _log) => {
     const actor_role: "customer" | "provider" | "admin" =
       isAdmin ? "admin" : isCustomer ? "customer" : "provider";
 
+    // Providers may only drive the booking lifecycle while operational.
+    // Paused providers keep servicing bookings they already hold.
+    if (actor_role === "provider") {
+      const cancelGate = await requireActiveProvider(ctx, corsHeaders, { allowPaused: true });
+      if (cancelGate instanceof Response) return cancelGate;
+    }
+
     if (["cancelled","completed","declined"].includes(booking.status)) {
       return json({ error: "booking_not_cancellable", status: booking.status }, 409);
     }

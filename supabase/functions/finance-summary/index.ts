@@ -47,6 +47,10 @@ Deno.serve(async (req) => {
   if (scope === "admin") {
     const forbidden = requireRole(ctx, ["admin", "employee"], corsHeaders);
     if (forbidden) return forbidden;
+  } else if (!isAdmin) {
+    // Provider-scoped financial operations require an operating provider.
+    const financeGate = await requireActiveProvider(ctx, corsHeaders, { allowPaused: true });
+    if (financeGate instanceof Response) return financeGate;
   }
 
   const { admin } = ctx;
