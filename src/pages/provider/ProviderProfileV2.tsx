@@ -23,12 +23,12 @@ import {
   SectionErrorState, SectionEditDialog,
 } from "@/components/dashboard/primitives";
 import {
-import { useCountryPath } from "@/lib/countryPath";
   AreaEditor, AvailabilityEditor, BusinessEditor, DocumentsEditor,
   EquipmentEditor, IdentityEditor, InsuranceEditor, LanguagesEditor,
   PersonalEditor, PricingEditor, ServicesEditor, SettingsEditor,
   StripeEditor, TaxEditor,
 } from "@/components/profile/provider-editors";
+import { useCountryPath } from "@/lib/countryPath";
 
 type EditorKey =
   | "personal" | "business" | "languages" | "equipment" | "services"

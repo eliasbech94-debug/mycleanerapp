@@ -17,7 +17,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-import { useCountryPath } from "@/lib/countryPath";
   APPEAL_RESPONSE_DAYS,
   APPEAL_STATUS_LABEL,
   DECISION_LABEL,
@@ -37,6 +36,7 @@ import { useCountryPath } from "@/lib/countryPath";
   type AppealEvent,
   type DecisionNotice,
 } from "@/lib/appeals";
+import { useCountryPath } from "@/lib/countryPath";
 
 const dtf = new Intl.DateTimeFormat("da-DK", {
   day: "numeric",

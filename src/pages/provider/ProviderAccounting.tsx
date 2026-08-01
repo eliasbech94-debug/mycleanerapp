@@ -11,7 +11,6 @@ import type { MonthlyReportRecord } from "@/lib/accounting/monthlyReport";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
 import type {
-import { useCountryPath } from "@/lib/countryPath";
   AccountingPeriod,
   AccountingRulePack,
   CalculationResult,
@@ -19,6 +18,7 @@ import { useCountryPath } from "@/lib/countryPath";
   JurisdictionResolution,
   ProviderAccountingProfile,
 } from "@/lib/accounting";
+import { useCountryPath } from "@/lib/countryPath";
 
 interface AccountingPayload {
   provider: ProviderAccountingProfile;
