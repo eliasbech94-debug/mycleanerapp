@@ -128,6 +128,9 @@ const COUNTRY_ROUTE_PREFIXES = ["dk", "gb", "se", "es", "de"] as const;
  * remainder path, so /dk/faq resolves to /faq inside this tree without
  * duplicating any route definition. Business algorithms untouched.
  */
+
+
+
 export function AppRoutes() {
   return (
     <Routes>
@@ -266,6 +269,7 @@ export function AppRoutes() {
           }
         />
       )}
+
 
       <Route path="/not-found" element={<NotFound />} />
       <Route path="*" element={<NotFound />} />

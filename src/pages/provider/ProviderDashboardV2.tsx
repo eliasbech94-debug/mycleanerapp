@@ -152,7 +152,7 @@ export default function ProviderDashboardV2() {
           )}
 
           {/* Stats */}
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
             <StatCard
               label={t("dashboard.stats.completedBookings")}
               value={data.stats.completed}
