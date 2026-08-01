@@ -145,17 +145,25 @@ async function main() {
     op: "grant", target_user_id: customer.id, role: "admin", reason: "privilege regression",
   });
   check("super_admin: can grant 'admin'", grantAdmin.status === 200, `HTTP ${grantAdmin.status}`);
-  check("role change reports session invalidation", grantAdmin.body?.sessions_invalidated === true);
+  check("role change signals client session reload", grantAdmin.body?.session_reload_signalled === true);
+  check("role change reports immediate effect", grantAdmin.body?.privileges_effective === "immediate");
 
-  // 7 — the old session's refresh token must be dead after a role change
-  const refreshOld = await fetch(`${URL_}/auth/v1/token?grant_type=refresh_token`, {
-    method: "POST",
-    headers: { apikey: ANON, "Content-Type": "application/json" },
-    body: JSON.stringify({ refresh_token: customer.refresh }),
+  // 7 — the EXISTING (pre-change) token must immediately reflect the new roles:
+  // privileges are re-derived server-side per request, never read from the JWT.
+  const staleGrant = await callFn(customer, "admin-user-role", {
+    op: "grant", target_user_id: provider.id, role: "customer",
   });
-  check("role change invalidates existing session (refresh rejected)", refreshOld.status >= 400, `HTTP ${refreshOld.status}`);
+  check(
+    "existing session immediately gains new privileges without re-login",
+    staleGrant.status === 200,
+    `HTTP ${staleGrant.status}`,
+  );
+  const staleRoles = await fetch(`${URL_}/rest/v1/user_roles?select=role&user_id=eq.${provider.id}`, {
+    headers: { apikey: ANON, Authorization: `Bearer ${customer.token}` },
+  });
+  check("existing session sees refreshed roles via RLS (admin read)", staleRoles.status === 200, `HTTP ${staleRoles.status}`);
 
-  // re-login → now an admin (non super_admin) session
+  // re-login → still an admin (non super_admin) session
   const admin = await login(process.env.T1_EMAIL!, process.env.T_PASSWORD!, "admin");
   customer = admin;
 
