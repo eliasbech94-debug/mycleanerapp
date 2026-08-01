@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { useProviderApprovalStatus } from "@/hooks/useProviderApprovalStatus";
+import { useCountryPath } from "@/lib/countryPath";
 import type { GateKey } from "@/lib/providerApproval/gates";
 
 interface GateMeta {
@@ -68,6 +69,7 @@ const PHOTO_REASONS: Record<string, string> = {
 
 export function ProviderApprovalChecklist({ className }: { className?: string }) {
   const { status, gates, loading, error, refresh } = useProviderApprovalStatus();
+  const localize = useCountryPath();
 
   const passed = useMemo(
     () => (gates ? GATES.filter((g) => gates[g.key]).length : 0),
@@ -175,7 +177,7 @@ export function ProviderApprovalChecklist({ className }: { className?: string })
                 )}
                 {!ok && !inReview && g.to && (
                   <Button asChild variant="link" size="sm" className="h-auto px-0">
-                    <Link to={g.to}>Gør det færdigt</Link>
+                    <Link to={localize(g.to)}>Gør det færdigt</Link>
                   </Button>
                 )}
               </div>
