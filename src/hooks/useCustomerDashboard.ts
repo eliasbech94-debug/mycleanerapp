@@ -35,6 +35,8 @@ export interface CustomerDashboardData {
     totalSpentMinor: number;
     currency: string | null;
   };
+  /** Profile gaps the customer can close from the dashboard. */
+  missing: { phone: boolean; address: boolean };
 }
 
 export type CustomerDashboardResult = CustomerDashboardData & {
@@ -53,6 +55,7 @@ const EMPTY_DATA: CustomerDashboardData = {
   upcoming: [],
   history: [],
   stats: { completed: 0, upcoming: 0, totalSpentMinor: 0, currency: null },
+  missing: { phone: false, address: false },
 };
 
 export function useCustomerDashboard(): CustomerDashboardResult {
@@ -139,6 +142,10 @@ export function useCustomerDashboard(): CustomerDashboardResult {
         upcoming: upcoming.length,
         totalSpentMinor,
         currency,
+      },
+      missing: {
+        phone: !profile?.phone,
+        address: !profile?.address,
       },
     });
     setSliceErrors({ profile: profileRes.error, bookings: bookingsRes.error });
