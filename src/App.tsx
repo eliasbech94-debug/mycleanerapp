@@ -106,6 +106,8 @@ import { LegalUpdateGate } from "./components/legal/LegalUpdateGate";
 import EarlyAccessRouteGuard from "@/components/launch/EarlyAccessRouteGuard";
 import WelcomeVideoGate from "@/components/onboarding/WelcomeVideoGate";
 import FirstJobCelebrationGate from "@/components/celebration/FirstJobCelebrationGate";
+import PrefixedNavigate from "@/components/routing/PrefixedNavigate";
+
 
 import EarlyAccessBannerSlot from "@/components/launch/EarlyAccessBannerSlot";
 
