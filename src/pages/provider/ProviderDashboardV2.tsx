@@ -59,6 +59,7 @@ import { formatMoney } from "@/i18n/money";
 export default function ProviderDashboardV2() {
   const { t } = useTranslation("provider");
   const data = useProviderDashboard();
+  const localize = useCountryPath();
   const notifications = useNotifications();
 
   const nextJob = data.upcoming[0] ?? null;
@@ -113,7 +114,7 @@ export default function ProviderDashboardV2() {
               }
               actions={
                 <Button asChild size="sm" variant="outline">
-                  <Link to="/provider/profile">{t("dashboard.editProfile")}</Link>
+                  <Link to={localize("/provider/profile")}>{t("dashboard.editProfile")}</Link>
                 </Button>
               }
             />
@@ -271,38 +272,38 @@ export default function ProviderDashboardV2() {
                       title={t("dashboard.shortcuts.messages.title")}
                       description={t("dashboard.shortcuts.messages.description")}
                       icon={MessageSquare}
-                      to="/inbox"
+                      to={localize("/inbox")}
                       badge={notifications.unread > 0 ? `${notifications.unread}` : undefined}
                     />
                     <QuickActionCard
                       title={t("dashboard.shortcuts.pricing.title")}
                       description={t("dashboard.shortcuts.pricing.description")}
                       icon={Sparkles}
-                      to="/provider/pricing"
+                      to={localize("/provider/pricing")}
                     />
                     <QuickActionCard
                       title={t("dashboard.shortcuts.finance.title")}
                       description={t("dashboard.shortcuts.finance.description")}
                       icon={CreditCard}
-                      to="/provider/finance"
+                      to={localize("/provider/finance")}
                     />
                     <QuickActionCard
                       title={t("dashboard.shortcuts.receipts.title")}
                       description={t("dashboard.shortcuts.receipts.description")}
                       icon={FileText}
-                      to="/provider/bilag"
+                      to={localize("/provider/bilag")}
                     />
                     <QuickActionCard
                       title={t("dashboard.shortcuts.profile.title")}
                       description={t("dashboard.shortcuts.profile.description")}
                       icon={Settings}
-                      to="/provider/profile"
+                      to={localize("/provider/profile")}
                     />
                     <QuickActionCard
                       title={t("dashboard.shortcuts.support.title")}
                       description={t("dashboard.shortcuts.support.description")}
                       icon={LifeBuoy}
-                      to="/faq"
+                      to={localize("/faq")}
                     />
                   </div>
                 </SectionCard>
@@ -348,7 +349,7 @@ export default function ProviderDashboardV2() {
                   title={t("dashboard.payouts.title")}
                   action={
                     <Link
-                      to="/provider/finance"
+                      to={localize("/provider/finance")}
                       className="text-xs font-semibold uppercase tracking-wide text-primary hover:underline"
                     >
                       {t("dashboard.payouts.seeAll")}
