@@ -108,8 +108,9 @@ Deno.serve(async (req) => {
     ? Array.from(new Set([...prevRoles, role]))
     : prevRoles.filter((r) => r !== role);
 
-  // Role change must take effect immediately: kill the target's active sessions.
-  const sessions_invalidated = await invalidateUserSessions(target_user_id);
+  // Role change takes effect immediately (server re-derives roles per request);
+  // signal connected clients so they re-validate their session and reload roles.
+  const session_reload_signalled = await signalRoleChange(ctx.admin, target_user_id);
 
   await writeAudit(ctx.admin, req, {
     actor_user_id: ctx.user.id,
@@ -119,8 +120,13 @@ Deno.serve(async (req) => {
     target_id: target_user_id,
     previous_state: { roles: prevRoles },
     new_state: { roles: newRoles },
-    metadata: { role, reason, sessions_invalidated },
+    metadata: { role, reason, session_reload_signalled },
   });
 
-  return json(200, { ok: true, roles: newRoles, sessions_invalidated });
+  return json(200, {
+    ok: true,
+    roles: newRoles,
+    privileges_effective: "immediate",
+    session_reload_signalled,
+  });
 });
