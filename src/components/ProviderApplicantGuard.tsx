@@ -7,9 +7,19 @@ import { Loader2, ShieldAlert } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserRoles } from "@/hooks/useUserRoles";
 import { supabase } from "@/integrations/supabase/client";
-import { useCountryPath, loginPathWithRedirect } from "@/lib/countryPath";
+import { useCountryPath } from "@/lib/countryPath";
 
 type Props = { children: ReactNode; autoStart?: boolean };
+
+function providerSignupPath(localize: (path: string) => string, redirectTo: string): string {
+  const loginPath = localize("/login");
+  const params = new URLSearchParams({
+    mode: "signup",
+    role: "provider",
+    redirect: redirectTo,
+  });
+  return `${loginPath}?${params.toString()}`;
+}
 
 export function ProviderApplicantGuard({ children, autoStart = true }: Props) {
   const location = useLocation();
@@ -55,7 +65,10 @@ export function ProviderApplicantGuard({ children, autoStart = true }: Props) {
       </div>
     );
   }
-  if (!user) return <Navigate to={loginPathWithRedirect(localize, location.pathname + location.search)} replace />;
+  if (!user) {
+    const redirectTo = location.pathname + location.search;
+    return <Navigate to={providerSignupPath(localize, redirectTo)} replace />;
+  }
 
   if (status === "archived" && !isAdmin) {
     return (
