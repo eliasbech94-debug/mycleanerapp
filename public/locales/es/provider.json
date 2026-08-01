@@ -1,4 +1,61 @@
 {
+  "activation": {
+    "badge": "Acceso limitado",
+    "checklistTitle": "Tus próximos pasos",
+    "lockedDescription": "Las solicitudes de reserva, los datos de clientes, los pagos y la gestión de trabajos aún no están disponibles.",
+    "lockedTitle": "Bloqueado hasta la aprobación",
+    "restricted": {
+      "description": "Tu perfil aún no está activo. Completa aquí tu incorporación: las reservas, los clientes y las funciones financieras se desbloquean cuando te aprobemos.",
+      "title": "Panel de incorporación"
+    },
+    "states": {
+      "archived": {
+        "description": "Tu perfil de profesional está archivado. Contacta con soporte para conocer tus opciones.",
+        "title": "Archivado"
+      },
+      "missing_identity": {
+        "description": "Necesitamos verificar tu identidad antes de que puedas recibir reservas.",
+        "title": "Falta la identidad"
+      },
+      "missing_profile_details": {
+        "description": "Completa los datos que faltan en tu perfil antes de que podamos aprobarte.",
+        "title": "Faltan datos del perfil"
+      },
+      "missing_stripe": {
+        "description": "Termina la configuración de pagos para poder recibir cobros.",
+        "title": "Falta Stripe"
+      },
+      "no_profile": {
+        "description": "No encontramos un perfil de profesional en tu cuenta. Crea tu perfil o contacta con soporte.",
+        "title": "Sin perfil de profesional"
+      },
+      "paused": {
+        "description": "Tu perfil está en pausa. No recibirás trabajos nuevos hasta que lo reanudes.",
+        "title": "Perfil en pausa"
+      },
+      "pending_review": {
+        "description": "Estamos revisando tu perfil. Te avisaremos en cuanto te aprobemos.",
+        "title": "Pendiente de aprobación"
+      },
+      "rejected": {
+        "description": "Tu solicitud fue rechazada. Puedes leer los motivos y recurrir la decisión.",
+        "title": "Rechazado"
+      },
+      "suspended": {
+        "description": "Tu perfil está suspendido. Consulta la decisión o contacta con soporte.",
+        "title": "Suspendido"
+      }
+    },
+    "statusLabel": "Estado",
+    "steps": {
+      "appeal": "Ver decisión",
+      "documents": "Subir documentos",
+      "identity": "Verificar identidad",
+      "profile": "Completar perfil",
+      "stripe": "Configurar pagos",
+      "support": "Contactar con soporte"
+    }
+  },
   "booking": {
     "atSlot": "a las {{slot}}",
     "defaultService": "Limpieza",

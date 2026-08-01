@@ -4,6 +4,8 @@ import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { createClient } from "npm:@supabase/supabase-js@2";
 
 import { monitored } from "../_shared/logger.ts";
+import { authenticate } from "../_shared/auth.ts";
+import { requireActiveProvider } from "../_shared/providerGate.ts";
 async function stripePost(path: string, key: string) {
   const res = await fetch(`https://api.stripe.com/v1${path}`, {
     method: "POST", headers: { Authorization: `Bearer ${key}` },
@@ -53,6 +55,14 @@ Deno.serve(monitored("booking-decide", async (req, _log) => {
     if (!profile?.provider_id || profile.provider_id !== b.provider_id) {
       throw new Error("Not your booking");
     }
+
+    // Activation gate: only an active, approved provider may accept or decline
+    // real booking requests. Fail-closed for paused/suspended/rejected/pending
+    // providers and for providers without a profile.
+    const authCtx = await authenticate(req, corsHeaders);
+    if (authCtx instanceof Response) return authCtx;
+    const decideGate = await requireActiveProvider(authCtx, corsHeaders);
+    if (decideGate instanceof Response) return decideGate;
     if (b.status !== "pending") throw new Error(`Already ${b.status}`);
 
     if (decision === "accepted") {

@@ -1,6 +1,7 @@
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import ICAL from "npm:ical.js@2.1.0";
 import { authenticate } from "../_shared/auth.ts";
+import { requireActiveProvider } from "../_shared/providerGate.ts";
 import type { SupabaseClient } from "npm:@supabase/supabase-js@2";
 
 const MAX_FEED_BYTES = 2_000_000;
@@ -234,6 +235,10 @@ Deno.serve(async (req) => {
     .eq("user_id", ctx.user.id)
     .maybeSingle();
   if (!providerProfile) return json({ error: "provider_profile_required" }, 403);
+  // Availability sync feeds dispatch — non-operating providers must not be
+  // able to publish availability.
+  const calendarGate = await requireActiveProvider(ctx, corsHeaders, { allowPaused: true });
+  if (calendarGate instanceof Response) return calendarGate;
 
   const body = await req.json().catch(() => ({}));
   const action = String(body.action || "");

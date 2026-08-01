@@ -1,4 +1,61 @@
 {
+  "activation": {
+    "badge": "Begrænset adgang",
+    "checklistTitle": "Dine næste trin",
+    "lockedDescription": "Bookinganmodninger, kundeoplysninger, udbetalinger og opgavestyring er ikke tilgængelige endnu.",
+    "lockedTitle": "Låst indtil godkendelse",
+    "restricted": {
+      "description": "Din profil er endnu ikke aktiv. Du kan færdiggøre din onboarding her — bookinger, kunder og økonomiske funktioner åbnes, når du er godkendt.",
+      "title": "Onboarding-dashboard"
+    },
+    "states": {
+      "archived": {
+        "description": "Din providerprofil er arkiveret. Kontakt support for at høre om mulighederne.",
+        "title": "Arkiveret"
+      },
+      "missing_identity": {
+        "description": "Vi skal bekræfte din identitet, før du kan modtage bookinger.",
+        "title": "Mangler identitet"
+      },
+      "missing_profile_details": {
+        "description": "Udfyld de resterende oplysninger i din profil, før vi kan godkende dig.",
+        "title": "Mangler profiloplysninger"
+      },
+      "missing_stripe": {
+        "description": "Færdiggør din udbetalingsopsætning, så du kan modtage betalinger.",
+        "title": "Mangler Stripe"
+      },
+      "no_profile": {
+        "description": "Vi kunne ikke finde en providerprofil på din konto. Opret din profil eller kontakt support.",
+        "title": "Ingen providerprofil"
+      },
+      "paused": {
+        "description": "Din profil er sat på pause. Du modtager ingen nye opgaver, før du genoptager den.",
+        "title": "Profil på pause"
+      },
+      "pending_review": {
+        "description": "Vi gennemgår din profil. Du får besked, så snart du er godkendt.",
+        "title": "Afventer godkendelse"
+      },
+      "rejected": {
+        "description": "Din ansøgning blev afvist. Du kan se begrundelsen og anke afgørelsen.",
+        "title": "Afvist"
+      },
+      "suspended": {
+        "description": "Din profil er suspenderet. Se afgørelsen eller kontakt support.",
+        "title": "Suspenderet"
+      }
+    },
+    "statusLabel": "Status",
+    "steps": {
+      "appeal": "Se afgørelse",
+      "documents": "Upload dokumenter",
+      "identity": "Verificér identitet",
+      "profile": "Færdiggør profil",
+      "stripe": "Opsæt udbetalinger",
+      "support": "Kontakt support"
+    }
+  },
   "booking": {
     "atSlot": "kl. {{slot}}",
     "defaultService": "Rengøring",

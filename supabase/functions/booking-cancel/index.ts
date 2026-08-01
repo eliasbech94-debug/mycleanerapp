@@ -6,6 +6,7 @@ import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import Stripe from "npm:stripe@17";
 import { authenticate } from "../_shared/auth.ts";
+import { requireActiveProvider } from "../_shared/providerGate.ts";
 import { writeAudit } from "../_shared/audit.ts";
 import { notifyUser } from "../_shared/notify.ts";
 import {
@@ -94,6 +95,13 @@ Deno.serve(monitored("booking-cancel", async (req, _log) => {
 
     const actor_role: "customer" | "provider" | "admin" =
       isAdmin ? "admin" : isCustomer ? "customer" : "provider";
+
+    // Providers may only drive the booking lifecycle while operational.
+    // Paused providers keep servicing bookings they already hold.
+    if (actor_role === "provider") {
+      const cancelGate = await requireActiveProvider(ctx, corsHeaders, { allowPaused: true });
+      if (cancelGate instanceof Response) return cancelGate;
+    }
 
     if (["cancelled","completed","declined"].includes(booking.status)) {
       return json({ error: "booking_not_cancellable", status: booking.status }, 409);
