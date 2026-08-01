@@ -10,6 +10,7 @@ import {
   ListChecks,
   MapPin,
   MessageSquare,
+  Phone,
   Sparkles,
   UserCircle,
   Wallet,
@@ -346,10 +347,11 @@ const STATUS_META: Record<
 
 function BookingRow({ booking, highlight }: { booking: CustomerBooking; highlight?: boolean }) {
   const meta = STATUS_META[booking.status];
+  const localize = useCountryPath();
   return (
     <li>
       <Link
-        to={`/booking/${booking.id}/plan`}
+        to={localize(`/booking/${booking.id}/plan`)}
         className={`block rounded-xl border p-4 transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-sm ${
           highlight ? "border-primary/40 bg-primary/5" : "border-border bg-background/50"
         }`}
