@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserRoles } from "@/hooks/useUserRoles";
+import { supabase } from "@/integrations/supabase/client";
 import {
   identifyCrispUser,
   loadCrisp,
@@ -30,12 +31,17 @@ function metadataDisplayName(user: { user_metadata?: Record<string, unknown> } |
   return null;
 }
 
+type CrispContextResponse = {
+  identity?: { email?: string | null; name?: string | null; phone?: string | null };
+  snapshot?: Record<string, string>;
+};
+
+type CrispIdentityResponse = { email?: string; signature?: string };
+
 /**
- * Mounts Crisp app-wide in hidden mode.
- *
- * The floating bubble is never rendered. This provider only exists so the
- * support session carries trustworthy identity and navigation context; the
- * visible chat is embedded in the Support Center.
+ * Mounts Crisp app-wide in hidden mode and supplies verified identity plus a
+ * read-only support snapshot. Crisp is the operator workspace; MyCleaner stays
+ * the authoritative source for accounts, bookings and payments.
  */
 export function CrispProvider() {
   const { user, profile } = useAuth();
@@ -63,12 +69,15 @@ export function CrispProvider() {
   }, [i18n.language, user?.id]);
 
   useEffect(() => {
+    let cancelled = false;
+
     if (!user) {
-      // Signing out must not leak the previous user's history on shared devices.
       resetCrispSession();
       return;
     }
 
+    // Immediate baseline identity; the signed email below replaces it once the
+    // backend signature is available.
     identifyCrispUser({
       userId: user.id,
       email: user.email,
@@ -81,15 +90,29 @@ export function CrispProvider() {
       customerId: roles.includes("customer") ? user.id : null,
     });
 
-    crispPush([
-      "set",
-      "session:data",
-      [[
-        ["authenticated", "true"],
-        ["account_created_at", user.created_at ?? ""],
-        ["support_identity_version", "2"],
-      ]],
-    ]);
+    async function hydrateTrustedSupportContext() {
+      const [{ data: identityData }, { data: contextData }] = await Promise.all([
+        supabase.functions.invoke<CrispIdentityResponse>("crisp-identity", { method: "POST" }),
+        supabase.functions.invoke<CrispContextResponse>("crisp-context", { method: "POST" }),
+      ]);
+      if (cancelled) return;
+
+      if (identityData?.email && identityData.signature) {
+        crispPush(["set", "user:email", [identityData.email, identityData.signature]]);
+      }
+
+      const trustedIdentity = contextData?.identity;
+      if (trustedIdentity?.name) crispPush(["set", "user:nickname", [trustedIdentity.name]]);
+      if (trustedIdentity?.phone) crispPush(["set", "user:phone", [trustedIdentity.phone]]);
+
+      const entries = Object.entries(contextData?.snapshot ?? {})
+        .filter(([, value]) => value !== "")
+        .map(([key, value]) => [key, value] as [string, string]);
+      if (entries.length) crispPush(["set", "session:data", [entries]]);
+    }
+
+    void hydrateTrustedSupportContext();
+    return () => { cancelled = true; };
   }, [
     user,
     displayName,
