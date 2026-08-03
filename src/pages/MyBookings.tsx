@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, Calendar, Clock, Loader2, MapPin, Sparkles } from "lucide-react";
+import { ArrowLeft, Calendar, Clock, LifeBuoy, Loader2, MapPin, Sparkles } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import CleaningPlanPanel from "@/components/booking/CleaningPlanPanel";
@@ -75,7 +75,7 @@ export default function MyBookings() {
 
   useEffect(() => {
     if (!loading && !user) navigate(loginPathWithRedirect(localize, "/mine-bookinger"));
-  }, [loading, user, navigate]);
+  }, [loading, user, navigate, localize]);
 
   useEffect(() => {
     if (!user) return;
@@ -134,8 +134,15 @@ export default function MyBookings() {
             const s = STATUS_LABEL[b.status];
             const d = new Date(b.booking_date).toLocaleDateString("da-DK", { weekday: "long", day: "numeric", month: "long" });
             const activeTab: TabKey = tabs[b.id] ?? "overview";
-            const setTab = (t: TabKey) => setTabs(prev => ({ ...prev, [b.id]: t }));
+            const setTab = (tab: TabKey) => setTabs(prev => ({ ...prev, [b.id]: tab }));
             const canPlan = b.status === "accepted" || b.status === "pending" || b.status === "completed";
+            const supportParams = new URLSearchParams({
+              topic: b.status === "completed" ? "provider_issue" : "booking",
+              booking: b.id,
+              m: `Jeg har brug for hjælp til booking ${b.id.slice(0, 8)} (${b.provider_name}).`,
+            });
+            const supportHref = `${localize("/support")}?${supportParams.toString()}`;
+
             return (
               <div key={b.id} className="rounded-2xl border-2 bg-white p-5" style={{ borderColor: `${C.ink}22` }}>
                 <div className="flex items-start justify-between gap-3">
@@ -148,25 +155,24 @@ export default function MyBookings() {
                   </span>
                 </div>
 
-                {/* Tabs */}
                 <div role="tablist" aria-label="Booking-visning" className="mt-4 inline-flex rounded-full border-2 p-1" style={{ borderColor: `${C.ink}22` }}>
                   {[
                     { key: "overview" as const, label: "Oversigt" },
                     { key: "plan" as const, label: "Rengøringsplan" },
-                  ].map(t => {
-                    const isActive = activeTab === t.key;
+                  ].map(tab => {
+                    const isActive = activeTab === tab.key;
                     return (
                       <button
-                        key={t.key}
+                        key={tab.key}
                         role="tab"
                         aria-selected={isActive}
-                        onClick={() => setTab(t.key)}
+                        onClick={() => setTab(tab.key)}
                         className="rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] transition-colors"
                         style={isActive
                           ? { background: C.ink, color: C.cream }
                           : { background: "transparent", color: C.ink }}
                       >
-                        {t.label}
+                        {tab.label}
                       </button>
                     );
                   })}
@@ -184,6 +190,15 @@ export default function MyBookings() {
                       <span className="opacity-60">{t("ui.myBookings.totalWithFee")}</span>
                       <span className="font-display text-base">{b.customer_pays.toLocaleString("da-DK")} {b.currency}</span>
                     </div>
+                    <Link
+                      to={supportHref}
+                      className="mt-4 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full border-2 px-4 py-2.5 text-xs font-black uppercase tracking-[0.14em] transition-colors hover:bg-black/5 focus:outline-none focus:ring-2 focus:ring-offset-2"
+                      style={{ borderColor: C.ink, color: C.ink }}
+                      aria-label={`Få hjælp til booking ${b.id.slice(0, 8)}`}
+                    >
+                      <LifeBuoy className="h-4 w-4" aria-hidden />
+                      Få hjælp til denne booking
+                    </Link>
                   </>
                 )}
 
@@ -192,7 +207,7 @@ export default function MyBookings() {
                     {canPlan ? (
                       <CleaningPlanPanel
                         bookingId={b.id}
-                        userId={user!.id}
+                        userId={user.id}
                         addressPlaceId={b.address_place_id}
                       />
                     ) : (
