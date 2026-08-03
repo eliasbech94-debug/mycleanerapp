@@ -20,9 +20,10 @@ import {
 import { AlertTriangle, ChevronDown, Tag as TagIcon, User } from "lucide-react";
 import { EscalateDialog } from "./EscalateDialog";
 import { RefundRequestDialog } from "./RefundRequestDialog";
+import type { SupportConversation } from "./types";
 
 interface Props {
-  conversation: any;
+  conversation: SupportConversation;
   isAdmin: boolean;
   currentUserId: string;
 }
@@ -65,7 +66,7 @@ export function ActionBar({ conversation, isAdmin, currentUserId }: Props) {
 }
 
 /* ---------------- Status ---------------- */
-function StatusMenu({ conversation, onDone }: { conversation: any; onDone: () => void }) {
+function StatusMenu({ conversation, onDone }: { conversation: SupportConversation; onDone: () => void }) {
   const from = String(conversation.status);
   const [pending, setPending] = useState<string | null>(null);
   const [reason, setReason] = useState("");
@@ -160,7 +161,7 @@ function StatusMenu({ conversation, onDone }: { conversation: any; onDone: () =>
 }
 
 /* ---------------- Priority ---------------- */
-function PriorityMenu({ conversation, onDone }: { conversation: any; onDone: () => void }) {
+function PriorityMenu({ conversation, onDone }: { conversation: SupportConversation; onDone: () => void }) {
   const current = conversation.priority ?? "normal";
   const [busy, setBusy] = useState(false);
   const submit = async (priority: string) => {
@@ -204,7 +205,7 @@ interface Assignee { user_id: string; full_name: string; roles: string[]; }
 
 function AssignMenu({
   conversation, isAdmin, currentUserId, onDone,
-}: { conversation: any; isAdmin: boolean; currentUserId: string; onDone: () => void }) {
+}: { conversation: SupportConversation; isAdmin: boolean; currentUserId: string; onDone: () => void }) {
   const [busy, setBusy] = useState(false);
   const { data: assignees, isLoading } = useQuery({
     queryKey: ["support", "assignees"],
@@ -303,7 +304,9 @@ function TagsMenu({ conversationId, onDone }: { conversationId: string; onDone: 
         .select("tag_id, conversation_tags(id, slug, name)")
         .eq("conversation_id", conversationId);
       if (error) throw error;
-      return (data ?? []).map((r: any) => r.conversation_tags as Tag).filter(Boolean);
+      return (data ?? [])
+        .map((r) => r.conversation_tags as unknown as Tag | null)
+        .filter((tag): tag is Tag => Boolean(tag));
     },
     staleTime: 30_000,
   });

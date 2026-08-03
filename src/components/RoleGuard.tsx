@@ -1,5 +1,7 @@
+import { useTranslation } from "react-i18next";
 import { ReactNode, useEffect, useRef } from "react";
-import { Navigate, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
+import PrefixedNavigate from "@/components/routing/PrefixedNavigate";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserRoles, AppRole } from "@/hooks/useUserRoles";
 import { Loader2, ShieldAlert } from "lucide-react";
@@ -39,6 +41,7 @@ async function logAccessAttempt(args: {
 }
 
 export function RoleGuard({ allow, children }: Props) {
+  const { t } = useTranslation("common");
   const location = useLocation();
   const { user, loading: authLoading } = useAuth();
   const { roles, isSuperAdmin, loading } = useUserRoles();
@@ -91,7 +94,10 @@ export function RoleGuard({ allow, children }: Props) {
   }
 
   if (!user) {
-    return <Navigate to="/login" replace state={{ from: location.pathname }} />;
+    // Preserve the intended destination so login returns the provider/customer
+    // to the guarded page instead of dumping them on a generic dashboard.
+    const target = encodeURIComponent(location.pathname + location.search);
+    return <PrefixedNavigate to={`/login?redirect=${target}`} />;
   }
 
   // Super-admin har automatisk adgang til alt
@@ -103,7 +109,7 @@ export function RoleGuard({ allow, children }: Props) {
           <div className="mx-auto w-14 h-14 rounded-full bg-destructive/10 flex items-center justify-center">
             <ShieldAlert className="h-7 w-7 text-destructive" />
           </div>
-          <h1 className="text-2xl font-serif">Ingen adgang</h1>
+          <h1 className="text-2xl font-serif">{t("ui.noAccess")}</h1>
           <p className="text-muted-foreground">
             Du har ikke rettigheder til at se denne side. Forsøget er logget.
             Kontakt en administrator hvis du mener det er en fejl.

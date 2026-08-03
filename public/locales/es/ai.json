@@ -1,0 +1,29 @@
+{
+  "disclosure": {
+    "title": "Respuesta del asistente de IA de MyCleaner",
+    "body": "La IA puede cometer errores. Siempre puedes pedir ayuda a una persona.",
+    "talkToHuman": "Hablar con una persona",
+    "requesting": "Transfiriendo …",
+    "requestFailed": "No hemos podido transferir la conversación. Inténtalo de nuevo."
+  },
+  "system": {
+    "automated": "Mensaje automático de MyCleaner"
+  },
+  "handover": {
+    "confirmation": "Por supuesto — paso la conversación al soporte de MyCleaner para que una persona pueda ayudarte.",
+    "active": "Ahora estás hablando con {{firstName}} del soporte de MyCleaner.",
+    "pending": "La conversación se ha transferido al soporte de MyCleaner. Una persona continuará desde aquí.",
+    "expectedResponse": "Tiempo de respuesta estimado: unos {{minutes}} minutos.",
+    "expectedResponseUnknown": "Te responderemos lo antes posible."
+  },
+  "sender": {
+    "customer": "Cliente",
+    "provider": "Provider",
+    "support_agent": "Soporte de MyCleaner",
+    "ai_assistant": "Asistente de IA de MyCleaner",
+    "system": "MyCleaner"
+  },
+  "audit": {
+    "aiAssistedDraft": "La IA ayudó con el borrador — revisado y enviado por una persona del equipo."
+  }
+}

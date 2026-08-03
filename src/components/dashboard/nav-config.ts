@@ -1,4 +1,6 @@
 import {
+  Calendar,
+  Tags,
   LayoutDashboard,
   Users,
   CreditCard,
@@ -34,6 +36,12 @@ export interface NavItem {
    * handled by hasRole()). Defaults inherit from the group.
    */
   roles: AppRole[];
+  /**
+   * Planned surface with no route behind it yet. Rendered as a non-interactive
+   * "Kommer snart" row so it can never look like a working link (no 404s).
+   * `url` is only used as a stable key for these items.
+   */
+  comingSoon?: boolean;
 }
 
 export interface NavGroup {
@@ -126,7 +134,18 @@ const rawConfig: Record<DashboardRole, NavGroup[]> = {
       defaultRoles: ["provider"],
       items: [
         { title: "Dashboard", url: "/provider-dashboard", icon: LayoutDashboard },
-        { title: "Bilag", url: "/provider/bilag", icon: Briefcase },
+        { title: "Bookinganmodninger", url: "#provider-bookings", icon: ListChecks, comingSoon: true },
+        { title: "Kalender & tilgængelighed", url: "/provider/calendar", icon: Calendar },
+        { title: "Beskeder", url: "/inbox", icon: Inbox },
+        { title: "Kunder", url: "#provider-customers", icon: UserSearch, comingSoon: true },
+      ],
+    },
+    {
+      label: "Ydelser",
+      defaultRoles: ["provider"],
+      items: [
+        { title: "Ydelser og priser", url: "/provider/pricing", icon: Tags },
+        { title: "Karriereprofil", url: "/provider/career", icon: Briefcase },
       ],
     },
     {
@@ -134,14 +153,19 @@ const rawConfig: Record<DashboardRole, NavGroup[]> = {
       defaultRoles: ["provider"],
       items: [
         { title: "Indtjening & udbetalinger", url: "/provider/finance", icon: Wallet },
+        { title: "Regnskab", url: "/provider/accounting", icon: BarChart3 },
+        { title: "Bilag", url: "/provider/bilag", icon: FileText },
         { title: "Indsigelser", url: "/provider/disputes", icon: AlertTriangle },
+        { title: "Afgørelser", url: "/provider/decisions", icon: Shield },
       ],
     },
     {
       label: "Konto",
-      defaultRoles: ["provider", "admin", "employee", "customer", "support"],
+      defaultRoles: ["provider"],
       items: [
-        { title: "Profil", url: "/profil", icon: UserCircle },
+        { title: "Profil", url: "/provider/profile", icon: UserCircle },
+        { title: "Indstillinger", url: "#provider-settings", icon: Settings, comingSoon: true },
+        { title: "Support", url: "/faq", icon: HelpCircle },
       ],
     },
   ],

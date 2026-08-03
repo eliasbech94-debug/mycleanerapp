@@ -27,8 +27,9 @@ export interface SumsubConfig {
   secretKey: string;
   webhookSecret: string;
   baseUrl: string;              // e.g. https://api.sumsub.com
-  providerLevel: string;        // e.g. "id-and-liveness-provider"
-  customerLevel: string;        // e.g. "basic-kyc-customer"
+  providerLevel: string;        // e.g. "id-and-liveness" (ID document + liveness)
+  customerLevel: string;        // e.g. "id-only" (ID document only)
+
 }
 
 export function loadSumsubConfigFromEnv(

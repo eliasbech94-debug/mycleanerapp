@@ -4,6 +4,7 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { AlertTriangle, ShieldAlert } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 type Counts = { h24: number; d7: number; d30: number };
 
@@ -12,6 +13,7 @@ type Counts = { h24: number; d7: number; d30: number };
  * or failed handling within the recent window. Auto-refreshes via realtime.
  */
 export default function WebhookAlertBanner({ compact = false }: { compact?: boolean }) {
+  const { t } = useTranslation("common");
   const [counts, setCounts] = useState<Counts>({ h24: 0, d7: 0, d30: 0 });
   const [lastError, setLastError] = useState<string | null>(null);
 
@@ -53,13 +55,13 @@ export default function WebhookAlertBanner({ compact = false }: { compact?: bool
     return (
       <Alert variant="destructive">
         <ShieldAlert className="h-4 w-4" />
-        <AlertTitle>Webhook-fejl registreret</AlertTitle>
+        <AlertTitle>{t("ui.webhookAlertBanner.compactTitle")}</AlertTitle>
         <AlertDescription className="flex items-center justify-between gap-3 flex-wrap">
           <span>
-            {counts.h24} sidste 24t · {counts.d7} sidste 7d · {counts.d30} sidste 30d
+            {t("ui.webhookAlertBanner.compactSummary", { h24: counts.h24, d7: counts.d7, d30: counts.d30 })}
           </span>
           <Button size="sm" variant="outline" asChild>
-            <Link to="/admin/webhooks">Se detaljer</Link>
+            <Link to="/admin/webhooks">{t("ui.webhookAlertBanner.seeDetails")}</Link>
           </Button>
         </AlertDescription>
       </Alert>
@@ -69,7 +71,7 @@ export default function WebhookAlertBanner({ compact = false }: { compact?: bool
   return (
     <Alert variant="destructive">
       <AlertTriangle className="h-4 w-4" />
-      <AlertTitle>Stripe webhook-alarm</AlertTitle>
+      <AlertTitle>{t("ui.webhookAlertBanner.title")}</AlertTitle>
       <AlertDescription className="space-y-2">
         <p>
           Der er afviste eller fejlede webhook-events. Det kan betyde forkert signing
@@ -77,15 +79,15 @@ export default function WebhookAlertBanner({ compact = false }: { compact?: bool
         </p>
         <div className="grid grid-cols-3 gap-2 text-sm">
           <div className="bg-background/40 rounded p-2">
-            <div className="text-xs opacity-80">Sidste 24 timer</div>
+            <div className="text-xs opacity-80">{t("ui.webhookAlertBanner.last24h")}</div>
             <div className="text-xl font-serif">{counts.h24}</div>
           </div>
           <div className="bg-background/40 rounded p-2">
-            <div className="text-xs opacity-80">Sidste 7 dage</div>
+            <div className="text-xs opacity-80">{t("ui.webhookAlertBanner.last7d")}</div>
             <div className="text-xl font-serif">{counts.d7}</div>
           </div>
           <div className="bg-background/40 rounded p-2">
-            <div className="text-xs opacity-80">Sidste 30 dage</div>
+            <div className="text-xs opacity-80">{t("ui.webhookAlertBanner.last30d")}</div>
             <div className="text-xl font-serif">{counts.d30}</div>
           </div>
         </div>
@@ -93,7 +95,7 @@ export default function WebhookAlertBanner({ compact = false }: { compact?: bool
           <p className="text-xs opacity-80 break-all">Seneste fejl: {lastError}</p>
         )}
         <Button size="sm" variant="outline" asChild>
-          <Link to="/admin/webhooks">Åbn webhook-log</Link>
+          <Link to="/admin/webhooks">{t("ui.webhookAlertBanner.openLog")}</Link>
         </Button>
       </AlertDescription>
     </Alert>

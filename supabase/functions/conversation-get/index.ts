@@ -25,7 +25,7 @@ Deno.serve(async (req) => {
     ]);
 
     let msgQ = admin.from("messages")
-      .select("id, sender_user_id, sender_role, message_type, body, is_internal_note, reply_to_message_id, edited_at, created_at, message_attachments(id, original_filename, mime_type, size_bytes, storage_path)")
+      .select("id, sender_user_id, sender_role, sender_type, ai_drafted, ai_draft_reviewed_by, message_type, body, is_internal_note, reply_to_message_id, edited_at, created_at, message_attachments(id, original_filename, mime_type, size_bytes, storage_path)")
       .eq("conversation_id", conversation_id)
       .is("deleted_at", null)
       .order("created_at", { ascending: false })

@@ -1,0 +1,29 @@
+{
+  "disclosure": {
+    "title": "Svar från MyCleaner AI-assistent",
+    "body": "AI kan göra misstag. Du kan alltid be om hjälp från en människa.",
+    "talkToHuman": "Prata med en person",
+    "requesting": "Skickar vidare …",
+    "requestFailed": "Det gick inte att skicka konversationen vidare. Försök igen."
+  },
+  "system": {
+    "automated": "Automatiskt meddelande från MyCleaner"
+  },
+  "handover": {
+    "confirmation": "Självklart — jag skickar konversationen vidare till MyCleaner Support så att en människa kan hjälpa dig.",
+    "active": "Du pratar nu med {{firstName}} från MyCleaner Support.",
+    "pending": "Konversationen har skickats vidare till MyCleaner Support. En människa tar över härifrån.",
+    "expectedResponse": "Förväntad svarstid: cirka {{minutes}} minuter.",
+    "expectedResponseUnknown": "Vi svarar så snart vi kan."
+  },
+  "sender": {
+    "customer": "Kund",
+    "provider": "Provider",
+    "support_agent": "MyCleaner Support",
+    "ai_assistant": "MyCleaner AI-assistent",
+    "system": "MyCleaner"
+  },
+  "audit": {
+    "aiAssistedDraft": "AI hjälpte till med utkastet — granskat och skickat av en medarbetare."
+  }
+}

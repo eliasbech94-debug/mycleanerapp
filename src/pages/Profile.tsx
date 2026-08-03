@@ -13,7 +13,7 @@ import { useUserRoles } from "@/hooks/useUserRoles";
 import { supabase } from "@/integrations/supabase/client";
 import AddressAutocomplete from "@/components/AddressAutocomplete";
 import AddressBook from "@/components/AddressBook";
-import SupportDialog from "@/components/SupportDialog";
+import { useSupportCenter } from "@/hooks/useSupportCenter";
 import { InboxPanel, NotificationBell } from "@/components/Inbox";
 import OnboardingChecklist, { ChecklistItem } from "@/components/OnboardingChecklist";
 import { validateContact, validateAddress, validateProperty, statusFrom } from "@/lib/onboarding-validation";
@@ -23,38 +23,43 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Trans, useTranslation } from "react-i18next";
+import { useCountryPath, loginPathWithRedirect } from "@/lib/countryPath";
 
 const C = { ink: "#0a3d3a", orange: "#ff6b35", cream: "#f5f0e0", teal: "#168a7a", mint: "#c8e6c0" };
 
 type TabKey = "overview" | "inbox" | "info" | "addresses" | "bookings" | "cards" | "invoices" | "history" | "notifications" | "sms" | "tax" | "deduction" | "deactivate";
 
-const TABS: { key: TabKey; label: string; icon: typeof UserIcon }[] = [
-  { key: "overview", label: "Oversigt", icon: LayoutDashboard },
-  { key: "inbox", label: "Indbakke", icon: Inbox },
-  { key: "info", label: "Mine oplysninger", icon: UserIcon },
-  { key: "addresses", label: "Adresser", icon: Home },
-  { key: "bookings", label: "Bookinger", icon: Calendar },
-  { key: "cards", label: "Kort & betalinger", icon: CreditCard },
-  { key: "invoices", label: "Fakturaer", icon: FileText },
-  { key: "history", label: "Betalingshistorik", icon: History },
-  { key: "notifications", label: "Notifikationer", icon: Bell },
-  { key: "sms", label: "SMS", icon: MessageSquare },
-  { key: "tax", label: "Skatteoplysninger", icon: Receipt },
-  { key: "deduction", label: "Servicefradrag", icon: PiggyBank },
-  { key: "deactivate", label: "Deaktivér konto", icon: ShieldOff },
+const TABS: { key: TabKey; icon: typeof UserIcon }[] = [
+  { key: "overview", icon: LayoutDashboard },
+  { key: "inbox", icon: Inbox },
+  { key: "info", icon: UserIcon },
+  { key: "addresses", icon: Home },
+  { key: "bookings", icon: Calendar },
+  { key: "cards", icon: CreditCard },
+  { key: "invoices", icon: FileText },
+  { key: "history", icon: History },
+  { key: "notifications", icon: Bell },
+  { key: "sms", icon: MessageSquare },
+  { key: "tax", icon: Receipt },
+  { key: "deduction", icon: PiggyBank },
+  { key: "deactivate", icon: ShieldOff },
 ];
 
 export default function Profile() {
+  const { t } = useTranslation("customer");
   const { user, loading } = useAuth();
   const { isAdmin, isEmployee, loading: rolesLoading } = useUserRoles();
   const navigate = useNavigate();
+  const localize = useCountryPath();
   const [params, setParams] = useSearchParams();
   const tab = (params.get("tab") as TabKey) || "overview";
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [supportOpen, setSupportOpen] = useState<false | "support" | "complaint">(false);
+  // All support flows funnel into the Support Center (embedded Crisp chat).
+  const { openSupport } = useSupportCenter();
 
   useEffect(() => {
-    if (!loading && !user) navigate("/login?redirect=/profil", { replace: true });
+    if (!loading && !user) navigate(loginPathWithRedirect(localize, "/profil"), { replace: true });
   }, [loading, user, navigate]);
 
   // Admin/employee should not land on customer profile — send them to their dashboard
@@ -88,13 +93,13 @@ export default function Profile() {
         {/* Desktop sidebar */}
         <aside className="hidden lg:block lg:w-64 lg:flex-shrink-0">
           <nav className="sticky top-6 space-y-1">
-            {TABS.map((t) => {
-              const active = tab === t.key;
-              const Icon = t.icon;
+            {TABS.map((item) => {
+              const active = tab === item.key;
+              const Icon = item.icon;
               return (
                 <button
-                  key={t.key}
-                  onClick={() => setParams({ tab: t.key })}
+                  key={item.key}
+                  onClick={() => setParams({ tab: item.key })}
                   className="group flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm font-bold uppercase tracking-[0.12em] transition"
                   style={{
                     background: active ? C.ink : "transparent",
@@ -110,7 +115,7 @@ export default function Profile() {
                   >
                     <Icon className="h-4 w-4" />
                   </span>
-                  <span>{t.label}</span>
+                  <span>{t(`profile.tabs.${item.key}`)}</span>
                   {active && (
                     <span className="ml-auto h-1.5 w-1.5 rounded-full" style={{ background: C.orange }} />
                   )}
@@ -120,18 +125,18 @@ export default function Profile() {
           </nav>
           <div className="sticky top-[calc(100vh-9rem)] mt-8 space-y-1 border-t pt-4" style={{ borderColor: `${C.ink}1f` }}>
             <button
-              onClick={() => setSupportOpen("support")}
+              onClick={() => openSupport({ topic: "account" })}
               className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-[11px] font-bold uppercase tracking-[0.16em] opacity-60 hover:opacity-100"
               style={{ color: C.ink }}
             >
-              <LifeBuoy className="h-3.5 w-3.5" /> Hjælp & support
+              <LifeBuoy className="h-3.5 w-3.5" /> {t("profile.nav.help")}
             </button>
             <button
-              onClick={() => setSupportOpen("complaint")}
+              onClick={() => openSupport({ topic: "provider_issue" })}
               className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-[11px] font-bold uppercase tracking-[0.16em] opacity-60 hover:opacity-100"
               style={{ color: C.ink }}
             >
-              <ShieldAlert className="h-3.5 w-3.5" /> Indsend klage
+              <ShieldAlert className="h-3.5 w-3.5" /> {t("profile.nav.complaint")}
             </button>
           </div>
         </aside>
@@ -145,12 +150,12 @@ export default function Profile() {
               style={{ borderColor: `${C.ink}33`, color: C.ink }}
             >
               <Menu className="h-4 w-4" />
-              {TABS.find((t) => t.key === tab)?.label}
+              {t(`profile.tabs.${tab}`)}
             </button>
             <div
               className="text-[10px] font-black uppercase tracking-[0.22em] opacity-50"
             >
-              {TABS.find((t) => t.key === tab)?.label}
+              {t(`profile.tabs.${tab}`)}
             </div>
           </div>
 
@@ -167,7 +172,7 @@ export default function Profile() {
                 style={{ background: C.cream }}
               >
                 <div className="mb-4 flex items-center justify-between">
-                  <span className="text-xs font-black uppercase tracking-[0.22em] opacity-70">Menu</span>
+                  <span className="text-xs font-black uppercase tracking-[0.22em] opacity-70">{t("profile.nav.menu")}</span>
                   <button
                     onClick={() => setMobileMenuOpen(false)}
                     className="grid h-8 w-8 place-items-center rounded-lg"
@@ -177,14 +182,14 @@ export default function Profile() {
                   </button>
                 </div>
                 <nav className="space-y-1">
-                  {TABS.map((t) => {
-                    const active = tab === t.key;
-                    const Icon = t.icon;
+                  {TABS.map((item) => {
+                    const active = tab === item.key;
+                    const Icon = item.icon;
                     return (
                       <button
-                        key={t.key}
+                        key={item.key}
                         onClick={() => {
-                          setParams({ tab: t.key });
+                          setParams({ tab: item.key });
                           setMobileMenuOpen(false);
                         }}
                         className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-bold uppercase tracking-[0.12em] transition"
@@ -202,7 +207,7 @@ export default function Profile() {
                         >
                           <Icon className="h-4 w-4" />
                         </span>
-                        <span>{t.label}</span>
+                        <span>{t(`profile.tabs.${item.key}`)}</span>
                         {active && (
                           <span className="ml-auto h-1.5 w-1.5 rounded-full" style={{ background: C.orange }} />
                         )}
@@ -212,18 +217,18 @@ export default function Profile() {
                 </nav>
                 <div className="mt-6 space-y-1 border-t pt-4" style={{ borderColor: `${C.ink}1f` }}>
                   <button
-                    onClick={() => { setMobileMenuOpen(false); setSupportOpen("support"); }}
+                    onClick={() => { setMobileMenuOpen(false); openSupport({ topic: "account" }); }}
                     className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-[11px] font-bold uppercase tracking-[0.16em] opacity-70"
                     style={{ color: C.ink }}
                   >
-                    <LifeBuoy className="h-3.5 w-3.5" /> Hjælp & support
+                    <LifeBuoy className="h-3.5 w-3.5" /> {t("profile.nav.help")}
                   </button>
                   <button
-                    onClick={() => { setMobileMenuOpen(false); setSupportOpen("complaint"); }}
+                    onClick={() => { setMobileMenuOpen(false); openSupport({ topic: "provider_issue" }); }}
                     className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-[11px] font-bold uppercase tracking-[0.16em] opacity-70"
                     style={{ color: C.ink }}
                   >
-                    <ShieldAlert className="h-3.5 w-3.5" /> Indsend klage
+                    <ShieldAlert className="h-3.5 w-3.5" /> {t("profile.nav.complaint")}
                   </button>
                 </div>
               </div>
@@ -247,15 +252,16 @@ export default function Profile() {
           {tab === "deactivate" && <DeactivateTab />}
         </div>
       </div>
-      {supportOpen && <SupportDialog mode={supportOpen} onClose={() => setSupportOpen(false)} />}
     </main>
   );
 }
 
-// SupportDialog is imported from components — see src/components/SupportDialog.tsx
+// Legacy in-app SupportDialog is retained in the codebase but no longer mounted;
+// live support runs through the Crisp-backed Support Center at /help.
 
 
 function ProfileHeader() {
+  const { t } = useTranslation("customer");
   const { user, profile, signOut } = useAuth();
   const navigate = useNavigate();
   const [, setParams] = useSearchParams();
@@ -264,16 +270,16 @@ function ProfileHeader() {
       <header className="border-b-2" style={{ background: C.ink, color: C.cream, borderColor: C.ink }}>
         <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-4 sm:px-6">
           <Link to="/" className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em]">
-            <ArrowLeft className="h-4 w-4" /> Tilbage
+            <ArrowLeft className="h-4 w-4" /> {t("profile.nav.back")}
           </Link>
-          <div className="text-[10px] font-black uppercase tracking-[0.28em] opacity-70">Min profil</div>
+          <div className="text-[10px] font-black uppercase tracking-[0.28em] opacity-70">{t("profile.nav.title")}</div>
           <div className="flex items-center gap-1">
             <NotificationBell onOpen={() => setParams({ tab: "inbox" })} />
             <button
               onClick={() => { signOut(); navigate("/"); }}
               className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.18em] opacity-80 hover:opacity-100"
             >
-              <LogOut className="h-3.5 w-3.5" /> Log ud
+              <LogOut className="h-3.5 w-3.5" /> {t("profile.nav.signOut")}
             </button>
           </div>
         </div>
@@ -284,7 +290,7 @@ function ProfileHeader() {
             <UserIcon className="h-7 w-7" />
           </div>
           <div>
-            <h1 className="font-display text-3xl sm:text-4xl">{profile?.full_name || "Din profil"}</h1>
+            <h1 className="font-display text-3xl sm:text-4xl">{profile?.full_name || t("profile.header.defaultName")}</h1>
             <p className="text-sm opacity-70">{user?.email}</p>
           </div>
         </div>
@@ -295,6 +301,7 @@ function ProfileHeader() {
 
 /* ---------- OVERVIEW (DASHBOARD) TAB ---------- */
 function OverviewTab({ goTo }: { goTo: (k: TabKey) => void }) {
+  const { t, i18n } = useTranslation("customer");
   const { user, profile } = useAuth();
   const bookings = useBookings();
   const [primaryAddress, setPrimaryAddress] = useState<any | null>(null);
@@ -348,9 +355,9 @@ function OverviewTab({ goTo }: { goTo: (k: TabKey) => void }) {
 
   const recent = useMemo(() => (bookings || []).slice(0, 3), [bookings]);
 
-  const firstName = (profile?.full_name || user?.email || "").split(" ")[0]?.split("@")[0] || "der";
+  const firstName = (profile?.full_name || user?.email || "").split(" ")[0]?.split("@")[0] || t("profile.overview.defaultName");
   const hour = new Date().getHours();
-  const greet = hour < 10 ? "Godmorgen" : hour < 17 ? "Goddag" : "Godaften";
+  const greet = hour < 10 ? t("greeting.morning") : hour < 17 ? t("greeting.day") : t("greeting.evening");
 
   const checklist: ChecklistItem[] = useMemo(() => {
     const emailVerified = !!(user as any)?.email_confirmed_at || !!(user as any)?.confirmed_at;
@@ -367,7 +374,7 @@ function OverviewTab({ goTo }: { goTo: (k: TabKey) => void }) {
           lat: primaryAddress.lat ?? NaN,
           lng: primaryAddress.lng ?? NaN,
         })
-      : { ok: false, error: "Ingen primær adresse" } as const;
+      : { ok: false, error: t("profile.overview.checklist.address.missing") } as const;
     const propertyV = primaryAddress
       ? validateProperty({
           place_type: primaryAddress.place_type,
@@ -375,61 +382,61 @@ function OverviewTab({ goTo }: { goTo: (k: TabKey) => void }) {
           rooms: primaryAddress.rooms ?? null,
           access_method: primaryAddress.access_method,
         })
-      : { ok: false, error: "Mangler boligoplysninger" } as const;
+      : { ok: false, error: t("profile.overview.checklist.property.missing") } as const;
 
     return [
       {
         key: "profile",
-        title: "Kontaktoplysninger",
+        title: t("profile.overview.checklist.contact.title"),
         description: contactV.ok
-          ? "Navn, telefon og land er valideret."
-          : contactV.error || "Udfyld navn, telefon og land.",
+          ? t("profile.overview.checklist.contact.done")
+          : contactV.error || t("profile.overview.checklist.contact.fill"),
         status: statusFrom(contactV),
-        actionLabel: "Udfyld",
+        actionLabel: t("profile.overview.checklist.contact.action"),
         onAction: () => goTo("info"),
       },
       {
         key: "email",
-        title: "Bekræft email",
-        description: emailVerified ? "Din email er bekræftet." : "Vi har sendt et bekræftelses-link til din indbakke.",
+        title: t("profile.overview.checklist.email.title"),
+        description: emailVerified ? t("profile.overview.checklist.email.done") : t("profile.overview.checklist.email.pending"),
         status: emailVerified ? "complete" : "pending",
       },
       {
         key: "address",
-        title: "Primær adresse",
+        title: t("profile.overview.checklist.address.title"),
         description: addressV.ok
           ? `${primaryAddress.label} · ${primaryAddress.address}`
-          : addressLoading ? "Henter…" : (addressV.error || "Vælg adresse fra forslagene."),
+          : addressLoading ? t("profile.overview.checklist.address.loading") : (addressV.error || t("profile.overview.checklist.address.fallback")),
         status: statusFrom(addressV, { loading: addressLoading }),
-        actionLabel: "Tilføj",
+        actionLabel: t("profile.overview.checklist.address.action"),
         onAction: () => goTo("addresses"),
       },
       {
         key: "property",
-        title: "Bolig-oplysninger",
+        title: t("profile.overview.checklist.property.title"),
         description: propertyV.ok
-          ? `${primaryAddress.size_sqm} m² · ${primaryAddress.place_type} · adgang: ${primaryAddress.access_method}`
-          : addressLoading ? "Henter…" : (propertyV.error || "Angiv størrelse, type og adgang."),
+          ? t("profile.overview.checklist.property.summary", { size: primaryAddress.size_sqm, type: primaryAddress.place_type, access: primaryAddress.access_method })
+          : addressLoading ? t("profile.overview.checklist.address.loading") : (propertyV.error || t("profile.overview.checklist.property.fallback")),
         status: statusFrom(propertyV, { loading: addressLoading }),
-        actionLabel: "Udfyld",
+        actionLabel: t("profile.overview.checklist.property.action"),
         onAction: () => goTo("addresses"),
       },
       {
         key: "card",
-        title: "Betalingskort",
-        description: cardCount === null ? "Henter…" : cardCount > 0 ? `${cardCount} kort gemt til hurtig booking.` : "Gem et kort for at booke med et enkelt klik.",
+        title: t("profile.overview.checklist.card.title"),
+        description: cardCount === null ? t("profile.overview.checklist.card.loading") : cardCount > 0 ? t("profile.overview.checklist.card.saved", { count: cardCount }) : t("profile.overview.checklist.card.fallback"),
         status: cardCount === null ? "pending" : cardCount > 0 ? "complete" : "incomplete",
-        actionLabel: "Tilføj kort",
+        actionLabel: t("profile.overview.checklist.card.action"),
         onAction: () => goTo("cards"),
       },
       {
         key: "first-booking",
-        title: "Første booking",
-        description: (bookings && bookings.length > 0) ? "Du har sendt din første anmodning." : "Find en cleaner og book på under 2 minutter.",
+        title: t("profile.overview.checklist.firstBooking.title"),
+        description: (bookings && bookings.length > 0) ? t("profile.overview.checklist.firstBooking.done") : t("profile.overview.checklist.firstBooking.pending"),
         status: (bookings && bookings.length > 0) ? "complete" : "pending",
       },
     ];
-  }, [profile, user, primaryAddress, addressLoading, cardCount, bookings, goTo]);
+  }, [profile, user, primaryAddress, addressLoading, cardCount, bookings, goTo, t]);
 
   return (
     <div className="space-y-6">
@@ -446,9 +453,9 @@ function OverviewTab({ goTo }: { goTo: (k: TabKey) => void }) {
         <div className="absolute -bottom-16 -left-10 h-44 w-44 rounded-full opacity-10" style={{ background: C.mint }} />
         <div className="relative">
           <div className="text-[10px] font-black uppercase tracking-[0.28em] opacity-70">{greet}</div>
-          <h2 className="mt-1 font-display text-3xl sm:text-4xl">Velkommen, {firstName}</h2>
+          <h2 className="mt-1 font-display text-3xl sm:text-4xl">{t("profile.overview.welcome", { name: firstName })}</h2>
           <p className="mt-2 max-w-md text-sm opacity-80">
-            Her er et hurtigt overblik over dine kommende rengøringer, adresser og betalinger.
+            {t("profile.overview.heroSubtitle")}
           </p>
           <div className="mt-5 flex flex-wrap gap-2">
             <Link
@@ -456,14 +463,14 @@ function OverviewTab({ goTo }: { goTo: (k: TabKey) => void }) {
               className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-xs font-bold uppercase tracking-[0.18em] shadow-[4px_4px_0_rgba(0,0,0,0.25)] transition hover:-translate-y-0.5"
               style={{ background: C.orange, color: C.ink }}
             >
-              <Plus className="h-4 w-4" /> Book ny cleaner
+              <Plus className="h-4 w-4" /> {t("profile.overview.bookNewCleaner")}
             </Link>
             <button
               onClick={() => goTo("bookings")}
               className="inline-flex items-center gap-2 rounded-full border-2 px-5 py-2.5 text-xs font-bold uppercase tracking-[0.18em] transition hover:bg-white/10"
               style={{ borderColor: C.cream, color: C.cream }}
             >
-              <Calendar className="h-4 w-4" /> Mine bookinger
+              <Calendar className="h-4 w-4" /> {t("profile.overview.myBookings")}
             </button>
           </div>
         </div>
@@ -471,17 +478,17 @@ function OverviewTab({ goTo }: { goTo: (k: TabKey) => void }) {
 
       {/* Onboarding checklist */}
       <OnboardingChecklist
-        title="Gør din profil komplet"
-        subtitle="Færdiggør disse trin for at få det bedste match og hurtigste booking."
+        title={t("profile.overview.checklistTitle")}
+        subtitle={t("profile.overview.checklistSubtitle")}
         items={checklist}
       />
 
       {/* Stat cards */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <DashStat icon={Calendar} label="Kommende" value={String(upcoming.length)} tint={C.mint} />
-        <DashStat icon={CheckCircle2} label="Gennemført" value={String(stats.completed)} tint="#e6f5ec" />
-        <DashStat icon={Receipt} label="Betalt i alt" value={`${stats.paid.toLocaleString("da-DK")} ${stats.currency}`} tint="#fff1e1" />
-        <DashStat icon={Home} label="Adresser" value={String(addressCount)} tint="#ede7d6" />
+        <DashStat icon={Calendar} label={t("profile.overview.stats.upcoming")} value={String(upcoming.length)} tint={C.mint} />
+        <DashStat icon={CheckCircle2} label={t("profile.overview.stats.completed")} value={String(stats.completed)} tint="#e6f5ec" />
+        <DashStat icon={Receipt} label={t("profile.overview.stats.paidTotal")} value={`${stats.paid.toLocaleString(i18n.language)} ${stats.currency}`} tint="#fff1e1" />
+        <DashStat icon={Home} label={t("profile.overview.stats.addresses")} value={String(addressCount)} tint="#ede7d6" />
       </div>
 
       {/* Two columns */}
@@ -489,25 +496,25 @@ function OverviewTab({ goTo }: { goTo: (k: TabKey) => void }) {
         {/* Next booking */}
         <div className="rounded-2xl border-2 bg-white p-5" style={{ borderColor: `${C.ink}22` }}>
           <div className="flex items-center justify-between">
-            <div className="text-[10px] font-black uppercase tracking-[0.22em] opacity-70">Næste booking</div>
+            <div className="text-[10px] font-black uppercase tracking-[0.22em] opacity-70">{t("profile.overview.nextBooking.title")}</div>
             <button onClick={() => goTo("bookings")} className="inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-[0.16em] opacity-70 hover:opacity-100">
-              Se alle <ArrowRight className="h-3 w-3" />
+              {t("profile.overview.nextBooking.seeAll")} <ArrowRight className="h-3 w-3" />
             </button>
           </div>
           {bookings === null ? (
-            <div className="mt-4 text-sm opacity-60">Henter…</div>
+            <div className="mt-4 text-sm opacity-60">{t("profile.overview.nextBooking.loading")}</div>
           ) : nextBooking ? (
             <div className="mt-3">
               <div className="font-display text-xl leading-tight">{nextBooking.provider_name}</div>
               <div className="mt-1 text-xs opacity-70 inline-flex items-center gap-1.5">
-                <Sparkles className="h-3 w-3" /> {nextBooking.service} · {nextBooking.hours} t
+                <Sparkles className="h-3 w-3" /> {nextBooking.service} · {nextBooking.hours} {t("profile.overview.nextBooking.hoursSuffix")}
               </div>
               <div className="mt-3 grid gap-1.5 text-xs">
                 <div className="inline-flex items-center gap-2 opacity-80">
                   <Calendar className="h-3.5 w-3.5" />
-                  {new Date(nextBooking.booking_date).toLocaleDateString("da-DK", { weekday: "long", day: "numeric", month: "long" })}
+                  {new Date(nextBooking.booking_date).toLocaleDateString(i18n.language, { weekday: "long", day: "numeric", month: "long" })}
                 </div>
-                <div className="inline-flex items-center gap-2 opacity-80"><Clock className="h-3.5 w-3.5" /> kl. {nextBooking.slot}</div>
+                <div className="inline-flex items-center gap-2 opacity-80"><Clock className="h-3.5 w-3.5" /> {t("profile.overview.nextBooking.timePrefix")} {nextBooking.slot}</div>
                 <div className="inline-flex items-start gap-2 opacity-80"><MapPin className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" /> {nextBooking.address}</div>
               </div>
               <div className="mt-3 flex items-center justify-between border-t border-dashed pt-3 text-xs" style={{ borderColor: `${C.ink}22` }}>
@@ -515,15 +522,15 @@ function OverviewTab({ goTo }: { goTo: (k: TabKey) => void }) {
                   className="inline-flex items-center rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em]"
                   style={{ background: STATUS_LABEL[nextBooking.status].bg, color: STATUS_LABEL[nextBooking.status].fg }}
                 >
-                  {STATUS_LABEL[nextBooking.status].label}
+                  {t(`profile.bookings.status.${nextBooking.status}`)}
                 </span>
-                <span className="font-display text-base">{nextBooking.customer_pays.toLocaleString("da-DK")} {nextBooking.currency}</span>
+                <span className="font-display text-base">{nextBooking.customer_pays.toLocaleString(i18n.language)} {nextBooking.currency}</span>
               </div>
             </div>
           ) : (
             <div className="mt-3 text-sm opacity-70">
-              Ingen kommende bookinger.{" "}
-              <Link to="/" className="font-bold underline" style={{ color: C.teal }}>Find en cleaner</Link>.
+              {t("profile.overview.nextBooking.empty")}{" "}
+              <Link to="/" className="font-bold underline" style={{ color: C.teal }}>{t("profile.overview.nextBooking.findCleaner")}</Link>.
             </div>
           )}
         </div>
@@ -532,9 +539,9 @@ function OverviewTab({ goTo }: { goTo: (k: TabKey) => void }) {
         <div className="space-y-4">
           <div className="rounded-2xl border-2 bg-white p-5" style={{ borderColor: `${C.ink}22` }}>
             <div className="flex items-center justify-between">
-              <div className="text-[10px] font-black uppercase tracking-[0.22em] opacity-70">Primær adresse</div>
+              <div className="text-[10px] font-black uppercase tracking-[0.22em] opacity-70">{t("profile.overview.primaryAddress.title")}</div>
               <button onClick={() => goTo("addresses")} className="inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-[0.16em] opacity-70 hover:opacity-100">
-                Administrer <ArrowRight className="h-3 w-3" />
+                {t("profile.overview.primaryAddress.manage")} <ArrowRight className="h-3 w-3" />
               </button>
             </div>
             {primaryAddress ? (
@@ -546,17 +553,17 @@ function OverviewTab({ goTo }: { goTo: (k: TabKey) => void }) {
               </div>
             ) : (
               <div className="mt-3 text-sm opacity-70">
-                Du har ingen adresser endnu.{" "}
-                <button onClick={() => goTo("addresses")} className="font-bold underline" style={{ color: C.teal }}>Tilføj én</button>.
+                {t("profile.overview.primaryAddress.empty")}{" "}
+                <button onClick={() => goTo("addresses")} className="font-bold underline" style={{ color: C.teal }}>{t("profile.overview.primaryAddress.addOne")}</button>.
               </div>
             )}
           </div>
 
           <div className="rounded-2xl border-2 bg-white p-5" style={{ borderColor: `${C.ink}22` }}>
             <div className="flex items-center justify-between">
-              <div className="text-[10px] font-black uppercase tracking-[0.22em] opacity-70">Kort & betalinger</div>
+              <div className="text-[10px] font-black uppercase tracking-[0.22em] opacity-70">{t("profile.overview.cards.title")}</div>
               <button onClick={() => goTo("cards")} className="inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-[0.16em] opacity-70 hover:opacity-100">
-                Administrér <ArrowRight className="h-3 w-3" />
+                {t("profile.overview.cards.manage")} <ArrowRight className="h-3 w-3" />
               </button>
             </div>
             <div className="mt-3 flex items-center gap-3">
@@ -564,10 +571,10 @@ function OverviewTab({ goTo }: { goTo: (k: TabKey) => void }) {
                 <CreditCard className="h-5 w-5" style={{ color: C.ink }} />
               </div>
               <div className="text-sm">
-                {cardCount === null ? "Henter…" : cardCount === 0 ? (
-                  <span className="opacity-70">Ingen gemte kort endnu.</span>
+                {cardCount === null ? t("profile.overview.cards.loading") : cardCount === 0 ? (
+                  <span className="opacity-70">{t("profile.overview.cards.empty")}</span>
                 ) : (
-                  <span><b>{cardCount}</b> {cardCount === 1 ? "kort gemt" : "kort gemt"} til hurtig booking.</span>
+                  <Trans t={t} i18nKey="profile.overview.cards.saved" count={cardCount} components={{ b: <b /> }} />
                 )}
               </div>
             </div>
@@ -578,15 +585,15 @@ function OverviewTab({ goTo }: { goTo: (k: TabKey) => void }) {
       {/* Recent activity */}
       <div className="rounded-2xl border-2 bg-white p-5" style={{ borderColor: `${C.ink}22` }}>
         <div className="flex items-center justify-between">
-          <div className="text-[10px] font-black uppercase tracking-[0.22em] opacity-70">Seneste aktivitet</div>
+          <div className="text-[10px] font-black uppercase tracking-[0.22em] opacity-70">{t("profile.overview.recent.title")}</div>
           <button onClick={() => goTo("history")} className="inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-[0.16em] opacity-70 hover:opacity-100">
-            Hele historikken <ArrowRight className="h-3 w-3" />
+            {t("profile.overview.recent.fullHistory")} <ArrowRight className="h-3 w-3" />
           </button>
         </div>
         {bookings === null ? (
-          <div className="mt-3 text-sm opacity-60">Henter…</div>
+          <div className="mt-3 text-sm opacity-60">{t("profile.overview.recent.loading")}</div>
         ) : recent.length === 0 ? (
-          <div className="mt-3 text-sm opacity-70">Ingen aktivitet endnu.</div>
+          <div className="mt-3 text-sm opacity-70">{t("profile.overview.recent.empty")}</div>
         ) : (
           <ul className="mt-3 divide-y" style={{ borderColor: `${C.ink}22` }}>
             {recent.map((b) => {
@@ -596,11 +603,11 @@ function OverviewTab({ goTo }: { goTo: (k: TabKey) => void }) {
                   <div className="min-w-0">
                     <div className="truncate text-sm font-bold">{b.provider_name}</div>
                     <div className="text-[11px] opacity-60">
-                      {new Date(b.booking_date).toLocaleDateString("da-DK", { day: "2-digit", month: "short" })} · {b.service}
+                      {new Date(b.booking_date).toLocaleDateString(i18n.language, { day: "2-digit", month: "short" })} · {b.service}
                     </div>
                   </div>
                   <span className="flex-shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-black uppercase tracking-[0.16em]" style={{ background: s.bg, color: s.fg }}>
-                    {s.label}
+                    {t(`profile.bookings.status.${b.status}`)}
                   </span>
                 </li>
               );
@@ -626,6 +633,7 @@ function DashStat({ icon: Icon, label, value, tint }: { icon: typeof UserIcon; l
 
 /* ---------- INFO TAB ---------- */
 function InfoTab() {
+  const { t } = useTranslation("customer");
   const { user, profile, refreshProfile } = useAuth();
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
@@ -658,11 +666,11 @@ function InfoTab() {
   async function save() {
     if (!user) return;
     if (!contactCheck.ok) {
-      toast.error(contactCheck.error || "Tjek kontaktoplysningerne");
+      toast.error(contactCheck.error || t("profile.info.toast.checkContact"));
       return;
     }
     if (address && !addrValid) {
-      toast.error("Vælg en gyldig adresse fra listen før du gemmer.");
+      toast.error(t("profile.info.toast.invalidAddress"));
       return;
     }
     setSaving(true);
@@ -680,24 +688,24 @@ function InfoTab() {
     setSaving(false);
     if (error) return toast.error(error.message);
     await refreshProfile();
-    toast.success("Profil gemt");
+    toast.success(t("profile.info.toast.saved"));
   }
 
   return (
     <div className="space-y-4">
       <div className="rounded-2xl border bg-white/60 p-3 text-[11px] opacity-70" style={{ borderColor: `${C.ink}22` }}>
-        Dine kontaktoplysninger blev oprettet under onboarding og hentes automatisk her — du kan justere dem når som helst.
+        {t("profile.info.helperBanner")}
       </div>
-      <Field label="Email (din loginadresse)">
+      <Field label={t("profile.info.emailLabel")}>
         <input value={user?.email ?? ""} disabled className="w-full bg-transparent text-base focus:outline-none opacity-70" />
       </Field>
-      <Field label="Fulde navn">
-        <input value={fullName} onChange={(e) => setFullName(e.target.value)} className="w-full bg-transparent text-base focus:outline-none" placeholder="Fx Mette Hansen" />
+      <Field label={t("profile.info.fullNameLabel")}>
+        <input value={fullName} onChange={(e) => setFullName(e.target.value)} className="w-full bg-transparent text-base focus:outline-none" placeholder={t("profile.info.fullNamePlaceholder")} />
       </Field>
-      <Field label="Telefon">
-        <input value={phone} onChange={(e) => setPhone(e.target.value)} className="w-full bg-transparent text-base focus:outline-none" placeholder="+45 12 34 56 78" type="tel" />
+      <Field label={t("profile.info.phoneLabel")}>
+        <input value={phone} onChange={(e) => setPhone(e.target.value)} className="w-full bg-transparent text-base focus:outline-none" placeholder={t("profile.info.phonePlaceholder")} type="tel" />
       </Field>
-      <Field label="Land">
+      <Field label={t("profile.info.countryLabel")}>
         <select
           value={countryCode}
           onChange={(e) => setCountryCode(e.target.value)}
@@ -708,14 +716,15 @@ function InfoTab() {
           ))}
         </select>
       </Field>
-      <Field label="Provider-ID (kun hvis du selv er cleaner)">
-        <input value={providerId} onChange={(e) => setProviderId(e.target.value)} className="w-full bg-transparent text-base focus:outline-none" placeholder="Fx p_002" />
+      <Field label={t("profile.info.providerIdLabel")}>
+        <input value={providerId} onChange={(e) => setProviderId(e.target.value)} className="w-full bg-transparent text-base focus:outline-none" placeholder={t("profile.info.providerIdPlaceholder")} />
         <div className="mt-1 text-[10px] opacity-60">
-          Indtast dit provider-ID for at få adgang til <Link to="/provider-dashboard" className="font-bold underline">provider-dashboardet</Link>.
+          <Trans i18nKey="profile.info.providerIdHelpFull" ns="customer"
+            components={{ dash: <Link to="/provider-dashboard" className="font-bold underline" /> }} />
         </div>
       </Field>
       <div className="rounded-2xl border-2 bg-white p-4" style={{ borderColor: `${C.ink}22` }}>
-        <div className="text-[10px] font-black uppercase tracking-[0.22em] opacity-70">Min adresse</div>
+        <div className="text-[10px] font-black uppercase tracking-[0.22em] opacity-70">{t("profile.info.addressTitle")}</div>
         <div className="mt-2">
           <AddressAutocomplete
             value={address}
@@ -724,7 +733,7 @@ function InfoTab() {
             onValidityChange={setAddrValid}
             isValid={addrValid}
             countries={[countryCode.toLowerCase()]}
-            placeholder="Vej, nr., etage, by"
+            placeholder={t("profile.info.addressPlaceholder")}
           />
         </div>
       </div>
@@ -740,7 +749,7 @@ function InfoTab() {
         style={{ background: C.orange, color: C.ink }}
       >
         {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
-        Gem profil
+        {t("profile.info.saveButton")}
       </button>
     </div>
   );
@@ -748,16 +757,18 @@ function InfoTab() {
 
 /* ---------- ADDRESSES TAB ---------- */
 function AddressesTab() {
+  const { t } = useTranslation("customer");
   return (
     <div>
       <div className="mb-4">
-        <h2 className="font-display text-2xl">Mine adresser</h2>
+        <h2 className="font-display text-2xl">{t("profile.addresses.title")}</h2>
         <p className="text-sm opacity-70">
-          Tilføj flere adresser med adgangsinformation, dyr, parkering m.m. Den primære adresse vælges automatisk ved booking.
+          {t("profile.addresses.subtitle")}
         </p>
       </div>
       <AddressBook />
     </div>
+
   );
 }
 
@@ -798,12 +809,12 @@ type RefundEntry = {
   created_at: string | null;
 };
 
-const STATUS_LABEL: Record<Booking["status"], { label: string; bg: string; fg: string }> = {
-  pending: { label: "Afventer cleaner", bg: "#ffe9b8", fg: "#8a5a00" },
-  accepted: { label: "Accepteret", bg: C.mint, fg: C.ink },
-  declined: { label: "Afvist", bg: "#f5c2b8", fg: "#8a2e1c" },
-  cancelled: { label: "Annulleret", bg: "#e6e2d2", fg: C.ink },
-  completed: { label: "Udført", bg: C.teal, fg: C.cream },
+const STATUS_LABEL: Record<Booking["status"], { bg: string; fg: string }> = {
+  pending: { bg: "#ffe9b8", fg: "#8a5a00" },
+  accepted: { bg: C.mint, fg: C.ink },
+  declined: { bg: "#f5c2b8", fg: "#8a2e1c" },
+  cancelled: { bg: "#e6e2d2", fg: C.ink },
+  completed: { bg: C.teal, fg: C.cream },
 };
 
 function useBookings() {
@@ -829,16 +840,17 @@ function useBookings() {
 }
 
 function BookingsTab() {
+  const { t, i18n } = useTranslation("customer");
   const bookings = useBookings();
   const [, setParams] = useSearchParams();
-  if (bookings === null) return <div className="opacity-60 text-sm">Henter…</div>;
+  if (bookings === null) return <div className="opacity-60 text-sm">{t("profile.bookings.loading")}</div>;
   if (bookings.length === 0) {
     return (
       <div className="rounded-2xl border-2 border-dashed bg-white p-8 text-center" style={{ borderColor: `${C.ink}33` }}>
-        <div className="font-display text-xl">Ingen bookinger endnu</div>
-        <p className="mt-2 text-sm opacity-70">Find en cleaner og book direkte i kalenderen.</p>
+        <div className="font-display text-xl">{t("profile.bookings.emptyTitle")}</div>
+        <p className="mt-2 text-sm opacity-70">{t("profile.bookings.emptySubtitle")}</p>
         <Link to="/" className="mt-4 inline-flex rounded-full px-5 py-2.5 text-xs font-bold uppercase tracking-[0.18em]" style={{ background: C.orange, color: C.ink }}>
-          Find cleaner
+          {t("profile.bookings.findCleaner")}
         </Link>
       </div>
     );
@@ -848,34 +860,34 @@ function BookingsTab() {
       {bookings.map((b) => {
         const s = STATUS_LABEL[b.status];
         const p = PAYMENT_LABEL[b.payment_status];
-        const d = new Date(b.booking_date).toLocaleDateString("da-DK", { weekday: "long", day: "numeric", month: "long" });
+        const d = new Date(b.booking_date).toLocaleDateString(i18n.language, { weekday: "long", day: "numeric", month: "long" });
         const hasReceipt = b.payment_status === "captured" || b.status === "completed";
         return (
           <div key={b.id} className="rounded-2xl border-2 bg-white p-5" style={{ borderColor: `${C.ink}22` }}>
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <div className="font-display text-lg leading-tight">{b.provider_name}</div>
-                <div className="mt-1 text-xs opacity-70 inline-flex items-center gap-1.5"><Sparkles className="h-3 w-3" /> {b.service} · {b.hours} t</div>
+                <div className="mt-1 text-xs opacity-70 inline-flex items-center gap-1.5"><Sparkles className="h-3 w-3" /> {b.service} · {b.hours} {t("profile.bookings.hoursSuffix")}</div>
               </div>
               <div className="flex flex-col items-end gap-1.5">
                 <span className="inline-flex items-center rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em]" style={{ background: s.bg, color: s.fg }}>
-                  {s.label}
+                  {t(`profile.bookings.status.${b.status}`)}
                 </span>
                 {p && (
                   <span className="inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.16em]" style={{ borderColor: p.fg, color: p.fg, background: p.bg }}>
-                    {p.label}
+                    {t(`profile.bookings.payment.${b.payment_status}`)}
                   </span>
                 )}
               </div>
             </div>
             <div className="mt-3 grid gap-1.5 text-xs">
               <div className="inline-flex items-center gap-2 opacity-80"><Calendar className="h-3.5 w-3.5" /> {d}</div>
-              <div className="inline-flex items-center gap-2 opacity-80"><Clock className="h-3.5 w-3.5" /> kl. {b.slot}</div>
+              <div className="inline-flex items-center gap-2 opacity-80"><Clock className="h-3.5 w-3.5" /> {t("profile.bookings.timePrefix")} {b.slot}</div>
               <div className="inline-flex items-start gap-2 opacity-80"><MapPin className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" /> {b.address}</div>
               {b.payment_method_last4 && (
                 <div className="inline-flex items-center gap-2 opacity-80">
                   <CreditCard className="h-3.5 w-3.5" />
-                  {(b.payment_method_brand || "Kort").toUpperCase()} •••• {b.payment_method_last4}
+                  {(b.payment_method_brand || t("profile.bookings.cardFallback")).toUpperCase()} •••• {b.payment_method_last4}
                 </div>
               )}
             </div>
@@ -887,24 +899,24 @@ function BookingsTab() {
                 <>
                   <div className="mt-3 border-t border-dashed pt-3 text-xs space-y-1" style={{ borderColor: `${C.ink}22` }}>
                     <div className="flex items-baseline justify-between">
-                      <span className="opacity-60">Total</span>
-                      <span className="font-display text-base">{b.customer_pays.toLocaleString("da-DK")} {b.currency}</span>
+                      <span className="opacity-60">{t("profile.bookings.totalPrice")}</span>
+                      <span className="font-display text-base">{b.customer_pays.toLocaleString(i18n.language)} {b.currency}</span>
                     </div>
                     {(isPartial || isFull) && b.refund_amount != null && (
                       <>
                         <div className="flex items-baseline justify-between" style={{ color: "#4a2a8a" }}>
-                          <span>Refunderet</span>
-                          <span>− {b.refund_amount.toLocaleString("da-DK")} {b.currency}</span>
+                          <span>{t("profile.bookings.refunded")}</span>
+                          <span>− {b.refund_amount.toLocaleString(i18n.language)} {b.currency}</span>
                         </div>
                         <div className="flex items-baseline justify-between font-bold pt-1 border-t border-dashed" style={{ borderColor: `${C.ink}22` }}>
-                          <span>{isFull ? "Du har betalt" : "Du betaler stadig"}</span>
-                          <span>{Math.max(0, remaining).toLocaleString("da-DK")} {b.currency}</span>
+                          <span>{isFull ? t("profile.bookings.youPaid") : t("profile.bookings.youStillPay")}</span>
+                          <span>{Math.max(0, remaining).toLocaleString(i18n.language)} {b.currency}</span>
                         </div>
                       </>
                     )}
                     {!isPartial && !isFull && (
                       <div className="text-[11px] opacity-60 text-right">
-                        {b.payment_status === "captured" ? "Betalt" : b.payment_status === "authorized" ? "Reserveret" : "Afventer betaling"}
+                        {b.payment_status === "captured" ? t("profile.bookings.paidStatus") : b.payment_status === "authorized" ? t("profile.bookings.reservedStatus") : t("profile.bookings.pendingPaymentStatus")}
                       </div>
                     )}
                   </div>
@@ -912,48 +924,53 @@ function BookingsTab() {
                     <div className="mt-3 rounded-xl p-3 text-[11px] space-y-2" style={{ background: isPartial ? "#fdf2e2" : "#f4eefb", color: isPartial ? "#8a4a00" : "#4a2a8a" }}>
                       <div className="flex items-center justify-between">
                         <div className="font-black uppercase tracking-[0.16em] text-[10px]">
-                          {isPartial ? "Delvis refundering" : "Fuld refundering"}
+                          {isPartial ? t("profile.bookings.partialRefund") : t("profile.bookings.fullRefund")}
                         </div>
                         <div className="text-[10px] font-bold opacity-80">
-                          {(b.refunds?.length ?? 0)} {(b.refunds?.length ?? 0) === 1 ? "refund" : "refunds"}
+                          {t("profile.bookings.refundCount", { count: b.refunds?.length ?? 0 })}
                         </div>
                       </div>
                       {(b.refunds && b.refunds.length > 0) ? (
                         <div className="divide-y" style={{ borderColor: "currentColor" }}>
                           {b.refunds.map((r, i) => {
                             const failed = r.status && r.status !== "succeeded";
-                            const date = r.created_at ? new Date(r.created_at).toLocaleDateString("da-DK", { day: "2-digit", month: "2-digit", year: "2-digit" }) : "";
+                            const date = r.created_at ? new Date(r.created_at).toLocaleDateString(i18n.language, { day: "2-digit", month: "2-digit", year: "2-digit" }) : "";
+                            const reasonLabel = r.reason
+                              ? (REFUND_REASON_KEYS.includes(r.reason) ? t(`profile.bookings.refundReason.${r.reason}`) : r.reason)
+                              : failed
+                                ? (r.failure_reason ? t("profile.bookings.refundFailedReason", { reason: r.failure_reason }) : t("profile.bookings.refundFailed"))
+                                : t("profile.bookings.refundDefault");
                             return (
                               <div key={r.id} className="py-1.5 first:pt-0 last:pb-0 space-y-0.5" style={{ borderColor: "currentColor", opacity: failed ? 0.6 : 1 }}>
                                 <div className="flex items-baseline justify-between gap-2">
                                   <span className="font-bold">#{i + 1} · {date}</span>
                                   <span className="font-bold">
-                                    {failed ? "—" : "−"} {r.amount.toLocaleString("da-DK")} {(r.currency || b.currency).toUpperCase()}
+                                    {failed ? "—" : "−"} {r.amount.toLocaleString(i18n.language)} {(r.currency || b.currency).toUpperCase()}
                                   </span>
                                 </div>
                                 <div className="flex items-baseline justify-between gap-2 text-[10px] opacity-80">
-                                  <span>{REFUND_REASON_LABEL[r.reason ?? ""] || r.reason || (failed ? `Fejlet${r.failure_reason ? `: ${r.failure_reason}` : ""}` : "Refund")}</span>
+                                  <span>{reasonLabel}</span>
                                   <span className="font-mono">{r.id}</span>
                                 </div>
                               </div>
                             );
                           })}
                           <div className="pt-1.5 flex justify-between font-bold border-t" style={{ borderColor: "currentColor" }}>
-                            <span>Refunderet i alt</span>
-                            <span>{(b.refund_amount ?? 0).toLocaleString("da-DK")} {b.currency}</span>
+                            <span>{t("profile.bookings.totalRefunded")}</span>
+                            <span>{(b.refund_amount ?? 0).toLocaleString(i18n.language)} {b.currency}</span>
                           </div>
                           <div className="flex justify-between font-bold">
-                            <span>Resterende</span>
-                            <span>{Math.max(0, b.customer_pays - (b.refund_amount ?? 0)).toLocaleString("da-DK")} {b.currency}</span>
+                            <span>{t("profile.bookings.remaining")}</span>
+                            <span>{Math.max(0, b.customer_pays - (b.refund_amount ?? 0)).toLocaleString(i18n.language)} {b.currency}</span>
                           </div>
                         </div>
                       ) : (
                         <>
                           {b.refund_reason && (
-                            <div className="flex justify-between"><span className="opacity-70">Årsag</span><span className="font-bold">{REFUND_REASON_LABEL[b.refund_reason] || b.refund_reason}</span></div>
+                            <div className="flex justify-between"><span className="opacity-70">{t("profile.bookings.reason")}</span><span className="font-bold">{REFUND_REASON_KEYS.includes(b.refund_reason) ? t(`profile.bookings.refundReason.${b.refund_reason}`) : b.refund_reason}</span></div>
                           )}
                           {b.refund_id && (
-                            <div className="flex justify-between"><span className="opacity-70">Refund ID</span><span className="font-mono">{b.refund_id}</span></div>
+                            <div className="flex justify-between"><span className="opacity-70">{t("profile.bookings.refundId")}</span><span className="font-mono">{b.refund_id}</span></div>
                           )}
                         </>
                       )}
@@ -968,7 +985,7 @@ function BookingsTab() {
                 className="mt-3 inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.18em] hover:underline"
                 style={{ color: C.teal }}
               >
-                <Receipt className="h-3.5 w-3.5" /> Se kvittering
+                <Receipt className="h-3.5 w-3.5" /> {t("profile.bookings.seeReceipt")}
               </button>
             )}
           </div>
@@ -978,21 +995,16 @@ function BookingsTab() {
   );
 }
 
-const PAYMENT_LABEL: Record<Booking["payment_status"], { label: string; bg: string; fg: string } | null> = {
-  none: null,
-  authorized: { label: "Reserveret", bg: "#fff8e1", fg: "#8a5a00" },
-  captured: { label: "Betalt", bg: "#e6f5ec", fg: "#0a5c2e" },
-  canceled: { label: "Annulleret", bg: "#e6e2d2", fg: C.ink },
-  refunded: { label: "Refunderet", bg: "#ede4f5", fg: "#4a2a8a" },
-  partially_refunded: { label: "Delvist refunderet", bg: "#fde9d1", fg: "#8a4a00" },
-  failed: { label: "Fejlet", bg: "#f5c2b8", fg: "#8a2e1c" },
-};
+const REFUND_REASON_KEYS = ["duplicate", "fraudulent", "requested_by_customer", "expired_uncaptured_charge"];
 
-const REFUND_REASON_LABEL: Record<string, string> = {
-  duplicate: "Dobbeltbetaling",
-  fraudulent: "Mistanke om svindel",
-  requested_by_customer: "Anmodet af kunde",
-  expired_uncaptured_charge: "Reservation udløb",
+const PAYMENT_LABEL: Record<Booking["payment_status"], { bg: string; fg: string } | null> = {
+  none: null,
+  authorized: { bg: "#fff8e1", fg: "#8a5a00" },
+  captured: { bg: "#e6f5ec", fg: "#0a5c2e" },
+  canceled: { bg: "#e6e2d2", fg: C.ink },
+  refunded: { bg: "#ede4f5", fg: "#4a2a8a" },
+  partially_refunded: { bg: "#fde9d1", fg: "#8a4a00" },
+  failed: { bg: "#f5c2b8", fg: "#8a2e1c" },
 };
 
 /* ---------- CARDS TAB ---------- */
@@ -1001,6 +1013,7 @@ type Card = { id: string; brand: string; last4: string; exp_month: number; exp_y
 type CardFilter = "all" | "default" | "active" | "expired";
 
 function CardsTab() {
+  const { t, i18n } = useTranslation("customer");
   const [cards, setCards] = useState<Card[] | null>(null);
   const [adding, setAdding] = useState(false);
   const [replaceId, setReplaceId] = useState<string | null>(null);
@@ -1066,12 +1079,12 @@ function CardsTab() {
       ]);
       if (pkErr) throw pkErr;
       if (siErr) throw siErr;
-      if (!pkData?.publishable_key) throw new Error("Stripe publiceringsnøgle mangler i konfigurationen");
-      if (!siData?.client_secret) throw new Error("Kunne ikke oprette sikker Stripe-session");
+      if (!pkData?.publishable_key) throw new Error(t("profile.cards.stripeKeyMissing"));
+      if (!siData?.client_secret) throw new Error(t("profile.cards.setupIntentMissing"));
       setStripePromise(loadStripe(pkData.publishable_key));
       setClientSecret(siData.client_secret);
     } catch (e: any) {
-      const msg = e?.message || "Kunne ikke starte tilføj-kort";
+      const msg = e?.message || t("profile.cards.formOpenError");
       setActionError(msg);
       toast.error(msg);
       setAdding(false);
@@ -1096,9 +1109,9 @@ function CardsTab() {
         await supabase.functions.invoke("customer-payment-methods", {
           body: { action: "delete", payment_method_id: replaceId },
         });
-        toast.success("Kort erstattet");
+        toast.success(t("profile.cards.cardReplaced"));
       } catch (e: any) {
-        toast.error(e?.message || "Kunne ikke erstatte kort");
+        toast.error(e?.message || t("profile.cards.cardReplacedError"));
       }
     }
     closeAdd();
@@ -1119,7 +1132,7 @@ function CardsTab() {
     // Safety: don't allow silently deleting the default when other cards exist
     // without first picking a replacement default.
     if (card.is_default && others.length > 0 && !newDefaultId) {
-      toast.error("Vælg et nyt standardkort først");
+      toast.error(t("profile.cards.pickDefaultFirst"));
       return;
     }
     setBusyId(card.id);
@@ -1134,11 +1147,11 @@ function CardsTab() {
         body: { action: "delete", payment_method_id: card.id },
       });
       if (error) throw error;
-      toast.success("Kort fjernet");
+      toast.success(t("profile.cards.cardRemoved"));
       setPendingDelete(null);
       loadCards();
     } catch (e: any) {
-      toast.error(e?.message || "Kunne ikke fjerne kort");
+      toast.error(e?.message || t("profile.cards.cardRemovedError"));
     } finally {
       setBusyId(null);
     }
@@ -1153,10 +1166,10 @@ function CardsTab() {
         body: { action: "set_default", payment_method_id: id },
       });
       if (error) throw error;
-      toast.success("Standardkort opdateret");
+      toast.success(t("profile.cards.defaultUpdated"));
       await loadCards();
     } catch (e: any) {
-      const msg = e?.message || "Kunne ikke sætte standardkort";
+      const msg = e?.message || t("profile.cards.defaultUpdateError");
       setActionError(msg);
       toast.error(msg);
     } finally {
@@ -1205,15 +1218,15 @@ function CardsTab() {
   }, [cards]);
 
   const FILTER_OPTIONS: { key: CardFilter; label: string }[] = [
-    { key: "all", label: "Alle" },
-    { key: "default", label: "Standard" },
-    { key: "active", label: "Aktive" },
-    { key: "expired", label: "Udløbet" },
+    { key: "all", label: t("profile.cards.filters.all") },
+    { key: "default", label: t("profile.cards.filters.default") },
+    { key: "active", label: t("profile.cards.filters.active") },
+    { key: "expired", label: t("profile.cards.filters.expired") },
   ];
 
   const cardList: React.ReactNode = filteredCards.length === 0 ? (
     <div className="rounded-2xl border-2 border-dashed bg-white p-6 text-center" style={{ borderColor: `${C.ink}33` }}>
-      <p className="text-sm opacity-70">Ingen kort matcher det valgte filter.</p>
+      <p className="text-sm opacity-70">{t("profile.cards.noneMatch")}</p>
     </div>
   ) : (
     filteredCards.map((c) => {
@@ -1224,9 +1237,9 @@ function CardsTab() {
       const luKey = `${(c.brand || "").toLowerCase()}|${c.last4}`;
       const luRaw = lastUsed[luKey];
       const lu = luRaw
-        ? new Date(luRaw.created_at).toLocaleDateString("da-DK", { day: "2-digit", month: "short", year: "numeric" })
+        ? new Date(luRaw.created_at).toLocaleDateString(i18n.language, { day: "2-digit", month: "short", year: "numeric" })
         : null;
-      const statusLabel = expired ? "Udløbet" : c.is_default ? "Standard – bruges næste gang" : "Aktiv";
+      const statusLabel = expired ? t("profile.cards.status.expired") : c.is_default ? t("profile.cards.status.default") : t("profile.cards.status.active");
       const statusColor = expired ? "#c0392b" : c.is_default ? C.teal : C.ink;
 
       return (
@@ -1244,10 +1257,10 @@ function CardsTab() {
                     {statusLabel}
                   </span>
                 </div>
-                <div className="text-[11px] opacity-60">Udløber {String(c.exp_month).padStart(2, "0")}/{String(c.exp_year).slice(-2)}</div>
+                <div className="text-[11px] opacity-60">{t("profile.cards.expiresLabel", { date: `${String(c.exp_month).padStart(2, "0")}/${String(c.exp_year).slice(-2)}` })}</div>
               </div>
             </div>
-            <button onClick={() => requestRemove(c)} disabled={busyId === c.id} className="rounded-full p-2 hover:bg-black/5 disabled:opacity-40" aria-label="Fjern">
+            <button onClick={() => requestRemove(c)} disabled={busyId === c.id} className="rounded-full p-2 hover:bg-black/5 disabled:opacity-40" aria-label={t("profile.cards.removeAria")}>
               <Trash2 className="h-4 w-4 opacity-70" />
             </button>
           </div>
@@ -1255,22 +1268,22 @@ function CardsTab() {
           {/* Summary strip */}
           <div className="mt-3 grid grid-cols-3 gap-2 rounded-xl p-2.5 text-[11px]" style={{ background: C.cream }}>
             <div>
-              <div className="opacity-60 uppercase tracking-[0.14em] text-[9px] font-black">Status</div>
+              <div className="opacity-60 uppercase tracking-[0.14em] text-[9px] font-black">{t("profile.cards.statusLabel")}</div>
               <div className="mt-0.5 font-bold flex items-center gap-1" style={{ color: statusColor }}>
                 {expired ? <ShieldAlert className="h-3 w-3" /> : c.is_default ? <CheckCircle2 className="h-3 w-3" /> : <Clock className="h-3 w-3" />}
-                {expired ? "Udløbet" : c.is_default ? "Standard" : "Aktiv"}
+                {expired ? t("profile.cards.status.expired") : c.is_default ? t("profile.cards.status.default") : t("profile.cards.status.active")}
               </div>
             </div>
             <div>
-              <div className="opacity-60 uppercase tracking-[0.14em] text-[9px] font-black">Udløber</div>
+              <div className="opacity-60 uppercase tracking-[0.14em] text-[9px] font-black">{t("profile.cards.expiresColLabel")}</div>
               <div className="mt-0.5 font-bold flex items-center gap-1" style={{ color: expired ? "#c0392b" : expiresSoon ? C.orange : C.ink }}>
                 {String(c.exp_month).padStart(2, "0")}/{String(c.exp_year).slice(-2)}
-                {expiresSoon && <span className="text-[9px] font-bold opacity-80">(snart)</span>}
+                {expiresSoon && <span className="text-[9px] font-bold opacity-80">{t("profile.cards.soonSuffix")}</span>}
               </div>
             </div>
             <div>
-              <div className="opacity-60 uppercase tracking-[0.14em] text-[9px] font-black">Seneste brug</div>
-              <div className="mt-0.5 font-bold">{lu || <span className="opacity-50 font-normal">Aldrig brugt</span>}</div>
+              <div className="opacity-60 uppercase tracking-[0.14em] text-[9px] font-black">{t("profile.cards.lastUsedLabel")}</div>
+              <div className="mt-0.5 font-bold">{lu || <span className="opacity-50 font-normal">{t("profile.cards.neverUsed")}</span>}</div>
               {luRaw && (
                 <button
                   onClick={() => setExpandedUsage((prev) => ({ ...prev, [c.id]: !prev[c.id] }))}
@@ -1278,7 +1291,7 @@ function CardsTab() {
                   style={{ color: C.teal }}
                   aria-expanded={!!expandedUsage[c.id]}
                 >
-                  {expandedUsage[c.id] ? "Skjul detaljer" : "Vis detaljer"}
+                  {expandedUsage[c.id] ? t("profile.cards.hideDetails") : t("profile.cards.showDetails")}
                   <ArrowDownCircle className={`h-3 w-3 transition-transform ${expandedUsage[c.id] ? "rotate-180" : ""}`} />
                 </button>
               )}
@@ -1289,11 +1302,11 @@ function CardsTab() {
             <div className="mt-2 rounded-xl border-2 p-3 text-[11px]" style={{ borderColor: `${C.ink}22`, background: C.cream }}>
               <div className="flex flex-col gap-1">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="opacity-60 uppercase tracking-[0.14em] text-[9px] font-black">Dato</span>
-                  <span className="font-bold">{new Date(luRaw.created_at).toLocaleDateString("da-DK", { weekday: "long", day: "2-digit", month: "long", year: "numeric" })}</span>
+                  <span className="opacity-60 uppercase tracking-[0.14em] text-[9px] font-black">{t("profile.cards.dateLabel")}</span>
+                  <span className="font-bold">{new Date(luRaw.created_at).toLocaleDateString(i18n.language, { weekday: "long", day: "2-digit", month: "long", year: "numeric" })}</span>
                 </div>
                 <div className="flex items-center justify-between gap-2">
-                  <span className="opacity-60 uppercase tracking-[0.14em] text-[9px] font-black">Reference</span>
+                  <span className="opacity-60 uppercase tracking-[0.14em] text-[9px] font-black">{t("profile.cards.referenceLabel")}</span>
                   <span className="font-mono font-bold">{luRaw.id.slice(0, 8).toUpperCase()}</span>
                 </div>
               </div>
@@ -1305,10 +1318,10 @@ function CardsTab() {
               <ShieldAlert className="h-4 w-4 mt-0.5 shrink-0" style={{ color: C.orange }} />
               <div className="flex-1 min-w-0">
                 <div className="font-black uppercase tracking-[0.14em] text-[10px]" style={{ color: C.orange }}>
-                  {monthsToExp <= 0 ? "Udløber denne måned" : monthsToExp === 1 ? "Udløber om ca. 1 måned" : "Udløber snart"}
+                  {monthsToExp <= 0 ? t("profile.cards.expiresThisMonth") : monthsToExp === 1 ? t("profile.cards.expiresInMonth") : t("profile.cards.expiresSoonTitle")}
                 </div>
                 <div className="mt-0.5 opacity-80">
-                  Vi anbefaler at du erstatter kortet i god tid{c.is_default ? " – det er dit standardkort og bruges til næste betaling" : ""}, så kommende betalinger ikke afvises.
+                  {t("profile.cards.expiresSoonBody", { defaultNote: c.is_default ? t("profile.cards.expiresSoonBodyDefault") : "" })}
                 </div>
                 <button
                   onClick={() => startAdd(c.id)}
@@ -1316,7 +1329,7 @@ function CardsTab() {
                   className="mt-2 inline-flex items-center gap-1 rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] disabled:opacity-40"
                   style={{ background: C.orange, color: C.cream }}
                 >
-                  <CreditCard className="h-3 w-3" /> Erstat kortet nu
+                  <CreditCard className="h-3 w-3" /> {t("profile.cards.replaceNow")}
                 </button>
               </div>
             </div>
@@ -1334,9 +1347,9 @@ function CardsTab() {
                 style={{ borderColor: `${C.ink}33`, color: C.ink }}
               >
                 {defaultingId === c.id ? (
-                  <><Loader2 className="h-3 w-3 animate-spin" /> Opdaterer…</>
+                  <><Loader2 className="h-3 w-3 animate-spin" /> {t("profile.cards.updating")}</>
                 ) : (
-                  <><Star className="h-3 w-3" /> Sæt som standard</>
+                  <><Star className="h-3 w-3" /> {t("profile.cards.setDefault")}</>
                 )}
               </button>
             )}
@@ -1346,7 +1359,7 @@ function CardsTab() {
               className="inline-flex items-center gap-1 rounded-full border-2 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.16em] disabled:opacity-40"
               style={{ borderColor: `${C.ink}33`, color: C.ink }}
             >
-              <CreditCard className="h-3 w-3" /> Erstat
+              <CreditCard className="h-3 w-3" /> {t("profile.cards.replace")}
             </button>
           </div>
         </div>
@@ -1357,12 +1370,12 @@ function CardsTab() {
   return (
     <div className="space-y-4">
       {cards === null ? (
-        <div className="opacity-60 text-sm">Henter…</div>
+        <div className="opacity-60 text-sm">{t("profile.cards.loading")}</div>
       ) : cards.length === 0 ? (
         <div className="rounded-2xl border-2 border-dashed bg-white p-8 text-center" style={{ borderColor: `${C.ink}33` }}>
           <CreditCard className="mx-auto h-8 w-8 opacity-40" />
-          <div className="mt-3 font-display text-xl">Ingen gemte kort</div>
-          <p className="mt-2 text-sm opacity-70">Tilføj et kort så booking går hurtigere næste gang.</p>
+          <div className="mt-3 font-display text-xl">{t("profile.cards.emptyTitle")}</div>
+          <p className="mt-2 text-sm opacity-70">{t("profile.cards.emptySubtitle")}</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -1372,10 +1385,10 @@ function CardsTab() {
             const expDate = new Date(def.exp_year, def.exp_month, 0);
             const defExpired = expDate < now;
             const bookingDate = nextBooking
-              ? new Date(nextBooking.booking_date).toLocaleDateString("da-DK", { weekday: "short", day: "2-digit", month: "short" })
+              ? new Date(nextBooking.booking_date).toLocaleDateString(i18n.language, { weekday: "short", day: "2-digit", month: "short" })
               : null;
             const amount = nextBooking
-              ? new Intl.NumberFormat("da-DK", { style: "currency", currency: nextBooking.currency, maximumFractionDigits: 0 }).format(nextBooking.customer_pays / 100)
+              ? new Intl.NumberFormat(i18n.language, { style: "currency", currency: nextBooking.currency, maximumFractionDigits: 0 }).format(nextBooking.customer_pays / 100)
               : null;
             return (
               <div className="rounded-2xl border-2 p-3" style={{ borderColor: defExpired ? "#c0392b" : C.teal, background: defExpired ? "#fdecea" : `${C.teal}12`, color: C.ink }}>
@@ -1385,24 +1398,24 @@ function CardsTab() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="font-black uppercase tracking-[0.16em] text-[10px]" style={{ color: defExpired ? "#c0392b" : C.teal }}>
-                      Næste planlagte betaling
+                      {t("profile.cards.nextPaymentTitle")}
                     </div>
                     <div className="mt-1 text-sm font-bold flex flex-wrap items-center gap-x-2 gap-y-0.5">
                       <span>{def.brand} •••• {def.last4}</span>
-                      <span className="text-[11px] opacity-60 font-normal">Udløber {String(def.exp_month).padStart(2, "0")}/{String(def.exp_year).slice(-2)}</span>
+                      <span className="text-[11px] opacity-60 font-normal">{t("profile.cards.expiresLabel", { date: `${String(def.exp_month).padStart(2, "0")}/${String(def.exp_year).slice(-2)}` })}</span>
                     </div>
                     {nextBooking ? (
                       <div className="mt-1 text-[12px] opacity-85">
-                        Trækkes for <b>{nextBooking.service}</b> hos <b>{nextBooking.provider_name}</b> · {bookingDate} {nextBooking.slot} · <b>{amount}</b>
+                        {t("profile.cards.chargedFor", { service: nextBooking.service, provider: nextBooking.provider_name, date: bookingDate, slot: nextBooking.slot, amount })}
                       </div>
                     ) : (
                       <div className="mt-1 text-[12px] opacity-70">
-                        Ingen kommende bookinger planlagt. Kortet bruges automatisk til din næste booking.
+                        {t("profile.cards.noUpcoming")}
                       </div>
                     )}
                     {defExpired && (
                       <div className="mt-2 text-[11px] font-bold" style={{ color: "#c0392b" }}>
-                        Standardkortet er udløbet — erstat det inden næste betaling.
+                        {t("profile.cards.defaultExpired")}
                       </div>
                     )}
                   </div>
@@ -1426,13 +1439,13 @@ function CardsTab() {
                 <ShieldAlert className="h-5 w-5 mt-0.5 shrink-0" style={{ color: C.orange }} />
                 <div className="flex-1 min-w-0">
                   <div className="font-black uppercase tracking-[0.16em] text-[11px]" style={{ color: C.orange }}>
-                    {soon.length === 1 ? "1 kort udløber snart" : `${soon.length} kort udløber snart`}
+                    {t("profile.cards.expiringCount", { count: soon.length })}
                   </div>
                   <div className="mt-1 opacity-85">
                     {hasDefault
-                      ? "Dit standardkort udløber inden for 2 måneder. Tilføj et nyt kort nu, så din næste betaling ikke afvises."
-                      : "Erstat kortene i god tid for at undgå afviste betalinger."}
-                    {" "}Vi anbefaler at gøre det med det samme.
+                      ? t("profile.cards.expiringDefaultWarning")
+                      : t("profile.cards.expiringOtherWarning")}
+                    {t("profile.cards.expiringDoNow")}
                   </div>
                   <div className="mt-2 flex flex-wrap gap-1.5">
                     {soon.map((c) => (
@@ -1447,7 +1460,7 @@ function CardsTab() {
                     className="mt-2 inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.16em] disabled:opacity-40"
                     style={{ background: C.orange, color: C.cream }}
                   >
-                    <CreditCard className="h-3 w-3" /> Erstat {hasDefault ? "standardkort" : "kort"} nu
+                    <CreditCard className="h-3 w-3" /> {hasDefault ? t("profile.cards.replaceDefaultNow") : t("profile.cards.replaceCardNow")}
                   </button>
                 </div>
               </div>
@@ -1458,7 +1471,7 @@ function CardsTab() {
           <div className="flex flex-wrap items-center gap-2">
             <div className="flex items-center gap-1.5 rounded-xl border-2 px-3 py-2" style={{ borderColor: `${C.ink}22`, background: C.cream }}>
               <Filter className="h-3.5 w-3.5 opacity-60" />
-              <span className="text-[10px] font-black uppercase tracking-[0.18em] opacity-70">Filtrér</span>
+              <span className="text-[10px] font-black uppercase tracking-[0.18em] opacity-70">{t("profile.cards.filterLabel")}</span>
             </div>
             {FILTER_OPTIONS.map((opt) => {
               const active = filter === opt.key;
@@ -1494,10 +1507,10 @@ function CardsTab() {
         <div className="flex items-start gap-2 rounded-xl border-2 p-3 text-xs" style={{ borderColor: `${C.orange}66`, background: `${C.orange}14`, color: C.ink }}>
           <ShieldAlert className="h-4 w-4 mt-0.5 shrink-0" style={{ color: C.orange }} />
           <div className="flex-1">
-            <div className="font-bold">Der opstod en fejl</div>
+            <div className="font-bold">{t("profile.cards.errorTitle")}</div>
             <div className="opacity-80">{actionError}</div>
           </div>
-          <button onClick={() => setActionError(null)} className="opacity-60 hover:opacity-100" aria-label="Luk"><X className="h-3.5 w-3.5" /></button>
+          <button onClick={() => setActionError(null)} className="opacity-60 hover:opacity-100" aria-label={t("profile.cards.closeAria")}><X className="h-3.5 w-3.5" /></button>
         </div>
       )}
 
@@ -1507,18 +1520,18 @@ function CardsTab() {
           className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-xs font-bold uppercase tracking-[0.18em] shadow-[4px_4px_0_rgba(0,0,0,0.18)] transition hover:-translate-y-0.5"
           style={{ background: C.orange, color: C.ink }}
         >
-          <Plus className="h-4 w-4" /> Tilføj betalingskort
+          <Plus className="h-4 w-4" /> {t("profile.cards.addCard")}
         </button>
       )}
 
       {adding && (!clientSecret || !stripePromise) && (
         <div className="rounded-2xl border-2 bg-white p-5" style={{ borderColor: `${C.ink}22` }}>
           <div className="text-[10px] font-black uppercase tracking-[0.22em] opacity-70 mb-3">
-            {replaceCard ? "Erstat kort" : "Nyt kort"}
+            {replaceCard ? t("profile.cards.replaceCardTitle") : t("profile.cards.newCardTitle")}
           </div>
           <div className="flex items-center gap-3 text-sm opacity-80">
             <Loader2 className="h-4 w-4 animate-spin" />
-            Forbereder sikker Stripe-formular…
+            {t("profile.cards.preparingForm")}
           </div>
         </div>
       )}
@@ -1526,11 +1539,11 @@ function CardsTab() {
       {adding && clientSecret && stripePromise && (
         <div className="rounded-2xl border-2 bg-white p-5" style={{ borderColor: `${C.ink}22` }}>
           <div className="text-[10px] font-black uppercase tracking-[0.22em] opacity-70 mb-1">
-            {replaceCard ? "Erstat kort" : "Nyt kort"}
+            {replaceCard ? t("profile.cards.replaceCardTitle") : t("profile.cards.newCardTitle")}
           </div>
           {replaceCard && (
             <div className="mb-3 text-[11px] opacity-70">
-              Det nye kort bliver sat som standard, og {replaceCard.brand?.toUpperCase()} •••• {replaceCard.last4} fjernes automatisk.
+              {t("profile.cards.replaceNote", { brand: replaceCard.brand?.toUpperCase(), last4: replaceCard.last4 })}
             </div>
           )}
           <Elements stripe={stripePromise} options={{ clientSecret, appearance: { theme: "stripe" } }}>
@@ -1547,7 +1560,7 @@ function CardsTab() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {pendingDelete?.is_default ? "Slet standardkort?" : "Fjern betalingskort?"}
+              {pendingDelete?.is_default ? t("profile.cards.deleteDefaultTitle") : t("profile.cards.deleteCardTitle")}
             </AlertDialogTitle>
             <AlertDialogDescription asChild>
               <div className="space-y-3">
@@ -1559,7 +1572,7 @@ function CardsTab() {
                     <div className="text-sm">
                       <div className="font-bold">•••• {pendingDelete.last4}</div>
                       <div className="text-[11px] opacity-60">
-                        Udløber {String(pendingDelete.exp_month).padStart(2, "0")}/{String(pendingDelete.exp_year).slice(-2)}
+                        {t("profile.cards.expiresLabel", { date: `${String(pendingDelete.exp_month).padStart(2, "0")}/${String(pendingDelete.exp_year).slice(-2)}` })}
                       </div>
                     </div>
                   </div>
@@ -1567,7 +1580,7 @@ function CardsTab() {
                 {pendingDelete?.is_default && (cards?.length ?? 0) > 1 && (
                   <div className="space-y-2">
                     <div className="text-xs opacity-80">
-                      Dette er dit standardkort. Vælg et nyt standardkort før du sletter:
+                      {t("profile.cards.pickNewDefault")}
                     </div>
                     <select
                       value={newDefaultId}
@@ -1585,14 +1598,14 @@ function CardsTab() {
                 )}
                 {pendingDelete?.is_default && (cards?.length ?? 0) === 1 && (
                   <div className="rounded-xl border-2 p-3 text-xs" style={{ borderColor: `${C.orange}66`, background: `${C.orange}14`, color: C.ink }}>
-                    Dette er dit eneste gemte kort. Du skal manuelt indtaste kortoplysninger ved næste booking.
+                    {t("profile.cards.onlyCardWarning")}
                   </div>
                 )}
               </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={busyId !== null}>Annullér</AlertDialogCancel>
+            <AlertDialogCancel disabled={busyId !== null}>{t("common:cancel")}</AlertDialogCancel>
             <AlertDialogAction
               onClick={(e) => { e.preventDefault(); confirmRemove(); }}
               disabled={
@@ -1601,7 +1614,7 @@ function CardsTab() {
               }
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {busyId ? "Sletter…" : "Slet kort"}
+              {busyId ? t("profile.cards.deleting") : t("profile.cards.deleteCard")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -1623,7 +1636,7 @@ function AddCardForm({ clientSecret, onDone, onCancel }: { clientSecret: string;
     setBusy(true);
     const { error, setupIntent } = await stripe.confirmCardSetup(clientSecret, { payment_method: { card } });
     setBusy(false);
-    if (error) return toast.error(error.message || "Kunne ikke gemme kort");
+    if (error) return toast.error(error.message || "Kortet blev ikke gemt. Kontrollér oplysningerne, og prøv igen.");
     toast.success("Kort gemt");
     const pmId = typeof setupIntent?.payment_method === "string" ? setupIntent.payment_method : null;
     onDone(pmId);
@@ -1652,19 +1665,20 @@ function AddCardForm({ clientSecret, onDone, onCancel }: { clientSecret: string;
 
 /* ---------- INVOICES TAB ---------- */
 function InvoicesTab() {
+  const { t, i18n } = useTranslation("customer");
   const bookings = useBookings();
   const invoices = useMemo(
     () => (bookings || []).filter((b) => b.payment_status === "captured" || b.status === "completed"),
     [bookings],
   );
 
-  if (bookings === null) return <div className="opacity-60 text-sm">Henter…</div>;
+  if (bookings === null) return <div className="opacity-60 text-sm">{t("profile.invoices.loading")}</div>;
   if (invoices.length === 0) {
     return (
       <div className="rounded-2xl border-2 border-dashed bg-white p-8 text-center" style={{ borderColor: `${C.ink}33` }}>
         <Receipt className="mx-auto h-8 w-8 opacity-40" />
-        <div className="mt-3 font-display text-xl">Ingen fakturaer endnu</div>
-        <p className="mt-2 text-sm opacity-70">Når en booking er gennemført og betalt, vises kvitteringen her.</p>
+        <div className="mt-3 font-display text-xl">{t("profile.invoices.emptyTitle")}</div>
+        <p className="mt-2 text-sm opacity-70">{t("profile.invoices.emptySubtitle")}</p>
       </div>
     );
   }
@@ -1672,7 +1686,7 @@ function InvoicesTab() {
   return (
     <div className="space-y-2">
       {invoices.map((b) => {
-        const d = new Date(b.booking_date).toLocaleDateString("da-DK", { day: "2-digit", month: "2-digit", year: "numeric" });
+        const d = new Intl.DateTimeFormat(i18n.language, { day: "2-digit", month: "2-digit", year: "numeric" }).format(new Date(b.booking_date));
         const num = `INV-${b.id.slice(0, 8).toUpperCase()}`;
         return (
           <details key={b.id} className="rounded-2xl border-2 bg-white" style={{ borderColor: `${C.ink}22` }}>
@@ -1684,17 +1698,17 @@ function InvoicesTab() {
                   <div className="text-[11px] opacity-60">{d} · {b.provider_name}</div>
                 </div>
               </div>
-              <div className="font-display text-base">{b.customer_pays.toLocaleString("da-DK")} {b.currency}</div>
+              <div className="font-display text-base">{b.customer_pays.toLocaleString(i18n.language)} {b.currency}</div>
             </summary>
             <div className="border-t-2 px-4 py-3 text-xs space-y-1.5" style={{ borderColor: `${C.ink}11` }}>
-              <Row k="Service" v={`${b.service} · ${b.hours} t`} />
-              <Row k="Dato" v={`${d} kl. ${b.slot}`} />
-              <Row k="Adresse" v={b.address} />
-              <Row k="Provider" v={b.provider_name} />
-              <Row k="Status" v={b.payment_status === "captured" ? "Betalt" : "Gennemført"} />
+              <Row k={t("profile.invoices.service")} v={`${b.service} · ${b.hours} ${t("profile.bookings.hoursSuffix")}`} />
+              <Row k={t("profile.invoices.date")} v={`${d} ${t("profile.bookings.timePrefix")} ${b.slot}`} />
+              <Row k={t("profile.invoices.address")} v={b.address} />
+              <Row k={t("profile.invoices.provider")} v={b.provider_name} />
+              <Row k={t("profile.invoices.status")} v={b.payment_status === "captured" ? t("profile.invoices.paid") : t("profile.invoices.completed")} />
               <div className="mt-2 border-t pt-2 flex justify-between font-bold" style={{ borderColor: `${C.ink}22` }}>
-                <span>Total</span>
-                <span>{b.customer_pays.toLocaleString("da-DK")} {b.currency}</span>
+                <span>{t("profile.invoices.total")}</span>
+                <span>{b.customer_pays.toLocaleString(i18n.language)} {b.currency}</span>
               </div>
             </div>
           </details>
@@ -1735,19 +1749,19 @@ type HistoryEvent = {
   meta?: string;
 };
 
-const REFUND_REASON_LABEL_HIST: Record<string, string> = {
-  requested_by_customer: "Kundens ønske",
-  duplicate: "Dobbeltbetaling",
-  fraudulent: "Mistanke om svindel",
-  expired_uncaptured_charge: "Reservation udløb",
+const REFUND_REASON_HIST_KEYS: Record<string, string> = {
+  requested_by_customer: "customer",
+  duplicate: "duplicate",
+  fraudulent: "fraudulent",
+  expired_uncaptured_charge: "expired",
 };
 
-function buildHistory(bookings: Booking[]): HistoryEvent[] {
+function buildHistory(bookings: Booking[], t: (key: string, opts?: Record<string, unknown>) => string): HistoryEvent[] {
   const events: HistoryEvent[] = [];
   for (const b of bookings) {
     const cardLabel = b.payment_method_brand && b.payment_method_last4
       ? `${b.payment_method_brand.toUpperCase()} •••• ${b.payment_method_last4}`
-      : "Betalingskort";
+      : t("profile.history.cardFallback");
 
     // Authorization
     if (b.payment_status !== "none" && b.payment_status !== "failed") {
@@ -1758,7 +1772,7 @@ function buildHistory(bookings: Booking[]): HistoryEvent[] {
         kind: "authorized",
         amount: b.customer_pays,
         currency: b.currency,
-        title: "Reserveret",
+        title: t("profile.history.events.reserved"),
         subtitle: `${b.provider_name} · ${b.service}`,
         meta: cardLabel,
       });
@@ -1772,7 +1786,7 @@ function buildHistory(bookings: Booking[]): HistoryEvent[] {
         kind: "captured",
         amount: b.customer_pays,
         currency: b.currency,
-        title: "Trukket fra kort",
+        title: t("profile.history.events.charged"),
         subtitle: `${b.provider_name} · ${b.service}`,
         meta: cardLabel,
       });
@@ -1786,7 +1800,7 @@ function buildHistory(bookings: Booking[]): HistoryEvent[] {
         kind: "canceled",
         amount: b.customer_pays,
         currency: b.currency,
-        title: "Reservation frigivet",
+        title: t("profile.history.events.reservationReleased"),
         subtitle: `${b.provider_name} · ${b.service}`,
       });
     }
@@ -1799,7 +1813,7 @@ function buildHistory(bookings: Booking[]): HistoryEvent[] {
         kind: "failed",
         amount: b.customer_pays,
         currency: b.currency,
-        title: "Betaling mislykkedes",
+        title: t("profile.history.events.paymentFailed"),
         subtitle: `${b.provider_name} · ${b.service}`,
         meta: cardLabel,
       });
@@ -1807,7 +1821,8 @@ function buildHistory(bookings: Booking[]): HistoryEvent[] {
     // Refunds
     const refunds = b.refunds || [];
     for (const r of refunds) {
-      const reason = r.reason ? (REFUND_REASON_LABEL_HIST[r.reason] || r.reason) : "Refundering";
+      const reasonKey = r.reason ? (REFUND_REASON_HIST_KEYS[r.reason] || null) : null;
+      const reason = reasonKey ? t(`profile.history.refundReason.${reasonKey}`) : (r.reason || t("profile.history.refundReason.default"));
       const kind: HistoryEvent["kind"] =
         r.status === "succeeded" ? "refund_succeeded"
         : r.status === "failed" ? "refund_failed"
@@ -1819,7 +1834,7 @@ function buildHistory(bookings: Booking[]): HistoryEvent[] {
         kind,
         amount: r.amount,
         currency: r.currency || b.currency,
-        title: r.status === "succeeded" ? "Refunderet til kort" : r.status === "failed" ? "Refundering mislykkedes" : "Refundering afventer",
+        title: r.status === "succeeded" ? t("profile.history.events.refundedToCard") : r.status === "failed" ? t("profile.history.events.refundFailed") : t("profile.history.events.refundPending"),
         subtitle: `${b.provider_name} · ${reason}`,
         meta: `${cardLabel} · ${r.id}`,
       });
@@ -1830,8 +1845,9 @@ function buildHistory(bookings: Booking[]): HistoryEvent[] {
 }
 
 function HistoryTab() {
+  const { t, i18n } = useTranslation("customer");
   const bookings = useBookings();
-  const events = useMemo(() => (bookings ? buildHistory(bookings) : []), [bookings]);
+  const events = useMemo(() => (bookings ? buildHistory(bookings, t) : []), [bookings, t]);
 
   const totals = useMemo(() => {
     let paid = 0, refunded = 0, reserved = 0;
@@ -1843,13 +1859,13 @@ function HistoryTab() {
     return { paid, refunded, reserved, net: paid - refunded };
   }, [events]);
 
-  if (bookings === null) return <div className="opacity-60 text-sm">Henter…</div>;
+  if (bookings === null) return <div className="opacity-60 text-sm">{t("profile.history.loading")}</div>;
   if (events.length === 0) {
     return (
       <div className="rounded-2xl border-2 border-dashed bg-white p-8 text-center" style={{ borderColor: `${C.ink}33` }}>
         <History className="mx-auto h-8 w-8 opacity-40" />
-        <div className="mt-3 font-display text-xl">Ingen betalinger endnu</div>
-        <p className="mt-2 text-sm opacity-70">Når du gennemfører bookinger, vises hele din betalingshistorik her.</p>
+        <div className="mt-3 font-display text-xl">{t("profile.history.emptyTitle")}</div>
+        <p className="mt-2 text-sm opacity-70">{t("profile.history.emptySubtitle")}</p>
       </div>
     );
   }
@@ -1869,17 +1885,17 @@ function HistoryTab() {
     <div className="space-y-5">
       {/* Totals */}
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-        <Stat label="Betalt i alt" value={`${totals.paid.toLocaleString("da-DK")} ${currency}`} tone={C.ink} fg={C.cream} />
-        <Stat label="Refunderet" value={`${totals.refunded.toLocaleString("da-DK")} ${currency}`} tone="#fde9d1" fg="#8a4a00" />
-        <Stat label="Reserveret nu" value={`${totals.reserved.toLocaleString("da-DK")} ${currency}`} tone={C.mint} fg={C.ink} />
-        <Stat label="Netto" value={`${totals.net.toLocaleString("da-DK")} ${currency}`} tone={C.teal} fg={C.cream} />
+        <Stat label={t("profile.history.totalPaid")} value={`${totals.paid.toLocaleString(i18n.language)} ${currency}`} tone={C.ink} fg={C.cream} />
+        <Stat label={t("profile.history.refunded")} value={`${totals.refunded.toLocaleString(i18n.language)} ${currency}`} tone="#fde9d1" fg="#8a4a00" />
+        <Stat label={t("profile.history.reservedNow")} value={`${totals.reserved.toLocaleString(i18n.language)} ${currency}`} tone={C.mint} fg={C.ink} />
+        <Stat label={t("profile.history.net")} value={`${totals.net.toLocaleString(i18n.language)} ${currency}`} tone={C.teal} fg={C.cream} />
       </div>
 
       {/* Timeline */}
       <div className="space-y-5">
         {[...groups.entries()].map(([key, list]) => {
           const sample = new Date(list[0].at);
-          const monthLabel = sample.toLocaleDateString("da-DK", { month: "long", year: "numeric" });
+          const monthLabel = new Intl.DateTimeFormat(i18n.language, { month: "long", year: "numeric" }).format(sample);
           return (
             <div key={key}>
               <div className="mb-2 text-[10px] font-black uppercase tracking-[0.24em] opacity-60">{monthLabel}</div>
@@ -1906,6 +1922,7 @@ function Stat({ label, value, tone, fg }: { label: string; value: string; tone: 
 }
 
 function HistoryRow({ ev, divider }: { ev: HistoryEvent; divider: boolean }) {
+  const { i18n } = useTranslation("customer");
   const cfg = (() => {
     switch (ev.kind) {
       case "authorized": return { Icon: Clock, bg: C.mint, fg: C.ink, sign: "" };
@@ -1918,8 +1935,8 @@ function HistoryRow({ ev, divider }: { ev: HistoryEvent; divider: boolean }) {
     }
   })();
   const d = new Date(ev.at);
-  const date = d.toLocaleDateString("da-DK", { day: "2-digit", month: "short" });
-  const time = d.toLocaleTimeString("da-DK", { hour: "2-digit", minute: "2-digit" });
+  const date = new Intl.DateTimeFormat(i18n.language, { day: "2-digit", month: "short" }).format(d);
+  const time = new Intl.DateTimeFormat(i18n.language, { hour: "2-digit", minute: "2-digit" }).format(d);
   const Icon = cfg.Icon;
   return (
     <div className="flex items-start gap-3 p-3.5" style={divider ? { borderTop: `1px solid ${C.ink}14` } : undefined}>
@@ -1933,7 +1950,7 @@ function HistoryRow({ ev, divider }: { ev: HistoryEvent; divider: boolean }) {
             <div className="truncate text-[11px] opacity-70">{ev.subtitle}</div>
           </div>
           <div className="text-right">
-            <div className="font-display text-sm leading-tight">{cfg.sign}{ev.amount.toLocaleString("da-DK")} {ev.currency}</div>
+            <div className="font-display text-sm leading-tight">{cfg.sign}{ev.amount.toLocaleString(i18n.language)} {ev.currency}</div>
             <div className="text-[10px] opacity-60">{date} · {time}</div>
           </div>
         </div>

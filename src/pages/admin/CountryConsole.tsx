@@ -1,7 +1,7 @@
 // /admin/countries — Admin Country Console. Read-only preview of the effective
 // public configuration, with server-side publish. Sensitive JSONB is never
 // written directly from the browser; it round-trips through admin-country-publish.
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 type Country = {
   iso: string;
@@ -39,18 +40,19 @@ const SECTIONS = [
 ] as const;
 
 export default function CountryConsole() {
+  const { t } = useTranslation("admin");
   const [rows, setRows] = useState<Country[]>([]);
   const [selectedIso, setSelectedIso] = useState<string | null>(null);
   const [draft, setDraft] = useState<Partial<Country>>({});
   const [summary, setSummary] = useState("");
   const [busy, setBusy] = useState(false);
 
-  useEffect(() => { load(); }, []);
-  async function load() {
+  const load = useCallback(async () => {
     const { data } = await supabase.from("country_configs").select("*").order("iso");
     setRows((data ?? []) as Country[]);
-    if (!selectedIso && data?.length) setSelectedIso(data[0].iso);
-  }
+    setSelectedIso((prev) => prev ?? (data?.length ? data[0].iso : null));
+  }, []);
+  useEffect(() => { void load(); }, [load]);
   const selected = useMemo(() => rows.find((r) => r.iso === selectedIso) ?? null, [rows, selectedIso]);
   useEffect(() => { if (selected) setDraft(selected); }, [selected]);
 
@@ -69,7 +71,7 @@ export default function CountryConsole() {
     setBusy(false);
     if (error) return toast.error(error.message);
     if ((data as { error?: string })?.error) return toast.error((data as { message?: string }).message ?? (data as { error: string }).error);
-    toast.success("Published new version");
+    toast.success(t("pages.countryConsole.publishedNewVersion"));
     setSummary("");
     void load();
   }
@@ -78,9 +80,9 @@ export default function CountryConsole() {
     <div className="mx-auto max-w-6xl space-y-4 p-6">
       <header className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold">Country Console</h1>
+          <h1 className="text-2xl font-semibold">{t("pages.countryConsole.title")}</h1>
           <p className="text-sm text-muted-foreground">
-            Versioned, immutable configuration. Publishing creates a new snapshot; existing bookings are never affected.
+            {t("pages.countryConsole.subtitle")}
           </p>
         </div>
         <div className="flex gap-2">
@@ -117,23 +119,23 @@ export default function CountryConsole() {
               </TabsContent>
 
               <TabsContent value="Currency & timezone" className="space-y-2 pt-4">
-                <label className="text-sm">Currency
+                <label className="text-sm">{t("pages.countryConsole.currency")}
                   <Input value={draft.currency ?? ""} onChange={(e) => setDraft({ ...draft, currency: e.target.value.toUpperCase() })} />
                 </label>
-                <label className="text-sm">Timezone
+                <label className="text-sm">{t("pages.countryConsole.timezone")}
                   <Input value={draft.timezone ?? ""} onChange={(e) => setDraft({ ...draft, timezone: e.target.value })} />
                 </label>
               </TabsContent>
 
               <TabsContent value="Pricing & commission" className="space-y-2 pt-4">
-                <label className="text-sm">Commission (bps, 2800 = 28%)
+                <label className="text-sm">{t("pages.countryConsole.commission")}
                   <Input type="number" value={draft.commission_bps ?? 0} onChange={(e) => setDraft({ ...draft, commission_bps: Number(e.target.value) })} />
                 </label>
-                <label className="text-sm">VAT rate (bps, 2500 = 25%)
+                <label className="text-sm">{t("pages.countryConsole.vatRate")}
                   <Input type="number" value={draft.vat_rate_bps ?? 0} onChange={(e) => setDraft({ ...draft, vat_rate_bps: Number(e.target.value) })} />
                 </label>
                 <p className="text-xs text-muted-foreground">
-                  Existing bookings never re-price. New rate applies only to future bookings snapshotted at creation.
+                  {t("pages.countryConsole.vatHint")}
                 </p>
               </TabsContent>
 
@@ -150,30 +152,30 @@ export default function CountryConsole() {
               {SECTIONS.filter((s) => !["Overview", "Currency & timezone", "Pricing & commission", "Booking rules"].includes(s)).map((s) => (
                 <TabsContent key={s} value={s} className="pt-4">
                   <p className="text-sm text-muted-foreground">
-                    {s}: managed via dedicated admin endpoints (Stripe readiness is read-only and never displays secrets).
+                    {t("pages.countryConsole.sectionManaged", { section: s })}
                   </p>
                 </TabsContent>
               ))}
             </Tabs>
 
             <div className="mt-4 flex items-end gap-2">
-              <label className="text-sm flex-1">Change summary
+              <label className="text-sm flex-1">{t("pages.countryConsole.changeSummary")}
                 <Textarea value={summary} onChange={(e) => setSummary(e.target.value)} rows={2} />
               </label>
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <Button disabled={busy}>Publish new version</Button>
+                  <Button disabled={busy}>{t("pages.countryConsole.publishNewVersion")}</Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader>
-                    <AlertDialogTitle>Publish v{selected.config_version + 1}?</AlertDialogTitle>
+                    <AlertDialogTitle>{t("pages.countryConsole.publishVersionConfirm", { version: selected.config_version + 1 })}</AlertDialogTitle>
                     <AlertDialogDescription>
-                      Existing bookings, invoices and credit notes will NOT be recalculated. The current version becomes immutable.
+                      {t("pages.countryConsole.publishWarning")}
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={publish}>Confirm publish</AlertDialogAction>
+                    <AlertDialogCancel>{t("pages.countryConsole.cancel")}</AlertDialogCancel>
+                    <AlertDialogAction onClick={publish}>{t("pages.countryConsole.confirmPublish")}</AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>

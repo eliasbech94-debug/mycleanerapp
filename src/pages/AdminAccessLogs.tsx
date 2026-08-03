@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,23 +26,24 @@ type AccessAttempt = {
 
 const PAGE_SIZE = 100;
 
-const resultBadge = (r: string) => {
-  if (r === "granted") return <Badge className="bg-success/15 text-success border-success/30"><ShieldCheck className="h-3 w-3 mr-1" />Adgang</Badge>;
-  if (r === "denied") return <Badge variant="destructive"><ShieldX className="h-3 w-3 mr-1" />Nægtet</Badge>;
-  if (r === "unauthenticated") return <Badge variant="outline" className="border-warning text-warning"><ShieldAlert className="h-3 w-3 mr-1" />Ikke logget ind</Badge>;
-  return <Badge variant="secondary">{r}</Badge>;
-};
-
 const fmtDate = (iso: string) =>
   new Date(iso).toLocaleString("da-DK", { day: "2-digit", month: "2-digit", year: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit" });
 
 export default function AdminAccessLogs() {
+  const { t } = useTranslation("admin");
   const [rows, setRows] = useState<AccessAttempt[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [resultFilter, setResultFilter] = useState<string>("all");
   const [routeFilter, setRouteFilter] = useState<string>("all");
+
+  const resultBadge = (r: string) => {
+    if (r === "granted") return <Badge className="bg-success/15 text-success border-success/30"><ShieldCheck className="h-3 w-3 mr-1" />{t("ops.accessLogs.result.granted")}</Badge>;
+    if (r === "denied") return <Badge variant="destructive"><ShieldX className="h-3 w-3 mr-1" />{t("ops.accessLogs.result.denied")}</Badge>;
+    if (r === "unauthenticated") return <Badge variant="outline" className="border-warning text-warning"><ShieldAlert className="h-3 w-3 mr-1" />{t("ops.accessLogs.result.unauthenticated")}</Badge>;
+    return <Badge variant="secondary">{r}</Badge>;
+  };
 
   const load = async () => {
     setLoading(true);
@@ -96,35 +98,35 @@ export default function AdminAccessLogs() {
       <div className="max-w-7xl mx-auto p-4 sm:p-6 md:p-8">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <Button asChild size="sm" variant="ghost"><Link to="/admin"><ArrowLeft className="h-4 w-4 mr-1" />Admin</Link></Button>
+            <Button asChild size="sm" variant="ghost"><Link to="/admin"><ArrowLeft className="h-4 w-4 mr-1" />{t("ops.accessLogs.adminLink")}</Link></Button>
             <div>
               <h1 className="font-heading text-xl sm:text-2xl font-bold flex items-center gap-2">
-                <Shield className="h-5 w-5 text-primary" /> Adgangs-log
+                <Shield className="h-5 w-5 text-primary" /> {t("ops.accessLogs.title")}
               </h1>
-              <p className="text-xs sm:text-sm text-muted-foreground">Forsøg på adgang til admin- og employee-ruter</p>
+              <p className="text-xs sm:text-sm text-muted-foreground">{t("ops.accessLogs.subtitle")}</p>
             </div>
           </div>
           <Button size="sm" variant="outline" onClick={load} disabled={loading}>
-            <RefreshCw className={`h-4 w-4 mr-1 ${loading ? "animate-spin" : ""}`} />Opdater
+            <RefreshCw className={`h-4 w-4 mr-1 ${loading ? "animate-spin" : ""}`} />{t("ops.accessLogs.refresh")}
           </Button>
         </div>
 
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
           <div className="glass-card p-4">
-            <div className="text-xs text-muted-foreground">Total (seneste {PAGE_SIZE})</div>
+            <div className="text-xs text-muted-foreground">{t("ops.accessLogs.stats.total", { count: PAGE_SIZE })}</div>
             <div className="text-2xl font-bold">{stats.total}</div>
           </div>
           <div className="glass-card p-4">
-            <div className="text-xs text-muted-foreground">Adgang givet</div>
+            <div className="text-xs text-muted-foreground">{t("ops.accessLogs.stats.granted")}</div>
             <div className="text-2xl font-bold text-success">{stats.granted}</div>
           </div>
           <div className="glass-card p-4">
-            <div className="text-xs text-muted-foreground">Nægtet</div>
+            <div className="text-xs text-muted-foreground">{t("ops.accessLogs.stats.denied")}</div>
             <div className="text-2xl font-bold text-destructive">{stats.denied}</div>
           </div>
           <div className="glass-card p-4">
-            <div className="text-xs text-muted-foreground">Ikke logget ind</div>
+            <div className="text-xs text-muted-foreground">{t("ops.accessLogs.stats.unauthenticated")}</div>
             <div className="text-2xl font-bold text-warning">{stats.unauth}</div>
           </div>
         </div>
@@ -132,24 +134,24 @@ export default function AdminAccessLogs() {
         {/* Filters */}
         <div className="flex flex-col md:flex-row gap-2 mb-4">
           <Input
-            placeholder="Søg på email, bruger-id, rute eller årsag…"
+            placeholder={t("ops.accessLogs.searchPlaceholder")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="md:w-80"
           />
           <Select value={resultFilter} onValueChange={setResultFilter}>
-            <SelectTrigger className="md:w-48"><SelectValue placeholder="Resultat" /></SelectTrigger>
+            <SelectTrigger className="md:w-48"><SelectValue placeholder={t("ops.accessLogs.filters.resultPlaceholder")} /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Alle resultater</SelectItem>
-              <SelectItem value="granted">Adgang givet</SelectItem>
-              <SelectItem value="denied">Nægtet</SelectItem>
-              <SelectItem value="unauthenticated">Ikke logget ind</SelectItem>
+              <SelectItem value="all">{t("ops.accessLogs.filters.allResults")}</SelectItem>
+              <SelectItem value="granted">{t("ops.accessLogs.result.granted")}</SelectItem>
+              <SelectItem value="denied">{t("ops.accessLogs.result.denied")}</SelectItem>
+              <SelectItem value="unauthenticated">{t("ops.accessLogs.result.unauthenticated")}</SelectItem>
             </SelectContent>
           </Select>
           <Select value={routeFilter} onValueChange={setRouteFilter}>
-            <SelectTrigger className="md:w-56"><SelectValue placeholder="Rute" /></SelectTrigger>
+            <SelectTrigger className="md:w-56"><SelectValue placeholder={t("ops.accessLogs.filters.routePlaceholder")} /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Alle ruter</SelectItem>
+              <SelectItem value="all">{t("ops.accessLogs.filters.allRoutes")}</SelectItem>
               {routes.map((r) => <SelectItem key={r} value={r}>{r}</SelectItem>)}
             </SelectContent>
           </Select>
@@ -157,7 +159,7 @@ export default function AdminAccessLogs() {
 
         {error && (
           <div className="glass-card p-4 mb-4 border border-destructive text-destructive text-sm">
-            Kunne ikke hente log: {error}
+            {t("ops.accessLogs.loadError", { message: error })}
           </div>
         )}
 
@@ -166,18 +168,18 @@ export default function AdminAccessLogs() {
           {loading ? (
             <div className="p-12 flex justify-center"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>
           ) : filtered.length === 0 ? (
-            <div className="p-12 text-center text-sm text-muted-foreground">Ingen adgangsforsøg matcher filteret.</div>
+            <div className="p-12 text-center text-sm text-muted-foreground">{t("ops.accessLogs.noneMatch")}</div>
           ) : (
             <table className="w-full text-sm">
               <thead className="bg-muted/40 text-xs uppercase text-muted-foreground">
                 <tr>
-                  <th className="px-3 py-2 text-left">Tidspunkt</th>
-                  <th className="px-3 py-2 text-left">Resultat</th>
-                  <th className="px-3 py-2 text-left">Bruger</th>
-                  <th className="px-3 py-2 text-left">Rute</th>
-                  <th className="px-3 py-2 text-left">Krævede roller</th>
-                  <th className="px-3 py-2 text-left">Brugerens roller</th>
-                  <th className="px-3 py-2 text-left">Årsag</th>
+                  <th className="px-3 py-2 text-left">{t("ops.accessLogs.headers.timestamp")}</th>
+                  <th className="px-3 py-2 text-left">{t("ops.accessLogs.headers.result")}</th>
+                  <th className="px-3 py-2 text-left">{t("ops.accessLogs.headers.user")}</th>
+                  <th className="px-3 py-2 text-left">{t("ops.accessLogs.headers.route")}</th>
+                  <th className="px-3 py-2 text-left">{t("ops.accessLogs.headers.allowedRoles")}</th>
+                  <th className="px-3 py-2 text-left">{t("ops.accessLogs.headers.userRoles")}</th>
+                  <th className="px-3 py-2 text-left">{t("ops.accessLogs.headers.reason")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
@@ -186,7 +188,7 @@ export default function AdminAccessLogs() {
                     <td className="px-3 py-2 whitespace-nowrap text-xs text-muted-foreground">{fmtDate(r.created_at)}</td>
                     <td className="px-3 py-2">{resultBadge(r.result)}</td>
                     <td className="px-3 py-2">
-                      <div className="font-medium">{r.email ?? <span className="text-muted-foreground italic">anonym</span>}</div>
+                      <div className="font-medium">{r.email ?? <span className="text-muted-foreground italic">{t("ops.accessLogs.anonymous")}</span>}</div>
                       {r.user_id && <div className="text-[10px] text-muted-foreground font-mono">{r.user_id.slice(0, 8)}…</div>}
                     </td>
                     <td className="px-3 py-2 font-mono text-xs">{r.route}</td>

@@ -1,0 +1,676 @@
+{
+  "greeting": {
+    "day": "Guten Tag",
+    "evening": "Guten Abend",
+    "morning": "Guten Morgen"
+  },
+  "profile": {
+    "addresses": {
+      "subtitle": "Fügen Sie mehrere Adressen mit Zugangsinformationen, Haustieren, Parkmöglichkeiten usw. hinzu. Die Hauptadresse wird bei der Buchung automatisch gewählt.",
+      "title": "Meine Adressen"
+    },
+    "bookings": {
+      "cardFallback": "Karte",
+      "emptySubtitle": "Finden Sie einen Cleaner und buchen Sie direkt im Kalender.",
+      "emptyTitle": "Noch keine Buchungen",
+      "findCleaner": "Cleaner finden",
+      "fullRefund": "Vollständige Erstattung",
+      "hoursSuffix": "Std.",
+      "loading": "Wird geladen…",
+      "paidStatus": "Bezahlt",
+      "partialRefund": "Teilweise Erstattung",
+      "payment": {
+        "authorized": "Reserviert",
+        "canceled": "Storniert",
+        "captured": "Bezahlt",
+        "failed": "Nicht abgeschlossen",
+        "partially_refunded": "Teilweise erstattet",
+        "refunded": "Erstattet"
+      },
+      "pendingPaymentStatus": "Zahlung ausstehend",
+      "reason": "Grund",
+      "refundCount_one": "{{count}} Erstattung",
+      "refundCount_other": "{{count}} Erstattungen",
+      "refundDefault": "Erstattung",
+      "refundFailed": "Konnte nicht abgeschlossen werden",
+      "refundFailedReason": "Konnte nicht abgeschlossen werden: {{reason}}",
+      "refundId": "Erstattungs-ID",
+      "refundReason": {
+        "duplicate": "Doppelte Zahlung",
+        "expired_uncaptured_charge": "Kartenreservierung abgelaufen",
+        "fraudulent": "Betrugsverdacht",
+        "requested_by_customer": "Auf Wunsch des Kunden"
+      },
+      "refunded": "Erstattet",
+      "remaining": "Verbleibend",
+      "reservedStatus": "Reserviert",
+      "seeReceipt": "Beleg ansehen",
+      "status": {
+        "accepted": "Angenommen",
+        "cancelled": "Storniert",
+        "completed": "Abgeschlossen",
+        "declined": "Abgelehnt",
+        "pending": "Warten auf Cleaner"
+      },
+      "timePrefix": "um",
+      "totalPrice": "Gesamtpreis",
+      "totalRefunded": "Gesamt erstattet",
+      "youPaid": "Sie haben bezahlt",
+      "youStillPay": "Sie zahlen noch"
+    },
+    "cards": {
+      "addCard": "Zahlungskarte hinzufügen",
+      "cardRemoved": "Karte entfernt",
+      "cardRemovedError": "Die Karte wurde nicht entfernt. Bitte versuchen Sie es gleich noch einmal.",
+      "cardReplaced": "Karte ersetzt",
+      "cardReplacedError": "Die Karte wurde nicht ersetzt. Bitte versuchen Sie es erneut oder nutzen Sie eine andere Zahlungsmethode.",
+      "cardSaved": "Karte gespeichert",
+      "chargedFor": "Wird belastet für {{service}} bei {{provider}} · {{date}} {{slot}} · {{amount}}",
+      "closeAria": "Schließen",
+      "dateLabel": "Datum",
+      "defaultExpired": "Ihre Standardkarte ist abgelaufen — ersetzen Sie sie vor der nächsten Zahlung.",
+      "defaultUpdateError": "Wir konnten Ihre Standardkarte nicht aktualisieren. Bitte versuchen Sie es erneut.",
+      "defaultUpdated": "Standardkarte aktualisiert",
+      "deleteCard": "Karte löschen",
+      "deleteCardTitle": "Zahlungskarte entfernen?",
+      "deleteDefaultTitle": "Standardkarte löschen?",
+      "deleting": "Wird gelöscht…",
+      "emptySubtitle": "Fügen Sie eine Karte hinzu, um das nächste Mal schneller zu buchen.",
+      "emptyTitle": "Keine gespeicherten Karten",
+      "errorTitle": "Wir konnten Ihre Zahlungsinformationen nicht abrufen",
+      "expiresColLabel": "Läuft ab",
+      "expiresInMonth": "Läuft in etwa 1 Monat ab",
+      "expiresLabel": "Läuft ab am {{date}}",
+      "expiresSoonBody": "Wir empfehlen, die Karte rechtzeitig zu ersetzen{{defaultNote}}, damit anstehende Zahlungen nicht abgelehnt werden.",
+      "expiresSoonBodyDefault": " – es ist Ihre Standardkarte und wird für Ihre nächste Zahlung verwendet",
+      "expiresSoonTitle": "Läuft bald ab",
+      "expiresThisMonth": "Läuft diesen Monat ab",
+      "expiringCount_one": "1 Karte läuft bald ab",
+      "expiringCount_other": "{{count}} Karten laufen bald ab",
+      "expiringDefaultWarning": "Ihre Standardkarte läuft innerhalb von 2 Monaten ab. Fügen Sie jetzt eine neue Karte hinzu, damit Ihre nächste Zahlung nicht abgelehnt wird.",
+      "expiringDoNow": " Wir empfehlen, dies sofort zu tun.",
+      "expiringOtherWarning": "Ersetzen Sie die Karten rechtzeitig, um abgelehnte Zahlungen zu vermeiden.",
+      "filterLabel": "Filter",
+      "filters": {
+        "active": "Aktiv",
+        "all": "Alle",
+        "default": "Standard",
+        "expired": "Abgelaufen"
+      },
+      "formOpenError": "Wir konnten das Formular für die Zahlungskarte nicht öffnen. Bitte versuchen Sie es erneut.",
+      "hideDetails": "Details ausblenden",
+      "lastUsedLabel": "Zuletzt verwendet",
+      "loading": "Wird geladen…",
+      "neverUsed": "Nie verwendet",
+      "newCardTitle": "Neue Karte",
+      "nextPaymentTitle": "Nächste geplante Zahlung",
+      "noUpcoming": "Keine bevorstehenden Buchungen geplant. Die Karte wird automatisch für Ihre nächste Buchung verwendet.",
+      "noneMatch": "Keine Karten entsprechen dem ausgewählten Filter.",
+      "onlyCardWarning": "Dies ist Ihre einzige gespeicherte Karte. Sie müssen die Kartendaten bei Ihrer nächsten Buchung manuell eingeben.",
+      "pickDefaultFirst": "Wählen Sie zuerst eine neue Standardkarte aus, bevor Sie die aktuelle entfernen.",
+      "pickNewDefault": "Dies ist Ihre Standardkarte. Wählen Sie vor dem Löschen eine neue Standardkarte aus:",
+      "preparingForm": "Sicheres Stripe-Formular wird vorbereitet…",
+      "referenceLabel": "Referenz",
+      "removeAria": "Entfernen",
+      "replace": "Ersetzen",
+      "replaceCardNow": "Karte jetzt ersetzen",
+      "replaceCardTitle": "Karte ersetzen",
+      "replaceDefaultNow": "Standardkarte jetzt ersetzen",
+      "replaceNote": "Die neue Karte wird als Standard festgelegt, und {{brand}} •••• {{last4}} wird automatisch entfernt.",
+      "replaceNow": "Karte jetzt ersetzen",
+      "saveCard": "Karte speichern",
+      "savingCardError": "Die Karte konnte nicht gespeichert werden. Überprüfen Sie die Angaben und versuchen Sie es erneut.",
+      "setDefault": "Als Standard festlegen",
+      "setupIntentMissing": "Wir konnten die sichere Zahlungsseite nicht öffnen. Bitte versuchen Sie es in Kürze erneut.",
+      "showDetails": "Details anzeigen",
+      "soonSuffix": "(bald)",
+      "status": {
+        "active": "Aktiv",
+        "default": "Standard – wird beim nächsten Mal verwendet",
+        "expired": "Abgelaufen"
+      },
+      "statusLabel": "Status",
+      "stripeKeyMissing": "Der öffentliche Stripe-Schlüssel fehlt in der Konfiguration",
+      "updating": "Wird aktualisiert…"
+    },
+    "header": {
+      "defaultName": "Ihr Profil"
+    },
+    "history": {
+      "cardFallback": "Zahlungskarte",
+      "emptySubtitle": "Sobald Sie Buchungen abschließen, finden Sie hier Ihren vollständigen Zahlungsverlauf.",
+      "emptyTitle": "Noch keine Zahlungen",
+      "events": {
+        "charged": "Von der Karte abgebucht",
+        "paymentFailed": "Zahlung fehlgeschlagen",
+        "refundFailed": "Erstattung fehlgeschlagen",
+        "refundPending": "Erstattung ausstehend",
+        "refundedToCard": "Auf Karte erstattet",
+        "reservationReleased": "Reservierung aufgehoben",
+        "reserved": "Reserviert"
+      },
+      "loading": "Wird geladen…",
+      "net": "Netto",
+      "refundReason": {
+        "customer": "Auf Wunsch des Kunden",
+        "default": "Erstattung",
+        "duplicate": "Doppelte Zahlung",
+        "expired": "Kartenreservierung abgelaufen",
+        "fraudulent": "Betrugsverdacht"
+      },
+      "refunded": "Erstattet",
+      "reservedNow": "Aktuell reserviert",
+      "totalPaid": "Gesamt bezahlt"
+    },
+    "info": {
+      "addressPlaceholder": "Straße, Nr., Etage, Stadt",
+      "addressTitle": "Meine Adresse",
+      "countryLabel": "Land",
+      "emailLabel": "E-Mail (Ihre Anmeldeadresse)",
+      "fullNameLabel": "Vollständiger Name",
+      "fullNamePlaceholder": "z. B. Mette Hansen",
+      "helperBanner": "Ihre Kontaktdaten wurden während des Onboardings erstellt und werden hier automatisch angezeigt — Sie können sie jederzeit anpassen.",
+      "phoneLabel": "Telefon",
+      "phonePlaceholder": "+49 151 23456789",
+      "providerIdHelp": "Geben Sie Ihre Provider-ID ein, um Zugriff auf das",
+      "providerIdHelpFull": "Gib deine Anbieter-ID ein, um Zugriff auf das <dash>Anbieter-Dashboard</dash> zu erhalten.",
+      "providerIdHelpLink": "Provider-Dashboard",
+      "providerIdLabel": "Provider-ID (nur wenn Sie selbst Cleaner sind)",
+      "providerIdPlaceholder": "z. B. p_002",
+      "saveButton": "Profil speichern",
+      "toast": {
+        "checkContact": "Überprüfen Sie Ihre Kontaktdaten",
+        "invalidAddress": "Wählen Sie vor dem Speichern eine gültige Adresse aus der Liste.",
+        "saved": "Profil gespeichert"
+      }
+    },
+    "invoices": {
+      "address": "Adresse",
+      "completed": "Abgeschlossen",
+      "date": "Datum",
+      "emptySubtitle": "Sobald eine Buchung abgeschlossen und bezahlt ist, finden Sie hier den Beleg.",
+      "emptyTitle": "Noch keine Rechnungen",
+      "loading": "Wird geladen…",
+      "paid": "Bezahlt",
+      "provider": "Provider",
+      "service": "Leistung",
+      "status": "Status",
+      "total": "Gesamt"
+    },
+    "nav": {
+      "back": "Zurück",
+      "complaint": "Beschwerde einreichen",
+      "help": "Hilfe & Support",
+      "menu": "Menü",
+      "signOut": "Abmelden",
+      "title": "Mein Profil"
+    },
+    "overview": {
+      "bookNewCleaner": "Neuen Cleaner buchen",
+      "cards": {
+        "empty": "Noch keine gespeicherten Karten.",
+        "loading": "Wird geladen…",
+        "manage": "Verwalten",
+        "saved_one": "<b>{{count}}</b> Karte für schnelles Buchen gespeichert.",
+        "saved_other": "<b>{{count}}</b> Karten für schnelles Buchen gespeichert.",
+        "title": "Karten & Zahlungen"
+      },
+      "checklist": {
+        "address": {
+          "action": "Hinzufügen",
+          "fallback": "Wählen Sie eine Adresse aus den Vorschlägen.",
+          "loading": "Wird geladen…",
+          "missing": "Keine Hauptadresse",
+          "title": "Hauptadresse"
+        },
+        "card": {
+          "action": "Karte hinzufügen",
+          "fallback": "Speichern Sie eine Karte, um mit einem Klick zu buchen.",
+          "loading": "Wird geladen…",
+          "saved_one": "{{count}} Karte für schnelles Buchen gespeichert.",
+          "saved_other": "{{count}} Karten für schnelles Buchen gespeichert.",
+          "title": "Zahlungskarte"
+        },
+        "contact": {
+          "action": "Ausfüllen",
+          "done": "Name, Telefonnummer und Land sind bestätigt.",
+          "fill": "Geben Sie Name, Telefonnummer und Land ein.",
+          "title": "Kontaktdaten"
+        },
+        "email": {
+          "done": "Ihre E-Mail-Adresse ist bestätigt.",
+          "pending": "Wir haben einen Bestätigungslink an Ihr Postfach gesendet.",
+          "title": "E-Mail bestätigen"
+        },
+        "firstBooking": {
+          "done": "Sie haben Ihre erste Anfrage gesendet.",
+          "pending": "Finden Sie einen Cleaner und buchen Sie in unter 2 Minuten.",
+          "title": "Erste Buchung"
+        },
+        "property": {
+          "action": "Ausfüllen",
+          "fallback": "Geben Sie Größe, Typ und Zugang an.",
+          "missing": "Wohnungsdetails fehlen",
+          "summary": "{{size}} m² · {{type}} · Zugang: {{access}}",
+          "title": "Wohnungsdetails"
+        }
+      },
+      "checklistSubtitle": "Erledigen Sie diese Schritte für das beste Match und die schnellste Buchung.",
+      "checklistTitle": "Vervollständigen Sie Ihr Profil",
+      "heroSubtitle": "Hier ist ein schneller Überblick über Ihre bevorstehenden Reinigungen, Adressen und Zahlungen.",
+      "myBookings": "Meine Buchungen",
+      "nextBooking": {
+        "empty": "Keine bevorstehenden Buchungen.",
+        "findCleaner": "Cleaner finden",
+        "hoursSuffix": "Std.",
+        "loading": "Wird geladen…",
+        "seeAll": "Alle anzeigen",
+        "timePrefix": "um",
+        "title": "Nächste Buchung"
+      },
+      "primaryAddress": {
+        "addOne": "Eine hinzufügen",
+        "empty": "Sie haben noch keine Adressen.",
+        "manage": "Verwalten",
+        "title": "Hauptadresse"
+      },
+      "recent": {
+        "empty": "Noch keine Aktivitäten.",
+        "fullHistory": "Vollständiger Verlauf",
+        "loading": "Wird geladen…",
+        "title": "Letzte Aktivitäten"
+      },
+      "stats": {
+        "addresses": "Adressen",
+        "completed": "Abgeschlossen",
+        "paidTotal": "Gesamt bezahlt",
+        "upcoming": "Bevorstehend"
+      },
+      "welcome": "Willkommen, {{name}}"
+    },
+    "tabs": {
+      "addresses": "Adressen",
+      "bookings": "Buchungen",
+      "cards": "Karten & Zahlungen",
+      "deactivate": "Konto deaktivieren",
+      "deduction": "Dienstleistungsabzug",
+      "history": "Zahlungsverlauf",
+      "inbox": "Posteingang",
+      "info": "Meine Angaben",
+      "invoices": "Rechnungen",
+      "notifications": "Benachrichtigungen",
+      "overview": "Übersicht",
+      "sms": "SMS",
+      "tax": "Steuerangaben"
+    }
+  },
+  "profileV2": {
+    "access": {
+      "code": "Code",
+      "emptyDescription": "Fügen Sie eine Hauptadresse hinzu, um Zugangshinweise zu speichern.",
+      "emptyTitle": "Keine Zugangshinweise",
+      "method": "Zugangsmethode",
+      "title": "Zugangshinweise"
+    },
+    "account": {
+      "activeDescription": "Ihr Konto ist aktiv. Sie können es jederzeit in den Kontoeinstellungen deaktivieren.",
+      "deactivate": "Deaktivieren",
+      "deactivated": "Konto ist deaktiviert",
+      "title": "Konto"
+    },
+    "addressLabels": {
+      "accessMethod": {
+        "code": "Türcode",
+        "doorman": "Hausmeister / Pförtner",
+        "home": "Ich bin zu Hause",
+        "key_box": "Schlüsselbox",
+        "key_under_mat": "Versteckter Schlüssel (unter Matte / Topf)",
+        "other": "Sonstiges"
+      },
+      "placeType": {
+        "business": "Gewerbe",
+        "other": "Sonstiges",
+        "private": "Privat",
+        "vacation": "Ferienhaus"
+      }
+    },
+    "addresses": {
+      "accessPrefix": "Zugang",
+      "addAddress": "Adresse hinzufügen",
+      "description": "Zugang, Größe, Haustiere und Notizen pro Adresse.",
+      "emptyDescription": "Fügen Sie eine Adresse hinzu, um die Buchung zu beschleunigen.",
+      "emptyTitle": "Noch keine gespeicherten Adressen",
+      "manage": "Verwalten",
+      "primary": "Hauptadresse",
+      "roomsSuffix": "Zimmer",
+      "sizeSuffix": "m²",
+      "title": "Gespeicherte Adressen"
+    },
+    "bookingsSummary_one": "Sie haben insgesamt {{count}} Buchung.",
+    "bookingsSummary_other": "Sie haben insgesamt {{count}} Buchungen.",
+    "comingSoon": {
+      "familyDescription": "Teilen Sie Ihr Konto und Ihre Buchungen mit dem Rest Ihres Haushalts.",
+      "familyTitle": "Familienmitglieder",
+      "productsDescription": "Speichern Sie bevorzugte Reinigungsprodukte und Allergien.",
+      "productsTitle": "Bevorzugte Produkte"
+    },
+    "contact": {
+      "noPhone": "Keine Telefonnummer",
+      "noSms": "Keine SMS-Nummer",
+      "title": "Kontakt",
+      "unverified": "Nicht bestätigt",
+      "verified": "Bestätigt"
+    },
+    "edit": "Bearbeiten",
+    "editProfile": "Profil bearbeiten",
+    "editors": {
+      "access": "Zugangshinweise",
+      "accessFields": {
+        "codeLabel": "Zugangscode (optional)",
+        "instructionsLabel": "Anweisungen",
+        "methodLabel": "Zugangsmethode"
+      },
+      "addresses": "Gespeicherte Adressen",
+      "common": {
+        "addPrimaryFirst": "Fügen Sie zuerst eine primäre Adresse hinzu",
+        "addPrimaryFirstInline": "Fügen Sie zuerst eine primäre Adresse unter \"Gespeicherte Adressen\" hinzu.",
+        "invalid": "Ungültig",
+        "saved": "Gespeichert"
+      },
+      "contact": "Kontakt",
+      "contactFields": {
+        "emailLabel": "E-Mail",
+        "emailNote": "E-Mail wird über die Kontoeinstellungen geändert.",
+        "errors": {
+          "phone": "Ungültige Nummer"
+        },
+        "phoneLabel": "Telefon",
+        "phonePlaceholder": "+49 151 23456789"
+      },
+      "deactivate": "Konto deaktivieren",
+      "notifications": "Benachrichtigungen",
+      "personal": "Persönliche Angaben",
+      "personalFields": {
+        "countryLabel": "Land (ISO 3166-1)",
+        "countryPlaceholder": "DE",
+        "errors": {
+          "charLimit": "Max. 100 Zeichen",
+          "countryCode": "2-stelliger Ländercode"
+        },
+        "fullNameLabel": "Vollständiger Name",
+        "languageLabel": "Sprache",
+        "languageNone": "—"
+      },
+      "preferences": "Reinigungspräferenzen",
+      "prefsFields": {
+        "childrenLabel": "Kinder im Haushalt",
+        "parkingLabel": "Parken",
+        "petDetailsLabel": "Angaben",
+        "petDetailsPlaceholder": "z. B. 'Hund, nicht aggressiv'",
+        "petsLabel": "Haustiere",
+        "suppliesLabel": "Reinigungsmittel vorhanden"
+      },
+      "tax": "Steuerangaben"
+    },
+    "manage": "Verwalten",
+    "memberSince": "Mitglied seit {{date}}",
+    "notifications": {
+      "channelsActive_one": "{{count}} Kanal aktiviert.",
+      "channelsActive_other": "{{count}} Kanäle aktiviert.",
+      "emptyDescription": "Wählen Sie, wie wir Sie zu Buchungen und Nachrichten kontaktieren dürfen.",
+      "emptyTitle": "Keine Kanäle aktiv",
+      "title": "Benachrichtigungen"
+    },
+    "open": "Öffnen",
+    "personal": {
+      "noName": "Kein Name angegeben",
+      "title": "Persönliche Angaben"
+    },
+    "preferences": {
+      "children": "Kinder",
+      "emptyDescription": "Fügen Sie eine Hauptadresse hinzu, um Ihre Präferenzen festzulegen",
+      "emptyTitle": "Noch keine Präferenzen",
+      "no": "Nein",
+      "parking": "Parkplatz",
+      "pets": "Haustiere",
+      "suppliesReady": "Reinigungsmittel vorhanden",
+      "title": "Reinigungspräferenzen",
+      "yes": "Ja"
+    },
+    "privacy": {
+      "description": "Sehen, laden Sie herunter oder beantragen Sie die Löschung Ihrer Daten im Privacy Center.",
+      "title": "Datenschutz"
+    },
+    "shortcuts": {
+      "cards": "Karten & Zahlungen",
+      "cardsDescription": "Zahlungsmethoden",
+      "invoices": "Rechnungen",
+      "invoicesDescription": "Belege und Dokumente",
+      "messages": "Nachrichten",
+      "messagesDescription": "Ihr Posteingang",
+      "myBookings": "Meine Buchungen",
+      "myBookingsDescription": "Ansehen und verwalten",
+      "support": "Support",
+      "supportDescription": "Hilfe erhalten",
+      "tax": "Steuerangaben",
+      "taxDescription": "Dienstleistungsabzug",
+      "title": "Schnellzugriffe"
+    },
+    "stats": {
+      "completed": "Abgeschlossen",
+      "lastBooking": "Letzte Buchung",
+      "totalBookings": "Buchungen insgesamt",
+      "upcoming": "Bevorstehend"
+    },
+    "subtitle": "Ihr Konto und Ihre Angaben",
+    "title": "Mein Profil",
+    "welcomeSubtitle": "Willkommen — buchen Sie Ihre erste Reinigung, sobald Sie bereit sind."
+  },
+  "surfaces": {
+    "addressBook": {
+      "emptyDescription": "Füge eine Adresse hinzu, damit du das nächste Mal schneller buchen kannst.",
+      "emptyTitle": "Noch keine gespeicherten Adressen",
+      "fields": {
+        "access": "Zugang für Reinigungskraft",
+        "accessInstructions": "Zugangsanweisungen (optional)",
+        "accessInstructionsPlaceholder": "z. B.: An Tür B klingeln, Schlüssel liegt unter der Matte",
+        "addressPlaceholder": "Straße, Nr., Ort",
+        "children": "Kinder im Haushalt",
+        "cleaningSupplies": "Reinigungsmittel sind bereit",
+        "codePlaceholder": "z. B. 1234",
+        "markPrimary": "Als primäre Adresse markieren",
+        "name": "Name der Adresse",
+        "namePlaceholder": "z. B. Zuhause, Ferienhaus, Büro",
+        "otherNotes": "Weitere Anmerkungen",
+        "parkingPlaceholder": "z. B. Kostenlos vor der Tür / Gebührenzone",
+        "petDetails": "Details zu Haustieren",
+        "petDetailsPlaceholder": "z. B. 1 Hund, allergiefreundlich",
+        "pets": "Haustiere im Haushalt",
+        "placeType": "Art des Ortes",
+        "rooms": "Zimmer",
+        "size": "Größe (m²)",
+        "wifiName": "WLAN-Name (optional)",
+        "wifiPassword": "WLAN-Passwort (optional)"
+      }
+    },
+    "bookingPlan": {
+      "addFocusPlaceholder": "Eigenen Schwerpunkt hinzufügen...",
+      "addRoomPlaceholder": "Raum hinzufügen (z. B. Flur, Hauswirtschaftsraum)",
+      "addTaskPlaceholder": "Aufgabe hinzufügen...",
+      "editingSaved": "Gespeicherten Plan bearbeiten",
+      "fixedPlan": "Fester Plan für die Immobilie",
+      "focusAreas": "Schwerpunkte",
+      "howToSave": "So möchtest du speichern",
+      "locked": "Gesperrt",
+      "noAddressFound": "Keine Adresse gefunden — füge eine in deinem Profil hinzu, um als festen Plan zu speichern.",
+      "notFound": "Buchung nicht gefunden.",
+      "notesPlaceholder": "z. B.: Der Schlüssel liegt unter der Matte, Hund ist zuhause, bitte parfümfreie Produkte verwenden...",
+      "notesToCleaner": "Notizen für die Reinigungskraft",
+      "onlyThisBooking": "Nur für diese Reinigung",
+      "reusedAt": "Wird automatisch für alle zukünftigen Buchungen verwendet bei",
+      "roomsAndTasks": "Räume und Aufgaben",
+      "title": "Reinigungsplan"
+    },
+    "createTask": {
+      "afternoon": "Nachmittag (12-17)",
+      "aiEstimate": "KI-Preisschätzung",
+      "describeTask": "Aufgabe beschreiben",
+      "descriptionPlaceholder": "Beschreibe, wobei du Hilfe brauchst. Je mehr Details, desto besseres Angebot...",
+      "evening": "Abend (17-21)",
+      "morning": "Morgen (8-12)",
+      "preferredDate": "Gewünschtes Datum",
+      "subtitle": "Beschreibe deine Aufgabe und erhalte KI-basierte Angebote von verifizierten Fachleuten",
+      "title": "Aufgabe erstellen"
+    },
+    "dashboard": {
+      "bookCleaning": "Reinigung buchen",
+      "complete": {
+        "addAddress": "Adresse hinzufügen",
+        "addPhone": "Telefon hinzufügen",
+        "description": "Ergänze die letzten Angaben, damit Buchungen schneller gehen.",
+        "title": "Profil vervollständigen"
+      },
+      "description": "Überblick über deine Buchungen, Nachrichten und dein Konto. Du wählst und buchst selbst einen unabhängigen Anbieter über die MyCleaner-Plattform.",
+      "feed": {
+        "description": "Persönliche Empfehlungen basierend auf deiner Historie sind unterwegs. Diese Funktion ist noch nicht aktiv.",
+        "title": "Persönlicher Feed"
+      },
+      "history": {
+        "description": "Quittung ansehen oder denselben Anbieter erneut buchen.",
+        "emptyDescription": "Deine abgeschlossenen Buchungen werden hier angezeigt.",
+        "emptyTitle": "Noch keine Historie",
+        "title": "Frühere Buchungen"
+      },
+      "notifications": {
+        "emptyDescription": "Nachrichten zu deinen Buchungen werden hier angezeigt.",
+        "emptyTitle": "Alles ruhig hier"
+      },
+      "quickActions": {
+        "book": {
+          "description": "Zeit und Reinigungskraft wählen",
+          "title": "Reinigung buchen"
+        },
+        "bookings": {
+          "description": "Ansehen und verwalten",
+          "title": "Meine Buchungen"
+        },
+        "favorites": {
+          "description": "Deine bevorzugten Anbieter"
+        },
+        "invoices": {
+          "description": "Quittungen ansehen und herunterladen"
+        },
+        "messages": {
+          "description": "Mit deinen Anbietern chatten"
+        },
+        "support": {
+          "description": "Wir helfen dir"
+        }
+      },
+      "stats": {
+        "completed": "Abgeschlossen",
+        "memberSince": "Mitglied seit",
+        "totalSpent": "Gesamt bezahlt"
+      },
+      "upcoming": {
+        "emptyDescription": "Finde eine Reinigungskraft und buche direkt im Kalender des Anbieters.",
+        "emptyTitle": "Keine anstehenden Buchungen",
+        "findCleaner": "Reinigungskraft finden",
+        "title": "Anstehende Buchungen"
+      }
+    },
+    "findCleaner": {
+      "availableToday": "Heute verfügbar",
+      "clickToOpenProfile": "Klicken, um Profil zu öffnen",
+      "filterByServiceArea": "Nach Servicegebiet filtern (Mehrfachauswahl)",
+      "filterCleaners": "Reinigungskräfte filtern",
+      "instantBook": "Sofort buchen",
+      "maxHourlyRate": "Max. Stundenpreis",
+      "minExperience": "Min. Jahre Erfahrung",
+      "minRating": "Mindestbewertung",
+      "moveMapToSeeProviders": "Bewege die Karte oder zoome heraus, um Anbieter zu sehen.",
+      "somethingWentWrong": "Etwas ist schiefgelaufen",
+      "title": "Finde deine Reinigungskraft"
+    },
+    "header": {
+      "account": {
+        "logOut": "Abmelden",
+        "myAccount": "Mein Konto"
+      },
+      "getStarted": "Loslegen",
+      "homeAriaLabel": "MyCleaner – Startseite",
+      "login": "Anmelden",
+      "logoAriaLabel": "MyCleaner – Startseite",
+      "nav": {
+        "adminDashboard": "Admin-Dashboard",
+        "becomeProvider": "Anbieter werden",
+        "bookCleaner": "Reinigungskraft buchen",
+        "dashboard": "Dashboard",
+        "employeePortal": "Mitarbeiter",
+        "faq": "FAQ",
+        "findCleaner": "Cleaner finden",
+        "howItWorks": "So funktioniert's",
+        "myBookings": "Meine Buchungen",
+        "myProfile": "Mein Profil",
+        "providerDashboard": "Anbieter-Dashboard",
+        "receipts": "Belege & Ausgaben",
+        "rules": "Regeln"
+      },
+      "toggleMenu": "Menü ein-/ausblenden"
+    },
+    "marketplace": {
+      "allServices": "Alle Services",
+      "allTiers": "Alle Stufen",
+      "findCleaner": "Reinigungskraft finden",
+      "maxHourlyRatePlaceholder": "Max. Stundenpreis",
+      "minTierPlaceholder": "Mindeststufe",
+      "next": "Weiter",
+      "noneMatchFilters": "Keine Anbieter entsprechen deinen Filtern.",
+      "subtitle": "Durchsuche verifizierte Anbieter. Buche direkt in deren Kalender."
+    },
+    "profileExtra": {
+      "deactivate": {
+        "bookingsCancelled": "Zukünftige Buchungen werden automatisch storniert.",
+        "dataDeleted": "Nach 30 Tagen werden persönliche Daten dauerhaft gelöscht.",
+        "dataRetained": "Deine Daten werden 30 Tage lang aufbewahrt — kontaktiere den Support, falls du es dir anders überlegst.",
+        "hidesProfile": "Dies verbirgt dein Profil und pausiert alle Aktivitäten.",
+        "reasonLabel": "Grund (optional)",
+        "title": "Konto deaktivieren"
+      },
+      "marketingNotifications": "Marketing & Neuigkeiten",
+      "sms": {
+        "cityPlaceholder": "z. B. Kopenhagen",
+        "codeExpires": "Der Code läuft in 10 Minuten ab.",
+        "enable": "SMS aktivieren",
+        "enterCode": "6-stelligen Code eingeben"
+      },
+      "tax": {
+        "estimatedValue": "Ca. Steuerwert",
+        "howToReport": "So meldest du den Abzug",
+        "step1": "Melde dich an bei",
+        "step1Mitid": "mit MitID.",
+        "step2Edit": "Jahresabrechnung bearbeiten",
+        "step2GoTo": "Gehe zu",
+        "step2Statement": "Jahresabrechnung",
+        "step3": "Gib den Gesamtbetrag ein, den du für genehmigte Dienstleistungen (Arbeitslohn, keine Materialien) bezahlt hast.",
+        "step4": "Gib MyCleaner / die Unternehmensnummer des Anbieters als Empfänger an. Bewahre deine Belege 5 Jahre lang auf.",
+        "step5": "Der Abzug wird automatisch berechnet und reduziert deine Steuerschuld (oder erhöht deine Steuererstattung).",
+        "totalUsed": "Insgesamt ausgegeben",
+        "yearlyLimit": "Jahresobergrenze"
+      }
+    },
+    "register": {
+      "addressPlaceholder": "Straßenname 123",
+      "betterSuggestions": "Bessere Vorschläge von Anfang an",
+      "floors": "Anzahl Etagen",
+      "homeInfo": "Die Angaben werden für die Reinigung verwendet und nur mit der Reinigungskraft geteilt, die du buchst.",
+      "passwordPlaceholder": "Mindestens 6 Zeichen",
+      "preferredDays": "Bevorzugte Tage",
+      "preferredTime": "Bevorzugte Uhrzeit",
+      "saveAndContinue": "Speichern und mit der Buchung fortfahren",
+      "size": "Größe (m²)",
+      "terms": "die Nutzungsbedingungen",
+      "whoAreYou": "Zuerst: Wer bist du?"
+    }
+  }
+}

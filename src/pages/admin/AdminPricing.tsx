@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -53,6 +54,7 @@ function inferScope(r: { region: string; city: string; postcode: string }): Scop
 }
 
 export default function AdminPricing() {
+  const { t } = useTranslation("admin");
   const [rules, setRules] = useState<Rule[]>([]);
   const [mults, setMults] = useState<Multiplier[]>([]);
   const [newRule, setNewRule] = useState({ ...NEW_RULE });
@@ -74,7 +76,7 @@ export default function AdminPricing() {
     const scope = inferScope(newRule);
     const min = Number(newRule.min_hourly_minor);
     if (!newRule.country_code || !newRule.currency || !min) {
-      return toast.error("Country, currency and min price required");
+      return toast.error(t("pages.adminPricing.requiredFields"));
     }
     const { error } = await supabase.from("market_pricing_rules").insert({
       country_code: newRule.country_code.toUpperCase(),
@@ -89,7 +91,7 @@ export default function AdminPricing() {
       active: newRule.active,
     });
     if (error) return toast.error(error.message);
-    toast.success("Rule added");
+    toast.success(t("pages.adminPricing.ruleAdded"));
     setNewRule({ ...NEW_RULE });
     load();
   }
@@ -102,7 +104,7 @@ export default function AdminPricing() {
 
   async function saveMult() {
     if (!newMult.country_code || !newMult.key || newMult.multiplier_bps == null) {
-      return toast.error("Country, key and bps required");
+      return toast.error(t("pages.adminPricing.multiplierRequiredFields"));
     }
     const { error } = await supabase.from("market_pricing_multipliers").insert({
       country_code: newMult.country_code.toUpperCase(),
@@ -112,7 +114,7 @@ export default function AdminPricing() {
       active: newMult.active,
     });
     if (error) return toast.error(error.message);
-    toast.success("Multiplier added");
+    toast.success(t("pages.adminPricing.multiplierAdded"));
     setNewMult({ ...NEW_MULT });
     load();
   }
@@ -126,59 +128,59 @@ export default function AdminPricing() {
   return (
     <div className="mx-auto max-w-6xl space-y-6 p-6">
       <header>
-        <h1 className="text-3xl font-serif">Pricing rules</h1>
+        <h1 className="text-3xl font-serif">{t("pages.adminPricing.title")}</h1>
         <p className="text-muted-foreground">
-          Marketplace-only advisory rules. Not linked to checkout, bookings or payouts.
+          {t("pages.adminPricing.subtitle")}
         </p>
       </header>
 
       <Tabs defaultValue="rules">
         <TabsList>
-          <TabsTrigger value="rules">Market rules</TabsTrigger>
-          <TabsTrigger value="multipliers">Multipliers</TabsTrigger>
+          <TabsTrigger value="rules">{t("pages.adminPricing.marketRules")}</TabsTrigger>
+          <TabsTrigger value="multipliers">{t("pages.adminPricing.multipliers")}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="rules" className="space-y-4">
           <Card>
-            <CardHeader><CardTitle>New rule</CardTitle></CardHeader>
+            <CardHeader><CardTitle>{t("pages.adminPricing.newRule")}</CardTitle></CardHeader>
             <CardContent className="grid grid-cols-4 gap-3">
-              <div><Label>Country</Label>
+              <div><Label>{t("pages.adminPricing.country")}</Label>
                 <Input value={newRule.country_code} maxLength={2}
                   onChange={e => setNewRule({ ...newRule, country_code: e.target.value })} /></div>
-              <div><Label>Currency</Label>
+              <div><Label>{t("pages.adminPricing.currency")}</Label>
                 <Input value={newRule.currency} maxLength={3}
                   onChange={e => setNewRule({ ...newRule, currency: e.target.value })} /></div>
-              <div><Label>Region</Label>
+              <div><Label>{t("pages.adminPricing.region")}</Label>
                 <Input value={newRule.region} onChange={e => setNewRule({ ...newRule, region: e.target.value })} /></div>
-              <div><Label>City</Label>
+              <div><Label>{t("pages.adminPricing.city")}</Label>
                 <Input value={newRule.city} onChange={e => setNewRule({ ...newRule, city: e.target.value })} /></div>
-              <div><Label>Postcode</Label>
+              <div><Label>{t("pages.adminPricing.postcode")}</Label>
                 <Input value={newRule.postcode} onChange={e => setNewRule({ ...newRule, postcode: e.target.value })} /></div>
-              <div><Label>Min (minor)</Label>
+              <div><Label>{t("pages.adminPricing.minMinor")}</Label>
                 <Input type="number" value={newRule.min_hourly_minor}
                   onChange={e => setNewRule({ ...newRule, min_hourly_minor: e.target.value })} /></div>
-              <div><Label>Max (minor)</Label>
+              <div><Label>{t("pages.adminPricing.maxMinor")}</Label>
                 <Input type="number" value={newRule.max_hourly_minor}
                   onChange={e => setNewRule({ ...newRule, max_hourly_minor: e.target.value })} /></div>
-              <div><Label>Recommended (minor)</Label>
+              <div><Label>{t("pages.adminPricing.recommendedMinor")}</Label>
                 <Input type="number" value={newRule.recommended_hourly_minor}
                   onChange={e => setNewRule({ ...newRule, recommended_hourly_minor: e.target.value })} /></div>
               <div className="col-span-4">
                 <p className="mb-2 text-xs text-muted-foreground">
-                  Scope auto-detected: <b>{inferScope(newRule)}</b> (specify only the fields relevant to that scope).
+                  {t("pages.adminPricing.scopeAutoDetected")} <b>{inferScope(newRule)}</b> {t("pages.adminPricing.scopeHint")}
                 </p>
-                <Button onClick={saveRule}>Add rule</Button>
+                <Button onClick={saveRule}>{t("pages.adminPricing.addRule")}</Button>
               </div>
             </CardContent>
           </Card>
 
           <Card>
-            <CardHeader><CardTitle>Active rules ({rules.length})</CardTitle></CardHeader>
+            <CardHeader><CardTitle>{t("pages.adminPricing.activeRules", { count: rules.length })}</CardTitle></CardHeader>
             <CardContent className="overflow-x-auto text-sm">
               <table className="w-full">
                 <thead className="text-left text-muted-foreground">
-                  <tr><th>Country</th><th>Scope</th><th>Region</th><th>City</th><th>Postcode</th>
-                    <th>Cur</th><th>Min</th><th>Max</th><th>Rec</th><th>Active</th></tr>
+                  <tr><th>{t("pages.adminPricing.country")}</th><th>{t("pages.adminPricing.scope")}</th><th>{t("pages.adminPricing.region")}</th><th>{t("pages.adminPricing.city")}</th><th>{t("pages.adminPricing.postcode")}</th>
+                    <th>{t("pages.adminPricing.cur")}</th><th>{t("pages.adminPricing.min")}</th><th>{t("pages.adminPricing.max")}</th><th>{t("pages.adminPricing.rec")}</th><th>{t("pages.adminPricing.active")}</th></tr>
                 </thead>
                 <tbody>
                   {rules.map(r => (
@@ -201,30 +203,30 @@ export default function AdminPricing() {
 
         <TabsContent value="multipliers" className="space-y-4">
           <Card>
-            <CardHeader><CardTitle>New multiplier</CardTitle></CardHeader>
+            <CardHeader><CardTitle>{t("pages.adminPricing.newMultiplier")}</CardTitle></CardHeader>
             <CardContent className="grid grid-cols-4 gap-3">
-              <div><Label>Country</Label>
+              <div><Label>{t("pages.adminPricing.country")}</Label>
                 <Input value={newMult.country_code} maxLength={2}
                   onChange={e => setNewMult({ ...newMult, country_code: e.target.value })} /></div>
-              <div><Label>Key</Label>
+              <div><Label>{t("pages.adminPricing.key")}</Label>
                 <Input value={newMult.key} placeholder="weekend | holiday:2026-12-24 | demand:high"
                   onChange={e => setNewMult({ ...newMult, key: e.target.value })} /></div>
-              <div><Label>Label</Label>
+              <div><Label>{t("pages.adminPricing.label")}</Label>
                 <Input value={newMult.label}
                   onChange={e => setNewMult({ ...newMult, label: e.target.value })} /></div>
-              <div><Label>Multiplier bps</Label>
+              <div><Label>{t("pages.adminPricing.multiplierBps")}</Label>
                 <Input type="number" value={newMult.multiplier_bps}
                   onChange={e => setNewMult({ ...newMult, multiplier_bps: Number(e.target.value) })} /></div>
-              <div className="col-span-4"><Button onClick={saveMult}>Add multiplier</Button></div>
+              <div className="col-span-4"><Button onClick={saveMult}>{t("pages.adminPricing.addMultiplier")}</Button></div>
             </CardContent>
           </Card>
 
           <Card>
-            <CardHeader><CardTitle>Multipliers ({mults.length})</CardTitle></CardHeader>
+            <CardHeader><CardTitle>{t("pages.adminPricing.multipliersCount", { count: mults.length })}</CardTitle></CardHeader>
             <CardContent className="overflow-x-auto text-sm">
               <table className="w-full">
                 <thead className="text-left text-muted-foreground">
-                  <tr><th>Country</th><th>Key</th><th>Label</th><th>Bps</th><th>Active</th></tr>
+                  <tr><th>{t("pages.adminPricing.country")}</th><th>{t("pages.adminPricing.key")}</th><th>{t("pages.adminPricing.label")}</th><th>{t("pages.adminPricing.bps")}</th><th>{t("pages.adminPricing.active")}</th></tr>
                 </thead>
                 <tbody>
                   {mults.map(m => (

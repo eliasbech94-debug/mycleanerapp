@@ -1,11 +1,15 @@
 /**
- * Canonical address shape returned by any provider (DAWA, Google, …).
+ * Canonical address shape returned by any provider (DAWA, Mapbox, …).
  * All fields are optional except `source`, `ref` and `display` so callers
  * can render a single formatted line while richer fields are stored when
- * available (DAWA gives us the full structured breakdown; Google typically
- * only gives street + house_number + postal_code + city).
+ * available (DAWA gives us the full structured breakdown; Mapbox typically
+ * gives street + house_number + postal_code + city).
+ *
+ * "google" is retained only so historical `place_validations` rows keep
+ * type-checking; no code path produces it any more.
  */
-export type AddressSource = "dawa" | "google";
+export type AddressSource = "dawa" | "mapbox" | "google";
+
 
 export interface ResolvedAddress {
   /** Which provider validated this address. */

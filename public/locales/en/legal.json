@@ -1,0 +1,81 @@
+{
+  "center": {
+    "title": "MyCleaner Legal Center",
+    "subtitle": "Read our terms, policies and guidelines. We believe in transparency, fairness and trust between customers, providers and the platform.",
+    "metaTitle": "Legal Center — terms and policies | MyCleaner",
+    "metaDescription": "Read MyCleaner's terms, privacy policy, marketplace rules and all other policies in one place.",
+    "searchLabel": "Search legal documents",
+    "searchPlaceholder": "Search documents…",
+    "read": "Read document",
+    "empty": "No documents match your search.",
+    "error": "Documents could not be loaded. Please try again later."
+  },
+  "meta": {
+    "version": "Version",
+    "updated": "Last updated",
+    "effective": "Effective date",
+    "readingTime": "Reading time",
+    "readingTimeValue": "{{count}} min read"
+  },
+  "toc": { "title": "Contents" },
+  "document": {
+    "print": "Print",
+    "pdf": "Download PDF",
+    "pdfSoon": "PDF download coming soon",
+    "share": "Share document",
+    "linkCopied": "Link copied",
+    "linkCopyFailed": "Could not copy the link",
+    "breadcrumb": "Breadcrumb",
+    "notFoundTitle": "Document not found",
+    "notFoundBody": "This document is not published yet or is not available in your country.",
+    "backToCenter": "Back to Legal Center",
+    "metaFallbackTitle": "Legal document | MyCleaner",
+    "metaFallbackDescription": "Official legal document from MyCleaner."
+  },
+  "update": {
+    "title": "MyCleaner has updated its legal terms",
+    "subtitle": "{{title}} · version {{version}}",
+    "readFull": "Read the full document",
+    "confirm": "I have read and accept this document.",
+    "accept": "Accept",
+    "acceptNext": "Accept and continue",
+    "logout": "Log out"
+  },
+  "onboarding": {
+    "acceptProviderTerms": "I have read and accept the <0>Provider Terms & Conditions</0> and confirm that I am eligible to work in the selected country.",
+    "acceptRequired": "You must accept the Provider Terms & Conditions to continue."
+  },
+  "footer": {
+    "heading": "Legal",
+    "center": "Legal Center",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "cookies": "Cookies",
+    "trust": "Trust Center"
+  },
+  "admin": {
+    "title": "Legal documents",
+    "subtitle": "Create, edit, version and publish Legal Center documents.",
+    "new": "New document",
+    "save": "Save draft",
+    "publish": "Publish",
+    "preview": "Preview",
+    "edit": "Edit",
+    "history": "Version history",
+    "slug": "Slug",
+    "docTitle": "Title",
+    "description": "Description",
+    "kind": "Kind",
+    "country": "Country",
+    "language": "Language",
+    "version": "Version",
+    "icon": "Icon",
+    "required": "Requires acceptance",
+    "content": "Content (Markdown)",
+    "status": "Status",
+    "saved": "Document saved",
+    "published": "Document published",
+    "error": "The action could not be completed",
+    "empty": "No documents yet."
+  }
+}

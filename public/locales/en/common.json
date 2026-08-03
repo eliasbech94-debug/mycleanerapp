@@ -1,5 +1,4 @@
 {
-  "app_name": "MyCleaner",
   "actions": {
     "save": "Save",
     "cancel": "Cancel",
@@ -11,25 +10,434 @@
     "close": "Close",
     "loading": "Loading…"
   },
-  "nav": {
-    "home": "Home",
-    "bookings": "Bookings",
-    "inbox": "Inbox",
-    "profile": "Profile",
-    "logout": "Log out"
+  "app_name": "MyCleaner",
+  "auth": {
+    "welcome_back": "Welcome back",
+    "subtitle": "Log in to continue",
+    "email": "Email",
+    "password": "Password",
+    "sign_in": "Log in",
+    "forgot": "Forgot password?",
+    "no_account": "Create a profile",
+    "captcha_required": "Please complete the captcha challenge first",
+    "captcha_failed": "Captcha verification failed — please try again",
+    "invalid_credentials": "Invalid email or password"
   },
-  "language": {
-    "label": "Language",
-    "da": "Dansk",
-    "en": "English",
-    "sv": "Svenska",
-    "es": "Español"
+  "cancellation": {
+    "ladder": {
+      "bullet": {
+        "fullExclusive": "More than {{hours}} hours {{when}}: free cancellation and a {{percent}} % refund.",
+        "fullInclusive": "{{hours}} hours or more {{when}}: free cancellation and a {{percent}} % refund.",
+        "partialExclusive": "From {{from}} hours up to and including {{to}} hours {{when}}: {{percent}} % refund.",
+        "partialInclusive": "From {{from}} hours and under {{to}} hours {{when}}: {{percent}} % refund.",
+        "none": "Less than {{hours}} hours {{when}}: 0 % refund — a 100 % cancellation fee applies."
+      },
+      "sentence": {
+        "exclusive": "If you cancel more than {{fullHours}} hours {{when}}, cancellation is free with a {{fullPercent}} % refund. From {{partialHours}} up to and including {{fullHours}} hours before the start, {{partialPercent}} % is refunded. Under {{partialHours}} hours before the start there is no refund and a 100 % cancellation fee applies.",
+        "inclusive": "If you cancel {{fullHours}} hours or more {{when}}, cancellation is free with a {{fullPercent}} % refund. From {{partialHours}} and under {{fullHours}} hours before the start, {{partialPercent}} % is refunded. Under {{partialHours}} hours before the start there is no refund and a 100 % cancellation fee applies."
+      },
+      "when": "before the exact start time of the booking"
+    },
+    "notice": {
+      "heading": "Cancellation",
+      "free": "Free cancellation — 100 % refund",
+      "freeWhen": "if you cancel before {{time}}",
+      "partial": "{{percent}} % refund",
+      "partialWhen": "from {{from}} up to and including {{to}}",
+      "none": "0 % refund — 100 % cancellation fee",
+      "noneWhen": "if you cancel after {{time}}",
+      "detail": "The booking starts {{start}}. Free cancellation ends {{freeUntil}} ({{fullHours}} hours before the start), and from {{feeFrom}} ({{partialHours}} hours before the start) a 100 % cancellation fee applies. Times are shown in your local time. If the amount has not been charged yet, the reservation is released instead and nothing is charged. Complaints must be submitted no later than {{complaintHours}} hours after the scheduled or recorded end of the job."
+    }
+  },
+  "common": {
+    "loading": "Loading…"
+  },
+  "contact": {
+    "title": "Contact MyCleaner",
+    "subtitle": "We're here to help — choose the channel that suits you best.",
+    "backHome": "Back to the homepage",
+    "chatTitle": "Chat with support",
+    "chatBody": "Open the support chat and message our team directly.",
+    "chatCta": "Open support chat",
+    "emailTitle": "Send us an email",
+    "emailBody": "Write to {{email}} — we usually reply within 24 hours.",
+    "faqTitle": "Read the frequently asked questions",
+    "faqBody": "Most answers are already in our help centre.",
+    "companyTitle": "Company details",
+    "securityTitle": "Security — what you never need to send",
+    "securityBody": "Never send us card details, CVV codes, passwords or one-time codes. We also don't ask for ID documents in chat unless you are completing a verification we clearly asked you to start. If in doubt, ask us first."
   },
   "country": {
     "label": "Country",
     "DK": "Denmark",
     "GB": "United Kingdom",
     "SE": "Sweden",
-    "ES": "Spain"
+    "ES": "Spain",
+    "coming_soon": "Coming soon",
+    "DE": "Germany"
+  },
+  "country_confirm": {
+    "title": "Are you in {{country}}?",
+    "body": "You are visiting MyCleaner {{country}}. Prices are shown in {{currency}} and we display cleaners available in {{country}}.",
+    "choose": "Choose another country",
+    "continue": "Continue in {{country}}",
+    "switch": "Switch to {{country}}"
+  },
+  "faq": {
+    "heading": "Frequently asked questions",
+    "subheading": "Find answers right away — or start a chat with our support AI if your question isn't covered.",
+    "items": {
+      "0": {
+        "q": "What is MyCleaner?",
+        "a": "The MyCleaner platform is a digital marketplace connecting customers with independent providers. You choose and book the provider you want yourself. MyCleaner does not perform the cleaning itself and is not a party to the agreement on carrying out the task."
+      },
+      "1": {
+        "q": "How do I book a cleaner?",
+        "a": "Find a cleaner in the marketplace, open their profile, and pick an available time directly in the calendar. You send a booking request, and the booking is confirmed once the cleaner accepts."
+      },
+      "2": {
+        "q": "What's the difference between a booking request and a booking?",
+        "a": "A booking request is your enquiry for a specific time. Once the cleaner accepts, it becomes a confirmed booking with time, price and address."
+      },
+      "3": {
+        "q": "Can I set up a recurring booking?",
+        "a": "Yes. Choose recurring booking when you book, and the task repeats at the same interval. You can change or stop it from My bookings."
+      },
+      "4": {
+        "q": "When is the payment charged?",
+        "a": "The amount may be reserved on your card while the booking request is processed. It is only charged once the provider has accepted the booking, and paid out to the provider once the service has been carried out."
+      },
+      "5": {
+        "q": "What does it cost to use MyCleaner?",
+        "a": "The platform fee is 28% and is split evenly: 14% is added on top of the customer's price, and 14% is deducted from the provider's earnings. You always see the provider's price, the platform fee and the total price before you confirm."
+      },
+      "6": {
+        "q": "What is Provider Score?",
+        "a": "Provider Score is an overall measure of a cleaner's quality — based on reviews, response time, completed bookings and verification. It helps you choose with confidence."
+      },
+      "7": {
+        "q": "What is MyCleaner ID?",
+        "a": "MyCleaner ID is the provider's verified identity on the platform. It brings together ID verification, completed bookings and documented experience in one place."
+      },
+      "8": {
+        "q": "How are cleaners verified?",
+        "a": "All cleaners go through ID verification before they can receive bookings. Verified profiles carry the Verified badge."
+      },
+      "9": {
+        "q": "Why do some profiles have a video?",
+        "a": "Cleaners can add a short video introduction so you can meet the person before you book. The video is reviewed by MyCleaner before it becomes visible."
+      },
+      "10": {
+        "q": "Does MyCleaner use AI?",
+        "a": "We use AI to suggest relevant cleaners, help with price estimates and answer common support questions. Decisions on verification, complaints and refunds are always made by a human."
+      },
+      "11": {
+        "q": "Can I see the cleaner's calendar before I book?",
+        "a": "Yes. Available times are shown directly on the profile so you can pick a time that suits you both."
+      },
+      "12": {
+        "q": "How do I cancel a booking?",
+        "a": "Go to My bookings, select the booking and press Cancel booking. {{ladder}} The exact local times are stated on your booking confirmation. Bookings created before the current rules are settled under the terms you accepted at the time."
+      },
+      "13": {
+        "q": "How do I get a refund?",
+        "a": "Open a support case and describe what happened. Your request is assessed based on the booking's status, the documentation on the case and the applicable terms. An approved refund is sent back to the payment method used. Processing time depends on the payment provider and your bank."
+      },
+      "14": {
+        "q": "As an independent provider, when do I get paid out?",
+        "a": "Once the booking has been carried out and the set period has passed, a scheduled payout is registered. The exact time the amount becomes visible in the account depends on the payment provider and your bank. You can follow your available balance and scheduled payouts in your dashboard."
+      },
+      "15": {
+        "q": "What do I use Receipts & accounting for?",
+        "a": "Under Accounting you can upload receipts, add external income and download a monthly report. It is a tool — not a tax filing."
+      },
+      "16": {
+        "q": "Can I get a service deduction?",
+        "a": "For cleaning, gardening and certain handyman tasks in private homes, yes. Your annual overview is found under Profile → Service deduction."
+      },
+      "17": {
+        "q": "How do I become a cleaner on MyCleaner?",
+        "a": "Choose Become a cleaner, create your provider profile, state your services and prices, and choose when you're available. You work as an independent provider — MyCleaner is not your employer and does not assign you tasks."
+      },
+      "18": {
+        "q": "Is my information secure?",
+        "a": "Yes. Data is stored encrypted, payments are handled by Stripe, and we never share your information without your consent."
+      },
+      "19": {
+        "q": "How does the provider get access to my home?",
+        "a": "You arrange access directly with your chosen provider — for example, letting them in yourself, a key box or a door code. MyCleaner does not receive keys, does not store keys and does not arrange key handovers. You choose the access solution yourself and are responsible for it."
+      },
+      "20": {
+        "q": "What happens if damage occurs?",
+        "a": "Open a support case with photos and a description as soon as possible. MyCleaner is the platform between the customer and the provider. Any damage claims are assessed based on the documentation, the provider's liability and the applicable terms."
+      },
+      "21": {
+        "q": "What do I do if the provider is late or doesn't show up?",
+        "a": "First message them in the booking's chat — most delays are resolved quickly there. If you don't get a response, you can open a support case, and support will review the information from both parties."
+      }
+    },
+    "helpTitle": "Didn't find an answer?",
+    "helpText": "Open the FAQ chat and get help from our AI. If the case turns out to be complex, we'll pass it on to a human.",
+    "startChat": "Start FAQ chat",
+    "loginToChat": "Log in to chat",
+    "seeRules": "See rules",
+    "cta": {
+      "heading": "Didn't find an answer?",
+      "body": "Open the FAQ chat and get help from our AI. If the case gets complex, we hand it over to a human.",
+      "start": "Start FAQ chat",
+      "login": "Log in to chat",
+      "rules": "See rules"
+    }
+  },
+  "first_job_popup": {
+    "title": "🎉 Congratulations!",
+    "body": "You have now completed your first paid job on MyCleaner. We hope everything went well.",
+    "support": "If you have questions or need help, we're always available in the chat.",
+    "thanks": "Thank you for being part of MyCleaner International. 🧡",
+    "cta_dashboard": "Continue to dashboard",
+    "close": "Close",
+    "replay": "Watch again",
+    "video_label": "MyCleaner celebration video"
+  },
+  "footer": {
+    "tagline": "Europe's smartest home services platform. Find and book verified cleaners directly in their calendar.",
+    "platform": "Platform",
+    "forProviders": "For providers",
+    "support": "Support",
+    "company": "Company",
+    "findCleaner": "Find a cleaner",
+    "howItWorks": "How it works",
+    "rules": "Pricing & rules",
+    "becomeProvider": "Become a provider",
+    "providerDashboard": "Provider dashboard",
+    "receipts": "Receipts & expenses",
+    "faq": "Frequently asked questions",
+    "helpCenter": "Help centre",
+    "contact": "Contact",
+    "legalCenter": "Legal Center",
+    "privacy": "Privacy policy",
+    "cookies": "Cookie policy",
+    "companyNumber": "Company number {{number}}",
+    "registeredIn": "Registered at Companies House, England and Wales",
+    "companiesHouse": "View the Companies House registration",
+    "rights": "© {{year}} {{name}}. All rights reserved.",
+    "marketsNotice": "MyCleaner opens in Denmark first. Sweden, the United Kingdom, Germany and Spain are coming soon."
+  },
+  "language": {
+    "label": "Language",
+    "da": "Dansk",
+    "en": "English",
+    "sv": "Svenska",
+    "es": "Español",
+    "de": "Deutsch"
+  },
+  "mobileMessages": {
+    "title": "Messages",
+    "defaultTitle": "Conversation",
+    "supportTitle": "Support",
+    "empty": "No conversations yet. Book a Cleaner to get started.",
+    "error": "Couldn't load messages.",
+    "retry": "Try again",
+    "signedOut": "Sign in to see your messages.",
+    "signIn": "Sign in",
+    "tapToOpen": "Tap to open",
+    "statusClosed": "Closed",
+    "composerLabel": "Write a message",
+    "placeholder": "Write a message…",
+    "send": "Send",
+    "sendFailed": "Couldn't send message",
+    "failed": "Failed to send"
+  },
+  "mobileProfile": {
+    "title": "Profile",
+    "roleGuest": "Guest",
+    "roleCustomer": "Customer",
+    "roleProvider": "Cleaner",
+    "roleMember": "Member",
+    "groupAccount": "Account",
+    "groupPrefs": "Preferences",
+    "groupHelp": "Help",
+    "groupSession": "Session",
+    "info": "Personal information",
+    "addresses": "Addresses",
+    "notifications": "Notifications",
+    "cards": "Cards & payments",
+    "invoices": "Invoices",
+    "payout": "Payouts",
+    "receipts": "Receipts",
+    "sms": "SMS",
+    "tax": "Tax information",
+    "language": "Language",
+    "country": "Country",
+    "faq": "Help & FAQ",
+    "rules": "Rules",
+    "deactivate": "Deactivate account",
+    "signOut": "Sign out",
+    "signIn": "Sign in"
+  },
+  "mobilenav": {
+    "home": "Home",
+    "search": "Search",
+    "bookings": "Bookings",
+    "profile": "Profile",
+    "login": "Log in",
+    "more": "More",
+    "dashboard": "Dashboard",
+    "messages": "Messages",
+    "label": "Primary navigation"
+  },
+  "nav": {
+    "home": "Home",
+    "bookings": "Bookings",
+    "inbox": "Inbox",
+    "profile": "Profile",
+    "logout": "Log out",
+    "find_cleaner": "Find a Cleaner",
+    "how": "How it works",
+    "become_cleaner": "Become a Cleaner",
+    "sign_in": "Log in",
+    "get_started": "Get started"
+  },
+  "role": {
+    "title": "How would you like to use MyCleaner?",
+    "subtitle": "You can switch later from your profile.",
+    "customer": {
+      "title": "I need cleaning",
+      "body": "Book a verified cleaner in your area."
+    },
+    "provider": {
+      "title": "I offer cleaning services",
+      "body": "Grow your cleaning business on MyCleaner."
+    }
+  },
+  "rules": {
+    "heading": "Rules and terms",
+    "intro": "The MyCleaner platform is a digital marketplace connecting customers with independent providers. MyCleaner does not perform the service itself and is not a party to the agreement on carrying out the task. These rules apply to both customers and providers.",
+    "s1": {
+      "title": "1. Conduct on the platform",
+      "items": [
+        "Be respectful and professional in all communication.",
+        "No harassment, discrimination or inappropriate language.",
+        "All communication must take place through the platform until the booking is confirmed."
+      ]
+    },
+    "s2": {
+      "title": "2. Payment and fees",
+      "items": [
+        "The platform fee is 28% — 14% is added on top of the customer's price, and 14% is deducted from the provider's earnings.",
+        "A payment hold is placed on the customer's payment method at booking. The amount is charged once the task is registered as completed.",
+        "No undercutting — independent providers must comply with the country's minimum rate.",
+        "The provider's earnings are paid out as a scheduled payout. The exact time the amount becomes visible in the account depends on the payment provider and the provider's bank."
+      ]
+    },
+    "s3": {
+      "title": "3. Cancellation",
+      "intro": "The refund depends on how much time remains until the booking's exact start time when the cancellation is registered:",
+      "afterBullets": [
+        "The times are calculated from the booking's exact start in the booking's time zone. The exact times are shown on the booking confirmation.",
+        "The rules apply to bookings created after the policy's effective date. Existing bookings are settled under the version the customer accepted at the time of booking.",
+        "If the amount hasn't been charged yet, the hold is cancelled instead and nothing is charged. If the provider cancels, the customer is fully refunded.",
+        "Providers who cancel shortly before the task risk suspension."
+      ]
+    },
+    "s4": {
+      "title": "4. Complaints and refunds",
+      "items": [
+        "Complaints must be submitted within 48 hours of the task's scheduled or registered completion.",
+        "MyCleaner Support reviews the case and the submitted information, typically within 5 business days.",
+        "MyCleaner Support reviews the information available from both parties before registering a decision.",
+        "An approved refund is sent back to the payment method used. Processing time depends on the payment provider and the customer's bank."
+      ]
+    },
+    "s5": {
+      "title": "5. Tax and reporting",
+      "items": [
+        "Independent providers are themselves responsible for reporting earnings to the tax authorities.",
+        "Business providers must register for VAT if turnover exceeds the local threshold.",
+        "Customers may be eligible for a service deduction for qualifying services — check your local tax authority's website."
+      ]
+    },
+    "s6": {
+      "title": "6. Keys and access",
+      "text": "MyCleaner does not receive, store or manage keys. Any access or key handover is arranged directly between the customer and the independent provider and takes place at the parties' own responsibility."
+    },
+    "s7": {
+      "title": "7. Suspension and termination",
+      "text": "MyCleaner reserves the right to suspend or terminate accounts that violate these rules. Serious violations may result in permanent exclusion and a possible police report."
+    }
+  },
+  "seo": {
+    "default": {
+      "title": "MyCleaner — book a verified cleaner",
+      "description": "Find and book verified cleaners directly in their calendar. See the profile, reviews and price before you confirm."
+    },
+    "home": {
+      "title": "MyCleaner — book a verified cleaner in Europe",
+      "description": "Book professional cleaning with verified providers. See the profile, reviews and price before you confirm. No bidding wars, just clear prices."
+    },
+    "faq": {
+      "title": "Frequently asked questions — MyCleaner",
+      "description": "Answers to the most common questions about booking, payment, cancellation and safety at MyCleaner."
+    },
+    "rules": {
+      "title": "Rules and terms — MyCleaner",
+      "description": "How MyCleaner works: rights, responsibilities, cancellation rules and what to expect as a customer and as a provider."
+    },
+    "findCleaner": {
+      "title": "Find a cleaner near you — MyCleaner",
+      "description": "Search the map for verified cleaners in your area. Compare profiles, prices and available times."
+    },
+    "contact": {
+      "title": "Contact MyCleaner — support and company details",
+      "description": "Chat with our support team, or find our official company details and support email."
+    },
+    "legal": {
+      "title": "Legal Center — MyCleaner",
+      "description": "Every MyCleaner legal document in one place: terms, privacy policy, cancellation and refund policy."
+    },
+    "comingSoonSuffix": "Opening soon"
+  },
+  "ui": {
+    "noAccess": "No access",
+    "seeProfileForPrice": "See profile for price",
+    "availableTimes": "Available times",
+    "servicesAndPrices": "Services and prices",
+    "understood": "Got it",
+    "noConversationsInFilter": "No conversations in this filter.",
+    "login": {
+      "continueWithEmail": "or continue with email",
+      "fullName": "Full name",
+      "countryUK": "United Kingdom",
+      "newHere": "New here?",
+      "createAccount": "Create account",
+      "alreadyHaveAccount": "Already have an account?",
+      "signIn": "Log in"
+    },
+    "addressAutocomplete": {
+      "searching": "Searching…",
+      "notRecognized": "Address not recognised",
+      "notApproved": "Address could not be approved",
+      "pickFromList": "Pick an address from the list",
+      "errors": {
+        "unavailable": "Address search is temporarily unavailable. Please try again shortly.",
+        "misconfigured": "Address search is not configured correctly. Please contact support.",
+        "notFound": "We could not find that address. Please pick another suggestion.",
+        "generic": "The address could not be validated. Please try again shortly.",
+        "countryMismatch": "This address is in {{addressCountry}}, but your profile is set to {{profileCountry}}. Pick an address in your country, or update your country in your profile."
+      }
+    }
+  },
+  "welcome_video": {
+    "title": "Welcome to MyCleaner 🎉",
+    "body_customer": "Your profile is ready. See how MyCleaner makes it easy to find and book the right help.",
+    "body_provider": "Your profile is ready. See how MyCleaner connects you with new customers and jobs.",
+    "cta_customer": "Find your cleaner",
+    "cta_provider": "Complete my profile",
+    "skip": "Skip",
+    "close": "Close",
+    "replay": "Watch again",
+    "mute": "Mute",
+    "unmute": "Unmute",
+    "video_label": "MyCleaner welcome video"
   }
 }

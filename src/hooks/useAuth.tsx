@@ -12,6 +12,7 @@ export type Profile = {
   lng: number | null;
   country_code: string | null;
   provider_id?: string | null;
+  sms_verified_at?: string | null;
 };
 
 type AuthCtx = {

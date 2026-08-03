@@ -14,11 +14,37 @@ async function invoke<T>(fn: string, params: Record<string, string>): Promise<T>
   return data as T;
 }
 
+interface CustomerFields {
+  full_name?: string | null;
+  phone?: string | null;
+  country_code?: string | null;
+  open_cases?: number | null;
+}
+type CustomerSummary = CustomerFields & { customer?: CustomerFields | null };
+
+interface ProviderFields {
+  full_name?: string | null;
+  country_code?: string | null;
+  stripe_ready?: boolean | null;
+  disputes?: number | null;
+}
+type ProviderSummary = ProviderFields & { provider?: ProviderFields | null };
+
+interface BookingFields {
+  booking_date?: string | null;
+  status?: string | null;
+  customer_pays?: number | null;
+  currency?: string | null;
+  address_masked?: string | null;
+  address?: string | null;
+}
+type BookingSummary = BookingFields & { booking?: BookingFields | null };
+
 function useCustomerSummary(id: string | null) {
   return useQuery({
     enabled: !!id,
     queryKey: ["support", "ctx-customer", id],
-    queryFn: () => invoke<any>("support-customer-summary", { user_id: id! }),
+    queryFn: () => invoke<CustomerSummary>("support-customer-summary", { user_id: id! }),
     staleTime: 30_000,
   });
 }
@@ -26,7 +52,7 @@ function useProviderSummary(id: string | null) {
   return useQuery({
     enabled: !!id,
     queryKey: ["support", "ctx-provider", id],
-    queryFn: () => invoke<any>("support-provider-summary", { provider_id: id! }),
+    queryFn: () => invoke<ProviderSummary>("support-provider-summary", { provider_id: id! }),
     staleTime: 30_000,
   });
 }
@@ -34,7 +60,7 @@ function useBookingSummary(id: string | null) {
   return useQuery({
     enabled: !!id,
     queryKey: ["support", "ctx-booking", id],
-    queryFn: () => invoke<any>("support-booking-summary", { booking_id: id! }),
+    queryFn: () => invoke<BookingSummary>("support-booking-summary", { booking_id: id! }),
     staleTime: 30_000,
   });
 }
@@ -69,7 +95,7 @@ export function ContextPanel({ detail }: Props) {
           {conv.country_code && <Row label="Land" value={conv.country_code} />}
           {conv.tags?.length > 0 && (
             <div className="pt-1 flex flex-wrap gap-1">
-              {detail.tags.map((t: any) => (
+              {detail.tags.map((t) => (
                 <Badge key={t.tag_id} variant="secondary" className="text-[10px]">
                   {t.conversation_tags?.name ?? t.conversation_tags?.slug}
                 </Badge>

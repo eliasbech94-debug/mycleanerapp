@@ -6,8 +6,17 @@ import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import Stripe from "npm:stripe@17";
 import { authenticate } from "../_shared/auth.ts";
+import { requireActiveProvider } from "../_shared/providerGate.ts";
 import { writeAudit } from "../_shared/audit.ts";
 import { notifyUser } from "../_shared/notify.ts";
+import {
+  bookingStartInstant,
+  hoursUntilServiceStart,
+  policyForSnapshot,
+  refundPercentForHours,
+  tierForHours,
+} from "../_shared/cancellationPolicy.ts";
+
 
 import { monitored } from "../_shared/logger.ts";
 const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, { apiVersion: "2024-06-20" });
@@ -39,12 +48,12 @@ function json(body: unknown, status = 200) {
   });
 }
 
-/** Cancellation policy: hours until service start → % refunded of captured amount. */
-function policyRefundPercent(hoursUntilService: number): number {
-  if (hoursUntilService >= 48) return 100;
-  if (hoursUntilService >= 24) return 50;
-  return 0;
-}
+// Cancellation ladder lives in `_shared/cancellationPolicy.ts` so backend,
+// frontend and the Legal Center quote the exact same numbers, and so each
+// booking can be evaluated with the policy version it was sold under.
+
+
+
 
 Deno.serve(monitored("booking-cancel", async (req, _log) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
@@ -69,7 +78,7 @@ Deno.serve(monitored("booking-cancel", async (req, _log) => {
     // ── Load booking + provider profile ────────────────────────────────
     const { data: booking, error: bkErr } = await admin
       .from("bookings")
-      .select("id, customer_user_id, provider_id, service, booking_date, slot, currency, customer_pays, provider_gets, platform_fee_amount, status, payment_status, payment_intent_id, refund_amount")
+      .select("id, customer_user_id, provider_id, service, booking_date, slot, timezone, cancellation_policy_snapshot, currency, customer_pays, provider_gets, platform_fee_amount, status, payment_status, payment_intent_id, refund_amount")
       .eq("id", booking_id)
       .maybeSingle();
     if (bkErr || !booking) return json({ error: "booking_not_found" }, 404);
@@ -87,15 +96,31 @@ Deno.serve(monitored("booking-cancel", async (req, _log) => {
     const actor_role: "customer" | "provider" | "admin" =
       isAdmin ? "admin" : isCustomer ? "customer" : "provider";
 
+    // Providers may only drive the booking lifecycle while operational.
+    // Paused providers keep servicing bookings they already hold.
+    if (actor_role === "provider") {
+      const cancelGate = await requireActiveProvider(ctx, corsHeaders, { allowPaused: true });
+      if (cancelGate instanceof Response) return cancelGate;
+    }
+
     if (["cancelled","completed","declined"].includes(booking.status)) {
       return json({ error: "booking_not_cancellable", status: booking.status }, 409);
     }
 
-    // ── Compute cancellation policy snapshot ───────────────────────────
+    // ── Compute cancellation outcome ───────────────────────────────────
+    // The booking is evaluated with the policy version the customer accepted
+    // at booking time — never with the newest global ladder.
+    const acceptedSnapshot = (booking.cancellation_policy_snapshot ?? {}) as Record<string, unknown>;
+    const policy = policyForSnapshot(acceptedSnapshot);
+
     const nowMs = Date.now();
-    const serviceStartMs = booking.booking_date
-      ? new Date(`${booking.booking_date}T00:00:00Z`).getTime() : nowMs;
-    const hoursUntilService = Math.max(0, (serviceStartMs - nowMs) / 3_600_000);
+    // Exact start instant from date + slot + IANA timezone (DST-correct).
+    const serviceStart = bookingStartInstant(booking.booking_date, booking.slot, booking.timezone);
+    if (!serviceStart) {
+      return json({ error: "booking_start_unresolvable", booking_date: booking.booking_date, slot: booking.slot }, 422);
+    }
+    const serviceStartMs = serviceStart.getTime();
+    const hoursUntilService = hoursUntilServiceStart(serviceStartMs, nowMs);
 
     const captured = booking.payment_status === "captured"
       || booking.payment_status === "partially_refunded";
@@ -107,7 +132,10 @@ Deno.serve(monitored("booking-cancel", async (req, _log) => {
     // Admin can override policy and refund up to `refundable`. Others follow policy.
     let refundAmount = 0;
     let refundType: "none" | "partial" | "full" = "none";
-    let policySnapshot: Record<string, unknown> = {
+    const applied: Record<string, unknown> = {
+      policy_version: policy.version,
+      service_start: serviceStart.toISOString(),
+      booking_timezone: booking.timezone ?? null,
       hours_until_service: Math.round(hoursUntilService * 10) / 10,
       gross_paid: grossPaid,
       previously_refunded: previouslyRefunded,
@@ -117,25 +145,29 @@ Deno.serve(monitored("booking-cancel", async (req, _log) => {
     if (captured) {
       if (isAdmin && requested_refund_amount !== null) {
         refundAmount = Math.min(Math.max(0, requested_refund_amount), refundable);
-        policySnapshot.rule = "admin_override";
+        applied.rule = "admin_override";
       } else if (isProvider) {
         // Provider-initiated cancel = full refund of what customer paid.
         refundAmount = refundable;
-        policySnapshot.rule = "provider_cancels_full_refund";
+        applied.rule = "provider_cancels_full_refund";
       } else {
-        const pct = policyRefundPercent(hoursUntilService);
+        const pct = refundPercentForHours(hoursUntilService, policy);
         refundAmount = Math.round(refundable * (pct / 100));
-        policySnapshot.rule = "customer_policy_by_hours";
-        policySnapshot.refund_percent = pct;
+        applied.rule = "customer_policy_by_hours";
+        applied.refund_percent = pct;
+        applied.policy_tier = tierForHours(hoursUntilService, policy).key;
       }
       refundType = refundAmount === 0 ? "none"
         : refundAmount >= refundable ? "full" : "partial";
     } else if (authorized && booking.payment_intent_id) {
       // Not captured yet → cancel the PaymentIntent (no refund needed).
-      policySnapshot.rule = "cancel_uncaptured_intent";
+      applied.rule = "cancel_uncaptured_intent";
     } else {
-      policySnapshot.rule = "no_payment_action";
+      applied.rule = "no_payment_action";
     }
+
+    // Preserve the accepted terms; record the applied outcome alongside them.
+    const policySnapshot: Record<string, unknown> = { ...acceptedSnapshot, applied };
 
     // ── Idempotency: check for prior request with same key ─────────────
     const { data: existingReq } = await admin.from("refund_requests")
@@ -266,6 +298,7 @@ Deno.serve(monitored("booking-cancel", async (req, _log) => {
         dedupe_key: `booking.cancelled:${booking.id}`,
         subject: `Booking ${bookingRef} annulleret`,
         body: `Din booking af ${svc} er annulleret af ${actor_role}.`,
+        vars: { ref: bookingRef, service: svc, actor: actor_role },
         related_booking_id: booking.id,
         action_label: "Se detaljer", action_url: actionUrl,
       });
@@ -276,6 +309,7 @@ Deno.serve(monitored("booking-cancel", async (req, _log) => {
           dedupe_key: `refund.initiated:${stripeRefundId ?? booking.id}`,
           subject: `Refundering igangsat`,
           body: `Vi har igangsat en refundering på ${(refundAmount/100).toFixed(2)} ${currencyStr}. Beløbet er tilbage på kortet inden for 5-10 hverdage.`,
+          vars: { amount: { type: "money", minor: refundAmount, currency: currencyStr } },
           related_booking_id: booking.id,
           action_label: "Se booking", action_url: actionUrl,
           payload: { refund_amount: refundAmount, currency: currencyStr, stripe_refund_id: stripeRefundId },
@@ -290,10 +324,17 @@ Deno.serve(monitored("booking-cancel", async (req, _log) => {
         dedupe_key: `booking.cancelled.provider:${booking.id}`,
         subject: `Booking ${bookingRef} annulleret`,
         body: `Bookingen af ${svc} den ${booking.booking_date ?? ""} er annulleret af ${actor_role}.`,
+        vars: {
+          ref: bookingRef,
+          service: svc,
+          actor: actor_role,
+          date: { type: "date", iso: booking.booking_date ?? null },
+        },
         related_booking_id: booking.id,
         action_label: "Se booking", action_url: `/provider-dashboard`,
       });
     }
+
 
     // Credit note is issued asynchronously by the webhook when the refund
     // event settles (refund.updated → succeeded). We do NOT create it here to

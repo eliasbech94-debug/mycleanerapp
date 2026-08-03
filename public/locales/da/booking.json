@@ -1,0 +1,169 @@
+{
+  "nav": {
+    "back": "Tilbage",
+    "previous": "Forrige",
+    "cancel": "Annullér",
+    "next": "Næste",
+    "sending": "Sender…"
+  },
+  "header": {
+    "title": "Booking · MyCleaner"
+  },
+  "stepper": {
+    "service": "Service",
+    "dateTime": "Tidspunkt",
+    "review": "Gennemse"
+  },
+  "step1": {
+    "title": "Hvad skal {{name}} tage sig af?",
+    "subtitle": "Vælg en service hos din cleaner. Du kan justere varigheden — det påvirker prisen direkte.",
+    "hoursLabel": "Antal timer",
+    "hoursUnit": "t",
+    "hoursMin": "1,5 t",
+    "hoursMid": "4 t",
+    "hoursMax": "8 t",
+    "selected": "Valgt",
+    "fromPrice": "fra {{price}}"
+  },
+  "step2": {
+    "title": "Vælg dato og tidspunkt",
+    "subtitle": "Du booker direkte i cleanerens kalender. Grå tider er optagede.",
+    "prevWeekAria": "Forrige uge",
+    "nextWeekAria": "Næste uge",
+    "availableTimes": "Ledige tider · {{date}}"
+  },
+  "step3": {
+    "title": "Sidste detaljer",
+    "subtitle": "Vi sender oplysningerne direkte til {{name}}. Beløbet trækkes først, når provideren har accepteret din bookingforespørgsel.",
+    "address": {
+      "chooseAddress": "Vælg adresse",
+      "useAnotherAddress": "Brug en anden adresse",
+      "addressLabel": "Adresse",
+      "useSaved": "Brug en gemt",
+      "validated": "Adresse valideret — cleaneren kan finde stedet",
+      "hint": "Begynd at skrive og vælg din adresse fra listen. Vi tjekker, at den er reel.",
+      "placeholder": "Vej, nr., etage, by",
+      "loginPrompt": "Log ind",
+      "loginPromptTail": "og gem dine adresser med adgangsinfo, så cleaneren får alt at vide automatisk.",
+      "saveAddressPrompt": "Gem denne adresse",
+      "saveAddressPromptTail": "i din adressebog med dyr, parkering og adgangsinfo — så er det auto-udfyldt næste gang."
+    },
+    "verify": {
+      "title": "Adressebekræftelse",
+      "badgePrimary": "Primær adresse",
+      "badgeSaved": "Gemt adresse",
+      "badgeProfile": "Fra profil",
+      "badgeOneTime": "Engangsadresse",
+      "profileLabel": "Fra din profil",
+      "manualLabel": "Manuel indtastning",
+      "edit": "Rediger",
+      "sqm": "m²",
+      "rooms": "vær.",
+      "access": "Adgang",
+      "code": "Kode",
+      "instructions": "Instruktioner",
+      "pets": "Kæledyr",
+      "petsYes": "Ja",
+      "children": "Børn",
+      "childrenPresent": "Børn i hjemmet",
+      "parking": "Parkering",
+      "cleaningSupplies": "Rengøringsmidler",
+      "cleaningSuppliesReady": "Står klar",
+      "wifi": "WiFi",
+      "otherNotes": "Andre bemærkninger",
+      "profileHint": "Vi bruger adressen fra din profil. Gem den i din adressebog for at tilføje adgangsinfo og kæledyr.",
+      "oneTimeHint": "Du bruger en manuel adresse. Skriv adgangsinfo og kæledyr direkte i beskeden til cleaneren nedenfor."
+    },
+    "notes": {
+      "label": "Noter til provideren (valgfri)",
+      "placeholder": "Fx kæledyr, allergi eller hvordan du aftaler adgang med provideren…"
+    },
+    "payment": {
+      "label": "Betalingskort",
+      "disclaimer": "Beløbet kan være reserveret på dit kort, mens bookingforespørgslen behandles. Det trækkes først, når provideren har accepteret bookingen."
+    },
+    "paymentHandling": {
+      "title": "Sådan håndteres din betaling",
+      "body": "{{amount}} kan blive reserveret på dit kort. Beløbet udbetales først til provideren, når servicen er udført og bookingen er afsluttet."
+    }
+  },
+  "editDialog": {
+    "title": "Rediger adgang & kæledyr",
+    "description": "Ændringer gemmes på \"{{label}}\" i din adressebog. Du aftaler selv adgang direkte med provideren — MyCleaner modtager eller opbevarer ikke nøgler.",
+    "accessMethodLabel": "Sådan får provideren adgang",
+    "codeLabel": "Kode",
+    "codePlaceholder": "Fx 1234",
+    "instructionsLabel": "Instruktioner",
+    "instructionsPlaceholder": "Fx nøgleboks ved postkasse, ring på 3. sal…",
+    "petsLabel": "Kæledyr i hjemmet",
+    "petsPlaceholder": "Fx 1 hund (venlig), 2 katte",
+    "childrenLabel": "Børn i hjemmet",
+    "parkingLabel": "Parkering",
+    "parkingPlaceholder": "Fx gratis på vejen, p-licens påkrævet",
+    "suppliesLabel": "Rengøringsmidler står klar",
+    "cancel": "Annullér",
+    "save": "Gem ændringer",
+    "saving": "Gemmer…"
+  },
+  "toast": {
+    "selectAddress": {
+      "title": "Vælg din adresse",
+      "description": "Vælg en gyldig adresse fra listen, så provideren ved, hvor opgaven skal udføres."
+    },
+    "loginRequired": {
+      "title": "Log ind for at sende din bookingforespørgsel",
+      "description": "Log ind, så provideren kan kontakte dig om bookingen."
+    },
+    "paymentNotReady": {
+      "title": "Betalingen er ikke klar endnu",
+      "description": "Betalingsfeltet indlæses stadig. Vent et øjeblik, og prøv igen."
+    },
+    "enterCard": {
+      "title": "Indtast dine kortoplysninger",
+      "description": "Vi bruger kortet til at reservere beløbet — du betaler først, når bookingen er accepteret."
+    },
+    "priceError": "Vi kunne ikke beregne prisen lige nu. Prøv igen om lidt.",
+    "paymentStartError": "Vi kunne ikke starte betalingen. Prøv igen, eller brug en anden betalingsmetode.",
+    "confirmError": "Betalingen kunne ikke gennemføres. Kontrollér dine kortoplysninger, eller prøv en anden betalingsmetode.",
+    "unexpectedStatus": "Uventet status: {{status}}",
+    "bookingSent": {
+      "title": "Booking sendt ✓",
+      "description": "{{name}} har 24 timer til at bekræfte. Først da hæves beløbet."
+    },
+    "paymentFailed": {
+      "title": "Betalingen kunne ikke gennemføres",
+      "description": "Kontrollér dine kortoplysninger, eller prøv en anden betalingsmetode."
+    },
+    "changesSaved": {
+      "title": "Ændringer gemt",
+      "description": "Adgang og kæledyr er opdateret på adressen."
+    },
+    "saveFailed": {
+      "title": "Vi kunne ikke gemme ændringerne",
+      "description": "Prøv igen om et øjeblik."
+    }
+  },
+  "actions": {
+    "sendRequest": "Send bookingforespørgsel"
+  },
+  "step4": {
+    "title": "Din bookingforespørgsel er sendt",
+    "description": "{{name}} har modtaget din bookingforespørgsel og svarer typisk inden for {{responseTime}}. Du får besked, så snart forespørgslen er accepteret.",
+    "yourTime": "Din tid",
+    "at": "kl. {{slot}}",
+    "viewProfile": "Se {{name}}s profil",
+    "home": "Til forsiden"
+  },
+  "summary": {
+    "service": "Service",
+    "duration": "Varighed",
+    "date": "Dato",
+    "slot": "Tidspunkt",
+    "notSelected": "Ikke valgt",
+    "hoursShort": "{{count}} t",
+    "ratePerHour": "{{rate}}/t × {{hours}} t",
+    "platformFee": "Platformgebyr",
+    "total": "Samlet pris",
+    "providerNet": "Providerens pris efter platformgebyr: {{amount}}. MyCleaner er en platform, der forbinder kunder og selvstændige providere og håndterer booking og betaling. Servicen udføres af din valgte provider."
+  }
+}

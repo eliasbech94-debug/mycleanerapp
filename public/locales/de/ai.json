@@ -1,0 +1,29 @@
+{
+  "disclosure": {
+    "title": "Antwort des MyCleaner KI-Assistenten",
+    "body": "KI kann Fehler machen. Du kannst jederzeit einen Menschen um Hilfe bitten.",
+    "talkToHuman": "Mit einem Menschen sprechen",
+    "requesting": "Wird weitergeleitet …",
+    "requestFailed": "Das Gespräch konnte nicht weitergeleitet werden. Bitte versuche es erneut."
+  },
+  "system": {
+    "automated": "Automatische Nachricht von MyCleaner"
+  },
+  "handover": {
+    "confirmation": "Natürlich — ich leite das Gespräch an den MyCleaner Support weiter, damit dir ein Mensch helfen kann.",
+    "active": "Du sprichst jetzt mit {{firstName}} vom MyCleaner Support.",
+    "pending": "Das Gespräch wurde an den MyCleaner Support weitergeleitet. Ein Mensch übernimmt ab hier.",
+    "expectedResponse": "Voraussichtliche Antwortzeit: etwa {{minutes}} Minuten.",
+    "expectedResponseUnknown": "Wir antworten so schnell wie möglich."
+  },
+  "sender": {
+    "customer": "Kunde",
+    "provider": "Provider",
+    "support_agent": "MyCleaner Support",
+    "ai_assistant": "MyCleaner KI-Assistent",
+    "system": "MyCleaner"
+  },
+  "audit": {
+    "aiAssistedDraft": "KI hat beim Entwurf geholfen — geprüft und gesendet von einem Teammitglied."
+  }
+}

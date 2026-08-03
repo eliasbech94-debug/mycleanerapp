@@ -7,6 +7,7 @@
 // platform commission and provider net proportionally.
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { authenticate, requireRole } from "../_shared/auth.ts";
+import { requireActiveProvider } from "../_shared/providerGate.ts";
 
 interface CurrencyTotals {
   currency: string;
@@ -46,6 +47,10 @@ Deno.serve(async (req) => {
   if (scope === "admin") {
     const forbidden = requireRole(ctx, ["admin", "employee"], corsHeaders);
     if (forbidden) return forbidden;
+  } else if (!isAdmin) {
+    // Provider-scoped financial operations require an operating provider.
+    const financeGate = await requireActiveProvider(ctx, corsHeaders, { allowPaused: true });
+    if (financeGate instanceof Response) return financeGate;
   }
 
   const { admin } = ctx;

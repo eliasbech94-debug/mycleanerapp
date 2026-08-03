@@ -7,7 +7,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import i18n, { getStoredLanguage, isManualLanguage, SupportedLanguage } from "./index";
 
-export const SUPPORTED_COUNTRIES = ["DK", "GB", "SE", "ES"] as const;
+export const SUPPORTED_COUNTRIES = ["DK", "GB", "SE", "DE", "ES"] as const;
 export type CountryISO = typeof SUPPORTED_COUNTRIES[number];
 
 export function isValidCountryParam(p?: string): p is Lowercase<CountryISO> {

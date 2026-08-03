@@ -1,12 +1,17 @@
-/// <reference types="google.maps" />
 import { useEffect, useMemo, useRef, useState, useCallback, KeyboardEvent } from "react";
 import { MapPin, Loader2, CheckCircle2, AlertTriangle } from "lucide-react";
-import { loadGoogleMaps } from "@/lib/googleMaps";
+import {
+  createSessionToken,
+  suggestAddresses,
+  SUGGEST_TYPES,
+} from "@/lib/mapbox";
 import { supabase } from "@/integrations/supabase/client";
 import { dawaProvider, DawaUnavailableError } from "@/lib/address/dawa";
 import { LruCache } from "@/lib/address/cache";
 import { normalizeAddress, matchSpan } from "@/lib/address/normalize";
 import type { AddressSuggestion, AddressSource } from "@/lib/address/types";
+import { useTranslation } from "react-i18next";
+
 
 
 /**
@@ -16,6 +21,40 @@ import type { AddressSuggestion, AddressSource } from "@/lib/address/types";
  * "Sønder Boulevard 18" produce a single network call.
  */
 const suggestionCache = new LruCache<AddressSuggestion[]>(200, 10 * 60 * 1000);
+
+/** Known backend error codes → i18n key suffix. Anything else is generic. */
+const ERROR_KEYS: Record<string, string> = {
+  mapbox_unavailable: "unavailable",
+  mapbox_retrieve_failed: "unavailable",
+  mapbox_token_missing: "misconfigured",
+  google_key_missing: "misconfigured",
+  dawa_invalid_response: "unavailable",
+  dawa_not_found: "notFound",
+  invalid_place_id: "notFound",
+  place_missing_country: "notFound",
+};
+
+function errorKey(code: string): string {
+  return ERROR_KEYS[code] ?? "generic";
+}
+
+/**
+ * `functions.invoke` collapses every non-2xx into the same opaque message, so
+ * the real error code has to be read from the response body when present.
+ */
+async function readInvokeError(error: unknown): Promise<string> {
+  const ctx = (error as { context?: { text?: () => Promise<string> } })?.context;
+  if (ctx?.text) {
+    try {
+      const body = JSON.parse(await ctx.text());
+      if (body?.error) return String(body.error);
+    } catch {
+      /* fall through to the generic code below */
+    }
+  }
+  return (error as Error)?.message || "validation_failed";
+}
+
 
 type Props = {
   value: string;
@@ -27,52 +66,38 @@ type Props = {
   /** ISO country codes to bias the autocomplete. First entry decides provider (DK → DAWA). */
   countries?: string[];
   isValid?: boolean;
+  /**
+   * `strict` (default) = house-level addresses only, required for a booking.
+   * `broad` = also postcode / city / locality, used by the public search where
+   * "2100" or "Berlin" is a perfectly good starting point.
+   */
+  scope?: "strict" | "broad";
 };
 
 export default function AddressAutocomplete({
   value, onChange, onSelect, onValidityChange, placeholder, autoFocus, countries = ["dk"], isValid,
+  scope = "strict",
 }: Props) {
+  const { t } = useTranslation("common");
   const primaryCountry = (countries[0] || "dk").toLowerCase();
-  const source: AddressSource = primaryCountry === "dk" ? "dawa" : "google";
+  // DAWA only knows Danish house-level addresses, so broad (postcode/city)
+  // lookups always go through Mapbox — including in Denmark.
+  const source: AddressSource =
+    primaryCountry === "dk" && scope === "strict" ? "dawa" : "mapbox";
 
   const [suggestions, setSuggestions] = useState<AddressSuggestion[]>([]);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [ready, setReady] = useState(source === "dawa"); // DAWA needs no boot
   const [noMatch, setNoMatch] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
   const [highlight, setHighlight] = useState(0);
 
-  const googleSessionRef = useRef<google.maps.places.AutocompleteSessionToken | null>(null);
+  /** Mapbox Search Box session: groups suggest calls with the final retrieve. */
+  const sessionRef = useRef<string>(createSessionToken());
   const debounceRef = useRef<number | null>(null);
   const abortRef = useRef<AbortController | null>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
   const listboxId = useMemo(() => `addr-listbox-${Math.random().toString(36).slice(2)}`, []);
-
-  /**
-   * Lazily boot Google Places. Used both as the primary provider for
-   * non-DK countries AND as the automatic fallback when DAWA is
-   * unreachable (timeout / network / 5xx) for a DK lookup.
-   */
-  const ensureGoogleReady = useCallback(async () => {
-    if (googleSessionRef.current) return true;
-    try {
-      await loadGoogleMaps();
-      const { AutocompleteSessionToken } = (await google.maps.importLibrary(
-        "places",
-      )) as google.maps.PlacesLibrary;
-      googleSessionRef.current = new AutocompleteSessionToken();
-      return true;
-    } catch (e) {
-      console.warn("[AddressAutocomplete] google load failed:", e);
-      return false;
-    }
-  }, []);
-
-  useEffect(() => {
-    if (source !== "google") return;
-    ensureGoogleReady().then((ok) => ok && setReady(true));
-  }, [source, ensureGoogleReady]);
 
   useEffect(() => {
     function onDocClick(e: MouseEvent) {
@@ -82,40 +107,37 @@ export default function AddressAutocomplete({
     return () => document.removeEventListener("mousedown", onDocClick);
   }, []);
 
-  const suggestViaGoogle = useCallback(
-    async (q: string): Promise<AddressSuggestion[]> => {
-      const { AutocompleteSuggestion } = (await google.maps.importLibrary(
-        "places",
-      )) as google.maps.PlacesLibrary;
-      const { suggestions: res } =
-        await AutocompleteSuggestion.fetchAutocompleteSuggestions({
-          input: q,
-          sessionToken: googleSessionRef.current!,
-          includedRegionCodes: countries,
-          language: primaryCountry,
-        });
-      return (res || [])
-        .map((s) => s.placePrediction)
-        .filter(Boolean)
-        .map((p: any) => {
-          const primary = p.mainText?.text ?? p.text?.text ?? "";
-          const secondary = p.secondaryText?.text ?? "";
-          return {
-            source: "google" as const,
-            ref: p.placeId,
-            primary,
-            secondary,
-            match: matchSpan(primary, q) ?? undefined,
-          };
-        });
+
+  const suggestViaMapbox = useCallback(
+    async (q: string, signal?: AbortSignal): Promise<AddressSuggestion[]> => {
+      const res = await suggestAddresses({
+        query: q,
+        sessionToken: sessionRef.current,
+        countries,
+        language: primaryCountry,
+        types: scope === "broad" ? SUGGEST_TYPES.broad : SUGGEST_TYPES.strict,
+        signal,
+      });
+
+      return res.map((s) => {
+        const primary = s.name;
+        const secondary = s.place_formatted ?? "";
+        return {
+          source: "mapbox" as const,
+          ref: s.mapbox_id,
+          primary,
+          secondary,
+          match: matchSpan(primary, q) ?? undefined,
+        };
+      });
     },
-    [countries, primaryCountry],
+    [countries, primaryCountry, scope],
   );
 
   const runSuggest = useCallback(
     async (input: string) => {
       const q = input.trim();
-      if (!ready || q.length < 2) {
+      if (q.length < 2) {
         setSuggestions([]);
         setNoMatch(false);
         setOpen(false);
@@ -143,23 +165,21 @@ export default function AddressAutocomplete({
           } catch (e: any) {
             if (e?.name === "AbortError" || ctrl.signal.aborted) return;
             if (e instanceof DawaUnavailableError) {
-              // Automatic transparent fallback to Google for this single
+              // Automatic transparent fallback to Mapbox for this single
               // lookup. Next keystroke retries DAWA — we never mark the
               // provider as "sticky broken" so recovery is instant.
               console.warn(
                 `[AddressAutocomplete] DAWA unavailable (${e.reason}${
                   e.status ? ` ${e.status}` : ""
-                }) — falling back to Google Places for query: ${q}`,
+                }) — falling back to Mapbox for query: ${q}`,
               );
-              const booted = await ensureGoogleReady();
-              if (!booted) throw e;
-              items = await suggestViaGoogle(q);
+              items = await suggestViaMapbox(q, ctrl.signal);
             } else {
               throw e;
             }
           }
         } else {
-          items = await suggestViaGoogle(q);
+          items = await suggestViaMapbox(q, ctrl.signal);
         }
         if (ctrl.signal.aborted) return;
         suggestionCache.set(cacheKey, items);
@@ -170,14 +190,23 @@ export default function AddressAutocomplete({
       } catch (e: any) {
         if (e?.name === "AbortError") return;
         console.warn("[AddressAutocomplete] suggest failed:", e);
-        setNoMatch(true);
+        // A missing token or an unreachable Mapbox must not look like
+        // "address not found" — tell the user the lookup service is down.
+        if (e?.name === "MapboxConfigError") {
+          setServerError(t("ui.addressAutocomplete.errors.misconfigured"));
+        } else if (e?.name === "MapboxUnavailableError") {
+          setServerError(t("ui.addressAutocomplete.errors.unavailable"));
+        } else {
+          setNoMatch(true);
+        }
       } finally {
         if (!ctrl.signal.aborted) setLoading(false);
       }
     },
-    [ready, source, ensureGoogleReady, suggestViaGoogle],
-
+    [source, suggestViaMapbox, t],
   );
+
+
 
   function onInputChange(next: string) {
     onChange(next);
@@ -197,42 +226,32 @@ export default function AddressAutocomplete({
     setServerError(null);
     onValidityChange?.(true);
 
-    // Optimistic client-side coordinates (Google path only — DAWA gets them
-    // authoritatively from the server round-trip below).
-    if (s.source === "google") {
-      try {
-        const { Place } = (await google.maps.importLibrary(
-          "places",
-        )) as google.maps.PlacesLibrary;
-        const place = new Place({ id: s.ref });
-        await place.fetchFields({ fields: ["location", "formattedAddress"] });
-        onSelect?.({
-          address: place.formattedAddress || full,
-          placeId: s.ref,
-          lat: place.location?.lat(),
-          lng: place.location?.lng(),
-        });
-        const { AutocompleteSessionToken } = (await google.maps.importLibrary(
-          "places",
-        )) as google.maps.PlacesLibrary;
-        googleSessionRef.current = new AutocompleteSessionToken();
-      } catch {
-        onSelect?.({ address: full, placeId: s.ref });
-      }
-    }
-
-    // Server-side validation is the source of truth: it re-fetches from the
-    // provider, stores a place_validations row, and confirms the country
-    // matches the user's profile so the DB trigger will accept the save.
+    // Server-side validation is the source of truth: it re-fetches the address
+    // from the provider (DAWA or Mapbox Search Box retrieve), stores a
+    // place_validations row for signed-in users, and confirms the country
+    // matches the profile so the DB trigger will accept the save. Guests get
+    // the same coordinates back with `country_matches_profile === null`.
     try {
       const { data, error } = await supabase.functions.invoke("place-validate", {
-        body: { place_id: s.ref, source: s.source },
+        body: { place_id: s.ref, source: s.source, session_token: sessionRef.current },
       });
-      if (error) throw error;
-      if (!data?.ok) throw new Error(data?.error || "validation_failed");
+
+      const payloadError =
+        (error ? await readInvokeError(error) : null) ??
+        (data && data.ok !== true ? String(data.error ?? "validation_failed") : null);
+
+      if (payloadError) {
+        setServerError(t(`ui.addressAutocomplete.errors.${errorKey(payloadError)}`));
+        onValidityChange?.(false);
+        return;
+      }
+
       if (data.country_matches_profile === false) {
         setServerError(
-          `Denne adresse ligger i ${data.country_code}, men din profil er sat til ${data.profile_country_code || "et andet land"}. Vælg en adresse i dit land, eller opdater dit land i profilen.`,
+          t("ui.addressAutocomplete.errors.countryMismatch", {
+            addressCountry: data.country_code,
+            profileCountry: data.profile_country_code || "—",
+          }),
         );
         onValidityChange?.(false);
         return;
@@ -243,12 +262,16 @@ export default function AddressAutocomplete({
         lat: data.lat ?? undefined,
         lng: data.lng ?? undefined,
       });
+      // A retrieve closes the Search Box session; start a fresh one.
+      sessionRef.current = createSessionToken();
+
     } catch (e) {
       console.error("[AddressAutocomplete] place-validate failed", e);
-      setServerError("Kunne ikke validere adressen på serveren. Prøv igen om lidt.");
+      setServerError(t("ui.addressAutocomplete.errors.unavailable"));
       onValidityChange?.(false);
     }
   }
+
 
   function onKeyDown(e: KeyboardEvent<HTMLInputElement>) {
     if (!open || suggestions.length === 0) return;
@@ -300,7 +323,7 @@ export default function AddressAutocomplete({
           inputMode="text"
           enterKeyHint="search"
         />
-        {loading && <Loader2 className="h-4 w-4 animate-spin opacity-60" aria-label="Søger" />}
+        {loading && <Loader2 className="h-4 w-4 animate-spin opacity-60" aria-label={t("ui.addressAutocomplete.searching")} />}
         {!loading && isValid && (
           <CheckCircle2 className="h-4 w-4" style={{ color: "#168a7a" }} aria-label="Godkendt" />
         )}
@@ -310,7 +333,7 @@ export default function AddressAutocomplete({
         <div className="mt-2 flex items-start gap-2 text-sm" style={{ color: "#c2412c" }}>
           <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0" />
           <div>
-            <span className="font-bold">Vi kunne ikke genkende denne adresse.</span>
+            <span className="font-bold">{t("ui.addressAutocomplete.notRecognized")}</span>
             <div className="opacity-80">
               Vælg en adresse fra listen, så vi sikrer at den kan findes af din cleaner.
             </div>
@@ -322,7 +345,7 @@ export default function AddressAutocomplete({
         <div role="alert" className="mt-2 flex items-start gap-2 text-sm" style={{ color: "#c2412c" }}>
           <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0" />
           <div>
-            <span className="font-bold">Adressen kunne ikke godkendes.</span>
+            <span className="font-bold">{t("ui.addressAutocomplete.notApproved")}</span>
             <div className="opacity-80">{serverError}</div>
           </div>
         </div>
@@ -337,7 +360,7 @@ export default function AddressAutocomplete({
         >
           <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0" />
           <div>
-            <span className="font-bold">Vælg en adresse fra listen.</span>
+            <span className="font-bold">{t("ui.addressAutocomplete.pickFromList")}</span>
             <div className="opacity-80">
               Adressen er først gyldig, når du vælger et af forslagene.
             </div>

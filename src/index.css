@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Space+Grotesk:wght@300..700&family=DM+Serif+Display:ital@0;1&family=Fira+Sans:ital,wght@0,300..700;1,300..700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Space+Grotesk:wght@300..700&family=DM+Serif+Display:ital@0;1&family=Fira+Sans:ital,wght@0,300..700;1,300..700&family=Instrument+Serif:ital@0;1&family=Work+Sans:ital,wght@0,300..700;1,300..700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -100,6 +100,32 @@
     --sidebar-ring: 176 68% 50%;
   }
 }
+
+  /* === Public marketplace surface (Phase 2A) ===
+   * Scoped light theme applied only where [data-surface="marketplace"]
+   * wraps content — homepage, marketplace search, find-cleaner, public
+   * provider profile and public booking flow. Does NOT modify :root, so
+   * provider/admin/internal dashboards keep their existing tokens.
+   */
+  [data-surface="marketplace"] {
+    --mkt-bg: 210 40% 98%;
+    --mkt-surface: 0 0% 100%;
+    --mkt-surface-muted: 214 32% 96%;
+    --mkt-ink: 222 47% 11%;
+    --mkt-ink-muted: 215 16% 40%;
+    --mkt-ink-soft: 215 14% 55%;
+    --mkt-border: 214 25% 90%;
+    --mkt-border-strong: 214 22% 82%;
+    --mkt-brand: 224 76% 48%;         /* royal blue */
+    --mkt-brand-hover: 224 76% 42%;
+    --mkt-brand-soft: 224 100% 96%;
+    --mkt-brand-on: 0 0% 100%;
+    --mkt-accent: 24 95% 55%;
+    --mkt-success: 152 62% 40%;
+    --mkt-star: 42 96% 52%;
+    --mkt-shadow-soft: 0 1px 2px hsl(222 47% 11% / 0.04), 0 8px 24px -12px hsl(222 47% 11% / 0.10);
+    --mkt-shadow-lift: 0 4px 12px -2px hsl(222 47% 11% / 0.08), 0 16px 40px -18px hsl(224 76% 48% / 0.18);
+  }
 
 @layer base {
   * {
@@ -238,6 +264,14 @@
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-10px); }
   }
+  @keyframes mktRotateWord {
+    0%   { opacity: 0; transform: translateY(0.4em); filter: blur(4px); }
+    60%  { opacity: 1; transform: translateY(0);      filter: blur(0);  }
+    100% { opacity: 1; transform: translateY(0);      filter: blur(0);  }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .animate-\[mktRotateWord_600ms_ease-out\] { animation: none !important; }
+  }
 
   /* === Cert tile wow effects === */
   .cert-tile { position: relative; isolation: isolate; }
@@ -369,4 +403,345 @@
       animation: none !important;
     }
   }
+}
+
+/* =========================================================================
+ * Phase 2 — Mobile App tokens & utilities
+ * Applied only inside mobile-app shell contexts (mobile.css scope class or
+ * <768px media query). Desktop/tablet visuals unchanged.
+ * ========================================================================= */
+:root {
+  --app-radius: 20px;
+  --app-shadow-card: 0 12px 32px -18px rgba(6, 22, 21, 0.35),
+                     0 2px 8px -4px rgba(6, 22, 21, 0.18);
+  --app-tap-highlight: rgba(22, 138, 122, 0.14);
+  --bs-radius: 24px;
+  --bs-shadow: 0 -20px 48px -20px rgba(6, 22, 21, 0.35);
+  --bs-overlay: rgba(6, 22, 21, 0.55);
+}
+
+@layer utilities {
+  .safe-top   { padding-top: env(safe-area-inset-top, 0px); }
+  .safe-bot   { padding-bottom: env(safe-area-inset-bottom, 0px); }
+  .safe-left  { padding-left: env(safe-area-inset-left, 0px); }
+  .safe-right { padding-right: env(safe-area-inset-right, 0px); }
+
+  .momentum-scroll {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+  }
+
+  /* Ensures the WCAG 44x44 minimum tap target */
+  .tap-target {
+    min-height: 44px;
+    min-width: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Compact mobile-only typography — scoped to <768px so desktop stays put. */
+  @media (max-width: 767px) {
+    .type-mobile-title    { font-size: 17px; line-height: 22px; font-weight: 600; letter-spacing: -0.01em; }
+    .type-mobile-headline { font-size: 24px; line-height: 30px; font-weight: 700; letter-spacing: -0.02em; }
+    .type-mobile-body     { font-size: 15px; line-height: 22px; }
+    .type-mobile-caption  { font-size: 12px; line-height: 16px; color: hsl(var(--mkt-ink-muted)); }
+  }
+
+  /* Phase 5B — mobile-only tap feedback. Presentation only, respects tokens. */
+  @media (max-width: 767px) {
+    .tap-pressable {
+      transition: transform 120ms ease, background-color 120ms ease, box-shadow 120ms ease;
+      -webkit-tap-highlight-color: var(--app-tap-highlight);
+    }
+    .tap-pressable:active {
+      transform: scale(0.985);
+      background-color: color-mix(in srgb, hsl(var(--mkt-brand-soft)) 55%, transparent);
+    }
+    .tap-row {
+      transition: background-color 120ms ease;
+      -webkit-tap-highlight-color: var(--app-tap-highlight);
+    }
+    .tap-row:active {
+      background-color: color-mix(in srgb, hsl(var(--mkt-brand-soft)) 55%, transparent);
+    }
+  }
+
+  /* Phase 5B — mobile route transition (content only). Fixed app bar and
+     bottom nav are outside this wrapper and must never animate. */
+  @media (max-width: 767px) {
+    .mobile-route-enter {
+      animation: mobileRouteEnter 220ms ease-out both;
+      will-change: opacity, transform;
+    }
+    @keyframes mobileRouteEnter {
+      from { opacity: 0.55; transform: translateY(4px); }
+      to   { opacity: 1;    transform: translateY(0);   }
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-testid="bottom-sheet"],
+    [data-testid="mobile-app-shell"] * {
+      transition-duration: 0ms !important;
+      animation-duration: 0ms !important;
+    }
+    .mobile-route-enter { animation: none !important; }
+    .tap-pressable, .tap-row { transition: none !important; }
+    .tap-pressable:active { transform: none !important; }
+  }
+}
+
+
+/* Utility: hide scrollbar while preserving native scroll (used by mobile chip rows). */
+@layer utilities {
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+}
+
+/* ---- Find Cleaner map pins (Mapbox HTML markers) ------------------------ */
+.mc-pin {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 9999px;
+  border: 2px solid hsl(var(--background));
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.2;
+  box-shadow: 0 2px 8px hsl(var(--foreground) / 0.25);
+  cursor: pointer;
+  transition: transform 150ms ease, background-color 150ms ease;
+}
+.mc-pin:hover,
+.mc-pin[data-hovered="true"] {
+  transform: scale(1.08);
+  z-index: 2;
+}
+.mc-pin[data-selected="true"] {
+  background: hsl(var(--accent));
+  color: hsl(var(--accent-foreground));
+  transform: scale(1.15);
+  z-index: 3;
+}
+.mc-pin:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+.mc-job-pin {
+  width: 18px;
+  height: 18px;
+  border-radius: 9999px;
+  background: hsl(var(--accent));
+  border: 3px solid hsl(var(--background));
+  box-shadow: 0 0 0 6px hsl(var(--accent) / 0.25);
+  cursor: grab;
+}
+
+/* ---- MyCleaner HQ marker + Europe overview ------------------------------ */
+.mc-hq-pin {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  padding: 6px;
+  border-radius: 9999px;
+  background: hsl(var(--background));
+  border: 2px solid hsl(var(--primary));
+  box-shadow: 0 6px 18px hsl(var(--foreground) / 0.25);
+  cursor: pointer;
+  transition: transform 200ms ease, box-shadow 200ms ease;
+}
+.mc-hq-pin:hover { transform: scale(1.06); }
+.mc-hq-pin:focus-visible { outline: 2px solid hsl(var(--ring)); outline-offset: 3px; }
+.mc-hq-pin img { width: 100%; height: 100%; object-fit: contain; }
+
+.mc-hq-popup { display: grid; gap: 0.35rem; min-width: 15rem; padding: 0.15rem 0.1rem; }
+.mc-hq-popup__label {
+  justify-self: start;
+  border-radius: 9999px;
+  background: hsl(var(--primary) / 0.12);
+  color: hsl(var(--primary));
+  padding: 0.1rem 0.5rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.mc-hq-popup__name { font-size: 0.95rem; color: hsl(var(--foreground)); }
+.mc-hq-popup__address { display: grid; font-style: normal; font-size: 0.8rem; color: hsl(var(--muted-foreground)); }
+.mc-hq-popup__tagline {
+  margin: 0.15rem 0 0;
+  font-size: 0.8rem;
+  font-style: italic;
+  color: hsl(var(--primary));
+}
+
+.mc-country-pin {
+  display: grid;
+  justify-items: center;
+  gap: 0.25rem;
+  /* NOTE: only opacity may be animated here — Mapbox owns this element's
+     `transform` for positioning, so animating transform detaches the pin. */
+  animation: mc-fade 400ms ease both;
+}
+.mc-country-pin img {
+  width: 34px;
+  height: 34px;
+  padding: 5px;
+  object-fit: contain;
+  border-radius: 9999px;
+  background: hsl(var(--background));
+  border: 2px solid hsl(var(--primary) / 0.7);
+  box-shadow: 0 4px 12px hsl(var(--foreground) / 0.2);
+}
+.mc-country-pin__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  white-space: nowrap;
+  border-radius: 9999px;
+  background: hsl(var(--background) / 0.95);
+  border: 1px solid hsl(var(--border));
+  padding: 0.1rem 0.45rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: hsl(var(--foreground));
+}
+@keyframes mc-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.mc-country-pin img,
+.mc-country-pin__label {
+  animation: mc-rise 400ms ease both;
+}
+@keyframes mc-rise {
+  from { transform: translateY(6px); }
+  to { transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mc-country-pin,
+  .mc-country-pin img,
+  .mc-country-pin__label { animation: none; }
+  .mc-hq-pin { transition: none; }
+}
+
+
+/* ------------------------------------------------------------------
+   Crisp: the default floating bubble/launcher is never shown anywhere.
+   Live chat is only rendered inside the embedded Support Center iframe.
+   ------------------------------------------------------------------ */
+.crisp-client,
+#crisp-chatbox {
+  display: none !important;
+}
+
+/* ------------------------------------------------------------------
+   MyCleaner calendar status tokens.
+   Consumed exclusively through src/features/calendar/status.ts so no
+   component hardcodes a colour. Each status has a base hue (surfaces,
+   accents) and an ink hue guaranteed to reach AA on the soft surface.
+   ------------------------------------------------------------------ */
+:root {
+  --cal-pending: 38 92% 50%;
+  --cal-pending-ink: 32 90% 28%;
+  --cal-accepted: 222 88% 46%;
+  --cal-accepted-ink: 222 80% 30%;
+  --cal-travelling: 268 65% 55%;
+  --cal-travelling-ink: 268 60% 34%;
+  --cal-arrived: 182 62% 38%;
+  --cal-arrived-ink: 182 66% 24%;
+  --cal-working: 176 68% 42%;
+  --cal-working-ink: 176 72% 24%;
+  --cal-paused: 38 55% 52%;
+  --cal-paused-ink: 34 60% 28%;
+  --cal-resumed: 196 70% 45%;
+  --cal-resumed-ink: 200 72% 27%;
+  --cal-completed: 165 55% 38%;
+  --cal-completed-ink: 165 60% 22%;
+  --cal-awaiting: 30 80% 42%;
+  --cal-awaiting-ink: 28 80% 26%;
+  --cal-confirmed: 172 60% 28%;
+  --cal-confirmed-ink: 172 62% 19%;
+  --cal-hold: 222 45% 24%;
+  --cal-hold-ink: 222 45% 20%;
+  --cal-released: 145 60% 38%;
+  --cal-released-ink: 145 64% 22%;
+  --cal-payout: 160 58% 38%;
+  --cal-payout-ink: 160 62% 22%;
+  --cal-paid: 142 70% 34%;
+  --cal-paid-ink: 142 72% 21%;
+  --cal-cancelled: 4 62% 55%;
+  --cal-cancelled-ink: 4 60% 34%;
+  --cal-declined: 8 25% 46%;
+  --cal-declined-ink: 8 28% 30%;
+  --cal-block: 220 10% 46%;
+  --cal-block-ink: 220 16% 28%;
+  --cal-vacation: 212 32% 52%;
+  --cal-vacation-ink: 212 38% 30%;
+  --cal-sick: 355 35% 52%;
+  --cal-sick-ink: 355 40% 32%;
+  --cal-external: 265 45% 60%;
+  --cal-external-ink: 265 45% 36%;
+  --cal-private: 232 30% 42%;
+  --cal-private-ink: 232 36% 26%;
+}
+
+.dark {
+  --cal-pending-ink: 38 92% 72%;
+  --cal-accepted-ink: 222 90% 78%;
+  --cal-travelling-ink: 268 70% 78%;
+  --cal-arrived-ink: 182 60% 68%;
+  --cal-working-ink: 176 65% 68%;
+  --cal-paused-ink: 38 60% 72%;
+  --cal-resumed-ink: 196 70% 72%;
+  --cal-completed-ink: 165 55% 68%;
+  --cal-awaiting-ink: 30 80% 70%;
+  --cal-confirmed-ink: 172 55% 66%;
+  --cal-hold-ink: 222 45% 78%;
+  --cal-released-ink: 145 55% 66%;
+  --cal-payout-ink: 160 55% 66%;
+  --cal-paid-ink: 142 60% 64%;
+  --cal-cancelled-ink: 4 70% 74%;
+  --cal-declined-ink: 8 30% 72%;
+  --cal-block-ink: 220 14% 74%;
+  --cal-vacation-ink: 212 40% 76%;
+  --cal-sick-ink: 355 45% 76%;
+  --cal-external-ink: 265 55% 78%;
+  --cal-private-ink: 232 40% 76%;
+}
+
+/* Diagonal hatch used for private/manual blocks so they are distinguishable
+   without relying on colour perception. */
+.cal-hatch {
+  background-image: repeating-linear-gradient(
+    45deg,
+    hsl(var(--foreground) / 0.06) 0 6px,
+    transparent 6px 12px
+  );
+}
+
+/* === Mission Control (admin operating system) ===
+ * Dark navy navigation + light content canvas. Scoped tokens so the admin
+ * shell never affects customer/provider surfaces.
+ */
+:root {
+  --mission-nav: 222 47% 11%;
+  --mission-nav-fg: 210 40% 98%;
+  --mission-nav-muted: 215 20% 62%;
+  --mission-nav-item: 214 24% 82%;
+  --mission-nav-border: 217 33% 20%;
+  --mission-nav-active: 224 64% 33%;
+  --mission-nav-accent: 224 76% 48%;
+  --mission-nav-ring: 200 90% 62%;
+  --mission-canvas: 210 40% 98%;
+}
+
+.dark {
+  --mission-nav: 222 47% 8%;
+  --mission-canvas: 220 20% 7%;
 }

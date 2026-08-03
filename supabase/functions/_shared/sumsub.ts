@@ -3,6 +3,7 @@
 // per Sumsub docs. Feature-flag gated by callers.
 import { createClient, SupabaseClient } from "npm:@supabase/supabase-js@2";
 import { signSumsubRequest, verifySumsubWebhookSignature } from "./sumsub-signing.ts";
+import { toAlpha3 } from "./iso3.ts";
 
 export interface SumsubConfig {
   appToken: string;
@@ -85,7 +86,14 @@ export async function createApplicant(
   const levelName = args.level === "provider" ? cfg.providerLevel : cfg.customerLevel;
   const path = `/resources/applicants?levelName=${encodeURIComponent(levelName)}`;
   const body: Record<string, unknown> = { externalUserId: args.externalUserId };
-  if (args.countryCode) body.info = { country: args.countryCode.toUpperCase() };
+  // Sumsub requires ISO 3166-1 alpha-3; MyCleaner stores alpha-2 everywhere.
+  // An unmappable code is omitted rather than sent through, because a bad
+  // country value makes Sumsub reject the whole applicant with a 400.
+  const alpha3 = toAlpha3(args.countryCode);
+  if (alpha3) body.info = { country: alpha3 };
+  else if (args.countryCode) {
+    console.warn("sumsub_country_unmappable", { code: args.countryCode });
+  }
   const r = await sumsubCall(cfg, "POST", path, body) as { id: string };
   return { id: r.id };
 }
@@ -122,7 +130,11 @@ export async function getApplicantStatus(
     reviewResult?: { reviewAnswer?: string; rejectLabels?: string[]; reviewRejectType?: string };
   };
   return {
-    status: mapSumsubStatus(r.reviewStatus, r.reviewResult?.reviewAnswer),
+    status: mapSumsubStatus(
+      r.reviewStatus,
+      r.reviewResult?.reviewAnswer,
+      r.reviewResult?.reviewRejectType,
+    ),
     reviewAnswer: r.reviewResult?.reviewAnswer ?? null,
     reviewSummary: {
       reviewStatus: r.reviewStatus ?? null,
@@ -142,20 +154,34 @@ export async function requestReverification(
   await sumsubCall(cfg, "POST", `${path}?stepName=IDENTITY`);
 }
 
-/** Map Sumsub review states to our internal IdentityStatus enum. */
+/**
+ * Map Sumsub review states to our internal IdentityStatus enum.
+ *
+ * `reviewRejectType` is load-bearing and must not be dropped: Sumsub uses a RED
+ * answer for two very different outcomes.
+ *   - RED + RETRY  -> the applicant may (and must) resubmit better documents.
+ *                     Mapping this to "rejected" would strand a recoverable
+ *                     provider in a terminal-looking state, so it maps to
+ *                     "pending" and the reject type is kept in metadata.
+ *   - RED + FINAL  -> terminal rejection.
+ * An absent reject type on a RED answer is treated as terminal (fail closed:
+ * never resurrect an applicant we cannot prove is retryable).
+ */
 export function mapSumsubStatus(
   reviewStatus: string | undefined,
   reviewAnswer: string | undefined,
+  reviewRejectType?: string | undefined,
 ): IdentityStatus {
   const s = (reviewStatus ?? "").toLowerCase();
   const a = (reviewAnswer ?? "").toUpperCase();
+  const rt = (reviewRejectType ?? "").toUpperCase();
   if (s === "init" || s === "prechecked" || s === "queued" || s === "onhold") {
     return s === "onhold" ? "on_hold" : "pending";
   }
   if (s === "pending") return "pending";
   if (s === "completed") {
     if (a === "GREEN") return "approved";
-    if (a === "RED") return "rejected";
+    if (a === "RED") return rt === "RETRY" ? "pending" : "rejected";
   }
   return "pending";
 }
@@ -184,10 +210,33 @@ export function composeEventId(payload: {
   return `hash:${payloadHash}`;
 }
 
-/** Reject webhooks older than N minutes (Sumsub sends `createdAtMs`). */
-export function isReplay(createdAtMs: number | undefined, nowMs = Date.now(), maxSkewMs = 5 * 60_000): boolean {
+/**
+ * Freshness guard for Sumsub webhooks (Sumsub sends `createdAtMs`).
+ *
+ * The window is deliberately asymmetric:
+ *   - Past events get a generous 48h budget. Sumsub retries failed deliveries
+ *     with exponential backoff over hours or days, so a tight past-window
+ *     silently discards *legitimate* approval events — the delivery is rejected
+ *     with 400, Sumsub eventually gives up, and the provider is stuck forever.
+ *     Replay *attacks* are already defeated by the HMAC signature plus the
+ *     UNIQUE(provider, event_id) idempotency key, which is where that
+ *     responsibility belongs.
+ *   - Future events get only 10 minutes, since a timestamp ahead of our clock
+ *     is never a retry — it is clock skew or a forged payload.
+ */
+export const WEBHOOK_MAX_PAST_MS = 48 * 60 * 60_000;
+export const WEBHOOK_MAX_FUTURE_MS = 10 * 60_000;
+
+export function isReplay(
+  createdAtMs: number | undefined,
+  nowMs = Date.now(),
+  maxPastMs = WEBHOOK_MAX_PAST_MS,
+  maxFutureMs = WEBHOOK_MAX_FUTURE_MS,
+): boolean {
   if (!createdAtMs || !Number.isFinite(createdAtMs)) return false; // if missing, defer to idempotency check
-  return Math.abs(nowMs - createdAtMs) > maxSkewMs;
+  const delta = nowMs - createdAtMs;
+  if (delta >= 0) return delta > maxPastMs;
+  return -delta > maxFutureMs;
 }
 
 /**

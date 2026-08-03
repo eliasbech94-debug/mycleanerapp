@@ -14,6 +14,7 @@ import {
 import { formatDistanceToNow } from "date-fns";
 import { da } from "date-fns/locale";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { Download, Search } from "lucide-react";
 import {
   PRIORITY_LABEL_DA, PRIORITY_ORDER, STATUS_LABEL_DA, STATUS_ORDER,
@@ -35,6 +36,7 @@ const PAGE_SIZE = 40;
  * URL is the source of truth so links are shareable.
  */
 export default function SupportCasesPage() {
+  const { t } = useTranslation("admin");
   const qc = useQueryClient();
   const [sp, setSp] = useSearchParams();
 
@@ -64,8 +66,8 @@ export default function SupportCasesPage() {
       );
       if (error) throw error;
       return {
-        conversations: (data as any)?.conversations ?? [],
-        nextCursor: (data as any)?.nextCursor ?? null,
+        conversations: (data as { conversations?: Row[] } | null)?.conversations ?? [],
+        nextCursor: (data as { nextCursor?: string | null } | null)?.nextCursor ?? null,
       };
     },
     staleTime: 15_000,
@@ -108,13 +110,13 @@ export default function SupportCasesPage() {
       if (status) params.set("status", status);
       if (priority) params.set("priority", priority);
       if (search.trim()) params.set("q", search.trim());
-      const url = `${(import.meta as any).env.VITE_SUPABASE_URL}/functions/v1/support-cases-export?${params.toString()}`;
+      const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/support-cases-export?${params.toString()}`;
       const { data: sess } = await supabase.auth.getSession();
       const token = sess?.session?.access_token;
       const res = await fetch(url, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (!res.ok) throw new Error(`Eksport fejlede (${res.status})`);
+      if (!res.ok) throw new Error(t("support.cases.exportError", { status: res.status }));
       const blob = await res.blob();
       const rowCount = res.headers.get("X-Row-Count") ?? "?";
       const dl = document.createElement("a");
@@ -122,7 +124,7 @@ export default function SupportCasesPage() {
       dl.download = `support-cases-${new Date().toISOString().slice(0, 10)}.csv`;
       document.body.appendChild(dl); dl.click(); dl.remove();
       URL.revokeObjectURL(dl.href);
-      toast.success(`CSV eksporteret (${rowCount} rækker). Uden PII eller beløb.`);
+      toast.success(t("support.cases.exportSuccess", { count: rowCount }));
     } catch (e) {
       toast.error((e as Error).message);
     } finally {
@@ -131,7 +133,7 @@ export default function SupportCasesPage() {
   };
 
   return (
-    <SupportLayout title="Sager" description="Filtrer, søg og eksporter sager. Alle filtre håndhæves serverside.">
+    <SupportLayout title={t("support.cases.title")} description={t("support.cases.description")}>
       <div className="space-y-4">
         <div className="flex flex-wrap items-end gap-2">
           <form onSubmit={submitSearch} className="relative flex-1 min-w-[220px]">
@@ -139,25 +141,25 @@ export default function SupportCasesPage() {
             <Input
               value={searchDraft}
               onChange={(e) => setSearchDraft(e.target.value)}
-              placeholder="Søg i emne eller booking-id…"
+              placeholder={t("support.cases.searchPlaceholder")}
               className="pl-7 h-9"
-              aria-label="Søg i sager"
+              aria-label={t("support.cases.searchAria")}
             />
           </form>
 
           <Select value={scope} onValueChange={(v) => update("scope", v)}>
             <SelectTrigger className="w-36 h-9"><SelectValue /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Alle</SelectItem>
-              <SelectItem value="mine">Mine</SelectItem>
-              <SelectItem value="unassigned">Ikke tildelte</SelectItem>
+              <SelectItem value="all">{t("support.cases.scope.all")}</SelectItem>
+              <SelectItem value="mine">{t("support.cases.scope.mine")}</SelectItem>
+              <SelectItem value="unassigned">{t("support.cases.scope.unassigned")}</SelectItem>
             </SelectContent>
           </Select>
 
           <Select value={status || "__all"} onValueChange={(v) => update("status", v === "__all" ? "" : v)}>
-            <SelectTrigger className="w-40 h-9"><SelectValue placeholder="Status" /></SelectTrigger>
+            <SelectTrigger className="w-40 h-9"><SelectValue placeholder={t("support.cases.statusPlaceholder")} /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="__all">Alle statusser</SelectItem>
+              <SelectItem value="__all">{t("support.cases.statusAll")}</SelectItem>
               {STATUS_ORDER.map((s) => (
                 <SelectItem key={s} value={s}>{STATUS_LABEL_DA[s]}</SelectItem>
               ))}
@@ -165,9 +167,9 @@ export default function SupportCasesPage() {
           </Select>
 
           <Select value={priority || "__all"} onValueChange={(v) => update("priority", v === "__all" ? "" : v)}>
-            <SelectTrigger className="w-36 h-9"><SelectValue placeholder="Prioritet" /></SelectTrigger>
+            <SelectTrigger className="w-36 h-9"><SelectValue placeholder={t("support.cases.priorityPlaceholder")} /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="__all">Alle prioriteter</SelectItem>
+              <SelectItem value="__all">{t("support.cases.priorityAll")}</SelectItem>
               {PRIORITY_ORDER.map((p) => (
                 <SelectItem key={p} value={p}>{PRIORITY_LABEL_DA[p]}</SelectItem>
               ))}
@@ -177,10 +179,10 @@ export default function SupportCasesPage() {
           <Button
             variant="outline" size="sm" onClick={doExport}
             disabled={exporting || rows.length === 0}
-            aria-label="Eksportér som CSV (uden PII)"
+            aria-label={t("support.cases.exportAria")}
           >
             <Download className="h-3.5 w-3.5 mr-1" />
-            {exporting ? "Eksporterer…" : "CSV"}
+            {exporting ? t("support.cases.exporting") : "CSV"}
           </Button>
         </div>
 
@@ -192,13 +194,13 @@ export default function SupportCasesPage() {
 
         {q.isError && (
           <Card><CardContent className="p-6 text-sm text-destructive">
-            Fejl: {(q.error as Error).message}
+            {t("support.cases.error", { message: (q.error as Error).message })}
           </CardContent></Card>
         )}
 
         {!q.isLoading && !q.isError && rows.length === 0 && (
           <Card><CardContent className="p-10 text-center text-muted-foreground text-sm">
-            Ingen sager matcher filtrene.
+            {t("support.cases.empty")}
           </CardContent></Card>
         )}
 
@@ -210,10 +212,10 @@ export default function SupportCasesPage() {
                   <Card className="hover:bg-muted/30 transition-colors">
                     <CardContent className="p-4 flex flex-wrap items-center gap-3">
                       <div className="min-w-0 flex-1">
-                        <div className="font-medium truncate">{c.subject || "Uden emne"}</div>
+                        <div className="font-medium truncate">{c.subject || t("support.cases.noSubject")}</div>
                         <div className="text-xs text-muted-foreground">
                           {c.kind}
-                          {c.booking_id && ` • Booking ${c.booking_id.slice(0, 8)}`}
+                          {c.booking_id && ` • ${t("support.cases.bookingLabel")} ${c.booking_id.slice(0, 8)}`}
                           {c.country_code && ` • ${c.country_code}`}
                           {c.last_message_at && ` • ${formatDistanceToNow(new Date(c.last_message_at), { addSuffix: true, locale: da })}`}
                         </div>
@@ -244,7 +246,7 @@ export default function SupportCasesPage() {
               onClick={() => q.fetchNextPage()}
               disabled={q.isFetchingNextPage}
             >
-              {q.isFetchingNextPage ? "Henter…" : "Vis flere"}
+              {q.isFetchingNextPage ? t("support.cases.loadingMore") : t("support.cases.loadMore")}
             </Button>
           </div>
         )}

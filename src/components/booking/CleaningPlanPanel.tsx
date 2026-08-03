@@ -2,8 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Loader2, Pencil, Home, Save, StickyNote, ListChecks } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-
-const C = { ink: "#0a3d3a", orange: "#ff6b35", cream: "#f5f0e0", teal: "#168a7a", mint: "#c8e6c0" };
+import { C } from "@/lib/bookingTheme";
 
 type Task = { label: string; checked: boolean };
 type Room = { name: string; tasks: Task[] };

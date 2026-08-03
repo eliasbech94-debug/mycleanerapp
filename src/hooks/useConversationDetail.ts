@@ -2,6 +2,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
+import type { SenderType } from "@/lib/conversations/senderType";
+
 export type MessageRole = "customer" | "provider" | "support" | "admin" | "system";
 export type MessageType = "text" | "system" | "attachment" | "note";
 
@@ -17,6 +19,14 @@ export interface ConversationMessage {
   id: string;
   sender_user_id: string | null;
   sender_role: MessageRole;
+  /**
+   * Authoritative, immutable sender classification. AI labelling in the UI is
+   * driven by this field only — never by analysing `body`.
+   */
+  sender_type?: SenderType | null;
+  /** AI wrote the draft; a human reviewed and sent it (audit only, not shown as AI). */
+  ai_drafted?: boolean | null;
+  ai_draft_reviewed_by?: string | null;
   message_type: MessageType;
   body: string | null;
   is_internal_note: boolean;
@@ -40,10 +50,38 @@ export interface ConversationEvent {
   created_at: string;
 }
 
+export interface ConversationSummary {
+  id: string;
+  status: string;
+  kind?: string | null;
+  subject?: string | null;
+  priority: string | null;
+  country_code?: string | null;
+  booking_id?: string | null;
+  customer_user_id?: string | null;
+  provider_user_id?: string | null;
+  assigned_support_id?: string | null;
+  created_at?: string | null;
+  tags?: unknown[] | null;
+  [key: string]: unknown;
+}
+
+export interface ConversationParticipant {
+  user_id: string;
+  role?: string | null;
+  [key: string]: unknown;
+}
+
+export interface ConversationTagAssignment {
+  tag_id: string;
+  conversation_tags?: { id?: string; slug?: string; name?: string } | null;
+  [key: string]: unknown;
+}
+
 export interface ConversationDetail {
-  conversation: any;
-  participants: any[];
-  tags: any[];
+  conversation: ConversationSummary;
+  participants: ConversationParticipant[];
+  tags: ConversationTagAssignment[];
   read: { last_read_message_id: string | null; last_read_at: string | null } | null;
   messages: ConversationMessage[];
   events: ConversationEvent[] | null;
@@ -201,7 +239,7 @@ export function useConversationDetail(conversationId: string | null) {
         { event: "UPDATE", schema: "public", table: "conversations",
           filter: `id=eq.${conversationId}` },
         (payload) => {
-          const c = payload.new as any;
+          const c = payload.new as Partial<ConversationSummary>;
           setDetail((prev) => {
             if (!prev) return prev;
             return { ...prev, conversation: { ...prev.conversation, ...c } };

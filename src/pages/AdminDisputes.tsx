@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import BackButton from "@/components/BackButton";
 import { AlertTriangle, Send } from "lucide-react";
+import { errorMessage } from "@/lib/errorMessage";
 
 interface Dispute {
   id: string;
@@ -34,6 +35,20 @@ interface Alert {
   resolved_at: string | null;
   created_at: string;
 }
+
+const STATUS_LABEL: Record<string, string> = {
+  needs_response: "Afventer oplysninger",
+  warning_needs_response: "Afventer oplysninger",
+  under_review: "Under gennemgang",
+  warning_under_review: "Under gennemgang",
+  won: "Afgjort — kundens indsigelse afvist",
+  lost: "Afgjort — kundens indsigelse godkendt",
+  charge_refunded: "Refundering gennemført",
+  warning_closed: "Afsluttet",
+  closed: "Afsluttet",
+};
+
+const statusLabel = (s: string) => STATUS_LABEL[s] ?? s;
 
 const badge = (s: string) => {
   if (s === "won") return "default";
@@ -73,10 +88,10 @@ export default function AdminDisputes() {
     try {
       const { error } = await supabase.functions.invoke("dispute-evidence-submit", { body: { dispute_id: id } });
       if (error) throw error;
-      toast.success("Dokumentation sendt til Stripe");
+      toast.success("Oplysningerne er sendt til betalingsudbyderen");
       await load();
-    } catch (e: any) {
-      toast.error(e.message ?? "Kunne ikke sende");
+    } catch (e) {
+      toast.error(errorMessage(e, "Oplysningerne kunne ikke sendes. Prøv igen om lidt."));
     } finally { setBusy(null); }
   };
 
@@ -85,33 +100,33 @@ export default function AdminDisputes() {
     try {
       const { data, error } = await supabase.functions.invoke("dispute-monitor", { body: {} });
       if (error) throw error;
-      toast.success(`Monitor kørt: ratio ${((data?.platform_ratio ?? 0) * 100).toFixed(2)}%`);
+      toast.success(`Overvågning gennemført — andel: ${((data?.platform_ratio ?? 0) * 100).toFixed(2)}%`);
       await load();
-    } catch (e: any) {
-      toast.error(e.message ?? "Fejl");
+    } catch (e) {
+      toast.error(errorMessage(e, "Overvågningen kunne ikke gennemføres. Prøv igen om lidt."));
     } finally { setBusy(null); }
   };
 
   const renderList = (items: Dispute[]) => (
     <div className="space-y-2">
-      {items.length === 0 && <p className="text-sm text-muted-foreground p-4">Ingen sager.</p>}
+      {items.length === 0 && <p className="text-sm text-muted-foreground p-4">Ingen sager i denne kategori.</p>}
       {items.map((d) => (
         <div key={d.id} className="border rounded p-3 flex items-center justify-between gap-4">
           <div className="min-w-0">
             <div className="flex items-center gap-2">
               <span className="font-mono text-sm">{d.stripe_dispute_id}</span>
-              <Badge variant={badge(d.status) as any}>{d.status}</Badge>
-              {d.funds_withdrawn_at && <Badge variant="destructive">midler trukket</Badge>}
+              <Badge variant={badge(d.status)}>{statusLabel(d.status)}</Badge>
+              {d.funds_withdrawn_at && <Badge variant="destructive">midler tilbageholdt af betalingsudbyder</Badge>}
             </div>
             <div className="text-sm text-muted-foreground mt-1">
               {(d.amount / 100).toFixed(2)} {d.currency} · {d.reason ?? "—"}
-              {d.evidence_due_by && ` · frist ${new Date(d.evidence_due_by).toLocaleDateString("da-DK")}`}
+              {d.evidence_due_by && ` · frist for oplysninger ${new Date(d.evidence_due_by).toLocaleDateString("da-DK")}`}
             </div>
           </div>
           {!d.closed_at && (
             <Button size="sm" variant="outline" onClick={() => submit(d.id)} disabled={busy === d.id}>
               <Send className="h-3 w-3 mr-1" />
-              {busy === d.id ? "Sender…" : "Send til Stripe"}
+              {busy === d.id ? "Sender…" : "Send oplysninger"}
             </Button>
           )}
         </div>
@@ -125,16 +140,16 @@ export default function AdminDisputes() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <AlertTriangle className="h-6 w-6 text-orange-500" />
-          <h1 className="text-3xl font-serif">Indsigelser & chargebacks</h1>
+          <h1 className="text-3xl font-serif">Indsigelser på betalinger</h1>
         </div>
         <Button onClick={runMonitor} disabled={busy === "monitor"} variant="outline">
-          Kør monitor nu
+          Kør overvågning nu
         </Button>
       </div>
 
       {alerts.length > 0 && (
         <Card className="border-orange-500/40 bg-orange-500/5">
-          <CardHeader><CardTitle className="text-orange-700">Aktive alarmer ({alerts.length})</CardTitle></CardHeader>
+          <CardHeader><CardTitle className="text-orange-700">Aktive advarsler ({alerts.length})</CardTitle></CardHeader>
           <CardContent className="space-y-1">
             {alerts.map((a) => (
               <div key={a.id} className="text-sm">
@@ -149,10 +164,10 @@ export default function AdminDisputes() {
       <Tabs defaultValue="open">
         <TabsList>
           <TabsTrigger value="open">Åbne ({groups.open.length})</TabsTrigger>
-          <TabsTrigger value="waiting">Afventer dok. ({groups.waiting.length})</TabsTrigger>
-          <TabsTrigger value="escalated">Under review ({groups.escalated.length})</TabsTrigger>
-          <TabsTrigger value="won">Vundet ({groups.won.length})</TabsTrigger>
-          <TabsTrigger value="lost">Tabt ({groups.lost.length})</TabsTrigger>
+          <TabsTrigger value="waiting">Afventer oplysninger ({groups.waiting.length})</TabsTrigger>
+          <TabsTrigger value="escalated">Under gennemgang ({groups.escalated.length})</TabsTrigger>
+          <TabsTrigger value="won">Indsigelse afvist ({groups.won.length})</TabsTrigger>
+          <TabsTrigger value="lost">Indsigelse godkendt ({groups.lost.length})</TabsTrigger>
         </TabsList>
         <TabsContent value="open"><Card><CardContent className="pt-4">{renderList(groups.open)}</CardContent></Card></TabsContent>
         <TabsContent value="waiting"><Card><CardContent className="pt-4">{renderList(groups.waiting)}</CardContent></Card></TabsContent>

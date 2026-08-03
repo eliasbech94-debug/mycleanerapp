@@ -1,0 +1,169 @@
+{
+  "nav": {
+    "back": "Zurück",
+    "previous": "Vorherige",
+    "cancel": "Abbrechen",
+    "next": "Weiter",
+    "sending": "Wird gesendet…"
+  },
+  "header": {
+    "title": "Buchung · MyCleaner"
+  },
+  "stepper": {
+    "service": "Service",
+    "dateTime": "Termin",
+    "review": "Überprüfen"
+  },
+  "step1": {
+    "title": "Worum soll sich {{name}} kümmern?",
+    "subtitle": "Wähle einen Service bei deiner Reinigungskraft. Du kannst die Dauer anpassen — das wirkt sich direkt auf den Preis aus.",
+    "hoursLabel": "Anzahl Stunden",
+    "hoursUnit": "Std.",
+    "hoursMin": "1,5 Std.",
+    "hoursMid": "4 Std.",
+    "hoursMax": "8 Std.",
+    "selected": "Ausgewählt",
+    "fromPrice": "ab {{price}}"
+  },
+  "step2": {
+    "title": "Datum und Uhrzeit wählen",
+    "subtitle": "Du buchst direkt im Kalender der Reinigungskraft. Graue Zeiten sind bereits belegt.",
+    "prevWeekAria": "Vorherige Woche",
+    "nextWeekAria": "Nächste Woche",
+    "availableTimes": "Verfügbare Zeiten · {{date}}"
+  },
+  "step3": {
+    "title": "Letzte Details",
+    "subtitle": "Wir senden die Angaben direkt an {{name}}. Der Betrag wird erst abgebucht, wenn der Anbieter deine Buchungsanfrage angenommen hat.",
+    "address": {
+      "chooseAddress": "Adresse wählen",
+      "useAnotherAddress": "Andere Adresse verwenden",
+      "addressLabel": "Adresse",
+      "useSaved": "Gespeicherte verwenden",
+      "validated": "Adresse bestätigt — die Reinigungskraft findet den Ort",
+      "hint": "Beginne zu tippen und wähle deine Adresse aus der Liste. Wir prüfen, ob sie real ist.",
+      "placeholder": "Straße, Nr., Etage, Stadt",
+      "loginPrompt": "Anmelden",
+      "loginPromptTail": "und speichere deine Adressen mit Zugangsinfos, damit die Reinigungskraft automatisch alles erfährt.",
+      "saveAddressPrompt": "Diese Adresse speichern",
+      "saveAddressPromptTail": "in deinem Adressbuch mit Haustieren, Parken und Zugangsinfos — beim nächsten Mal automatisch ausgefüllt."
+    },
+    "verify": {
+      "title": "Adressbestätigung",
+      "badgePrimary": "Primäre Adresse",
+      "badgeSaved": "Gespeicherte Adresse",
+      "badgeProfile": "Aus dem Profil",
+      "badgeOneTime": "Einmalige Adresse",
+      "profileLabel": "Aus deinem Profil",
+      "manualLabel": "Manuelle Eingabe",
+      "edit": "Bearbeiten",
+      "sqm": "m²",
+      "rooms": "Zimmer",
+      "access": "Zugang",
+      "code": "Code",
+      "instructions": "Anweisungen",
+      "pets": "Haustiere",
+      "petsYes": "Ja",
+      "children": "Kinder",
+      "childrenPresent": "Kinder im Haushalt",
+      "parking": "Parken",
+      "cleaningSupplies": "Reinigungsmittel",
+      "cleaningSuppliesReady": "Vor Ort vorhanden",
+      "wifi": "WLAN",
+      "otherNotes": "Weitere Hinweise",
+      "profileHint": "Wir verwenden die Adresse aus deinem Profil. Speichere sie in deinem Adressbuch, um Zugangsinfos und Haustiere zu ergänzen.",
+      "oneTimeHint": "Du verwendest eine manuelle Adresse. Schreibe Zugangsinfos und Haustiere direkt in die Nachricht an die Reinigungskraft unten."
+    },
+    "notes": {
+      "label": "Notizen für den Anbieter (optional)",
+      "placeholder": "z. B. Haustiere, Allergien oder wie du den Zugang mit dem Anbieter regelst…"
+    },
+    "payment": {
+      "label": "Zahlungskarte",
+      "disclaimer": "Der Betrag kann auf deiner Karte reserviert werden, während die Buchungsanfrage bearbeitet wird. Abgebucht wird erst, wenn der Anbieter die Buchung angenommen hat."
+    },
+    "paymentHandling": {
+      "title": "So wird deine Zahlung abgewickelt",
+      "body": "{{amount}} können auf deiner Karte reserviert werden. Der Betrag wird erst an den Anbieter ausgezahlt, wenn der Service erbracht und die Buchung abgeschlossen ist."
+    }
+  },
+  "editDialog": {
+    "title": "Zugang & Haustiere bearbeiten",
+    "description": "Änderungen werden bei \"{{label}}\" in deinem Adressbuch gespeichert. Den Zugang regelst du direkt mit dem Anbieter — MyCleaner erhält oder verwahrt keine Schlüssel.",
+    "accessMethodLabel": "So erhält der Anbieter Zugang",
+    "codeLabel": "Code",
+    "codePlaceholder": "z. B. 1234",
+    "instructionsLabel": "Anweisungen",
+    "instructionsPlaceholder": "z. B. Schlüsselbox beim Briefkasten, im 3. Stock klingeln…",
+    "petsLabel": "Haustiere im Haushalt",
+    "petsPlaceholder": "z. B. 1 Hund (freundlich), 2 Katzen",
+    "childrenLabel": "Kinder im Haushalt",
+    "parkingLabel": "Parken",
+    "parkingPlaceholder": "z. B. kostenlos auf der Straße, Parkausweis erforderlich",
+    "suppliesLabel": "Reinigungsmittel sind vor Ort",
+    "cancel": "Abbrechen",
+    "save": "Änderungen speichern",
+    "saving": "Wird gespeichert…"
+  },
+  "toast": {
+    "selectAddress": {
+      "title": "Wähle deine Adresse",
+      "description": "Wähle eine gültige Adresse aus der Liste, damit der Anbieter weiß, wo der Auftrag stattfindet."
+    },
+    "loginRequired": {
+      "title": "Melde dich an, um deine Buchungsanfrage zu senden",
+      "description": "Melde dich an, damit der Anbieter dich zur Buchung kontaktieren kann."
+    },
+    "paymentNotReady": {
+      "title": "Die Zahlung ist noch nicht bereit",
+      "description": "Das Zahlungsfeld lädt noch. Warte einen Moment und versuche es erneut."
+    },
+    "enterCard": {
+      "title": "Gib deine Kartendaten ein",
+      "description": "Wir nutzen die Karte, um den Betrag zu reservieren — abgebucht wird erst, wenn die Buchung angenommen wurde."
+    },
+    "priceError": "Wir konnten den Preis gerade nicht berechnen. Bitte versuche es in Kürze erneut.",
+    "paymentStartError": "Wir konnten die Zahlung nicht starten. Versuche es erneut oder nutze eine andere Zahlungsmethode.",
+    "confirmError": "Die Zahlung konnte nicht durchgeführt werden. Überprüfe deine Kartendaten oder versuche eine andere Zahlungsmethode.",
+    "unexpectedStatus": "Unerwarteter Status: {{status}}",
+    "bookingSent": {
+      "title": "Buchung gesendet ✓",
+      "description": "{{name}} hat 24 Stunden Zeit zu bestätigen. Erst dann wird der Betrag abgebucht."
+    },
+    "paymentFailed": {
+      "title": "Die Zahlung konnte nicht durchgeführt werden",
+      "description": "Überprüfe deine Kartendaten oder versuche eine andere Zahlungsmethode."
+    },
+    "changesSaved": {
+      "title": "Änderungen gespeichert",
+      "description": "Zugangs- und Haustierinfos wurden bei der Adresse aktualisiert."
+    },
+    "saveFailed": {
+      "title": "Wir konnten die Änderungen nicht speichern",
+      "description": "Bitte versuche es in Kürze erneut."
+    }
+  },
+  "actions": {
+    "sendRequest": "Buchungsanfrage senden"
+  },
+  "step4": {
+    "title": "Deine Buchungsanfrage wurde gesendet",
+    "description": "{{name}} hat deine Buchungsanfrage erhalten und antwortet in der Regel innerhalb von {{responseTime}}. Du wirst benachrichtigt, sobald die Anfrage angenommen wurde.",
+    "yourTime": "Dein Termin",
+    "at": "um {{slot}}",
+    "viewProfile": "Profil von {{name}} ansehen",
+    "home": "Zur Startseite"
+  },
+  "summary": {
+    "service": "Service",
+    "duration": "Dauer",
+    "date": "Datum",
+    "slot": "Uhrzeit",
+    "notSelected": "Nicht ausgewählt",
+    "hoursShort": "{{count}} Std.",
+    "ratePerHour": "{{rate}}/Std. × {{hours}} Std.",
+    "platformFee": "Plattformgebühr",
+    "total": "Gesamtpreis",
+    "providerNet": "Preis des Anbieters nach Plattformgebühr: {{amount}}. MyCleaner ist eine Plattform, die Kund:innen und selbstständige Anbieter verbindet und Buchung sowie Zahlung abwickelt. Der Service wird von deinem gewählten Anbieter erbracht."
+  }
+}

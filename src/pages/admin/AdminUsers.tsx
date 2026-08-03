@@ -15,12 +15,14 @@ import {
 import { toast } from "sonner";
 import { useUserRoles, type AppRole } from "@/hooks/useUserRoles";
 import { Loader2, ShieldPlus, ShieldMinus } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 type Row = { user_id: string; full_name: string | null; roles: AppRole[] };
 
 const ALL_ROLES: AppRole[] = ["customer", "provider", "employee", "support", "admin", "super_admin"];
 
 export default function AdminUsers() {
+  const { t } = useTranslation("admin");
   const { isSuperAdmin } = useUserRoles();
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
@@ -39,11 +41,11 @@ export default function AdminUsers() {
       supabase.from("profiles").select("id, full_name"),
     ]);
     const nameById = new Map<string, string | null>();
-    (profilesData ?? []).forEach((p: any) => nameById.set(p.id, p.full_name));
+    (profilesData ?? []).forEach((p) => nameById.set(p.id, p.full_name));
     const rolesByUser = new Map<string, AppRole[]>();
-    (rolesData ?? []).forEach((r: any) => {
+    (rolesData ?? []).forEach((r) => {
       const arr = rolesByUser.get(r.user_id) ?? [];
-      arr.push(r.role);
+      arr.push(r.role as AppRole);
       rolesByUser.set(r.user_id, arr);
     });
     const merged: Row[] = Array.from(rolesByUser.entries()).map(([user_id, roles]) => ({
@@ -78,8 +80,9 @@ export default function AdminUsers() {
         },
       });
       if (error) throw new Error(error.message);
-      if ((data as any)?.error) throw new Error((data as any).error);
-      toast.success(pending.op === "grant" ? "Rolle tildelt" : "Rolle fjernet");
+      const result = data as { error?: string } | null;
+      if (result?.error) throw new Error(result.error);
+      toast.success(pending.op === "grant" ? t("pages.adminUsers.roleGranted") : t("pages.adminUsers.roleRevoked"));
       setPending(null);
       setReason("");
       await load();
@@ -91,28 +94,28 @@ export default function AdminUsers() {
   }
 
   return (
-    <DashboardLayout role="admin" title="Brugere & roller">
+    <DashboardLayout role="admin" showBack backTo="/admin" title={t("pages.adminUsers.title")}>
       <div className="max-w-6xl mx-auto p-6 space-y-6">
         <div>
-          <h1 className="text-2xl font-serif">Brugere & roller</h1>
+          <h1 className="text-2xl font-serif">{t("pages.adminUsers.title")}</h1>
           <p className="text-sm text-muted-foreground">
-            Alle rolleændringer skrives i admin_audit_log. Kun admin/super_admin kan ændre roller.
+            {t("pages.adminUsers.subtitle")}
           </p>
         </div>
 
         <Card>
-          <CardHeader><CardTitle>Søg & filtrér</CardTitle></CardHeader>
+          <CardHeader><CardTitle>{t("pages.adminUsers.searchAndFilter")}</CardTitle></CardHeader>
           <CardContent className="flex flex-col sm:flex-row gap-3">
             <Input
-              placeholder="Søg efter navn eller bruger-id"
+              placeholder={t("pages.adminUsers.searchPlaceholder")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="flex-1"
             />
-            <Select value={filter} onValueChange={(v) => setFilter(v as any)}>
+            <Select value={filter} onValueChange={(v) => setFilter(v as AppRole | "all")}>
               <SelectTrigger className="w-48"><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Alle roller</SelectItem>
+                <SelectItem value="all">{t("pages.adminUsers.allRoles")}</SelectItem>
                 {ALL_ROLES.map((r) => (
                   <SelectItem key={r} value={r}>{r}</SelectItem>
                 ))}
@@ -129,7 +132,7 @@ export default function AdminUsers() {
               <Card key={r.user_id}>
                 <CardContent className="p-4 flex flex-col md:flex-row md:items-center gap-3">
                   <div className="flex-1 min-w-0">
-                    <div className="font-medium truncate">{r.full_name ?? "Uden navn"}</div>
+                    <div className="font-medium truncate">{r.full_name ?? t("pages.adminUsers.noName")}</div>
                     <div className="text-xs text-muted-foreground font-mono truncate">{r.user_id}</div>
                     <div className="flex flex-wrap gap-1 mt-2">
                       {r.roles.map((role) => (
@@ -141,8 +144,9 @@ export default function AdminUsers() {
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {ALL_ROLES.filter((role) => {
-                      // Non super-admins cannot manage super_admin role
-                      if (role === "super_admin" && !isSuperAdmin) return false;
+                      // Only super_admin may manage privileged (staff) roles.
+                      const privileged: AppRole[] = ["employee", "support", "admin", "super_admin"];
+                      if (privileged.includes(role) && !isSuperAdmin) return false;
                       return true;
                     }).map((role) => {
                       const has = r.roles.includes(role);
@@ -154,7 +158,7 @@ export default function AdminUsers() {
                           onClick={() => setPending({ userId: r.user_id, role, op: has ? "revoke" : "grant" })}
                         >
                           {has ? <ShieldMinus className="h-3 w-3 mr-1" /> : <ShieldPlus className="h-3 w-3 mr-1" />}
-                          {has ? `Fjern ${role}` : `Giv ${role}`}
+                          {has ? t("pages.adminUsers.removeRole", { role }) : t("pages.adminUsers.giveRole", { role })}
                         </Button>
                       );
                     })}
@@ -163,7 +167,7 @@ export default function AdminUsers() {
               </Card>
             ))}
             {filtered.length === 0 && (
-              <p className="text-center text-muted-foreground py-8">Ingen brugere matcher.</p>
+              <p className="text-center text-muted-foreground py-8">{t("pages.adminUsers.noUsersMatch")}</p>
             )}
           </div>
         )}
@@ -173,22 +177,22 @@ export default function AdminUsers() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              Bekræft rolleændring
+              {t("pages.adminUsers.confirmRoleChangeTitle")}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              {pending?.op === "grant" ? "Tildel" : "Fjern"} rollen <b>{pending?.role}</b> for bruger <code>{pending?.userId}</code>.
-              Dette logges permanent.
+              {pending?.op === "grant" ? t("pages.adminUsers.grant") : t("pages.adminUsers.remove")} {t("pages.adminUsers.roleForUser")} <b>{pending?.role}</b> <code>{pending?.userId}</code>.
+              {t("pages.adminUsers.loggedPermanently")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <Input
-            placeholder="Årsag (valgfrit men anbefalet)"
+            placeholder={t("pages.adminUsers.reasonPlaceholder")}
             value={reason}
             onChange={(e) => setReason(e.target.value)}
           />
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={busy}>Annullér</AlertDialogCancel>
+            <AlertDialogCancel disabled={busy}>{t("pages.adminUsers.cancel")}</AlertDialogCancel>
             <AlertDialogAction onClick={apply} disabled={busy}>
-              {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Bekræft"}
+              {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : t("pages.adminUsers.confirm")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

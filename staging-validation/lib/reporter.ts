@@ -125,6 +125,31 @@ export function skip(ctx: ScenarioCtx, reason: string) {
   ctx.assertions.push({ name: "skipped", ok: true, detail: reason });
 }
 
+/**
+ * Standalone assertion logger for scenarios executed directly (no runScenario
+ * wrapper), e.g. `bun run pr2:claim`. Prints a stable, greppable line per
+ * assertion and forces a non-zero exit code if any assertion failed.
+ */
+const standaloneAssertions: { scenario: string; name: string; ok: boolean; detail?: string }[] = [];
+let standaloneHookInstalled = false;
+
+export function logAssertion(scenario: string, name: string, ok: boolean, detail?: string) {
+  standaloneAssertions.push({ scenario, name, ok, detail });
+  console.log(`${ok ? "PASS" : "FAIL"} [${scenario}] ${name}${detail ? ` — ${detail}` : ""}`);
+  if (!standaloneHookInstalled) {
+    standaloneHookInstalled = true;
+    process.on("exit", (code: number) => {
+      const failed = standaloneAssertions.filter((a) => !a.ok);
+      console.log(
+        `\n${standaloneAssertions.length - failed.length}/${standaloneAssertions.length} assertions passed`,
+      );
+      for (const f of failed) console.log(`  ✖ [${f.scenario}] ${f.name}${f.detail ? ` — ${f.detail}` : ""}`);
+      if (failed.length > 0 && code === 0) process.exitCode = 1;
+    });
+  }
+}
+
+
 export function writeReport() {
   const count = (s: Status) => results.filter((r) => r.status === s).length;
   const pass = count("PASS");

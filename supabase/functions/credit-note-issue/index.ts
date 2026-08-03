@@ -209,6 +209,7 @@ Deno.serve(monitored("credit-note-issue", async (req, _log) => {
         dedupe_key: `refund.completed:${stripe_refund_id ?? inserted?.id}`,
         subject: "Refundering gennemført",
         body: `Din refundering på ${(deltaRefund/100).toFixed(2)} ${currency} er gennemført.`,
+        vars: { amount: { type: "money", minor: deltaRefund, currency } },
         related_booking_id: booking.id,
         action_label: "Se detaljer", action_url: `/mine-bookinger?id=${booking.id}`,
         severity: "success",
@@ -219,6 +220,7 @@ Deno.serve(monitored("credit-note-issue", async (req, _log) => {
         dedupe_key: `credit_note.available:${inserted?.id}`,
         subject: `Kreditnota ${creditNoteNumber} tilgængelig`,
         body: `En kreditnota for booking ${bookingRefStr} er nu klar til download.`,
+        vars: { number: creditNoteNumber, ref: bookingRefStr },
         related_booking_id: booking.id,
         action_label: "Download", action_url: `/finance?tab=invoices`,
       });
@@ -232,6 +234,7 @@ Deno.serve(monitored("credit-note-issue", async (req, _log) => {
         dedupe_key: `refund.completed.provider:${stripe_refund_id ?? inserted?.id}`,
         subject: "Refundering gennemført",
         body: `En refundering på ${(deltaRefund/100).toFixed(2)} ${currency} er gennemført for booking ${bookingRefStr}.`,
+        vars: { amount: { type: "money", minor: deltaRefund, currency }, ref: bookingRefStr },
         related_booking_id: booking.id,
         action_label: "Se regnskab", action_url: `/finance`,
       });
@@ -242,6 +245,7 @@ Deno.serve(monitored("credit-note-issue", async (req, _log) => {
           dedupe_key: `settlement.adjusted:${stmt.id}:${stripe_refund_id ?? inserted?.id}`,
           subject: "Afregning justeret",
           body: `Din afregning for booking ${bookingRefStr} er justeret som følge af refunderingen.`,
+          vars: { ref: bookingRefStr },
           related_booking_id: booking.id,
           action_label: "Se afregning", action_url: `/finance?tab=payouts`,
           severity: "warning",
@@ -252,10 +256,12 @@ Deno.serve(monitored("credit-note-issue", async (req, _log) => {
         event_type: "credit_note.issued.provider",
         dedupe_key: `credit_note.issued.provider:${inserted?.id}`,
         subject: `Kreditnota ${creditNoteNumber} udstedt`,
-        body: `MyCleaner har udstedt en kreditnota for platformsgebyret på booking ${bookingRefStr}.`,
+        body: `MyCleaner har udstedt en kreditnota for platformgebyret på booking ${bookingRefStr}.`,
+        vars: { number: creditNoteNumber, ref: bookingRefStr },
         related_booking_id: booking.id,
         action_label: "Se kreditnota", action_url: `/finance?tab=invoices`,
       });
+
     }
 
     return json({ ok: true, credit_note: inserted });

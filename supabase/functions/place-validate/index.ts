@@ -2,16 +2,16 @@
  * place-validate — server-side authoritative address validator.
  *
  * Contract:
- *   POST { place_id: string, source?: "dawa" | "google" }
+ *   POST { place_id: string, source?: "dawa" | "mapbox" }
  *
  * Behaviour:
  *   - `source: "dawa"` (or omitted when the ref is a DAWA UUID) → re-fetches
  *     the canonical address from DAWA and stores structured fields
  *     (street, house_number, floor, side, door, postal_code, city,
  *     municipality) in `place_validations`. Country is always DK.
- *   - `source: "google"` (default legacy path) → unchanged Google Places
- *     Details fetch. Existing bookings and saved addresses keep working
- *     with no code changes elsewhere.
+ *   - `source: "mapbox"` (default for every non-DAWA ref) → Mapbox Search Box
+ *     retrieve. Google Places is no longer supported; the project runs on
+ *     Mapbox exclusively.
  *
  * The DB trigger `enforce_address_country` still reads formatted_address
  * + country_code + lat/lng from the same row, so downstream save paths
@@ -168,49 +168,74 @@ async function validateDawa(ref: string) {
   };
 }
 
-async function validateGoogle(ref: string, apiKey: string) {
-  const url = `https://places.googleapis.com/v1/places/${encodeURIComponent(ref)}`;
-  const gRes = await fetch(url, {
-    headers: {
-      "X-Goog-Api-Key": apiKey,
-      "X-Goog-FieldMask": "formattedAddress,location,addressComponents",
-    },
-  });
-  if (!gRes.ok) {
-    const t = await gRes.text();
-    return { error: "google_places_failed", detail: t.slice(0, 300), status: 502 };
+/**
+ * Mapbox Search Box `retrieve` — authoritative lookup for a picked suggestion.
+ * The session token must match the one used for `suggest` so Mapbox bills the
+ * interaction once and returns the same-ranked feature.
+ */
+async function validateMapbox(ref: string, token: string, sessionToken: string) {
+  const params = new URLSearchParams({ access_token: token });
+  if (sessionToken) params.set("session_token", sessionToken);
+  const url = `https://api.mapbox.com/search/searchbox/v1/retrieve/${encodeURIComponent(ref)}?${params}`;
+  let res: Response;
+  try {
+    res = await fetch(url, { headers: { Accept: "application/json" } });
+  } catch (e) {
+    console.error("[place-validate] mapbox unreachable", { detail: (e as Error).message });
+    return { error: "mapbox_unavailable", detail: "network_error", status: 503 };
   }
-  const place = await gRes.json();
-  const comps: any[] = place.addressComponents || [];
-  const country = comps.find((c) => (c.types || []).includes("country"));
-  const countryCode: string | null = country?.shortText || country?.short_name || null;
-  const formatted: string | null = place.formattedAddress || null;
-  if (!countryCode || !formatted) {
-    return { error: "place_missing_country", status: 422 };
+  if (!res.ok) {
+    const t = await res.text();
+    console.error("[place-validate] mapbox retrieve failed", { status: res.status, body: t.slice(0, 300) });
+    // 401/403 = bad or missing token; 5xx/429 = Mapbox degraded.
+    const status = res.status === 404
+      ? 404
+      : res.status === 401 || res.status === 403
+      ? 502
+      : res.status >= 500 || res.status === 429
+      ? 503
+      : 502;
+    return {
+      error: status === 503 ? "mapbox_unavailable" : "mapbox_retrieve_failed",
+      detail: t.slice(0, 300),
+      status,
+    };
   }
+  const payload = await res.json();
+
+  const feature = payload?.features?.[0];
+  const props = feature?.properties;
+  const ctx = props?.context ?? {};
+  const countryCode: string | null = ctx?.country?.country_code || ctx?.country?.country_code_alpha_3 || null;
+  const formatted: string | null = props?.full_address || props?.place_formatted || props?.name || null;
+  if (!countryCode || !formatted) return { error: "place_missing_country", status: 422 };
+  const coords = feature?.geometry?.coordinates;
   return {
     ok: true as const,
     row: {
-      source: "google",
-      country_code: countryCode.toUpperCase(),
+      source: "mapbox",
+      country_code: String(countryCode).toUpperCase().slice(0, 2),
       formatted_address: formatted,
       normalized_address: normalize(formatted),
-      street: null,
-      house_number: null,
+      street: ctx?.street?.name ?? null,
+      house_number: ctx?.address?.address_number ?? null,
       letter: null,
       floor: null,
       side: null,
       door: null,
       entrance: null,
       apartment: null,
-      postal_code: null,
-      city: null,
-      municipality: null,
-      lat: place.location?.latitude ?? null,
-      lng: place.location?.longitude ?? null,
+      postal_code: ctx?.postcode?.name ?? null,
+      city: ctx?.place?.name ?? ctx?.locality?.name ?? null,
+      municipality: ctx?.district?.name ?? ctx?.region?.name ?? null,
+      lat: Array.isArray(coords) ? coords[1] : null,
+      lng: Array.isArray(coords) ? coords[0] : null,
     },
   };
 }
+
+
+
 
 Deno.serve(async (req) => {
   try {
@@ -221,52 +246,69 @@ Deno.serve(async (req) => {
   const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
   const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
   const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-  const gKey = Deno.env.get("GOOGLE_MAPS_API_KEY");
+  
+  // No inline fallback: a missing token is a configuration error, never a
+  // silent downgrade to a stale hardcoded key.
+  const mapboxToken = Deno.env.get("MAPBOX_ACCESS_TOKEN") ?? "";
 
   const userClient = createClient(supabaseUrl, anonKey, {
     global: { headers: { Authorization: auth } },
     auth: { persistSession: false },
   });
   const { data: userRes } = await userClient.auth.getUser();
-  const user = userRes?.user;
-  if (!user) return json({ error: "unauthorized" }, 401);
+  // Guests may validate an address (public "find a cleaner" search runs before
+  // sign-up). Guest lookups are read-only: nothing is persisted and no profile
+  // country comparison is made. Authenticated lookups behave exactly as before.
+  const user = userRes?.user ?? null;
 
-  let body: { place_id?: unknown; source?: unknown } = {};
+
+  let body: { place_id?: unknown; source?: unknown; session_token?: unknown } = {};
   try { body = await req.json(); } catch { return json({ error: "invalid_json" }, 400); }
 
   const ref = String(body.place_id ?? "").trim();
-  if (!ref || ref.length > 300 || !/^[A-Za-z0-9_\-]+$/.test(ref)) {
+  // Mapbox ids are base64url-ish and may carry '.' / '=' padding.
+  if (!ref || ref.length > 300 || !/^[A-Za-z0-9_\-.=]+$/.test(ref)) {
     return json({ error: "invalid_place_id" }, 400);
+  }
+  const sessionToken = String(body.session_token ?? "").trim();
+  if (sessionToken && (sessionToken.length > 128 || !/^[A-Za-z0-9_\-]+$/.test(sessionToken))) {
+    return json({ error: "invalid_session_token" }, 400);
   }
   const requestedSource = String(body.source ?? "").toLowerCase();
   const source =
     requestedSource === "dawa" || (!requestedSource && DAWA_UUID_RE.test(ref))
       ? "dawa"
-      : "google";
+      : "mapbox";
 
   let result: any;
   if (source === "dawa") {
     result = await validateDawa(ref);
   } else {
-    if (!gKey) return json({ error: "google_key_missing" }, 500);
-    result = await validateGoogle(ref, gKey);
+    if (!mapboxToken) return json({ error: "mapbox_token_missing" }, 500);
+    result = await validateMapbox(ref, mapboxToken, sessionToken);
   }
+
   if (!result.ok) return json({ error: result.error, detail: result.detail }, result.status ?? 500);
 
   const admin = createClient(supabaseUrl, serviceKey, { auth: { persistSession: false } });
 
-  const { data: prof } = await admin
-    .from("profiles").select("country_code").eq("id", user.id).maybeSingle();
-  const profileCountry = (prof?.country_code || "").toUpperCase();
+  let profileCountry = "";
+  if (user) {
+    const { data: prof } = await admin
+      .from("profiles").select("country_code").eq("id", user.id).maybeSingle();
+    profileCountry = (prof?.country_code || "").toUpperCase();
 
-  const { error: insErr } = await admin.from("place_validations").insert({
-    user_id: user.id,
-    place_id: ref,
-    ...result.row,
-  });
-  if (insErr) return json({ error: "store_failed", detail: insErr.message }, 500);
+    const { error: insErr } = await admin.from("place_validations").insert({
+      user_id: user.id,
+      place_id: ref,
+      ...result.row,
+    });
+    if (insErr) return json({ error: "store_failed", detail: insErr.message }, 500);
+  }
 
-  const match = !!profileCountry && profileCountry === result.row.country_code;
+  // Guests have no profile country, so the country gate cannot apply to them.
+  const match = user ? !!profileCountry && profileCountry === result.row.country_code : null;
+
 
     return json({
       ok: true,
