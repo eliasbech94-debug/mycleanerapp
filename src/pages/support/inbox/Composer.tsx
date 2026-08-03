@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { getDraft, setDraft, clearDraft, subscribe, hasAnyDraft, type ComposerMode } from "@/lib/support/drafts";
+import { ToneRewriteControls } from "./ToneRewriteControls";
 import {
   ALLOWED_MIME,
   MAX_BYTES,
@@ -59,7 +60,6 @@ export function Composer({
   const activeConv = useRef(conversationId);
   const activeMode = useRef<ComposerMode>(mode);
 
-  // ---- Draft isolation: reset when conversation or mode changes ----
   useEffect(() => {
     activeConv.current = conversationId;
     activeMode.current = mode;
@@ -79,7 +79,6 @@ export function Composer({
 
   const canSend = !sending && !disabled && (!!value.trim() || upload?.status === "ready");
 
-  // ---- Attachment handling ----
   const pickFile = () => fileRef.current?.click();
   const onFile = async (file: File) => {
     const v = validateFile(file);
@@ -106,7 +105,6 @@ export function Composer({
 
   const removeUpload = () => setUpload(null);
 
-  // ---- Send ----
   const doSend = useCallback(async () => {
     if (!canSend) return;
     const text = value.trim();
@@ -130,7 +128,6 @@ export function Composer({
     };
     onOptimistic(optimistic);
 
-    // Clear UI immediately for responsiveness. Persist nothing to storage.
     const snapshotValue = value;
     const snapshotUpload = upload;
     setValue("");
@@ -171,7 +168,6 @@ export function Composer({
       onConfirmed(tempId, real);
     } catch (e) {
       onFailed(tempId);
-      // Restore composer for retry
       setValue(snapshotValue);
       setDraft(conversationId, mode, snapshotValue);
       if (snapshotUpload) setUpload(snapshotUpload);
@@ -195,7 +191,6 @@ export function Composer({
         mode === "note" && "bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-900",
       )}
     >
-      {/* Mode switch */}
       <div className="flex items-center gap-1 px-3 pt-2">
         <ModeTab active={mode === "reply"} onClick={() => setMode("reply")} label={t("support.composer.replyTab")} />
         {isStaff && (
@@ -227,6 +222,14 @@ export function Composer({
           aria-label={mode === "note" ? t("support.composer.noteTab") : t("support.composer.replyTab")}
           className="resize-none text-sm"
         />
+
+        {isStaff && mode === "reply" && (
+          <ToneRewriteControls
+            value={value}
+            disabled={disabled || sending}
+            onRewrite={onChange}
+          />
+        )}
 
         {upload && (
           <div className="flex items-center gap-2 rounded-md border p-2 text-xs">
@@ -322,7 +325,6 @@ function ModeTab({
   );
 }
 
-/** Utility used by parents when navigating away with a non-empty draft. */
 export function confirmDiscardIfDirty(conversationId: string): boolean {
   if (!hasAnyDraft(conversationId)) return true;
   // eslint-disable-next-line no-alert
