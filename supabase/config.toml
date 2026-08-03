@@ -1,5 +1,8 @@
 project_id = "qfjgifubavuomwvroahy"
 
+[functions.public-map-config]
+verify_jwt = false
+
 [functions.stripe-webhook]
 verify_jwt = false
 
@@ -18,3 +21,6 @@ verify_jwt = false
 [functions.identity-webhook]
 verify_jwt = false
 
+
+[functions.process-email-queue]
+verify_jwt = true

@@ -2,31 +2,39 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https://mycleanerapp.lovable.app/dk</loc>
-    <lastmod>2026-07-18</lastmod>
-    <xhtml:link rel="alternate" hreflang="da-DK" href="https://mycleanerapp.lovable.app/dk"/>
-    <xhtml:link rel="alternate" hreflang="en-DK" href="https://mycleanerapp.lovable.app/dk"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://mycleanerapp.lovable.app/"/>
+    <loc>https://mycleaner.dk/dk</loc>
+    <xhtml:link rel="alternate" hreflang="da-DK" href="https://mycleaner.dk/dk"/>
+    <xhtml:link rel="alternate" hreflang="en-DK" href="https://mycleaner.dk/dk"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mycleaner.dk/"/>
   </url>
   <url>
-    <loc>https://mycleanerapp.lovable.app/dk/faq</loc>
-    <lastmod>2026-07-18</lastmod>
-    <xhtml:link rel="alternate" hreflang="da-DK" href="https://mycleanerapp.lovable.app/dk/faq"/>
-    <xhtml:link rel="alternate" hreflang="en-DK" href="https://mycleanerapp.lovable.app/dk/faq"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://mycleanerapp.lovable.app/faq"/>
+    <loc>https://mycleaner.dk/dk/faq</loc>
+    <xhtml:link rel="alternate" hreflang="da-DK" href="https://mycleaner.dk/dk/faq"/>
+    <xhtml:link rel="alternate" hreflang="en-DK" href="https://mycleaner.dk/dk/faq"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mycleaner.dk/faq"/>
   </url>
   <url>
-    <loc>https://mycleanerapp.lovable.app/dk/regler</loc>
-    <lastmod>2026-07-18</lastmod>
-    <xhtml:link rel="alternate" hreflang="da-DK" href="https://mycleanerapp.lovable.app/dk/regler"/>
-    <xhtml:link rel="alternate" hreflang="en-DK" href="https://mycleanerapp.lovable.app/dk/regler"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://mycleanerapp.lovable.app/regler"/>
+    <loc>https://mycleaner.dk/dk/regler</loc>
+    <xhtml:link rel="alternate" hreflang="da-DK" href="https://mycleaner.dk/dk/regler"/>
+    <xhtml:link rel="alternate" hreflang="en-DK" href="https://mycleaner.dk/dk/regler"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mycleaner.dk/regler"/>
   </url>
   <url>
-    <loc>https://mycleanerapp.lovable.app/dk/find-cleaner</loc>
-    <lastmod>2026-07-18</lastmod>
-    <xhtml:link rel="alternate" hreflang="da-DK" href="https://mycleanerapp.lovable.app/dk/find-cleaner"/>
-    <xhtml:link rel="alternate" hreflang="en-DK" href="https://mycleanerapp.lovable.app/dk/find-cleaner"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://mycleanerapp.lovable.app/find-cleaner"/>
+    <loc>https://mycleaner.dk/dk/find-cleaner</loc>
+    <xhtml:link rel="alternate" hreflang="da-DK" href="https://mycleaner.dk/dk/find-cleaner"/>
+    <xhtml:link rel="alternate" hreflang="en-DK" href="https://mycleaner.dk/dk/find-cleaner"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mycleaner.dk/find-cleaner"/>
+  </url>
+  <url>
+    <loc>https://mycleaner.dk/dk/legal</loc>
+    <xhtml:link rel="alternate" hreflang="da-DK" href="https://mycleaner.dk/dk/legal"/>
+    <xhtml:link rel="alternate" hreflang="en-DK" href="https://mycleaner.dk/dk/legal"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mycleaner.dk/legal"/>
+  </url>
+  <url>
+    <loc>https://mycleaner.dk/dk/contact</loc>
+    <xhtml:link rel="alternate" hreflang="da-DK" href="https://mycleaner.dk/dk/contact"/>
+    <xhtml:link rel="alternate" hreflang="en-DK" href="https://mycleaner.dk/dk/contact"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mycleaner.dk/contact"/>
   </url>
 </urlset>

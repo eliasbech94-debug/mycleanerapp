@@ -1,0 +1,83 @@
+{
+  "center": {
+    "title": "Legal Center de MyCleaner",
+    "subtitle": "Consulta nuestros términos, políticas y guías. Creemos en la transparencia, la equidad y la confianza entre clientes, Providers y la plataforma.",
+    "metaTitle": "Legal Center — términos y políticas | MyCleaner",
+    "metaDescription": "Consulta los términos, la política de privacidad, las normas del Marketplace y el resto de políticas de MyCleaner en un solo lugar.",
+    "searchLabel": "Buscar documentos legales",
+    "searchPlaceholder": "Buscar documentos…",
+    "read": "Leer documento",
+    "empty": "Ningún documento coincide con tu búsqueda.",
+    "error": "No se han podido cargar los documentos. Inténtalo de nuevo más tarde."
+  },
+  "meta": {
+    "version": "Versión",
+    "updated": "Última actualización",
+    "effective": "Fecha de entrada en vigor",
+    "readingTime": "Tiempo de lectura",
+    "readingTimeValue": "{{count}} min de lectura"
+  },
+  "toc": {
+    "title": "Índice"
+  },
+  "document": {
+    "print": "Imprimir",
+    "pdf": "Descargar PDF",
+    "pdfSoon": "La descarga en PDF estará disponible próximamente",
+    "share": "Compartir documento",
+    "linkCopied": "Enlace copiado",
+    "linkCopyFailed": "No se ha podido copiar el enlace",
+    "breadcrumb": "Ruta de navegación",
+    "notFoundTitle": "Documento no encontrado",
+    "notFoundBody": "Este documento todavía no se ha publicado o no está disponible en tu país.",
+    "backToCenter": "Volver al Legal Center",
+    "metaFallbackTitle": "Documento legal | MyCleaner",
+    "metaFallbackDescription": "Documento legal oficial de MyCleaner."
+  },
+  "update": {
+    "title": "MyCleaner ha actualizado sus términos legales",
+    "subtitle": "{{title}} · versión {{version}}",
+    "readFull": "Leer el documento completo",
+    "confirm": "He leído y acepto este documento.",
+    "accept": "Aceptar",
+    "acceptNext": "Aceptar y continuar",
+    "logout": "Cerrar sesión"
+  },
+  "onboarding": {
+    "acceptProviderTerms": "He leído y acepto los <0>Términos y Condiciones del Provider</0> y confirmo que tengo derecho a trabajar en el país seleccionado.",
+    "acceptRequired": "Debes aceptar los Términos y Condiciones del Provider para continuar."
+  },
+  "footer": {
+    "heading": "Legal",
+    "center": "Legal Center",
+    "privacy": "Privacidad",
+    "terms": "Términos",
+    "cookies": "Cookies",
+    "trust": "Trust Center"
+  },
+  "admin": {
+    "title": "Documentos legales",
+    "subtitle": "Crea, edita, versiona y publica documentos del Legal Center.",
+    "new": "Nuevo documento",
+    "save": "Guardar borrador",
+    "publish": "Publicar",
+    "preview": "Vista previa",
+    "edit": "Edit",
+    "history": "Historial de versiones",
+    "slug": "Slug",
+    "docTitle": "Título",
+    "description": "Descripción",
+    "kind": "Kind",
+    "country": "País",
+    "language": "Idioma",
+    "version": "Versión",
+    "icon": "Icon",
+    "required": "Requiere aceptación",
+    "content": "Contenido (Markdown)",
+    "status": "Estado",
+    "saved": "Documento guardado",
+    "published": "Documento publicado",
+    "error": "No se ha podido completar la acción",
+    "empty": "Todavía no hay documentos."
+  }
+}

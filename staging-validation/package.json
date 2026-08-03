@@ -9,6 +9,8 @@
     "rc2:p0.1": "tsx scenarios/16-p0-pricing-checkout.ts",
     "v7:step6": "tsx scenarios/17-funds-release-step6.ts",
     "v7:step7": "tsx scenarios/18-funds-release-step7.ts",
+    "phaseB:slug": "tsx scenarios/19-slug-management.ts",
+    "pr2:claim": "tsx scenarios/20-offer-claim-decline.ts",
     "playwright": "playwright test --config=playwright.config.ts"
   },
   "dependencies": {

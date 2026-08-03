@@ -10,6 +10,13 @@ export type AppRole =
   | "provider"
   | "customer";
 
+/**
+ * Several components mount this hook at the same time. Realtime topics must be
+ * unique per subscription, otherwise supabase-js rejects the second listener
+ * with "cannot add `postgres_changes` callbacks after `subscribe()`".
+ */
+let roleChannelSeq = 0;
+
 export function useUserRoles() {
   const { user, loading: authLoading } = useAuth();
   const [roles, setRoles] = useState<AppRole[]>([]);
@@ -37,8 +44,40 @@ export function useUserRoles() {
       setLoading(false);
     }
     if (!authLoading) load();
+
+    if (!user) {
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    // A role change must take effect without a manual reload: re-validate the
+    // session (it may have been revoked server-side) and refetch roles.
+    async function revalidate() {
+      const { data, error } = await supabase.auth.getUser();
+      if (error || !data.user) {
+        await supabase.auth.signOut();
+        return;
+      }
+      await load();
+    }
+
+    const channel = supabase
+      .channel(`user-roles-${user.id}-${++roleChannelSeq}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "user_roles", filter: `user_id=eq.${user.id}` },
+        () => void revalidate(),
+      )
+      .subscribe();
+
+    const onFocus = () => void revalidate();
+    window.addEventListener("focus", onFocus);
+
     return () => {
       cancelled = true;
+      window.removeEventListener("focus", onFocus);
+      supabase.removeChannel(channel);
     };
   }, [user, authLoading]);
 

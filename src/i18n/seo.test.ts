@@ -17,7 +17,7 @@ describe("SEO helper", () => {
   it("emits canonical for known indexable country", () => {
     const tags = buildSeoTags({ path: "/dk/faq", activeCountries: active, currentIso: "DK", currentLang: "da", title: "FAQ", description: "d" });
     const canonical = tags.find(t => t.attrs.rel === "canonical");
-    expect(canonical?.attrs.href).toBe("https://mycleanerapp.lovable.app/dk/faq");
+    expect(canonical?.attrs.href).toBe("https://mycleaner.dk/dk/faq");
   });
   it("does NOT emit canonical when country is not indexable", () => {
     const tags = buildSeoTags({ path: "/es/faq", activeCountries: active, currentIso: "ES", currentLang: "es", title: "x", description: "y" });

@@ -4,6 +4,8 @@ import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { createClient } from "npm:@supabase/supabase-js@2";
 
 import { monitored } from "../_shared/logger.ts";
+import { authenticate } from "../_shared/auth.ts";
+import { requireActiveProvider } from "../_shared/providerGate.ts";
 async function stripePost(path: string, key: string) {
   const res = await fetch(`https://api.stripe.com/v1${path}`, {
     method: "POST", headers: { Authorization: `Bearer ${key}` },
@@ -53,16 +55,35 @@ Deno.serve(monitored("booking-decide", async (req, _log) => {
     if (!profile?.provider_id || profile.provider_id !== b.provider_id) {
       throw new Error("Not your booking");
     }
+
+    // Activation gate: only an active, approved provider may accept or decline
+    // real booking requests. Fail-closed for paused/suspended/rejected/pending
+    // providers and for providers without a profile.
+    const authCtx = await authenticate(req, corsHeaders);
+    if (authCtx instanceof Response) return authCtx;
+    const decideGate = await requireActiveProvider(authCtx, corsHeaders);
+    if (decideGate instanceof Response) return decideGate;
     if (b.status !== "pending") throw new Error(`Already ${b.status}`);
 
     if (decision === "accepted") {
       if (b.payment_status !== "authorized" || !b.payment_intent_id) {
         throw new Error("Payment not authorized");
       }
+      // Authoritative calendar re-check: no overlapping accepted booking,
+      // no block, no foreign lock. Consumes this booking's own slot lock.
+      const { data: guard, error: guardErr } = await admin.rpc(
+        "booking_accept_slot_guard_v1",
+        { _booking_id: booking_id, _provider_user_id: userId },
+      );
+      if (guardErr) throw new Error(`slot_guard_failed:${guardErr.message}`);
+      const g = guard as { ok?: boolean; code?: string } | null;
+      if (!g?.ok) throw new Error(g?.code ?? "CALENDAR_SLOT_UNAVAILABLE");
+
       await stripePost(`/payment_intents/${b.payment_intent_id}/capture`, stripeKey);
       await admin.from("bookings").update({
         status: "accepted", payment_status: "captured", decided_at: new Date().toISOString(),
       }).eq("id", booking_id);
+
 
       // Create booking chat thread + welcome message + notification prompting cleaning plan
       try {
@@ -109,7 +130,13 @@ Deno.serve(monitored("booking-decide", async (req, _log) => {
       await admin.from("bookings").update({
         status: "declined", payment_status: "canceled", decided_at: new Date().toISOString(),
       }).eq("id", booking_id);
+      // Free the reserved slot again for other customers.
+      const { error: relErr } = await admin.rpc("booking_release_slot_locks_v1", {
+        _booking_id: booking_id,
+      });
+      if (relErr) console.error("slot_lock_release_failed", relErr.message);
     }
+
 
     return new Response(JSON.stringify({ ok: true }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

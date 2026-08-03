@@ -8,8 +8,18 @@ import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { z } from "npm:zod@3.23.8";
 import { monitored } from "../_shared/logger.ts";
+import { cancellationPolicySnapshot, policyAt } from "../_shared/cancellationPolicy.ts";
 
 const STRIPE = "https://api.stripe.com/v1";
+
+const ACQUISITION_SOURCES = [
+  "marketplace",
+  "provider_direct_link",
+  "provider_qr",
+  "provider_social_share",
+  "provider_embedded_widget",
+  "unknown",
+] as const;
 
 const BodySchema = z.object({
   quote_id: z.string().uuid(),
@@ -22,6 +32,12 @@ const BodySchema = z.object({
   notes: z.string().nullable().optional(),
   provider_name: z.string().nullable().optional(),  // display-only
   payment_method_type: z.string().optional(),
+  // Attribution — the slug is validated server-side against the quote's provider.
+  // If validation fails we fall back to "marketplace" rather than trust the client.
+  acquisition_source: z.enum(ACQUISITION_SOURCES).optional(),
+  acquisition_provider_slug: z.string().min(1).max(120).nullable().optional(),
+  // Optional checkout reservation acquired via acquire_booking_slot_lock_v1.
+  slot_lock_id: z.string().uuid().nullable().optional(),
 });
 
 function form(obj: Record<string, any>, prefix = ""): string {
@@ -97,7 +113,7 @@ Deno.serve(monitored("payment-create-intent", async (req, _log) => {
       // Idempotent: return the existing booking + PI for this quote.
       const { data: existing } = await admin
         .from("bookings")
-        .select("id, payment_intent_id")
+        .select("id, payment_intent_id, cancellation_policy_snapshot")
         .eq("pricing_calculation_id", quote.id)
         .maybeSingle();
       if (existing?.payment_intent_id) {
@@ -108,6 +124,9 @@ Deno.serve(monitored("payment-create-intent", async (req, _log) => {
           booking_id: existing.id,
           payment_intent_id: existing.payment_intent_id,
           client_secret: pi.client_secret,
+          // Frozen accepted terms — the UI must quote these, not today's policy.
+          cancellation_policy_version:
+            (existing.cancellation_policy_snapshot as { version?: string } | null)?.version ?? null,
           idempotent: true,
         });
       }
@@ -160,14 +179,67 @@ Deno.serve(monitored("payment-create-intent", async (req, _log) => {
     const providerAcct = provProfile.stripe_account_id;
     const providerUserId = provProfile.id ?? quote.provider_user_id ?? null;
 
+    // ---- 5b. Attribution — validate slug against the quote's provider -----
+    // Slug is the authoritative attribution key. If it does not resolve to the
+    // same provider as the locked quote, we discard the acquisition metadata and
+    // record the booking as "marketplace". We never let the client pick a
+    // different provider or bypass the quote.
+    let acquisitionSource: string = b.acquisition_source ?? "marketplace";
+    let acquisitionProviderId: string | null = null;
+    if (b.acquisition_provider_slug) {
+      const { data: slugRow } = await admin
+        .from("provider_profiles")
+        .select("user_id, provider_slug")
+        .eq("provider_slug", b.acquisition_provider_slug)
+        .maybeSingle();
+      const slugMatchesQuote = slugRow?.user_id && providerUserId && slugRow.user_id === providerUserId;
+      if (slugMatchesQuote) {
+        acquisitionProviderId = slugRow!.user_id as string;
+        if (acquisitionSource === "marketplace") acquisitionSource = "provider_direct_link";
+      } else {
+        acquisitionSource = "marketplace";
+      }
+    } else if (acquisitionSource !== "marketplace") {
+      // Source claimed a provider-channel but no slug provided — untrusted.
+      acquisitionSource = "marketplace";
+    }
+
+
+    // ---- 5c. Authoritative calendar validation ---------------------------
+    // The server re-derives the requested interval in the provider's timezone
+    // and rejects anything outside working hours, blocked, already booked, or
+    // held by another customer's checkout lock.
+    if (providerUserId) {
+      const { data: slotCheck, error: slotErr } = await admin.rpc(
+        "validate_booking_slot_request_v1",
+        {
+          _provider_user_id: providerUserId,
+          _booking_date: b.booking_date,
+          _slot: b.slot,
+          _duration_minutes: Math.round(hours * 60),
+          _customer_user_id: userId,
+          _lock_id: b.slot_lock_id ?? null,
+        },
+      );
+      if (slotErr) return json(500, { error: `slot_validation_failed:${slotErr.message}` });
+      const check = slotCheck as { ok?: boolean; code?: string } | null;
+      if (!check?.ok) return json(409, { error: `slot_${(check?.code ?? "unavailable").toLowerCase()}` });
+    }
+
     // ---- 5. Idempotent booking creation ----------------------------------
     // Race-safe: unique index on bookings.pricing_calculation_id.
     const taxSnapshot = {
+
       vat_rate_bps: cfg.vat_rate_bps, currency: cfg.currency,
       country_code: cfg.iso, config_version: cfg.config_version,
     };
     const commissionSnapshot = { commission_bps: cfg.commission_bps, config_version: cfg.config_version };
     const bookingRulesSnapshot = { rules: (cfgJson as any)?.booking_public ?? {}, config_version: cfg.config_version };
+
+    // Freeze the accepted cancellation terms once, at server time. Time-gated
+    // by `policyAt` and the CANCELLATION_POLICY_V2_ENABLED kill switch; never
+    // re-evaluated for this booking afterwards.
+    const acceptedCancellationSnapshot = cancellationPolicySnapshot(policyAt(new Date()));
 
     let bookingId: string;
     const { data: booking, error: insErr } = await admin
@@ -189,7 +261,9 @@ Deno.serve(monitored("payment-create-intent", async (req, _log) => {
         provider_gets: providerGets,
         currency,
         status: "pending",
-        payment_status: "unpaid",
+        // NOTE: must be a valid `payment_status` enum value ("unpaid" is not one).
+        payment_status: "none",
+
         platform_fee_amount: platformFee,
         provider_stripe_account_id: providerAcct,
         country_code: cfg.iso,
@@ -198,7 +272,11 @@ Deno.serve(monitored("payment-create-intent", async (req, _log) => {
         tax_config_snapshot: taxSnapshot,
         commission_config_snapshot: commissionSnapshot,
         booking_rules_snapshot: bookingRulesSnapshot,
+        // Freeze the accepted cancellation terms — never re-evaluated later.
+        cancellation_policy_snapshot: acceptedCancellationSnapshot,
         pricing_calculation_id: quote.id,
+        acquisition_source: acquisitionSource,
+        acquisition_provider_id: acquisitionProviderId,
       })
       .select("id")
       .single();
@@ -207,7 +285,7 @@ Deno.serve(monitored("payment-create-intent", async (req, _log) => {
       // Duplicate on pricing_calculation_id → return the existing booking's PI.
       if ((insErr as any).code === "23505") {
         const { data: existing } = await admin
-          .from("bookings").select("id, payment_intent_id")
+          .from("bookings").select("id, payment_intent_id, cancellation_policy_snapshot")
           .eq("pricing_calculation_id", quote.id).maybeSingle();
         if (existing?.payment_intent_id) {
           const pi = await fetch(`${STRIPE}/payment_intents/${existing.payment_intent_id}`, {
@@ -217,6 +295,8 @@ Deno.serve(monitored("payment-create-intent", async (req, _log) => {
             booking_id: existing.id,
             payment_intent_id: existing.payment_intent_id,
             client_secret: pi.client_secret,
+            cancellation_policy_version:
+              (existing.cancellation_policy_snapshot as { version?: string } | null)?.version ?? null,
             idempotent: true,
           });
         }
@@ -224,6 +304,17 @@ Deno.serve(monitored("payment-create-intent", async (req, _log) => {
       return json(500, { error: `booking_insert_failed:${insErr.message}` });
     }
     bookingId = booking.id;
+
+    // Bind the checkout reservation to the booking so it keeps the slot busy
+    // until the provider accepts (consumed) or declines (released).
+    if (b.slot_lock_id) {
+      const { error: bindErr } = await admin.rpc("bind_booking_slot_lock_v1", {
+        _lock_id: b.slot_lock_id, _booking_id: bookingId,
+      });
+      if (bindErr) console.error("slot_lock_bind_failed", bindErr.message);
+    }
+
+
 
     // ---- 6. Lock the quote onto the booking (immutable snapshot) --------
     const { error: lockErr } = await admin.rpc("lock_pricing_quote", {
@@ -285,6 +376,9 @@ Deno.serve(monitored("payment-create-intent", async (req, _log) => {
       booking_id: bookingId,
       payment_intent_id: pi.id,
       client_secret: pi.client_secret,
+      // The exact cancellation-policy version the customer just accepted.
+      cancellation_policy_version:
+        (acceptedCancellationSnapshot as { version?: string }).version ?? null,
     });
   } catch (e) {
     return json(500, { error: (e as Error).message });

@@ -1,13 +1,16 @@
 // POST /identity-webhook — Sumsub → MyCleaner
 // Signature: HMAC-SHA256(webhookSecret, rawBody) in `x-payload-digest`.
 // Idempotent: identity_webhook_events UNIQUE(provider, event_id).
-// Replay-protected: rejects events > 5min skew from `createdAtMs`.
+// Freshness-guarded: 48h past / 10min future window on `createdAtMs`; replay
+// safety itself comes from the HMAC signature + UNIQUE(provider, event_id).
 // Never trusts client claims — only this handler flips status to approved/rejected.
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import {
   serviceClient, loadSumsubConfig, verifySumsubWebhookSignature,
   sha256Hex, composeEventId, isReplay, isFlagOn, mapSumsubStatus,
 } from "../_shared/sumsub.ts";
+import { isSandboxResult, resolveSumsubEnv } from "../_shared/sumsubEnv.ts";
+import { evaluateProviderApproval, notifyApprovalRegression } from "../_shared/providerApproval.ts";
 
 const json = (b: unknown, status = 200) =>
   new Response(JSON.stringify(b), { status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
@@ -21,6 +24,7 @@ interface SumsubWebhook {
   reviewStatus?: string;
   reviewResult?: { reviewAnswer?: string; rejectLabels?: string[]; reviewRejectType?: string };
   createdAtMs?: number;
+  sandboxMode?: boolean;
 }
 
 Deno.serve(async (req) => {
@@ -83,9 +87,15 @@ Deno.serve(async (req) => {
     .from("identity_webhook_events")
     .select("id, result")
     .eq("provider", "sumsub").eq("event_id", eventId).maybeSingle();
-  if (existing && existing.result === "processed") {
-    await admin.from("identity_webhook_events")
-      .update({ result: "duplicate" }).eq("id", existing.id);
+  // Do NOT rewrite the row to "duplicate": that erases the only record that
+  // this event was processed, so a third delivery would read "duplicate",
+  // fall through, and re-apply the state change. Keep "processed" sticky and
+  // treat a pre-existing "duplicate" (written by the earlier buggy path) as
+  // processed too, so already-corrupted rows cannot be reprocessed either.
+  if (existing && (existing.result === "processed" || existing.result === "duplicate")) {
+    console.log(JSON.stringify({
+      evt: "identity.webhook_duplicate", event_id: eventId, event_type: parsed.type ?? null,
+    }));
     return json({ ok: true, duplicate: true });
   }
 
@@ -123,7 +133,13 @@ Deno.serve(async (req) => {
       return json({ ok: true, unmatched: true });
     }
 
-    const status = mapSumsubStatus(parsed.reviewStatus, parsed.reviewResult?.reviewAnswer);
+    const status = mapSumsubStatus(
+      parsed.reviewStatus,
+      parsed.reviewResult?.reviewAnswer,
+      parsed.reviewResult?.reviewRejectType,
+    );
+    const envDecision = resolveSumsubEnv(cfg.baseUrl, cfg.appToken);
+    const sandbox = isSandboxResult(parsed.sandboxMode ?? null, envDecision);
     const nowIso = new Date().toISOString();
     const patch: Record<string, unknown> = {
       status, last_review_at: nowIso,
@@ -132,6 +148,7 @@ Deno.serve(async (req) => {
         reviewAnswer: parsed.reviewResult?.reviewAnswer ?? null,
         rejectLabels: parsed.reviewResult?.rejectLabels ?? [],
         reviewRejectType: parsed.reviewResult?.reviewRejectType ?? null,
+        sandboxMode: parsed.sandboxMode ?? null,
       },
     };
     if (status === "approved") patch.verified_at = nowIso;
@@ -154,9 +171,38 @@ Deno.serve(async (req) => {
       const { data: links } = await admin.from("identity_account_links")
         .select("user_id").eq("identity_id", identityId);
       for (const link of links ?? []) {
+        const { data: pp } = await admin.from("provider_profiles")
+          .select("user_id").eq("user_id", link.user_id).maybeSingle();
+        if (pp) {
+          // Persist the Sumsub verdict + sandbox provenance, then let the
+          // central engine decide. Sandbox results can never approve in prod.
+          await admin.rpc("apply_provider_identity_sync", {
+            _uid: link.user_id,
+            _status: status,
+            _sandbox: sandbox,
+            _applicant_id: parsed.applicantId ?? null,
+          });
+        }
         await reconcileProvider(admin, link.user_id, "identity_webhook");
+        if (pp) {
+          const approval = await evaluateProviderApproval(admin, link.user_id, "identity_webhook");
+          if (approval) await notifyApprovalRegression(admin, link.user_id, approval);
+        }
       }
     } catch (e) { console.error("identity reconcile fanout failed", (e as Error).message); }
+
+    console.log(JSON.stringify({
+      evt: "identity.webhook_processed",
+      event_id: eventId,
+      applicant_id: parsed.applicantId ?? null,
+      event_type: parsed.type ?? null,
+      review_status: parsed.reviewStatus ?? null,
+      review_answer: parsed.reviewResult?.reviewAnswer ?? null,
+      sandbox,
+      environment: envDecision.environment,
+      status,
+      at: nowIso,
+    }));
 
     await admin.from("identity_webhook_events").upsert({
       provider: "sumsub", event_id: eventId, event_type: parsed.type ?? null,

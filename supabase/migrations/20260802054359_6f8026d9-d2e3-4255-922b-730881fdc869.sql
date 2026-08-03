@@ -1,0 +1,2 @@
+ALTER TABLE public.place_validations DROP CONSTRAINT IF EXISTS place_validations_source_chk;
+ALTER TABLE public.place_validations ADD CONSTRAINT place_validations_source_chk CHECK (source IN ('google','dawa','mapbox'));

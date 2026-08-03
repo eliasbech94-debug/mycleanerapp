@@ -29,7 +29,7 @@ Deno.serve(monitored("payment-mark-authorized", async (req, _log) => {
     );
     const { data: b } = await admin
       .from("bookings")
-      .select("payment_intent_id, customer_user_id")
+      .select("payment_intent_id, customer_user_id, payment_status")
       .eq("id", booking_id)
       .maybeSingle();
     if (!b || b.customer_user_id !== claims.claims.sub) throw new Error("Not found");
@@ -46,12 +46,25 @@ Deno.serve(monitored("payment-mark-authorized", async (req, _log) => {
       succeeded: "captured",
       canceled: "canceled",
     };
-    const status = map[pi.status] || "none";
-    await admin.from("bookings").update({ payment_status: status }).eq("id", booking_id);
+    // Unknown/intermediate Stripe states (processing, requires_action, ...) must
+    // never downgrade a booking that already reached a money state, and refunds
+    // recorded by the webhook must never be overwritten by this client-triggered
+    // reconciliation call.
+    const TERMINAL = ["captured", "refunded", "partially_refunded"];
+    const mapped = map[pi.status];
+    const current = b.payment_status as string;
+    let status = current;
+    if (mapped && !(TERMINAL.includes(current) && mapped !== "captured")) {
+      status = mapped;
+    }
+    if (status !== current) {
+      await admin.from("bookings").update({ payment_status: status }).eq("id", booking_id);
+    }
 
     return new Response(JSON.stringify({ payment_status: status }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
+
   } catch (e) {
     return new Response(JSON.stringify({ error: (e as Error).message }), {
       status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },

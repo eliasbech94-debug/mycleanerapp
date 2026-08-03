@@ -3,9 +3,13 @@ import { format } from "date-fns";
 import { da } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { AlertTriangle, Lock, ChevronUp, FileText, ImageIcon, Loader2 } from "lucide-react";
+import { AlertTriangle, Bot, Lock, ChevronUp, FileText, ImageIcon, Loader2 } from "lucide-react";
 import type { ConversationEvent, ConversationMessage, MessageAttachment, MessageRole } from "@/hooks/useConversationDetail";
 import { getAttachmentUrl } from "@/lib/support/attachments";
+import { AiDisclosure } from "@/components/conversation/AiDisclosure";
+import { isAiGenerated, isHumanReviewedAiDraft, resolveSenderType } from "@/lib/conversations/senderType";
+import { useTranslation } from "react-i18next";
+import { errorMessage } from "@/lib/errorMessage";
 
 const ROLE_LABEL: Record<MessageRole, string> = {
   customer: "Kunde",
@@ -44,6 +48,7 @@ export function MessageTimeline({
   messages, events, hasMoreOlder, loadingOlder, onLoadOlder,
   latestMessageId, onLatestVisible,
 }: Props) {
+  const { t: tAi } = useTranslation("ai");
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const topRef = useRef<HTMLDivElement | null>(null);
   const bottomRef = useRef<HTMLLIElement | null>(null);
@@ -142,12 +147,15 @@ export function MessageTimeline({
           }
           const m = it.message!;
           const isLast = i === items.length - 1;
-          const isSystem = m.sender_role === "system" || m.message_type === "system";
+          const senderType = resolveSenderType(m);
+          const isAi = isAiGenerated(m);
+          const isSystem = !isAi && (senderType === "system" || m.message_type === "system");
 
           if (isSystem) {
             return (
               <li key={m.id} className="text-center" ref={isLast ? bottomRef : undefined}>
                 <span className="inline-block text-[11px] text-muted-foreground bg-muted/50 rounded-full px-2 py-0.5">
+                  <span className="font-medium">{tAi("system.automated")}</span>{" · "}
                   {format(new Date(m.created_at), "d. MMM HH:mm", { locale: da })} — {m.body}
                 </span>
               </li>
@@ -159,15 +167,19 @@ export function MessageTimeline({
               <article
                 className={cn(
                   "rounded-md border-l-4 border border-border/60 p-3 space-y-1",
-                  ROLE_TONE[m.sender_role],
+                  isAi ? "border-l-[hsl(var(--mkt-brand))] bg-[hsl(var(--mkt-brand-soft))]/50" : ROLE_TONE[m.sender_role],
                   m.is_internal_note && "border-l-amber-600 bg-amber-50 dark:bg-amber-950/30 ring-1 ring-amber-500/20",
                   m._optimistic && !m._failed && "opacity-70",
                   m._failed && "ring-1 ring-destructive/50",
                 )}
                 data-optimistic={m._optimistic ? "true" : undefined}
+                data-sender-type={senderType}
               >
                 <header className="flex items-center gap-2 text-xs">
-                  <span className="font-medium">{ROLE_LABEL[m.sender_role] ?? m.sender_role}</span>
+                  <span className="font-medium inline-flex items-center gap-1">
+                    {isAi && <Bot className="h-3 w-3 text-[hsl(var(--mkt-brand))]" aria-hidden />}
+                    {isAi ? tAi("sender.ai_assistant") : (ROLE_LABEL[m.sender_role] ?? m.sender_role)}
+                  </span>
                   <time className="text-muted-foreground tabular-nums" dateTime={m.created_at}>
                     {format(new Date(m.created_at), "d. MMM yyyy HH:mm", { locale: da })}
                   </time>
@@ -197,6 +209,12 @@ export function MessageTimeline({
                 {m.body && (
                   <p className="text-sm whitespace-pre-wrap break-words leading-relaxed">
                     {m.body}
+                  </p>
+                )}
+                {isAi && <AiDisclosure showAction={false} />}
+                {isHumanReviewedAiDraft(m) && (
+                  <p className="text-[11px] text-muted-foreground italic" data-testid="ai-assisted-draft-note">
+                    {tAi("audit.aiAssistedDraft")}
                   </p>
                 )}
                 {m.message_attachments && m.message_attachments.length > 0 && (
@@ -257,8 +275,8 @@ function AttachmentChip({ attachment, optimistic }: { attachment: MessageAttachm
     try {
       const u = await getAttachmentUrl(attachment.id);
       setUrl(u);
-    } catch (e: any) {
-      setErr(e?.message ?? "Kunne ikke hente fil");
+    } catch (e) {
+      setErr(errorMessage(e, "Kunne ikke hente fil"));
     } finally {
       setLoading(false);
     }

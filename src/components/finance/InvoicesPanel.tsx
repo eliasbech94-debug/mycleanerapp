@@ -8,6 +8,20 @@ import { toast } from "sonner";
 import { formatMoney, formatDate } from "@/lib/finance";
 import { fetchInvoicesList, fetchInvoiceDownloadUrl, type PlatformFeeInvoice, type SettlementStatement } from "@/lib/invoices";
 import { supabase } from "@/integrations/supabase/client";
+import { useTranslation } from "react-i18next";
+
+const PAYOUT_STATUS_LABEL: Record<string, string> = {
+  pending: "Afventer",
+  scheduled: "Planlagt udbetaling",
+  in_transit: "Planlagt udbetaling",
+  paid: "Gennemført udbetaling",
+  failed: "Ikke gennemført",
+  reversed: "Tilbageført",
+};
+
+function payoutLabel(status: string) {
+  return PAYOUT_STATUS_LABEL[status] ?? status;
+}
 
 function TreatmentBadge({ t }: { t: PlatformFeeInvoice["vat_treatment"] }) {
   const label = t === "reverse_charge" ? "Reverse charge"
@@ -21,11 +35,12 @@ async function download(kind: "invoice" | "statement", id: string) {
     const url = await fetchInvoiceDownloadUrl(kind, id);
     window.open(url, "_blank", "noopener,noreferrer");
   } catch (e: any) {
-    toast.error(e.message ?? "Kunne ikke hente PDF");
+    toast.error("Vi kunne ikke hente PDF'en. Prøv igen om lidt.");
   }
 }
 
 export function InvoicesPanel({ scope }: { scope: "provider" | "admin" }) {
+  const { t } = useTranslation("common");
   const [loading, setLoading] = useState(true);
   const [invoices, setInvoices] = useState<PlatformFeeInvoice[]>([]);
   const [statements, setStatements] = useState<SettlementStatement[]>([]);
@@ -41,7 +56,7 @@ export function InvoicesPanel({ scope }: { scope: "provider" | "admin" }) {
         setInvoices(res.invoices);
         setStatements(res.statements);
       } catch (e: any) {
-        toast.error(e.message ?? "Kunne ikke hente fakturaer");
+        toast.error("Vi kunne ikke hente dine fakturaer. Prøv igen om lidt.");
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -57,7 +72,7 @@ export function InvoicesPanel({ scope }: { scope: "provider" | "admin" }) {
       const res = await fetch(`${projectUrl}/functions/v1/accounting-export?kind=${kind}`, {
         headers: { Authorization: `Bearer ${session?.access_token ?? ""}` },
       });
-      if (!res.ok) throw new Error(`Export failed (${res.status})`);
+      if (!res.ok) throw new Error(`Eksporten kunne ikke gennemføres (${res.status}).`);
       const blob = await res.blob();
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
@@ -65,7 +80,7 @@ export function InvoicesPanel({ scope }: { scope: "provider" | "admin" }) {
       a.click();
       URL.revokeObjectURL(a.href);
     } catch (e: any) {
-      toast.error(e.message ?? "Eksport fejlede");
+      toast.error("Eksporten blev ikke gennemført. Prøv igen om lidt.");
     } finally {
       setExporting(null);
     }
@@ -84,9 +99,9 @@ export function InvoicesPanel({ scope }: { scope: "provider" | "admin" }) {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
-            <CardTitle>Platform Fee Invoices</CardTitle>
+            <CardTitle>{t("ui.invoicesPanel.feeInvoicesTitle")}</CardTitle>
             <p className="text-xs text-muted-foreground mt-1">
-              MyCleaner opkræver 28% marketplace-kommission af udbyderen. Momsbehandling afhænger af udbyderens skatteoplysninger.
+              MyCleaner-platformen formidler kontakten mellem kunden og den selvstændige provider og fakturerer alene sit eget platformgebyr. Momsbehandlingen afhænger af providerens skatteoplysninger.
             </p>
           </div>
           {scope === "admin" && (
@@ -98,7 +113,7 @@ export function InvoicesPanel({ scope }: { scope: "provider" | "admin" }) {
         </CardHeader>
         <CardContent>
           {invoices.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Ingen fakturaer endnu.</p>
+            <p className="text-sm text-muted-foreground">{t("ui.invoicesPanel.noFeeInvoices")}</p>
           ) : (
             <Table>
               <TableHeader>
@@ -106,10 +121,10 @@ export function InvoicesPanel({ scope }: { scope: "provider" | "admin" }) {
                   <TableHead>Nummer</TableHead>
                   <TableHead>Udstedt</TableHead>
                   <TableHead>Booking</TableHead>
-                  <TableHead className="text-right">Gebyr</TableHead>
+                  <TableHead className="text-right">Platformgebyr</TableHead>
                   <TableHead className="text-right">Moms</TableHead>
-                  <TableHead className="text-right">Total</TableHead>
-                  <TableHead>Behandling</TableHead>
+                  <TableHead className="text-right">{t("ui.invoicesPanel.total")}</TableHead>
+                  <TableHead>Momsbehandling</TableHead>
                   <TableHead></TableHead>
                 </TableRow>
               </TableHeader>
@@ -139,10 +154,9 @@ export function InvoicesPanel({ scope }: { scope: "provider" | "admin" }) {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
-            <CardTitle>Provider Settlement Statements</CardTitle>
+            <CardTitle>{t("ui.invoicesPanel.statementsTitle")}</CardTitle>
             <p className="text-xs text-muted-foreground mt-1">
-              Finansiel afregningsoversigt pr. booking. <strong>Ikke</strong> en momsfaktura fra MyCleaner —
-              udbyderen er selv ansvarlig for eventuel kundefakturering og momsafregning.
+              Afregningsoversigt pr. booking. Dette er <strong>ikke</strong> en momsfaktura fra MyCleaner — den selvstændige provider er selv ansvarlig for eventuel kundefakturering og momsafregning. Det præcise tidspunkt, hvor en udbetaling er synlig på kontoen, afhænger af betalingsudbyderen og providerens bank.
             </p>
           </div>
           {scope === "admin" && (
@@ -154,7 +168,7 @@ export function InvoicesPanel({ scope }: { scope: "provider" | "admin" }) {
         </CardHeader>
         <CardContent>
           {statements.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Ingen afregningsoversigter endnu.</p>
+            <p className="text-sm text-muted-foreground">{t("ui.invoicesPanel.noStatements")}</p>
           ) : (
             <Table>
               <TableHeader>
@@ -162,11 +176,11 @@ export function InvoicesPanel({ scope }: { scope: "provider" | "admin" }) {
                   <TableHead>Nummer</TableHead>
                   <TableHead>Udstedt</TableHead>
                   <TableHead>Booking</TableHead>
-                  <TableHead className="text-right">Brutto</TableHead>
-                  <TableHead className="text-right">Refund</TableHead>
+                  <TableHead className="text-right">{t("ui.invoicesPanel.customerPayment")}</TableHead>
+                  <TableHead className="text-right">Refundering</TableHead>
                   <TableHead className="text-right">Platformgebyr</TableHead>
-                  <TableHead className="text-right">Netto til udbyder</TableHead>
-                  <TableHead>Payout</TableHead>
+                  <TableHead className="text-right">{t("ui.invoicesPanel.providerEarnings")}</TableHead>
+                  <TableHead>Udbetalingsstatus</TableHead>
                   <TableHead></TableHead>
                 </TableRow>
               </TableHeader>
@@ -180,7 +194,7 @@ export function InvoicesPanel({ scope }: { scope: "provider" | "admin" }) {
                     <TableCell className="text-right text-muted-foreground">{formatMoney(s.refund_amount, s.currency)}</TableCell>
                     <TableCell className="text-right">- {formatMoney(s.platform_fee_amount, s.currency)}</TableCell>
                     <TableCell className="text-right font-semibold">{formatMoney(s.provider_net_amount, s.currency)}</TableCell>
-                    <TableCell><Badge variant="secondary">{s.payout_status}</Badge></TableCell>
+                    <TableCell><Badge variant="secondary">{payoutLabel(s.payout_status)}</Badge></TableCell>
                     <TableCell>
                       <Button size="sm" variant="ghost" onClick={() => download("statement", s.id)}>
                         <FileText className="h-4 w-4 mr-1" /> PDF

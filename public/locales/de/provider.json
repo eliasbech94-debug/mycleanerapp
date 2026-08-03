@@ -1,0 +1,676 @@
+{
+  "activation": {
+    "badge": "Eingeschränkter Zugriff",
+    "checklistTitle": "Deine nächsten Schritte",
+    "lockedDescription": "Buchungsanfragen, Kundendaten, Auszahlungen und Auftragsverwaltung sind noch nicht verfügbar.",
+    "lockedTitle": "Bis zur Freigabe gesperrt",
+    "restricted": {
+      "description": "Dein Profil ist noch nicht aktiv. Schließe hier dein Onboarding ab — Buchungen, Kunden und Finanzfunktionen werden nach der Freigabe freigeschaltet.",
+      "title": "Onboarding-Dashboard"
+    },
+    "states": {
+      "archived": {
+        "description": "Dein Anbieterprofil ist archiviert. Kontaktiere den Support für deine Möglichkeiten.",
+        "title": "Archiviert"
+      },
+      "missing_identity": {
+        "description": "Wir müssen deine Identität bestätigen, bevor du Buchungen erhalten kannst.",
+        "title": "Identität fehlt"
+      },
+      "missing_profile_details": {
+        "description": "Ergänze die restlichen Angaben in deinem Profil, bevor wir dich freigeben können.",
+        "title": "Fehlende Profilangaben"
+      },
+      "missing_stripe": {
+        "description": "Schließe deine Auszahlungseinrichtung ab, damit du Zahlungen erhalten kannst.",
+        "title": "Stripe fehlt"
+      },
+      "no_profile": {
+        "description": "Wir konnten kein Anbieterprofil zu deinem Konto finden. Erstelle dein Profil oder kontaktiere den Support.",
+        "title": "Kein Anbieterprofil"
+      },
+      "paused": {
+        "description": "Dein Profil ist pausiert. Du erhältst keine neuen Aufträge, bis du es fortsetzt.",
+        "title": "Profil pausiert"
+      },
+      "pending_review": {
+        "description": "Wir prüfen dein Profil. Du wirst benachrichtigt, sobald du freigegeben bist.",
+        "title": "Wartet auf Freigabe"
+      },
+      "rejected": {
+        "description": "Deine Bewerbung wurde abgelehnt. Du kannst die Begründung lesen und Einspruch einlegen.",
+        "title": "Abgelehnt"
+      },
+      "suspended": {
+        "description": "Dein Profil ist gesperrt. Sieh dir die Entscheidung an oder kontaktiere den Support.",
+        "title": "Gesperrt"
+      }
+    },
+    "statusLabel": "Status",
+    "steps": {
+      "appeal": "Entscheidung ansehen",
+      "documents": "Dokumente hochladen",
+      "identity": "Identität verifizieren",
+      "profile": "Profil vervollständigen",
+      "stripe": "Auszahlungen einrichten",
+      "support": "Support kontaktieren"
+    }
+  },
+  "booking": {
+    "atSlot": "um {{slot}}",
+    "defaultService": "Reinigung",
+    "hoursSuffix": "· {{count}} Std.",
+    "providerGets": "Sie erhalten {{amount}}",
+    "status": {
+      "accepted": "Angenommen",
+      "cancelled": "Storniert",
+      "completed": "Abgeschlossen",
+      "declined": "Abgelehnt",
+      "pending": "Neue Anfrage"
+    }
+  },
+  "catalog": {
+    "categories": {
+      "cleaning": "Reinigung",
+      "garden": "Garten",
+      "handyman": "Handwerker",
+      "moving": "Umzug"
+    },
+    "equipment": {
+      "car": "Eigenes Auto",
+      "eco_products": "Umweltfreundliche Produkte",
+      "ladder": "Leiter",
+      "own_mop": "Eigenes Wischset",
+      "own_vacuum": "Eigener Staubsauger"
+    },
+    "languages": {
+      "da": "Dänisch",
+      "de": "Deutsch",
+      "en": "Englisch",
+      "es": "Spanisch",
+      "pl": "Polnisch",
+      "sv": "Schwedisch"
+    },
+    "services": {
+      "deep_cleaning": "Grundreinigung",
+      "home_cleaning": "Regelmäßige Reinigung",
+      "move_out_cleaning": "Umzugsreinigung",
+      "office_cleaning": "Büroreinigung",
+      "window_cleaning": "Fensterreinigung"
+    }
+  },
+  "dashboard": {
+    "brandTitle": "Cleaner",
+    "description": "Übersicht über Ihre Buchungen, Ihre Einnahmen und Ihren Profilstatus als selbstständiger Provider.",
+    "editProfile": "Profil bearbeiten",
+    "greeting": "Cleaner-Dashboard",
+    "keyFigures": {
+      "accept": "Annahme",
+      "cancellation": "Stornierung",
+      "description": "Basierend auf tatsächlichen Buchungen und Angeboten.",
+      "rating": "Bewertung",
+      "responseTime": "Antwortzeit",
+      "tier": "Stufe",
+      "title": "Kennzahlen"
+    },
+    "payouts": {
+      "emptyDescription": "Ihre erste Auszahlung erscheint hier, sobald eine Buchung abgeschlossen ist. Wann genau der Betrag im Konto sichtbar wird, hängt vom Zahlungsanbieter und Ihrer Bank ab.",
+      "emptyTitle": "Noch keine Auszahlungen",
+      "seeAll": "Alle anzeigen",
+      "title": "Auszahlungen"
+    },
+    "sections": {
+      "newRequests": {
+        "description": "Antworten Sie schnell — das verschafft Ihnen eine bessere Platzierung im Marketplace.",
+        "emptyDescription": "Neue Buchungsanfragen erscheinen hier, sobald ein Kunde eine sendet.",
+        "emptyTitle": "Keine neuen Buchungsanfragen",
+        "title": "Neue Buchungsanfragen"
+      },
+      "reviews": {
+        "comingSoonDescription": "Bewertungen kommen bald. Bis dahin zeigt das Dashboard nur Buchungen und Einnahmen.",
+        "comingSoonTitle": "Bewertungen",
+        "description": "Bewertungen und schriftliches Feedback Ihrer Kunden.",
+        "title": "Bewertungen"
+      },
+      "today": {
+        "description": "Ihre heutigen Buchungen.",
+        "emptyDescription": "Genießen Sie eine Pause — oder aktualisieren Sie Ihre Verfügbarkeit, damit mehr Kunden Sie buchen können.",
+        "emptyTitle": "Heute keine Buchungen",
+        "title": "Heute"
+      },
+      "upcoming": {
+        "emptyDescription": "Angenommene Buchungen erscheinen hier, bis sie abgeschlossen sind.",
+        "emptyTitle": "Keine anstehenden Buchungen",
+        "title": "Anstehende Buchungen"
+      }
+    },
+    "shortcuts": {
+      "finance": {
+        "description": "Auszahlungen und Abrechnungsübersichten",
+        "title": "Finanzen"
+      },
+      "messages": {
+        "description": "Mit Kunden chatten",
+        "title": "Nachrichten"
+      },
+      "pricing": {
+        "description": "Ihren Stundensatz und Ihre Pakete anpassen",
+        "title": "Preise"
+      },
+      "profile": {
+        "description": "Ihr öffentliches Profil bearbeiten",
+        "title": "Profil"
+      },
+      "receipts": {
+        "description": "Belege und Ausgaben für Ihre Buchhaltung",
+        "title": "Belege"
+      },
+      "support": {
+        "description": "Wir helfen Ihnen gerne",
+        "title": "Support"
+      },
+      "title": "Kurzbefehle"
+    },
+    "stats": {
+      "acceptanceRate": "Annahmequote",
+      "average": "Durchschnitt",
+      "completedBookings": "Abgeschlossene Buchungen",
+      "earnings": "Ihre Einnahmen",
+      "earningsHint": "Aus abgeschlossenen Buchungen",
+      "noOffersYet": "Noch keine Angebote",
+      "noResponsesYet": "Noch keine Antworten",
+      "responseTime": "Antwortzeit"
+    },
+    "subtitle": {
+      "nextJob": "Nächster Auftrag: {{date}}.",
+      "nextJobWithSlot": "Nächster Auftrag: {{date}} um {{slot}}.",
+      "noBookings": "Sie haben keine anstehenden Buchungen. Halten Sie Ihr Profil vollständig und sichtbar, damit mehr Kunden Sie finden.",
+      "openRequests_one": "Sie haben {{count}} offene Anfrage — antworten Sie schnell für eine bessere Platzierung.",
+      "openRequests_other": "Sie haben {{count}} offene Anfragen — antworten Sie schnell für eine bessere Platzierung."
+    },
+    "time": {
+      "hours": "{{count}} Std.",
+      "minutes": "{{count}} Min.",
+      "seconds": "{{count}} s"
+    },
+    "title": "Dashboard"
+  },
+  "onboardingSurfaces": {
+    "careerIdentity": {
+      "brandLabel": "MyCleaner Career Identity",
+      "metrics": {
+        "careerScore": "Karriere-Score",
+        "completedJobs": "Abgeschlossene Aufträge",
+        "reliability": "Zuverlässigkeit"
+      },
+      "permanentId": {
+        "description": "Die ID folgt Ihrer verifizierten Identität — nicht Ihrer E-Mail-Adresse.",
+        "title": "Permanente MyCleaner-ID"
+      },
+      "presentation": {
+        "headlineLabel": "Professionelle Überschrift",
+        "headlinePlaceholder": "Z. B. erfahrene Reinigungskraft mit Spezialisierung auf Büro- und Endreinigung",
+        "summaryPlaceholder": "Erzählen Sie kurz von Ihrer Erfahrung, Arbeitsweise und Spezialisierung.",
+        "title": "Professionelle Präsentation"
+      },
+      "status": {
+        "pending": "Wartet auf Prüfung",
+        "rejected": "Nicht genehmigt",
+        "selfReported": "Selbst gemeldet vom Reiniger"
+      },
+      "subtitle": "Ihr professioneller Reinigungs-Lebenslauf",
+      "visibility": {
+        "customersOnly": "Nur Kunden",
+        "findableById": "Auffindbar per MyCleaner-ID",
+        "findableByName": "Auffindbar per Name",
+        "linkOnly": "Nur Personen mit dem Link",
+        "notice": "Dokumentation und private Kontrollnotizen werden nie öffentlich angezeigt.",
+        "title": "Sichtbarkeit und Suche",
+        "whoCanSee": "Wer kann das Profil sehen?"
+      },
+      "workHistory": {
+        "addLabel": "Erfahrung hinzufügen",
+        "currentlyEmployed": "Ich arbeite noch hier",
+        "deleteLabel": "Erfahrung löschen",
+        "empty": "Noch keine Erfahrung hinzugefügt.",
+        "hint": "Fügen Sie z. B. ISS 2000–2004 oder Coor 2006–2012 hinzu. Angaben werden bis zur Verifizierung deutlich als selbst gemeldet angezeigt.",
+        "verificationDetail": "Der Werdegang kann durch Arbeitgeberbestätigung, Vertrag, Referenz oder unkenntlich gemachte Gehaltsabrechnung belegt werden. Das Dokument selbst bleibt privat und wird nie im Profil angezeigt.",
+        "verificationNote": "Die Verifizierung erfolgt im nächsten Kontrollschritt."
+      }
+    },
+    "disputes": {
+      "amountInCase": "Betrag im Fall:",
+      "categories": {
+        "customerCommunication": "Kommunikation mit dem Kunden",
+        "serviceDocumentation": "Nachweis der erbrachten Leistung",
+        "shippingDocumentation": "Nachweis des Zugangs zur Adresse"
+      },
+      "myCases": "Meine Streitfälle",
+      "noDisputes": "Derzeit gibt es keine Streitigkeiten bei Ihren Zahlungen.",
+      "noEvidenceUploaded": "Für diesen Fall wurde noch keine Dokumentation hochgeladen.",
+      "outcomeLabel": "Ergebnis:",
+      "responseDeadline": "Antwortfrist:",
+      "seeBooking": "Buchung ansehen",
+      "selectCasePrompt": "Wählen Sie einen Fall aus der Liste, um Details zu sehen.",
+      "statusLabel": "Status:",
+      "title": "Zahlungsstreitigkeiten",
+      "uploadDocumentation": "Dokumentation hochladen",
+      "yourCaseDescription": "Ihre Beschreibung des Falls"
+    },
+    "onboarding": {
+      "accountIntro": {
+        "item1": "Basisprofil — Name, Alter, Adresse und Profilfoto",
+        "item2": "Serviceprofil — Reinigungsarten, Erfahrung, Sprachen und Gebiet",
+        "item3": "Identitäts- und Kontaktverifizierung",
+        "item4": "Stripe Connect — sichere Auszahlungen",
+        "item5": "Anbieterbedingungen und Arbeitsberechtigung",
+        "item6": "Überprüfen und zur manuellen Genehmigung einreichen"
+      },
+      "fields": {
+        "bioLabel": "Beschreibung (mindestens 40 Zeichen)",
+        "bioPlaceholder": "Erzählen Sie von Ihrer Erfahrung, Ihren Methoden und warum Kunden Sie wählen sollten.",
+        "choosePhoto": "Wählen Sie ein klares Foto Ihres Gesichts",
+        "dateOfBirth": "Geburtsdatum",
+        "displayNamePublic": "Anzeigename (öffentlich)",
+        "fullName": "Vollständiger Name",
+        "headlinePlaceholder": "Z. B. Erfahrene Reinigungskraft, Kopenhagen",
+        "insuranceExpiresLabel": "Versicherung gültig bis",
+        "photoAlt": "Vorschau des Profilfotos",
+        "policyNumberPlaceholder": "Ihre Policennummer",
+        "radiusKm": "Radius (km)",
+        "workArea": "Ihr Arbeitsgebiet",
+        "yearsExperience": "Jahre Erfahrung"
+      },
+      "identity": {
+        "emailConfirmed": "E-Mail bestätigt",
+        "identityApproved": "Identität genehmigt",
+        "phoneSmsVerified": "Telefon per SMS verifiziert",
+        "smsLinkText": "Profil und SMS-Verifizierung",
+        "title": "Identität & Verifizierung"
+      },
+      "insuranceLabel": "Versicherung:",
+      "loggedInAsLabel": "Angemeldet als:",
+      "nameLabel": "Name:",
+      "notReadyToSubmit": "Schließen Sie alle ersten 6 Schritte ab, um einreichen zu können.",
+      "stepReview": "Überprüfen & einreichen",
+      "stripeStep": {
+        "detailsSubmitted": "Angaben an Stripe übermittelt",
+        "paymentsEnabled": "Zahlungen aktiviert",
+        "payoutEnabled": "Auszahlung aktiviert",
+        "title": "Auszahlung und Steuern"
+      }
+    },
+    "providerEditors": {
+      "dateOfBirth": "Geburtsdatum",
+      "expiresOn": "Ablaufdatum",
+      "pause": "Pausieren",
+      "publicBio": "Öffentliche Biografie",
+      "requestDataExport": "Datenexport anfordern",
+      "requestDeletion": "Löschung beantragen",
+      "shareYourProfile": "Profil teilen",
+      "showProfilePublicly": "Mein Profil öffentlich anzeigen",
+      "uploadFailed": "Hochladen fehlgeschlagen",
+      "yearsExperience": "Jahre Erfahrung",
+      "yourPrice": "Ihr Preis"
+    },
+    "register": {
+      "businessDescription": "Einrichtungsgebühr + vierteljährliches Abo. Mehrere Mitarbeiter und Gebiete.",
+      "calculationLabel": "Berechnung:",
+      "chooseServiceHint": "Wählen Sie in Schritt 3 mindestens eine Leistung, um Preise zu sehen.",
+      "chooseSpecificServices": "Wählen Sie bestimmte Leistungen",
+      "chooseType": "Wählen Sie Ihren Anbietertyp",
+      "cityPlaceholder": "Kopenhagen",
+      "companyNamePlaceholder": "Firma GmbH",
+      "coverageRadius": "Einsatzradius",
+      "cvrLabel": "Handelsregisternummer",
+      "dataSecureDescription": "Dokumente werden verschlüsselt und sicher gespeichert. Nur zur Verifizierung genutzt.",
+      "dataSecureTitle": "Ihre Daten sind sicher",
+      "personalInfo": "Persönliche Angaben",
+      "privateProvider": "Privater Anbieter",
+      "privateProviderDescription": "Kostenlose Anmeldung. Perfekt für Freiberufler und Einzelunternehmer.",
+      "reviewApplication": "Überprüfen Sie Ihren Antrag",
+      "servicesAndArea": "Ihre Leistungen & Einsatzgebiet",
+      "servicesAndAreaShort": "Leistungen & Gebiet",
+      "subtitle": "Registrieren Sie sich und übernehmen Sie Aufträge in Ihrer Region",
+      "suggestedHourlyRate": "Vorgeschlagener Stundensatz",
+      "termsLinkText": "Allgemeine Geschäftsbedingungen",
+      "title": "Werde MyCleaner-Anbieter",
+      "totalServices": "Leistungen insgesamt",
+      "uploadDocuments": "Dokumente hochladen",
+      "uploadDocumentsDescription": "Zur Genehmigung müssen wir Ihre Identität und Qualifikationen prüfen.",
+      "whatHappensNext": "Wie geht es weiter?",
+      "whatHappensNextDescription": "Ihr Antrag wird innerhalb von 24–48 Stunden von unserem Team geprüft. Sie erhalten eine E-Mail nach der Genehmigung.",
+      "whichServices": "Welche Leistungen bieten Sie an?",
+      "yourDetails": "Ihre Angaben"
+    },
+    "shareCard": {
+      "changeSlugConfirmTitle": "Öffentlichen Linknamen ändern?",
+      "copyLinkLabel": "Link kopieren",
+      "newLinkName": "Neuer Linkname",
+      "newSlugPlaceholder": "z. B. marie-reinigt",
+      "openLinkLabel": "Link öffnen",
+      "openPublicProfileLabel": "Öffentliches Profil öffnen",
+      "qrCodeLabel": "QR-Code für Ihr öffentliches Profil",
+      "shareYourProfile": "Profil teilen",
+      "yourLink": "Ihr Link"
+    },
+    "stripeWidget": {
+      "canReceivePayment": "Kann Zahlungen empfangen",
+      "canReceivePayout": "Kann Auszahlungen empfangen",
+      "defaultCurrency": "Standardwährung",
+      "done": "Fertig",
+      "missingFromStripe": "Bei Stripe fehlend:",
+      "profileSubmitted": "Profil eingereicht",
+      "refreshLabel": "Stripe-Status aktualisieren",
+      "sectionLabel": "Stripe-Connect-Status",
+      "steps": {
+        "acceptTerms": "Bedingungen akzeptieren",
+        "addBankAccount": "Bankkonto hinzufügen",
+        "missingToComplete": "Fehlt zum Abschluss",
+        "payoutsBlocked": "Auszahlungen blockiert",
+        "secureVerification": "Sichere Verifizierung"
+      },
+      "title": "Stripe-Auszahlungen",
+      "toasts": {
+        "connectedDescription": "Ihr Konto ist jetzt mit der Plattform verbunden.",
+        "notReadyDescription": "Prüfen Sie, welche Angaben fehlen.",
+        "readyDescription": "Stripe hat Ihr Konto vollständig genehmigt.",
+        "stepApprovedDescription": "Der Schritt wurde soeben von Stripe genehmigt.",
+        "stepMissingDescription": "Stripe hat aktualisierte Angaben angefordert."
+      }
+    }
+  },
+  "payout": {
+    "status": {
+      "canceled": "Storniert",
+      "failed": "Nicht abgeschlossen",
+      "in_transit": "Auszahlung geplant",
+      "paid": "Auszahlung abgeschlossen",
+      "pending": "Ausstehend"
+    }
+  },
+  "profile": {
+    "editButton": "Bearbeiten",
+    "editProfile": "Profil bearbeiten",
+    "editors": {
+      "area": "Einsatzgebiet",
+      "availability": "Verfügbarkeit",
+      "business": "Über mich",
+      "documents": "Dokumente",
+      "equipment": "Ausrüstung",
+      "identity": "Verifizierung",
+      "insurance": "Versicherung",
+      "languages": "Sprachen",
+      "performance": {
+        "cancellations": "Stornierungen",
+        "completionRate": "Abschlussquote",
+        "note": "Punktzahl und Stufe werden automatisch anhand Ihrer letzten 30 Tage aktualisiert.",
+        "rating": "Bewertung",
+        "repeatCustomers": "Stammkunden",
+        "title": "Leistung & Punktzahl"
+      },
+      "personal": "Persönliche Daten",
+      "pricing": "Preise",
+      "services": "Leistungskategorien",
+      "settings": "Einstellungen",
+      "stripe": "Stripe & Auszahlung",
+      "tax": "Steuerdaten"
+    },
+    "greeting": {
+      "day": "Guten Tag",
+      "evening": "Guten Abend",
+      "morning": "Guten Morgen"
+    },
+    "identityBadge": {
+      "pending": "In Prüfung",
+      "unverified": "Nicht verifiziert",
+      "verified": "Verifiziert"
+    },
+    "noProfile": {
+      "body": "Sie müssen zunächst eine Cleaner-Bewerbung starten.",
+      "cta": "Cleaner werden",
+      "title": "Kein Provider-Profil"
+    },
+    "pageSubtitle": "Ihr öffentliches Profil und Ihre Informationen",
+    "pageTitle": "Mein Profil",
+    "sections": {
+      "about": {
+        "emptyDescription": "Erzählen Sie Kunden, wer Sie sind und warum sie Sie wählen sollten.",
+        "emptyTitle": "Noch keine öffentliche Beschreibung",
+        "title": "Über mich"
+      },
+      "area": {
+        "noAddress": "Keine Adresse ausgewählt",
+        "publicNotice": "Öffentlich wird nur ein kreisförmiges Gebiet angezeigt — niemals Ihre genaue Adresse.",
+        "radiusLabel": "Radius:",
+        "radiusValue": "{{count}} km",
+        "title": "Einsatzgebiet"
+      },
+      "availability": {
+        "description": "Ihr Wochenplan und Ihre Buchungszeiten.",
+        "openCalendar": "Kalendereditor öffnen",
+        "title": "Verfügbarkeit"
+      },
+      "documents": {
+        "insuranceDocLabel": "Versicherungsdokument",
+        "missing": "Fehlt",
+        "title": "Dokumente",
+        "uploadButton": "Hochladen",
+        "uploaded": "Hochgeladen"
+      },
+      "experienceEquipment": {
+        "experienceLabel": "Erfahrung:",
+        "noEquipment": "Keine Ausrüstung markiert.",
+        "title": "Erfahrung & Ausrüstung",
+        "yearsValue": "{{count}} Jahre"
+      },
+      "insurance": {
+        "expiresLabel": "Läuft ab",
+        "policyLabel": "Policennummer",
+        "title": "Versicherung"
+      },
+      "languages": {
+        "empty": "Keine Sprachen ausgewählt",
+        "title": "Sprachen"
+      },
+      "performance": {
+        "completed": "Abgeschlossen",
+        "detailsButton": "Details ansehen",
+        "score": "Punktzahl",
+        "tier": "Stufe",
+        "title": "Leistung"
+      },
+      "photoIdentity": {
+        "noName": "Kein Name",
+        "title": "Foto & Identität"
+      },
+      "reviews": {
+        "description": "Wird hier angezeigt, sobald Kunden Bewertungen zu abgeschlossenen Buchungen abgeben.",
+        "title": "Kundenbewertungen"
+      },
+      "servicesPricing": {
+        "addPrices": "Preise hinzufügen",
+        "categoriesButton": "Kategorien",
+        "description": "Jede Leistung hat ihren eigenen Stundenpreis. Endpreise werden immer serverseitig berechnet.",
+        "emptyPricesDescription": "Legen Sie Preise pro Leistung fest, damit Kunden genau wissen, was es kostet.",
+        "emptyPricesTitle": "Noch keine individuellen Leistungspreise",
+        "noCategories": "Keine Kategorien ausgewählt.",
+        "perHour": "/Std.",
+        "pricesButton": "Preise",
+        "title": "Leistungen & Preise"
+      },
+      "settings": {
+        "description": "Teilen Sie Ihr Profil, Ihre Sichtbarkeit, Ihren Kontostatus und DSGVO-Einstellungen.",
+        "hidden": "Verborgen",
+        "notAssigned": "Noch nicht vergeben",
+        "openButton": "Öffnen",
+        "pending": "Ausstehend",
+        "publicUrlLabel": "Öffentliche URL",
+        "title": "Einstellungen & Sichtbarkeit"
+      },
+      "tax": {
+        "body": "USt-IdNr./Steuernummer und Steuereinstellungen werden in einem eigenen Editor aktualisiert.",
+        "openButton": "Steuerprofil öffnen",
+        "title": "Steuern"
+      },
+      "verification": {
+        "identityLabel": "Identität",
+        "missing": "Fehlt",
+        "notReady": "Nicht bereit",
+        "openStripeStatus": "Stripe-Status öffnen",
+        "ready": "Bereit",
+        "stripeLabel": "Stripe-Auszahlung",
+        "title": "Verifizierung",
+        "verified": "Verifiziert"
+      }
+    },
+    "stats": {
+      "acceptanceRate": "Annahmequote",
+      "completedJobs": "Abgeschlossene Aufträge",
+      "responseTime": "Antwortzeit",
+      "responseTimeHint": "Letzte 30 Tage",
+      "yearsExperience": "Jahre Erfahrung"
+    },
+    "status": {
+      "label": "Status"
+    },
+    "time": {
+      "minutes": "{{count}} Min."
+    },
+    "viewPublicProfile": "Öffentliches Profil ansehen",
+    "visibility": {
+      "hidden": "Verborgen",
+      "label": "Sichtbarkeit",
+      "public": "Öffentlich"
+    },
+    "welcomeSubtitleDefault": "Ihr Profil bestimmt, wie Kunden Sie im Marketplace sehen."
+  },
+  "surfaces": {
+    "decisions": {
+      "addInfoLabel": "Informationen hinzufügen",
+      "addInfoPlaceholder": "Schreibe die Informationen, die im Fall berücksichtigt werden sollen.",
+      "aiAssisted": "Automatisierte Systeme dienten nur als Entscheidungshilfe und können die Entscheidung nicht allein treffen.",
+      "allDecisions": "Alle Entscheidungen",
+      "appealDecisionCardDescription": "Erkläre, warum du die Entscheidung für falsch hältst. Ein Mitarbeiter — kein automatisches System — prüft deinen Fall und antwortet innerhalb von {{days}} Tagen.",
+      "appealDecisionCardTitle": "Gegen die Entscheidung Widerspruch einlegen",
+      "appealDecisionTitle": "Entscheidung zu deinem Widerspruch",
+      "appealStatementPlaceholder": "Beschreibe den Fall mit eigenen Worten (mindestens 20 Zeichen).",
+      "caseHistory": "Fallverlauf",
+      "decidedOn": "Entschieden am {{date}}",
+      "documentation": "Dokumentation",
+      "effectiveFrom": "Gültig ab {{date}}",
+      "humanReviewPending": "Die Entscheidung wartet auf die Genehmigung eines Mitarbeiters.",
+      "humanReviewed": "Die Entscheidung wurde von einem Mitarbeiter getroffen.",
+      "infoRequestTitle": "Wir benötigen Informationen von dir",
+      "noAiUsed": "Bei der Entscheidung wurden keine automatisierten Systeme verwendet.",
+      "noAppeal": "Kein Widerspruch",
+      "noDecisions": "Es gibt keine Entscheidungen zu deinem Konto.",
+      "noDocsUploaded": "Keine Dokumente hochgeladen.",
+      "notAppealable": "Gegen diese Entscheidung kann kein Widerspruch eingelegt werden. Kontaktiere den Support, falls du glaubst, dass dies ein Fehler ist.",
+      "pageDescription": "Hier siehst du Entscheidungen zu deinem Konto und kannst Widerspruch einlegen, wenn du anderer Meinung bist. Alle Widersprüche werden von einem Mitarbeiter bearbeitet.",
+      "pageTitle": "Entscheidungen und Widersprüche",
+      "reason": "Begründung",
+      "reasonRestricted": "Die Begründung ist eingeschränkt: {{label}}. Dies beeinträchtigt nicht dein Widerspruchsrecht.",
+      "rulesApplied": "Angewendete Regeln",
+      "sendAppeal": "Widerspruch senden",
+      "sendInfo": "Informationen senden",
+      "toastAppealNotSent": "Widerspruch wurde nicht gesendet",
+      "toastAppealReceived": "Dein Widerspruch ist eingegangen",
+      "toastAppealReceivedDescription": "Ein Mitarbeiter prüft den Fall und antwortet innerhalb von {{days}} Tagen.",
+      "toastAppealWithdrawn": "Widerspruch wurde zurückgezogen",
+      "toastCouldNotComplete": "Konnte nicht abgeschlossen werden",
+      "toastCouldNotOpenDoc": "Dokument konnte nicht geöffnet werden",
+      "toastDocUploaded": "Dokument hochgeladen",
+      "toastInfoSent": "Deine Informationen wurden gesendet",
+      "toastUploadFailed": "Upload fehlgeschlagen",
+      "uploadDocsLabel": "Dokumentation hochladen (PDF, JPG, PNG — max. 15 MB)",
+      "withdrawAppeal": "Widerspruch zurückziehen",
+      "yourAppeal": "Dein Widerspruch",
+      "yourExplanation": "Deine Erklärung",
+      "yourExplanationSrOnly": "Deine Erklärung"
+    },
+    "pricing": {
+      "appliedMultipliers": "Angewendete Multiplikatoren ({{pct}}% gesamt)",
+      "base": "Basis",
+      "city": "Stadt",
+      "country": "Land",
+      "demand": "Nachfrage",
+      "enableSmartPricing": "Smart Pricing aktivieren",
+      "errorAboveMarketMaximum": "Über dem Marktmaximum für Ihren Standort.",
+      "errorBelowMarketMinimum": "Unter dem Marktminimum für Ihren Standort.",
+      "errorInvalidHourlyRate": "Geben Sie Ihren Stundensatz ein.",
+      "errorNoActiveMarketRule": "Keine aktive Marktregel für diesen Standort.",
+      "errorSmartBoundsRequired": "Smart Pricing benötigt ein Minimum und Maximum.",
+      "errorSmartMaxAboveMarket": "Das Smart-Maximum liegt über dem Marktmaximum.",
+      "errorSmartMaxBelowMin": "Das Smart-Maximum muss größer oder gleich dem Minimum sein.",
+      "errorSmartMinBelowMarket": "Das Smart-Minimum liegt unter dem Marktminimum.",
+      "errors": {
+        "above_market_maximum": "Dein Satz liegt über dem Marktmaximum",
+        "below_market_minimum": "Dein Satz liegt unter dem Marktminimum",
+        "invalid_hourly_rate": "Gib einen gültigen Stundensatz ein",
+        "no_active_market_rule": "Keine aktive Marktregel für dein Land",
+        "smart_bounds_required": "Lege für Smart-Pricing ein Minimum und ein Maximum fest",
+        "smart_max_above_market": "Smart-Maximum liegt über dem Marktmaximum",
+        "smart_max_below_min": "Smart-Maximum liegt unter dem Smart-Minimum",
+        "smart_min_below_market": "Smart-Minimum liegt unter dem Marktminimum"
+      },
+      "estimatedEarnings": "Geschätzte Einnahmen (beratend)",
+      "estimatedEarningsHint": "Geht von {{hours}} buchbaren Stunden/Woche und {{pct}}% Konversion aus. Brutto vor Plattformgebühr, Steuern und Ausgaben.",
+      "hourlyRateWithCurrency": "Stundensatz ({{currency}})",
+      "liveIndicator": "Live-Indikator basierend auf dem empfohlenen Preis.",
+      "marketConfidence": "Marktvertrauen",
+      "marketRuleHint": "Die spezifischste Regel gewinnt: Postleitzahl → Stadt → Region → Land.",
+      "max": "Max",
+      "maxWithValue": "Max {{value}}",
+      "min": "Min",
+      "minWithValue": "Min {{value}}",
+      "monthly": "Monatlich",
+      "nearbyActiveProviders": "Aktive Anbieter in der Nähe",
+      "nearbyAvg": "Durchschnitt in der Nähe",
+      "noActiveMarketRule": "Keine aktive Marktregel.",
+      "noRecommendationYet": "Noch keine Empfehlung verfügbar — legen Sie Ihren Standort fest und speichern Sie einmal, um sie zu berechnen.",
+      "pageDescription": "Legen Sie Ihren Stundensatz und Smart-Pricing-Grenzen fest. Nur beratend — ändert keine bestehenden Buchungen oder Checkout-Preise.",
+      "pageTitle": "Deine Preisgestaltung",
+      "postcode": "Postleitzahl",
+      "professionalHosting": "Professionelles Hosting",
+      "providerRoleRequired": "Provider-Rolle erforderlich.",
+      "rate": "Satz",
+      "rec": "Empf.",
+      "recommendationHint": "Deterministische Empfehlung basierend auf admin-konfigurierten Regeln und Multiplikatoren.",
+      "recommendedPrice": "Empfohlener Preis",
+      "region": "Region",
+      "savePricing": "Preisgestaltung speichern",
+      "saving": "Wird gespeichert…",
+      "smartMaximumWithCurrency": "Smart-Maximum ({{currency}})",
+      "smartMinimumWithCurrency": "Smart-Minimum ({{currency}})",
+      "smartPricingBounds": "Smart-Pricing-Grenzen",
+      "smartPricingHint": "Legen Sie jetzt Grenzen fest. Die automatische Anpassung innerhalb Ihrer Grenzen wird in einer zukünftigen Phase aktiviert — heute ändern sich keine Preise.",
+      "toastPricingSaved": "Preisgestaltung gespeichert",
+      "weekly": "Wöchentlich",
+      "yourHourlyRate": "Dein Stundensatz",
+      "yourMarket": "Dein Markt"
+    }
+  },
+  "verification": {
+    "completion": {
+      "action": "Fertigstellen",
+      "description": "Vervollständigen Sie Ihr Profil — vollständige Profile werden im Marketplace höher eingestuft.",
+      "title": "Ihr Profil ist zu {{percent}}% vollständig"
+    },
+    "identity": {
+      "action": "Verifizierung starten",
+      "description": "Wir müssen Ihre Identität bestätigen, bevor Sie Buchungen erhalten können.",
+      "title": "Bestätigen Sie Ihre Identität"
+    },
+    "public": {
+      "action": "Profil bearbeiten",
+      "description": "Aktivieren Sie die öffentliche Sichtbarkeit, um Anfragen von Kunden zu erhalten.",
+      "title": "Ihr Profil ist nicht sichtbar"
+    },
+    "stripe": {
+      "action": "Stripe öffnen",
+      "description": "Verbinden Sie Ihr Bankkonto, damit Ihre Einnahmen ausgezahlt werden können.",
+      "title": "Stripe-Onboarding abschließen"
+    }
+  }
+}

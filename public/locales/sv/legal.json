@@ -1,0 +1,83 @@
+{
+  "center": {
+    "title": "MyCleaner Legal Center",
+    "subtitle": "Läs våra villkor, policyer och riktlinjer. Vi tror på öppenhet, rättvisa och förtroende mellan kunder, Providers och plattformen.",
+    "metaTitle": "Legal Center — villkor och policyer | MyCleaner",
+    "metaDescription": "Läs MyCleaners villkor, integritetspolicy, marknadsplatsregler och övriga policyer samlat på ett ställe.",
+    "searchLabel": "Sök i juridiska dokument",
+    "searchPlaceholder": "Sök bland dokument…",
+    "read": "Läs dokument",
+    "empty": "Inga dokument matchar din sökning.",
+    "error": "Dokumenten kunde inte laddas. Försök igen senare."
+  },
+  "meta": {
+    "version": "Version",
+    "updated": "Senast uppdaterad",
+    "effective": "Ikraftträdandedatum",
+    "readingTime": "Lästid",
+    "readingTimeValue": "{{count}} min läsning"
+  },
+  "toc": {
+    "title": "Innehåll"
+  },
+  "document": {
+    "print": "Skriv ut",
+    "pdf": "Ladda ner PDF",
+    "pdfSoon": "PDF-nedladdning kommer snart",
+    "share": "Dela dokument",
+    "linkCopied": "Länken har kopierats",
+    "linkCopyFailed": "Länken kunde inte kopieras",
+    "breadcrumb": "Brödsmula",
+    "notFoundTitle": "Dokumentet hittades inte",
+    "notFoundBody": "Dokumentet är antingen inte publicerat än eller är inte tillgängligt i ditt land.",
+    "backToCenter": "Tillbaka till Legal Center",
+    "metaFallbackTitle": "Juridiskt dokument | MyCleaner",
+    "metaFallbackDescription": "Officiellt juridiskt dokument från MyCleaner."
+  },
+  "update": {
+    "title": "MyCleaner har uppdaterat sina juridiska villkor",
+    "subtitle": "{{title}} · version {{version}}",
+    "readFull": "Läs hela dokumentet",
+    "confirm": "Jag har läst och godkänner detta dokument.",
+    "accept": "Godkänn",
+    "acceptNext": "Godkänn och fortsätt",
+    "logout": "Logga ut"
+  },
+  "onboarding": {
+    "acceptProviderTerms": "Jag har läst och godkänner <0>Providervillkoren</0> och bekräftar att jag har rätt att arbeta i det valda landet.",
+    "acceptRequired": "Du måste godkänna Providervillkoren för att fortsätta."
+  },
+  "footer": {
+    "heading": "Juridiskt",
+    "center": "Legal Center",
+    "privacy": "Integritet",
+    "terms": "Villkor",
+    "cookies": "Cookies",
+    "trust": "Trust Center"
+  },
+  "admin": {
+    "title": "Juridiska dokument",
+    "subtitle": "Skapa, redigera, versionshantera och publicera dokument i Legal Center.",
+    "new": "Nytt dokument",
+    "save": "Spara utkast",
+    "publish": "Publicera",
+    "preview": "Förhandsgranska",
+    "edit": "Edit",
+    "history": "Versionshistorik",
+    "slug": "Slug",
+    "docTitle": "Titel",
+    "description": "Beskrivning",
+    "kind": "Kind",
+    "country": "Land",
+    "language": "Språk",
+    "version": "Version",
+    "icon": "Icon",
+    "required": "Kräver godkännande",
+    "content": "Innehåll (Markdown)",
+    "status": "Status",
+    "saved": "Dokumentet har sparats",
+    "published": "Dokumentet har publicerats",
+    "error": "Åtgärden kunde inte slutföras",
+    "empty": "Inga dokument ännu."
+  }
+}

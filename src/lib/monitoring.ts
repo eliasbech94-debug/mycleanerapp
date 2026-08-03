@@ -10,11 +10,14 @@ const ENVIRONMENT = (import.meta.env.VITE_APP_ENVIRONMENT as string | undefined)
 const SENTRY_DSN = import.meta.env.VITE_SENTRY_DSN as string | undefined;
 const SENTRY_TRACES = Number(import.meta.env.VITE_SENTRY_TRACES ?? "0.1");
 
+/** Guards against a double `Sentry.init()` (HMR, double-mounted bootstrap). */
+let sentryInitialised = false;
+
 /** Initialise Sentry (safe no-op when DSN absent). Call once at bootstrap. */
 export function initSentry() {
   if (!SENTRY_DSN || typeof window === "undefined") return;
-  if ((Sentry as any).__initialized) return;
-  (Sentry as any).__initialized = true;
+  if (sentryInitialised) return;
+  sentryInitialised = true;
   Sentry.init({
     dsn: SENTRY_DSN,
     release: RELEASE,

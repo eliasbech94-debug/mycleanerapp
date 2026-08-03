@@ -1,0 +1,83 @@
+{
+  "center": {
+    "title": "MyCleaner Legal Center",
+    "subtitle": "Lies unsere Bedingungen, Richtlinien und Leitfäden. Wir setzen auf Transparenz, Fairness und Vertrauen zwischen Kunden, Providern und der Plattform.",
+    "metaTitle": "Legal Center — Bedingungen und Richtlinien | MyCleaner",
+    "metaDescription": "Lies die Bedingungen, die Datenschutzrichtlinie, die Marketplace-Regeln und alle weiteren Richtlinien von MyCleaner an einem Ort.",
+    "searchLabel": "Rechtsdokumente durchsuchen",
+    "searchPlaceholder": "Dokumente durchsuchen…",
+    "read": "Dokument lesen",
+    "empty": "Keine Dokumente entsprechen deiner Suche.",
+    "error": "Die Dokumente konnten nicht geladen werden. Bitte versuche es später erneut."
+  },
+  "meta": {
+    "version": "Version",
+    "updated": "Zuletzt aktualisiert",
+    "effective": "Datum des Inkrafttretens",
+    "readingTime": "Lesedauer",
+    "readingTimeValue": "{{count}} Min. Lesezeit"
+  },
+  "toc": {
+    "title": "Inhalt"
+  },
+  "document": {
+    "print": "Drucken",
+    "pdf": "PDF herunterladen",
+    "pdfSoon": "PDF-Download folgt in Kürze",
+    "share": "Dokument teilen",
+    "linkCopied": "Link kopiert",
+    "linkCopyFailed": "Der Link konnte nicht kopiert werden",
+    "breadcrumb": "Brotkrumen-Navigation",
+    "notFoundTitle": "Dokument nicht gefunden",
+    "notFoundBody": "Dieses Dokument ist noch nicht veröffentlicht oder in deinem Land nicht verfügbar.",
+    "backToCenter": "Zurück zum Legal Center",
+    "metaFallbackTitle": "Rechtsdokument | MyCleaner",
+    "metaFallbackDescription": "Offizielles Rechtsdokument von MyCleaner."
+  },
+  "update": {
+    "title": "MyCleaner hat seine rechtlichen Bedingungen aktualisiert",
+    "subtitle": "{{title}} · Version {{version}}",
+    "readFull": "Vollständiges Dokument lesen",
+    "confirm": "Ich habe dieses Dokument gelesen und akzeptiere es.",
+    "accept": "Akzeptieren",
+    "acceptNext": "Akzeptieren und fortfahren",
+    "logout": "Abmelden"
+  },
+  "onboarding": {
+    "acceptProviderTerms": "Ich habe die <0>Provider-Bedingungen</0> gelesen und akzeptiere sie und bestätige, dass ich berechtigt bin, im ausgewählten Land zu arbeiten.",
+    "acceptRequired": "Du musst die Provider-Bedingungen akzeptieren, um fortzufahren."
+  },
+  "footer": {
+    "heading": "Rechtliches",
+    "center": "Legal Center",
+    "privacy": "Datenschutz",
+    "terms": "Bedingungen",
+    "cookies": "Cookies",
+    "trust": "Trust Center"
+  },
+  "admin": {
+    "title": "Rechtsdokumente",
+    "subtitle": "Erstelle, bearbeite, versioniere und veröffentliche Dokumente im Legal Center.",
+    "new": "Neues Dokument",
+    "save": "Entwurf speichern",
+    "publish": "Veröffentlichen",
+    "preview": "Vorschau",
+    "edit": "Edit",
+    "history": "Versionsverlauf",
+    "slug": "Slug",
+    "docTitle": "Titel",
+    "description": "Beschreibung",
+    "kind": "Kind",
+    "country": "Land",
+    "language": "Sprache",
+    "version": "Version",
+    "icon": "Icon",
+    "required": "Akzeptanz erforderlich",
+    "content": "Inhalt (Markdown)",
+    "status": "Status",
+    "saved": "Dokument gespeichert",
+    "published": "Dokument veröffentlicht",
+    "error": "Die Aktion konnte nicht durchgeführt werden",
+    "empty": "Noch keine Dokumente vorhanden."
+  }
+}

@@ -14,6 +14,7 @@ import { Composer, confirmDiscardIfDirty, type OptimisticMessage } from "./Compo
 import { PRIORITY_LABEL_DA, STATUS_LABEL_DA } from "@/lib/support/labels";
 import { useEffect, useRef } from "react";
 import { hasAnyDraft } from "@/lib/support/drafts";
+import { useTranslation } from "react-i18next";
 
 interface Props {
   conversationId: string | null;
@@ -22,6 +23,7 @@ interface Props {
 }
 
 export function ConversationDetailView({ conversationId, onDetail, showBack }: Props) {
+  const { t } = useTranslation("admin");
   const nav = useNavigate();
   const { user } = useAuth();
   const { isAdmin, isSupport } = useUserRoles();
@@ -57,7 +59,7 @@ export function ConversationDetailView({ conversationId, onDetail, showBack }: P
       <div className="flex-1 flex items-center justify-center text-center p-8 text-muted-foreground">
         <div className="space-y-2 max-w-sm">
           <MessageSquare className="h-10 w-10 mx-auto opacity-40" aria-hidden />
-          <p className="text-sm">Vælg en samtale for at se detaljer.</p>
+          <p className="text-sm">{t("support.detail.selectPrompt")}</p>
         </div>
       </div>
     );
@@ -78,9 +80,9 @@ export function ConversationDetailView({ conversationId, onDetail, showBack }: P
       <div className="flex-1 flex items-center justify-center p-6">
         <div className="text-center space-y-2 max-w-sm">
           <AlertCircle className="h-8 w-8 mx-auto text-destructive" aria-hidden />
-          <p className="text-sm">Kunne ikke hente samtalen.</p>
+          <p className="text-sm">{t("support.detail.loadFailed")}</p>
           <p className="text-xs text-muted-foreground break-all">{error.message}</p>
-          <Button variant="outline" size="sm" onClick={() => nav(0)}>Prøv igen</Button>
+          <Button variant="outline" size="sm" onClick={() => nav(0)}>{t("support.detail.retry")}</Button>
         </div>
       </div>
     );
@@ -109,14 +111,14 @@ export function ConversationDetailView({ conversationId, onDetail, showBack }: P
         {showBack && (
           <Button
             variant="ghost" size="icon" onClick={goBack}
-            aria-label="Tilbage til indbakke"
+            aria-label={t("support.detail.backAria")}
           >
             <ArrowLeft className="h-4 w-4" />
           </Button>
         )}
         <div className="min-w-0 flex-1 space-y-1">
           <div className="flex items-center gap-2 flex-wrap">
-            <h2 className="font-medium truncate">{conv.subject || "Uden emne"}</h2>
+            <h2 className="font-medium truncate">{conv.subject || t("support.detail.noSubject")}</h2>
             <Badge variant="outline" className="text-[10px]">
               {STATUS_LABEL_DA[conv.status] ?? conv.status}
             </Badge>
@@ -130,7 +132,7 @@ export function ConversationDetailView({ conversationId, onDetail, showBack }: P
             )}
           </div>
           <p className="text-xs text-muted-foreground">
-            Oprettet {format(new Date(conv.created_at), "d. MMM yyyy HH:mm", { locale: da })} · {conv.kind}
+            {t("support.detail.createdAt", { date: format(new Date(conv.created_at), "d. MMM yyyy HH:mm", { locale: da }) })} · {conv.kind}
           </p>
         </div>
         <RealtimeIndicator status={realtimeStatus} />
@@ -164,7 +166,7 @@ export function ConversationDetailView({ conversationId, onDetail, showBack }: P
       {closed && (
         <footer className="border-t p-3 bg-muted/30 text-center">
           <p className="text-xs text-muted-foreground">
-            Sagen er lukket. Genåbn for at kunne svare.
+            {t("support.detail.closedNotice")}
           </p>
         </footer>
       )}
@@ -173,23 +175,24 @@ export function ConversationDetailView({ conversationId, onDetail, showBack }: P
 }
 
 function RealtimeIndicator({ status }: { status: "connecting" | "live" | "error" }) {
+  const { t } = useTranslation("admin");
   if (status === "live") {
     return (
       <span className="inline-flex items-center gap-1 text-[10px] text-emerald-600 dark:text-emerald-400">
-        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Live
+        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> {t("support.detail.live")}
       </span>
     );
   }
   if (status === "error") {
     return (
-      <span className="inline-flex items-center gap-1 text-[10px] text-destructive" title="Genopretter forbindelse">
-        <WifiOff className="h-3 w-3" /> Offline
+      <span className="inline-flex items-center gap-1 text-[10px] text-destructive" title={t("support.detail.offlineTitle")}>
+        <WifiOff className="h-3 w-3" /> {t("support.detail.offline")}
       </span>
     );
   }
   return (
     <span className="inline-flex items-center gap-1 text-[10px] text-muted-foreground">
-      <Loader2 className="h-3 w-3 animate-spin" /> Forbinder
+      <Loader2 className="h-3 w-3 animate-spin" /> {t("support.detail.connecting")}
     </span>
   );
 }

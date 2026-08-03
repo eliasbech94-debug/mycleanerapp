@@ -12,6 +12,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Banknote, Loader2 } from "lucide-react";
+import BookingsOpenSoonDialog, { guardFinancialAction } from "@/components/launch/BookingsOpenSoonDialog";
+import { useTranslation } from "react-i18next";
 
 interface Props {
   conversation: { id: string; booking_id?: string | null };
@@ -28,20 +30,13 @@ interface RefundRow {
   decided_at: string | null;
 }
 
-const REFUND_STATUS_LABEL: Record<string, string> = {
-  pending: "Afventer admin",
-  approved: "Godkendt",
-  rejected: "Afvist",
-  executed: "Udført",
-  cancelled: "Annulleret",
-};
-
 /**
  * Refund request panel. Support agents can only REQUEST refunds —
  * approval and execution stay with admin (backend enforced by RLS
  * `refund_v2_update_admin`).
  */
 export function RefundRequestDialog({ conversation }: Props) {
+  const { t } = useTranslation("admin");
   const qc = useQueryClient();
   const convId = conversation.id;
   const [open, setOpen] = useState(false);
@@ -49,6 +44,7 @@ export function RefundRequestDialog({ conversation }: Props) {
   const [currency, setCurrency] = useState("DKK");
   const [reason, setReason] = useState("");
   const [busy, setBusy] = useState(false);
+  const [lockOpen, setLockOpen] = useState(false);
 
   const { data: refunds, isLoading } = useQuery({
     queryKey: ["support", "refund-requests", convId],
@@ -65,9 +61,11 @@ export function RefundRequestDialog({ conversation }: Props) {
   });
 
   const submit = async () => {
+    // Early Access: block before any refund network call.
+    if (guardFinancialAction(() => setLockOpen(true))) return;
     const cents = Math.round(Number(amount) * 100);
     if (!Number.isFinite(cents) || cents <= 0) {
-      toast.error("Beløbet skal være større end 0.");
+      toast.error(t("support.refundDialog.amountRequired"));
       return;
     }
     setBusy(true);
@@ -82,37 +80,39 @@ export function RefundRequestDialog({ conversation }: Props) {
         },
       });
       if (error) throw error;
-      if ((data as any)?.error) throw new Error(String((data as any).error));
-      toast.success("Refunderings-anmodning oprettet. Admin gennemgår den.");
+      const result = data as { error?: unknown } | null;
+      if (result?.error) throw new Error(String(result.error));
+      toast.success(t("support.refundDialog.submitSuccess"));
       setAmount(""); setReason("");
       qc.invalidateQueries({ queryKey: ["support", "refund-requests", convId] });
     } catch (e) {
-      toast.error((e as Error).message || "Kunne ikke oprette anmodning");
+      toast.error(t("support.refundDialog.submitError"));
     } finally {
       setBusy(false);
     }
   };
 
   return (
+    <>
+    <BookingsOpenSoonDialog open={lockOpen} onOpenChange={setLockOpen} />
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm" className="h-8">
           <Banknote className="h-3.5 w-3.5 mr-1" />
-          Refundering
+          {t("support.refundDialog.trigger")}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle>Anmod om refundering</DialogTitle>
+          <DialogTitle>{t("support.refundDialog.title")}</DialogTitle>
           <DialogDescription>
-            Support opretter kun en anmodning. Admin gennemgår og udfører den
-            faktiske refundering via Stripe.
+            {t("support.refundDialog.description")}
           </DialogDescription>
         </DialogHeader>
 
         <div className="grid grid-cols-3 gap-3">
           <div className="col-span-2 space-y-1">
-            <Label htmlFor="rf-amount">Beløb</Label>
+            <Label htmlFor="rf-amount">{t("support.refundDialog.amountLabel")}</Label>
             <Input
               id="rf-amount" type="number" step="0.01" min="0"
               value={amount} onChange={(e) => setAmount(e.target.value)}
@@ -120,7 +120,7 @@ export function RefundRequestDialog({ conversation }: Props) {
             />
           </div>
           <div className="space-y-1">
-            <Label htmlFor="rf-currency">Valuta</Label>
+            <Label htmlFor="rf-currency">{t("support.refundDialog.currencyLabel")}</Label>
             <Input
               id="rf-currency" maxLength={3} value={currency}
               onChange={(e) => setCurrency(e.target.value.toUpperCase())}
@@ -129,22 +129,22 @@ export function RefundRequestDialog({ conversation }: Props) {
         </div>
 
         <div className="space-y-1">
-          <Label htmlFor="rf-reason">Årsag <span className="text-destructive">*</span></Label>
+          <Label htmlFor="rf-reason">{t("support.refundDialog.reasonLabel")} <span className="text-destructive">*</span></Label>
           <Textarea
             id="rf-reason" rows={3} maxLength={1000}
             value={reason} onChange={(e) => setReason(e.target.value)}
-            placeholder="Fx. Provider mødte ikke op, kundeklage godkendt af QA."
+            placeholder={t("support.refundDialog.reasonPlaceholder")}
           />
         </div>
 
         <div className="border-t pt-3">
-          <h4 className="text-sm font-medium mb-2">Tidligere anmodninger</h4>
+          <h4 className="text-sm font-medium mb-2">{t("support.refundDialog.previousRequests")}</h4>
           {isLoading ? (
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Loader2 className="h-3 w-3 animate-spin" /> Henter…
+              <Loader2 className="h-3 w-3 animate-spin" /> {t("support.refundDialog.loading")}
             </div>
           ) : (refunds?.length ?? 0) === 0 ? (
-            <p className="text-xs text-muted-foreground">Ingen anmodninger endnu.</p>
+            <p className="text-xs text-muted-foreground">{t("support.refundDialog.none")}</p>
           ) : (
             <ul className="space-y-1.5 max-h-40 overflow-y-auto text-sm">
               {refunds!.map((r) => (
@@ -158,7 +158,7 @@ export function RefundRequestDialog({ conversation }: Props) {
                     </div>
                   </div>
                   <Badge variant="secondary" className="text-[10px]">
-                    {REFUND_STATUS_LABEL[r.status] ?? r.status}
+                    {t(`support.refundDialog.status.${r.status}`, { defaultValue: r.status })}
                   </Badge>
                 </li>
               ))}
@@ -168,13 +168,14 @@ export function RefundRequestDialog({ conversation }: Props) {
 
         <DialogFooter>
           <Button variant="outline" onClick={() => setOpen(false)} disabled={busy}>
-            Luk
+            {t("support.refundDialog.close")}
           </Button>
           <Button onClick={submit} disabled={busy || reason.trim().length < 3 || !amount}>
-            {busy ? "Sender…" : "Opret anmodning"}
+            {busy ? t("support.refundDialog.submitting") : t("support.refundDialog.trigger")}
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
+    </>
   );
 }

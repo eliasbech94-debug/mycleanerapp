@@ -4,8 +4,8 @@ import { ArrowRight, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { resolveHomeForCurrentUser } from "@/lib/roleRedirect";
-
-const C = { ink: "#0a3d3a", orange: "#ff6b35", cream: "#f5f0e0" };
+import { AuthShell, AuthCard, EarlyAccessChip } from "@/components/auth/AuthShell";
+import { AuthPasswordField, AuthSubmit, AuthNotice } from "@/components/auth/AuthFields";
 
 export default function ResetPassword() {
   const navigate = useNavigate();
@@ -15,6 +15,8 @@ export default function ResetPassword() {
   const [confirm, setConfirm] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
+  const [passwordError, setPasswordError] = useState<string | undefined>();
+  const [confirmError, setConfirmError] = useState<string | undefined>();
 
   useEffect(() => {
     // Recovery links land here as ?type=recovery or #type=recovery.
@@ -36,8 +38,19 @@ export default function ResetPassword() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (password.length < 6) { toast.error("Adgangskoden skal være mindst 6 tegn"); return; }
-    if (password !== confirm) { toast.error("Adgangskoderne matcher ikke"); return; }
+    if (submitting) return;
+    setPasswordError(undefined);
+    setConfirmError(undefined);
+    if (password.length < 6) {
+      toast.error("Adgangskoden skal være mindst 6 tegn");
+      setPasswordError("Adgangskoden skal være mindst 6 tegn");
+      return;
+    }
+    if (password !== confirm) {
+      toast.error("Adgangskoderne matcher ikke");
+      setConfirmError("Adgangskoderne matcher ikke");
+      return;
+    }
     setSubmitting(true);
     try {
       const { error } = await supabase.auth.updateUser({ password });
@@ -48,50 +61,74 @@ export default function ResetPassword() {
       setTimeout(() => navigate(dest, { replace: true }), 900);
     } catch (err: any) {
       toast.error(err?.message || "Kunne ikke opdatere adgangskoden");
+      setPasswordError("Vi kunne ikke opdatere adgangskoden. Prøv igen.");
     } finally {
       setSubmitting(false);
     }
   }
 
   return (
-    <main className="min-h-screen font-editorial grid place-items-center px-4" style={{ background: C.cream, color: C.ink }}>
-      <div className="w-full max-w-md">
-        <Link to="/" className="block text-center text-[10px] font-black uppercase tracking-[0.28em] opacity-60 hover:opacity-100">← MyCleaner</Link>
-        <div className="mt-6 rounded-3xl border-2 bg-white p-7 shadow-[8px_8px_0_rgba(10,61,58,0.15)]" style={{ borderColor: C.ink }}>
-          <h1 className="font-display text-3xl">Vælg ny adgangskode</h1>
-          {checking ? (
-            <div className="mt-8 grid place-items-center"><Loader2 className="h-5 w-5 animate-spin" /></div>
-          ) : !hasRecoverySession ? (
-            <div className="mt-4 space-y-4">
-              <p className="text-sm opacity-70">
-                Linket er udløbet eller ugyldigt. Anmod om et nyt gendannelseslink fra login-siden.
-              </p>
-              <Link to="/login" className="inline-block text-sm font-bold underline">Til login</Link>
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="mt-5 space-y-3">
-              <div>
-                <label className="text-[10px] font-black uppercase tracking-[0.22em] opacity-70">Ny adgangskode</label>
-                <input type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)}
-                  className="mt-1 w-full rounded-xl border-2 bg-white px-3 py-2.5 text-base focus:outline-none"
-                  style={{ borderColor: `${C.ink}33` }} />
-              </div>
-              <div>
-                <label className="text-[10px] font-black uppercase tracking-[0.22em] opacity-70">Bekræft adgangskode</label>
-                <input type="password" required minLength={6} value={confirm} onChange={(e) => setConfirm(e.target.value)}
-                  className="mt-1 w-full rounded-xl border-2 bg-white px-3 py-2.5 text-base focus:outline-none"
-                  style={{ borderColor: `${C.ink}33` }} />
-              </div>
-              <button type="submit" disabled={submitting || done}
-                className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3 text-xs font-bold uppercase tracking-[0.18em] shadow-[6px_6px_0_rgba(0,0,0,0.18)] transition hover:-translate-y-0.5 disabled:opacity-50"
-                style={{ background: C.orange, color: C.ink }}>
-                {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <>Opdater adgangskode <ArrowRight className="h-4 w-4" /></>}
-              </button>
-              {done && <p className="text-center text-sm text-emerald-700">Adgangskoden er opdateret — sender dig videre…</p>}
-            </form>
-          )}
-        </div>
-      </div>
-    </main>
+    <AuthShell panelText="Vælg en ny adgangskode og fortsæt, hvor du slap.">
+      <AuthCard>
+        <EarlyAccessChip />
+        <h1 className="mt-3 text-[26px] font-bold leading-tight tracking-tight sm:text-3xl">
+          Vælg ny adgangskode
+        </h1>
+
+        {checking ? (
+          <div className="mt-8 grid place-items-center gap-3" role="status" aria-live="polite">
+            <Loader2 className="h-5 w-5 animate-spin text-[hsl(222_88%_42%)]" aria-hidden="true" />
+            <p className="text-sm text-[hsl(224_20%_42%)]">Kontrollerer dit link…</p>
+          </div>
+        ) : !hasRecoverySession ? (
+          <div className="mt-4 space-y-4">
+            <AuthNotice tone="warning" title="Linket virker ikke længere">
+              Gendannelseslinket er udløbet eller allerede brugt. Bed om et nyt link fra login-siden.
+            </AuthNotice>
+            <Link
+              to="/login"
+              className="inline-flex min-h-[44px] items-center rounded-lg px-1 text-sm font-semibold text-[hsl(222_88%_42%)] underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(222_88%_42%)]"
+            >
+              Til login
+            </Link>
+          </div>
+        ) : done ? (
+          <div className="mt-4">
+            <AuthNotice tone="success" title="Adgangskoden er opdateret">
+              Du er logget ind — vi sender dig videre om et øjeblik.
+            </AuthNotice>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="mt-5 space-y-4">
+            <AuthPasswordField
+              label="Ny adgangskode"
+              required
+              minLength={6}
+              autoComplete="new-password"
+              value={password}
+              onChange={(e) => { setPassword(e.target.value); if (passwordError) setPasswordError(undefined); }}
+              disabled={submitting}
+              error={passwordError}
+              hint="Mindst 6 tegn."
+            />
+            <AuthPasswordField
+              label="Bekræft adgangskode"
+              required
+              minLength={6}
+              autoComplete="new-password"
+              value={confirm}
+              onChange={(e) => { setConfirm(e.target.value); if (confirmError) setConfirmError(undefined); }}
+              disabled={submitting}
+              error={confirmError}
+            />
+            <AuthSubmit loading={submitting} disabled={submitting}>
+              Opdater adgangskode
+              {!submitting && <ArrowRight className="h-4 w-4" aria-hidden="true" />}
+            </AuthSubmit>
+          </form>
+        )}
+      </AuthCard>
+    </AuthShell>
   );
 }
+

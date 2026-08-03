@@ -75,7 +75,7 @@ export default function ProviderDisputes() {
 
   const upload = async () => {
     if (!selected) return;
-    if (!file && !note.trim()) { toast.error("Vælg en fil eller skriv en forklaring"); return; }
+    if (!file && !note.trim()) { toast.error("Vedhæft en fil eller skriv en beskrivelse, før du uploader."); return; }
     setBusy(true);
     try {
       const fd = new FormData();
@@ -85,13 +85,13 @@ export default function ProviderDisputes() {
       fd.append("stripe_field", stripeField);
       const { data, error } = await supabase.functions.invoke("dispute-evidence-upload", { body: fd });
       if (error) throw error;
-      toast.success("Dokumentation gemt");
+      toast.success("Din dokumentation er gemt på sagen.");
       setNote(""); setFile(null);
       const { data: refreshed } = await supabase.from("dispute_evidence").select("*")
         .eq("dispute_id", selected.id).order("created_at", { ascending: false });
       setEvidence((refreshed ?? []) as Evidence[]);
     } catch (e: any) {
-      toast.error(e.message ?? "Fejl ved upload");
+      toast.error("Dokumentationen blev ikke uploadet. Kontrollér filen og din forbindelse, og prøv igen.");
     } finally { setBusy(false); }
   };
 
@@ -100,14 +100,14 @@ export default function ProviderDisputes() {
       <BackButton />
       <div className="flex items-center gap-3">
         <AlertTriangle className="h-6 w-6 text-orange-500" />
-        <h1 className="text-3xl font-serif">Indsigelser (chargebacks)</h1>
+        <h1 className="text-3xl font-serif">Indsigelser på betalinger</h1>
       </div>
 
       <div className="grid md:grid-cols-3 gap-4">
         <Card className="md:col-span-1">
-          <CardHeader><CardTitle>Mine sager</CardTitle></CardHeader>
+          <CardHeader><CardTitle>Mine indsigelsessager</CardTitle></CardHeader>
           <CardContent className="space-y-2">
-            {disputes.length === 0 && <p className="text-sm text-muted-foreground">Ingen indsigelser 🎉</p>}
+            {disputes.length === 0 && <p className="text-sm text-muted-foreground">Der er ingen indsigelser på dine betalinger lige nu.</p>}
             {disputes.map((d) => {
               const hl = hoursLeft(d.evidence_due_by);
               return (
@@ -131,18 +131,18 @@ export default function ProviderDisputes() {
 
         <Card className="md:col-span-2">
           {!selected ? (
-            <CardContent className="p-8 text-center text-muted-foreground">Vælg en sag for at se detaljer.</CardContent>
+            <CardContent className="p-8 text-center text-muted-foreground">Vælg en sag i listen for at se detaljerne.</CardContent>
           ) : (
             <>
               <CardHeader>
                 <CardTitle>Sag {selected.stripe_dispute_id}</CardTitle>
                 <div className="text-sm text-muted-foreground space-y-1 mt-2">
-                  <div>Beløb: <strong>{(selected.amount / 100).toFixed(2)} {selected.currency}</strong></div>
-                  <div>Årsag: {selected.reason ?? "—"}</div>
+                  <div>Beløb i sagen: <strong>{(selected.amount / 100).toFixed(2)} {selected.currency}</strong></div>
+                  <div>Angivet årsag: {selected.reason ?? "—"}</div>
                   <div>Status: <Badge variant={statusColor(selected.status) as any}>{selected.status}</Badge></div>
                   {selected.outcome && <div>Udfald: <strong>{selected.outcome}</strong></div>}
                   {selected.evidence_due_by && (
-                    <div>Frist: <strong>{new Date(selected.evidence_due_by).toLocaleString("da-DK")}</strong></div>
+                    <div>Svarfrist: <strong>{new Date(selected.evidence_due_by).toLocaleString("da-DK")}</strong></div>
                   )}
                   {selected.booking_id && (
                     <div><Link className="underline" to={`/mine-bookinger`}>Se booking</Link></div>
@@ -153,14 +153,17 @@ export default function ProviderDisputes() {
                 {!selected.closed_at && (
                   <div className="space-y-3 p-4 border rounded-lg bg-muted/40">
                     <h3 className="font-semibold">Upload dokumentation</h3>
+                    <p className="text-xs text-muted-foreground">
+                      Der er oprettet en sag om denne booking. Beskriv neutralt og faktuelt, hvad der er sket, og vedhæft den dokumentation, du har. Oplysningerne fra begge parter indgår i vurderingen.
+                    </p>
                     <div>
                       <Label>Kategori</Label>
                       <select value={stripeField} onChange={(e) => setStripeField(e.target.value)}
                         className="w-full border rounded px-3 py-2 bg-background">
-                        <option value="service_documentation">Beviser på leveret rengøring</option>
+                        <option value="service_documentation">Dokumentation for udført service</option>
                         <option value="receipt">Kvittering</option>
-                        <option value="customer_communication">Kommunikation med kunde</option>
-                        <option value="shipping_documentation">Adgangs-/nøglebekræftelse</option>
+                        <option value="customer_communication">Kommunikation med kunden</option>
+                        <option value="shipping_documentation">Dokumentation for adgang til adressen</option>
                         <option value="uncategorized_file">Andet</option>
                       </select>
                     </div>
@@ -170,22 +173,22 @@ export default function ProviderDisputes() {
                         onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
                     </div>
                     <div>
-                      <Label>Skriftlig forklaring</Label>
+                      <Label>Din beskrivelse af sagen</Label>
                       <Textarea value={note} onChange={(e) => setNote(e.target.value)}
-                        rows={4} placeholder="Beskriv, hvad der skete…" />
+                        rows={4} placeholder="Beskriv kort og faktuelt, hvad der er sket…" />
                     </div>
                     <Button onClick={upload} disabled={busy}>
-                      {busy ? "Gemmer…" : "Gem dokumentation"}
+                      {busy ? "Gemmer…" : "Upload dokumentation"}
                     </Button>
                     <p className="text-xs text-muted-foreground">
-                      MyCleaner sender samlet dokumentation til Stripe inden fristen.
+                      MyCleaner videresender den samlede dokumentation til betalingsudbyderen inden svarfristen. Udfaldet af en indsigelse afgøres af kundens bank eller kortudsteder.
                     </p>
                   </div>
                 )}
 
                 <div>
-                  <h3 className="font-semibold mb-2">Indsendt/vedhæftet ({evidence.length})</h3>
-                  {evidence.length === 0 && <p className="text-sm text-muted-foreground">Endnu ingen dokumentation.</p>}
+                  <h3 className="font-semibold mb-2">Uploadet dokumentation ({evidence.length})</h3>
+                  {evidence.length === 0 && <p className="text-sm text-muted-foreground">Der er endnu ikke uploadet dokumentation på denne sag.</p>}
                   <ul className="space-y-2">
                     {evidence.map((e) => (
                       <li key={e.id} className="flex items-start gap-2 text-sm border rounded p-2">
@@ -195,7 +198,7 @@ export default function ProviderDisputes() {
                           {e.note && <div className="text-muted-foreground">{e.note}</div>}
                           <div className="text-xs text-muted-foreground mt-1">
                             {e.stripe_field ?? e.kind} · {new Date(e.created_at).toLocaleString("da-DK")}
-                            {e.submitted_to_stripe_at && " · sendt til Stripe"}
+                            {e.submitted_to_stripe_at && " · sendt til betalingsudbyderen"}
                           </div>
                         </div>
                       </li>

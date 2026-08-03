@@ -110,7 +110,7 @@ Supabase dashboard → **Authentication → Providers**:
 - **Google**: ON, staging OAuth client (create a new one in Google Cloud with
   redirect `https://staging.mycleaner.dk/auth/callback`).
 - **Apple**: ON (optional for staging).
-- **SMS (Twilio)**: ON with the sandbox credentials from `staging.secrets`.
+- **SMS (GatewayAPI)**: ON with the credentials from `staging.secrets`.
 
 **Authentication → URL Configuration** — add:
 
@@ -301,7 +301,6 @@ VITE_SUPABASE_PUBLISHABLE_KEY=<staging anon key>
 VITE_SUPABASE_PROJECT_ID=<STAGING_REF>
 VITE_APP_ENV=staging
 VITE_TURNSTILE_SITE=1x00000000000000000000AA
-VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY=<staging Maps key>
 ```
 
 ### 4.3 First publish
@@ -358,7 +357,7 @@ proposal at the end of this document.
 
 **Address-validation caveat**: the seed writes `provider_profiles` rows with
 `base_address_place_id = NULL` to bypass the `place_validations` foreign-key
-trigger (real place IDs would require a live DAWA/Google round-trip per
+trigger (real place IDs would require a live DAWA/Mapbox round-trip per
 provider). Country, coordinates and formatted address are still populated
 and are exercised by marketplace search. The full validation path is covered
 by the RC2 UI scenarios (`12-ui-booking-stripe.spec.ts`), not by the seed.
@@ -432,15 +431,16 @@ Copied from `staging.secrets.example` — see that file for placeholders.
 
 Runtime: `STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET`,
 `STRIPE_CONNECT_WEBHOOK_SECRET`, `SUMSUB_APP_TOKEN`, `SUMSUB_SECRET_KEY`,
-`SUMSUB_WEBHOOK_SECRET`, `SUMSUB_BASE_URL`, `TWILIO_ACCOUNT_SID`,
-`TWILIO_AUTH_TOKEN`, `TWILIO_MESSAGING_SERVICE_SID`, `GOOGLE_MAPS_SERVER_KEY`,
+`SUMSUB_WEBHOOK_SECRET`, `SUMSUB_BASE_URL`, `GATEWAYAPI_API_TOKEN`,
+`GATEWAYAPI_SENDER`, `GATEWAYAPI_BASE_URL`, `MAPBOX_ACCESS_TOKEN`,
+`MAPBOX_PUBLIC_TOKEN`,
 `TURNSTILE_SECRET_KEY`, `LOVABLE_API_KEY`, `SENTRY_DSN`, `SENTRY_ENVIRONMENT`,
 `RESEND_API_KEY`, `EMAIL_FROM_ADDRESS`, `TAX_ID_ENCRYPTION_KEY`,
 `APP_BASE_URL`, `APP_ENVIRONMENT`, `ALLOWED_ORIGINS`.
 
 Frontend (`.env` on the staging Lovable project): `VITE_SUPABASE_URL`,
 `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_SUPABASE_PROJECT_ID`, `VITE_APP_ENV`,
-`VITE_TURNSTILE_SITE`, `VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY`.
+`VITE_TURNSTILE_SITE`.
 
 ---
 

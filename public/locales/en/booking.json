@@ -1,0 +1,169 @@
+{
+  "nav": {
+    "back": "Back",
+    "previous": "Previous",
+    "cancel": "Cancel",
+    "next": "Next",
+    "sending": "Sending…"
+  },
+  "header": {
+    "title": "Booking · MyCleaner"
+  },
+  "stepper": {
+    "service": "Service",
+    "dateTime": "Date & time",
+    "review": "Review"
+  },
+  "step1": {
+    "title": "What should {{name}} take care of?",
+    "subtitle": "Choose a service from your cleaner. You can adjust the duration — it affects the price directly.",
+    "hoursLabel": "Number of hours",
+    "hoursUnit": "h",
+    "hoursMin": "1.5 h",
+    "hoursMid": "4 h",
+    "hoursMax": "8 h",
+    "selected": "Selected",
+    "fromPrice": "from {{price}}"
+  },
+  "step2": {
+    "title": "Choose date and time",
+    "subtitle": "You book directly into the cleaner's calendar. Grey slots are already taken.",
+    "prevWeekAria": "Previous week",
+    "nextWeekAria": "Next week",
+    "availableTimes": "Available times · {{date}}"
+  },
+  "step3": {
+    "title": "Final details",
+    "subtitle": "We send the details directly to {{name}}. The amount is only charged once the provider has accepted your booking request.",
+    "address": {
+      "chooseAddress": "Choose address",
+      "useAnotherAddress": "Use another address",
+      "addressLabel": "Address",
+      "useSaved": "Use a saved address",
+      "validated": "Address validated — the cleaner can find the place",
+      "hint": "Start typing and choose your address from the list. We check that it's real.",
+      "placeholder": "Street, number, floor, city",
+      "loginPrompt": "Log in",
+      "loginPromptTail": "and save your addresses with access info so the cleaner gets everything automatically.",
+      "saveAddressPrompt": "Save this address",
+      "saveAddressPromptTail": "in your address book with pets, parking and access info — auto-filled next time."
+    },
+    "verify": {
+      "title": "Address confirmation",
+      "badgePrimary": "Primary address",
+      "badgeSaved": "Saved address",
+      "badgeProfile": "From profile",
+      "badgeOneTime": "One-time address",
+      "profileLabel": "From your profile",
+      "manualLabel": "Manual entry",
+      "edit": "Edit",
+      "sqm": "m²",
+      "rooms": "rooms",
+      "access": "Access",
+      "code": "Code",
+      "instructions": "Instructions",
+      "pets": "Pets",
+      "petsYes": "Yes",
+      "children": "Children",
+      "childrenPresent": "Children at home",
+      "parking": "Parking",
+      "cleaningSupplies": "Cleaning supplies",
+      "cleaningSuppliesReady": "Ready on site",
+      "wifi": "WiFi",
+      "otherNotes": "Other notes",
+      "profileHint": "We use the address from your profile. Save it in your address book to add access info and pets.",
+      "oneTimeHint": "You're using a manual address. Write access info and pets directly in the message to the cleaner below."
+    },
+    "notes": {
+      "label": "Notes for the provider (optional)",
+      "placeholder": "E.g. pets, allergies or how you arrange access with the provider…"
+    },
+    "payment": {
+      "label": "Payment card",
+      "disclaimer": "The amount may be held on your card while the booking request is processed. It's only charged once the provider has accepted the booking."
+    },
+    "paymentHandling": {
+      "title": "How your payment is handled",
+      "body": "{{amount}} may be held on your card. The amount is only paid out to the provider once the service is completed and the booking is closed."
+    }
+  },
+  "editDialog": {
+    "title": "Edit access & pets",
+    "description": "Changes are saved on \"{{label}}\" in your address book. You arrange access directly with the provider yourself — MyCleaner does not receive or store keys.",
+    "accessMethodLabel": "How the provider gets access",
+    "codeLabel": "Code",
+    "codePlaceholder": "E.g. 1234",
+    "instructionsLabel": "Instructions",
+    "instructionsPlaceholder": "E.g. key box by the mailbox, ring the buzzer on floor 3…",
+    "petsLabel": "Pets at home",
+    "petsPlaceholder": "E.g. 1 dog (friendly), 2 cats",
+    "childrenLabel": "Children at home",
+    "parkingLabel": "Parking",
+    "parkingPlaceholder": "E.g. free on the street, parking permit required",
+    "suppliesLabel": "Cleaning supplies ready on site",
+    "cancel": "Cancel",
+    "save": "Save changes",
+    "saving": "Saving…"
+  },
+  "toast": {
+    "selectAddress": {
+      "title": "Choose your address",
+      "description": "Choose a valid address from the list so the provider knows where the job is."
+    },
+    "loginRequired": {
+      "title": "Log in to send your booking request",
+      "description": "Log in so the provider can contact you about the booking."
+    },
+    "paymentNotReady": {
+      "title": "Payment isn't ready yet",
+      "description": "The payment field is still loading. Wait a moment and try again."
+    },
+    "enterCard": {
+      "title": "Enter your card details",
+      "description": "We use the card to hold the amount — you're only charged once the booking has been accepted."
+    },
+    "priceError": "We couldn't calculate the price right now. Please try again shortly.",
+    "paymentStartError": "We couldn't start the payment. Try again, or use a different payment method.",
+    "confirmError": "The payment couldn't go through. Check your card details, or try a different payment method.",
+    "unexpectedStatus": "Unexpected status: {{status}}",
+    "bookingSent": {
+      "title": "Booking sent ✓",
+      "description": "{{name}} has 24 hours to confirm. The amount is only charged then."
+    },
+    "paymentFailed": {
+      "title": "The payment couldn't go through",
+      "description": "Check your card details, or try a different payment method."
+    },
+    "changesSaved": {
+      "title": "Changes saved",
+      "description": "Access and pet info has been updated on the address."
+    },
+    "saveFailed": {
+      "title": "We couldn't save the changes",
+      "description": "Please try again shortly."
+    }
+  },
+  "actions": {
+    "sendRequest": "Send booking request"
+  },
+  "step4": {
+    "title": "Your booking request has been sent",
+    "description": "{{name}} has received your booking request and typically responds within {{responseTime}}. You'll be notified as soon as the request is accepted.",
+    "yourTime": "Your time",
+    "at": "at {{slot}}",
+    "viewProfile": "View {{name}}'s profile",
+    "home": "Back to home"
+  },
+  "summary": {
+    "service": "Service",
+    "duration": "Duration",
+    "date": "Date",
+    "slot": "Time",
+    "notSelected": "Not selected",
+    "hoursShort": "{{count}}h",
+    "ratePerHour": "{{rate}}/h × {{hours}}h",
+    "platformFee": "Platform fee",
+    "total": "Total price",
+    "providerNet": "Provider's price after platform fee: {{amount}}. MyCleaner is a platform connecting customers and independent providers, handling booking and payment. The service is performed by your chosen provider."
+  }
+}

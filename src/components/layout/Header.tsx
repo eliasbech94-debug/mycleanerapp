@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X, Globe, ChevronDown, User as UserIcon, LogOut } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { countries } from "@/lib/countries";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserRoles } from "@/hooks/useUserRoles";
@@ -13,67 +14,155 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import BackButton from "@/components/BackButton";
+import MarketplaceHeader from "@/components/layout/MarketplaceHeader";
+import { normalizePath } from "@/hooks/useIsMobileApp";
+
+/**
+ * Routes that render inside MobileAppShell below 768px and already show a
+ * MobileAppBar. Hiding the global Header on these routes prevents duplicate
+ * headers on mobile without touching desktop/tablet (>=768px) layout.
+ *
+ * Phase-A polish: `/` is now included because MobileHomeGate mounts its own
+ * MobileAppBar for the mobile home surface. Desktop/tablet (>=768px) still
+ * see the global Header because the caller gates on `useBelow768()` first.
+ */
+const MOBILE_SHELL_HIDE_ROUTES: RegExp[] = [
+  /^\/$/,
+  /^\/marketplace(\/|$)/,
+  /^\/mine-bookinger(\/|$)/,
+  /^\/customer\/bookings(\/|$)/,
+  /^\/inbox(\/|$)/,
+  /^\/founding-cleaner(\/|$)/,
+];
+export function isMobileShellHiddenHeaderRoute(pathname: string): boolean {
+  const p = normalizePath(pathname);
+  return MOBILE_SHELL_HIDE_ROUTES.some((re) => re.test(p));
+}
+/**
+ * Auth surfaces (login/signup/reset) render their own minimal header inside
+ * AuthShell, so the global Header — including the mobile hamburger — is hidden.
+ */
+const AUTH_ROUTES: RegExp[] = [
+  /^\/login(\/|$)/,
+  /^\/reset-password(\/|$)/,
+  /^\/customer\/register(\/|$)/,
+  /^\/auth\/callback(\/|$)/,
+];
+export function isAuthRoute(pathname: string): boolean {
+  const p = normalizePath(pathname);
+  return AUTH_ROUTES.some((re) => re.test(p));
+}
+
+/**
+ * `/profil` renders the existing dense Profile page when a `?tab=` is set,
+ * but the mobile landing (no tab) uses MobileProfile with its own
+ * MobileAppBar. Only the landing variant should suppress the global Header.
+ */
+export function shouldHideHeaderForMobileProfile(
+  pathname: string,
+  search: string,
+): boolean {
+  const p = normalizePath(pathname);
+  if (!/^\/profil(\/|$)/.test(p)) return false;
+  const params = new URLSearchParams(search);
+  return !params.has("tab");
+}
+function useBelow768(): boolean {
+  const [below, setBelow] = useState<boolean>(() =>
+    typeof window === "undefined" ? false : window.innerWidth < 768,
+  );
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mql = window.matchMedia("(max-width: 767px)");
+    const onChange = () => setBelow(window.innerWidth < 768);
+    mql.addEventListener("change", onChange);
+    onChange();
+    return () => mql.removeEventListener("change", onChange);
+  }, []);
+  return below;
+}
+
+/**
+ * Public customer surfaces render the light "marketplace" navbar variant.
+ * All other routes (admin, provider back-office, etc.) keep the classic
+ * dark navbar below. The switch is presentation-only — auth, roles,
+ * and country/market logic are shared via the same hooks.
+ */
+const MARKETPLACE_ROUTES: RegExp[] = [
+  /^\/$/,
+  /^\/(dk|gb|se|es)(\/)?$/,
+  /^\/marketplace(\/|$)/,
+  /^\/find-cleaner(\/|$)/,
+  /^\/p\/[^/]+(\/|$)/,
+  /^\/c\/[^/]+(\/|$)/,
+  /^\/faq(\/|$)/,
+  /^\/regler(\/|$)/,
+];
+function isMarketplaceRoute(pathname: string): boolean {
+  return MARKETPLACE_ROUTES.some((re) => re.test(pathname));
+}
 
 type NavLinkItem = { to: string; label: string };
 
 function useMenuForRole() {
   const { user } = useAuth();
   const { isAdmin, isEmployee, isProvider } = useUserRoles();
+  const { t } = useTranslation("customer");
 
   const publicLinks: NavLinkItem[] = [
-    { to: "/book", label: "Book en cleaner" },
-    { to: "/find-cleaner", label: "Find cleaner" },
-    { to: "/faq", label: "Sådan virker det" },
-    { to: "/provider/register", label: "Bliv provider" },
-    { to: "/faq", label: "FAQ" },
+    { to: "/book", label: t("surfaces.header.nav.bookCleaner") },
+    { to: "/find-cleaner", label: t("surfaces.header.nav.findCleaner") },
+    { to: "/faq", label: t("surfaces.header.nav.howItWorks") },
+    { to: "/provider/register", label: t("surfaces.header.nav.becomeProvider") },
+    { to: "/faq", label: t("surfaces.header.nav.faq") },
   ];
 
   if (!user) return { primary: publicLinks, account: [] as NavLinkItem[] };
 
   if (isAdmin) {
     return {
-      primary: [{ to: "/faq", label: "FAQ" }, { to: "/regler", label: "Regler" }],
+      primary: [{ to: "/faq", label: t("surfaces.header.nav.faq") }, { to: "/regler", label: t("surfaces.header.nav.rules") }],
       account: [
-        { to: "/admin", label: "Admin dashboard" },
-        { to: "/profil", label: "Min profil" },
+        { to: "/admin", label: t("surfaces.header.nav.adminDashboard") },
+        { to: "/profil", label: t("surfaces.header.nav.myProfile") },
       ],
     };
   }
   if (isEmployee) {
     return {
-      primary: [{ to: "/faq", label: "FAQ" }, { to: "/regler", label: "Regler" }],
+      primary: [{ to: "/faq", label: t("surfaces.header.nav.faq") }, { to: "/regler", label: t("surfaces.header.nav.rules") }],
       account: [
-        { to: "/employee", label: "Medarbejder" },
-        { to: "/profil", label: "Min profil" },
+        { to: "/employee", label: t("surfaces.header.nav.employeePortal") },
+        { to: "/profil", label: t("surfaces.header.nav.myProfile") },
       ],
     };
   }
   if (isProvider) {
     return {
       primary: [
-        { to: "/provider-dashboard", label: "Dashboard" },
-        { to: "/provider/bilag", label: "Bilag" },
-        { to: "/faq", label: "FAQ" },
-        { to: "/regler", label: "Regler" },
+        { to: "/provider-dashboard", label: t("surfaces.header.nav.dashboard") },
+        { to: "/provider/bilag", label: t("surfaces.header.nav.receipts") },
+        { to: "/faq", label: t("surfaces.header.nav.faq") },
+        { to: "/regler", label: t("surfaces.header.nav.rules") },
       ],
       account: [
-        { to: "/provider-dashboard", label: "Provider dashboard" },
-        { to: "/provider/bilag", label: "Bilag & udgifter" },
-        { to: "/profil", label: "Min profil" },
+        { to: "/provider-dashboard", label: t("surfaces.header.nav.providerDashboard") },
+        { to: "/provider/bilag", label: t("surfaces.header.nav.receipts") },
+        { to: "/profil", label: t("surfaces.header.nav.myProfile") },
       ],
     };
   }
   // Customer (default logged-in)
   return {
     primary: [
-      { to: "/book", label: "Book en cleaner" },
-      { to: "/mine-bookinger", label: "Mine bookinger" },
-      { to: "/faq", label: "FAQ" },
-      { to: "/regler", label: "Regler" },
+      { to: "/book", label: t("surfaces.header.nav.bookCleaner") },
+      { to: "/mine-bookinger", label: t("surfaces.header.nav.myBookings") },
+      { to: "/faq", label: t("surfaces.header.nav.faq") },
+      { to: "/regler", label: t("surfaces.header.nav.rules") },
     ],
     account: [
-      { to: "/profil", label: "Min profil" },
-      { to: "/mine-bookinger", label: "Mine bookinger" },
+      { to: "/profil", label: t("surfaces.header.nav.myProfile") },
+      { to: "/mine-bookinger", label: t("surfaces.header.nav.myBookings") },
     ],
   };
 }
@@ -85,10 +174,18 @@ const Header = () => {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const { primary, account } = useMenuForRole();
+  const { t } = useTranslation("customer");
 
   const onAdminRoute = location.pathname.startsWith("/admin");
   const onEmployeeRoute = location.pathname.startsWith("/employee");
+  const belowMd = useBelow768();
   if (onAdminRoute || onEmployeeRoute) return null;
+  // Auth surfaces own their own header (logo + back button) — no hamburger.
+  if (isAuthRoute(location.pathname)) return null;
+
+  if (belowMd && isMobileShellHiddenHeaderRoute(location.pathname)) return null;
+  if (belowMd && shouldHideHeaderForMobileProfile(location.pathname, location.search)) return null;
+  if (isMarketplaceRoute(location.pathname)) return <MarketplaceHeader />;
 
   const handleSignOut = async () => {
     await signOut();
@@ -100,7 +197,7 @@ const Header = () => {
       <div className="container-wide flex h-16 items-center justify-between">
         <div className="flex items-center gap-2">
           <BackButton className="mr-1" />
-          <Link to="/" className="flex items-center gap-2" aria-label="MyCleaner – forside">
+          <Link to="/" className="flex items-center gap-2" aria-label={t("surfaces.header.homeAriaLabel")}>
             <img
               src="/mycleaner-logo.png"
               alt="MyCleaner"
@@ -110,7 +207,7 @@ const Header = () => {
           </Link>
         </div>
 
-        <nav className="hidden md:flex items-center gap-8">
+        <nav className="hidden lg:flex items-center gap-8">
           {primary.map((l) => (
             <Link
               key={`${l.to}-${l.label}`}
@@ -122,7 +219,7 @@ const Header = () => {
           ))}
         </nav>
 
-        <div className="hidden md:flex items-center gap-3">
+        <div className="hidden lg:flex items-center gap-3">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="sm" className="gap-2">
@@ -143,7 +240,7 @@ const Header = () => {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm" className="gap-2">
-                  <UserIcon className="h-4 w-4" /> Min konto
+                  <UserIcon className="h-4 w-4" /> {t("surfaces.header.account.myAccount")}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -154,29 +251,29 @@ const Header = () => {
                 ))}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleSignOut}>
-                  <LogOut className="h-4 w-4 mr-2" /> Log ud
+                  <LogOut className="h-4 w-4 mr-2" /> {t("surfaces.header.account.logOut")}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
             <>
               <Link to="/login">
-                <Button variant="ghost" size="sm">Log ind</Button>
+                <Button variant="ghost" size="sm">{t("surfaces.header.login")}</Button>
               </Link>
               <Link to="/customer/register">
-                <Button size="sm">Kom i gang</Button>
+                <Button size="sm">{t("surfaces.header.getStarted")}</Button>
               </Link>
             </>
           )}
         </div>
 
-        <button className="md:hidden" onClick={() => setMobileOpen(!mobileOpen)}>
+        <button className="lg:hidden" aria-label={t("surfaces.header.toggleMenu")} aria-expanded={mobileOpen} onClick={() => setMobileOpen(!mobileOpen)}>
           {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </button>
       </div>
 
       {mobileOpen && (
-        <div className="md:hidden border-t border-border bg-background p-4 space-y-3 animate-fade-up">
+        <div className="lg:hidden border-t border-border bg-background p-4 space-y-3 animate-fade-up">
           {primary.map((l) => (
             <Link
               key={`${l.to}-${l.label}`}
@@ -208,16 +305,16 @@ const Header = () => {
                   handleSignOut();
                 }}
               >
-                <LogOut className="h-4 w-4 mr-2" /> Log ud
+                <LogOut className="h-4 w-4 mr-2" /> {t("surfaces.header.account.logOut")}
               </Button>
             </>
           ) : (
             <>
               <Link to="/login" onClick={() => setMobileOpen(false)}>
-                <Button variant="ghost" className="w-full">Log ind</Button>
+                <Button variant="ghost" className="w-full">{t("surfaces.header.login")}</Button>
               </Link>
               <Link to="/customer/register" onClick={() => setMobileOpen(false)}>
-                <Button className="w-full">Kom i gang</Button>
+                <Button className="w-full">{t("surfaces.header.getStarted")}</Button>
               </Link>
             </>
           )}

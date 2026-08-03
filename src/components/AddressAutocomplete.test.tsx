@@ -1,34 +1,15 @@
 /**
- * AddressAutocomplete tests — updated for the DAWA-first architecture.
+ * AddressAutocomplete tests — DAWA-first, Mapbox for everything else.
  *
- * Why the previous six assertions were stale:
- *   1. "passes countries=['dk'] to Google Places (Danish user)":
- *      Denmark no longer uses Google at all on the happy path — DAWA is the
- *      primary provider for DK, so `fetchAutocompleteSuggestions` is never
- *      called. The correct DK assertion is that DAWA is hit and Google is not.
- *   2. "does not leak results from other countries when switching country_code"
- *      relied on Google returning the DK suggestion; after the rewrite the DK
- *      leg goes through DAWA, so the mocked Google spy is silent on the DK
- *      re-render and the old cross-country assertion becomes meaningless.
- *   3. "keeps the Next button disabled while user only types" (DK harness) —
- *      typing "Nørrebrogade 1" now issues a DAWA fetch, not a Google fetch,
- *      so waiting on the Google spy timed out even though the component
- *      behaved correctly.
- *   4. "enables the Next button only after picking a suggestion" — same root
- *      cause: the fake suggestion list was seeded via the Google mock, but
- *      DAWA delivers the DK list now, so the dropdown never rendered.
- *   5. "re-locks the Next button if the user edits after picking" — same DK
- *      pathway; the pick step never happened because the mocked Google list
- *      was never rendered.
- *   6. The old suite had zero coverage for the automatic DAWA→Google fallback
- *      that ships in the current component, so a regression there would go
- *      unnoticed.
+ * Denmark keeps DAWA as the authoritative provider; all other markets (and the
+ * DK fallback when DAWA is down) now use the Mapbox Search Box API instead of
+ * Google Places.
  *
- * The new suite covers:
- *   - DK uses DAWA and does NOT call Google on the happy path.
- *   - DK falls back to Google when DAWA throws DawaUnavailableError.
- *   - Non-DK countries (SE, DE) go straight to Google with the correct
- *     `includedRegionCodes` restriction.
+ * Covered:
+ *   - DK uses DAWA and does NOT call Mapbox on the happy path.
+ *   - DK falls back to Mapbox when DAWA throws DawaUnavailableError.
+ *   - Non-DK countries (SE, DE) go straight to Mapbox with the right country
+ *     restriction.
  *   - Booking gate: unvalidated text stays blocked; picking a validated
  *     suggestion unlocks the Next button; editing after a pick re-locks it.
  */
@@ -37,12 +18,18 @@ import { render, screen, fireEvent, waitFor, act } from "@testing-library/react"
 import { useState } from "react";
 import AddressAutocomplete from "./AddressAutocomplete";
 import { dawaProvider, DawaUnavailableError } from "@/lib/address/dawa";
+import { suggestAddresses } from "@/lib/mapbox";
 
 // ---- Mocks ----------------------------------------------------------------
 
-vi.mock("@/lib/googleMaps", () => ({
-  loadGoogleMaps: vi.fn(() => Promise.resolve()),
+vi.mock("@/lib/mapbox", () => ({
+  createSessionToken: () => "test-session-token",
+  MAPBOX_STYLE: "mapbox://styles/mapbox/streets-v12",
+  getMapboxToken: () => "pk.test",
+  SUGGEST_TYPES: { strict: "address", broad: "address,street,postcode,place,locality" },
+  suggestAddresses: vi.fn(),
 }));
+
 
 // Stub the Supabase edge-function invoke so pick() resolves without a network
 // round-trip. Every pick is treated as a successfully validated address.
@@ -66,76 +53,22 @@ vi.mock("@/integrations/supabase/client", () => ({
 
 // Spy on DAWA calls so we can assert DK is DAWA-first.
 const dawaSpy = vi.spyOn(dawaProvider, "suggest");
+const mapboxSpy = vi.mocked(suggestAddresses);
 
-// Google Places mock — tracks whether it was invoked so DK-happy-path tests
-// can prove Google was NOT called.
-const fetchSuggestionsSpy = vi.fn();
 const suggestionForCountry: Record<string, unknown[]> = {
-  se: [
-    {
-      placePrediction: {
-        placeId: "se-1",
-        mainText: { text: "Kungsgatan 1" },
-        secondaryText: { text: "111 43 Stockholm, Sverige" },
-      },
-    },
-  ],
-  de: [
-    {
-      placePrediction: {
-        placeId: "de-1",
-        mainText: { text: "Alexanderplatz 1" },
-        secondaryText: { text: "10178 Berlin, Deutschland" },
-      },
-    },
-  ],
-  // Used only by the DAWA→Google fallback test.
-  dk: [
-    {
-      placePrediction: {
-        placeId: "dk-google-fallback-1",
-        mainText: { text: "Nørrebrogade 1" },
-        secondaryText: { text: "2200 København N, Danmark" },
-      },
-    },
-  ],
+  se: [{ mapbox_id: "se-1", name: "Kungsgatan 1", place_formatted: "111 43 Stockholm, Sverige" }],
+  de: [{ mapbox_id: "de-1", name: "Alexanderplatz 1", place_formatted: "10178 Berlin, Deutschland" }],
+  // Used only by the DAWA→Mapbox fallback test.
+  dk: [{ mapbox_id: "dk-fallback-1", name: "Nørrebrogade 1", place_formatted: "2200 København N, Danmark" }],
 };
-
-class FakeSessionToken {}
-class FakePlace {
-  id: string;
-  formattedAddress = "Nørrebrogade 1, 2200 København N, Danmark";
-  location = { lat: () => 55.6944, lng: () => 12.5522 };
-  constructor(opts: { id: string }) {
-    this.id = opts.id;
-  }
-  async fetchFields() {
-    /* no-op */
-  }
-}
 
 beforeEach(() => {
   dawaSpy.mockReset();
-  fetchSuggestionsSpy.mockReset();
-  const g = {
-    maps: {
-      importLibrary: vi.fn(async () => ({
-        AutocompleteSessionToken: FakeSessionToken,
-        AutocompleteSuggestion: {
-          fetchAutocompleteSuggestions: (args: { includedRegionCodes?: string[] }) => {
-            fetchSuggestionsSpy(args);
-            const country = (args.includedRegionCodes?.[0] || "dk").toLowerCase();
-            return Promise.resolve({
-              suggestions: suggestionForCountry[country] ?? [],
-            });
-          },
-        },
-        Place: FakePlace,
-      })),
-    },
-  };
-  (globalThis as unknown as { google: unknown }).google = g;
-  (window as unknown as { google: unknown }).google = g;
+  mapboxSpy.mockReset();
+  mapboxSpy.mockImplementation(async (args: any) => {
+    const country = (args.countries?.[0] || "dk").toLowerCase();
+    return (suggestionForCountry[country] ?? []) as any;
+  });
 });
 
 async function flushReady() {
@@ -144,6 +77,7 @@ async function flushReady() {
     await new Promise((r) => setTimeout(r, 0));
   });
 }
+
 async function typeAddress(value: string) {
   await flushReady();
   const input = screen.getByPlaceholderText(/Indtast adresse/i);
@@ -152,10 +86,9 @@ async function typeAddress(value: string) {
 }
 
 /**
- * findByText can't match text that Google's `<mark>` highlight splits into
- * sibling nodes ("Alex</mark>anderplatz 1"). Match on the option's combined
- * textContent instead so both DAWA (no highlight) and Google (highlighted)
- * paths pass with the same assertion.
+ * findByText can't match text that the `<mark>` highlight splits into sibling
+ * nodes ("Alex</mark>anderplatz 1"). Match on the option's combined textContent
+ * instead so both DAWA and Mapbox paths pass with the same assertion.
  */
 async function findOptionByText(needle: string): Promise<HTMLElement> {
   return await waitFor(() => {
@@ -175,7 +108,7 @@ function queryOptionByText(needle: string): HTMLElement | null {
 // ---- Tests ----------------------------------------------------------------
 
 describe("AddressAutocomplete — DK uses DAWA (primary)", () => {
-  it("calls DAWA and does NOT call Google on the DK happy path", async () => {
+  it("calls DAWA and does NOT call Mapbox on the DK happy path", async () => {
     dawaSpy.mockResolvedValueOnce([
       {
         source: "dawa",
@@ -187,47 +120,42 @@ describe("AddressAutocomplete — DK uses DAWA (primary)", () => {
     render(<AddressAutocomplete value="" onChange={() => {}} countries={["dk"]} />);
     await typeAddress("Nørrebro");
     await waitFor(() => expect(dawaSpy).toHaveBeenCalled());
-    expect(fetchSuggestionsSpy).not.toHaveBeenCalled();
+    expect(mapboxSpy).not.toHaveBeenCalled();
     expect(await findOptionByText("Nørrebrogade 1")).toBeInTheDocument();
   });
 
-  it("falls back to Google Places when DAWA is unavailable", async () => {
+  it("falls back to Mapbox when DAWA is unavailable", async () => {
     dawaSpy.mockRejectedValueOnce(
       new DawaUnavailableError("dawa_fallback_503", "server_error", 503),
     );
     render(<AddressAutocomplete value="" onChange={() => {}} countries={["dk"]} />);
     await typeAddress("FallbackStreet");
-    await waitFor(() => expect(fetchSuggestionsSpy).toHaveBeenCalled());
-    expect(fetchSuggestionsSpy.mock.calls[0][0].includedRegionCodes).toEqual([
-      "dk",
-    ]);
+    await waitFor(() => expect(mapboxSpy).toHaveBeenCalled());
+    expect(mapboxSpy.mock.calls[0][0].countries).toEqual(["dk"]);
     expect(await findOptionByText("Nørrebrogade 1")).toBeInTheDocument();
   });
 });
 
-describe("AddressAutocomplete — non-DK countries use Google", () => {
-  it("passes countries=['se'] to Google Places for Swedish users", async () => {
+describe("AddressAutocomplete — non-DK countries use Mapbox", () => {
+  it("passes countries=['se'] to Mapbox for Swedish users", async () => {
     render(<AddressAutocomplete value="" onChange={() => {}} countries={["se"]} />);
     await typeAddress("Kungs");
-    await waitFor(() => expect(fetchSuggestionsSpy).toHaveBeenCalled());
-    expect(fetchSuggestionsSpy.mock.calls[0][0].includedRegionCodes).toEqual([
-      "se",
-    ]);
+    await waitFor(() => expect(mapboxSpy).toHaveBeenCalled());
+    expect(mapboxSpy.mock.calls[0][0].countries).toEqual(["se"]);
     expect(dawaSpy).not.toHaveBeenCalled();
     expect(await findOptionByText("Kungsgatan 1")).toBeInTheDocument();
   });
 
-  it("passes countries=['de'] to Google Places for German users", async () => {
+  it("passes countries=['de'] to Mapbox for German users", async () => {
     render(<AddressAutocomplete value="" onChange={() => {}} countries={["de"]} />);
     await typeAddress("Alex");
-    await waitFor(() => expect(fetchSuggestionsSpy).toHaveBeenCalled());
-    expect(fetchSuggestionsSpy.mock.calls.at(-1)![0].includedRegionCodes).toEqual([
-      "de",
-    ]);
+    await waitFor(() => expect(mapboxSpy).toHaveBeenCalled());
+    expect(mapboxSpy.mock.calls.at(-1)![0].countries).toEqual(["de"]);
     expect(await findOptionByText("Alexanderplatz 1")).toBeInTheDocument();
     expect(queryOptionByText("Kungsgatan 1")).not.toBeInTheDocument();
   });
 });
+
 
 /**
  * Mini-harness that mirrors the booking flow gate: "Næste" is disabled until

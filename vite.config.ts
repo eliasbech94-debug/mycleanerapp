@@ -24,4 +24,27 @@ export default defineConfig(({ mode }) => ({
     },
     dedupe: ["react", "react-dom", "react/jsx-runtime", "react/jsx-dev-runtime"],
   },
+  build: {
+    /**
+     * No `manualChunks` on purpose.
+     *
+     * Route-level splitting (see src/routes/groups) already keeps feature code
+     * out of the entry bundle, and Rollup's automatic splitting follows those
+     * dynamic-import boundaries correctly — Mapbox, charts and the admin
+     * surfaces all land in their own lazy chunks without any hand-tuning.
+     *
+     * Two hand-rolled variants were tried and reverted:
+     *  - Splitting React-dependent libs (react-dom, @supabase, i18next,
+     *    framer-motion) into vendor chunks produced cyclic chunk imports whose
+     *    execution order left React undefined at init, white-screening the
+     *    production build with "Cannot read properties of undefined (reading
+     *    'createContext')". The dev server never shows this — it doesn't bundle.
+     *  - A catch-all "vendor" chunk hoisted lazy-route libraries back into the
+     *    entry and cost +88 kB gzip on initial load.
+     *
+     * Revisit only with a production-build browser check in the loop.
+     */
+
+  },
 }));
+

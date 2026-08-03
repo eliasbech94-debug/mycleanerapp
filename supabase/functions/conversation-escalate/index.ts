@@ -94,6 +94,8 @@ Deno.serve(async (req) => {
         dedupe_key: `escalated:${conversation_id}:${bucket}`,
         subject: "Sag eskaleret til administrator",
         body: `Sag "${conv.subject ?? "Uden emne"}" er eskaleret. Årsag: ${reason.slice(0, 240)}`,
+        vars: { subjectText: conv.subject ?? "", reason: reason.slice(0, 240) },
+
         action_label: "Åbn sag",
         action_url: `/support/inbox/${conversation_id}`,
         related_booking_id: conv.booking_id,
