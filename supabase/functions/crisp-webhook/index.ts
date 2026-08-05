@@ -8,7 +8,8 @@
  *
  * Security:
  * - Shared-secret token in the query string (`?token=CRISP_WEBHOOK_SECRET`).
- * - Only reacts to visitor text messages on our own website id.
+ * - Rejects events for every Crisp website except MyCleaner's configured site.
+ * - Only reacts to visitor text messages.
  * - Idempotent: a message fingerprint is checked against conversation meta so
  *   Crisp retries never produce duplicate answers.
  */
@@ -22,6 +23,8 @@ const corsHeaders = {
 };
 
 const CRISP_API = "https://api.crisp.chat/v1";
+const DEFAULT_CRISP_WEBSITE_ID = "d4985742-38fc-490b-828c-a0e682a45990";
+const MAX_MESSAGE_LENGTH = 8_000;
 
 const SYSTEM_PROMPT = `Du er MyCleaner's support-assistent. MyCleaner er en europæisk markedsplads, der forbinder kunder med selvstændige rengøringspartnere (cleanere). MyCleaner er kun en platform — aldrig arbejdsgiver eller udbyder af selve rengøringen.
 
@@ -33,6 +36,13 @@ Regler:
 - Brug altid værktøjet "escalate_to_human" ved: klager, refunderinger, tvister, betalingsfejl, skader, sikkerhed, GDPR/sletning, eller hvis brugeren beder om et menneske.
 - Lov aldrig kompensation eller refusion. Det afgør et menneske.
 - Bed aldrig om kortnumre, CPR/CVR eller adgangskoder.`;
+
+function json(body: Record<string, unknown>, status = 200): Response {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
+}
 
 function crispAuthHeader(): string {
   const id = Deno.env.get("CRISP_IDENTIFIER")!;
@@ -99,15 +109,16 @@ async function updateMeta(websiteId: string, sessionId: string, data: Record<str
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
 
   try {
     const url = new URL(req.url);
-    const expected = Deno.env.get("CRISP_WEBHOOK_SECRET");
-    if (!expected || url.searchParams.get("token") !== expected) {
-      return new Response("Unauthorized", { status: 401, headers: corsHeaders });
+    const expectedSecret = Deno.env.get("CRISP_WEBHOOK_SECRET");
+    if (!expectedSecret || url.searchParams.get("token") !== expectedSecret) {
+      return json({ error: "Unauthorized" }, 401);
     }
     if (!Deno.env.get("CRISP_IDENTIFIER") || !Deno.env.get("CRISP_KEY")) {
-      return new Response("Crisp API credentials missing", { status: 500, headers: corsHeaders });
+      return json({ error: "Crisp API credentials missing" }, 500);
     }
 
     const payload = await req.json();
@@ -115,35 +126,49 @@ Deno.serve(async (req) => {
     const data = payload?.data ?? {};
     const websiteId = data.website_id as string | undefined;
     const sessionId = data.session_id as string | undefined;
+    const expectedWebsiteId = Deno.env.get("CRISP_WEBSITE_ID") ?? DEFAULT_CRISP_WEBSITE_ID;
+
+    if (!websiteId || websiteId !== expectedWebsiteId) {
+      console.warn("Rejected Crisp event for unexpected website", { websiteId });
+      return json({ ignored: true, reason: "unexpected_website" }, 403);
+    }
+
+    const content = typeof data.content === "string" ? data.content.trim() : "";
 
     // Only answer plain-text messages written by the visitor.
-    if (event !== "message:send" || data.from !== "user" || data.type !== "text" || !websiteId || !sessionId) {
-      return new Response(JSON.stringify({ ignored: true }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+    if (event !== "message:send" || data.from !== "user" || data.type !== "text" || !sessionId || !content) {
+      return json({ ignored: true });
+    }
+
+    if (content.length > MAX_MESSAGE_LENGTH) {
+      await setState(websiteId, sessionId, "unresolved");
+      await updateMeta(websiteId, sessionId, {
+        ai_handover: "human",
+        ai_handover_reason: "Visitor message exceeded AI processing limit",
+        ai_handover_urgency: "normal",
       });
+      return json({ handed_over: true, reason: "message_too_long" });
     }
 
     const conversation = await getConversation(websiteId, sessionId);
-    const meta = conversation?.meta ?? {};
+    if (!conversation) return json({ error: "Conversation not found" }, 404);
+
+    const meta = conversation.meta ?? {};
     const metaData = (meta.data ?? {}) as Record<string, string>;
 
     // A human has taken over — the AI stays quiet from then on.
     if (metaData.ai_handover === "human") {
-      return new Response(JSON.stringify({ handed_over: true }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return json({ handed_over: true });
     }
 
     // Idempotency: Crisp retries deliver the same fingerprint.
     const fingerprint = String(data.fingerprint ?? data.timestamp ?? "");
     if (fingerprint && metaData.ai_last_fingerprint === fingerprint) {
-      return new Response(JSON.stringify({ duplicate: true }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return json({ duplicate: true });
     }
 
     const apiKey = Deno.env.get("LOVABLE_API_KEY");
-    if (!apiKey) return new Response("Missing LOVABLE_API_KEY", { status: 500, headers: corsHeaders });
+    if (!apiKey) return json({ error: "Missing LOVABLE_API_KEY" }, 500);
 
     // Full history — the model is stateless, so every prior turn is resent.
     const history = await getMessages(websiteId, sessionId);
@@ -152,13 +177,14 @@ Deno.serve(async (req) => {
       .slice(-30)
       .map((m) => ({
         role: m.from === "user" ? ("user" as const) : ("assistant" as const),
-        content: String(m.content),
+        content: String(m.content).slice(0, MAX_MESSAGE_LENGTH),
       }));
-    if (!messages.length) messages.push({ role: "user", content: String(data.content ?? "") });
+    if (!messages.length) messages.push({ role: "user", content });
 
     const contextLines = Object.entries(metaData)
-      .filter(([k]) => !k.startsWith("ai_"))
-      .map(([k, v]) => `${k}: ${v}`)
+      .filter(([key]) => !key.startsWith("ai_"))
+      .slice(0, 40)
+      .map(([key, value]) => `${key}: ${String(value).slice(0, 500)}`)
       .join("\n");
 
     const gateway = createLovableAiGatewayProvider(apiKey);
@@ -197,21 +223,16 @@ Deno.serve(async (req) => {
         ? "Jeg sender dig videre til en af vores medarbejdere. Du hører fra os hurtigst muligt."
         : "Jeg er ikke helt sikker på svaret — jeg sender dig videre til en medarbejder.");
 
-    await sendOperatorMessage(websiteId, sessionId, reply);
+    await sendOperatorMessage(websiteId, sessionId, reply.slice(0, 8_000));
     await updateMeta(websiteId, sessionId, {
       ai_last_fingerprint: fingerprint,
       ai_answered_at: new Date().toISOString(),
     });
     if (!escalated) await setState(websiteId, sessionId, "pending");
 
-    return new Response(JSON.stringify({ ok: true, escalated }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
-  } catch (e) {
-    console.error("crisp-webhook error", e);
-    return new Response(JSON.stringify({ error: String(e) }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return json({ ok: true, escalated });
+  } catch (error) {
+    console.error("crisp-webhook error", error);
+    return json({ error: "Internal server error" }, 500);
   }
 });
