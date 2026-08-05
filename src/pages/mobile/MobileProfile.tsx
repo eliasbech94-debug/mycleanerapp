@@ -115,8 +115,12 @@ export default function MobileProfile() {
     }
     accountRows.push(
       { key: "sms", label: t("mobileProfile.sms", "SMS"), icon: MessageSquare, to: "/profil?tab=sms" },
-      { key: "tax", label: t("mobileProfile.tax", "Skatteoplysninger"), icon: Receipt, to: "/profil?tab=tax" },
     );
+    if (roles.isProvider) {
+      accountRows.push(
+        { key: "tax", label: t("mobileProfile.tax", "Skatteoplysninger"), icon: Receipt, to: "/profil?tab=tax" },
+      );
+    }
     groups.push({
       key: "account",
       title: t("mobileProfile.groupAccount", "Konto"),
